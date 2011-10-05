@@ -76,9 +76,11 @@
 // order of the included files.
 
 #include <bdeat_sequencefunctions.h>
+#include <bdeat_valuetypefunctions.h>
 #include <bdeat_choicefunctions.h>
 #include <bdeat_attributeinfo.h>
 #include <bdeat_selectioninfo.h>
+#include <bdeat_enumeratorinfo.h>
 #include <bslma_testallocator.h>
 #include <bslmf_issame.h>
 #include <bdeu_printmethods.h>  // for printing vector
@@ -90,6 +92,7 @@
 #include <bdem_schemaaggregateutil.h>
 #include <bcem_aggregate.h>
 #include <bdesb_fixedmeminstreambuf.h>
+#include <bdede_utf8util.h>
 
 #include <bcema_sharedptr.h>
 
@@ -573,6 +576,12133 @@ int veryVeryVeryVerbose;
 //=============================================================================
 //                        GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
+
+bool compareEqual(const bsl::string& lhs, const bsl::string& rhs)
+{
+    LOOP2_ASSERT(lhs.size(), rhs.size(), lhs.size() == rhs.size());
+    const int LEN  = lhs.size();
+    int       line = 1;
+    for (int k = 0; k < LEN; ++k) {
+        if (lhs[k] != rhs[k]) {
+            LOOP4_ASSERT(line, k, lhs[k], rhs[k], lhs[k] == rhs[k]);
+            return false;
+        }
+        if ('\n' == lhs[k]) {
+            ++line;
+        }
+    }
+    return true;
+}
+
+// bsctst_messages.h        -- GENERATED FILE - DO NOT EDIT --        -*-C++-*-
+
+namespace BloombergLP {
+
+namespace bsctst { class CustomInt; }
+namespace bsctst { class CustomString; }
+namespace bsctst { class Sequence3; }
+namespace bsctst { class Sequence5; }
+namespace bsctst { class Sequence6; }
+namespace bsctst { class Choice3; }
+namespace bsctst { class Choice1; }
+namespace bsctst { class Choice2; }
+namespace bsctst { class Sequence4; }
+namespace bsctst { class Sequence1; }
+namespace bsctst { class Sequence2; }
+namespace bsctst { class Topchoice; }
+namespace bsctst {
+
+                              // ===============                               
+                              // class CustomInt                               
+                              // ===============                               
+
+class CustomInt {
+
+    // INSTANCE DATA
+    int d_value;
+
+    // FRIENDS
+    friend bool operator==(const CustomInt& lhs, const CustomInt& rhs);
+    friend bool operator!=(const CustomInt& lhs, const CustomInt& rhs);
+
+    // PRIVATE CLASS METHODS
+    static int checkRestrictions(const int& value);
+        // Check if the specified 'value' satisfies the restrictions of this
+        // class (i.e., "CustomInt").  Return 0 if successful (i.e., the
+        // restrictions are satisfied) and non-zero otherwise.
+
+  public:
+    // TYPES
+    typedef int BaseType;
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    // CREATORS
+    CustomInt();
+        // Create an object of type 'CustomInt' having the default value.
+
+    CustomInt(const CustomInt& original);
+        // Create an object of type 'CustomInt' having the value of the
+        // specified 'original' object.
+
+    explicit CustomInt(const int& value);
+        // Create an object of type 'CustomInt' having the specified 'value'.
+
+    ~CustomInt();
+        // Destroy this object.
+
+    // MANIPULATORS
+    CustomInt& operator=(const CustomInt& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    int fromInt(const int& value);
+        // Convert from the specified 'value' to this type.  Return 0 if
+        // successful and non-zero otherwise.
+
+    // ACCESSORS
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int maxSupportedBdexVersion() const;
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    const int& toInt() const;
+        // Convert this value to 'int'.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const CustomInt& lhs, const CustomInt& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const CustomInt& lhs, const CustomInt& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const CustomInt& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_CUSTOMIZEDTYPE_WITH_BITWISEMOVEABLE_TRAITS(bsctst::CustomInt)
+
+namespace bsctst {
+
+                             // ==================                             
+                             // class CustomString                             
+                             // ==================                             
+
+class CustomString {
+
+    // INSTANCE DATA
+    std::string d_value;
+
+    // FRIENDS
+    friend bool operator==(const CustomString& lhs, const CustomString& rhs);
+    friend bool operator!=(const CustomString& lhs, const CustomString& rhs);
+
+    // PRIVATE CLASS METHODS
+    static int checkRestrictions(const std::string& value);
+        // Check if the specified 'value' satisfies the restrictions of this
+        // class (i.e., "CustomString").  Return 0 if successful (i.e., the
+        // restrictions are satisfied) and non-zero otherwise.
+
+  public:
+    // TYPES
+    typedef std::string BaseType;
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    // CREATORS
+    explicit CustomString(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'CustomString' having the default value. 
+        // Use the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    CustomString(const CustomString& original,
+                bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'CustomString' having the value
+        // of the specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    explicit CustomString(const std::string& value,
+                         bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'CustomString' having the specified
+        // 'value'.  Use the optionally specified 'basicAllocator' to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.
+
+    ~CustomString();
+        // Destroy this object.
+
+    // MANIPULATORS
+    CustomString& operator=(const CustomString& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    int fromString(const std::string& value);
+        // Convert from the specified 'value' to this type.  Return 0 if
+        // successful and non-zero otherwise.
+
+    // ACCESSORS
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int maxSupportedBdexVersion() const;
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    const std::string& toString() const;
+        // Convert this value to 'std::string'.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const CustomString& lhs, const CustomString& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const CustomString& lhs, const CustomString& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const CustomString& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_CUSTOMIZEDTYPE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::CustomString)
+
+namespace bsctst {
+
+                              // ================                              
+                              // class Enumerated                              
+                              // ================                              
+
+struct Enumerated {
+
+  public:
+    // TYPES
+    enum Value {
+        NEW_YORK   = 0
+      , NEW_JERSEY = 1
+      , LONDON     = 2
+    };
+
+    enum {
+        NUM_ENUMERATORS = 3
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_EnumeratorInfo ENUMERATOR_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const char *toString(Value value);
+        // Return the string representation exactly matching the enumerator
+        // name corresponding to the specified enumeration 'value'.
+
+    static int fromString(Value        *result,
+                          const char   *string,
+                          int           stringLength);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string' of the specified 'stringLength'.  Return 0 on
+        // success, and a non-zero value with no effect on 'result' otherwise
+        // (i.e., 'string' does not match any enumerator).
+
+    static int fromString(Value              *result,
+                          const std::string&  string);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'string'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'string' does not match any
+        // enumerator).
+
+    static int fromInt(Value *result, int number);
+        // Load into the specified 'result' the enumerator matching the
+        // specified 'number'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'number' does not match any
+        // enumerator).
+
+    template <class STREAM>
+    static STREAM& bdexStreamIn(STREAM&  stream,
+                                Value&   value,
+                                int      version);
+        // Assign to the specified 'value' the value read from the specified
+        // input 'stream' using the specified 'version' format and return a
+        // reference to the modifiable 'stream'.  If 'stream' is initially
+        // invalid, this operation has no effect.  If 'stream' becomes invalid
+        // during this operation, the 'value' is valid, but its value is
+        // undefined.  If the specified 'version' is not supported, 'stream' is
+        // marked invalid, but 'value' is unaltered.  Note that no version is
+        // read from 'stream'.  (See the package-group-level documentation for
+        // more information on 'bdex' streaming of container types.)
+
+    static std::ostream& print(std::ostream& stream, Value value);
+        // Write to the specified 'stream' the string representation of
+        // the specified enumeration 'value'.  Return a reference to
+        // the modifiable 'stream'.
+
+    template <class STREAM>
+    static STREAM& bdexStreamOut(STREAM&  stream,
+                                 Value    value,
+                                 int      version);
+        // Write the specified 'value' to the specified output 'stream' and
+        // return a reference to the modifiable 'stream'.  Optionally specify
+        // an explicit 'version' format; by default, the maximum supported
+        // version is written to 'stream' and used as the format.  If 'version'
+        // is specified, that format is used but *not* written to 'stream'.  If
+        // 'version' is not supported, 'stream' is left unmodified.  (See the
+        // package-group-level documentation for more information on 'bdex'
+        // streaming of container types).
+};
+
+// FREE OPERATORS
+inline
+std::ostream& operator<<(std::ostream& stream, Enumerated::Value rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_ENUMERATION_TRAITS(bsctst::Enumerated)
+
+
+namespace bsctst {
+
+                              // ===============                               
+                              // class Sequence3                               
+                              // ===============                               
+
+class Sequence3 {
+
+    // INSTANCE DATA
+    std::vector<std::string>                              d_element2;
+    bdeut_NullableValue<std::string>                      d_element4;
+    bdeut_NullableAllocatedValue<Sequence5>               d_element5;
+    std::vector<bdeut_NullableValue<Enumerated::Value> >  d_element6;
+    std::vector<Enumerated::Value>                        d_element1;
+    bdeut_NullableValue<bool>                             d_element3;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_ELEMENT1 = 0
+      , ATTRIBUTE_ID_ELEMENT2 = 1
+      , ATTRIBUTE_ID_ELEMENT3 = 2
+      , ATTRIBUTE_ID_ELEMENT4 = 3
+      , ATTRIBUTE_ID_ELEMENT5 = 4
+      , ATTRIBUTE_ID_ELEMENT6 = 5
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 6
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_ELEMENT1 = 0
+      , ATTRIBUTE_INDEX_ELEMENT2 = 1
+      , ATTRIBUTE_INDEX_ELEMENT3 = 2
+      , ATTRIBUTE_INDEX_ELEMENT4 = 3
+      , ATTRIBUTE_INDEX_ELEMENT5 = 4
+      , ATTRIBUTE_INDEX_ELEMENT6 = 5
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Sequence3(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence3' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Sequence3(const Sequence3& original,
+              bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence3' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~Sequence3();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Sequence3& operator=(const Sequence3& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    std::vector<Enumerated::Value>& element1();
+        // Return a reference to the modifiable "Element1" attribute of this
+        // object.
+
+    std::vector<std::string>& element2();
+        // Return a reference to the modifiable "Element2" attribute of this
+        // object.
+
+    bdeut_NullableValue<bool>& element3();
+        // Return a reference to the modifiable "Element3" attribute of this
+        // object.
+
+    bdeut_NullableValue<std::string>& element4();
+        // Return a reference to the modifiable "Element4" attribute of this
+        // object.
+
+    bdeut_NullableAllocatedValue<Sequence5>& element5();
+        // Return a reference to the modifiable "Element5" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<Enumerated::Value> >& element6();
+        // Return a reference to the modifiable "Element6" attribute of this
+        // object.
+
+    // ACCESSORS
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const std::vector<Enumerated::Value>& element1() const;
+        // Return a reference to the non-modifiable "Element1" attribute of
+        // this object.
+
+    const std::vector<std::string>& element2() const;
+        // Return a reference to the non-modifiable "Element2" attribute of
+        // this object.
+
+    const bdeut_NullableValue<bool>& element3() const;
+        // Return a reference to the non-modifiable "Element3" attribute of
+        // this object.
+
+    const bdeut_NullableValue<std::string>& element4() const;
+        // Return a reference to the non-modifiable "Element4" attribute of
+        // this object.
+
+    const bdeut_NullableAllocatedValue<Sequence5>& element5() const;
+        // Return a reference to the non-modifiable "Element5" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<Enumerated::Value> >& element6() const;
+        // Return a reference to the non-modifiable "Element6" attribute of
+        // this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Sequence3& lhs, const Sequence3& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const Sequence3& lhs, const Sequence3& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const Sequence3& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence3)
+
+namespace bsctst {
+
+                              // ===============                               
+                              // class Sequence5                               
+                              // ===============                               
+
+class Sequence5 {
+
+    // INSTANCE DATA
+    bdema_Allocator                                       *d_allocator_p;
+    std::vector<bdeut_NullableValue<int> >                 d_element5;
+    std::vector<bdeut_NullableValue<double> >              d_element3;
+    std::vector<bdeut_NullableValue<std::vector<char> > >  d_element4;
+    std::vector<bdeut_NullableValue<bool> >                d_element2;
+    std::vector<bdeut_NullableValue<bdet_DatetimeTz> >     d_element6;
+    std::vector<bdeut_NullableAllocatedValue<Sequence3> >  d_element7;
+    Sequence3                                             *d_element1;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_ELEMENT1 = 0
+      , ATTRIBUTE_ID_ELEMENT2 = 1
+      , ATTRIBUTE_ID_ELEMENT3 = 2
+      , ATTRIBUTE_ID_ELEMENT4 = 3
+      , ATTRIBUTE_ID_ELEMENT5 = 4
+      , ATTRIBUTE_ID_ELEMENT6 = 5
+      , ATTRIBUTE_ID_ELEMENT7 = 6
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 7
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_ELEMENT1 = 0
+      , ATTRIBUTE_INDEX_ELEMENT2 = 1
+      , ATTRIBUTE_INDEX_ELEMENT3 = 2
+      , ATTRIBUTE_INDEX_ELEMENT4 = 3
+      , ATTRIBUTE_INDEX_ELEMENT5 = 4
+      , ATTRIBUTE_INDEX_ELEMENT6 = 5
+      , ATTRIBUTE_INDEX_ELEMENT7 = 6
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Sequence5(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence5' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Sequence5(const Sequence5& original,
+              bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence5' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~Sequence5();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Sequence5& operator=(const Sequence5& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    Sequence3& element1();
+        // Return a reference to the modifiable "Element1" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<bool> >& element2();
+        // Return a reference to the modifiable "Element2" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<double> >& element3();
+        // Return a reference to the modifiable "Element3" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<std::vector<char> > >& element4();
+        // Return a reference to the modifiable "Element4" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<int> >& element5();
+        // Return a reference to the modifiable "Element5" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<bdet_DatetimeTz> >& element6();
+        // Return a reference to the modifiable "Element6" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableAllocatedValue<Sequence3> >& element7();
+        // Return a reference to the modifiable "Element7" attribute of this
+        // object.
+
+    // ACCESSORS
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const Sequence3& element1() const;
+        // Return a reference to the non-modifiable "Element1" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<bool> >& element2() const;
+        // Return a reference to the non-modifiable "Element2" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<double> >& element3() const;
+        // Return a reference to the non-modifiable "Element3" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<std::vector<char> > >& element4() const;
+        // Return a reference to the non-modifiable "Element4" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<int> >& element5() const;
+        // Return a reference to the non-modifiable "Element5" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<bdet_DatetimeTz> >& element6() const;
+        // Return a reference to the non-modifiable "Element6" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableAllocatedValue<Sequence3> >& element7() const;
+        // Return a reference to the non-modifiable "Element7" attribute of
+        // this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Sequence5& lhs, const Sequence5& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const Sequence5& lhs, const Sequence5& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const Sequence5& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence5)
+
+namespace bsctst {
+
+                              // ===============                               
+                              // class Sequence6                               
+                              // ===============                               
+
+class Sequence6 {
+
+    // INSTANCE DATA
+    std::vector<unsigned int>                         d_element12;
+    std::vector<unsigned char>                        d_element10;
+    std::vector<bdeut_NullableValue<unsigned int> >   d_element15;
+    std::vector<bdeut_NullableValue<unsigned char> >  d_element13;
+    std::vector<CustomString>                         d_element11;
+    bdeut_NullableValue<CustomString>                 d_element2;
+    CustomString                                      d_element7;
+    unsigned int                                      d_element4;
+    std::vector<bdeut_NullableValue<CustomInt> >      d_element6;
+    std::vector<CustomInt>                            d_element14;
+    bdeut_NullableValue<unsigned int>                 d_element9;
+    bdeut_NullableValue<CustomInt>                    d_element3;
+    CustomInt                                         d_element8;
+    unsigned char                                     d_element5;
+    bdeut_NullableValue<unsigned char>                d_element1;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_ELEMENT1  = 0
+      , ATTRIBUTE_ID_ELEMENT2  = 1
+      , ATTRIBUTE_ID_ELEMENT3  = 2
+      , ATTRIBUTE_ID_ELEMENT4  = 3
+      , ATTRIBUTE_ID_ELEMENT5  = 4
+      , ATTRIBUTE_ID_ELEMENT6  = 5
+      , ATTRIBUTE_ID_ELEMENT7  = 6
+      , ATTRIBUTE_ID_ELEMENT8  = 7
+      , ATTRIBUTE_ID_ELEMENT9  = 8
+      , ATTRIBUTE_ID_ELEMENT10 = 9
+      , ATTRIBUTE_ID_ELEMENT11 = 10
+      , ATTRIBUTE_ID_ELEMENT12 = 11
+      , ATTRIBUTE_ID_ELEMENT13 = 12
+      , ATTRIBUTE_ID_ELEMENT14 = 13
+      , ATTRIBUTE_ID_ELEMENT15 = 14
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 15
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_ELEMENT1  = 0
+      , ATTRIBUTE_INDEX_ELEMENT2  = 1
+      , ATTRIBUTE_INDEX_ELEMENT3  = 2
+      , ATTRIBUTE_INDEX_ELEMENT4  = 3
+      , ATTRIBUTE_INDEX_ELEMENT5  = 4
+      , ATTRIBUTE_INDEX_ELEMENT6  = 5
+      , ATTRIBUTE_INDEX_ELEMENT7  = 6
+      , ATTRIBUTE_INDEX_ELEMENT8  = 7
+      , ATTRIBUTE_INDEX_ELEMENT9  = 8
+      , ATTRIBUTE_INDEX_ELEMENT10 = 9
+      , ATTRIBUTE_INDEX_ELEMENT11 = 10
+      , ATTRIBUTE_INDEX_ELEMENT12 = 11
+      , ATTRIBUTE_INDEX_ELEMENT13 = 12
+      , ATTRIBUTE_INDEX_ELEMENT14 = 13
+      , ATTRIBUTE_INDEX_ELEMENT15 = 14
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Sequence6(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence6' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Sequence6(const Sequence6& original,
+              bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence6' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~Sequence6();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Sequence6& operator=(const Sequence6& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    bdeut_NullableValue<unsigned char>& element1();
+        // Return a reference to the modifiable "Element1" attribute of this
+        // object.
+
+    bdeut_NullableValue<CustomString>& element2();
+        // Return a reference to the modifiable "Element2" attribute of this
+        // object.
+
+    bdeut_NullableValue<CustomInt>& element3();
+        // Return a reference to the modifiable "Element3" attribute of this
+        // object.
+
+    unsigned int& element4();
+        // Return a reference to the modifiable "Element4" attribute of this
+        // object.
+
+    unsigned char& element5();
+        // Return a reference to the modifiable "Element5" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<CustomInt> >& element6();
+        // Return a reference to the modifiable "Element6" attribute of this
+        // object.
+
+    CustomString& element7();
+        // Return a reference to the modifiable "Element7" attribute of this
+        // object.
+
+    CustomInt& element8();
+        // Return a reference to the modifiable "Element8" attribute of this
+        // object.
+
+    bdeut_NullableValue<unsigned int>& element9();
+        // Return a reference to the modifiable "Element9" attribute of this
+        // object.
+
+    std::vector<unsigned char>& element10();
+        // Return a reference to the modifiable "Element10" attribute of this
+        // object.
+
+    std::vector<CustomString>& element11();
+        // Return a reference to the modifiable "Element11" attribute of this
+        // object.
+
+    std::vector<unsigned int>& element12();
+        // Return a reference to the modifiable "Element12" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<unsigned char> >& element13();
+        // Return a reference to the modifiable "Element13" attribute of this
+        // object.
+
+    std::vector<CustomInt>& element14();
+        // Return a reference to the modifiable "Element14" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<unsigned int> >& element15();
+        // Return a reference to the modifiable "Element15" attribute of this
+        // object.
+
+    // ACCESSORS
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const bdeut_NullableValue<unsigned char>& element1() const;
+        // Return a reference to the non-modifiable "Element1" attribute of
+        // this object.
+
+    const bdeut_NullableValue<CustomString>& element2() const;
+        // Return a reference to the non-modifiable "Element2" attribute of
+        // this object.
+
+    const bdeut_NullableValue<CustomInt>& element3() const;
+        // Return a reference to the non-modifiable "Element3" attribute of
+        // this object.
+
+    unsigned int element4() const;
+        // Return a reference to the non-modifiable "Element4" attribute of
+        // this object.
+
+    unsigned char element5() const;
+        // Return a reference to the non-modifiable "Element5" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<CustomInt> >& element6() const;
+        // Return a reference to the non-modifiable "Element6" attribute of
+        // this object.
+
+    const CustomString& element7() const;
+        // Return a reference to the non-modifiable "Element7" attribute of
+        // this object.
+
+    const CustomInt& element8() const;
+        // Return a reference to the non-modifiable "Element8" attribute of
+        // this object.
+
+    const bdeut_NullableValue<unsigned int>& element9() const;
+        // Return a reference to the non-modifiable "Element9" attribute of
+        // this object.
+
+    const std::vector<unsigned char>& element10() const;
+        // Return a reference to the non-modifiable "Element10" attribute of
+        // this object.
+
+    const std::vector<CustomString>& element11() const;
+        // Return a reference to the non-modifiable "Element11" attribute of
+        // this object.
+
+    const std::vector<unsigned int>& element12() const;
+        // Return a reference to the non-modifiable "Element12" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<unsigned char> >& element13() const;
+        // Return a reference to the non-modifiable "Element13" attribute of
+        // this object.
+
+    const std::vector<CustomInt>& element14() const;
+        // Return a reference to the non-modifiable "Element14" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<unsigned int> >& element15() const;
+        // Return a reference to the non-modifiable "Element15" attribute of
+        // this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Sequence6& lhs, const Sequence6& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const Sequence6& lhs, const Sequence6& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const Sequence6& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence6)
+
+namespace bsctst {
+
+                               // =============                                
+                               // class Choice3                                
+                               // =============                                
+
+class Choice3 {
+
+    // INSTANCE DATA
+    union {
+        bsls_ObjectBuffer< Sequence6 >     d_selection1;
+        bsls_ObjectBuffer< unsigned char > d_selection2;
+        bsls_ObjectBuffer< CustomString >  d_selection3;
+        bsls_ObjectBuffer< CustomInt >     d_selection4;
+    };
+
+    int                                    d_selectionId;
+    bdema_Allocator                       *d_allocator_p;
+
+  public:
+    // TYPES
+    enum {
+        SELECTION_ID_UNDEFINED  = -1
+
+      , SELECTION_ID_SELECTION1 = 0
+      , SELECTION_ID_SELECTION2 = 1
+      , SELECTION_ID_SELECTION3 = 2
+      , SELECTION_ID_SELECTION4 = 3
+    };
+
+    enum {
+        NUM_SELECTIONS = 4
+    };
+
+    enum {
+        SELECTION_INDEX_SELECTION1 = 0
+      , SELECTION_INDEX_SELECTION2 = 1
+      , SELECTION_INDEX_SELECTION3 = 2
+      , SELECTION_INDEX_SELECTION4 = 3
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Choice3(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Choice3' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Choice3(const Choice3& original,
+           bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Choice3' having the value of the specified
+        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    ~Choice3();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Choice3& operator=(const Choice3& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
+
+    int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
+
+    int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
+
+    Sequence6& makeSelection1();
+    Sequence6& makeSelection1(const Sequence6& value);
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
+
+    unsigned char& makeSelection2();
+    unsigned char& makeSelection2(unsigned char value);
+        // Set the value of this object to be a "Selection2" value.  Optionally
+        // specify the 'value' of the "Selection2".  If 'value' is not
+        // specified, the default "Selection2" value is used.
+
+    CustomString& makeSelection3();
+    CustomString& makeSelection3(const CustomString& value);
+        // Set the value of this object to be a "Selection3" value.  Optionally
+        // specify the 'value' of the "Selection3".  If 'value' is not
+        // specified, the default "Selection3" value is used.
+
+    CustomInt& makeSelection4();
+    CustomInt& makeSelection4(const CustomInt& value);
+        // Set the value of this object to be a "Selection4" value.  Optionally
+        // specify the 'value' of the "Selection4".  If 'value' is not
+        // specified, the default "Selection4" value is used.
+
+    template<class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
+
+    Sequence6& selection1();
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
+
+    unsigned char& selection2();
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
+
+    CustomString& selection3();
+        // Return a reference to the modifiable "Selection3" selection of this
+        // object if "Selection3" is the current selection.  The behavior is
+        // undefined unless "Selection3" is the selection of this object.
+
+    CustomInt& selection4();
+        // Return a reference to the modifiable "Selection4" selection of this
+        // object if "Selection4" is the current selection.  The behavior is
+        // undefined unless "Selection4" is the selection of this object.
+
+    // ACCESSORS
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
+
+    const Sequence6& selection1() const;
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
+
+    const unsigned char& selection2() const;
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
+
+    const CustomString& selection3() const;
+        // Return a reference to the non-modifiable "Selection3" selection of
+        // this object if "Selection3" is the current selection.  The behavior
+        // is undefined unless "Selection3" is the selection of this object.
+
+    const CustomInt& selection4() const;
+        // Return a reference to the non-modifiable "Selection4" selection of
+        // this object if "Selection4" is the current selection.  The behavior
+        // is undefined unless "Selection4" is the selection of this object.
+
+    bool isSelection1Value() const;
+        // Return 'true' if the value of this object is a "Selection1" value,
+        // and return 'false' otherwise.
+
+    bool isSelection2Value() const;
+        // Return 'true' if the value of this object is a "Selection2" value,
+        // and return 'false' otherwise.
+
+    bool isSelection3Value() const;
+        // Return 'true' if the value of this object is a "Selection3" value,
+        // and return 'false' otherwise.
+
+    bool isSelection4Value() const;
+        // Return 'true' if the value of this object is a "Selection4" value,
+        // and return 'false' otherwise.
+
+    bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
+
+    const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Choice3& lhs, const Choice3& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'Choice3' objects have the same
+    // value if either the selections in both objects have the same ids and
+    // the same values, or both selections are undefined.
+
+inline
+bool operator!=(const Choice3& lhs, const Choice3& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same values, as determined by 'operator==', and 'false' otherwise.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const Choice3& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Choice3)
+
+namespace bsctst {
+
+                               // =============                                
+                               // class Choice1                                
+                               // =============                                
+
+class Choice1 {
+
+    // INSTANCE DATA
+    union {
+        bsls_ObjectBuffer< int >     d_selection1;
+        bsls_ObjectBuffer< double >  d_selection2;
+        Sequence4                   *d_selection3;
+        Choice2                     *d_selection4;
+    };
+
+    int                              d_selectionId;
+    bdema_Allocator                 *d_allocator_p;
+
+  public:
+    // TYPES
+    enum {
+        SELECTION_ID_UNDEFINED  = -1
+
+      , SELECTION_ID_SELECTION1 = 0
+      , SELECTION_ID_SELECTION2 = 1
+      , SELECTION_ID_SELECTION3 = 2
+      , SELECTION_ID_SELECTION4 = 3
+    };
+
+    enum {
+        NUM_SELECTIONS = 4
+    };
+
+    enum {
+        SELECTION_INDEX_SELECTION1 = 0
+      , SELECTION_INDEX_SELECTION2 = 1
+      , SELECTION_INDEX_SELECTION3 = 2
+      , SELECTION_INDEX_SELECTION4 = 3
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Choice1(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Choice1' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Choice1(const Choice1& original,
+           bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Choice1' having the value of the specified
+        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    ~Choice1();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Choice1& operator=(const Choice1& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
+
+    int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
+
+    int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
+
+    int& makeSelection1();
+    int& makeSelection1(int value);
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
+
+    double& makeSelection2();
+    double& makeSelection2(double value);
+        // Set the value of this object to be a "Selection2" value.  Optionally
+        // specify the 'value' of the "Selection2".  If 'value' is not
+        // specified, the default "Selection2" value is used.
+
+    Sequence4& makeSelection3();
+    Sequence4& makeSelection3(const Sequence4& value);
+        // Set the value of this object to be a "Selection3" value.  Optionally
+        // specify the 'value' of the "Selection3".  If 'value' is not
+        // specified, the default "Selection3" value is used.
+
+    Choice2& makeSelection4();
+    Choice2& makeSelection4(const Choice2& value);
+        // Set the value of this object to be a "Selection4" value.  Optionally
+        // specify the 'value' of the "Selection4".  If 'value' is not
+        // specified, the default "Selection4" value is used.
+
+    template<class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
+
+    int& selection1();
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
+
+    double& selection2();
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
+
+    Sequence4& selection3();
+        // Return a reference to the modifiable "Selection3" selection of this
+        // object if "Selection3" is the current selection.  The behavior is
+        // undefined unless "Selection3" is the selection of this object.
+
+    Choice2& selection4();
+        // Return a reference to the modifiable "Selection4" selection of this
+        // object if "Selection4" is the current selection.  The behavior is
+        // undefined unless "Selection4" is the selection of this object.
+
+    // ACCESSORS
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
+
+    const int& selection1() const;
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
+
+    const double& selection2() const;
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
+
+    const Sequence4& selection3() const;
+        // Return a reference to the non-modifiable "Selection3" selection of
+        // this object if "Selection3" is the current selection.  The behavior
+        // is undefined unless "Selection3" is the selection of this object.
+
+    const Choice2& selection4() const;
+        // Return a reference to the non-modifiable "Selection4" selection of
+        // this object if "Selection4" is the current selection.  The behavior
+        // is undefined unless "Selection4" is the selection of this object.
+
+    bool isSelection1Value() const;
+        // Return 'true' if the value of this object is a "Selection1" value,
+        // and return 'false' otherwise.
+
+    bool isSelection2Value() const;
+        // Return 'true' if the value of this object is a "Selection2" value,
+        // and return 'false' otherwise.
+
+    bool isSelection3Value() const;
+        // Return 'true' if the value of this object is a "Selection3" value,
+        // and return 'false' otherwise.
+
+    bool isSelection4Value() const;
+        // Return 'true' if the value of this object is a "Selection4" value,
+        // and return 'false' otherwise.
+
+    bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
+
+    const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Choice1& lhs, const Choice1& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'Choice1' objects have the same
+    // value if either the selections in both objects have the same ids and
+    // the same values, or both selections are undefined.
+
+inline
+bool operator!=(const Choice1& lhs, const Choice1& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same values, as determined by 'operator==', and 'false' otherwise.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const Choice1& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Choice1)
+
+namespace bsctst {
+
+                               // =============                                
+                               // class Choice2                                
+                               // =============                                
+
+class Choice2 {
+
+    // INSTANCE DATA
+    union {
+        bsls_ObjectBuffer< bool >          d_selection1;
+        bsls_ObjectBuffer< std::string >   d_selection2;
+        Choice1                           *d_selection3;
+        bsls_ObjectBuffer< unsigned int >  d_selection4;
+    };
+
+    int                                    d_selectionId;
+    bdema_Allocator                       *d_allocator_p;
+
+  public:
+    // TYPES
+    enum {
+        SELECTION_ID_UNDEFINED  = -1
+
+      , SELECTION_ID_SELECTION1 = 0
+      , SELECTION_ID_SELECTION2 = 1
+      , SELECTION_ID_SELECTION3 = 2
+      , SELECTION_ID_SELECTION4 = 3
+    };
+
+    enum {
+        NUM_SELECTIONS = 4
+    };
+
+    enum {
+        SELECTION_INDEX_SELECTION1 = 0
+      , SELECTION_INDEX_SELECTION2 = 1
+      , SELECTION_INDEX_SELECTION3 = 2
+      , SELECTION_INDEX_SELECTION4 = 3
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Choice2(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Choice2' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Choice2(const Choice2& original,
+           bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Choice2' having the value of the specified
+        // 'original' object.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    ~Choice2();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Choice2& operator=(const Choice2& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
+
+    int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
+
+    int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
+
+    bool& makeSelection1();
+    bool& makeSelection1(bool value);
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
+
+    std::string& makeSelection2();
+    std::string& makeSelection2(const std::string& value);
+        // Set the value of this object to be a "Selection2" value.  Optionally
+        // specify the 'value' of the "Selection2".  If 'value' is not
+        // specified, the default "Selection2" value is used.
+
+    Choice1& makeSelection3();
+    Choice1& makeSelection3(const Choice1& value);
+        // Set the value of this object to be a "Selection3" value.  Optionally
+        // specify the 'value' of the "Selection3".  If 'value' is not
+        // specified, the default "Selection3" value is used.
+
+    unsigned int& makeSelection4();
+    unsigned int& makeSelection4(unsigned int value);
+        // Set the value of this object to be a "Selection4" value.  Optionally
+        // specify the 'value' of the "Selection4".  If 'value' is not
+        // specified, the default "Selection4" value is used.
+
+    template<class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
+
+    bool& selection1();
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
+
+    std::string& selection2();
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
+
+    Choice1& selection3();
+        // Return a reference to the modifiable "Selection3" selection of this
+        // object if "Selection3" is the current selection.  The behavior is
+        // undefined unless "Selection3" is the selection of this object.
+
+    unsigned int& selection4();
+        // Return a reference to the modifiable "Selection4" selection of this
+        // object if "Selection4" is the current selection.  The behavior is
+        // undefined unless "Selection4" is the selection of this object.
+
+    // ACCESSORS
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
+
+    const bool& selection1() const;
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
+
+    const std::string& selection2() const;
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
+
+    const Choice1& selection3() const;
+        // Return a reference to the non-modifiable "Selection3" selection of
+        // this object if "Selection3" is the current selection.  The behavior
+        // is undefined unless "Selection3" is the selection of this object.
+
+    const unsigned int& selection4() const;
+        // Return a reference to the non-modifiable "Selection4" selection of
+        // this object if "Selection4" is the current selection.  The behavior
+        // is undefined unless "Selection4" is the selection of this object.
+
+    bool isSelection1Value() const;
+        // Return 'true' if the value of this object is a "Selection1" value,
+        // and return 'false' otherwise.
+
+    bool isSelection2Value() const;
+        // Return 'true' if the value of this object is a "Selection2" value,
+        // and return 'false' otherwise.
+
+    bool isSelection3Value() const;
+        // Return 'true' if the value of this object is a "Selection3" value,
+        // and return 'false' otherwise.
+
+    bool isSelection4Value() const;
+        // Return 'true' if the value of this object is a "Selection4" value,
+        // and return 'false' otherwise.
+
+    bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
+
+    const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Choice2& lhs, const Choice2& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'Choice2' objects have the same
+    // value if either the selections in both objects have the same ids and
+    // the same values, or both selections are undefined.
+
+inline
+bool operator!=(const Choice2& lhs, const Choice2& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same values, as determined by 'operator==', and 'false' otherwise.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const Choice2& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Choice2)
+
+namespace bsctst {
+
+                              // ===============                               
+                              // class Sequence4                               
+                              // ===============                               
+
+class Sequence4 {
+
+    // INSTANCE DATA
+    double                                   d_element10;
+    std::vector<int>                         d_element17;
+    std::vector<double>                      d_element15;
+    std::vector<char>                        d_element11;
+    std::vector<std::vector<char> >          d_element16;
+    std::vector<bool>                        d_element14;
+    std::vector<bdet_DatetimeTz>             d_element18;
+    std::vector<Sequence3>                   d_element1;
+    std::vector<CustomString>                d_element19;
+    std::vector<Choice1>                     d_element2;
+    std::string                              d_element9;
+    bdeut_NullableValue<std::vector<char> >  d_element3;
+    bdeut_NullableValue<bdet_DatetimeTz>     d_element5;
+    bdeut_NullableValue<CustomString>        d_element6;
+    int                                      d_element12;
+    bdeut_NullableValue<int>                 d_element4;
+    bdeut_NullableValue<Enumerated::Value>   d_element7;
+    Enumerated::Value                        d_element13;
+    bool                                     d_element8;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_ELEMENT1  = 0
+      , ATTRIBUTE_ID_ELEMENT2  = 1
+      , ATTRIBUTE_ID_ELEMENT3  = 2
+      , ATTRIBUTE_ID_ELEMENT4  = 3
+      , ATTRIBUTE_ID_ELEMENT5  = 4
+      , ATTRIBUTE_ID_ELEMENT6  = 5
+      , ATTRIBUTE_ID_ELEMENT7  = 6
+      , ATTRIBUTE_ID_ELEMENT8  = 7
+      , ATTRIBUTE_ID_ELEMENT9  = 8
+      , ATTRIBUTE_ID_ELEMENT10 = 9
+      , ATTRIBUTE_ID_ELEMENT11 = 10
+      , ATTRIBUTE_ID_ELEMENT12 = 11
+      , ATTRIBUTE_ID_ELEMENT13 = 12
+      , ATTRIBUTE_ID_ELEMENT14 = 13
+      , ATTRIBUTE_ID_ELEMENT15 = 14
+      , ATTRIBUTE_ID_ELEMENT16 = 15
+      , ATTRIBUTE_ID_ELEMENT17 = 16
+      , ATTRIBUTE_ID_ELEMENT18 = 17
+      , ATTRIBUTE_ID_ELEMENT19 = 18
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 19
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_ELEMENT1  = 0
+      , ATTRIBUTE_INDEX_ELEMENT2  = 1
+      , ATTRIBUTE_INDEX_ELEMENT3  = 2
+      , ATTRIBUTE_INDEX_ELEMENT4  = 3
+      , ATTRIBUTE_INDEX_ELEMENT5  = 4
+      , ATTRIBUTE_INDEX_ELEMENT6  = 5
+      , ATTRIBUTE_INDEX_ELEMENT7  = 6
+      , ATTRIBUTE_INDEX_ELEMENT8  = 7
+      , ATTRIBUTE_INDEX_ELEMENT9  = 8
+      , ATTRIBUTE_INDEX_ELEMENT10 = 9
+      , ATTRIBUTE_INDEX_ELEMENT11 = 10
+      , ATTRIBUTE_INDEX_ELEMENT12 = 11
+      , ATTRIBUTE_INDEX_ELEMENT13 = 12
+      , ATTRIBUTE_INDEX_ELEMENT14 = 13
+      , ATTRIBUTE_INDEX_ELEMENT15 = 14
+      , ATTRIBUTE_INDEX_ELEMENT16 = 15
+      , ATTRIBUTE_INDEX_ELEMENT17 = 16
+      , ATTRIBUTE_INDEX_ELEMENT18 = 17
+      , ATTRIBUTE_INDEX_ELEMENT19 = 18
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Sequence4(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence4' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Sequence4(const Sequence4& original,
+              bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence4' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~Sequence4();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Sequence4& operator=(const Sequence4& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    std::vector<Sequence3>& element1();
+        // Return a reference to the modifiable "Element1" attribute of this
+        // object.
+
+    std::vector<Choice1>& element2();
+        // Return a reference to the modifiable "Element2" attribute of this
+        // object.
+
+    bdeut_NullableValue<std::vector<char> >& element3();
+        // Return a reference to the modifiable "Element3" attribute of this
+        // object.
+
+    bdeut_NullableValue<int>& element4();
+        // Return a reference to the modifiable "Element4" attribute of this
+        // object.
+
+    bdeut_NullableValue<bdet_DatetimeTz>& element5();
+        // Return a reference to the modifiable "Element5" attribute of this
+        // object.
+
+    bdeut_NullableValue<CustomString>& element6();
+        // Return a reference to the modifiable "Element6" attribute of this
+        // object.
+
+    bdeut_NullableValue<Enumerated::Value>& element7();
+        // Return a reference to the modifiable "Element7" attribute of this
+        // object.
+
+    bool& element8();
+        // Return a reference to the modifiable "Element8" attribute of this
+        // object.
+
+    std::string& element9();
+        // Return a reference to the modifiable "Element9" attribute of this
+        // object.
+
+    double& element10();
+        // Return a reference to the modifiable "Element10" attribute of this
+        // object.
+
+    std::vector<char>& element11();
+        // Return a reference to the modifiable "Element11" attribute of this
+        // object.
+
+    int& element12();
+        // Return a reference to the modifiable "Element12" attribute of this
+        // object.
+
+    Enumerated::Value& element13();
+        // Return a reference to the modifiable "Element13" attribute of this
+        // object.
+
+    std::vector<bool>& element14();
+        // Return a reference to the modifiable "Element14" attribute of this
+        // object.
+
+    std::vector<double>& element15();
+        // Return a reference to the modifiable "Element15" attribute of this
+        // object.
+
+    std::vector<std::vector<char> >& element16();
+        // Return a reference to the modifiable "Element16" attribute of this
+        // object.
+
+    std::vector<int>& element17();
+        // Return a reference to the modifiable "Element17" attribute of this
+        // object.
+
+    std::vector<bdet_DatetimeTz>& element18();
+        // Return a reference to the modifiable "Element18" attribute of this
+        // object.
+
+    std::vector<CustomString>& element19();
+        // Return a reference to the modifiable "Element19" attribute of this
+        // object.
+
+    // ACCESSORS
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const std::vector<Sequence3>& element1() const;
+        // Return a reference to the non-modifiable "Element1" attribute of
+        // this object.
+
+    const std::vector<Choice1>& element2() const;
+        // Return a reference to the non-modifiable "Element2" attribute of
+        // this object.
+
+    const bdeut_NullableValue<std::vector<char> >& element3() const;
+        // Return a reference to the non-modifiable "Element3" attribute of
+        // this object.
+
+    const bdeut_NullableValue<int>& element4() const;
+        // Return a reference to the non-modifiable "Element4" attribute of
+        // this object.
+
+    const bdeut_NullableValue<bdet_DatetimeTz>& element5() const;
+        // Return a reference to the non-modifiable "Element5" attribute of
+        // this object.
+
+    const bdeut_NullableValue<CustomString>& element6() const;
+        // Return a reference to the non-modifiable "Element6" attribute of
+        // this object.
+
+    const bdeut_NullableValue<Enumerated::Value>& element7() const;
+        // Return a reference to the non-modifiable "Element7" attribute of
+        // this object.
+
+    bool element8() const;
+        // Return a reference to the non-modifiable "Element8" attribute of
+        // this object.
+
+    const std::string& element9() const;
+        // Return a reference to the non-modifiable "Element9" attribute of
+        // this object.
+
+    double element10() const;
+        // Return a reference to the non-modifiable "Element10" attribute of
+        // this object.
+
+    const std::vector<char>& element11() const;
+        // Return a reference to the non-modifiable "Element11" attribute of
+        // this object.
+
+    int element12() const;
+        // Return a reference to the non-modifiable "Element12" attribute of
+        // this object.
+
+    Enumerated::Value element13() const;
+        // Return a reference to the non-modifiable "Element13" attribute of
+        // this object.
+
+    const std::vector<bool>& element14() const;
+        // Return a reference to the non-modifiable "Element14" attribute of
+        // this object.
+
+    const std::vector<double>& element15() const;
+        // Return a reference to the non-modifiable "Element15" attribute of
+        // this object.
+
+    const std::vector<std::vector<char> >& element16() const;
+        // Return a reference to the non-modifiable "Element16" attribute of
+        // this object.
+
+    const std::vector<int>& element17() const;
+        // Return a reference to the non-modifiable "Element17" attribute of
+        // this object.
+
+    const std::vector<bdet_DatetimeTz>& element18() const;
+        // Return a reference to the non-modifiable "Element18" attribute of
+        // this object.
+
+    const std::vector<CustomString>& element19() const;
+        // Return a reference to the non-modifiable "Element19" attribute of
+        // this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Sequence4& lhs, const Sequence4& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const Sequence4& lhs, const Sequence4& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const Sequence4& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence4)
+
+namespace bsctst {
+
+                              // ===============                               
+                              // class Sequence1                               
+                              // ===============                               
+
+class Sequence1 {
+
+    // INSTANCE DATA
+    bdema_Allocator                            *d_allocator_p;
+    std::vector<bdeut_NullableValue<Choice1> >  d_element4;
+    std::vector<Choice3>                        d_element5;
+    std::vector<Choice1>                        d_element2;
+    bdeut_NullableValue<Choice3>                d_element1;
+    Choice2                                    *d_element3;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_ELEMENT1 = 0
+      , ATTRIBUTE_ID_ELEMENT2 = 1
+      , ATTRIBUTE_ID_ELEMENT3 = 2
+      , ATTRIBUTE_ID_ELEMENT4 = 3
+      , ATTRIBUTE_ID_ELEMENT5 = 4
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 5
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_ELEMENT1 = 0
+      , ATTRIBUTE_INDEX_ELEMENT2 = 1
+      , ATTRIBUTE_INDEX_ELEMENT3 = 2
+      , ATTRIBUTE_INDEX_ELEMENT4 = 3
+      , ATTRIBUTE_INDEX_ELEMENT5 = 4
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Sequence1(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence1' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Sequence1(const Sequence1& original,
+              bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence1' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~Sequence1();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Sequence1& operator=(const Sequence1& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    bdeut_NullableValue<Choice3>& element1();
+        // Return a reference to the modifiable "Element1" attribute of this
+        // object.
+
+    std::vector<Choice1>& element2();
+        // Return a reference to the modifiable "Element2" attribute of this
+        // object.
+
+    Choice2& element3();
+        // Return a reference to the modifiable "Element3" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<Choice1> >& element4();
+        // Return a reference to the modifiable "Element4" attribute of this
+        // object.
+
+    std::vector<Choice3>& element5();
+        // Return a reference to the modifiable "Element5" attribute of this
+        // object.
+
+    // ACCESSORS
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const bdeut_NullableValue<Choice3>& element1() const;
+        // Return a reference to the non-modifiable "Element1" attribute of
+        // this object.
+
+    const std::vector<Choice1>& element2() const;
+        // Return a reference to the non-modifiable "Element2" attribute of
+        // this object.
+
+    const Choice2& element3() const;
+        // Return a reference to the non-modifiable "Element3" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<Choice1> >& element4() const;
+        // Return a reference to the non-modifiable "Element4" attribute of
+        // this object.
+
+    const std::vector<Choice3>& element5() const;
+        // Return a reference to the non-modifiable "Element5" attribute of
+        // this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Sequence1& lhs, const Sequence1& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const Sequence1& lhs, const Sequence1& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const Sequence1& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence1)
+
+namespace bsctst {
+
+                              // ===============                               
+                              // class Sequence2                               
+                              // ===============                               
+
+class Sequence2 {
+
+    // INSTANCE DATA
+    std::vector<bdeut_NullableValue<std::string> >   d_element6;
+    std::vector<bdeut_NullableValue<CustomString> >  d_element7;
+    bdeut_NullableValue<double>                      d_element5;
+    bdeut_NullableValue<Choice1>                     d_element4;
+    bdet_DatetimeTz                                  d_element3;
+    CustomString                                     d_element1;
+    unsigned char                                    d_element2;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_ELEMENT1 = 0
+      , ATTRIBUTE_ID_ELEMENT2 = 1
+      , ATTRIBUTE_ID_ELEMENT3 = 2
+      , ATTRIBUTE_ID_ELEMENT4 = 3
+      , ATTRIBUTE_ID_ELEMENT5 = 4
+      , ATTRIBUTE_ID_ELEMENT6 = 5
+      , ATTRIBUTE_ID_ELEMENT7 = 6
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 7
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_ELEMENT1 = 0
+      , ATTRIBUTE_INDEX_ELEMENT2 = 1
+      , ATTRIBUTE_INDEX_ELEMENT3 = 2
+      , ATTRIBUTE_INDEX_ELEMENT4 = 3
+      , ATTRIBUTE_INDEX_ELEMENT5 = 4
+      , ATTRIBUTE_INDEX_ELEMENT6 = 5
+      , ATTRIBUTE_INDEX_ELEMENT7 = 6
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdeat_AttributeInfo *lookupAttributeInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Sequence2(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence2' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Sequence2(const Sequence2& original,
+              bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Sequence2' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~Sequence2();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Sequence2& operator=(const Sequence2& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    CustomString& element1();
+        // Return a reference to the modifiable "Element1" attribute of this
+        // object.
+
+    unsigned char& element2();
+        // Return a reference to the modifiable "Element2" attribute of this
+        // object.
+
+    bdet_DatetimeTz& element3();
+        // Return a reference to the modifiable "Element3" attribute of this
+        // object.
+
+    bdeut_NullableValue<Choice1>& element4();
+        // Return a reference to the modifiable "Element4" attribute of this
+        // object.
+
+    bdeut_NullableValue<double>& element5();
+        // Return a reference to the modifiable "Element5" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<std::string> >& element6();
+        // Return a reference to the modifiable "Element6" attribute of this
+        // object.
+
+    std::vector<bdeut_NullableValue<CustomString> >& element7();
+        // Return a reference to the modifiable "Element7" attribute of this
+        // object.
+
+    // ACCESSORS
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    const CustomString& element1() const;
+        // Return a reference to the non-modifiable "Element1" attribute of
+        // this object.
+
+    unsigned char element2() const;
+        // Return a reference to the non-modifiable "Element2" attribute of
+        // this object.
+
+    const bdet_DatetimeTz& element3() const;
+        // Return a reference to the non-modifiable "Element3" attribute of
+        // this object.
+
+    const bdeut_NullableValue<Choice1>& element4() const;
+        // Return a reference to the non-modifiable "Element4" attribute of
+        // this object.
+
+    const bdeut_NullableValue<double>& element5() const;
+        // Return a reference to the non-modifiable "Element5" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<std::string> >& element6() const;
+        // Return a reference to the non-modifiable "Element6" attribute of
+        // this object.
+
+    const std::vector<bdeut_NullableValue<CustomString> >& element7() const;
+        // Return a reference to the non-modifiable "Element7" attribute of
+        // this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Sequence2& lhs, const Sequence2& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const Sequence2& lhs, const Sequence2& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const Sequence2& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Sequence2)
+
+namespace bsctst {
+
+                              // ===============                               
+                              // class Topchoice                               
+                              // ===============                               
+
+class Topchoice {
+
+    // INSTANCE DATA
+    union {
+        bsls_ObjectBuffer< Sequence1 >          d_selection1;
+        bsls_ObjectBuffer< std::vector<char> >  d_selection2;
+        bsls_ObjectBuffer< Sequence2 >          d_selection3;
+        Sequence3                              *d_selection4;
+        bsls_ObjectBuffer< bdet_DatetimeTz >    d_selection5;
+        bsls_ObjectBuffer< CustomString >       d_selection6;
+        bsls_ObjectBuffer< Enumerated::Value >  d_selection7;
+        bsls_ObjectBuffer< Choice3 >            d_selection8;
+    };
+
+    int                                         d_selectionId;
+    bdema_Allocator                            *d_allocator_p;
+
+  public:
+    // TYPES
+    enum {
+        SELECTION_ID_UNDEFINED  = -1
+
+      , SELECTION_ID_SELECTION1 = 0
+      , SELECTION_ID_SELECTION2 = 1
+      , SELECTION_ID_SELECTION3 = 2
+      , SELECTION_ID_SELECTION4 = 3
+      , SELECTION_ID_SELECTION5 = 4
+      , SELECTION_ID_SELECTION6 = 5
+      , SELECTION_ID_SELECTION7 = 6
+      , SELECTION_ID_SELECTION8 = 7
+    };
+
+    enum {
+        NUM_SELECTIONS = 8
+    };
+
+    enum {
+        SELECTION_INDEX_SELECTION1 = 0
+      , SELECTION_INDEX_SELECTION2 = 1
+      , SELECTION_INDEX_SELECTION3 = 2
+      , SELECTION_INDEX_SELECTION4 = 3
+      , SELECTION_INDEX_SELECTION5 = 4
+      , SELECTION_INDEX_SELECTION6 = 5
+      , SELECTION_INDEX_SELECTION7 = 6
+      , SELECTION_INDEX_SELECTION8 = 7
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const bdeat_SelectionInfo SELECTION_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bdex' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
+
+    static const bdeat_SelectionInfo *lookupSelectionInfo(
+                                                    const char *name,
+                                                    int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit Topchoice(bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Topchoice' having the default value.  Use
+        // the optionally specified 'basicAllocator' to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.
+
+    Topchoice(const Topchoice& original,
+             bdema_Allocator *basicAllocator = 0);
+        // Create an object of type 'Topchoice' having the value of the
+        // specified 'original' object.  Use the optionally specified
+        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
+
+    ~Topchoice();
+        // Destroy this object.
+
+    // MANIPULATORS
+    Topchoice& operator=(const Topchoice& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bdex' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
+
+    int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
+
+    int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
+
+    Sequence1& makeSelection1();
+    Sequence1& makeSelection1(const Sequence1& value);
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
+
+    std::vector<char>& makeSelection2();
+    std::vector<char>& makeSelection2(const std::vector<char>& value);
+        // Set the value of this object to be a "Selection2" value.  Optionally
+        // specify the 'value' of the "Selection2".  If 'value' is not
+        // specified, the default "Selection2" value is used.
+
+    Sequence2& makeSelection3();
+    Sequence2& makeSelection3(const Sequence2& value);
+        // Set the value of this object to be a "Selection3" value.  Optionally
+        // specify the 'value' of the "Selection3".  If 'value' is not
+        // specified, the default "Selection3" value is used.
+
+    Sequence3& makeSelection4();
+    Sequence3& makeSelection4(const Sequence3& value);
+        // Set the value of this object to be a "Selection4" value.  Optionally
+        // specify the 'value' of the "Selection4".  If 'value' is not
+        // specified, the default "Selection4" value is used.
+
+    bdet_DatetimeTz& makeSelection5();
+    bdet_DatetimeTz& makeSelection5(const bdet_DatetimeTz& value);
+        // Set the value of this object to be a "Selection5" value.  Optionally
+        // specify the 'value' of the "Selection5".  If 'value' is not
+        // specified, the default "Selection5" value is used.
+
+    CustomString& makeSelection6();
+    CustomString& makeSelection6(const CustomString& value);
+        // Set the value of this object to be a "Selection6" value.  Optionally
+        // specify the 'value' of the "Selection6".  If 'value' is not
+        // specified, the default "Selection6" value is used.
+
+    Enumerated::Value& makeSelection7();
+    Enumerated::Value& makeSelection7(Enumerated::Value value);
+        // Set the value of this object to be a "Selection7" value.  Optionally
+        // specify the 'value' of the "Selection7".  If 'value' is not
+        // specified, the default "Selection7" value is used.
+
+    Choice3& makeSelection8();
+    Choice3& makeSelection8(const Choice3& value);
+        // Set the value of this object to be a "Selection8" value.  Optionally
+        // specify the 'value' of the "Selection8".  If 'value' is not
+        // specified, the default "Selection8" value is used.
+
+    template<class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
+
+    Sequence1& selection1();
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
+
+    std::vector<char>& selection2();
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
+
+    Sequence2& selection3();
+        // Return a reference to the modifiable "Selection3" selection of this
+        // object if "Selection3" is the current selection.  The behavior is
+        // undefined unless "Selection3" is the selection of this object.
+
+    Sequence3& selection4();
+        // Return a reference to the modifiable "Selection4" selection of this
+        // object if "Selection4" is the current selection.  The behavior is
+        // undefined unless "Selection4" is the selection of this object.
+
+    bdet_DatetimeTz& selection5();
+        // Return a reference to the modifiable "Selection5" selection of this
+        // object if "Selection5" is the current selection.  The behavior is
+        // undefined unless "Selection5" is the selection of this object.
+
+    CustomString& selection6();
+        // Return a reference to the modifiable "Selection6" selection of this
+        // object if "Selection6" is the current selection.  The behavior is
+        // undefined unless "Selection6" is the selection of this object.
+
+    Enumerated::Value& selection7();
+        // Return a reference to the modifiable "Selection7" selection of this
+        // object if "Selection7" is the current selection.  The behavior is
+        // undefined unless "Selection7" is the selection of this object.
+
+    Choice3& selection8();
+        // Return a reference to the modifiable "Selection8" selection of this
+        // object if "Selection8" is the current selection.  The behavior is
+        // undefined unless "Selection8" is the selection of this object.
+
+    // ACCESSORS
+    std::ostream& print(std::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bdex' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
+
+    const Sequence1& selection1() const;
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
+
+    const std::vector<char>& selection2() const;
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
+
+    const Sequence2& selection3() const;
+        // Return a reference to the non-modifiable "Selection3" selection of
+        // this object if "Selection3" is the current selection.  The behavior
+        // is undefined unless "Selection3" is the selection of this object.
+
+    const Sequence3& selection4() const;
+        // Return a reference to the non-modifiable "Selection4" selection of
+        // this object if "Selection4" is the current selection.  The behavior
+        // is undefined unless "Selection4" is the selection of this object.
+
+    const bdet_DatetimeTz& selection5() const;
+        // Return a reference to the non-modifiable "Selection5" selection of
+        // this object if "Selection5" is the current selection.  The behavior
+        // is undefined unless "Selection5" is the selection of this object.
+
+    const CustomString& selection6() const;
+        // Return a reference to the non-modifiable "Selection6" selection of
+        // this object if "Selection6" is the current selection.  The behavior
+        // is undefined unless "Selection6" is the selection of this object.
+
+    const Enumerated::Value& selection7() const;
+        // Return a reference to the non-modifiable "Selection7" selection of
+        // this object if "Selection7" is the current selection.  The behavior
+        // is undefined unless "Selection7" is the selection of this object.
+
+    const Choice3& selection8() const;
+        // Return a reference to the non-modifiable "Selection8" selection of
+        // this object if "Selection8" is the current selection.  The behavior
+        // is undefined unless "Selection8" is the selection of this object.
+
+    bool isSelection1Value() const;
+        // Return 'true' if the value of this object is a "Selection1" value,
+        // and return 'false' otherwise.
+
+    bool isSelection2Value() const;
+        // Return 'true' if the value of this object is a "Selection2" value,
+        // and return 'false' otherwise.
+
+    bool isSelection3Value() const;
+        // Return 'true' if the value of this object is a "Selection3" value,
+        // and return 'false' otherwise.
+
+    bool isSelection4Value() const;
+        // Return 'true' if the value of this object is a "Selection4" value,
+        // and return 'false' otherwise.
+
+    bool isSelection5Value() const;
+        // Return 'true' if the value of this object is a "Selection5" value,
+        // and return 'false' otherwise.
+
+    bool isSelection6Value() const;
+        // Return 'true' if the value of this object is a "Selection6" value,
+        // and return 'false' otherwise.
+
+    bool isSelection7Value() const;
+        // Return 'true' if the value of this object is a "Selection7" value,
+        // and return 'false' otherwise.
+
+    bool isSelection8Value() const;
+        // Return 'true' if the value of this object is a "Selection8" value,
+        // and return 'false' otherwise.
+
+    bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
+
+    const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const Topchoice& lhs, const Topchoice& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'Topchoice' objects have the same
+    // value if either the selections in both objects have the same ids and
+    // the same values, or both selections are undefined.
+
+inline
+bool operator!=(const Topchoice& lhs, const Topchoice& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same values, as determined by 'operator==', and 'false' otherwise.
+
+inline
+std::ostream& operator<<(std::ostream& stream, const Topchoice& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close namespace bsctst
+
+// TRAITS
+
+BDEAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(bsctst::Topchoice)
+
+namespace bsctst {
+
+                               // ==============                                
+                               // class Messages                                
+                               // ==============                                
+
+struct Messages {
+    // This class serves as a place holder to reserve a type having the same
+    // name as this component.  Doing so ensures that such a type cannot be
+    // defined outside of this component in the current namespace.
+};
+
+}  // close namespace bsctst
+
+// ============================================================================
+//                         INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+namespace bsctst {
+
+                              // ---------------                               
+                              // class CustomInt                               
+                              // ---------------                               
+
+// CREATORS
+inline
+CustomInt::CustomInt()
+: d_value()
+{
+}
+
+inline
+CustomInt::CustomInt(const CustomInt& original)
+: d_value(original.d_value)
+{
+}
+
+inline
+CustomInt::CustomInt(const int& value)
+: d_value(value)
+{
+    BSLS_ASSERT(checkRestrictions(value) == 0);
+}
+
+inline
+CustomInt::~CustomInt()
+{
+}
+
+// MANIPULATORS
+inline
+CustomInt& CustomInt::operator=(const CustomInt& rhs)
+{
+    d_value = rhs.d_value;
+    return *this;
+}
+
+template <class STREAM>
+STREAM& CustomInt::bdexStreamIn(STREAM& stream, int version)
+{
+    int temp;
+
+    bdex_InStreamFunctions::streamIn(stream, temp, version);
+
+    if (!stream) {
+        return stream;
+    }
+
+    if (fromInt(temp)!=0) {
+        stream.invalidate();
+    }
+
+    return stream;
+}
+
+inline
+void CustomInt::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_value);
+}
+
+inline
+int CustomInt::fromInt(const int& value)
+{
+    int ret = checkRestrictions(value);
+    if (0 == ret) {
+        d_value = value;
+    }
+
+    return ret;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& CustomInt::bdexStreamOut(STREAM& stream, int version) const
+{
+    return bdex_OutStreamFunctions::streamOut(stream, d_value, version);
+}
+
+inline
+int CustomInt::maxSupportedBdexVersion() const
+{
+    return bdex_VersionFunctions::maxSupportedVersion(d_value);
+}
+
+inline
+std::ostream& CustomInt::print(std::ostream& stream,
+                                 int           level,
+                                 int           spacesPerLevel) const
+{
+    return bdeu_PrintMethods::print(stream, d_value, level, spacesPerLevel);
+}
+
+inline
+const int& CustomInt::toInt() const
+{
+    return d_value;
+}
+
+
+
+                             // ------------------                             
+                             // class CustomString                             
+                             // ------------------                             
+
+// CREATORS
+inline
+CustomString::CustomString(bdema_Allocator *basicAllocator)
+: d_value(basicAllocator)
+{
+}
+
+inline
+CustomString::CustomString(const CustomString& original, bdema_Allocator *basicAllocator)
+: d_value(original.d_value, basicAllocator)
+{
+}
+
+inline
+CustomString::CustomString(const std::string& value, bdema_Allocator *basicAllocator)
+: d_value(value, basicAllocator)
+{
+    BSLS_ASSERT(checkRestrictions(value) == 0);
+}
+
+inline
+CustomString::~CustomString()
+{
+}
+
+// MANIPULATORS
+inline
+CustomString& CustomString::operator=(const CustomString& rhs)
+{
+    d_value = rhs.d_value;
+    return *this;
+}
+
+template <class STREAM>
+STREAM& CustomString::bdexStreamIn(STREAM& stream, int version)
+{
+    std::string temp;
+
+    bdex_InStreamFunctions::streamIn(stream, temp, version);
+
+    if (!stream) {
+        return stream;
+    }
+
+    if (fromString(temp)!=0) {
+        stream.invalidate();
+    }
+
+    return stream;
+}
+
+inline
+void CustomString::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_value);
+}
+
+inline
+int CustomString::fromString(const std::string& value)
+{
+    int ret = checkRestrictions(value);
+    if (0 == ret) {
+        d_value = value;
+    }
+
+    return ret;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& CustomString::bdexStreamOut(STREAM& stream, int version) const
+{
+    return bdex_OutStreamFunctions::streamOut(stream, d_value, version);
+}
+
+inline
+int CustomString::maxSupportedBdexVersion() const
+{
+    return bdex_VersionFunctions::maxSupportedVersion(d_value);
+}
+
+inline
+std::ostream& CustomString::print(std::ostream& stream,
+                                 int           level,
+                                 int           spacesPerLevel) const
+{
+    return bdeu_PrintMethods::print(stream, d_value, level, spacesPerLevel);
+}
+
+inline
+const std::string& CustomString::toString() const
+{
+    return d_value;
+}
+
+
+
+                              // ----------------                              
+                              // class Enumerated                              
+                              // ----------------                              
+
+// CLASS METHODS
+inline
+int Enumerated::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1
+}
+
+inline
+int Enumerated::fromString(Value *result, const std::string& string)
+{
+    return fromString(result, string.c_str(), string.length());
+}
+
+inline
+std::ostream& Enumerated::print(std::ostream&      stream,
+                                 Enumerated::Value value)
+{
+    return stream << toString(value);
+}
+
+template <class STREAM>
+STREAM& Enumerated::bdexStreamIn(STREAM&             stream,
+                                   Enumerated::Value& value,
+                                   int                 version)
+{
+    switch(version) {
+      case 1: {
+        int readValue;
+        stream.getInt32(readValue);
+        if (stream) {
+            if (fromInt(&value, readValue)) {
+               stream.invalidate();   // bad value in stream
+            }
+        }
+      } break;
+      default: {
+        stream.invalidate();          // unrecognized version number
+      } break;
+    }
+    return stream;
+}
+
+template <class STREAM>
+STREAM& Enumerated::bdexStreamOut(STREAM&              stream,
+                                    Enumerated::Value value,
+                                    int                version)
+{
+    switch (version) {
+      case 1: {
+        stream.putInt32(value);  // Write the value as an int
+      } break;
+    }
+    return stream;
+}
+
+
+
+                              // ---------------                               
+                              // class Sequence3                               
+                              // ---------------                               
+
+// CLASS METHODS
+inline
+int Sequence3::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Sequence3::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, d_element1, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element2, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element3, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element4, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element5, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element6, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Sequence3::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int Sequence3::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT6: {
+        return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int Sequence3::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+std::vector<Enumerated::Value>& Sequence3::element1()
+{
+    return d_element1;
+}
+
+inline
+std::vector<std::string>& Sequence3::element2()
+{
+    return d_element2;
+}
+
+inline
+bdeut_NullableValue<bool>& Sequence3::element3()
+{
+    return d_element3;
+}
+
+inline
+bdeut_NullableValue<std::string>& Sequence3::element4()
+{
+    return d_element4;
+}
+
+inline
+bdeut_NullableAllocatedValue<Sequence5>& Sequence3::element5()
+{
+    return d_element5;
+}
+
+inline
+std::vector<bdeut_NullableValue<Enumerated::Value> >& Sequence3::element6()
+{
+    return d_element6;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Sequence3::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bdex_OutStreamFunctions::streamOut(stream, d_element1, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element2, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element3, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element4, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element5, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element6, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+int Sequence3::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int Sequence3::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT6: {
+        return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int Sequence3::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const std::vector<Enumerated::Value>& Sequence3::element1() const
+{
+    return d_element1;
+}
+
+inline
+const std::vector<std::string>& Sequence3::element2() const
+{
+    return d_element2;
+}
+
+inline
+const bdeut_NullableValue<bool>& Sequence3::element3() const
+{
+    return d_element3;
+}
+
+inline
+const bdeut_NullableValue<std::string>& Sequence3::element4() const
+{
+    return d_element4;
+}
+
+inline
+const bdeut_NullableAllocatedValue<Sequence5>& Sequence3::element5() const
+{
+    return d_element5;
+}
+
+inline
+const std::vector<bdeut_NullableValue<Enumerated::Value> >& Sequence3::element6() const
+{
+    return d_element6;
+}
+
+
+
+                              // ---------------                               
+                              // class Sequence5                               
+                              // ---------------                               
+
+// CLASS METHODS
+inline
+int Sequence5::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Sequence5::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, *d_element1, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element2, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element3, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element4, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element5, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element6, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element7, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Sequence5::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int Sequence5::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return manipulator(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT6: {
+        return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT7: {
+        return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int Sequence5::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+Sequence3& Sequence5::element1()
+{
+    return *d_element1;
+}
+
+inline
+std::vector<bdeut_NullableValue<bool> >& Sequence5::element2()
+{
+    return d_element2;
+}
+
+inline
+std::vector<bdeut_NullableValue<double> >& Sequence5::element3()
+{
+    return d_element3;
+}
+
+inline
+std::vector<bdeut_NullableValue<std::vector<char> > >& Sequence5::element4()
+{
+    return d_element4;
+}
+
+inline
+std::vector<bdeut_NullableValue<int> >& Sequence5::element5()
+{
+    return d_element5;
+}
+
+inline
+std::vector<bdeut_NullableValue<bdet_DatetimeTz> >& Sequence5::element6()
+{
+    return d_element6;
+}
+
+inline
+std::vector<bdeut_NullableAllocatedValue<Sequence3> >& Sequence5::element7()
+{
+    return d_element7;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Sequence5::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bdex_OutStreamFunctions::streamOut(stream, *d_element1, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element2, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element3, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element4, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element5, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element6, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element7, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+int Sequence5::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(*d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int Sequence5::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return accessor(*d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT6: {
+        return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT7: {
+        return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int Sequence5::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const Sequence3& Sequence5::element1() const
+{
+    return *d_element1;
+}
+
+inline
+const std::vector<bdeut_NullableValue<bool> >& Sequence5::element2() const
+{
+    return d_element2;
+}
+
+inline
+const std::vector<bdeut_NullableValue<double> >& Sequence5::element3() const
+{
+    return d_element3;
+}
+
+inline
+const std::vector<bdeut_NullableValue<std::vector<char> > >& Sequence5::element4() const
+{
+    return d_element4;
+}
+
+inline
+const std::vector<bdeut_NullableValue<int> >& Sequence5::element5() const
+{
+    return d_element5;
+}
+
+inline
+const std::vector<bdeut_NullableValue<bdet_DatetimeTz> >& Sequence5::element6() const
+{
+    return d_element6;
+}
+
+inline
+const std::vector<bdeut_NullableAllocatedValue<Sequence3> >& Sequence5::element7() const
+{
+    return d_element7;
+}
+
+
+
+                              // ---------------                               
+                              // class Sequence6                               
+                              // ---------------                               
+
+// CLASS METHODS
+inline
+int Sequence6::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Sequence6::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, d_element1, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element2, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element3, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element4, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element5, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element6, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element7, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element8, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element9, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element10, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element11, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element12, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element13, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element14, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element15, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Sequence6::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int Sequence6::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT6: {
+        return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT7: {
+        return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT8: {
+        return manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT9: {
+        return manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT10: {
+        return manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT11: {
+        return manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT12: {
+        return manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT13: {
+        return manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT14: {
+        return manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT15: {
+        return manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int Sequence6::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+bdeut_NullableValue<unsigned char>& Sequence6::element1()
+{
+    return d_element1;
+}
+
+inline
+bdeut_NullableValue<CustomString>& Sequence6::element2()
+{
+    return d_element2;
+}
+
+inline
+bdeut_NullableValue<CustomInt>& Sequence6::element3()
+{
+    return d_element3;
+}
+
+inline
+unsigned int& Sequence6::element4()
+{
+    return d_element4;
+}
+
+inline
+unsigned char& Sequence6::element5()
+{
+    return d_element5;
+}
+
+inline
+std::vector<bdeut_NullableValue<CustomInt> >& Sequence6::element6()
+{
+    return d_element6;
+}
+
+inline
+CustomString& Sequence6::element7()
+{
+    return d_element7;
+}
+
+inline
+CustomInt& Sequence6::element8()
+{
+    return d_element8;
+}
+
+inline
+bdeut_NullableValue<unsigned int>& Sequence6::element9()
+{
+    return d_element9;
+}
+
+inline
+std::vector<unsigned char>& Sequence6::element10()
+{
+    return d_element10;
+}
+
+inline
+std::vector<CustomString>& Sequence6::element11()
+{
+    return d_element11;
+}
+
+inline
+std::vector<unsigned int>& Sequence6::element12()
+{
+    return d_element12;
+}
+
+inline
+std::vector<bdeut_NullableValue<unsigned char> >& Sequence6::element13()
+{
+    return d_element13;
+}
+
+inline
+std::vector<CustomInt>& Sequence6::element14()
+{
+    return d_element14;
+}
+
+inline
+std::vector<bdeut_NullableValue<unsigned int> >& Sequence6::element15()
+{
+    return d_element15;
+}
+
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Sequence6::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bdex_OutStreamFunctions::streamOut(stream, d_element1, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element2, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element3, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element4, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element5, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element6, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element7, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element8, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element9, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element10, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element11, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element12, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element13, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element14, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element15, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+int Sequence6::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int Sequence6::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT6: {
+        return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT7: {
+        return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT8: {
+        return accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT9: {
+        return accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT10: {
+        return accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT11: {
+        return accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT12: {
+        return accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT13: {
+        return accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT14: {
+        return accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT15: {
+        return accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int Sequence6::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const bdeut_NullableValue<unsigned char>& Sequence6::element1() const
+{
+    return d_element1;
+}
+
+inline
+const bdeut_NullableValue<CustomString>& Sequence6::element2() const
+{
+    return d_element2;
+}
+
+inline
+const bdeut_NullableValue<CustomInt>& Sequence6::element3() const
+{
+    return d_element3;
+}
+
+inline
+unsigned int Sequence6::element4() const
+{
+    return d_element4;
+}
+
+inline
+unsigned char Sequence6::element5() const
+{
+    return d_element5;
+}
+
+inline
+const std::vector<bdeut_NullableValue<CustomInt> >& Sequence6::element6() const
+{
+    return d_element6;
+}
+
+inline
+const CustomString& Sequence6::element7() const
+{
+    return d_element7;
+}
+
+inline
+const CustomInt& Sequence6::element8() const
+{
+    return d_element8;
+}
+
+inline
+const bdeut_NullableValue<unsigned int>& Sequence6::element9() const
+{
+    return d_element9;
+}
+
+inline
+const std::vector<unsigned char>& Sequence6::element10() const
+{
+    return d_element10;
+}
+
+inline
+const std::vector<CustomString>& Sequence6::element11() const
+{
+    return d_element11;
+}
+
+inline
+const std::vector<unsigned int>& Sequence6::element12() const
+{
+    return d_element12;
+}
+
+inline
+const std::vector<bdeut_NullableValue<unsigned char> >& Sequence6::element13() const
+{
+    return d_element13;
+}
+
+inline
+const std::vector<CustomInt>& Sequence6::element14() const
+{
+    return d_element14;
+}
+
+inline
+const std::vector<bdeut_NullableValue<unsigned int> >& Sequence6::element15() const
+{
+    return d_element15;
+}
+
+
+
+                               // -------------                                
+                               // class Choice3                                
+                               // -------------                                
+
+// CLASS METHODS
+inline
+int Choice3::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// CREATORS
+inline
+Choice3::Choice3(bdema_Allocator *basicAllocator)
+: d_selectionId(SELECTION_ID_UNDEFINED)
+, d_allocator_p(bdema_Default::allocator(basicAllocator))
+{
+}
+
+inline
+Choice3::~Choice3()
+{
+    reset();
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Choice3::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            short selectionId;
+            stream.getInt16(selectionId);
+            if (!stream) {
+                return stream;
+            }
+            switch (selectionId) {
+              case SELECTION_ID_SELECTION1: {
+                makeSelection1();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                makeSelection2();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION3: {
+                makeSelection3();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection3.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                makeSelection4();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection4.object(), 1);
+              } break;
+              case SELECTION_ID_UNDEFINED: {
+                reset();
+              } break;
+              default:
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Choice3::manipulateSelection(MANIPULATOR& manipulator)
+{
+    switch (d_selectionId) {
+      case Choice3::SELECTION_ID_SELECTION1:
+        return manipulator(&d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case Choice3::SELECTION_ID_SELECTION2:
+        return manipulator(&d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case Choice3::SELECTION_ID_SELECTION3:
+        return manipulator(&d_selection3.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case Choice3::SELECTION_ID_SELECTION4:
+        return manipulator(&d_selection4.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      default:
+        BSLS_ASSERT(Choice3::SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+Sequence6& Choice3::selection1()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+unsigned char& Choice3::selection2()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+CustomString& Choice3::selection3()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return d_selection3.object();
+}
+
+inline
+CustomInt& Choice3::selection4()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return d_selection4.object();
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Choice3::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+            stream.putInt16(d_selectionId);
+            switch (d_selectionId) {
+              case SELECTION_ID_SELECTION1: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION3: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection3.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection4.object(), 1);
+              } break;
+              default:
+                BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+            }
+      } break;
+    }
+    return stream;
+}
+
+inline
+int Choice3::selectionId() const
+{
+    return d_selectionId;
+}
+
+template <class ACCESSOR>
+int Choice3::accessSelection(ACCESSOR& accessor) const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return accessor(d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case SELECTION_ID_SELECTION2:
+        return accessor(d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case SELECTION_ID_SELECTION3:
+        return accessor(d_selection3.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case SELECTION_ID_SELECTION4:
+        return accessor(d_selection4.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+const Sequence6& Choice3::selection1() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+const unsigned char& Choice3::selection2() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+const CustomString& Choice3::selection3() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return d_selection3.object();
+}
+
+inline
+const CustomInt& Choice3::selection4() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return d_selection4.object();
+}
+
+inline
+bool Choice3::isSelection1Value() const
+{
+    return SELECTION_ID_SELECTION1 == d_selectionId;
+}
+
+inline
+bool Choice3::isSelection2Value() const
+{
+    return SELECTION_ID_SELECTION2 == d_selectionId;
+}
+
+inline
+bool Choice3::isSelection3Value() const
+{
+    return SELECTION_ID_SELECTION3 == d_selectionId;
+}
+
+inline
+bool Choice3::isSelection4Value() const
+{
+    return SELECTION_ID_SELECTION4 == d_selectionId;
+}
+
+inline
+bool Choice3::isUndefinedValue() const
+{
+    return SELECTION_ID_UNDEFINED == d_selectionId;
+}
+
+
+                               // -------------                                
+                               // class Choice1                                
+                               // -------------                                
+
+// CLASS METHODS
+inline
+int Choice1::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// CREATORS
+inline
+Choice1::Choice1(bdema_Allocator *basicAllocator)
+: d_selectionId(SELECTION_ID_UNDEFINED)
+, d_allocator_p(bdema_Default::allocator(basicAllocator))
+{
+}
+
+inline
+Choice1::~Choice1()
+{
+    reset();
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Choice1::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            short selectionId;
+            stream.getInt16(selectionId);
+            if (!stream) {
+                return stream;
+            }
+            switch (selectionId) {
+              case SELECTION_ID_SELECTION1: {
+                makeSelection1();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                makeSelection2();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION3: {
+                makeSelection3();
+                bdex_InStreamFunctions::streamIn(
+                    stream, *d_selection3, 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                makeSelection4();
+                bdex_InStreamFunctions::streamIn(
+                    stream, *d_selection4, 1);
+              } break;
+              case SELECTION_ID_UNDEFINED: {
+                reset();
+              } break;
+              default:
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Choice1::manipulateSelection(MANIPULATOR& manipulator)
+{
+    switch (d_selectionId) {
+      case Choice1::SELECTION_ID_SELECTION1:
+        return manipulator(&d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case Choice1::SELECTION_ID_SELECTION2:
+        return manipulator(&d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case Choice1::SELECTION_ID_SELECTION3:
+        return manipulator(d_selection3,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case Choice1::SELECTION_ID_SELECTION4:
+        return manipulator(d_selection4,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      default:
+        BSLS_ASSERT(Choice1::SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+int& Choice1::selection1()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+double& Choice1::selection2()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+Sequence4& Choice1::selection3()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return *d_selection3;
+}
+
+inline
+Choice2& Choice1::selection4()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return *d_selection4;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Choice1::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+            stream.putInt16(d_selectionId);
+            switch (d_selectionId) {
+              case SELECTION_ID_SELECTION1: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION3: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, *d_selection3, 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, *d_selection4, 1);
+              } break;
+              default:
+                BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+            }
+      } break;
+    }
+    return stream;
+}
+
+inline
+int Choice1::selectionId() const
+{
+    return d_selectionId;
+}
+
+template <class ACCESSOR>
+int Choice1::accessSelection(ACCESSOR& accessor) const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return accessor(d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case SELECTION_ID_SELECTION2:
+        return accessor(d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case SELECTION_ID_SELECTION3:
+        return accessor(*d_selection3,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case SELECTION_ID_SELECTION4:
+        return accessor(*d_selection4,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+const int& Choice1::selection1() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+const double& Choice1::selection2() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+const Sequence4& Choice1::selection3() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return *d_selection3;
+}
+
+inline
+const Choice2& Choice1::selection4() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return *d_selection4;
+}
+
+inline
+bool Choice1::isSelection1Value() const
+{
+    return SELECTION_ID_SELECTION1 == d_selectionId;
+}
+
+inline
+bool Choice1::isSelection2Value() const
+{
+    return SELECTION_ID_SELECTION2 == d_selectionId;
+}
+
+inline
+bool Choice1::isSelection3Value() const
+{
+    return SELECTION_ID_SELECTION3 == d_selectionId;
+}
+
+inline
+bool Choice1::isSelection4Value() const
+{
+    return SELECTION_ID_SELECTION4 == d_selectionId;
+}
+
+inline
+bool Choice1::isUndefinedValue() const
+{
+    return SELECTION_ID_UNDEFINED == d_selectionId;
+}
+
+
+                               // -------------                                
+                               // class Choice2                                
+                               // -------------                                
+
+// CLASS METHODS
+inline
+int Choice2::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// CREATORS
+inline
+Choice2::Choice2(bdema_Allocator *basicAllocator)
+: d_selectionId(SELECTION_ID_UNDEFINED)
+, d_allocator_p(bdema_Default::allocator(basicAllocator))
+{
+}
+
+inline
+Choice2::~Choice2()
+{
+    reset();
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Choice2::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            short selectionId;
+            stream.getInt16(selectionId);
+            if (!stream) {
+                return stream;
+            }
+            switch (selectionId) {
+              case SELECTION_ID_SELECTION1: {
+                makeSelection1();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                makeSelection2();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION3: {
+                makeSelection3();
+                bdex_InStreamFunctions::streamIn(
+                    stream, *d_selection3, 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                makeSelection4();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection4.object(), 1);
+              } break;
+              case SELECTION_ID_UNDEFINED: {
+                reset();
+              } break;
+              default:
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Choice2::manipulateSelection(MANIPULATOR& manipulator)
+{
+    switch (d_selectionId) {
+      case Choice2::SELECTION_ID_SELECTION1:
+        return manipulator(&d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case Choice2::SELECTION_ID_SELECTION2:
+        return manipulator(&d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case Choice2::SELECTION_ID_SELECTION3:
+        return manipulator(d_selection3,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case Choice2::SELECTION_ID_SELECTION4:
+        return manipulator(&d_selection4.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      default:
+        BSLS_ASSERT(Choice2::SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+bool& Choice2::selection1()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+std::string& Choice2::selection2()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+Choice1& Choice2::selection3()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return *d_selection3;
+}
+
+inline
+unsigned int& Choice2::selection4()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return d_selection4.object();
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Choice2::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+            stream.putInt16(d_selectionId);
+            switch (d_selectionId) {
+              case SELECTION_ID_SELECTION1: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION3: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, *d_selection3, 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection4.object(), 1);
+              } break;
+              default:
+                BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+            }
+      } break;
+    }
+    return stream;
+}
+
+inline
+int Choice2::selectionId() const
+{
+    return d_selectionId;
+}
+
+template <class ACCESSOR>
+int Choice2::accessSelection(ACCESSOR& accessor) const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return accessor(d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case SELECTION_ID_SELECTION2:
+        return accessor(d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case SELECTION_ID_SELECTION3:
+        return accessor(*d_selection3,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case SELECTION_ID_SELECTION4:
+        return accessor(d_selection4.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+const bool& Choice2::selection1() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+const std::string& Choice2::selection2() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+const Choice1& Choice2::selection3() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return *d_selection3;
+}
+
+inline
+const unsigned int& Choice2::selection4() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return d_selection4.object();
+}
+
+inline
+bool Choice2::isSelection1Value() const
+{
+    return SELECTION_ID_SELECTION1 == d_selectionId;
+}
+
+inline
+bool Choice2::isSelection2Value() const
+{
+    return SELECTION_ID_SELECTION2 == d_selectionId;
+}
+
+inline
+bool Choice2::isSelection3Value() const
+{
+    return SELECTION_ID_SELECTION3 == d_selectionId;
+}
+
+inline
+bool Choice2::isSelection4Value() const
+{
+    return SELECTION_ID_SELECTION4 == d_selectionId;
+}
+
+inline
+bool Choice2::isUndefinedValue() const
+{
+    return SELECTION_ID_UNDEFINED == d_selectionId;
+}
+
+
+                              // ---------------                               
+                              // class Sequence4                               
+                              // ---------------                               
+
+// CLASS METHODS
+inline
+int Sequence4::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Sequence4::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, d_element1, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element2, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element3, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element4, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element5, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element6, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element7, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element8, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element9, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element10, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element11, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element12, 1);
+            Enumerated::bdexStreamIn(stream, d_element13, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element14, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element15, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element16, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element17, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element18, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element19, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Sequence4::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int Sequence4::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT6: {
+        return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT7: {
+        return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT8: {
+        return manipulator(&d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT9: {
+        return manipulator(&d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT10: {
+        return manipulator(&d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT11: {
+        return manipulator(&d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT12: {
+        return manipulator(&d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT13: {
+        return manipulator(&d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT14: {
+        return manipulator(&d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT15: {
+        return manipulator(&d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT16: {
+        return manipulator(&d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT17: {
+        return manipulator(&d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT18: {
+        return manipulator(&d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT19: {
+        return manipulator(&d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+
+template <class MANIPULATOR>
+int Sequence4::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+std::vector<Sequence3>& Sequence4::element1()
+{
+    return d_element1;
+}
+
+inline
+std::vector<Choice1>& Sequence4::element2()
+{
+    return d_element2;
+}
+
+inline
+bdeut_NullableValue<std::vector<char> >& Sequence4::element3()
+{
+    return d_element3;
+}
+
+inline
+bdeut_NullableValue<int>& Sequence4::element4()
+{
+    return d_element4;
+}
+
+inline
+bdeut_NullableValue<bdet_DatetimeTz>& Sequence4::element5()
+{
+    return d_element5;
+}
+
+inline
+bdeut_NullableValue<CustomString>& Sequence4::element6()
+{
+    return d_element6;
+}
+
+inline
+bdeut_NullableValue<Enumerated::Value>& Sequence4::element7()
+{
+    return d_element7;
+}
+
+inline
+bool& Sequence4::element8()
+{
+    return d_element8;
+}
+
+inline
+std::string& Sequence4::element9()
+{
+    return d_element9;
+}
+
+inline
+double& Sequence4::element10()
+{
+    return d_element10;
+}
+
+inline
+std::vector<char>& Sequence4::element11()
+{
+    return d_element11;
+}
+
+inline
+int& Sequence4::element12()
+{
+    return d_element12;
+}
+
+inline
+Enumerated::Value& Sequence4::element13()
+{
+    return d_element13;
+}
+
+inline
+std::vector<bool>& Sequence4::element14()
+{
+    return d_element14;
+}
+
+inline
+std::vector<double>& Sequence4::element15()
+{
+    return d_element15;
+}
+
+inline
+std::vector<std::vector<char> >& Sequence4::element16()
+{
+    return d_element16;
+}
+
+inline
+std::vector<int>& Sequence4::element17()
+{
+    return d_element17;
+}
+
+inline
+std::vector<bdet_DatetimeTz>& Sequence4::element18()
+{
+    return d_element18;
+}
+
+inline
+std::vector<CustomString>& Sequence4::element19()
+{
+    return d_element19;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Sequence4::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bdex_OutStreamFunctions::streamOut(stream, d_element1, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element2, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element3, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element4, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element5, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element6, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element7, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element8, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element9, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element10, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element11, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element12, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element13, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element14, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element15, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element16, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element17, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element18, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element19, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+int Sequence4::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int Sequence4::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT6: {
+        return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT7: {
+        return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT8: {
+        return accessor(d_element8, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT9: {
+        return accessor(d_element9, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT10: {
+        return accessor(d_element10, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT11: {
+        return accessor(d_element11, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT12: {
+        return accessor(d_element12, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT13: {
+        return accessor(d_element13, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT14: {
+        return accessor(d_element14, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT15: {
+        return accessor(d_element15, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT16: {
+        return accessor(d_element16, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT17: {
+        return accessor(d_element17, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT18: {
+        return accessor(d_element18, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT19: {
+        return accessor(d_element19, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int Sequence4::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const std::vector<Sequence3>& Sequence4::element1() const
+{
+    return d_element1;
+}
+
+inline
+const std::vector<Choice1>& Sequence4::element2() const
+{
+    return d_element2;
+}
+
+inline
+const bdeut_NullableValue<std::vector<char> >& Sequence4::element3() const
+{
+    return d_element3;
+}
+
+inline
+const bdeut_NullableValue<int>& Sequence4::element4() const
+{
+    return d_element4;
+}
+
+inline
+const bdeut_NullableValue<bdet_DatetimeTz>& Sequence4::element5() const
+{
+    return d_element5;
+}
+
+inline
+const bdeut_NullableValue<CustomString>& Sequence4::element6() const
+{
+    return d_element6;
+}
+
+inline
+const bdeut_NullableValue<Enumerated::Value>& Sequence4::element7() const
+{
+    return d_element7;
+}
+
+inline
+bool Sequence4::element8() const
+{
+    return d_element8;
+}
+
+inline
+const std::string& Sequence4::element9() const
+{
+    return d_element9;
+}
+
+inline
+double Sequence4::element10() const
+{
+    return d_element10;
+}
+
+inline
+const std::vector<char>& Sequence4::element11() const
+{
+    return d_element11;
+}
+
+inline
+int Sequence4::element12() const
+{
+    return d_element12;
+}
+
+inline
+Enumerated::Value Sequence4::element13() const
+{
+    return d_element13;
+}
+
+inline
+const std::vector<bool>& Sequence4::element14() const
+{
+    return d_element14;
+}
+
+inline
+const std::vector<double>& Sequence4::element15() const
+{
+    return d_element15;
+}
+
+inline
+const std::vector<std::vector<char> >& Sequence4::element16() const
+{
+    return d_element16;
+}
+
+inline
+const std::vector<int>& Sequence4::element17() const
+{
+    return d_element17;
+}
+
+inline
+const std::vector<bdet_DatetimeTz>& Sequence4::element18() const
+{
+    return d_element18;
+}
+
+inline
+const std::vector<CustomString>& Sequence4::element19() const
+{
+    return d_element19;
+}
+
+
+
+                              // ---------------                               
+                              // class Sequence1                               
+                              // ---------------                               
+
+// CLASS METHODS
+inline
+int Sequence1::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Sequence1::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, d_element1, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element2, 1);
+            bdex_InStreamFunctions::streamIn(stream, *d_element3, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element4, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element5, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Sequence1::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int Sequence1::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return manipulator(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int Sequence1::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+bdeut_NullableValue<Choice3>& Sequence1::element1()
+{
+    return d_element1;
+}
+
+inline
+std::vector<Choice1>& Sequence1::element2()
+{
+    return d_element2;
+}
+
+inline
+Choice2& Sequence1::element3()
+{
+    return *d_element3;
+}
+
+inline
+std::vector<bdeut_NullableValue<Choice1> >& Sequence1::element4()
+{
+    return d_element4;
+}
+
+inline
+std::vector<Choice3>& Sequence1::element5()
+{
+    return d_element5;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Sequence1::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bdex_OutStreamFunctions::streamOut(stream, d_element1, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element2, 1);
+        bdex_OutStreamFunctions::streamOut(stream, *d_element3, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element4, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element5, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+int Sequence1::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(*d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int Sequence1::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return accessor(*d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int Sequence1::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const bdeut_NullableValue<Choice3>& Sequence1::element1() const
+{
+    return d_element1;
+}
+
+inline
+const std::vector<Choice1>& Sequence1::element2() const
+{
+    return d_element2;
+}
+
+inline
+const Choice2& Sequence1::element3() const
+{
+    return *d_element3;
+}
+
+inline
+const std::vector<bdeut_NullableValue<Choice1> >& Sequence1::element4() const
+{
+    return d_element4;
+}
+
+inline
+const std::vector<Choice3>& Sequence1::element5() const
+{
+    return d_element5;
+}
+
+
+
+                              // ---------------                               
+                              // class Sequence2                               
+                              // ---------------                               
+
+// CLASS METHODS
+inline
+int Sequence2::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Sequence2::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bdex_InStreamFunctions::streamIn(stream, d_element1, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element2, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element3, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element4, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element5, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element6, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_element7, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Sequence2::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int Sequence2::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return manipulator(&d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return manipulator(&d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return manipulator(&d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return manipulator(&d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return manipulator(&d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT6: {
+        return manipulator(&d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT7: {
+        return manipulator(&d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int Sequence2::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+           lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+CustomString& Sequence2::element1()
+{
+    return d_element1;
+}
+
+inline
+unsigned char& Sequence2::element2()
+{
+    return d_element2;
+}
+
+inline
+bdet_DatetimeTz& Sequence2::element3()
+{
+    return d_element3;
+}
+
+inline
+bdeut_NullableValue<Choice1>& Sequence2::element4()
+{
+    return d_element4;
+}
+
+inline
+bdeut_NullableValue<double>& Sequence2::element5()
+{
+    return d_element5;
+}
+
+inline
+std::vector<bdeut_NullableValue<std::string> >& Sequence2::element6()
+{
+    return d_element6;
+}
+
+inline
+std::vector<bdeut_NullableValue<CustomString> >& Sequence2::element7()
+{
+    return d_element7;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Sequence2::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bdex_OutStreamFunctions::streamOut(stream, d_element1, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element2, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element3, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element4, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element5, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element6, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_element7, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+int Sequence2::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int Sequence2::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1: {
+        return accessor(d_element1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT2: {
+        return accessor(d_element2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT3: {
+        return accessor(d_element3, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT4: {
+        return accessor(d_element4, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT5: {
+        return accessor(d_element5, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT6: {
+        return accessor(d_element6, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6]);
+      } break;
+      case ATTRIBUTE_ID_ELEMENT7: {
+        return accessor(d_element7, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int Sequence2::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdeat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+const CustomString& Sequence2::element1() const
+{
+    return d_element1;
+}
+
+inline
+unsigned char Sequence2::element2() const
+{
+    return d_element2;
+}
+
+inline
+const bdet_DatetimeTz& Sequence2::element3() const
+{
+    return d_element3;
+}
+
+inline
+const bdeut_NullableValue<Choice1>& Sequence2::element4() const
+{
+    return d_element4;
+}
+
+inline
+const bdeut_NullableValue<double>& Sequence2::element5() const
+{
+    return d_element5;
+}
+
+inline
+const std::vector<bdeut_NullableValue<std::string> >& Sequence2::element6() const
+{
+    return d_element6;
+}
+
+inline
+const std::vector<bdeut_NullableValue<CustomString> >& Sequence2::element7() const
+{
+    return d_element7;
+}
+
+
+
+                              // ---------------                               
+                              // class Topchoice                               
+                              // ---------------                               
+
+// CLASS METHODS
+inline
+int Topchoice::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// CREATORS
+inline
+Topchoice::Topchoice(bdema_Allocator *basicAllocator)
+: d_selectionId(SELECTION_ID_UNDEFINED)
+, d_allocator_p(bdema_Default::allocator(basicAllocator))
+{
+}
+
+inline
+Topchoice::~Topchoice()
+{
+    reset();
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& Topchoice::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            short selectionId;
+            stream.getInt16(selectionId);
+            if (!stream) {
+                return stream;
+            }
+            switch (selectionId) {
+              case SELECTION_ID_SELECTION1: {
+                makeSelection1();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                makeSelection2();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION3: {
+                makeSelection3();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection3.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                makeSelection4();
+                bdex_InStreamFunctions::streamIn(
+                    stream, *d_selection4, 1);
+              } break;
+              case SELECTION_ID_SELECTION5: {
+                makeSelection5();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection5.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION6: {
+                makeSelection6();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection6.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION7: {
+                makeSelection7();
+                Enumerated::bdexStreamIn(
+                    stream, d_selection7.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION8: {
+                makeSelection8();
+                bdex_InStreamFunctions::streamIn(
+                    stream, d_selection8.object(), 1);
+              } break;
+              case SELECTION_ID_UNDEFINED: {
+                reset();
+              } break;
+              default:
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int Topchoice::manipulateSelection(MANIPULATOR& manipulator)
+{
+    switch (d_selectionId) {
+      case Topchoice::SELECTION_ID_SELECTION1:
+        return manipulator(&d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case Topchoice::SELECTION_ID_SELECTION2:
+        return manipulator(&d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case Topchoice::SELECTION_ID_SELECTION3:
+        return manipulator(&d_selection3.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case Topchoice::SELECTION_ID_SELECTION4:
+        return manipulator(d_selection4,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      case Topchoice::SELECTION_ID_SELECTION5:
+        return manipulator(&d_selection5.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5]);
+      case Topchoice::SELECTION_ID_SELECTION6:
+        return manipulator(&d_selection6.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6]);
+      case Topchoice::SELECTION_ID_SELECTION7:
+        return manipulator(&d_selection7.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7]);
+      case Topchoice::SELECTION_ID_SELECTION8:
+        return manipulator(&d_selection8.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
+      default:
+        BSLS_ASSERT(Topchoice::SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+Sequence1& Topchoice::selection1()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+std::vector<char>& Topchoice::selection2()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+Sequence2& Topchoice::selection3()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return d_selection3.object();
+}
+
+inline
+Sequence3& Topchoice::selection4()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return *d_selection4;
+}
+
+inline
+bdet_DatetimeTz& Topchoice::selection5()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION5 == d_selectionId);
+    return d_selection5.object();
+}
+
+inline
+CustomString& Topchoice::selection6()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION6 == d_selectionId);
+    return d_selection6.object();
+}
+
+inline
+Enumerated::Value& Topchoice::selection7()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION7 == d_selectionId);
+    return d_selection7.object();
+}
+
+inline
+Choice3& Topchoice::selection8()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION8 == d_selectionId);
+    return d_selection8.object();
+}
+
+
+// ACCESSORS
+template <class STREAM>
+STREAM& Topchoice::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+            stream.putInt16(d_selectionId);
+            switch (d_selectionId) {
+              case SELECTION_ID_SELECTION1: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION3: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection3.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION4: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, *d_selection4, 1);
+              } break;
+              case SELECTION_ID_SELECTION5: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection5.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION6: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection6.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION7: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection7.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION8: {
+                bdex_OutStreamFunctions::streamOut(
+                    stream, d_selection8.object(), 1);
+              } break;
+              default:
+                BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+            }
+      } break;
+    }
+    return stream;
+}
+
+inline
+int Topchoice::selectionId() const
+{
+    return d_selectionId;
+}
+
+template <class ACCESSOR>
+int Topchoice::accessSelection(ACCESSOR& accessor) const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return accessor(d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case SELECTION_ID_SELECTION2:
+        return accessor(d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      case SELECTION_ID_SELECTION3:
+        return accessor(d_selection3.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3]);
+      case SELECTION_ID_SELECTION4:
+        return accessor(*d_selection4,
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4]);
+      case SELECTION_ID_SELECTION5:
+        return accessor(d_selection5.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5]);
+      case SELECTION_ID_SELECTION6:
+        return accessor(d_selection6.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6]);
+      case SELECTION_ID_SELECTION7:
+        return accessor(d_selection7.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7]);
+      case SELECTION_ID_SELECTION8:
+        return accessor(d_selection8.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8]);
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+const Sequence1& Topchoice::selection1() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+const std::vector<char>& Topchoice::selection2() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+const Sequence2& Topchoice::selection3() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION3 == d_selectionId);
+    return d_selection3.object();
+}
+
+inline
+const Sequence3& Topchoice::selection4() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION4 == d_selectionId);
+    return *d_selection4;
+}
+
+inline
+const bdet_DatetimeTz& Topchoice::selection5() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION5 == d_selectionId);
+    return d_selection5.object();
+}
+
+inline
+const CustomString& Topchoice::selection6() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION6 == d_selectionId);
+    return d_selection6.object();
+}
+
+inline
+const Enumerated::Value& Topchoice::selection7() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION7 == d_selectionId);
+    return d_selection7.object();
+}
+
+inline
+const Choice3& Topchoice::selection8() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION8 == d_selectionId);
+    return d_selection8.object();
+}
+
+inline
+bool Topchoice::isSelection1Value() const
+{
+    return SELECTION_ID_SELECTION1 == d_selectionId;
+}
+
+inline
+bool Topchoice::isSelection2Value() const
+{
+    return SELECTION_ID_SELECTION2 == d_selectionId;
+}
+
+inline
+bool Topchoice::isSelection3Value() const
+{
+    return SELECTION_ID_SELECTION3 == d_selectionId;
+}
+
+inline
+bool Topchoice::isSelection4Value() const
+{
+    return SELECTION_ID_SELECTION4 == d_selectionId;
+}
+
+inline
+bool Topchoice::isSelection5Value() const
+{
+    return SELECTION_ID_SELECTION5 == d_selectionId;
+}
+
+inline
+bool Topchoice::isSelection6Value() const
+{
+    return SELECTION_ID_SELECTION6 == d_selectionId;
+}
+
+inline
+bool Topchoice::isSelection7Value() const
+{
+    return SELECTION_ID_SELECTION7 == d_selectionId;
+}
+
+inline
+bool Topchoice::isSelection8Value() const
+{
+    return SELECTION_ID_SELECTION8 == d_selectionId;
+}
+
+inline
+bool Topchoice::isUndefinedValue() const
+{
+    return SELECTION_ID_UNDEFINED == d_selectionId;
+}
+}  // close namespace bsctst
+
+// FREE FUNCTIONS
+
+inline
+bool bsctst::operator==(
+        const bsctst::CustomInt& lhs,
+        const bsctst::CustomInt& rhs)
+{
+    return lhs.d_value == rhs.d_value;
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::CustomInt& lhs,
+        const bsctst::CustomInt& rhs)
+{
+    return lhs.d_value != rhs.d_value;
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::CustomInt& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::CustomString& lhs,
+        const bsctst::CustomString& rhs)
+{
+    return lhs.d_value == rhs.d_value;
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::CustomString& lhs,
+        const bsctst::CustomString& rhs)
+{
+    return lhs.d_value != rhs.d_value;
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::CustomString& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        bsctst::Enumerated::Value rhs)
+{
+    return bsctst::Enumerated::print(stream, rhs);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::Sequence3& lhs,
+        const bsctst::Sequence3& rhs)
+{
+    return  lhs.element1() == rhs.element1()
+         && lhs.element2() == rhs.element2()
+         && lhs.element3() == rhs.element3()
+         && lhs.element4() == rhs.element4()
+         && lhs.element5() == rhs.element5()
+         && lhs.element6() == rhs.element6();
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::Sequence3& lhs,
+        const bsctst::Sequence3& rhs)
+{
+    return  lhs.element1() != rhs.element1()
+         || lhs.element2() != rhs.element2()
+         || lhs.element3() != rhs.element3()
+         || lhs.element4() != rhs.element4()
+         || lhs.element5() != rhs.element5()
+         || lhs.element6() != rhs.element6();
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::Sequence3& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::Sequence5& lhs,
+        const bsctst::Sequence5& rhs)
+{
+    return  lhs.element1() == rhs.element1()
+         && lhs.element2() == rhs.element2()
+         && lhs.element3() == rhs.element3()
+         && lhs.element4() == rhs.element4()
+         && lhs.element5() == rhs.element5()
+         && lhs.element6() == rhs.element6()
+         && lhs.element7() == rhs.element7();
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::Sequence5& lhs,
+        const bsctst::Sequence5& rhs)
+{
+    return  lhs.element1() != rhs.element1()
+         || lhs.element2() != rhs.element2()
+         || lhs.element3() != rhs.element3()
+         || lhs.element4() != rhs.element4()
+         || lhs.element5() != rhs.element5()
+         || lhs.element6() != rhs.element6()
+         || lhs.element7() != rhs.element7();
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::Sequence5& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::Sequence6& lhs,
+        const bsctst::Sequence6& rhs)
+{
+    return  lhs.element1() == rhs.element1()
+         && lhs.element2() == rhs.element2()
+         && lhs.element3() == rhs.element3()
+         && lhs.element4() == rhs.element4()
+         && lhs.element5() == rhs.element5()
+         && lhs.element6() == rhs.element6()
+         && lhs.element7() == rhs.element7()
+         && lhs.element8() == rhs.element8()
+         && lhs.element9() == rhs.element9()
+         && lhs.element10() == rhs.element10()
+         && lhs.element11() == rhs.element11()
+         && lhs.element12() == rhs.element12()
+         && lhs.element13() == rhs.element13()
+         && lhs.element14() == rhs.element14()
+         && lhs.element15() == rhs.element15();
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::Sequence6& lhs,
+        const bsctst::Sequence6& rhs)
+{
+    return  lhs.element1() != rhs.element1()
+         || lhs.element2() != rhs.element2()
+         || lhs.element3() != rhs.element3()
+         || lhs.element4() != rhs.element4()
+         || lhs.element5() != rhs.element5()
+         || lhs.element6() != rhs.element6()
+         || lhs.element7() != rhs.element7()
+         || lhs.element8() != rhs.element8()
+         || lhs.element9() != rhs.element9()
+         || lhs.element10() != rhs.element10()
+         || lhs.element11() != rhs.element11()
+         || lhs.element12() != rhs.element12()
+         || lhs.element13() != rhs.element13()
+         || lhs.element14() != rhs.element14()
+         || lhs.element15() != rhs.element15();
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::Sequence6& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::Choice3& lhs,
+        const bsctst::Choice3& rhs)
+{
+    typedef bsctst::Choice3 Class;
+    if (lhs.selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION1:
+            return lhs.selection1() == rhs.selection1();
+          case Class::SELECTION_ID_SELECTION2:
+            return lhs.selection2() == rhs.selection2();
+          case Class::SELECTION_ID_SELECTION3:
+            return lhs.selection3() == rhs.selection3();
+          case Class::SELECTION_ID_SELECTION4:
+            return lhs.selection4() == rhs.selection4();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+   }
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::Choice3& lhs,
+        const bsctst::Choice3& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::Choice3& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::Choice1& lhs,
+        const bsctst::Choice1& rhs)
+{
+    typedef bsctst::Choice1 Class;
+    if (lhs.selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION1:
+            return lhs.selection1() == rhs.selection1();
+          case Class::SELECTION_ID_SELECTION2:
+            return lhs.selection2() == rhs.selection2();
+          case Class::SELECTION_ID_SELECTION3:
+            return lhs.selection3() == rhs.selection3();
+          case Class::SELECTION_ID_SELECTION4:
+            return lhs.selection4() == rhs.selection4();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+   }
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::Choice1& lhs,
+        const bsctst::Choice1& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::Choice1& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::Choice2& lhs,
+        const bsctst::Choice2& rhs)
+{
+    typedef bsctst::Choice2 Class;
+    if (lhs.selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION1:
+            return lhs.selection1() == rhs.selection1();
+          case Class::SELECTION_ID_SELECTION2:
+            return lhs.selection2() == rhs.selection2();
+          case Class::SELECTION_ID_SELECTION3:
+            return lhs.selection3() == rhs.selection3();
+          case Class::SELECTION_ID_SELECTION4:
+            return lhs.selection4() == rhs.selection4();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+   }
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::Choice2& lhs,
+        const bsctst::Choice2& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::Choice2& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::Sequence4& lhs,
+        const bsctst::Sequence4& rhs)
+{
+    return  lhs.element1() == rhs.element1()
+         && lhs.element2() == rhs.element2()
+         && lhs.element3() == rhs.element3()
+         && lhs.element4() == rhs.element4()
+         && lhs.element5() == rhs.element5()
+         && lhs.element6() == rhs.element6()
+         && lhs.element7() == rhs.element7()
+         && lhs.element8() == rhs.element8()
+         && lhs.element9() == rhs.element9()
+         && lhs.element10() == rhs.element10()
+         && lhs.element11() == rhs.element11()
+         && lhs.element12() == rhs.element12()
+         && lhs.element13() == rhs.element13()
+         && lhs.element14() == rhs.element14()
+         && lhs.element15() == rhs.element15()
+         && lhs.element16() == rhs.element16()
+         && lhs.element17() == rhs.element17()
+         && lhs.element18() == rhs.element18()
+         && lhs.element19() == rhs.element19();
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::Sequence4& lhs,
+        const bsctst::Sequence4& rhs)
+{
+    return  lhs.element1() != rhs.element1()
+         || lhs.element2() != rhs.element2()
+         || lhs.element3() != rhs.element3()
+         || lhs.element4() != rhs.element4()
+         || lhs.element5() != rhs.element5()
+         || lhs.element6() != rhs.element6()
+         || lhs.element7() != rhs.element7()
+         || lhs.element8() != rhs.element8()
+         || lhs.element9() != rhs.element9()
+         || lhs.element10() != rhs.element10()
+         || lhs.element11() != rhs.element11()
+         || lhs.element12() != rhs.element12()
+         || lhs.element13() != rhs.element13()
+         || lhs.element14() != rhs.element14()
+         || lhs.element15() != rhs.element15()
+         || lhs.element16() != rhs.element16()
+         || lhs.element17() != rhs.element17()
+         || lhs.element18() != rhs.element18()
+         || lhs.element19() != rhs.element19();
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::Sequence4& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::Sequence1& lhs,
+        const bsctst::Sequence1& rhs)
+{
+    return  lhs.element1() == rhs.element1()
+         && lhs.element2() == rhs.element2()
+         && lhs.element3() == rhs.element3()
+         && lhs.element4() == rhs.element4()
+         && lhs.element5() == rhs.element5();
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::Sequence1& lhs,
+        const bsctst::Sequence1& rhs)
+{
+    return  lhs.element1() != rhs.element1()
+         || lhs.element2() != rhs.element2()
+         || lhs.element3() != rhs.element3()
+         || lhs.element4() != rhs.element4()
+         || lhs.element5() != rhs.element5();
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::Sequence1& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::Sequence2& lhs,
+        const bsctst::Sequence2& rhs)
+{
+    return  lhs.element1() == rhs.element1()
+         && lhs.element2() == rhs.element2()
+         && lhs.element3() == rhs.element3()
+         && lhs.element4() == rhs.element4()
+         && lhs.element5() == rhs.element5()
+         && lhs.element6() == rhs.element6()
+         && lhs.element7() == rhs.element7();
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::Sequence2& lhs,
+        const bsctst::Sequence2& rhs)
+{
+    return  lhs.element1() != rhs.element1()
+         || lhs.element2() != rhs.element2()
+         || lhs.element3() != rhs.element3()
+         || lhs.element4() != rhs.element4()
+         || lhs.element5() != rhs.element5()
+         || lhs.element6() != rhs.element6()
+         || lhs.element7() != rhs.element7();
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::Sequence2& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool bsctst::operator==(
+        const bsctst::Topchoice& lhs,
+        const bsctst::Topchoice& rhs)
+{
+    typedef bsctst::Topchoice Class;
+    if (lhs.selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION1:
+            return lhs.selection1() == rhs.selection1();
+          case Class::SELECTION_ID_SELECTION2:
+            return lhs.selection2() == rhs.selection2();
+          case Class::SELECTION_ID_SELECTION3:
+            return lhs.selection3() == rhs.selection3();
+          case Class::SELECTION_ID_SELECTION4:
+            return lhs.selection4() == rhs.selection4();
+          case Class::SELECTION_ID_SELECTION5:
+            return lhs.selection5() == rhs.selection5();
+          case Class::SELECTION_ID_SELECTION6:
+            return lhs.selection6() == rhs.selection6();
+          case Class::SELECTION_ID_SELECTION7:
+            return lhs.selection7() == rhs.selection7();
+          case Class::SELECTION_ID_SELECTION8:
+            return lhs.selection8() == rhs.selection8();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+   }
+}
+
+inline
+bool bsctst::operator!=(
+        const bsctst::Topchoice& lhs,
+        const bsctst::Topchoice& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+std::ostream& bsctst::operator<<(
+        std::ostream& stream,
+        const bsctst::Topchoice& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+}  // close namespace BloombergLP
+
+// GENERATED BY BLP_BAS_CODEGEN_3.6.7 Wed Sep 14 14:32:44 2011
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2011
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ------------------------------ END-OF-FILE ---------------------------------
+
+// bsctst_messages.h        -- GENERATED FILE - DO NOT EDIT --        -*-C++-*-
+
+namespace BloombergLP {
+namespace bsctst {
+
+                              // ---------------                               
+                              // class CustomInt                               
+                              // ---------------                               
+
+// PRIVATE CLASS METHODS
+
+int CustomInt::checkRestrictions(const int& value)
+{
+    if (1000 < value) {
+        return -1;
+    }
+
+    return 0;
+}
+
+// CONSTANTS
+
+const char CustomInt::CLASS_NAME[] = "CustomInt";
+
+
+
+                             // ------------------                             
+                             // class CustomString                             
+                             // ------------------                             
+
+// PRIVATE CLASS METHODS
+
+int CustomString::checkRestrictions(const std::string& value)
+{
+    if (8 < bdede_Utf8Util::numCharacters(value.c_str(), value.length())) {
+        return -1;
+    }
+
+    return 0;
+}
+
+// CONSTANTS
+
+const char CustomString::CLASS_NAME[] = "CustomString";
+
+
+
+                              // ----------------                              
+                              // class Enumerated                              
+                              // ----------------                              
+
+// CONSTANTS
+
+const char Enumerated::CLASS_NAME[] = "Enumerated";
+
+const bdeat_EnumeratorInfo Enumerated::ENUMERATOR_INFO_ARRAY[] = {
+    {
+        Enumerated::NEW_YORK,
+        "NEW_YORK",
+        sizeof("NEW_YORK") - 1,
+        ""
+    },
+    {
+        Enumerated::NEW_JERSEY,
+        "NEW_JERSEY",
+        sizeof("NEW_JERSEY") - 1,
+        ""
+    },
+    {
+        Enumerated::LONDON,
+        "LONDON",
+        sizeof("LONDON") - 1,
+        ""
+    }
+};
+
+// CLASS METHODS
+
+int Enumerated::fromInt(Enumerated::Value *result, int number)
+{
+    switch (number) {
+      case Enumerated::NEW_YORK:
+      case Enumerated::NEW_JERSEY:
+      case Enumerated::LONDON:
+        *result = (Enumerated::Value)number;
+        return 0;
+      default:
+        return -1;
+    }
+}
+
+int Enumerated::fromString(Enumerated::Value *result,
+                            const char         *string,
+                            int                 stringLength)
+{
+    
+    switch(stringLength) {
+        case 6: {
+            if (string[0]=='L'
+             && string[1]=='O'
+             && string[2]=='N'
+             && string[3]=='D'
+             && string[4]=='O'
+             && string[5]=='N')
+            {
+                *result = Enumerated::LONDON;
+                return 0;
+            }
+        } break;
+        case 8: {
+            if (string[0]=='N'
+             && string[1]=='E'
+             && string[2]=='W'
+             && string[3]=='_'
+             && string[4]=='Y'
+             && string[5]=='O'
+             && string[6]=='R'
+             && string[7]=='K')
+            {
+                *result = Enumerated::NEW_YORK;
+                return 0;
+            }
+        } break;
+        case 10: {
+            if (string[0]=='N'
+             && string[1]=='E'
+             && string[2]=='W'
+             && string[3]=='_'
+             && string[4]=='J'
+             && string[5]=='E'
+             && string[6]=='R'
+             && string[7]=='S'
+             && string[8]=='E'
+             && string[9]=='Y')
+            {
+                *result = Enumerated::NEW_JERSEY;
+                return 0;
+            }
+        } break;
+    }
+    
+    return -1;
+}
+
+const char *Enumerated::toString(Enumerated::Value value)
+{
+    switch (value) {
+      case NEW_YORK: {
+        return "NEW_YORK";
+      } break;
+      case NEW_JERSEY: {
+        return "NEW_JERSEY";
+      } break;
+      case LONDON: {
+        return "LONDON";
+      } break;
+    }
+
+    BSLS_ASSERT(!"invalid enumerator");
+    return 0;
+}
+
+
+                              // ---------------                               
+                              // class Sequence3                               
+                              // ---------------                               
+
+// CONSTANTS
+
+const char Sequence3::CLASS_NAME[] = "Sequence3";
+
+const bdeat_AttributeInfo Sequence3::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_ELEMENT1,
+        "element1",
+        sizeof("element1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT2,
+        "element2",
+        sizeof("element2") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT3,
+        "element3",
+        sizeof("element3") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT4,
+        "element4",
+        sizeof("element4") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT5,
+        "element5",
+        sizeof("element5") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT6,
+        "element6",
+        sizeof("element6") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *Sequence3::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 8: {
+            if (name[0]=='e'
+             && name[1]=='l'
+             && name[2]=='e'
+             && name[3]=='m'
+             && name[4]=='e'
+             && name[5]=='n'
+             && name[6]=='t')
+            {
+                switch(name[7]) {
+                    case '1': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                    } break;
+                    case '2': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                    } break;
+                    case '3': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                    } break;
+                    case '4': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                    } break;
+                    case '5': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                    } break;
+                    case '6': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                    } break;
+                }
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_AttributeInfo *Sequence3::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+      case ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+      case ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+      case ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+      case ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+      case ATTRIBUTE_ID_ELEMENT6:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Sequence3::Sequence3(bdema_Allocator *basicAllocator)
+: d_element2(basicAllocator)
+, d_element4(basicAllocator)
+, d_element5(basicAllocator)
+, d_element6(basicAllocator)
+, d_element1(basicAllocator)
+, d_element3()
+{
+}
+
+Sequence3::Sequence3(const Sequence3& original,
+                     bdema_Allocator *basicAllocator)
+: d_element2(original.d_element2, basicAllocator)
+, d_element4(original.d_element4, basicAllocator)
+, d_element5(original.d_element5, basicAllocator)
+, d_element6(original.d_element6, basicAllocator)
+, d_element1(original.d_element1, basicAllocator)
+, d_element3(original.d_element3)
+{
+}
+
+Sequence3::~Sequence3()
+{
+}
+
+// MANIPULATORS
+
+Sequence3&
+Sequence3::operator=(const Sequence3& rhs)
+{
+    if (this != &rhs) {
+        d_element1 = rhs.d_element1;
+        d_element2 = rhs.d_element2;
+        d_element3 = rhs.d_element3;
+        d_element4 = rhs.d_element4;
+        d_element5 = rhs.d_element5;
+        d_element6 = rhs.d_element6;
+    }
+    return *this;
+}
+
+void Sequence3::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_element1);
+    bdeat_ValueTypeFunctions::reset(&d_element2);
+    bdeat_ValueTypeFunctions::reset(&d_element3);
+    bdeat_ValueTypeFunctions::reset(&d_element4);
+    bdeat_ValueTypeFunctions::reset(&d_element5);
+    bdeat_ValueTypeFunctions::reset(&d_element6);
+}
+
+// ACCESSORS
+
+std::ostream& Sequence3::print(
+    std::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element6 = ";
+        bdeu_PrintMethods::print(stream, d_element6,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << '[';
+
+        stream << ' ';
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element6 = ";
+        bdeu_PrintMethods::print(stream, d_element6,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << " ]";
+    }
+
+    return stream << std::flush;
+}
+
+
+
+                              // ---------------                               
+                              // class Sequence5                               
+                              // ---------------                               
+
+// CONSTANTS
+
+const char Sequence5::CLASS_NAME[] = "Sequence5";
+
+const bdeat_AttributeInfo Sequence5::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_ELEMENT1,
+        "element1",
+        sizeof("element1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT2,
+        "element2",
+        sizeof("element2") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT3,
+        "element3",
+        sizeof("element3") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT4,
+        "element4",
+        sizeof("element4") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_HEX
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT5,
+        "element5",
+        sizeof("element5") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT6,
+        "element6",
+        sizeof("element6") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT7,
+        "element7",
+        sizeof("element7") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *Sequence5::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 8: {
+            if (name[0]=='e'
+             && name[1]=='l'
+             && name[2]=='e'
+             && name[3]=='m'
+             && name[4]=='e'
+             && name[5]=='n'
+             && name[6]=='t')
+            {
+                switch(name[7]) {
+                    case '1': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                    } break;
+                    case '2': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                    } break;
+                    case '3': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                    } break;
+                    case '4': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                    } break;
+                    case '5': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                    } break;
+                    case '6': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                    } break;
+                    case '7': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                    } break;
+                }
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_AttributeInfo *Sequence5::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+      case ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+      case ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+      case ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+      case ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+      case ATTRIBUTE_ID_ELEMENT6:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+      case ATTRIBUTE_ID_ELEMENT7:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Sequence5::Sequence5(bdema_Allocator *basicAllocator)
+: d_allocator_p(bdema_Default::allocator(basicAllocator))
+, d_element5(basicAllocator)
+, d_element3(basicAllocator)
+, d_element4(basicAllocator)
+, d_element2(basicAllocator)
+, d_element6(basicAllocator)
+, d_element7(basicAllocator)
+{
+    d_element1 = new (*d_allocator_p)
+            Sequence3(d_allocator_p);
+}
+
+Sequence5::Sequence5(const Sequence5& original,
+                     bdema_Allocator *basicAllocator)
+: d_allocator_p(bdema_Default::allocator(basicAllocator))
+, d_element5(original.d_element5, basicAllocator)
+, d_element3(original.d_element3, basicAllocator)
+, d_element4(original.d_element4, basicAllocator)
+, d_element2(original.d_element2, basicAllocator)
+, d_element6(original.d_element6, basicAllocator)
+, d_element7(original.d_element7, basicAllocator)
+{
+    d_element1 = new (*d_allocator_p)
+            Sequence3(*original.d_element1, d_allocator_p);
+}
+
+Sequence5::~Sequence5()
+{
+    d_allocator_p->deleteObject(d_element1);
+}
+
+// MANIPULATORS
+
+Sequence5&
+Sequence5::operator=(const Sequence5& rhs)
+{
+    if (this != &rhs) {
+        *d_element1 = *rhs.d_element1;
+        d_element2 = rhs.d_element2;
+        d_element3 = rhs.d_element3;
+        d_element4 = rhs.d_element4;
+        d_element5 = rhs.d_element5;
+        d_element6 = rhs.d_element6;
+        d_element7 = rhs.d_element7;
+    }
+    return *this;
+}
+
+void Sequence5::reset()
+{
+    bdeat_ValueTypeFunctions::reset(d_element1);
+    bdeat_ValueTypeFunctions::reset(&d_element2);
+    bdeat_ValueTypeFunctions::reset(&d_element3);
+    bdeat_ValueTypeFunctions::reset(&d_element4);
+    bdeat_ValueTypeFunctions::reset(&d_element5);
+    bdeat_ValueTypeFunctions::reset(&d_element6);
+    bdeat_ValueTypeFunctions::reset(&d_element7);
+}
+
+// ACCESSORS
+
+std::ostream& Sequence5::print(
+    std::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, *d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element6 = ";
+        bdeu_PrintMethods::print(stream, d_element6,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element7 = ";
+        bdeu_PrintMethods::print(stream, d_element7,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << '[';
+
+        stream << ' ';
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, *d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element6 = ";
+        bdeu_PrintMethods::print(stream, d_element6,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element7 = ";
+        bdeu_PrintMethods::print(stream, d_element7,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << " ]";
+    }
+
+    return stream << std::flush;
+}
+
+
+
+                              // ---------------                               
+                              // class Sequence6                               
+                              // ---------------                               
+
+// CONSTANTS
+
+const char Sequence6::CLASS_NAME[] = "Sequence6";
+
+const bdeat_AttributeInfo Sequence6::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_ELEMENT1,
+        "element1",
+        sizeof("element1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT2,
+        "element2",
+        sizeof("element2") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT3,
+        "element3",
+        sizeof("element3") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT4,
+        "element4",
+        sizeof("element4") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT5,
+        "element5",
+        sizeof("element5") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT6,
+        "element6",
+        sizeof("element6") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT7,
+        "element7",
+        sizeof("element7") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT8,
+        "element8",
+        sizeof("element8") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT9,
+        "element9",
+        sizeof("element9") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT10,
+        "element10",
+        sizeof("element10") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT11,
+        "element11",
+        sizeof("element11") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT12,
+        "element12",
+        sizeof("element12") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT13,
+        "element13",
+        sizeof("element13") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT14,
+        "element14",
+        sizeof("element14") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT15,
+        "element15",
+        sizeof("element15") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *Sequence6::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 8: {
+            if (name[0]=='e'
+             && name[1]=='l'
+             && name[2]=='e'
+             && name[3]=='m'
+             && name[4]=='e'
+             && name[5]=='n'
+             && name[6]=='t')
+            {
+                switch(name[7]) {
+                    case '1': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                    } break;
+                    case '2': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                    } break;
+                    case '3': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                    } break;
+                    case '4': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                    } break;
+                    case '5': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                    } break;
+                    case '6': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                    } break;
+                    case '7': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                    } break;
+                    case '8': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
+                    } break;
+                    case '9': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
+                    } break;
+                }
+            }
+        } break;
+        case 9: {
+            if (name[0]=='e'
+             && name[1]=='l'
+             && name[2]=='e'
+             && name[3]=='m'
+             && name[4]=='e'
+             && name[5]=='n'
+             && name[6]=='t'
+             && name[7]=='1')
+            {
+                switch(name[8]) {
+                    case '0': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
+                    } break;
+                    case '1': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
+                    } break;
+                    case '2': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
+                    } break;
+                    case '3': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
+                    } break;
+                    case '4': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
+                    } break;
+                    case '5': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
+                    } break;
+                }
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_AttributeInfo *Sequence6::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+      case ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+      case ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+      case ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+      case ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+      case ATTRIBUTE_ID_ELEMENT6:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+      case ATTRIBUTE_ID_ELEMENT7:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+      case ATTRIBUTE_ID_ELEMENT8:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
+      case ATTRIBUTE_ID_ELEMENT9:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
+      case ATTRIBUTE_ID_ELEMENT10:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
+      case ATTRIBUTE_ID_ELEMENT11:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
+      case ATTRIBUTE_ID_ELEMENT12:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
+      case ATTRIBUTE_ID_ELEMENT13:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
+      case ATTRIBUTE_ID_ELEMENT14:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
+      case ATTRIBUTE_ID_ELEMENT15:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Sequence6::Sequence6(bdema_Allocator *basicAllocator)
+: d_element12(basicAllocator)
+, d_element10(basicAllocator)
+, d_element15(basicAllocator)
+, d_element13(basicAllocator)
+, d_element11(basicAllocator)
+, d_element2(basicAllocator)
+, d_element7(basicAllocator)
+, d_element4()
+, d_element6(basicAllocator)
+, d_element14(basicAllocator)
+, d_element9()
+, d_element3()
+, d_element8()
+, d_element5()
+, d_element1()
+{
+}
+
+Sequence6::Sequence6(const Sequence6& original,
+                     bdema_Allocator *basicAllocator)
+: d_element12(original.d_element12, basicAllocator)
+, d_element10(original.d_element10, basicAllocator)
+, d_element15(original.d_element15, basicAllocator)
+, d_element13(original.d_element13, basicAllocator)
+, d_element11(original.d_element11, basicAllocator)
+, d_element2(original.d_element2, basicAllocator)
+, d_element7(original.d_element7, basicAllocator)
+, d_element4(original.d_element4)
+, d_element6(original.d_element6, basicAllocator)
+, d_element14(original.d_element14, basicAllocator)
+, d_element9(original.d_element9)
+, d_element3(original.d_element3)
+, d_element8(original.d_element8)
+, d_element5(original.d_element5)
+, d_element1(original.d_element1)
+{
+}
+
+Sequence6::~Sequence6()
+{
+}
+
+// MANIPULATORS
+
+Sequence6&
+Sequence6::operator=(const Sequence6& rhs)
+{
+    if (this != &rhs) {
+        d_element1 = rhs.d_element1;
+        d_element2 = rhs.d_element2;
+        d_element3 = rhs.d_element3;
+        d_element4 = rhs.d_element4;
+        d_element5 = rhs.d_element5;
+        d_element6 = rhs.d_element6;
+        d_element7 = rhs.d_element7;
+        d_element8 = rhs.d_element8;
+        d_element9 = rhs.d_element9;
+        d_element10 = rhs.d_element10;
+        d_element11 = rhs.d_element11;
+        d_element12 = rhs.d_element12;
+        d_element13 = rhs.d_element13;
+        d_element14 = rhs.d_element14;
+        d_element15 = rhs.d_element15;
+    }
+    return *this;
+}
+
+void Sequence6::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_element1);
+    bdeat_ValueTypeFunctions::reset(&d_element2);
+    bdeat_ValueTypeFunctions::reset(&d_element3);
+    bdeat_ValueTypeFunctions::reset(&d_element4);
+    bdeat_ValueTypeFunctions::reset(&d_element5);
+    bdeat_ValueTypeFunctions::reset(&d_element6);
+    bdeat_ValueTypeFunctions::reset(&d_element7);
+    bdeat_ValueTypeFunctions::reset(&d_element8);
+    bdeat_ValueTypeFunctions::reset(&d_element9);
+    bdeat_ValueTypeFunctions::reset(&d_element10);
+    bdeat_ValueTypeFunctions::reset(&d_element11);
+    bdeat_ValueTypeFunctions::reset(&d_element12);
+    bdeat_ValueTypeFunctions::reset(&d_element13);
+    bdeat_ValueTypeFunctions::reset(&d_element14);
+    bdeat_ValueTypeFunctions::reset(&d_element15);
+}
+
+// ACCESSORS
+
+std::ostream& Sequence6::print(
+    std::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, (int)d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element6 = ";
+        bdeu_PrintMethods::print(stream, d_element6,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element7 = ";
+        bdeu_PrintMethods::print(stream, d_element7,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element8 = ";
+        bdeu_PrintMethods::print(stream, d_element8,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element9 = ";
+        bdeu_PrintMethods::print(stream, d_element9,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element10 = ";
+        bdeu_PrintMethods::print(stream, d_element10,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element11 = ";
+        bdeu_PrintMethods::print(stream, d_element11,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element12 = ";
+        bdeu_PrintMethods::print(stream, d_element12,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element13 = ";
+        bdeu_PrintMethods::print(stream, d_element13,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element14 = ";
+        bdeu_PrintMethods::print(stream, d_element14,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element15 = ";
+        bdeu_PrintMethods::print(stream, d_element15,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << '[';
+
+        stream << ' ';
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, (int)d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element6 = ";
+        bdeu_PrintMethods::print(stream, d_element6,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element7 = ";
+        bdeu_PrintMethods::print(stream, d_element7,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element8 = ";
+        bdeu_PrintMethods::print(stream, d_element8,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element9 = ";
+        bdeu_PrintMethods::print(stream, d_element9,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element10 = ";
+        bdeu_PrintMethods::print(stream, d_element10,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element11 = ";
+        bdeu_PrintMethods::print(stream, d_element11,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element12 = ";
+        bdeu_PrintMethods::print(stream, d_element12,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element13 = ";
+        bdeu_PrintMethods::print(stream, d_element13,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element14 = ";
+        bdeu_PrintMethods::print(stream, d_element14,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element15 = ";
+        bdeu_PrintMethods::print(stream, d_element15,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << " ]";
+    }
+
+    return stream << std::flush;
+}
+
+
+
+                               // -------------                                
+                               // class Choice3                                
+                               // -------------                                
+
+// CONSTANTS
+
+const char Choice3::CLASS_NAME[] = "Choice3";
+
+const bdeat_SelectionInfo Choice3::SELECTION_INFO_ARRAY[] = {
+    {
+        SELECTION_ID_SELECTION1,
+        "selection1",
+        sizeof("selection1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        SELECTION_ID_SELECTION2,
+        "selection2",
+        sizeof("selection2") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        SELECTION_ID_SELECTION3,
+        "selection3",
+        sizeof("selection3") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        SELECTION_ID_SELECTION4,
+        "selection4",
+        sizeof("selection4") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_SelectionInfo *Choice3::lookupSelectionInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 10: {
+            if (name[0]=='s'
+             && name[1]=='e'
+             && name[2]=='l'
+             && name[3]=='e'
+             && name[4]=='c'
+             && name[5]=='t'
+             && name[6]=='i'
+             && name[7]=='o'
+             && name[8]=='n')
+            {
+                switch(name[9]) {
+                    case '1': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                    } break;
+                    case '2': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                    } break;
+                    case '3': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                    } break;
+                    case '4': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                    } break;
+                }
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_SelectionInfo *Choice3::lookupSelectionInfo(int id)
+{
+    switch (id) {
+      case SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+      case SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+      case SELECTION_ID_SELECTION3:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+      case SELECTION_ID_SELECTION4:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Choice3::Choice3(
+    const Choice3& original,
+    bdema_Allocator *basicAllocator)
+: d_selectionId(original.d_selectionId)
+, d_allocator_p(bdema_Default::allocator(basicAllocator))
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        new (d_selection1.buffer())
+            Sequence6(
+                original.d_selection1.object(), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        new (d_selection2.buffer())
+            unsigned char(original.d_selection2.object());
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        new (d_selection3.buffer())
+            CustomString(
+                original.d_selection3.object(), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        new (d_selection4.buffer())
+            CustomInt(original.d_selection4.object());
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+}
+
+// MANIPULATORS
+
+Choice3&
+Choice3::operator=(const Choice3& rhs)
+{
+    if (this != &rhs) {
+        switch (rhs.d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            makeSelection1(rhs.d_selection1.object());
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            makeSelection2(rhs.d_selection2.object());
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            makeSelection3(rhs.d_selection3.object());
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            makeSelection4(rhs.d_selection4.object());
+          } break;
+          default:
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            reset();
+        }
+    }
+    return *this;
+}
+
+void Choice3::reset()
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        d_selection1.object().~Sequence6();
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        // no destruction required
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        d_selection3.object().~CustomString();
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        d_selection4.object().~CustomInt();
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+
+    d_selectionId = SELECTION_ID_UNDEFINED;
+}
+
+int Choice3::makeSelection(int selectionId)
+{
+    switch (selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        makeSelection1();
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        makeSelection2();
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        makeSelection3();
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        makeSelection4();
+      } break;
+      case SELECTION_ID_UNDEFINED: {
+        reset();
+      } break;
+      default:
+        return -1;
+    }
+    return 0;
+}
+
+int Choice3::makeSelection(const char *name, int nameLength)
+{
+    const bdeat_SelectionInfo *selectionInfo =
+           lookupSelectionInfo(name, nameLength);
+    if (0 == selectionInfo) {
+       return -1;
+    }
+
+    return makeSelection(selectionInfo->d_id);
+}
+
+Sequence6& Choice3::makeSelection1()
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+                Sequence6(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+Sequence6& Choice3::makeSelection1(const Sequence6& value)
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        d_selection1.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+                Sequence6(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+unsigned char& Choice3::makeSelection2()
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+            unsigned char();
+    
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+unsigned char& Choice3::makeSelection2(unsigned char value)
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        d_selection2.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+                unsigned char(value);
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+CustomString& Choice3::makeSelection3()
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection3.object());
+    }
+    else {
+        reset();
+        new (d_selection3.buffer())
+                CustomString(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return d_selection3.object();
+}
+
+CustomString& Choice3::makeSelection3(const CustomString& value)
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        d_selection3.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection3.buffer())
+                CustomString(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return d_selection3.object();
+}
+
+CustomInt& Choice3::makeSelection4()
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection4.object());
+    }
+    else {
+        reset();
+        new (d_selection4.buffer())
+            CustomInt();
+    
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return d_selection4.object();
+}
+
+CustomInt& Choice3::makeSelection4(const CustomInt& value)
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        d_selection4.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection4.buffer())
+                CustomInt(value);
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return d_selection4.object();
+}
+
+// ACCESSORS
+
+std::ostream& Choice3::print(
+    std::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+
+        switch (d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            stream << "Selection1 = ";
+            bdeu_PrintMethods::print(stream, d_selection1.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            stream << "Selection2 = ";
+            bdeu_PrintMethods::print(stream, (int)d_selection2.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            stream << "Selection3 = ";
+            bdeu_PrintMethods::print(stream, d_selection3.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            stream << "Selection4 = ";
+            bdeu_PrintMethods::print(stream, d_selection4.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          default:
+            stream << "SELECTION UNDEFINED\n";
+        }
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << "[ ";
+
+        switch (d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            stream << "Selection1 = ";
+            bdeu_PrintMethods::print(stream, d_selection1.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            stream << "Selection2 = ";
+            bdeu_PrintMethods::print(stream, (int)d_selection2.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            stream << "Selection3 = ";
+            bdeu_PrintMethods::print(stream, d_selection3.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            stream << "Selection4 = ";
+            bdeu_PrintMethods::print(stream, d_selection4.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          default:
+            stream << "SELECTION UNDEFINED";
+        }
+
+        stream << " ]";
+    }
+
+    return stream << std::flush;
+}
+
+
+const char *Choice3::selectionName() const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
+      case SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
+      case SELECTION_ID_SELECTION3:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
+      case SELECTION_ID_SELECTION4:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return "(* UNDEFINED *)";
+    }
+}
+
+                               // -------------                                
+                               // class Choice1                                
+                               // -------------                                
+
+// CONSTANTS
+
+const char Choice1::CLASS_NAME[] = "Choice1";
+
+const bdeat_SelectionInfo Choice1::SELECTION_INFO_ARRAY[] = {
+    {
+        SELECTION_ID_SELECTION1,
+        "selection1",
+        sizeof("selection1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        SELECTION_ID_SELECTION2,
+        "selection2",
+        sizeof("selection2") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        SELECTION_ID_SELECTION3,
+        "selection3",
+        sizeof("selection3") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        SELECTION_ID_SELECTION4,
+        "selection4",
+        sizeof("selection4") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_SelectionInfo *Choice1::lookupSelectionInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 10: {
+            if (name[0]=='s'
+             && name[1]=='e'
+             && name[2]=='l'
+             && name[3]=='e'
+             && name[4]=='c'
+             && name[5]=='t'
+             && name[6]=='i'
+             && name[7]=='o'
+             && name[8]=='n')
+            {
+                switch(name[9]) {
+                    case '1': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                    } break;
+                    case '2': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                    } break;
+                    case '3': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                    } break;
+                    case '4': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                    } break;
+                }
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_SelectionInfo *Choice1::lookupSelectionInfo(int id)
+{
+    switch (id) {
+      case SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+      case SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+      case SELECTION_ID_SELECTION3:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+      case SELECTION_ID_SELECTION4:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Choice1::Choice1(
+    const Choice1& original,
+    bdema_Allocator *basicAllocator)
+: d_selectionId(original.d_selectionId)
+, d_allocator_p(bdema_Default::allocator(basicAllocator))
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        new (d_selection1.buffer())
+            int(original.d_selection1.object());
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        new (d_selection2.buffer())
+            double(original.d_selection2.object());
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        d_selection3 = new (*d_allocator_p)
+                Sequence4(*original.d_selection3, d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        d_selection4 = new (*d_allocator_p)
+                Choice2(*original.d_selection4, d_allocator_p);
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+}
+
+// MANIPULATORS
+
+Choice1&
+Choice1::operator=(const Choice1& rhs)
+{
+    if (this != &rhs) {
+        switch (rhs.d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            makeSelection1(rhs.d_selection1.object());
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            makeSelection2(rhs.d_selection2.object());
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            makeSelection3(*rhs.d_selection3);
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            makeSelection4(*rhs.d_selection4);
+          } break;
+          default:
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            reset();
+        }
+    }
+    return *this;
+}
+
+void Choice1::reset()
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        // no destruction required
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        // no destruction required
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        d_allocator_p->deleteObject(d_selection3);
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        d_allocator_p->deleteObject(d_selection4);
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+
+    d_selectionId = SELECTION_ID_UNDEFINED;
+}
+
+int Choice1::makeSelection(int selectionId)
+{
+    switch (selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        makeSelection1();
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        makeSelection2();
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        makeSelection3();
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        makeSelection4();
+      } break;
+      case SELECTION_ID_UNDEFINED: {
+        reset();
+      } break;
+      default:
+        return -1;
+    }
+    return 0;
+}
+
+int Choice1::makeSelection(const char *name, int nameLength)
+{
+    const bdeat_SelectionInfo *selectionInfo =
+           lookupSelectionInfo(name, nameLength);
+    if (0 == selectionInfo) {
+       return -1;
+    }
+
+    return makeSelection(selectionInfo->d_id);
+}
+
+int& Choice1::makeSelection1()
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+            int();
+    
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+int& Choice1::makeSelection1(int value)
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        d_selection1.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+                int(value);
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+double& Choice1::makeSelection2()
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+            double();
+    
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+double& Choice1::makeSelection2(double value)
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        d_selection2.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+                double(value);
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+Sequence4& Choice1::makeSelection3()
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(d_selection3);
+    }
+    else {
+        reset();
+        d_selection3 = new (*d_allocator_p)
+                Sequence4(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return *d_selection3;
+}
+
+Sequence4& Choice1::makeSelection3(const Sequence4& value)
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        *d_selection3 = value;
+    }
+    else {
+        reset();
+        d_selection3 = new (*d_allocator_p)
+                Sequence4(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return *d_selection3;
+}
+
+Choice2& Choice1::makeSelection4()
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(d_selection4);
+    }
+    else {
+        reset();
+        d_selection4 = new (*d_allocator_p)
+                Choice2(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return *d_selection4;
+}
+
+Choice2& Choice1::makeSelection4(const Choice2& value)
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        *d_selection4 = value;
+    }
+    else {
+        reset();
+        d_selection4 = new (*d_allocator_p)
+                Choice2(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return *d_selection4;
+}
+
+// ACCESSORS
+
+std::ostream& Choice1::print(
+    std::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+
+        switch (d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            stream << "Selection1 = ";
+            bdeu_PrintMethods::print(stream, d_selection1.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            stream << "Selection2 = ";
+            bdeu_PrintMethods::print(stream, d_selection2.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            stream << "Selection3 = ";
+            bdeu_PrintMethods::print(stream, *d_selection3,
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            stream << "Selection4 = ";
+            bdeu_PrintMethods::print(stream, *d_selection4,
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          default:
+            stream << "SELECTION UNDEFINED\n";
+        }
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << "[ ";
+
+        switch (d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            stream << "Selection1 = ";
+            bdeu_PrintMethods::print(stream, d_selection1.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            stream << "Selection2 = ";
+            bdeu_PrintMethods::print(stream, d_selection2.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            stream << "Selection3 = ";
+            bdeu_PrintMethods::print(stream, *d_selection3,
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            stream << "Selection4 = ";
+            bdeu_PrintMethods::print(stream, *d_selection4,
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          default:
+            stream << "SELECTION UNDEFINED";
+        }
+
+        stream << " ]";
+    }
+
+    return stream << std::flush;
+}
+
+
+const char *Choice1::selectionName() const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
+      case SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
+      case SELECTION_ID_SELECTION3:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
+      case SELECTION_ID_SELECTION4:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return "(* UNDEFINED *)";
+    }
+}
+
+                               // -------------                                
+                               // class Choice2                                
+                               // -------------                                
+
+// CONSTANTS
+
+const char Choice2::CLASS_NAME[] = "Choice2";
+
+const bdeat_SelectionInfo Choice2::SELECTION_INFO_ARRAY[] = {
+    {
+        SELECTION_ID_SELECTION1,
+        "selection1",
+        sizeof("selection1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        SELECTION_ID_SELECTION2,
+        "selection2",
+        sizeof("selection2") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        SELECTION_ID_SELECTION3,
+        "selection3",
+        sizeof("selection3") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        SELECTION_ID_SELECTION4,
+        "selection4",
+        sizeof("selection4") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_SelectionInfo *Choice2::lookupSelectionInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 10: {
+            if (name[0]=='s'
+             && name[1]=='e'
+             && name[2]=='l'
+             && name[3]=='e'
+             && name[4]=='c'
+             && name[5]=='t'
+             && name[6]=='i'
+             && name[7]=='o'
+             && name[8]=='n')
+            {
+                switch(name[9]) {
+                    case '1': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                    } break;
+                    case '2': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                    } break;
+                    case '3': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                    } break;
+                    case '4': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                    } break;
+                }
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_SelectionInfo *Choice2::lookupSelectionInfo(int id)
+{
+    switch (id) {
+      case SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+      case SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+      case SELECTION_ID_SELECTION3:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+      case SELECTION_ID_SELECTION4:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Choice2::Choice2(
+    const Choice2& original,
+    bdema_Allocator *basicAllocator)
+: d_selectionId(original.d_selectionId)
+, d_allocator_p(bdema_Default::allocator(basicAllocator))
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        new (d_selection1.buffer())
+            bool(original.d_selection1.object());
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        new (d_selection2.buffer())
+            std::string(
+                original.d_selection2.object(), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        d_selection3 = new (*d_allocator_p)
+                Choice1(*original.d_selection3, d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        new (d_selection4.buffer())
+            unsigned int(original.d_selection4.object());
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+}
+
+// MANIPULATORS
+
+Choice2&
+Choice2::operator=(const Choice2& rhs)
+{
+    if (this != &rhs) {
+        switch (rhs.d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            makeSelection1(rhs.d_selection1.object());
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            makeSelection2(rhs.d_selection2.object());
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            makeSelection3(*rhs.d_selection3);
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            makeSelection4(rhs.d_selection4.object());
+          } break;
+          default:
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            reset();
+        }
+    }
+    return *this;
+}
+
+void Choice2::reset()
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        // no destruction required
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        typedef std::string Type;
+        d_selection2.object().~Type();
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        d_allocator_p->deleteObject(d_selection3);
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        // no destruction required
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+
+    d_selectionId = SELECTION_ID_UNDEFINED;
+}
+
+int Choice2::makeSelection(int selectionId)
+{
+    switch (selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        makeSelection1();
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        makeSelection2();
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        makeSelection3();
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        makeSelection4();
+      } break;
+      case SELECTION_ID_UNDEFINED: {
+        reset();
+      } break;
+      default:
+        return -1;
+    }
+    return 0;
+}
+
+int Choice2::makeSelection(const char *name, int nameLength)
+{
+    const bdeat_SelectionInfo *selectionInfo =
+           lookupSelectionInfo(name, nameLength);
+    if (0 == selectionInfo) {
+       return -1;
+    }
+
+    return makeSelection(selectionInfo->d_id);
+}
+
+bool& Choice2::makeSelection1()
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+            bool();
+    
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+bool& Choice2::makeSelection1(bool value)
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        d_selection1.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+                bool(value);
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+std::string& Choice2::makeSelection2()
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+                std::string(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+std::string& Choice2::makeSelection2(const std::string& value)
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        d_selection2.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+                std::string(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+Choice1& Choice2::makeSelection3()
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(d_selection3);
+    }
+    else {
+        reset();
+        d_selection3 = new (*d_allocator_p)
+                Choice1(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return *d_selection3;
+}
+
+Choice1& Choice2::makeSelection3(const Choice1& value)
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        *d_selection3 = value;
+    }
+    else {
+        reset();
+        d_selection3 = new (*d_allocator_p)
+                Choice1(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return *d_selection3;
+}
+
+unsigned int& Choice2::makeSelection4()
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection4.object());
+    }
+    else {
+        reset();
+        new (d_selection4.buffer())
+            unsigned int();
+    
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return d_selection4.object();
+}
+
+unsigned int& Choice2::makeSelection4(unsigned int value)
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        d_selection4.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection4.buffer())
+                unsigned int(value);
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return d_selection4.object();
+}
+
+// ACCESSORS
+
+std::ostream& Choice2::print(
+    std::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+
+        switch (d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            stream << "Selection1 = ";
+            bdeu_PrintMethods::print(stream, d_selection1.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            stream << "Selection2 = ";
+            bdeu_PrintMethods::print(stream, d_selection2.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            stream << "Selection3 = ";
+            bdeu_PrintMethods::print(stream, *d_selection3,
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            stream << "Selection4 = ";
+            bdeu_PrintMethods::print(stream, d_selection4.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          default:
+            stream << "SELECTION UNDEFINED\n";
+        }
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << "[ ";
+
+        switch (d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            stream << "Selection1 = ";
+            bdeu_PrintMethods::print(stream, d_selection1.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            stream << "Selection2 = ";
+            bdeu_PrintMethods::print(stream, d_selection2.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            stream << "Selection3 = ";
+            bdeu_PrintMethods::print(stream, *d_selection3,
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            stream << "Selection4 = ";
+            bdeu_PrintMethods::print(stream, d_selection4.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          default:
+            stream << "SELECTION UNDEFINED";
+        }
+
+        stream << " ]";
+    }
+
+    return stream << std::flush;
+}
+
+
+const char *Choice2::selectionName() const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
+      case SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
+      case SELECTION_ID_SELECTION3:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
+      case SELECTION_ID_SELECTION4:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return "(* UNDEFINED *)";
+    }
+}
+
+                              // ---------------                               
+                              // class Sequence4                               
+                              // ---------------                               
+
+// CONSTANTS
+
+const char Sequence4::CLASS_NAME[] = "Sequence4";
+
+const bdeat_AttributeInfo Sequence4::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_ELEMENT1,
+        "element1",
+        sizeof("element1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT2,
+        "element2",
+        sizeof("element2") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT3,
+        "element3",
+        sizeof("element3") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_HEX
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT4,
+        "element4",
+        sizeof("element4") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT5,
+        "element5",
+        sizeof("element5") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT6,
+        "element6",
+        sizeof("element6") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT7,
+        "element7",
+        sizeof("element7") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT8,
+        "element8",
+        sizeof("element8") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT9,
+        "element9",
+        sizeof("element9") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT10,
+        "element10",
+        sizeof("element10") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT11,
+        "element11",
+        sizeof("element11") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_HEX
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT12,
+        "element12",
+        sizeof("element12") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT13,
+        "element13",
+        sizeof("element13") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT14,
+        "element14",
+        sizeof("element14") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT15,
+        "element15",
+        sizeof("element15") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT16,
+        "element16",
+        sizeof("element16") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_HEX
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT17,
+        "element17",
+        sizeof("element17") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT18,
+        "element18",
+        sizeof("element18") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT19,
+        "element19",
+        sizeof("element19") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *Sequence4::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 8: {
+            if (name[0]=='e'
+             && name[1]=='l'
+             && name[2]=='e'
+             && name[3]=='m'
+             && name[4]=='e'
+             && name[5]=='n'
+             && name[6]=='t')
+            {
+                switch(name[7]) {
+                    case '1': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                    } break;
+                    case '2': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                    } break;
+                    case '3': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                    } break;
+                    case '4': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                    } break;
+                    case '5': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                    } break;
+                    case '6': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                    } break;
+                    case '7': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                    } break;
+                    case '8': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
+                    } break;
+                    case '9': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
+                    } break;
+                }
+            }
+        } break;
+        case 9: {
+            if (name[0]=='e'
+             && name[1]=='l'
+             && name[2]=='e'
+             && name[3]=='m'
+             && name[4]=='e'
+             && name[5]=='n'
+             && name[6]=='t'
+             && name[7]=='1')
+            {
+                switch(name[8]) {
+                    case '0': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
+                    } break;
+                    case '1': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
+                    } break;
+                    case '2': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
+                    } break;
+                    case '3': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
+                    } break;
+                    case '4': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
+                    } break;
+                    case '5': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
+                    } break;
+                    case '6': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16];
+                    } break;
+                    case '7': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17];
+                    } break;
+                    case '8': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18];
+                    } break;
+                    case '9': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19];
+                    } break;
+                }
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_AttributeInfo *Sequence4::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+      case ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+      case ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+      case ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+      case ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+      case ATTRIBUTE_ID_ELEMENT6:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+      case ATTRIBUTE_ID_ELEMENT7:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+      case ATTRIBUTE_ID_ELEMENT8:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT8];
+      case ATTRIBUTE_ID_ELEMENT9:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT9];
+      case ATTRIBUTE_ID_ELEMENT10:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT10];
+      case ATTRIBUTE_ID_ELEMENT11:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT11];
+      case ATTRIBUTE_ID_ELEMENT12:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT12];
+      case ATTRIBUTE_ID_ELEMENT13:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT13];
+      case ATTRIBUTE_ID_ELEMENT14:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT14];
+      case ATTRIBUTE_ID_ELEMENT15:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT15];
+      case ATTRIBUTE_ID_ELEMENT16:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT16];
+      case ATTRIBUTE_ID_ELEMENT17:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT17];
+      case ATTRIBUTE_ID_ELEMENT18:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT18];
+      case ATTRIBUTE_ID_ELEMENT19:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT19];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Sequence4::Sequence4(bdema_Allocator *basicAllocator)
+: d_element10()
+, d_element17(basicAllocator)
+, d_element15(basicAllocator)
+, d_element11(basicAllocator)
+, d_element16(basicAllocator)
+, d_element14(basicAllocator)
+, d_element18(basicAllocator)
+, d_element1(basicAllocator)
+, d_element19(basicAllocator)
+, d_element2(basicAllocator)
+, d_element9(basicAllocator)
+, d_element3(basicAllocator)
+, d_element5()
+, d_element6(basicAllocator)
+, d_element12()
+, d_element4()
+, d_element7()
+, d_element13(static_cast<Enumerated::Value>(0))
+, d_element8()
+{
+}
+
+Sequence4::Sequence4(const Sequence4& original,
+                     bdema_Allocator *basicAllocator)
+: d_element10(original.d_element10)
+, d_element17(original.d_element17, basicAllocator)
+, d_element15(original.d_element15, basicAllocator)
+, d_element11(original.d_element11, basicAllocator)
+, d_element16(original.d_element16, basicAllocator)
+, d_element14(original.d_element14, basicAllocator)
+, d_element18(original.d_element18, basicAllocator)
+, d_element1(original.d_element1, basicAllocator)
+, d_element19(original.d_element19, basicAllocator)
+, d_element2(original.d_element2, basicAllocator)
+, d_element9(original.d_element9, basicAllocator)
+, d_element3(original.d_element3, basicAllocator)
+, d_element5(original.d_element5)
+, d_element6(original.d_element6, basicAllocator)
+, d_element12(original.d_element12)
+, d_element4(original.d_element4)
+, d_element7(original.d_element7)
+, d_element13(original.d_element13)
+, d_element8(original.d_element8)
+{
+}
+
+Sequence4::~Sequence4()
+{
+}
+
+// MANIPULATORS
+
+Sequence4&
+Sequence4::operator=(const Sequence4& rhs)
+{
+    if (this != &rhs) {
+        d_element1 = rhs.d_element1;
+        d_element2 = rhs.d_element2;
+        d_element3 = rhs.d_element3;
+        d_element4 = rhs.d_element4;
+        d_element5 = rhs.d_element5;
+        d_element6 = rhs.d_element6;
+        d_element7 = rhs.d_element7;
+        d_element8 = rhs.d_element8;
+        d_element9 = rhs.d_element9;
+        d_element10 = rhs.d_element10;
+        d_element11 = rhs.d_element11;
+        d_element12 = rhs.d_element12;
+        d_element13 = rhs.d_element13;
+        d_element14 = rhs.d_element14;
+        d_element15 = rhs.d_element15;
+        d_element16 = rhs.d_element16;
+        d_element17 = rhs.d_element17;
+        d_element18 = rhs.d_element18;
+        d_element19 = rhs.d_element19;
+    }
+    return *this;
+}
+
+void Sequence4::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_element1);
+    bdeat_ValueTypeFunctions::reset(&d_element2);
+    bdeat_ValueTypeFunctions::reset(&d_element3);
+    bdeat_ValueTypeFunctions::reset(&d_element4);
+    bdeat_ValueTypeFunctions::reset(&d_element5);
+    bdeat_ValueTypeFunctions::reset(&d_element6);
+    bdeat_ValueTypeFunctions::reset(&d_element7);
+    bdeat_ValueTypeFunctions::reset(&d_element8);
+    bdeat_ValueTypeFunctions::reset(&d_element9);
+    bdeat_ValueTypeFunctions::reset(&d_element10);
+    bdeat_ValueTypeFunctions::reset(&d_element11);
+    bdeat_ValueTypeFunctions::reset(&d_element12);
+    bdeat_ValueTypeFunctions::reset(&d_element13);
+    bdeat_ValueTypeFunctions::reset(&d_element14);
+    bdeat_ValueTypeFunctions::reset(&d_element15);
+    bdeat_ValueTypeFunctions::reset(&d_element16);
+    bdeat_ValueTypeFunctions::reset(&d_element17);
+    bdeat_ValueTypeFunctions::reset(&d_element18);
+    bdeat_ValueTypeFunctions::reset(&d_element19);
+}
+
+// ACCESSORS
+
+std::ostream& Sequence4::print(
+    std::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element6 = ";
+        bdeu_PrintMethods::print(stream, d_element6,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element7 = ";
+        bdeu_PrintMethods::print(stream, d_element7,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element8 = ";
+        bdeu_PrintMethods::print(stream, d_element8,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element9 = ";
+        bdeu_PrintMethods::print(stream, d_element9,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element10 = ";
+        bdeu_PrintMethods::print(stream, d_element10,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element11 = ";
+        bdeu_PrintMethods::print(stream, d_element11,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element12 = ";
+        bdeu_PrintMethods::print(stream, d_element12,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element13 = ";
+        bdeu_PrintMethods::print(stream, d_element13,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element14 = ";
+        bdeu_PrintMethods::print(stream, d_element14,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element15 = ";
+        bdeu_PrintMethods::print(stream, d_element15,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element16 = ";
+        bdeu_PrintMethods::print(stream, d_element16,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element17 = ";
+        bdeu_PrintMethods::print(stream, d_element17,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element18 = ";
+        bdeu_PrintMethods::print(stream, d_element18,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element19 = ";
+        bdeu_PrintMethods::print(stream, d_element19,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << '[';
+
+        stream << ' ';
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element6 = ";
+        bdeu_PrintMethods::print(stream, d_element6,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element7 = ";
+        bdeu_PrintMethods::print(stream, d_element7,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element8 = ";
+        bdeu_PrintMethods::print(stream, d_element8,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element9 = ";
+        bdeu_PrintMethods::print(stream, d_element9,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element10 = ";
+        bdeu_PrintMethods::print(stream, d_element10,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element11 = ";
+        bdeu_PrintMethods::print(stream, d_element11,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element12 = ";
+        bdeu_PrintMethods::print(stream, d_element12,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element13 = ";
+        bdeu_PrintMethods::print(stream, d_element13,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element14 = ";
+        bdeu_PrintMethods::print(stream, d_element14,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element15 = ";
+        bdeu_PrintMethods::print(stream, d_element15,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element16 = ";
+        bdeu_PrintMethods::print(stream, d_element16,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element17 = ";
+        bdeu_PrintMethods::print(stream, d_element17,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element18 = ";
+        bdeu_PrintMethods::print(stream, d_element18,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element19 = ";
+        bdeu_PrintMethods::print(stream, d_element19,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << " ]";
+    }
+
+    return stream << std::flush;
+}
+
+
+
+                              // ---------------                               
+                              // class Sequence1                               
+                              // ---------------                               
+
+// CONSTANTS
+
+const char Sequence1::CLASS_NAME[] = "Sequence1";
+
+const bdeat_AttributeInfo Sequence1::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_ELEMENT1,
+        "element1",
+        sizeof("element1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT2,
+        "element2",
+        sizeof("element2") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT3,
+        "element3",
+        sizeof("element3") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT4,
+        "element4",
+        sizeof("element4") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT5,
+        "element5",
+        sizeof("element5") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *Sequence1::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 8: {
+            if (name[0]=='e'
+             && name[1]=='l'
+             && name[2]=='e'
+             && name[3]=='m'
+             && name[4]=='e'
+             && name[5]=='n'
+             && name[6]=='t')
+            {
+                switch(name[7]) {
+                    case '1': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                    } break;
+                    case '2': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                    } break;
+                    case '3': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                    } break;
+                    case '4': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                    } break;
+                    case '5': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                    } break;
+                }
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_AttributeInfo *Sequence1::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+      case ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+      case ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+      case ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+      case ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Sequence1::Sequence1(bdema_Allocator *basicAllocator)
+: d_allocator_p(bdema_Default::allocator(basicAllocator))
+, d_element4(basicAllocator)
+, d_element5(basicAllocator)
+, d_element2(basicAllocator)
+, d_element1(basicAllocator)
+{
+    d_element3 = new (*d_allocator_p)
+            Choice2(d_allocator_p);
+}
+
+Sequence1::Sequence1(const Sequence1& original,
+                     bdema_Allocator *basicAllocator)
+: d_allocator_p(bdema_Default::allocator(basicAllocator))
+, d_element4(original.d_element4, basicAllocator)
+, d_element5(original.d_element5, basicAllocator)
+, d_element2(original.d_element2, basicAllocator)
+, d_element1(original.d_element1, basicAllocator)
+{
+    d_element3 = new (*d_allocator_p)
+            Choice2(*original.d_element3, d_allocator_p);
+}
+
+Sequence1::~Sequence1()
+{
+    d_allocator_p->deleteObject(d_element3);
+}
+
+// MANIPULATORS
+
+Sequence1&
+Sequence1::operator=(const Sequence1& rhs)
+{
+    if (this != &rhs) {
+        d_element1 = rhs.d_element1;
+        d_element2 = rhs.d_element2;
+        *d_element3 = *rhs.d_element3;
+        d_element4 = rhs.d_element4;
+        d_element5 = rhs.d_element5;
+    }
+    return *this;
+}
+
+void Sequence1::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_element1);
+    bdeat_ValueTypeFunctions::reset(&d_element2);
+    bdeat_ValueTypeFunctions::reset(d_element3);
+    bdeat_ValueTypeFunctions::reset(&d_element4);
+    bdeat_ValueTypeFunctions::reset(&d_element5);
+}
+
+// ACCESSORS
+
+std::ostream& Sequence1::print(
+    std::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, *d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << '[';
+
+        stream << ' ';
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, *d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << " ]";
+    }
+
+    return stream << std::flush;
+}
+
+
+
+                              // ---------------                               
+                              // class Sequence2                               
+                              // ---------------                               
+
+// CONSTANTS
+
+const char Sequence2::CLASS_NAME[] = "Sequence2";
+
+const bdeat_AttributeInfo Sequence2::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_ELEMENT1,
+        "element1",
+        sizeof("element1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT2,
+        "element2",
+        sizeof("element2") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEC
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT3,
+        "element3",
+        sizeof("element3") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT4,
+        "element4",
+        sizeof("element4") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT5,
+        "element5",
+        sizeof("element5") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT6,
+        "element6",
+        sizeof("element6") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    },
+    {
+        ATTRIBUTE_ID_ELEMENT7,
+        "element7",
+        sizeof("element7") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+      | bdeat_FormattingMode::BDEAT_NILLABLE
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_AttributeInfo *Sequence2::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 8: {
+            if (name[0]=='e'
+             && name[1]=='l'
+             && name[2]=='e'
+             && name[3]=='m'
+             && name[4]=='e'
+             && name[5]=='n'
+             && name[6]=='t')
+            {
+                switch(name[7]) {
+                    case '1': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+                    } break;
+                    case '2': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+                    } break;
+                    case '3': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+                    } break;
+                    case '4': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+                    } break;
+                    case '5': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+                    } break;
+                    case '6': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+                    } break;
+                    case '7': {
+                        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+                    } break;
+                }
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_AttributeInfo *Sequence2::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_ELEMENT1:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT1];
+      case ATTRIBUTE_ID_ELEMENT2:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT2];
+      case ATTRIBUTE_ID_ELEMENT3:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT3];
+      case ATTRIBUTE_ID_ELEMENT4:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT4];
+      case ATTRIBUTE_ID_ELEMENT5:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT5];
+      case ATTRIBUTE_ID_ELEMENT6:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT6];
+      case ATTRIBUTE_ID_ELEMENT7:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ELEMENT7];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Sequence2::Sequence2(bdema_Allocator *basicAllocator)
+: d_element6(basicAllocator)
+, d_element7(basicAllocator)
+, d_element5()
+, d_element4(basicAllocator)
+, d_element3()
+, d_element1(basicAllocator)
+, d_element2()
+{
+}
+
+Sequence2::Sequence2(const Sequence2& original,
+                     bdema_Allocator *basicAllocator)
+: d_element6(original.d_element6, basicAllocator)
+, d_element7(original.d_element7, basicAllocator)
+, d_element5(original.d_element5)
+, d_element4(original.d_element4, basicAllocator)
+, d_element3(original.d_element3)
+, d_element1(original.d_element1, basicAllocator)
+, d_element2(original.d_element2)
+{
+}
+
+Sequence2::~Sequence2()
+{
+}
+
+// MANIPULATORS
+
+Sequence2&
+Sequence2::operator=(const Sequence2& rhs)
+{
+    if (this != &rhs) {
+        d_element1 = rhs.d_element1;
+        d_element2 = rhs.d_element2;
+        d_element3 = rhs.d_element3;
+        d_element4 = rhs.d_element4;
+        d_element5 = rhs.d_element5;
+        d_element6 = rhs.d_element6;
+        d_element7 = rhs.d_element7;
+    }
+    return *this;
+}
+
+void Sequence2::reset()
+{
+    bdeat_ValueTypeFunctions::reset(&d_element1);
+    bdeat_ValueTypeFunctions::reset(&d_element2);
+    bdeat_ValueTypeFunctions::reset(&d_element3);
+    bdeat_ValueTypeFunctions::reset(&d_element4);
+    bdeat_ValueTypeFunctions::reset(&d_element5);
+    bdeat_ValueTypeFunctions::reset(&d_element6);
+    bdeat_ValueTypeFunctions::reset(&d_element7);
+}
+
+// ACCESSORS
+
+std::ostream& Sequence2::print(
+    std::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, (int)d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element6 = ";
+        bdeu_PrintMethods::print(stream, d_element6,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "Element7 = ";
+        bdeu_PrintMethods::print(stream, d_element7,
+                                 -levelPlus1, spacesPerLevel);
+
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << '[';
+
+        stream << ' ';
+        stream << "Element1 = ";
+        bdeu_PrintMethods::print(stream, d_element1,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element2 = ";
+        bdeu_PrintMethods::print(stream, (int)d_element2,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element3 = ";
+        bdeu_PrintMethods::print(stream, d_element3,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element4 = ";
+        bdeu_PrintMethods::print(stream, d_element4,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element5 = ";
+        bdeu_PrintMethods::print(stream, d_element5,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element6 = ";
+        bdeu_PrintMethods::print(stream, d_element6,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << ' ';
+        stream << "Element7 = ";
+        bdeu_PrintMethods::print(stream, d_element7,
+                                 -levelPlus1, spacesPerLevel);
+
+        stream << " ]";
+    }
+
+    return stream << std::flush;
+}
+
+                              // ---------------                               
+                              // class Topchoice                               
+                              // ---------------                               
+
+// CONSTANTS
+
+const char Topchoice::CLASS_NAME[] = "Topchoice";
+
+const bdeat_SelectionInfo Topchoice::SELECTION_INFO_ARRAY[] = {
+    {
+        SELECTION_ID_SELECTION1,
+        "selection1",
+        sizeof("selection1") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        SELECTION_ID_SELECTION2,
+        "selection2",
+        sizeof("selection2") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_HEX
+    },
+    {
+        SELECTION_ID_SELECTION3,
+        "selection3",
+        sizeof("selection3") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        SELECTION_ID_SELECTION4,
+        "selection4",
+        sizeof("selection4") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        SELECTION_ID_SELECTION5,
+        "selection5",
+        sizeof("selection5") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        SELECTION_ID_SELECTION6,
+        "selection6",
+        sizeof("selection6") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        SELECTION_ID_SELECTION7,
+        "selection7",
+        sizeof("selection7") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    },
+    {
+        SELECTION_ID_SELECTION8,
+        "selection8",
+        sizeof("selection8") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_DEFAULT
+    }
+};
+
+// CLASS METHODS
+
+const bdeat_SelectionInfo *Topchoice::lookupSelectionInfo(
+        const char *name,
+        int         nameLength)
+{
+    switch(nameLength) {
+        case 10: {
+            if (name[0]=='s'
+             && name[1]=='e'
+             && name[2]=='l'
+             && name[3]=='e'
+             && name[4]=='c'
+             && name[5]=='t'
+             && name[6]=='i'
+             && name[7]=='o'
+             && name[8]=='n')
+            {
+                switch(name[9]) {
+                    case '1': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+                    } break;
+                    case '2': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+                    } break;
+                    case '3': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+                    } break;
+                    case '4': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+                    } break;
+                    case '5': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5];
+                    } break;
+                    case '6': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6];
+                    } break;
+                    case '7': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7];
+                    } break;
+                    case '8': {
+                        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8];
+                    } break;
+                }
+            }
+        } break;
+    }
+    return 0;
+}
+
+const bdeat_SelectionInfo *Topchoice::lookupSelectionInfo(int id)
+{
+    switch (id) {
+      case SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+      case SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+      case SELECTION_ID_SELECTION3:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3];
+      case SELECTION_ID_SELECTION4:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4];
+      case SELECTION_ID_SELECTION5:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5];
+      case SELECTION_ID_SELECTION6:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6];
+      case SELECTION_ID_SELECTION7:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7];
+      case SELECTION_ID_SELECTION8:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+Topchoice::Topchoice(
+    const Topchoice& original,
+    bdema_Allocator *basicAllocator)
+: d_selectionId(original.d_selectionId)
+, d_allocator_p(bdema_Default::allocator(basicAllocator))
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        new (d_selection1.buffer())
+            Sequence1(
+                original.d_selection1.object(), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        new (d_selection2.buffer())
+            std::vector<char>(
+                original.d_selection2.object(), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        new (d_selection3.buffer())
+            Sequence2(
+                original.d_selection3.object(), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        d_selection4 = new (*d_allocator_p)
+                Sequence3(*original.d_selection4, d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION5: {
+        new (d_selection5.buffer())
+            bdet_DatetimeTz(original.d_selection5.object());
+      } break;
+      case SELECTION_ID_SELECTION6: {
+        new (d_selection6.buffer())
+            CustomString(
+                original.d_selection6.object(), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION7: {
+        new (d_selection7.buffer())
+            Enumerated::Value(original.d_selection7.object());
+      } break;
+      case SELECTION_ID_SELECTION8: {
+        new (d_selection8.buffer())
+            Choice3(
+                original.d_selection8.object(), d_allocator_p);
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+}
+
+// MANIPULATORS
+
+Topchoice&
+Topchoice::operator=(const Topchoice& rhs)
+{
+    if (this != &rhs) {
+        switch (rhs.d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            makeSelection1(rhs.d_selection1.object());
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            makeSelection2(rhs.d_selection2.object());
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            makeSelection3(rhs.d_selection3.object());
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            makeSelection4(*rhs.d_selection4);
+          } break;
+          case SELECTION_ID_SELECTION5: {
+            makeSelection5(rhs.d_selection5.object());
+          } break;
+          case SELECTION_ID_SELECTION6: {
+            makeSelection6(rhs.d_selection6.object());
+          } break;
+          case SELECTION_ID_SELECTION7: {
+            makeSelection7(rhs.d_selection7.object());
+          } break;
+          case SELECTION_ID_SELECTION8: {
+            makeSelection8(rhs.d_selection8.object());
+          } break;
+          default:
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            reset();
+        }
+    }
+    return *this;
+}
+
+void Topchoice::reset()
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        d_selection1.object().~Sequence1();
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        typedef std::vector<char> Type;
+        d_selection2.object().~Type();
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        d_selection3.object().~Sequence2();
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        d_allocator_p->deleteObject(d_selection4);
+      } break;
+      case SELECTION_ID_SELECTION5: {
+        // no destruction required
+      } break;
+      case SELECTION_ID_SELECTION6: {
+        d_selection6.object().~CustomString();
+      } break;
+      case SELECTION_ID_SELECTION7: {
+        typedef Enumerated::Value Type;
+        d_selection7.object().~Type();
+      } break;
+      case SELECTION_ID_SELECTION8: {
+        d_selection8.object().~Choice3();
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+
+    d_selectionId = SELECTION_ID_UNDEFINED;
+}
+
+int Topchoice::makeSelection(int selectionId)
+{
+    switch (selectionId) {
+      case SELECTION_ID_SELECTION1: {
+        makeSelection1();
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        makeSelection2();
+      } break;
+      case SELECTION_ID_SELECTION3: {
+        makeSelection3();
+      } break;
+      case SELECTION_ID_SELECTION4: {
+        makeSelection4();
+      } break;
+      case SELECTION_ID_SELECTION5: {
+        makeSelection5();
+      } break;
+      case SELECTION_ID_SELECTION6: {
+        makeSelection6();
+      } break;
+      case SELECTION_ID_SELECTION7: {
+        makeSelection7();
+      } break;
+      case SELECTION_ID_SELECTION8: {
+        makeSelection8();
+      } break;
+      case SELECTION_ID_UNDEFINED: {
+        reset();
+      } break;
+      default:
+        return -1;
+    }
+    return 0;
+}
+
+int Topchoice::makeSelection(const char *name, int nameLength)
+{
+    const bdeat_SelectionInfo *selectionInfo =
+           lookupSelectionInfo(name, nameLength);
+    if (0 == selectionInfo) {
+       return -1;
+    }
+
+    return makeSelection(selectionInfo->d_id);
+}
+
+Sequence1& Topchoice::makeSelection1()
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection1.object());
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+                Sequence1(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+Sequence1& Topchoice::makeSelection1(const Sequence1& value)
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        d_selection1.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+                Sequence1(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+std::vector<char>& Topchoice::makeSelection2()
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection2.object());
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+                std::vector<char>(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+std::vector<char>& Topchoice::makeSelection2(const std::vector<char>& value)
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        d_selection2.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+                std::vector<char>(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+Sequence2& Topchoice::makeSelection3()
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection3.object());
+    }
+    else {
+        reset();
+        new (d_selection3.buffer())
+                Sequence2(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return d_selection3.object();
+}
+
+Sequence2& Topchoice::makeSelection3(const Sequence2& value)
+{
+    if (SELECTION_ID_SELECTION3 == d_selectionId) {
+        d_selection3.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection3.buffer())
+                Sequence2(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION3;
+    }
+
+    return d_selection3.object();
+}
+
+Sequence3& Topchoice::makeSelection4()
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(d_selection4);
+    }
+    else {
+        reset();
+        d_selection4 = new (*d_allocator_p)
+                Sequence3(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return *d_selection4;
+}
+
+Sequence3& Topchoice::makeSelection4(const Sequence3& value)
+{
+    if (SELECTION_ID_SELECTION4 == d_selectionId) {
+        *d_selection4 = value;
+    }
+    else {
+        reset();
+        d_selection4 = new (*d_allocator_p)
+                Sequence3(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION4;
+    }
+
+    return *d_selection4;
+}
+
+bdet_DatetimeTz& Topchoice::makeSelection5()
+{
+    if (SELECTION_ID_SELECTION5 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection5.object());
+    }
+    else {
+        reset();
+        new (d_selection5.buffer())
+            bdet_DatetimeTz();
+    
+        d_selectionId = SELECTION_ID_SELECTION5;
+    }
+
+    return d_selection5.object();
+}
+
+bdet_DatetimeTz& Topchoice::makeSelection5(const bdet_DatetimeTz& value)
+{
+    if (SELECTION_ID_SELECTION5 == d_selectionId) {
+        d_selection5.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection5.buffer())
+                bdet_DatetimeTz(value);
+        d_selectionId = SELECTION_ID_SELECTION5;
+    }
+
+    return d_selection5.object();
+}
+
+CustomString& Topchoice::makeSelection6()
+{
+    if (SELECTION_ID_SELECTION6 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection6.object());
+    }
+    else {
+        reset();
+        new (d_selection6.buffer())
+                CustomString(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION6;
+    }
+
+    return d_selection6.object();
+}
+
+CustomString& Topchoice::makeSelection6(const CustomString& value)
+{
+    if (SELECTION_ID_SELECTION6 == d_selectionId) {
+        d_selection6.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection6.buffer())
+                CustomString(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION6;
+    }
+
+    return d_selection6.object();
+}
+
+Enumerated::Value& Topchoice::makeSelection7()
+{
+    if (SELECTION_ID_SELECTION7 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection7.object());
+    }
+    else {
+        reset();
+        new (d_selection7.buffer())
+                    Enumerated::Value(static_cast<Enumerated::Value>(0));
+    
+        d_selectionId = SELECTION_ID_SELECTION7;
+    }
+
+    return d_selection7.object();
+}
+
+Enumerated::Value& Topchoice::makeSelection7(Enumerated::Value value)
+{
+    if (SELECTION_ID_SELECTION7 == d_selectionId) {
+        d_selection7.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection7.buffer())
+                Enumerated::Value(value);
+        d_selectionId = SELECTION_ID_SELECTION7;
+    }
+
+    return d_selection7.object();
+}
+
+Choice3& Topchoice::makeSelection8()
+{
+    if (SELECTION_ID_SELECTION8 == d_selectionId) {
+        bdeat_ValueTypeFunctions::reset(&d_selection8.object());
+    }
+    else {
+        reset();
+        new (d_selection8.buffer())
+                Choice3(d_allocator_p);
+
+        d_selectionId = SELECTION_ID_SELECTION8;
+    }
+
+    return d_selection8.object();
+}
+
+Choice3& Topchoice::makeSelection8(const Choice3& value)
+{
+    if (SELECTION_ID_SELECTION8 == d_selectionId) {
+        d_selection8.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection8.buffer())
+                Choice3(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION8;
+    }
+
+    return d_selection8.object();
+}
+
+// ACCESSORS
+
+std::ostream& Topchoice::print(
+    std::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    if (level < 0) {
+        level = -level;
+    }
+    else {
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+    }
+
+    int levelPlus1 = level + 1;
+
+    if (0 <= spacesPerLevel) {
+        // multiline
+
+        stream << "[\n";
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+
+        switch (d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            stream << "Selection1 = ";
+            bdeu_PrintMethods::print(stream, d_selection1.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            stream << "Selection2 = ";
+            bdeu_PrintMethods::print(stream, d_selection2.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            stream << "Selection3 = ";
+            bdeu_PrintMethods::print(stream, d_selection3.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            stream << "Selection4 = ";
+            bdeu_PrintMethods::print(stream, *d_selection4,
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION5: {
+            stream << "Selection5 = ";
+            bdeu_PrintMethods::print(stream, d_selection5.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION6: {
+            stream << "Selection6 = ";
+            bdeu_PrintMethods::print(stream, d_selection6.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION7: {
+            stream << "Selection7 = ";
+            bdeu_PrintMethods::print(stream, d_selection7.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION8: {
+            stream << "Selection8 = ";
+            bdeu_PrintMethods::print(stream, d_selection8.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          default:
+            stream << "SELECTION UNDEFINED\n";
+        }
+        bdeu_Print::indent(stream, level, spacesPerLevel);
+        stream << "]\n";
+    }
+    else {
+        // single line
+
+        stream << "[ ";
+
+        switch (d_selectionId) {
+          case SELECTION_ID_SELECTION1: {
+            stream << "Selection1 = ";
+            bdeu_PrintMethods::print(stream, d_selection1.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            stream << "Selection2 = ";
+            bdeu_PrintMethods::print(stream, d_selection2.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION3: {
+            stream << "Selection3 = ";
+            bdeu_PrintMethods::print(stream, d_selection3.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION4: {
+            stream << "Selection4 = ";
+            bdeu_PrintMethods::print(stream, *d_selection4,
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION5: {
+            stream << "Selection5 = ";
+            bdeu_PrintMethods::print(stream, d_selection5.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION6: {
+            stream << "Selection6 = ";
+            bdeu_PrintMethods::print(stream, d_selection6.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION7: {
+            stream << "Selection7 = ";
+            bdeu_PrintMethods::print(stream, d_selection7.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          case SELECTION_ID_SELECTION8: {
+            stream << "Selection8 = ";
+            bdeu_PrintMethods::print(stream, d_selection8.object(),
+                                     -levelPlus1, spacesPerLevel);
+          } break;
+          default:
+            stream << "SELECTION UNDEFINED";
+        }
+
+        stream << " ]";
+    }
+
+    return stream << std::flush;
+}
+
+
+const char *Topchoice::selectionName() const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
+      case SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
+      case SELECTION_ID_SELECTION3:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION3].name();
+      case SELECTION_ID_SELECTION4:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION4].name();
+      case SELECTION_ID_SELECTION5:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION5].name();
+      case SELECTION_ID_SELECTION6:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION6].name();
+      case SELECTION_ID_SELECTION7:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION7].name();
+      case SELECTION_ID_SELECTION8:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION8].name();
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return "(* UNDEFINED *)";
+    }
+}
+
+}  // close namespace bsctst
+
+}
+
 
 namespace baexml_Decoder_TestNamespace {
 
@@ -9655,7 +21785,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES
         //
@@ -9704,6 +21834,8331 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << outStream.str() << bsl::endl;
 
       } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // EXHAUSTIVE XML DECODING TEST
+        //
+        // Concerns:
+        //   The schema should be correctly parsed and response should be
+        //   properly decoded.
+        //
+        // Plan:
+        //   Parse a given schema and decode an XML element corresponding to
+        //   that schema, use 'baexml_SchemaParser' to parse the schema and
+        //   use a binding adaptor with 'baexml_Decoder' to decode the
+        //   element.
+        //
+        // Testing:
+        //   static bsl::istream& decode(istream&,
+        //                               TYPE,
+        //                               ostream&,
+        //                               ostream&)
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nEXHAUSTIVE XML DECODING TEST"
+                                  "\n----------------------------"
+                               << bsl::endl;
+
+        const bsl::string DATA[] = {
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element3>\n"
+        "      <selection1>true</selection1>\n"
+        "    </element3>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection1>\n"
+        "        <element1>0</element1>\n"
+        "        <element2>custom</element2>\n"
+        "        <element3>999</element3>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>0</element5>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element9>3123123123</element9>\n"
+        "        <element10>0</element10>\n"
+        "        <element10>0</element10>\n"
+        "        <element11>custom</element11>\n"
+        "        <element11>custom</element11>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element14>999</element14>\n"
+        "        <element14>999</element14>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "      </selection1>\n"
+        "    </element1>\n"
+        "    <element2>\n"
+        "      <selection1>2</selection1>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection1>2</selection1>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection2>\n"
+        "      </selection2>\n"
+        "    </element3>\n"
+        "    <element4 xsi:nil=\"true\"/>\n"
+        "    <element4 xsi:nil=\"true\"/>\n"
+        "    <element5>\n"
+        "      <selection1>\n"
+        "        <element1>0</element1>\n"
+        "        <element2>custom</element2>\n"
+        "        <element3>999</element3>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>0</element5>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element9>3123123123</element9>\n"
+        "        <element10>0</element10>\n"
+        "        <element10>0</element10>\n"
+        "        <element11>custom</element11>\n"
+        "        <element11>custom</element11>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element14>999</element14>\n"
+        "        <element14>999</element14>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "      </selection1>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection1>\n"
+        "        <element1>0</element1>\n"
+        "        <element2>custom</element2>\n"
+        "        <element3>999</element3>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>0</element5>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element9>3123123123</element9>\n"
+        "        <element10>0</element10>\n"
+        "        <element10>0</element10>\n"
+        "        <element11>custom</element11>\n"
+        "        <element11>custom</element11>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element14>999</element14>\n"
+        "        <element14>999</element14>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "      </selection1>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection2>255</selection2>\n"
+        "    </element1>\n"
+        "    <element2>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection1>2</selection1>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection1>2</selection1>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element4>2</element4>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element17>2</element17>\n"
+        "        <element17>2</element17>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection1>2</selection1>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection1>2</selection1>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element4>2</element4>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element17>2</element17>\n"
+        "        <element17>2</element17>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection3>\n"
+        "        <selection1>2</selection1>\n"
+        "      </selection3>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection1>2</selection1>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection1>2</selection1>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element4>2</element4>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element17>2</element17>\n"
+        "        <element17>2</element17>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection1>2</selection1>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection1>2</selection1>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element4>2</element4>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element17>2</element17>\n"
+        "        <element17>2</element17>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <selection2>255</selection2>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection2>255</selection2>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection2>0</selection2>\n"
+        "    </element1>\n"
+        "    <element2>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection2>1.5</selection2>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection2>1.5</selection2>\n"
+        "        </element2>\n"
+        "        <element4>-980123</element4>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element17>-980123</element17>\n"
+        "      </selection3>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection2>1.5</selection2>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection2>1.5</selection2>\n"
+        "        </element2>\n"
+        "        <element4>-980123</element4>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element17>-980123</element17>\n"
+        "      </selection3>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection3>\n"
+        "        <selection2>1.5</selection2>\n"
+        "      </selection3>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection2>1.5</selection2>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection2>1.5</selection2>\n"
+        "        </element2>\n"
+        "        <element4>-980123</element4>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element17>-980123</element17>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection2>1.5</selection2>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection2>1.5</selection2>\n"
+        "        </element2>\n"
+        "        <element4>-980123</element4>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element17>-980123</element17>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <selection2>0</selection2>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection2>0</selection2>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection3>custom</selection3>\n"
+        "    </element1>\n"
+        "    <element2>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element3>true</element3>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element3>true</element3>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element3>true</element3>\n"
+        "                </element1>\n"
+        "                <element5>2</element5>\n"
+        "                <element5>2</element5>\n"
+        "              </element5>\n"
+        "            </element1>\n"
+        "            <element5>2</element5>\n"
+        "            <element5>2</element5>\n"
+        "          </element5>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element3>true</element3>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element3>true</element3>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element3>true</element3>\n"
+        "                </element1>\n"
+        "                <element5>2</element5>\n"
+        "                <element5>2</element5>\n"
+        "              </element5>\n"
+        "            </element1>\n"
+        "            <element5>2</element5>\n"
+        "            <element5>2</element5>\n"
+        "          </element5>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element3>true</element3>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element3>true</element3>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element3>true</element3>\n"
+        "                </element1>\n"
+        "                <element5>2</element5>\n"
+        "                <element5>2</element5>\n"
+        "              </element5>\n"
+        "            </element1>\n"
+        "            <element5>2</element5>\n"
+        "            <element5>2</element5>\n"
+        "          </element5>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element3>true</element3>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element3>true</element3>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element3>true</element3>\n"
+        "                </element1>\n"
+        "                <element5>2</element5>\n"
+        "                <element5>2</element5>\n"
+        "              </element5>\n"
+        "            </element1>\n"
+        "            <element5>2</element5>\n"
+        "            <element5>2</element5>\n"
+        "          </element5>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection3>\n"
+        "        <selection3>\n"
+        "          <element8>true</element8>\n"
+        "          <element9>\n"
+        "          </element9>\n"
+        "          <element10>1.5</element10>\n"
+        "          <element11>FF0001</element11>\n"
+        "          <element12>-980123</element12>\n"
+        "          <element13>LONDON</element13>\n"
+        "        </selection3>\n"
+        "      </selection3>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element3>true</element3>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element3>true</element3>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element3>true</element3>\n"
+        "                </element1>\n"
+        "                <element5>2</element5>\n"
+        "                <element5>2</element5>\n"
+        "              </element5>\n"
+        "            </element1>\n"
+        "            <element5>2</element5>\n"
+        "            <element5>2</element5>\n"
+        "          </element5>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element3>true</element3>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element3>true</element3>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element3>true</element3>\n"
+        "                </element1>\n"
+        "                <element5>2</element5>\n"
+        "                <element5>2</element5>\n"
+        "              </element5>\n"
+        "            </element1>\n"
+        "            <element5>2</element5>\n"
+        "            <element5>2</element5>\n"
+        "          </element5>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element3>true</element3>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element3>true</element3>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element3>true</element3>\n"
+        "                </element1>\n"
+        "                <element5>2</element5>\n"
+        "                <element5>2</element5>\n"
+        "              </element5>\n"
+        "            </element1>\n"
+        "            <element5>2</element5>\n"
+        "            <element5>2</element5>\n"
+        "          </element5>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element3>true</element3>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element3>true</element3>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element3>true</element3>\n"
+        "                </element1>\n"
+        "                <element5>2</element5>\n"
+        "                <element5>2</element5>\n"
+        "              </element5>\n"
+        "            </element1>\n"
+        "            <element5>2</element5>\n"
+        "            <element5>2</element5>\n"
+        "          </element5>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <selection3>custom</selection3>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection3>custom</selection3>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection4>999</selection4>\n"
+        "    </element1>\n"
+        "    <element2>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element3>FF0001</element3>\n"
+        "            <element4>2</element4>\n"
+        "            <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "            <element6>custom</element6>\n"
+        "            <element7>LONDON</element7>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>arbitrary string value</element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>2</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element14>true</element14>\n"
+        "            <element14>true</element14>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element17>2</element17>\n"
+        "            <element17>2</element17>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element19>custom</element19>\n"
+        "            <element19>custom</element19>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element3>FF0001</element3>\n"
+        "            <element4>2</element4>\n"
+        "            <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "            <element6>custom</element6>\n"
+        "            <element7>LONDON</element7>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>arbitrary string value</element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>2</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element14>true</element14>\n"
+        "            <element14>true</element14>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element17>2</element17>\n"
+        "            <element17>2</element17>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element19>custom</element19>\n"
+        "            <element19>custom</element19>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element4>2</element4>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element17>2</element17>\n"
+        "        <element17>2</element17>\n"
+        "      </selection3>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element3>FF0001</element3>\n"
+        "            <element4>2</element4>\n"
+        "            <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "            <element6>custom</element6>\n"
+        "            <element7>LONDON</element7>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>arbitrary string value</element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>2</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element14>true</element14>\n"
+        "            <element14>true</element14>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element17>2</element17>\n"
+        "            <element17>2</element17>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element19>custom</element19>\n"
+        "            <element19>custom</element19>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element3>FF0001</element3>\n"
+        "            <element4>2</element4>\n"
+        "            <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "            <element6>custom</element6>\n"
+        "            <element7>LONDON</element7>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>arbitrary string value</element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>2</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element14>true</element14>\n"
+        "            <element14>true</element14>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element17>2</element17>\n"
+        "            <element17>2</element17>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element19>custom</element19>\n"
+        "            <element19>custom</element19>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element4>2</element4>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element17>2</element17>\n"
+        "        <element17>2</element17>\n"
+        "      </selection3>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection3>\n"
+        "        <selection3>\n"
+        "          <element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element3>true</element3>\n"
+        "            <element4>arbitrary string value</element4>\n"
+        "            <element5>\n"
+        "              <element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element3>true</element3>\n"
+        "                <element4>arbitrary string value</element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element3>true</element3>\n"
+        "                    <element4>arbitrary string value</element4>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element1>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element5>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element1>\n"
+        "              <element2 xsi:nil=\"true\"/>\n"
+        "              <element2 xsi:nil=\"true\"/>\n"
+        "              <element3 xsi:nil=\"true\"/>\n"
+        "              <element3 xsi:nil=\"true\"/>\n"
+        "              <element4 xsi:nil=\"true\"/>\n"
+        "              <element4 xsi:nil=\"true\"/>\n"
+        "              <element5 xsi:nil=\"true\"/>\n"
+        "              <element5 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element5>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element1>\n"
+        "          <element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element3>true</element3>\n"
+        "            <element4>arbitrary string value</element4>\n"
+        "            <element5>\n"
+        "              <element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element3>true</element3>\n"
+        "                <element4>arbitrary string value</element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element3>true</element3>\n"
+        "                    <element4>arbitrary string value</element4>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element1>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element5>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element1>\n"
+        "              <element2 xsi:nil=\"true\"/>\n"
+        "              <element2 xsi:nil=\"true\"/>\n"
+        "              <element3 xsi:nil=\"true\"/>\n"
+        "              <element3 xsi:nil=\"true\"/>\n"
+        "              <element4 xsi:nil=\"true\"/>\n"
+        "              <element4 xsi:nil=\"true\"/>\n"
+        "              <element5 xsi:nil=\"true\"/>\n"
+        "              <element5 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element5>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element1>\n"
+        "          <element2>\n"
+        "            <selection1>2</selection1>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "            <selection1>2</selection1>\n"
+        "          </element2>\n"
+        "          <element3>FF0001</element3>\n"
+        "          <element4>2</element4>\n"
+        "          <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "          <element6>custom</element6>\n"
+        "          <element7>LONDON</element7>\n"
+        "          <element8>true</element8>\n"
+        "          <element9>arbitrary string value</element9>\n"
+        "          <element10>1.5</element10>\n"
+        "          <element11>FF0001</element11>\n"
+        "          <element12>2</element12>\n"
+        "          <element13>LONDON</element13>\n"
+        "          <element14>true</element14>\n"
+        "          <element14>true</element14>\n"
+        "          <element15>1.5</element15>\n"
+        "          <element15>1.5</element15>\n"
+        "          <element16>FF0001</element16>\n"
+        "          <element16>FF0001</element16>\n"
+        "          <element17>2</element17>\n"
+        "          <element17>2</element17>\n"
+        "          <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "          <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "          <element19>custom</element19>\n"
+        "          <element19>custom</element19>\n"
+        "        </selection3>\n"
+        "      </selection3>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element3>FF0001</element3>\n"
+        "            <element4>2</element4>\n"
+        "            <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "            <element6>custom</element6>\n"
+        "            <element7>LONDON</element7>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>arbitrary string value</element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>2</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element14>true</element14>\n"
+        "            <element14>true</element14>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element17>2</element17>\n"
+        "            <element17>2</element17>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element19>custom</element19>\n"
+        "            <element19>custom</element19>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element3>FF0001</element3>\n"
+        "            <element4>2</element4>\n"
+        "            <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "            <element6>custom</element6>\n"
+        "            <element7>LONDON</element7>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>arbitrary string value</element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>2</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element14>true</element14>\n"
+        "            <element14>true</element14>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element17>2</element17>\n"
+        "            <element17>2</element17>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element19>custom</element19>\n"
+        "            <element19>custom</element19>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element4>2</element4>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element17>2</element17>\n"
+        "        <element17>2</element17>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element3>FF0001</element3>\n"
+        "            <element4>2</element4>\n"
+        "            <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "            <element6>custom</element6>\n"
+        "            <element7>LONDON</element7>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>arbitrary string value</element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>2</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element14>true</element14>\n"
+        "            <element14>true</element14>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element17>2</element17>\n"
+        "            <element17>2</element17>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element19>custom</element19>\n"
+        "            <element19>custom</element19>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element3>FF0001</element3>\n"
+        "            <element4>2</element4>\n"
+        "            <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "            <element6>custom</element6>\n"
+        "            <element7>LONDON</element7>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>arbitrary string value</element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>2</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element14>true</element14>\n"
+        "            <element14>true</element14>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element17>2</element17>\n"
+        "            <element17>2</element17>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element19>custom</element19>\n"
+        "            <element19>custom</element19>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element4>2</element4>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element17>2</element17>\n"
+        "        <element17>2</element17>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <selection4>999</selection4>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection4>999</selection4>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection1>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>255</element5>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "      </selection1>\n"
+        "    </element1>\n"
+        "    <element2>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element4>-980123</element4>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element17>-980123</element17>\n"
+        "            <element17>-980123</element17>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element4>-980123</element4>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element17>-980123</element17>\n"
+        "            <element17>-980123</element17>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element4>-980123</element4>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element4>-980123</element4>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element17>-980123</element17>\n"
+        "            <element17>-980123</element17>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element4>-980123</element4>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element17>-980123</element17>\n"
+        "            <element17>-980123</element17>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element4>-980123</element4>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection3>\n"
+        "        <selection3>\n"
+        "          <element1>\n"
+        "            <element2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "            </element2>\n"
+        "            <element4>\n"
+        "            </element4>\n"
+        "            <element5>\n"
+        "              <element1>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element4>\n"
+        "                </element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element4>\n"
+        "                    </element4>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                  </element1>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                </element5>\n"
+        "                <element6>LONDON</element6>\n"
+        "                <element6>LONDON</element6>\n"
+        "              </element1>\n"
+        "              <element2>true</element2>\n"
+        "              <element2>true</element2>\n"
+        "              <element3>1.5</element3>\n"
+        "              <element3>1.5</element3>\n"
+        "              <element4>FF0001</element4>\n"
+        "              <element4>FF0001</element4>\n"
+        "              <element5>-980123</element5>\n"
+        "              <element5>-980123</element5>\n"
+        "              <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            </element5>\n"
+        "            <element6>LONDON</element6>\n"
+        "            <element6>LONDON</element6>\n"
+        "          </element1>\n"
+        "          <element1>\n"
+        "            <element2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "            </element2>\n"
+        "            <element4>\n"
+        "            </element4>\n"
+        "            <element5>\n"
+        "              <element1>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element4>\n"
+        "                </element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element4>\n"
+        "                    </element4>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                  </element1>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                </element5>\n"
+        "                <element6>LONDON</element6>\n"
+        "                <element6>LONDON</element6>\n"
+        "              </element1>\n"
+        "              <element2>true</element2>\n"
+        "              <element2>true</element2>\n"
+        "              <element3>1.5</element3>\n"
+        "              <element3>1.5</element3>\n"
+        "              <element4>FF0001</element4>\n"
+        "              <element4>FF0001</element4>\n"
+        "              <element5>-980123</element5>\n"
+        "              <element5>-980123</element5>\n"
+        "              <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            </element5>\n"
+        "            <element6>LONDON</element6>\n"
+        "            <element6>LONDON</element6>\n"
+        "          </element1>\n"
+        "          <element2>\n"
+        "            <selection2>1.5</selection2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "            <selection2>1.5</selection2>\n"
+        "          </element2>\n"
+        "          <element4>-980123</element4>\n"
+        "          <element8>true</element8>\n"
+        "          <element9>\n"
+        "          </element9>\n"
+        "          <element10>1.5</element10>\n"
+        "          <element11>FF0001</element11>\n"
+        "          <element12>-980123</element12>\n"
+        "          <element13>LONDON</element13>\n"
+        "          <element17>-980123</element17>\n"
+        "          <element17>-980123</element17>\n"
+        "        </selection3>\n"
+        "      </selection3>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element4>-980123</element4>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element17>-980123</element17>\n"
+        "            <element17>-980123</element17>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element4>-980123</element4>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element17>-980123</element17>\n"
+        "            <element17>-980123</element17>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element4>-980123</element4>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element4>-980123</element4>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element17>-980123</element17>\n"
+        "            <element17>-980123</element17>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element4>-980123</element4>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element17>-980123</element17>\n"
+        "            <element17>-980123</element17>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element4>-980123</element4>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <selection1>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>255</element5>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "      </selection1>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection1>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>255</element5>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "      </selection1>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element2>\n"
+        "      <selection4>\n"
+        "        <selection1>true</selection1>\n"
+        "      </selection4>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection4>\n"
+        "        <selection1>true</selection1>\n"
+        "      </selection4>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection3>\n"
+        "        <selection3>\n"
+        "          <element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element3>true</element3>\n"
+        "            <element5>\n"
+        "              <element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element3>true</element3>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element3>true</element3>\n"
+        "                  </element1>\n"
+        "                  <element5>2</element5>\n"
+        "                  <element5>2</element5>\n"
+        "                </element5>\n"
+        "              </element1>\n"
+        "              <element5>2</element5>\n"
+        "              <element5>2</element5>\n"
+        "            </element5>\n"
+        "          </element1>\n"
+        "          <element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element3>true</element3>\n"
+        "            <element5>\n"
+        "              <element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element3>true</element3>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element3>true</element3>\n"
+        "                  </element1>\n"
+        "                  <element5>2</element5>\n"
+        "                  <element5>2</element5>\n"
+        "                </element5>\n"
+        "              </element1>\n"
+        "              <element5>2</element5>\n"
+        "              <element5>2</element5>\n"
+        "            </element5>\n"
+        "          </element1>\n"
+        "          <element2>\n"
+        "            <selection3>\n"
+        "              <element8>true</element8>\n"
+        "              <element9>\n"
+        "              </element9>\n"
+        "              <element10>1.5</element10>\n"
+        "              <element11>FF0001</element11>\n"
+        "              <element12>-980123</element12>\n"
+        "              <element13>LONDON</element13>\n"
+        "            </selection3>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "            <selection3>\n"
+        "              <element8>true</element8>\n"
+        "              <element9>\n"
+        "              </element9>\n"
+        "              <element10>1.5</element10>\n"
+        "              <element11>FF0001</element11>\n"
+        "              <element12>-980123</element12>\n"
+        "              <element13>LONDON</element13>\n"
+        "            </selection3>\n"
+        "          </element2>\n"
+        "          <element3>FF0001</element3>\n"
+        "          <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "          <element6>custom</element6>\n"
+        "          <element7>LONDON</element7>\n"
+        "          <element8>true</element8>\n"
+        "          <element9>arbitrary string value</element9>\n"
+        "          <element10>1.5</element10>\n"
+        "          <element11>FF0001</element11>\n"
+        "          <element12>2</element12>\n"
+        "          <element13>LONDON</element13>\n"
+        "          <element14>true</element14>\n"
+        "          <element14>true</element14>\n"
+        "          <element15>1.5</element15>\n"
+        "          <element15>1.5</element15>\n"
+        "          <element16>FF0001</element16>\n"
+        "          <element16>FF0001</element16>\n"
+        "          <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "          <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "          <element19>custom</element19>\n"
+        "          <element19>custom</element19>\n"
+        "        </selection3>\n"
+        "      </selection3>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection1>true</selection1>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection1>true</selection1>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection1>\n"
+        "        <element1>0</element1>\n"
+        "        <element2>custom</element2>\n"
+        "        <element3>999</element3>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>0</element5>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element9>3123123123</element9>\n"
+        "        <element10>0</element10>\n"
+        "        <element10>0</element10>\n"
+        "        <element11>custom</element11>\n"
+        "        <element11>custom</element11>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element14>999</element14>\n"
+        "        <element14>999</element14>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "      </selection1>\n"
+        "    </element1>\n"
+        "    <element2>\n"
+        "      <selection4>\n"
+        "        <selection2>\n"
+        "        </selection2>\n"
+        "      </selection4>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection4>\n"
+        "        <selection2>\n"
+        "        </selection2>\n"
+        "      </selection4>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection3>\n"
+        "        <selection3>\n"
+        "          <element1>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element4>arbitrary string value</element4>\n"
+        "            <element5>\n"
+        "              <element1>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element4>arbitrary string value</element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element4>arbitrary string value</element4>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element1>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element5>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element1>\n"
+        "              <element2 xsi:nil=\"true\"/>\n"
+        "              <element2 xsi:nil=\"true\"/>\n"
+        "              <element3 xsi:nil=\"true\"/>\n"
+        "              <element3 xsi:nil=\"true\"/>\n"
+        "              <element4 xsi:nil=\"true\"/>\n"
+        "              <element4 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element5>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element1>\n"
+        "          <element1>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element4>arbitrary string value</element4>\n"
+        "            <element5>\n"
+        "              <element1>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element4>arbitrary string value</element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element4>arbitrary string value</element4>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element1>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element5>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element1>\n"
+        "              <element2 xsi:nil=\"true\"/>\n"
+        "              <element2 xsi:nil=\"true\"/>\n"
+        "              <element3 xsi:nil=\"true\"/>\n"
+        "              <element3 xsi:nil=\"true\"/>\n"
+        "              <element4 xsi:nil=\"true\"/>\n"
+        "              <element4 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element5>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element1>\n"
+        "          <element2>\n"
+        "            <selection3>\n"
+        "              <element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element3>true</element3>\n"
+        "                <element4>arbitrary string value</element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element3>true</element3>\n"
+        "                    <element4>arbitrary string value</element4>\n"
+        "                    <element5>\n"
+        "                      <element1>\n"
+        "                        <element1>LONDON</element1>\n"
+        "                        <element1>LONDON</element1>\n"
+        "                        <element2>arbitrary string value</element2>\n"
+        "                        <element2>arbitrary string value</element2>\n"
+        "                        <element3>true</element3>\n"
+        "                        <element4>arbitrary string value</element4>\n"
+        "                        <element6 xsi:nil=\"true\"/>\n"
+        "                        <element6 xsi:nil=\"true\"/>\n"
+        "                      </element1>\n"
+        "                      <element2 xsi:nil=\"true\"/>\n"
+        "                      <element2 xsi:nil=\"true\"/>\n"
+        "                      <element3 xsi:nil=\"true\"/>\n"
+        "                      <element3 xsi:nil=\"true\"/>\n"
+        "                      <element4 xsi:nil=\"true\"/>\n"
+        "                      <element4 xsi:nil=\"true\"/>\n"
+        "                      <element5 xsi:nil=\"true\"/>\n"
+        "                      <element5 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element5>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element1>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element5>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element1>\n"
+        "              <element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element3>true</element3>\n"
+        "                <element4>arbitrary string value</element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element3>true</element3>\n"
+        "                    <element4>arbitrary string value</element4>\n"
+        "                    <element5>\n"
+        "                      <element1>\n"
+        "                        <element1>LONDON</element1>\n"
+        "                        <element1>LONDON</element1>\n"
+        "                        <element2>arbitrary string value</element2>\n"
+        "                        <element2>arbitrary string value</element2>\n"
+        "                        <element3>true</element3>\n"
+        "                        <element4>arbitrary string value</element4>\n"
+        "                        <element6 xsi:nil=\"true\"/>\n"
+        "                        <element6 xsi:nil=\"true\"/>\n"
+        "                      </element1>\n"
+        "                      <element2 xsi:nil=\"true\"/>\n"
+        "                      <element2 xsi:nil=\"true\"/>\n"
+        "                      <element3 xsi:nil=\"true\"/>\n"
+        "                      <element3 xsi:nil=\"true\"/>\n"
+        "                      <element4 xsi:nil=\"true\"/>\n"
+        "                      <element4 xsi:nil=\"true\"/>\n"
+        "                      <element5 xsi:nil=\"true\"/>\n"
+        "                      <element5 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element5>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element1>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element5>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element1>\n"
+        "              <element2>\n"
+        "                <selection1>2</selection1>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "                <selection1>2</selection1>\n"
+        "              </element2>\n"
+        "              <element3>FF0001</element3>\n"
+        "              <element4>2</element4>\n"
+        "              <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "              <element6>custom</element6>\n"
+        "              <element7>LONDON</element7>\n"
+        "              <element8>true</element8>\n"
+        "              <element9>arbitrary string value</element9>\n"
+        "              <element10>1.5</element10>\n"
+        "              <element11>FF0001</element11>\n"
+        "              <element12>2</element12>\n"
+        "              <element13>LONDON</element13>\n"
+        "              <element14>true</element14>\n"
+        "              <element14>true</element14>\n"
+        "              <element15>1.5</element15>\n"
+        "              <element15>1.5</element15>\n"
+        "              <element16>FF0001</element16>\n"
+        "              <element16>FF0001</element16>\n"
+        "              <element17>2</element17>\n"
+        "              <element17>2</element17>\n"
+        "              <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "              <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "              <element19>custom</element19>\n"
+        "              <element19>custom</element19>\n"
+        "            </selection3>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "            <selection3>\n"
+        "              <element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element3>true</element3>\n"
+        "                <element4>arbitrary string value</element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element3>true</element3>\n"
+        "                    <element4>arbitrary string value</element4>\n"
+        "                    <element5>\n"
+        "                      <element1>\n"
+        "                        <element1>LONDON</element1>\n"
+        "                        <element1>LONDON</element1>\n"
+        "                        <element2>arbitrary string value</element2>\n"
+        "                        <element2>arbitrary string value</element2>\n"
+        "                        <element3>true</element3>\n"
+        "                        <element4>arbitrary string value</element4>\n"
+        "                        <element6 xsi:nil=\"true\"/>\n"
+        "                        <element6 xsi:nil=\"true\"/>\n"
+        "                      </element1>\n"
+        "                      <element2 xsi:nil=\"true\"/>\n"
+        "                      <element2 xsi:nil=\"true\"/>\n"
+        "                      <element3 xsi:nil=\"true\"/>\n"
+        "                      <element3 xsi:nil=\"true\"/>\n"
+        "                      <element4 xsi:nil=\"true\"/>\n"
+        "                      <element4 xsi:nil=\"true\"/>\n"
+        "                      <element5 xsi:nil=\"true\"/>\n"
+        "                      <element5 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element5>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element1>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element5>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element1>\n"
+        "              <element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element2>arbitrary string value</element2>\n"
+        "                <element3>true</element3>\n"
+        "                <element4>arbitrary string value</element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element2>arbitrary string value</element2>\n"
+        "                    <element3>true</element3>\n"
+        "                    <element4>arbitrary string value</element4>\n"
+        "                    <element5>\n"
+        "                      <element1>\n"
+        "                        <element1>LONDON</element1>\n"
+        "                        <element1>LONDON</element1>\n"
+        "                        <element2>arbitrary string value</element2>\n"
+        "                        <element2>arbitrary string value</element2>\n"
+        "                        <element3>true</element3>\n"
+        "                        <element4>arbitrary string value</element4>\n"
+        "                        <element6 xsi:nil=\"true\"/>\n"
+        "                        <element6 xsi:nil=\"true\"/>\n"
+        "                      </element1>\n"
+        "                      <element2 xsi:nil=\"true\"/>\n"
+        "                      <element2 xsi:nil=\"true\"/>\n"
+        "                      <element3 xsi:nil=\"true\"/>\n"
+        "                      <element3 xsi:nil=\"true\"/>\n"
+        "                      <element4 xsi:nil=\"true\"/>\n"
+        "                      <element4 xsi:nil=\"true\"/>\n"
+        "                      <element5 xsi:nil=\"true\"/>\n"
+        "                      <element5 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element5>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element1>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element2 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element3 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element4 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element5>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element1>\n"
+        "              <element2>\n"
+        "                <selection1>2</selection1>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "                <selection1>2</selection1>\n"
+        "              </element2>\n"
+        "              <element3>FF0001</element3>\n"
+        "              <element4>2</element4>\n"
+        "              <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "              <element6>custom</element6>\n"
+        "              <element7>LONDON</element7>\n"
+        "              <element8>true</element8>\n"
+        "              <element9>arbitrary string value</element9>\n"
+        "              <element10>1.5</element10>\n"
+        "              <element11>FF0001</element11>\n"
+        "              <element12>2</element12>\n"
+        "              <element13>LONDON</element13>\n"
+        "              <element14>true</element14>\n"
+        "              <element14>true</element14>\n"
+        "              <element15>1.5</element15>\n"
+        "              <element15>1.5</element15>\n"
+        "              <element16>FF0001</element16>\n"
+        "              <element16>FF0001</element16>\n"
+        "              <element17>2</element17>\n"
+        "              <element17>2</element17>\n"
+        "              <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "              <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "              <element19>custom</element19>\n"
+        "              <element19>custom</element19>\n"
+        "            </selection3>\n"
+        "          </element2>\n"
+        "          <element4>2</element4>\n"
+        "          <element8>true</element8>\n"
+        "          <element9>\n"
+        "          </element9>\n"
+        "          <element10>1.5</element10>\n"
+        "          <element11>FF0001</element11>\n"
+        "          <element12>-980123</element12>\n"
+        "          <element13>LONDON</element13>\n"
+        "          <element17>2</element17>\n"
+        "          <element17>2</element17>\n"
+        "        </selection3>\n"
+        "      </selection3>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection2>\n"
+        "        </selection2>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection2>\n"
+        "        </selection2>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <selection1>\n"
+        "        <element1>0</element1>\n"
+        "        <element2>custom</element2>\n"
+        "        <element3>999</element3>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>0</element5>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element9>3123123123</element9>\n"
+        "        <element10>0</element10>\n"
+        "        <element10>0</element10>\n"
+        "        <element11>custom</element11>\n"
+        "        <element11>custom</element11>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element14>999</element14>\n"
+        "        <element14>999</element14>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "      </selection1>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection1>\n"
+        "        <element1>0</element1>\n"
+        "        <element2>custom</element2>\n"
+        "        <element3>999</element3>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>0</element5>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element9>3123123123</element9>\n"
+        "        <element10>0</element10>\n"
+        "        <element10>0</element10>\n"
+        "        <element11>custom</element11>\n"
+        "        <element11>custom</element11>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element13 xsi:nil=\"true\"/>\n"
+        "        <element14>999</element14>\n"
+        "        <element14>999</element14>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "        <element15 xsi:nil=\"true\"/>\n"
+        "      </selection1>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection1>\n"
+        "        <element1>255</element1>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>255</element5>\n"
+        "        <element6>999</element6>\n"
+        "        <element6>999</element6>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element10>255</element10>\n"
+        "        <element10>255</element10>\n"
+        "        <element13>255</element13>\n"
+        "        <element13>255</element13>\n"
+        "        <element15>3123123123</element15>\n"
+        "        <element15>3123123123</element15>\n"
+        "      </selection1>\n"
+        "    </element1>\n"
+        "    <element2>\n"
+        "      <selection4>\n"
+        "        <selection2>arbitrary string value</selection2>\n"
+        "      </selection4>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection4>\n"
+        "        <selection2>arbitrary string value</selection2>\n"
+        "      </selection4>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection3>\n"
+        "        <selection3>\n"
+        "          <element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "            </element2>\n"
+        "            <element3>true</element3>\n"
+        "            <element4>\n"
+        "            </element4>\n"
+        "            <element5>\n"
+        "              <element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element3>true</element3>\n"
+        "                <element4>\n"
+        "                </element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element3>true</element3>\n"
+        "                    <element4>\n"
+        "                    </element4>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                  </element1>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                </element5>\n"
+        "                <element6>LONDON</element6>\n"
+        "                <element6>LONDON</element6>\n"
+        "              </element1>\n"
+        "              <element2>true</element2>\n"
+        "              <element2>true</element2>\n"
+        "              <element3>1.5</element3>\n"
+        "              <element3>1.5</element3>\n"
+        "              <element4>FF0001</element4>\n"
+        "              <element4>FF0001</element4>\n"
+        "              <element5 xsi:nil=\"true\"/>\n"
+        "              <element5 xsi:nil=\"true\"/>\n"
+        "              <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            </element5>\n"
+        "            <element6>LONDON</element6>\n"
+        "            <element6>LONDON</element6>\n"
+        "          </element1>\n"
+        "          <element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "            </element2>\n"
+        "            <element3>true</element3>\n"
+        "            <element4>\n"
+        "            </element4>\n"
+        "            <element5>\n"
+        "              <element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element1>LONDON</element1>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element3>true</element3>\n"
+        "                <element4>\n"
+        "                </element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element1>LONDON</element1>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element3>true</element3>\n"
+        "                    <element4>\n"
+        "                    </element4>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                  </element1>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element5 xsi:nil=\"true\"/>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                </element5>\n"
+        "                <element6>LONDON</element6>\n"
+        "                <element6>LONDON</element6>\n"
+        "              </element1>\n"
+        "              <element2>true</element2>\n"
+        "              <element2>true</element2>\n"
+        "              <element3>1.5</element3>\n"
+        "              <element3>1.5</element3>\n"
+        "              <element4>FF0001</element4>\n"
+        "              <element4>FF0001</element4>\n"
+        "              <element5 xsi:nil=\"true\"/>\n"
+        "              <element5 xsi:nil=\"true\"/>\n"
+        "              <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            </element5>\n"
+        "            <element6>LONDON</element6>\n"
+        "            <element6>LONDON</element6>\n"
+        "          </element1>\n"
+        "          <element2>\n"
+        "            <selection3>\n"
+        "              <element1>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element4>\n"
+        "                </element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element4>\n"
+        "                    </element4>\n"
+        "                    <element5>\n"
+        "                      <element1>\n"
+        "                        <element2>\n"
+        "                        </element2>\n"
+        "                        <element2>\n"
+        "                        </element2>\n"
+        "                        <element4>\n"
+        "                        </element4>\n"
+        "                        <element6>LONDON</element6>\n"
+        "                        <element6>LONDON</element6>\n"
+        "                      </element1>\n"
+        "                      <element2>true</element2>\n"
+        "                      <element2>true</element2>\n"
+        "                      <element3>1.5</element3>\n"
+        "                      <element3>1.5</element3>\n"
+        "                      <element4>FF0001</element4>\n"
+        "                      <element4>FF0001</element4>\n"
+        "                      <element5>-980123</element5>\n"
+        "                      <element5>-980123</element5>\n"
+        "                      <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                      <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    </element5>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                  </element1>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                </element5>\n"
+        "                <element6>LONDON</element6>\n"
+        "                <element6>LONDON</element6>\n"
+        "              </element1>\n"
+        "              <element1>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element4>\n"
+        "                </element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element4>\n"
+        "                    </element4>\n"
+        "                    <element5>\n"
+        "                      <element1>\n"
+        "                        <element2>\n"
+        "                        </element2>\n"
+        "                        <element2>\n"
+        "                        </element2>\n"
+        "                        <element4>\n"
+        "                        </element4>\n"
+        "                        <element6>LONDON</element6>\n"
+        "                        <element6>LONDON</element6>\n"
+        "                      </element1>\n"
+        "                      <element2>true</element2>\n"
+        "                      <element2>true</element2>\n"
+        "                      <element3>1.5</element3>\n"
+        "                      <element3>1.5</element3>\n"
+        "                      <element4>FF0001</element4>\n"
+        "                      <element4>FF0001</element4>\n"
+        "                      <element5>-980123</element5>\n"
+        "                      <element5>-980123</element5>\n"
+        "                      <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                      <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    </element5>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                  </element1>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                </element5>\n"
+        "                <element6>LONDON</element6>\n"
+        "                <element6>LONDON</element6>\n"
+        "              </element1>\n"
+        "              <element2>\n"
+        "                <selection2>1.5</selection2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "                <selection2>1.5</selection2>\n"
+        "              </element2>\n"
+        "              <element4>-980123</element4>\n"
+        "              <element8>true</element8>\n"
+        "              <element9>\n"
+        "              </element9>\n"
+        "              <element10>1.5</element10>\n"
+        "              <element11>FF0001</element11>\n"
+        "              <element12>-980123</element12>\n"
+        "              <element13>LONDON</element13>\n"
+        "              <element17>-980123</element17>\n"
+        "              <element17>-980123</element17>\n"
+        "            </selection3>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "            <selection3>\n"
+        "              <element1>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element4>\n"
+        "                </element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element4>\n"
+        "                    </element4>\n"
+        "                    <element5>\n"
+        "                      <element1>\n"
+        "                        <element2>\n"
+        "                        </element2>\n"
+        "                        <element2>\n"
+        "                        </element2>\n"
+        "                        <element4>\n"
+        "                        </element4>\n"
+        "                        <element6>LONDON</element6>\n"
+        "                        <element6>LONDON</element6>\n"
+        "                      </element1>\n"
+        "                      <element2>true</element2>\n"
+        "                      <element2>true</element2>\n"
+        "                      <element3>1.5</element3>\n"
+        "                      <element3>1.5</element3>\n"
+        "                      <element4>FF0001</element4>\n"
+        "                      <element4>FF0001</element4>\n"
+        "                      <element5>-980123</element5>\n"
+        "                      <element5>-980123</element5>\n"
+        "                      <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                      <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    </element5>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                  </element1>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                </element5>\n"
+        "                <element6>LONDON</element6>\n"
+        "                <element6>LONDON</element6>\n"
+        "              </element1>\n"
+        "              <element1>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element2>\n"
+        "                </element2>\n"
+        "                <element4>\n"
+        "                </element4>\n"
+        "                <element5>\n"
+        "                  <element1>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element2>\n"
+        "                    </element2>\n"
+        "                    <element4>\n"
+        "                    </element4>\n"
+        "                    <element5>\n"
+        "                      <element1>\n"
+        "                        <element2>\n"
+        "                        </element2>\n"
+        "                        <element2>\n"
+        "                        </element2>\n"
+        "                        <element4>\n"
+        "                        </element4>\n"
+        "                        <element6>LONDON</element6>\n"
+        "                        <element6>LONDON</element6>\n"
+        "                      </element1>\n"
+        "                      <element2>true</element2>\n"
+        "                      <element2>true</element2>\n"
+        "                      <element3>1.5</element3>\n"
+        "                      <element3>1.5</element3>\n"
+        "                      <element4>FF0001</element4>\n"
+        "                      <element4>FF0001</element4>\n"
+        "                      <element5>-980123</element5>\n"
+        "                      <element5>-980123</element5>\n"
+        "                      <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                      <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    </element5>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                    <element6>LONDON</element6>\n"
+        "                  </element1>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element2>true</element2>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element3>1.5</element3>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element4>FF0001</element4>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element5>-980123</element5>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                </element5>\n"
+        "                <element6>LONDON</element6>\n"
+        "                <element6>LONDON</element6>\n"
+        "              </element1>\n"
+        "              <element2>\n"
+        "                <selection2>1.5</selection2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "                <selection2>1.5</selection2>\n"
+        "              </element2>\n"
+        "              <element4>-980123</element4>\n"
+        "              <element8>true</element8>\n"
+        "              <element9>\n"
+        "              </element9>\n"
+        "              <element10>1.5</element10>\n"
+        "              <element11>FF0001</element11>\n"
+        "              <element12>-980123</element12>\n"
+        "              <element13>LONDON</element13>\n"
+        "              <element17>-980123</element17>\n"
+        "              <element17>-980123</element17>\n"
+        "            </selection3>\n"
+        "          </element2>\n"
+        "          <element3>FF0001</element3>\n"
+        "          <element4>-980123</element4>\n"
+        "          <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "          <element6>custom</element6>\n"
+        "          <element7>LONDON</element7>\n"
+        "          <element8>true</element8>\n"
+        "          <element9>arbitrary string value</element9>\n"
+        "          <element10>1.5</element10>\n"
+        "          <element11>FF0001</element11>\n"
+        "          <element12>2</element12>\n"
+        "          <element13>LONDON</element13>\n"
+        "          <element14>true</element14>\n"
+        "          <element14>true</element14>\n"
+        "          <element15>1.5</element15>\n"
+        "          <element15>1.5</element15>\n"
+        "          <element16>FF0001</element16>\n"
+        "          <element16>FF0001</element16>\n"
+        "          <element17>-980123</element17>\n"
+        "          <element17>-980123</element17>\n"
+        "          <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "          <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "          <element19>custom</element19>\n"
+        "          <element19>custom</element19>\n"
+        "        </selection3>\n"
+        "      </selection3>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection2>arbitrary string value</selection2>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection2>arbitrary string value</selection2>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <selection1>\n"
+        "        <element1>255</element1>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>255</element5>\n"
+        "        <element6>999</element6>\n"
+        "        <element6>999</element6>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element10>255</element10>\n"
+        "        <element10>255</element10>\n"
+        "        <element13>255</element13>\n"
+        "        <element13>255</element13>\n"
+        "        <element15>3123123123</element15>\n"
+        "        <element15>3123123123</element15>\n"
+        "      </selection1>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection1>\n"
+        "        <element1>255</element1>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>255</element5>\n"
+        "        <element6>999</element6>\n"
+        "        <element6>999</element6>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element10>255</element10>\n"
+        "        <element10>255</element10>\n"
+        "        <element13>255</element13>\n"
+        "        <element13>255</element13>\n"
+        "        <element15>3123123123</element15>\n"
+        "        <element15>3123123123</element15>\n"
+        "      </selection1>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection1>\n"
+        "        <element2>custom</element2>\n"
+        "        <element3>999</element3>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>0</element5>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element9>3123123123</element9>\n"
+        "        <element11>custom</element11>\n"
+        "        <element11>custom</element11>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element13>0</element13>\n"
+        "        <element13>0</element13>\n"
+        "        <element14>999</element14>\n"
+        "        <element14>999</element14>\n"
+        "      </selection1>\n"
+        "    </element1>\n"
+        "    <element2>\n"
+        "      <selection4>\n"
+        "        <selection3>\n"
+        "          <selection1>-980123</selection1>\n"
+        "        </selection3>\n"
+        "      </selection4>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection4>\n"
+        "        <selection3>\n"
+        "          <selection1>-980123</selection1>\n"
+        "        </selection3>\n"
+        "      </selection4>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection4>3123123123</selection4>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection3>\n"
+        "          <selection1>-980123</selection1>\n"
+        "        </selection3>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection3>\n"
+        "          <selection1>-980123</selection1>\n"
+        "        </selection3>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <selection1>\n"
+        "        <element2>custom</element2>\n"
+        "        <element3>999</element3>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>0</element5>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element9>3123123123</element9>\n"
+        "        <element11>custom</element11>\n"
+        "        <element11>custom</element11>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element13>0</element13>\n"
+        "        <element13>0</element13>\n"
+        "        <element14>999</element14>\n"
+        "        <element14>999</element14>\n"
+        "      </selection1>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection1>\n"
+        "        <element2>custom</element2>\n"
+        "        <element3>999</element3>\n"
+        "        <element4>3123123123</element4>\n"
+        "        <element5>0</element5>\n"
+        "        <element7>custom</element7>\n"
+        "        <element8>999</element8>\n"
+        "        <element9>3123123123</element9>\n"
+        "        <element11>custom</element11>\n"
+        "        <element11>custom</element11>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element12>3123123123</element12>\n"
+        "        <element13>0</element13>\n"
+        "        <element13>0</element13>\n"
+        "        <element14>999</element14>\n"
+        "        <element14>999</element14>\n"
+        "      </selection1>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection2>255</selection2>\n"
+        "    </element1>\n"
+        "    <element2>\n"
+        "      <selection1>-980123</selection1>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "      <selection1>-980123</selection1>\n"
+        "    </element2>\n"
+        "    <element3>\n"
+        "      <selection1>true</selection1>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection1>-980123</selection1>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection1>-980123</selection1>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <selection2>255</selection2>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection2>255</selection2>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection1>\n"
+        "    <element1>\n"
+        "      <selection2>0</selection2>\n"
+        "    </element1>\n"
+        "    <element3>\n"
+        "      <selection2>\n"
+        "      </selection2>\n"
+        "    </element3>\n"
+        "    <element4>\n"
+        "      <selection1>2</selection1>\n"
+        "    </element4>\n"
+        "    <element4>\n"
+        "      <selection1>2</selection1>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <selection2>0</selection2>\n"
+        "    </element5>\n"
+        "    <element5>\n"
+        "      <selection2>0</selection2>\n"
+        "    </element5>\n"
+        "  </selection1>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection2>FF0001</selection2>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>255</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>0</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection1>2</selection1>\n"
+        "    </element4>\n"
+        "    <element5>1.5</element5>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "    <element7 xsi:nil=\"true\"/>\n"
+        "    <element7 xsi:nil=\"true\"/>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>255</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection2>1.5</selection2>\n"
+        "    </element4>\n"
+        "    <element6>\n"
+        "    </element6>\n"
+        "    <element6>\n"
+        "    </element6>\n"
+        "    <element7>custom</element7>\n"
+        "    <element7>custom</element7>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>0</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element5>1.5</element5>\n"
+        "    <element6>arbitrary string value</element6>\n"
+        "    <element6>arbitrary string value</element6>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>255</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection1>2</selection1>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection1>2</selection1>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element4>2</element4>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element17>2</element17>\n"
+        "        <element17>2</element17>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element7 xsi:nil=\"true\"/>\n"
+        "    <element7 xsi:nil=\"true\"/>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>0</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element5>-980123</element5>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection2>1.5</selection2>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection2>1.5</selection2>\n"
+        "        </element2>\n"
+        "        <element4>-980123</element4>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element17>-980123</element17>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element5>1.5</element5>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "    <element7>custom</element7>\n"
+        "    <element7>custom</element7>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>255</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element3>true</element3>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element3>true</element3>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element3>true</element3>\n"
+        "                </element1>\n"
+        "                <element5>2</element5>\n"
+        "                <element5>2</element5>\n"
+        "              </element5>\n"
+        "            </element1>\n"
+        "            <element5>2</element5>\n"
+        "            <element5>2</element5>\n"
+        "          </element5>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element3>true</element3>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element3>true</element3>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element3>true</element3>\n"
+        "                </element1>\n"
+        "                <element5>2</element5>\n"
+        "                <element5>2</element5>\n"
+        "              </element5>\n"
+        "            </element1>\n"
+        "            <element5>2</element5>\n"
+        "            <element5>2</element5>\n"
+        "          </element5>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element6>\n"
+        "    </element6>\n"
+        "    <element6>\n"
+        "    </element6>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>0</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element2>arbitrary string value</element2>\n"
+        "          <element4>arbitrary string value</element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element2 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element3 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element4 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element5>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element3>FF0001</element3>\n"
+        "            <element4>2</element4>\n"
+        "            <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "            <element6>custom</element6>\n"
+        "            <element7>LONDON</element7>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>arbitrary string value</element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>2</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element14>true</element14>\n"
+        "            <element14>true</element14>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element17>2</element17>\n"
+        "            <element17>2</element17>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element19>custom</element19>\n"
+        "            <element19>custom</element19>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element2>arbitrary string value</element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>arbitrary string value</element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element2>arbitrary string value</element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>arbitrary string value</element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element1>LONDON</element1>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element2>arbitrary string value</element2>\n"
+        "                      <element3>true</element3>\n"
+        "                      <element4>arbitrary string value</element4>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                      <element6 xsi:nil=\"true\"/>\n"
+        "                    </element1>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element2 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element3 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element4 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element5 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                    <element6 xsi:nil=\"true\"/>\n"
+        "                  </element5>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                  <element6 xsi:nil=\"true\"/>\n"
+        "                </element1>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element2 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element3 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element4 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "                <element6 xsi:nil=\"true\"/>\n"
+        "              </element5>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "              <element6 xsi:nil=\"true\"/>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection1>2</selection1>\n"
+        "            </element2>\n"
+        "            <element3>FF0001</element3>\n"
+        "            <element4>2</element4>\n"
+        "            <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "            <element6>custom</element6>\n"
+        "            <element7>LONDON</element7>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>arbitrary string value</element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>2</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element14>true</element14>\n"
+        "            <element14>true</element14>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element15>1.5</element15>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element16>FF0001</element16>\n"
+        "            <element17>2</element17>\n"
+        "            <element17>2</element17>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "            <element19>custom</element19>\n"
+        "            <element19>custom</element19>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element4>2</element4>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>\n"
+        "        </element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>-980123</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element17>2</element17>\n"
+        "        <element17>2</element17>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element5>1.5</element5>\n"
+        "    <element6>arbitrary string value</element6>\n"
+        "    <element6>arbitrary string value</element6>\n"
+        "    <element7 xsi:nil=\"true\"/>\n"
+        "    <element7 xsi:nil=\"true\"/>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>255</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection3>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element1>LONDON</element1>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element2>\n"
+        "          </element2>\n"
+        "          <element3>true</element3>\n"
+        "          <element4>\n"
+        "          </element4>\n"
+        "          <element5>\n"
+        "            <element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element1>LONDON</element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element3>true</element3>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element1>LONDON</element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element3>true</element3>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element5 xsi:nil=\"true\"/>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>true</element2>\n"
+        "            <element2>true</element2>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element3>1.5</element3>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element4>FF0001</element4>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element5 xsi:nil=\"true\"/>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "            <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          </element5>\n"
+        "          <element6>LONDON</element6>\n"
+        "          <element6>LONDON</element6>\n"
+        "        </element1>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element4>-980123</element4>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element17>-980123</element17>\n"
+        "            <element17>-980123</element17>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "          <selection3>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element1>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element2>\n"
+        "              </element2>\n"
+        "              <element4>\n"
+        "              </element4>\n"
+        "              <element5>\n"
+        "                <element1>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element2>\n"
+        "                  </element2>\n"
+        "                  <element4>\n"
+        "                  </element4>\n"
+        "                  <element5>\n"
+        "                    <element1>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element2>\n"
+        "                      </element2>\n"
+        "                      <element4>\n"
+        "                      </element4>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                      <element6>LONDON</element6>\n"
+        "                    </element1>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element2>true</element2>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element3>1.5</element3>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element4>FF0001</element4>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element5>-980123</element5>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                    <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                  </element5>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                  <element6>LONDON</element6>\n"
+        "                </element1>\n"
+        "                <element2>true</element2>\n"
+        "                <element2>true</element2>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element3>1.5</element3>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element4>FF0001</element4>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element5>-980123</element5>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "                <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "              </element5>\n"
+        "              <element6>LONDON</element6>\n"
+        "              <element6>LONDON</element6>\n"
+        "            </element1>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "              <selection2>1.5</selection2>\n"
+        "            </element2>\n"
+        "            <element4>-980123</element4>\n"
+        "            <element8>true</element8>\n"
+        "            <element9>\n"
+        "            </element9>\n"
+        "            <element10>1.5</element10>\n"
+        "            <element11>FF0001</element11>\n"
+        "            <element12>-980123</element12>\n"
+        "            <element13>LONDON</element13>\n"
+        "            <element17>-980123</element17>\n"
+        "            <element17>-980123</element17>\n"
+        "          </selection3>\n"
+        "        </element2>\n"
+        "        <element3>FF0001</element3>\n"
+        "        <element4>-980123</element4>\n"
+        "        <element5>2012-08-18T13:25:00.000+00:00</element5>\n"
+        "        <element6>custom</element6>\n"
+        "        <element7>LONDON</element7>\n"
+        "        <element8>true</element8>\n"
+        "        <element9>arbitrary string value</element9>\n"
+        "        <element10>1.5</element10>\n"
+        "        <element11>FF0001</element11>\n"
+        "        <element12>2</element12>\n"
+        "        <element13>LONDON</element13>\n"
+        "        <element14>true</element14>\n"
+        "        <element14>true</element14>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element15>1.5</element15>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element16>FF0001</element16>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element17>-980123</element17>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element18>2012-08-18T13:25:00.000+00:00</element18>\n"
+        "        <element19>custom</element19>\n"
+        "        <element19>custom</element19>\n"
+        "      </selection3>\n"
+        "    </element4>\n"
+        "    <element7>custom</element7>\n"
+        "    <element7>custom</element7>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>0</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection1>true</selection1>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "    <element5>1.5</element5>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>255</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection2>\n"
+        "        </selection2>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "    <element6>\n"
+        "    </element6>\n"
+        "    <element6>\n"
+        "    </element6>\n"
+        "    <element7 xsi:nil=\"true\"/>\n"
+        "    <element7 xsi:nil=\"true\"/>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>0</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection2>arbitrary string value</selection2>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "    <element5>1.5</element5>\n"
+        "    <element6>arbitrary string value</element6>\n"
+        "    <element6>arbitrary string value</element6>\n"
+        "    <element7>custom</element7>\n"
+        "    <element7>custom</element7>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>255</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection4>\n"
+        "        <selection3>\n"
+        "          <selection1>-980123</selection1>\n"
+        "        </selection3>\n"
+        "      </selection4>\n"
+        "    </element4>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection3>\n"
+        "    <element1>custom</element1>\n"
+        "    <element2>0</element2>\n"
+        "    <element3>2012-08-18T13:25:00.000+00:00</element3>\n"
+        "    <element4>\n"
+        "      <selection1>-980123</selection1>\n"
+        "    </element4>\n"
+        "    <element5>1.5</element5>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "    <element7 xsi:nil=\"true\"/>\n"
+        "    <element7 xsi:nil=\"true\"/>\n"
+        "  </selection3>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection4/>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection4>\n"
+        "    <element1>LONDON</element1>\n"
+        "    <element1>LONDON</element1>\n"
+        "    <element2>arbitrary string value</element2>\n"
+        "    <element2>arbitrary string value</element2>\n"
+        "    <element3>true</element3>\n"
+        "    <element4>arbitrary string value</element4>\n"
+        "    <element5>\n"
+        "      <element1>\n"
+        "        <element1>LONDON</element1>\n"
+        "        <element1>LONDON</element1>\n"
+        "        <element2>arbitrary string value</element2>\n"
+        "        <element2>arbitrary string value</element2>\n"
+        "        <element3>true</element3>\n"
+        "        <element4>arbitrary string value</element4>\n"
+        "        <element5>\n"
+        "          <element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element3>true</element3>\n"
+        "            <element4>arbitrary string value</element4>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element1>\n"
+        "          <element2 xsi:nil=\"true\"/>\n"
+        "          <element2 xsi:nil=\"true\"/>\n"
+        "          <element3 xsi:nil=\"true\"/>\n"
+        "          <element3 xsi:nil=\"true\"/>\n"
+        "          <element4 xsi:nil=\"true\"/>\n"
+        "          <element4 xsi:nil=\"true\"/>\n"
+        "          <element5 xsi:nil=\"true\"/>\n"
+        "          <element5 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element5>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "      </element1>\n"
+        "      <element2 xsi:nil=\"true\"/>\n"
+        "      <element2 xsi:nil=\"true\"/>\n"
+        "      <element3 xsi:nil=\"true\"/>\n"
+        "      <element3 xsi:nil=\"true\"/>\n"
+        "      <element4 xsi:nil=\"true\"/>\n"
+        "      <element4 xsi:nil=\"true\"/>\n"
+        "      <element5 xsi:nil=\"true\"/>\n"
+        "      <element5 xsi:nil=\"true\"/>\n"
+        "      <element6 xsi:nil=\"true\"/>\n"
+        "      <element6 xsi:nil=\"true\"/>\n"
+        "    </element5>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "  </selection4>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection4>\n"
+        "    <element2>\n"
+        "    </element2>\n"
+        "    <element2>\n"
+        "    </element2>\n"
+        "    <element4>\n"
+        "    </element4>\n"
+        "    <element5>\n"
+        "      <element1>\n"
+        "        <element2>\n"
+        "        </element2>\n"
+        "        <element2>\n"
+        "        </element2>\n"
+        "        <element4>\n"
+        "        </element4>\n"
+        "        <element5>\n"
+        "          <element1>\n"
+        "            <element2>\n"
+        "            </element2>\n"
+        "            <element2>\n"
+        "            </element2>\n"
+        "            <element4>\n"
+        "            </element4>\n"
+        "            <element6>LONDON</element6>\n"
+        "            <element6>LONDON</element6>\n"
+        "          </element1>\n"
+        "          <element2>true</element2>\n"
+        "          <element2>true</element2>\n"
+        "          <element3>1.5</element3>\n"
+        "          <element3>1.5</element3>\n"
+        "          <element4>FF0001</element4>\n"
+        "          <element4>FF0001</element4>\n"
+        "          <element5>-980123</element5>\n"
+        "          <element5>-980123</element5>\n"
+        "          <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "          <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "        </element5>\n"
+        "        <element6>LONDON</element6>\n"
+        "        <element6>LONDON</element6>\n"
+        "      </element1>\n"
+        "      <element2>true</element2>\n"
+        "      <element2>true</element2>\n"
+        "      <element3>1.5</element3>\n"
+        "      <element3>1.5</element3>\n"
+        "      <element4>FF0001</element4>\n"
+        "      <element4>FF0001</element4>\n"
+        "      <element5>-980123</element5>\n"
+        "      <element5>-980123</element5>\n"
+        "      <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "      <element6>2012-08-18T13:25:00.000+00:00</element6>\n"
+        "    </element5>\n"
+        "    <element6>LONDON</element6>\n"
+        "    <element6>LONDON</element6>\n"
+        "  </selection4>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection4>\n"
+        "    <element1>LONDON</element1>\n"
+        "    <element1>LONDON</element1>\n"
+        "    <element3>true</element3>\n"
+        "    <element5>\n"
+        "      <element1>\n"
+        "        <element1>LONDON</element1>\n"
+        "        <element1>LONDON</element1>\n"
+        "        <element3>true</element3>\n"
+        "        <element5>\n"
+        "          <element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element1>LONDON</element1>\n"
+        "            <element3>true</element3>\n"
+        "          </element1>\n"
+        "          <element5>2</element5>\n"
+        "          <element5>2</element5>\n"
+        "        </element5>\n"
+        "      </element1>\n"
+        "      <element5>2</element5>\n"
+        "      <element5>2</element5>\n"
+        "    </element5>\n"
+        "  </selection4>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection4>\n"
+        "    <element2>arbitrary string value</element2>\n"
+        "    <element2>arbitrary string value</element2>\n"
+        "    <element4>arbitrary string value</element4>\n"
+        "    <element5>\n"
+        "      <element1>\n"
+        "        <element2>arbitrary string value</element2>\n"
+        "        <element2>arbitrary string value</element2>\n"
+        "        <element4>arbitrary string value</element4>\n"
+        "        <element5>\n"
+        "          <element1>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element2>arbitrary string value</element2>\n"
+        "            <element4>arbitrary string value</element4>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "            <element6 xsi:nil=\"true\"/>\n"
+        "          </element1>\n"
+        "          <element2 xsi:nil=\"true\"/>\n"
+        "          <element2 xsi:nil=\"true\"/>\n"
+        "          <element3 xsi:nil=\"true\"/>\n"
+        "          <element3 xsi:nil=\"true\"/>\n"
+        "          <element4 xsi:nil=\"true\"/>\n"
+        "          <element4 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "          <element6 xsi:nil=\"true\"/>\n"
+        "        </element5>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "        <element6 xsi:nil=\"true\"/>\n"
+        "      </element1>\n"
+        "      <element2 xsi:nil=\"true\"/>\n"
+        "      <element2 xsi:nil=\"true\"/>\n"
+        "      <element3 xsi:nil=\"true\"/>\n"
+        "      <element3 xsi:nil=\"true\"/>\n"
+        "      <element4 xsi:nil=\"true\"/>\n"
+        "      <element4 xsi:nil=\"true\"/>\n"
+        "      <element6 xsi:nil=\"true\"/>\n"
+        "      <element6 xsi:nil=\"true\"/>\n"
+        "    </element5>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "    <element6 xsi:nil=\"true\"/>\n"
+        "  </selection4>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection5>2012-08-18T13:25:00.000+00:00</selection5>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection6>custom</selection6>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection7>LONDON</selection7>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection8>\n"
+        "    <selection1>\n"
+        "      <element4>3123123123</element4>\n"
+        "      <element5>255</element5>\n"
+        "      <element7>custom</element7>\n"
+        "      <element8>999</element8>\n"
+        "    </selection1>\n"
+        "  </selection8>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection8>\n"
+        "    <selection1>\n"
+        "      <element1>0</element1>\n"
+        "      <element2>custom</element2>\n"
+        "      <element3>999</element3>\n"
+        "      <element4>3123123123</element4>\n"
+        "      <element5>0</element5>\n"
+        "      <element6 xsi:nil=\"true\"/>\n"
+        "      <element6 xsi:nil=\"true\"/>\n"
+        "      <element7>custom</element7>\n"
+        "      <element8>999</element8>\n"
+        "      <element9>3123123123</element9>\n"
+        "      <element10>0</element10>\n"
+        "      <element10>0</element10>\n"
+        "      <element11>custom</element11>\n"
+        "      <element11>custom</element11>\n"
+        "      <element12>3123123123</element12>\n"
+        "      <element12>3123123123</element12>\n"
+        "      <element13 xsi:nil=\"true\"/>\n"
+        "      <element13 xsi:nil=\"true\"/>\n"
+        "      <element14>999</element14>\n"
+        "      <element14>999</element14>\n"
+        "      <element15 xsi:nil=\"true\"/>\n"
+        "      <element15 xsi:nil=\"true\"/>\n"
+        "    </selection1>\n"
+        "  </selection8>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection8>\n"
+        "    <selection1>\n"
+        "      <element1>255</element1>\n"
+        "      <element4>3123123123</element4>\n"
+        "      <element5>255</element5>\n"
+        "      <element6>999</element6>\n"
+        "      <element6>999</element6>\n"
+        "      <element7>custom</element7>\n"
+        "      <element8>999</element8>\n"
+        "      <element10>255</element10>\n"
+        "      <element10>255</element10>\n"
+        "      <element13>255</element13>\n"
+        "      <element13>255</element13>\n"
+        "      <element15>3123123123</element15>\n"
+        "      <element15>3123123123</element15>\n"
+        "    </selection1>\n"
+        "  </selection8>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection8>\n"
+        "    <selection1>\n"
+        "      <element2>custom</element2>\n"
+        "      <element3>999</element3>\n"
+        "      <element4>3123123123</element4>\n"
+        "      <element5>0</element5>\n"
+        "      <element7>custom</element7>\n"
+        "      <element8>999</element8>\n"
+        "      <element9>3123123123</element9>\n"
+        "      <element11>custom</element11>\n"
+        "      <element11>custom</element11>\n"
+        "      <element12>3123123123</element12>\n"
+        "      <element12>3123123123</element12>\n"
+        "      <element13>0</element13>\n"
+        "      <element13>0</element13>\n"
+        "      <element14>999</element14>\n"
+        "      <element14>999</element14>\n"
+        "    </selection1>\n"
+        "  </selection8>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection8>\n"
+        "    <selection2>255</selection2>\n"
+        "  </selection8>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection8>\n"
+        "    <selection2>0</selection2>\n"
+        "  </selection8>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection8>\n"
+        "    <selection3>custom</selection3>\n"
+        "  </selection8>\n"
+        "</Topchoice>\n",
+
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+        "<Topchoice xmlns=\"TestNamespace\"\n"
+        "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+        "  <selection8>\n"
+        "    <selection4>999</selection4>\n"
+        "  </selection8>\n"
+        "</Topchoice>\n"
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    const char SCHEMA[] = 
+        "<?xml version='1.0' encoding='UTF-8'?>\n"
+        "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'\n"
+        "           xmlns:tns='urn:x-bloomberg-com:bsctst'\n"
+        "           xmlns:bdem='http://bloomberg.com/schemas/bdem'\n"
+        "           targetNamespace='urn:x-bloomberg-com:bsctst'\n"
+        "           bdem:package='bsctst'\n"
+        "           elementFormDefault='qualified'>\n"
+        ""
+        "<xs:complexType name='Choice1'>\n"
+        "  <xs:choice>\n"
+        "    <xs:element name='selection1' type='xs:int'/>\n"
+        "    <xs:element name='selection2' type='xs:double'/>\n"
+        "    <xs:element name='selection3' type='tns:Sequence4'/>\n"
+        "    <xs:element name='selection4' type='tns:Choice2'/>\n"
+        "  </xs:choice>\n"
+        "</xs:complexType>\n"
+        ""
+        "<xs:complexType name='Choice2'>\n"
+        "  <xs:choice>\n"
+        "    <xs:element name='selection1' type='xs:boolean'/>\n"
+        "    <xs:element name='selection2' type='xs:string'/>\n"
+        "    <xs:element name='selection3' type='tns:Choice1'/>\n"
+        "    <xs:element name='selection4' type='xs:unsignedInt'/>\n"
+        "  </xs:choice>\n"
+        "</xs:complexType>\n"
+        ""
+        "<xs:complexType name='Choice3'>\n"
+        "  <xs:choice>\n"
+        "    <xs:element name='selection1' type='tns:Sequence6'/>\n"
+        "    <xs:element name='selection2' type='xs:unsignedByte'/>\n"
+        "    <xs:element name='selection3' type='tns:CustomString'/>\n"
+        "    <xs:element name='selection4' type='tns:CustomInt'/>\n"
+        "  </xs:choice>\n"
+        "</xs:complexType>\n"
+        ""
+        "<xs:simpleType name='CustomInt'>\n"
+        "  <xs:restriction base='xs:int'>\n"
+        "    <xs:maxInclusive value='1000'/>\n"
+        "  </xs:restriction>\n"
+        "</xs:simpleType>\n"
+        ""
+        "<xs:simpleType name='CustomString'>\n"
+        "  <xs:restriction base='xs:string'>\n"
+        "    <xs:maxLength value='8'/>\n"
+        "  </xs:restriction>\n"
+        "</xs:simpleType>\n"
+        ""
+        "<xs:simpleType name='Enumerated' bdem:preserveEnumOrder='true'>\n"
+        "  <xs:restriction base='xs:string'>\n"
+        "     <xs:enumeration value='NEW_YORK'/>\n"
+        "     <xs:enumeration value='NEW_JERSEY'/>\n"
+        "     <xs:enumeration value='LONDON'/>\n"
+        "  </xs:restriction>\n"
+        "</xs:simpleType>\n"
+        ""
+        "<xs:complexType name='Sequence1'>\n"
+        "  <xs:sequence>\n"
+        "    <xs:element name='element1' type='tns:Choice3' minOccurs='0'/>\n"
+        "    <xs:element name='element2' type='tns:Choice1'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element3' type='tns:Choice2' />\n"
+        "    <xs:element name='element4' type='tns:Choice1'"
+                     " nillable='true' minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element5' type='tns:Choice3' minOccurs='0'"
+                                                   " maxOccurs='unbounded'/>\n"
+        "  </xs:sequence>\n"
+        "</xs:complexType>\n"
+        ""
+        "<xs:complexType name='Sequence2'>\n"
+        "  <xs:sequence>\n"
+        "    <xs:element name='element1' type='tns:CustomString' />\n"
+        "    <xs:element name='element2' type='xs:unsignedByte' />\n"
+        "    <xs:element name='element3' type='xs:dateTime' />\n"
+        "    <xs:element name='element4' type='tns:Choice1' minOccurs='0'/>\n"
+        "    <xs:element name='element5' type='xs:double' minOccurs='0'/>\n"
+        "    <xs:element name='element6' type='xs:string' nillable='true'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element7' type='tns:CustomString'"
+                     " nillable='true' minOccurs='0' maxOccurs='unbounded'/>\n"
+        "  </xs:sequence>\n"
+        "</xs:complexType>\n"
+        ""
+        "<xs:complexType name='Sequence3'>\n"
+        "  <xs:sequence>\n"
+        "    <xs:element name='element1' type='tns:Enumerated'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element2' type='xs:string'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element3' type='xs:boolean' minOccurs='0'/>\n"
+        "    <xs:element name='element4' type='xs:string' minOccurs='0'/>\n"
+        "    <xs:element name='element5' type='tns:Sequence5'"
+                                                           " minOccurs='0'/>\n"
+        "    <xs:element name='element6' type='tns:Enumerated'"
+                     " nillable='true' minOccurs='0' maxOccurs='unbounded'/>\n"
+        "  </xs:sequence>\n"
+        "</xs:complexType>\n"
+        ""
+        "<xs:complexType name='Sequence4'>\n"
+        "  <xs:sequence>\n"
+        "    <xs:element name='element1' type='tns:Sequence3'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element2' type='tns:Choice1'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element3' type='xs:hexBinary' minOccurs='0'/>\n"
+        "    <xs:element name='element4' type='xs:int' minOccurs='0'/>\n"
+        "    <xs:element name='element5' type='xs:dateTime' minOccurs='0'/>\n"
+        "    <xs:element name='element6' type='tns:CustomString'"
+                                                           " minOccurs='0'/>\n"
+        "    <xs:element name='element7' type='tns:Enumerated'"
+                                                           " minOccurs='0'/>\n"
+        "    <xs:element name='element8' type='xs:boolean' />\n"
+        "    <xs:element name='element9' type='xs:string' />\n"
+        "    <xs:element name='element10' type='xs:double' />\n"
+        "    <xs:element name='element11' type='xs:hexBinary' />\n"
+        "    <xs:element name='element12' type='xs:int' />\n"
+        "    <xs:element name='element13' type='tns:Enumerated' />\n"
+        "    <xs:element name='element14' type='xs:boolean'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element15' type='xs:double'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element16' type='xs:hexBinary'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element17' type='xs:int'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element18' type='xs:dateTime'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element19' type='tns:CustomString'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "  </xs:sequence>\n"
+        "</xs:complexType>\n"
+        ""
+        "<xs:complexType name='Sequence5'>\n"
+        "  <xs:sequence>\n"
+        "    <xs:element name='element1' type='tns:Sequence3' />\n"
+        "    <xs:element name='element2' type='xs:boolean' nillable='true'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element3' type='xs:double' nillable='true'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element4' type='xs:hexBinary' nillable='true'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element5' type='xs:int' nillable='true'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element6' type='xs:dateTime' nillable='true'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element7' type='tns:Sequence3' nillable='true'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "  </xs:sequence>\n"
+        "</xs:complexType>\n"
+        ""
+        "<xs:complexType name='Sequence6'>\n"
+        "  <xs:sequence>\n"
+        "    <xs:element name='element1' type='xs:unsignedByte'"
+                                                           " minOccurs='0'/>\n"
+        "    <xs:element name='element2' type='tns:CustomString'"
+                                                           " minOccurs='0'/>\n"
+        "    <xs:element name='element3' type='tns:CustomInt'"
+                                                           " minOccurs='0'/>\n"
+        "    <xs:element name='element4' type='xs:unsignedInt' />\n"
+        "    <xs:element name='element5' type='xs:unsignedByte' />\n"
+        "    <xs:element name='element6' type='tns:CustomInt' nillable='true'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element7' type='tns:CustomString' />\n"
+        "    <xs:element name='element8' type='tns:CustomInt' />\n"
+        "    <xs:element name='element9' type='xs:unsignedInt'"
+                                                           " minOccurs='0'/>\n"
+        "    <xs:element name='element10' type='xs:unsignedByte'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element11' type='tns:CustomString'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element12' type='xs:unsignedInt'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element13' type='xs:unsignedByte'"
+                     " nillable='true' minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element14' type='tns:CustomInt'"
+                                     " minOccurs='0' maxOccurs='unbounded'/>\n"
+        "    <xs:element name='element15' type='xs:unsignedInt'"
+                     " nillable='true' minOccurs='0' maxOccurs='unbounded'/>\n"
+        "  </xs:sequence>\n"
+        "</xs:complexType>\n"
+        ""
+        "<xs:complexType name='Topchoice'>\n"
+        "  <xs:choice>\n"
+        "    <xs:element name='selection1' type='tns:Sequence1'/>\n"
+        "    <xs:element name='selection2' type='xs:hexBinary'/>\n"
+        "    <xs:element name='selection3' type='tns:Sequence2'/>\n"
+        "    <xs:element name='selection4' type='tns:Sequence3'/>\n"
+        "    <xs:element name='selection5' type='xs:dateTime'/>\n"
+        "    <xs:element name='selection6' type='tns:CustomString'/>\n"
+        "    <xs:element name='selection7' type='tns:Enumerated'/>\n"
+        "    <xs:element name='selection8' type='tns:Choice3'/>\n"
+        "  </xs:choice>\n"
+        "</xs:complexType>\n"
+        ""
+        "</xs:schema>"; 
+
+        baexml_MiniReader reader;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+
+            const bsl::string& STR = DATA[i];
+
+            baexml_DecoderOptions options;
+            baexml_ErrorInfo e;
+            baexml_Decoder decoder(&options, &reader, &e);
+
+            bdesb_FixedMemInStreamBuf isb(STR.c_str(), STR.size());
+
+            bsctst::Topchoice object;
+            int rc = decoder.decode(&isb, &object);
+            if (rc) {
+                cout << "Decoding failed for " << i
+                     << " with rc: " << rc << endl;
+                cout << decoder.loggedMessages() << "," << e << endl;
+            }
+
+//             baexml_EncoderOptions eo;
+//             eo.setEncodingStyle(baexml_EncodingStyle::BAEXML_PRETTY);
+//             eo.setInitialIndentLevel(0);
+//             eo.setSpacesPerLevel(2);
+//             eo.setObjectNamespace("TestNamespace");
+//             baexml_Encoder encoder(&eo);
+//             bsl::ostringstream os;
+//             rc = encoder.encodeToStream(os, object);
+//             ASSERT(!rc);
+
+//             LOOP3_ASSERT(i, STR, os.str(), compareEqual(STR, os.str()));
+        }
+      } break;
+
       case 15: {
         // --------------------------------------------------------------------
         // TESTING XML SCHEMA PARSING AND BDEM BINDING ADAPTOR DECODING
