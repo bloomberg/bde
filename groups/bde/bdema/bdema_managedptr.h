@@ -296,10 +296,6 @@ BDES_IDENT("$Id: $")
 #include <bdema_managedptr_members.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ADDREFERENCE
 #include <bslmf_addreference.h>
 #endif
@@ -1002,8 +998,9 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                       BDEMA_TYPE *>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<typename bslmf_RemovePtrCvq<BDEMA_TARGET_TYPE *>::Type,
-                                      BDEMA_TARGET_BASE *>::VALUE));
+    BSLMF_ASSERT((bslmf_IsConvertible<
+                        typename bslmf_RemovePtrCvq<BDEMA_TARGET_TYPE *>::Type,
+                        BDEMA_TARGET_BASE *>::VALUE));
 
     //BSLS_ASSERT_SAFE(0 != deleter);
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
@@ -1025,8 +1022,9 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                       BDEMA_TYPE *>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<typename bslmf_RemovePtrCvq<BDEMA_TARGET_TYPE *>::Type,
-                                      BDEMA_TARGET_BASE *>::VALUE));
+    BSLMF_ASSERT((bslmf_IsConvertible<
+                        typename bslmf_RemovePtrCvq<BDEMA_TARGET_TYPE *>::Type,
+                        BDEMA_TARGET_BASE *>::VALUE));
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_FACTORY *,
                                       BDEMA_BASE_FACTORY *>::VALUE));
 
