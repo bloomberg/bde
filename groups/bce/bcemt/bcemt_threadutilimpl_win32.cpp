@@ -8,7 +8,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <windows.h>
 
-#include <bcemt_default.h>
+#include <bcemt_configuration.h>
 #include <bcemt_threadattributes.h>
 
 #include <bsl_cstring.h>  // 'memcpy'
@@ -316,7 +316,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::create(
 
     int stackSize = attribute.stackSize();
     if (stackSize < 0) {
-        stackSize = bcemt_Default::defaultThreadStackSize();
+        stackSize = bcemt_Configuration::defaultThreadStackSize();
     }
     stackSize += STACK_FUDGE;
 

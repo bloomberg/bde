@@ -1,5 +1,5 @@
-// bcemt_default.cpp                                                  -*-C++-*-
-#include <bcemt_default.h>
+// bcemt_configuration.cpp                                            -*-C++-*-
+#include <bcemt_configuration.h>
 
 #include <bces_platform.h>
 
@@ -19,7 +19,7 @@
 #endif
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bcemt_default_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(bcemt_configuration_cpp,"$Id$ $CSID$")
 
 static volatile int defaultThreadStackSizeValue = -1;
 
@@ -102,7 +102,7 @@ static int getNativeDefaultThreadStackSize()
 
 namespace BloombergLP {
 
-int bcemt_Default::defaultThreadStackSize()
+int bcemt_Configuration::defaultThreadStackSize()
 {
     if (defaultThreadStackSizeValue < 0) {
         return nativeDefaultThreadStackSize();                        // RETURN
@@ -111,7 +111,7 @@ int bcemt_Default::defaultThreadStackSize()
     return defaultThreadStackSizeValue;
 }
 
-int bcemt_Default::nativeDefaultThreadStackSize()
+int bcemt_Configuration::nativeDefaultThreadStackSize()
 {
     static volatile int ret = -1;
 
@@ -122,7 +122,7 @@ int bcemt_Default::nativeDefaultThreadStackSize()
     return ret;
 }
 
-int bcemt_Default::nativeDefaultThreadGuardSize()
+int bcemt_Configuration::nativeDefaultThreadGuardSize()
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS)
     static volatile int ret = -1;
@@ -153,7 +153,7 @@ int bcemt_Default::nativeDefaultThreadGuardSize()
 #endif
 }
 
-int bcemt_Default::recommendedDefaultThreadStackSize()
+int bcemt_Configuration::recommendedDefaultThreadStackSize()
 {
     // 1 megabyte on 32 bit, 2 megabytes on 64 bit, constant across platforms
 
@@ -169,7 +169,7 @@ int bcemt_Default::recommendedDefaultThreadStackSize()
     return RECOMMENDED_DEFAULT_STACKSIZE;
 }
 
-void bcemt_Default::setDefaultThreadStackSize(int numBytes)
+void bcemt_Configuration::setDefaultThreadStackSize(int numBytes)
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS) && defined(PTHREAD_STACK_MIN)
     BSLS_ASSERT_OPT(numBytes >= static_cast<int>(PTHREAD_STACK_MIN));

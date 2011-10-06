@@ -1,29 +1,29 @@
-// bcemt_default.h                                                    -*-C++-*-
-#ifndef INCLUDED_BCEMT_DEFAULT
-#define INCLUDED_BCEMT_DEFAULT
+// bcemt_configuration.h                                              -*-C++-*-
+#ifndef INCLUDED_BCEMT_CONFIGURATION
+#define INCLUDED_BCEMT_CONFIGURATION
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide utilities to set and get default values for BCE.
+//@PURPOSE: Provide utilities to allow configuration of values for BCE.
 //
 //@CLASSES:
-//  bcemt_Default: namespace for utilities managing default BCE values
+//  bcemt_Configuration: namespace for utilities managing default BCE values
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@SEE_ALSO: bcemt_threadattributes, bcemt_threadutil
 //
-//@DESCRIPTION: This component defines a utility 'struct', 'bcemt_Default',
-// that is a name space for pure functions used for providing access to, and
-// configuring, default values for BCE-relevant parameters.  The
-// 'bcemt_Default' utility currently provides static methods to access and
-// modify the BCE library's default stack size, as well as functions that
-// access the platform's native default stack size and guard size.  The BCE
-// default stack size is initially configured to be the platform's native stack
-// size.
+//@DESCRIPTION: This component defines a utility 'struct',
+// 'bcemt_Configuration', that is a name space for pure functions used for
+// providing access to, and configuring, default values for BCE-relevant
+// parameters.  The 'bcemt_Configuration' utility currently provides static
+// methods to access and modify the BCE library's default stack size, as well
+// as functions that access the platform's native default stack size and guard
+// size.  The BCE default stack size is initially configured to be the
+// platform's native stack size.
 //
 // The stack-size values accessed and managed by this component indicate that a
 // stack created with a given size will be able to declare a buffer of that
@@ -49,14 +49,15 @@ BDES_IDENT("$Id: $")
 //
 // First, we examine the platform's native thread stack size:
 //..
-//  const int nativeDefault = bcemt_Default::nativeDefaultThreadStackSize();
+//  const int nativeDefault =
+//                         bcemt_Configuration::nativeDefaultThreadStackSize();
 //
 //  assert(nativeDefault > 0);
 //..
 // Then, we verify that, when 'defaultThreadStackSize' is called, it returns
 // the native size:
 //..
-//  assert(nativeDefault == bcemt_Default::defaultThreadStackSize());
+//  assert(nativeDefault == bcemt_Configuration::defaultThreadStackSize());
 //..
 // Next, we define 'newDefaultStackSize' to some size other than the platform's
 // native default stack size:
@@ -65,13 +66,14 @@ BDES_IDENT("$Id: $")
 //..
 // Now, we set the default size for BCE to the new size:
 //..
-//  bcemt_Default::setDefaultThreadStackSize(newDefaultStackSize);
+//  bcemt_Configuration::setDefaultThreadStackSize(newDefaultStackSize);
 //..
 // Finally, we verify that BCE's default thread stack size has been set to the
 // value we specified:
 //..
-//  assert(bcemt_Default::defaultThreadStackSize() == newDefaultStackSize);
-//  assert(bcemt_Default::defaultThreadStackSize() != nativeDefault);
+//  assert(bcemt_Configuration::defaultThreadStackSize() ==
+//                                                        newDefaultStackSize);
+//  assert(bcemt_Configuration::defaultThreadStackSize() != nativeDefault);
 //..
 
 #ifndef INCLUDED_BCESCM_VERSION
@@ -80,11 +82,11 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                            // ====================
-                            // struct bcemt_Default
-                            // ====================
+                         // ==========================
+                         // struct bcemt_Configuration
+                         // ==========================
 
-struct bcemt_Default {
+struct bcemt_Configuration {
     // This 'struct' provides a namespace for a suite of functions that are
     // used to manage the configuration of default values used in 'bce'.
     // Specifically, these functions manage the default value of thread stack

@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_threadutilimpl_pthread_cpp,"$Id$ $CSID$")
 
-#include <bcemt_default.h>
+#include <bcemt_configuration.h>
 #include <bcemt_threadattributes.h>
 
 #include <bces_platform.h>
@@ -79,7 +79,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 
     int guardSize = src.guardSize();
     if (Attr::BCEMT_UNSET_GUARD_SIZE == guardSize) {
-        guardSize = bcemt_Default::nativeDefaultThreadGuardSize();
+        guardSize = bcemt_Configuration::nativeDefaultThreadGuardSize();
     }
     rc |= pthread_attr_setguardsize(dest, guardSize);
 
@@ -106,7 +106,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 
     int stackSize = src.stackSize();
     if (Attr::BCEMT_UNSET_STACK_SIZE == stackSize) {
-        stackSize = bcemt_Default::defaultThreadStackSize();
+        stackSize = bcemt_Configuration::defaultThreadStackSize();
     }
     stackSize += STACK_ADJUSTMENT;
 #if defined(BSLS_PLATFORM__OS_HPUX)

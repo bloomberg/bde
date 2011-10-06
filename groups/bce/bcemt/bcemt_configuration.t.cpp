@@ -1,5 +1,5 @@
-// bcemt_default.t.cpp                                                -*-C++-*-
-#include <bcemt_default.h>
+// bcemt_conofiguration.t.cpp                                         -*-C++-*-
+#include <bcemt_configuration.h>
 
 #include <bsl_cstdlib.h>  // atoi()
 #include <bsl_iostream.h>
@@ -13,7 +13,7 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
 //                              --------
-// This program tests the functionality of the 'bcemt_Default' class.
+// This program tests the functionality of the 'bcemt_Configuration' class.
 //
 //-----------------------------------------------------------------------------
 // [1] Breathing Test
@@ -67,7 +67,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bcemt_Default Obj;
+typedef bcemt_Configuration Obj;
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -140,13 +140,13 @@ int main(int argc, char *argv[])
         // First, we examine the native thread stack size:
 
         const int nativeDefault =
-                                 bcemt_Default::nativeDefaultThreadStackSize();
+                           bcemt_Configuration::nativeDefaultThreadStackSize();
         ASSERT(nativeDefault > 0);
 
         // Then, we verify that when 'defaultThreadStackSize' is called, it
         // returns the native size:
 
-        ASSERT(bcemt_Default::defaultThreadStackSize() == nativeDefault);
+        ASSERT(bcemt_Configuration::defaultThreadStackSize() == nativeDefault);
 
         // Next, we define 'newDefaultStackSize' to some size other than the
         // native default size:
@@ -155,13 +155,14 @@ int main(int argc, char *argv[])
 
         // Now, we set the default size to the new size:
 
-        bcemt_Default::setDefaultThreadStackSize(newDefaultStackSize);
+        bcemt_Configuration::setDefaultThreadStackSize(newDefaultStackSize);
 
         // Finally, we verify that the default thread stack size has been set
         // to the value we specified:
 
-        ASSERT(bcemt_Default::defaultThreadStackSize() == newDefaultStackSize);
-        ASSERT(bcemt_Default::defaultThreadStackSize() != nativeDefault);
+        ASSERT(bcemt_Configuration::defaultThreadStackSize() ==
+                                                          newDefaultStackSize);
+        ASSERT(bcemt_Configuration::defaultThreadStackSize() != nativeDefault);
       }  break;
       case 2: {
         // --------------------------------------------------------------------

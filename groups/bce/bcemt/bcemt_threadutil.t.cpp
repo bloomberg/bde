@@ -1,7 +1,7 @@
 // bcemt_threadutil.t.cpp        -*-C++-*-
 #include <bcemt_threadutil.h>
 
-#include <bcemt_default.h>
+#include <bcemt_configuration.h>
 #include <bcemt_threadattributes.h>
 #include <bces_atomictypes.h>
 #include <bces_platform.h>
@@ -1089,8 +1089,9 @@ int main(int argc, char *argv[])
                                       bsl::getenv("CASE_MINUS_1_DEFAULT_SIZE");
         if (defaultSizeString) {
             BSLS_ASSERT_OPT(!stackSizeString);
-            bcemt_Default::setDefaultThreadStackSize(atoi(defaultSizeString));
-            P(bcemt_Default::defaultThreadStackSize());
+            bcemt_Configuration::setDefaultThreadStackSize(
+                                                      atoi(defaultSizeString));
+            P(bcemt_Configuration::defaultThreadStackSize());
         }
 
         bcemt_ThreadUtil::Handle handle;

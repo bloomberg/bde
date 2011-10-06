@@ -2,7 +2,7 @@ bcemt_barrier
 bcemt_condition
 bcemt_conditionimpl_pthread
 bcemt_conditionimpl_win32
-bcemt_default
+bcemt_configuration
 bcemt_lockguard
 bcemt_meteredmutex
 bcemt_mutex

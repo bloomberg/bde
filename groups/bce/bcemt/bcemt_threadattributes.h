@@ -197,7 +197,7 @@ BDES_IDENT("$Id: $")
 //  {
 //      int stackSize = attributes.stackSize();
 //      if (BCEMT_UNSET_STACK_SIZE == stackSize) {
-//          stackSize = bcemt_Default::defaultThreadStackSize();
+//          stackSize = bcemt_Configuration::defaultThreadStackSize();
 //      }
 //      // Add a "fudge factor" to 'stackSize' to ensure that the client
 //      // can declare an object of 'stackSize' bytes on the stack safely.
@@ -214,7 +214,7 @@ BDES_IDENT("$Id: $")
 //
 //      int guardSize = attributes.guardSize();
 //      if (BCEMT_UNSET_GUARD_SIZE == guardSize) {
-//          guardSize = bcemt_Default::nativeDefaultThreadGuardSize();
+//          guardSize = bcemt_Configuration::nativeDefaultThreadGuardSize();
 //      }
 //
 //      int policy = attributes.schedulingPolicy();
