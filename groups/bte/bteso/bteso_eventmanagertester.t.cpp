@@ -614,6 +614,7 @@ int buildOpDetails(
       } break;
       case 'R':
       case 'W':
+      case 'S':
         break;
 
       default:
@@ -650,7 +651,7 @@ int main(int argc, char *argv[])
     testAllocator.setNoAbort(1);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 11: {
         // ------------------------------------------------------------------
         // TESTING bteso_EventManagerTestPair
         // Concerns:
@@ -674,7 +675,7 @@ int main(int argc, char *argv[])
         ASSERT(NULL != X.observedFd());     ASSERT(NULL != X.controlFd());
 #endif
       } break;
-      case 9: {
+      case 10: {
         // ------------------------------------------------------------------
         // USAGE EXAMPLE:
         //   Test building the operation details which will be used to verify
@@ -735,7 +736,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 8: {
+      case 9: {
         // ------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -815,6 +816,25 @@ int main(int argc, char *argv[])
                                                  script, ctrlFlag);
         LOOP_ASSERT(LINE, 0 == fails);
 
+      } break;
+      case 8: {
+        // ------------------------------------------------------------------
+        // TESTING 'sleep'
+        //
+        // Plan:
+        //   Issue a 'sleep' command and verify that an appropriate amount of
+        //   time passed.
+        // ------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "Testing 'gg' for sleep\n"
+                                  "======================\n";
+
+        double start   = bdetu_SystemTime::now().totalSecondsAsDouble();
+        int fails = bteso_EventManagerTester::gg(0, 0, "S100; S150", 0);
+        double elapsed = bdetu_SystemTime::now().totalSecondsAsDouble() -
+                                                                         start;
+        ASSERT(0 == fails);
+        ASSERT(elapsed >= 0.25);
       } break;
       case 7: {
         // ------------------------------------------------------------------
@@ -1399,9 +1419,17 @@ int main(int argc, char *argv[])
             } SCRIPTS[] =
             {
                {L_, 0, "T0; E0r; E0rwa; E1caw; E0rwac"},
-               {L_, 0, "W0,30; R0,24"},
+#if defined(BSLS_PLATFORM__OS_HPUX)
+               {L_, 0, "W0,30; S40; R0,24"},
+#else
+               {L_, 0, "W0,30; S1; R0,24"},
+#endif
                {L_, 0, "Di,1; Dn,1;  Di150,1; Dn400,1"},
-               {L_, 0, "T0; +0w21; W1,20; +1r11"},
+#if defined(BSLS_PLATFORM__OS_HPUX)
+               {L_, 0, "T0; +0w21; W1,20; S40; +1r11"},
+#else
+               {L_, 0, "T0; +0w21; W1,20; S1; +1r11"},
+#endif
             };
 
             const int NUM_SCRIPTS = sizeof SCRIPTS / sizeof *SCRIPTS;
@@ -1468,6 +1496,50 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     P_(LINE);   P(fails);
                 }
+            }
+        }
+      } break;
+
+      case -1: {
+        // -----------------------------------------------------------------
+        // Interactive gg test shell
+        // -----------------------------------------------------------------
+
+        while (1) {
+            char script[1000];
+            cout << "Enter script: " << flush;
+            cin.getline(script, 1000);
+
+            if (cin.eof() && '\0' == script[0]) {
+                cout << endl;
+                break;
+            }
+            if (0 == bsl::strncmp(script, "quit", 4)) {
+                break;
+            }
+
+            int i = 0;
+            for (; i < 4; ++i) {
+                HelperEventManager mX(&testAllocator);
+
+                const int NUM_PAIR = 4;
+                bteso_EventManagerTestPair socketPairs[NUM_PAIR];
+
+                for (int j = 0; j < NUM_PAIR; j++) {
+                    socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
+                    socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
+                }
+
+                int ctrlFlag = 0;
+                int fails = bteso_EventManagerTester::gg(&mX, socketPairs,
+                                                         script,
+                                                         ctrlFlag);
+                if (fails) {
+                    break;
+                }
+            }
+            if (4 == i) {
+                cout << "Success!\n";
             }
         }
       } break;
