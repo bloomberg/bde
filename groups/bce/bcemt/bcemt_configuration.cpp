@@ -1,6 +1,7 @@
 // bcemt_configuration.cpp                                            -*-C++-*-
 #include <bcemt_configuration.h>
 
+#include <bces_atomicutil.h>
 #include <bces_platform.h>
 
 #include <bslmf_assert.h>
@@ -21,12 +22,12 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_configuration_cpp,"$Id$ $CSID$")
 
-static volatile int defaultThreadStackSizeValue = -1;
+static bces_AtomicUtil::Int defaultThreadStackSizeValue = -1;
 
 #if defined(BCES_PLATFORM__POSIX_THREADS)
 
 # ifdef BSLS_PLATFORM__OS_SOLARIS
-static int getNativeDefaultThreadStackSize()
+static int nativeDefaultThreadStackSizeImp()
     // Return the native thread stack size for Solaris.
 {
     // 1 megabyte on 32 bit, 2 megabytes on 64 bit
@@ -35,7 +36,7 @@ static int getNativeDefaultThreadStackSize()
     return SOLARIS_DEFAULT_STACK_SIZE;
 }
 # else // POSIX_THREADS && !Solaris
-static int getNativeDefaultThreadStackSize()
+static int nativeDefaultThreadStackSizeImp()
     // Return the native thread stack size for pthreads platforms other than
     // Solaris.
 {
@@ -74,7 +75,7 @@ static int getNativeDefaultThreadStackSize()
 }
 # endif
 #else // WIN32_THREADS
-static int getNativeDefaultThreadStackSize()
+static int nativeDefaultThreadStackSizeImp()
     // Return the native thread stack size for Windows.
 {
     enum { WINDOWS_DEFAULT_STACK_SIZE = 0x100000 };    // 1 megabyte
@@ -113,10 +114,11 @@ int bcemt_Configuration::defaultThreadStackSize()
 
 int bcemt_Configuration::nativeDefaultThreadStackSize()
 {
-    static volatile int ret = -1;
+    static bces_AtomicUtil::Int ret = -1;
 
     if (ret < 0) {
-        ret = getNativeDefaultThreadStackSize();
+        ret = nativeDefaultThreadStackSizeImp();
+        BSLS_ASSERT(ret >= 1);
     }
 
     return ret;
@@ -125,7 +127,7 @@ int bcemt_Configuration::nativeDefaultThreadStackSize()
 int bcemt_Configuration::nativeDefaultThreadGuardSize()
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS)
-    static volatile int ret = -1;
+    static bces_AtomicUtil:Int ret = -1;
 
     if (ret < 0) {
         pthread_attr_t attr;
