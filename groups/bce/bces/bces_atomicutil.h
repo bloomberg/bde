@@ -680,20 +680,23 @@ struct bces_AtomicUtil {
     // CLASS METHODS
     static void initInt(bces_AtomicUtil::Int *atomicInt, int initalValue = 0);
         // Initialize the specified 'atomicInt' and set its value to the
-        // specified 'initialValue'.  Note that this method must be called
-        // before any other operation on 'atomicInt'.
+        // specified 'initialValue'.  Note that this method, if called, should
+        // be called before any other operation on 'atomicInt', but it is not
+        // necessary.
 
     static void initInt64(bces_AtomicUtil::Int64   *atomicInt,
                           bsls_PlatformUtil::Int64  initialValue = 0LL );
         // Initialize the specified 'atomicInt' and set its value to the
-        // specified 'initialValue'.  Note that this method must be called
-        // before any other operation on 'atomicInt'.
+        // specified 'initialValue'.  Note that this method, if called, should
+        // be called before any other operation on 'atomicInt', but it is not
+        // necessary.
 
     static void initPointer(bces_AtomicUtil::Pointer *atomicPtr,
                             const volatile void      *initalValue = 0);
         // Initialize the specified 'atomicPtr' and set its value to the
-        // specified 'initialValue'.  Note that this function must be called
-        // before any other operation on 'atomicPtr'.
+        // specified 'initialValue'.  Note that this method, if called, should
+        // be called before any other operation on 'atomicInt', but it is not
+        // necessary.
 
     static void initSpinLock(bces_AtomicUtil::SpinLock *spinlock);
         // Initialize the specified 'spinlock' and set it to an unlocked state.
