@@ -6,6 +6,7 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -31,6 +32,7 @@ using bsl::cin;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
+using bsl::flush;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -165,6 +167,37 @@ int getProcessId()
 #else
     return static_cast<int>(getpid());
 #endif
+}
+
+const struct {
+    int               d_digits;
+    bsls_Types::Int64 d_cutOff;
+} TENS[] = {
+    { 1, 0 },
+    { 2, 10 },
+    { 3, 100 },
+    { 4, 1000 },
+    { 5, 10 * 1000 },
+    { 6, 100 * 1000 },
+    { 7, 1000 * 1000 },
+    { 8, 10 * 1000 * 1000 },
+    { 9, 100 * 1000 * 1000 },
+    { 10, 1000 * 1000 * 1000 },
+    { 11, 10LL * 1000LL * 1000LL * 1000LL } };
+
+int digits(bsls_Types::Int64 n)
+{
+    ASSERT(n < TENS[10].d_cutOff);
+    ASSERT(n >= 0);
+
+    for (int i = 9; i >= 0; --i) {
+        if (n >= TENS[i].d_cutOff) {
+            return TENS[i].d_digits;
+        }
+    }
+
+    ASSERT(0);
+    return 0;
 }
 
 }  // close unnamed namespace
@@ -2620,10 +2653,20 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         // Plan:
+        //   Write a 5G file using an FdStreamBuf::sputn, read it back using
+        //   FdStreamBuf::sgetn, verifying the results are accurate.
+        //
+        // Results:
+        //   Succeeds on all Unix 32 bit, fails on Windows 32 bit.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "bdesu_FdStreamBuf 5 Gigabyte file\n"
                              "=================================\n";
+
+        if (verbose) {
+            P_(sizeof(bsl::streamoff));  P_(sizeof(bsl::streampos));
+            P(sizeof(bsl::streamsize));
+        }
 
 #ifdef BSLS_PLATFORM__OS_UNIX
         const char slash = '/';
@@ -2679,6 +2722,7 @@ int main(int argc, char *argv[])
         seedRandChar(0x12345678);
 
         char bufToWrite[1 << 16];
+        Int64 *first8Bytes = (Int64 *) &bufToWrite;
         const int sz = sizeof(bufToWrite);
         for (char *pc = bufToWrite; pc < bufToWrite + sz; ++pc) {
             *pc = randChar();
@@ -2687,6 +2731,7 @@ int main(int argc, char *argv[])
         for (Int64 j = 0; j < fileSize; ) {
             Int64 nextGoal = j + halfGig;
             for (; j < nextGoal; j += sz) {
+                *first8Bytes = j;
                 int sts = sb.sputn(bufToWrite, sz);
                 LOOP_ASSERT(sts, sz == sts);
             }
@@ -2702,6 +2747,7 @@ int main(int argc, char *argv[])
         for (Int64 j = 0; j < fileSize; ) {
             Int64 nextGoal = j + halfGig;
             for (; j < nextGoal; j += sz) {
+                *first8Bytes = j;
                 bsl::memset(readBuf, 0, sz);
                 ASSERT(sz == sb.sgetn(readBuf, sz));
 
@@ -2720,6 +2766,7 @@ int main(int argc, char *argv[])
         for (Int64 j = 0; j < fileSize; ) {
             Int64 nextGoal = j + halfGig;
             for (; j < nextGoal; j += sz) {
+                *first8Bytes = j;
                 bsl::memset(readBuf, 0, sz);
                 ASSERT(sz == sb.sgetn(readBuf, sz));
 
@@ -2735,6 +2782,7 @@ int main(int argc, char *argv[])
         for (Int64 j = 0; j < fileSize; ) {
             Int64 nextGoal = j + halfGig;
             for (; j < nextGoal; j += sz) {
+                *first8Bytes = j;
                 bsl::memset(readBuf, 0, sz);
                 ASSERT(sz == FileUtil::read(fd, readBuf, sz));
 
@@ -2759,6 +2807,227 @@ int main(int argc, char *argv[])
         for (int j = 0; j < 100; ++j) {
             cout << (int) randChar() << endl;
         }
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // 5G FILE WITH OSTREAM / ISTREAM BASED ON FDSTREAMBUF
+        //
+        //
+        // Results:
+        //   This test worked on all Unix platforms, 32 bit, and on Windows 32
+        //   bit.  The fact that this test succeeds on Windows 32 bit is
+        //   surprising given that test case -1 failed there.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "5G file with stream I/O test\n"
+                             "============================\n";
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+        const char slash = '/';
+        const char *nl = " \n";
+#else
+        const char slash = '\\';
+        const char *nl = "\n";
+#endif
+
+        cout << "Enter dirname (starts with '" << slash << "')\n" <<
+                "where 5 gigabyte file should be put: "
+             << bsl::flush;
+
+        bsl::string fn;
+
+        cin >> fn;
+
+        ASSERT(slash == fn.c_str()[0]);
+        if (slash != fn.c_str()[fn.length() - 1]) {
+            fn += slash;
+        }
+
+        ASSERT(FileUtil::isDirectory(fn));
+
+        fn += "bdesu_FdStreamBuf.-3.";
+        {
+            bsl::stringstream s;
+            s << getProcessId();
+
+            fn += s.str();
+        }
+
+        cout << "Temp file is " << fn << " -- continue(y or n)? " <<
+                bsl::flush;
+        bsl::string response;
+
+        cin >> response;
+
+        if ("y" != response) {
+            cout << "aborted\n";
+            break;
+        }
+
+        typedef bsls_Types::Int64 Int64;
+        const Int64 fileSize = ((Int64) 1 << 30) * 5;    // 5 Gig
+
+        FileUtil::remove(fn);
+
+        FdType fd = FileUtil::open(fn.c_str(), true, false);
+        ASSERT(-1 != (int) fd);
+
+        Obj sb(fd, true, true, false);
+
+        Int64 bytesWritten   = 0;
+        Int64 mileStone      = 1 << 29;
+        Int64 deltaMileStone = 1 << 29;
+
+        Int64 numToWrite = 100000;
+
+        bsl::ostream os(&sb);
+
+        while (bytesWritten < fileSize) {
+            os << ++numToWrite << nl;
+            bytesWritten += digits(numToWrite) + 2;
+            if (bytesWritten >= mileStone) {
+                cout << bytesWritten << " bytes written\n";
+                mileStone += deltaMileStone;
+            }
+        }
+        
+        ASSERT(!sb.clear());
+
+        LOOP2_ASSERT(bytesWritten, FileUtil::getFileSize(fn),
+                                    bytesWritten == FileUtil::getFileSize(fn));
+
+        fd = FileUtil::open(fn, false, true);
+        ASSERT(!sb.reset(fd, true, true, false));
+
+        bsl::istream is(&sb);
+        Int64 expected = 100000;
+
+        Int64 bytesRead = 0;
+        mileStone = deltaMileStone;
+
+        while (bytesRead < fileSize) {
+            Int64 x;
+            is >> x;
+            if (x != ++expected) {
+                LOOP2_ASSERT(x, expected, x == expected);
+                break;
+            }
+            bytesRead += digits(x) + 2;
+            if (bytesRead >= mileStone) {
+                cout << bytesRead << " bytes read\n";
+                mileStone += deltaMileStone;
+            }
+        }
+
+        ASSERT(0 == FileUtil::close(fd));
+        
+        FileUtil::remove(fn);
+      } break;
+      case -4: {
+        // --------------------------------------------------------------------
+        // WRITE, READ 5G FILE WITH PLAIN FSTREAM
+        //
+        // Results:
+        //   32 bit: This test succeeds on Linux, Solaris, and Windows, fails
+        //   on HPUX and AIX.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "5G file with fstream I/O test, no FdStreamBuf\n"
+                             "=============================================\n";
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+        const char slash = '/';
+        const char *nl = " \n";
+#else
+        const char slash = '\\';
+        const char *nl = "\n";
+#endif
+
+        cout << "Enter dirname (starts with '" << slash << "')\n" <<
+                "where 5 gigabyte file should be put: "
+             << bsl::flush;
+
+        bsl::string fn;
+
+        cin >> fn;
+
+        ASSERT(slash == fn.c_str()[0]);
+        if (slash != fn.c_str()[fn.length() - 1]) {
+            fn += slash;
+        }
+
+        ASSERT(FileUtil::isDirectory(fn));
+
+        fn += "bdesu_FdStreamBuf.-4.";
+        {
+            bsl::stringstream s;
+            s << getProcessId();
+
+            fn += s.str();
+        }
+
+        cout << "Temp file is " << fn << " -- continue(y or n)? " <<
+                bsl::flush;
+        bsl::string response;
+
+        cin >> response;
+
+        if ("y" != response) {
+            cout << "aborted\n";
+            break;
+        }
+
+        typedef bsls_Types::Int64 Int64;
+        const Int64 fileSize = ((Int64) 1 << 30) * 5;    // 5 Gig
+
+        FileUtil::remove(fn);
+
+        bsl::fstream fs(fn.c_str(), bsl::ios_base::out);
+
+        Int64 bytesWritten   = 0;
+        Int64 mileStone      = 1 << 29;
+        Int64 deltaMileStone = 1 << 29;
+
+        Int64 numToWrite = 100000;
+
+        while (bytesWritten < fileSize) {
+            fs << ++numToWrite << nl;
+            bytesWritten += digits(numToWrite) + 2;
+            if (bytesWritten >= mileStone) {
+                cout << bytesWritten << " bytes written\n";
+                mileStone += deltaMileStone;
+            }
+        }
+
+        fs.close();
+
+        fs.open(fn.c_str(), bsl::ios_base::in);
+
+        LOOP2_ASSERT(bytesWritten, FileUtil::getFileSize(fn),
+                                    bytesWritten == FileUtil::getFileSize(fn));
+
+        Int64 expected = 100000;
+
+        Int64 bytesRead = 0;
+        mileStone = deltaMileStone;
+
+        while (bytesRead < fileSize) {
+            Int64 x;
+            fs >> x;
+            if (x != ++expected) {
+                LOOP2_ASSERT(x, expected, x == expected);
+                break;
+            }
+            bytesRead += digits(x) + 2;
+            if (bytesRead >= mileStone) {
+                cout << bytesRead << " bytes read\n";
+                mileStone += deltaMileStone;
+            }
+        }
+
+        fs.close();
+
+        FileUtil::remove(fn);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
