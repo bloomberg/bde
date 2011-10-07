@@ -9,6 +9,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -198,6 +199,7 @@ static void aSsErT(int c, const char *s, int i)
 typedef baesu_StackTrace      Obj;
 typedef baesu_StackTraceFrame Frame;
 typedef Frame                 Element;
+typedef bsls_Types::Int64     Int64;
 
 const Frame VALUES[]   = {
 
@@ -277,9 +279,9 @@ class bslma_TestAllocatorMonitor {
     // TBD
 
     // DATA
-    int                              d_lastInUse;
-    int                              d_lastMax;
-    int                              d_lastTotal;
+    Int64                              d_lastInUse;
+    Int64                              d_lastMax;
+    Int64                              d_lastTotal;
     const bslma_TestAllocator *const d_allocator_p;
 
   public:
@@ -1352,7 +1354,7 @@ int main(int argc, char *argv[])
 
             bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
-            int oldDepth = -1;
+            Int64 oldDepth = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
                 const int   LINE   = DATA[ti].d_lineNum;
                 const char *D_SPEC = DATA[ti].d_daSpec;
@@ -1362,7 +1364,7 @@ int main(int argc, char *argv[])
                 const int   NE     = DATA[ti].d_ne;
                 const char *E_SPEC = DATA[ti].d_expSpec;
 
-                const int   DEPTH  = (int) strlen(D_SPEC) + strlen(S_SPEC);
+                const Int64   DEPTH  = (int) strlen(D_SPEC) + strlen(S_SPEC);
                 if (DEPTH > oldDepth) {
                     oldDepth = DEPTH;
                     if (verbose) { cout << '\t';  P(DEPTH); }
@@ -1668,7 +1670,7 @@ int main(int argc, char *argv[])
 
             bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
-            int oldDepth = -1;
+            Int64 oldDepth = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
                 const int   LINE   = DATA[ti].d_lineNum;
                 const char *X_SPEC = DATA[ti].d_xSpec;
@@ -1677,7 +1679,7 @@ int main(int argc, char *argv[])
                 const int   NE     = DATA[ti].d_ne;
                 const char *E_SPEC = DATA[ti].d_expSpec;
 
-                const int   DEPTH  = strlen(X_SPEC);
+                const Int64   DEPTH  = strlen(X_SPEC);
                 if (DEPTH > oldDepth) {
                     oldDepth = DEPTH;
                     if (verbose) { cout << '\t';  P(DEPTH); }
@@ -2071,7 +2073,7 @@ int main(int argc, char *argv[])
 
             bslma_TestAllocator testAllocator("object", veryVeryVeryVerbose);
 
-            int oldDepth = -1;
+            Int64 oldDepth = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
                 const int   LINE   = DATA[ti].d_lineNum;
                 const char *D_SPEC = DATA[ti].d_daSpec;
@@ -2081,7 +2083,7 @@ int main(int argc, char *argv[])
                 const int   NE     = DATA[ti].d_ne;
                 const char *E_SPEC = DATA[ti].d_expSpec;
 
-                const int   DEPTH  = (int) strlen(D_SPEC) + strlen(S_SPEC);
+                const Int64   DEPTH  = (int) strlen(D_SPEC) + strlen(S_SPEC);
                 if (DEPTH > oldDepth) {
                     oldDepth = DEPTH;
                     if (verbose) { cout << '\t';  P(DEPTH); }
@@ -2776,7 +2778,7 @@ int main(int argc, char *argv[])
 
                           BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(
                                                                testAllocator) {
-                            const int AL = testAllocator.allocationLimit();
+                            const Int64 AL = testAllocator.allocationLimit();
                             testAllocator.setAllocationLimit(-1);
                             Obj mU(&testAllocator); stretchRemoveAll(&mU, U_N);
                             const Obj& U = mU; gg(&mU, U_SPEC);
@@ -2845,7 +2847,7 @@ int main(int argc, char *argv[])
 
                 for (int tj = 0; tj < NUM_EXTEND; ++tj) {
                   BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                    const int AL = testAllocator.allocationLimit();
+                    const Int64 AL = testAllocator.allocationLimit();
                     testAllocator.setAllocationLimit(-1);
 
                     const int N = EXTEND[tj];
@@ -2912,11 +2914,11 @@ int main(int argc, char *argv[])
                 cout << "\t g = " << g(spec) << endl;
                 cout << "\tgg = " << X       << endl;
             }
-            const int TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
-            const int IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
+            const Int64 TOTAL_BLOCKS_BEFORE = testAllocator.numBlocksTotal();
+            const Int64 IN_USE_BYTES_BEFORE = testAllocator.numBytesInUse();
             LOOP_ASSERT(ti, X == g(spec));
-            const int TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
-            const int IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
+            const Int64 TOTAL_BLOCKS_AFTER = testAllocator.numBlocksTotal();
+            const Int64 IN_USE_BYTES_AFTER = testAllocator.numBytesInUse();
             LOOP_ASSERT(ti, TOTAL_BLOCKS_BEFORE == TOTAL_BLOCKS_AFTER);
             LOOP_ASSERT(ti, IN_USE_BYTES_BEFORE == IN_USE_BYTES_AFTER);
         }
@@ -3546,7 +3548,7 @@ int main(int argc, char *argv[])
 
                 Obj mX;         const Obj& X = mX;
 
-                mX.resize(bsl::strlen(GGSTR));
+                mX.resize((int) bsl::strlen(GGSTR));
                 for (int xi = 0; xi < X.length(); ++xi) {
                     char c = GGSTR[xi];
                     switch (c) {
@@ -4037,24 +4039,24 @@ int main(int argc, char *argv[])
 
                 // Create identical objects using the 'gg' function.
                 {
-                    int blocks1A = testAllocator.numBlocksTotal();
-                    int  bytes1A = testAllocator.numBytesInUse();
+                    Int64 blocks1A = testAllocator.numBlocksTotal();
+                    Int64  bytes1A = testAllocator.numBytesInUse();
 
                     gg(&mX, SPEC);
 
-                    int blocks2A = testAllocator.numBlocksTotal();
-                    int  bytes2A = testAllocator.numBytesInUse();
+                    Int64 blocks2A = testAllocator.numBlocksTotal();
+                    Int64  bytes2A = testAllocator.numBytesInUse();
 
                     gg(&mY, SPEC);
 
-                    int blocks3A = testAllocator.numBlocksTotal();
-                    int  bytes3A = testAllocator.numBytesInUse();
+                    Int64 blocks3A = testAllocator.numBlocksTotal();
+                    Int64  bytes3A = testAllocator.numBytesInUse();
 
-                    int blocks12A = blocks2A - blocks1A;
-                    int  bytes12A =  bytes2A -  bytes1A;
+                    Int64 blocks12A = blocks2A - blocks1A;
+                    Int64  bytes12A =  bytes2A -  bytes1A;
 
-                    int blocks23A = blocks3A - blocks2A;
-                    int  bytes23A =  bytes3A -  bytes2A;
+                    Int64 blocks23A = blocks3A - blocks2A;
+                    Int64  bytes23A =  bytes3A -  bytes2A;
 
                     if (veryVerbose) { P_( bytes12A);  P_(bytes23A);
                                        P_(blocks12A);  P(blocks23A); }
@@ -4073,24 +4075,24 @@ int main(int argc, char *argv[])
                 // Apply both functions under test to the respective objects.
                 {
 
-                    int blocks1B = testAllocator.numBlocksTotal();
-                    int  bytes1B = testAllocator.numBytesInUse();
+                    Int64 blocks1B = testAllocator.numBlocksTotal();
+                    Int64  bytes1B = testAllocator.numBytesInUse();
 
                     stretch(&mX, size);
 
-                    int blocks2B = testAllocator.numBlocksTotal();
-                    int  bytes2B = testAllocator.numBytesInUse();
+                    Int64 blocks2B = testAllocator.numBlocksTotal();
+                    Int64  bytes2B = testAllocator.numBytesInUse();
 
                     stretchRemoveAll(&mY, size);
 
-                    int blocks3B = testAllocator.numBlocksTotal();
-                    int  bytes3B = testAllocator.numBytesInUse();
+                    Int64 blocks3B = testAllocator.numBlocksTotal();
+                    Int64  bytes3B = testAllocator.numBytesInUse();
 
-                    int blocks12B = blocks2B - blocks1B;
-                    int  bytes12B =  bytes2B -  bytes1B;
+                    Int64 blocks12B = blocks2B - blocks1B;
+                    Int64  bytes12B =  bytes2B -  bytes1B;
 
-                    int blocks23B = blocks3B - blocks2B;
-                    int  bytes23B =  bytes3B -  bytes2B;
+                    Int64 blocks23B = blocks3B - blocks2B;
+                    Int64  bytes23B =  bytes3B -  bytes2B;
 
                     if (veryVerbose) { P_( bytes12B); P_(bytes23B);
                                        P_(blocks12B); P(blocks23B); }

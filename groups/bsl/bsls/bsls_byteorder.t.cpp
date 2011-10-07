@@ -1,13 +1,13 @@
-// bsls_byteorder.t.cpp         -*-C++-*-
+// bsls_byteorder.t.cpp                                               -*-C++-*-
 
 #include <bsls_byteorder.h>
 
 #include <bsls_platform.h>
 
-#include <bsls_types.h> 
+#include <bsls_types.h>
 
-#include <cstdlib>     // atoi()
-#include <cstdio>      // printf()
+#include <stdlib.h>     // atoi()
+#include <stdio.h>      // printf()
 #include <iostream>
 
 #ifdef BSLS_PLATFORM__OS_UNIX   // htons(), htonl(), ntohs(), ntohl()
@@ -168,22 +168,22 @@ int main(int argc, char *argv[])
 
     // Note the use of macros within the calls to 'printHex'.
 
-    std::printf("\nLE to Host(x): ");
+    printf("\nLE to Host(x): ");
     printHex(BSLS_BYTEORDER_LE_U16_TO_HOST(x));
 
-    std::printf("\nLE to Host(y): ");
+    printf("\nLE to Host(y): ");
     printHex(BSLS_BYTEORDER_LE_U32_TO_HOST(y));
 
-    std::printf("\nLE to Host(z): ");
+    printf("\nLE to Host(z): ");
     printHex(BSLS_BYTEORDER_LE_U64_TO_HOST(z));
 
-    std::printf("\nBE to Host(x): ");
+    printf("\nBE to Host(x): ");
     printHex(BSLS_BYTEORDER_BE_U16_TO_HOST(x));
 
-    std::printf("\nBE to Host(y): ");
+    printf("\nBE to Host(y): ");
     printHex(BSLS_BYTEORDER_BE_U32_TO_HOST(y));
 
-    std::printf("\nBE to Host(z): ");
+    printf("\nBE to Host(z): ");
     printHex(BSLS_BYTEORDER_BE_U64_TO_HOST(z));
 
     }  // added to keep output of test driver clean

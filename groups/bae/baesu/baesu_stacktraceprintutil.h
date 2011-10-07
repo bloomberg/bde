@@ -56,7 +56,7 @@ BDES_IDENT("$Id: $")
 //      else {
 //          baesu_StackTracePrintUtil::printStackTrace(cout);
 //      }
-//  
+//
 //      ++*depth;   // Prevent compiler from optimizing tail recursion as a
 //                  // loop.
 //  }
@@ -101,7 +101,6 @@ BDES_IDENT("$Id: $")
 // single line, and all the lines here were longer than 80 characters, it has
 // been manually edited to wrap and have every line be less than 80 columns.
 // Also note the program name is truncated to 32 characters in length.
-//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>

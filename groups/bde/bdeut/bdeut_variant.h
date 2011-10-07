@@ -658,6 +658,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
 #endif
@@ -1363,7 +1367,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
                           typename VISITOR::ResultType>(visitor, this->d_type);
         }
 
-        bslmf_Nil nil;
+        bslmf_Nil nil = bslmf_Nil();
         return visitor(nil);
     }
 
@@ -1387,7 +1391,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
                           typename VISITOR::ResultType>(visitor, this->d_type);
         }
 
-        bslmf_Nil nil;
+        bslmf_Nil nil = bslmf_Nil();
         return visitor(nil);
     }
 
@@ -1455,7 +1459,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
             return;
         }
 
-        bslmf_Nil nil;
+        bslmf_Nil nil = bslmf_Nil();
         visitor(nil);
     }
 
@@ -1477,7 +1481,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
             return;
         }
 
-        bslmf_Nil nil;
+        bslmf_Nil nil = bslmf_Nil();
         visitor(nil);
     }
 
@@ -1759,7 +1763,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
                           typename VISITOR::ResultType>(visitor, this->d_type);
         }
 
-        bslmf_Nil nil;
+        bslmf_Nil nil = bslmf_Nil();
         return visitor(nil);
     }
 
@@ -1782,7 +1786,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
                           typename VISITOR::ResultType>(visitor, this->d_type);
         }
 
-        bslmf_Nil nil;
+        bslmf_Nil nil = bslmf_Nil();
         return visitor(nil);
     }
 
@@ -1827,7 +1831,6 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
                           typename VISITOR::ResultType>(visitor, this->d_type);
         }
 
-        bslmf_Nil nil;
         return visitor(defaultValue);
     }
 
@@ -1849,7 +1852,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
             return;
         }
 
-        bslmf_Nil nil;
+        bslmf_Nil nil = bslmf_Nil();
         visitor(nil);
     }
 
@@ -1871,7 +1874,7 @@ class bdeut_VariantImp : public bdeut_VariantImp_Traits<TYPES>::BaseType {
             return;
         }
 
-        bslmf_Nil nil;
+        bslmf_Nil nil = bslmf_Nil();
         visitor(nil);
     }
 
@@ -5066,8 +5069,7 @@ struct bdeut_Variant_SwapVisitor {
     inline
     void operator() (TYPE& value)
     {
-        using bsl::swap;
-        swap(*reinterpret_cast<TYPE *>(d_buffer_p), value);
+        bslalg_SwapUtil::swap(reinterpret_cast<TYPE *>(d_buffer_p), &value);
     }
 };
 
@@ -5380,7 +5382,7 @@ inline
 void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF       visitor,
                                        bslmf_MetaInt<1> *)
 {
-    bslmf_Nil nil;
+    bslmf_Nil nil = bslmf_Nil();
     visitor(nil);
 }
 
@@ -5409,7 +5411,7 @@ inline
 RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF       visitor,
                                             bslmf_MetaInt<1> *)
 {
-    bslmf_Nil nil;
+    bslmf_Nil nil = bslmf_Nil();
     return visitor(nil);
 }
 
@@ -5643,7 +5645,7 @@ inline
 void bdeut_VariantImp<TYPES>::applyImp(VISITOR_REF       visitor,
                                        bslmf_MetaInt<1> *) const
 {
-    bslmf_Nil nil;
+    bslmf_Nil nil = bslmf_Nil();
     visitor(nil);
 }
 
@@ -5672,7 +5674,7 @@ inline
 RET_TYPE bdeut_VariantImp<TYPES>::applyImpR(VISITOR_REF       visitor,
                                             bslmf_MetaInt<1> *) const
 {
-    bslmf_Nil nil;
+    bslmf_Nil nil = bslmf_Nil();
     return visitor(nil);
 }
 
@@ -5959,7 +5961,7 @@ RET_TYPE bdeut_VariantImp<TYPES>::apply(VISITOR& visitor)
         return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);
     }
 
-    bslmf_Nil nil;
+    bslmf_Nil nil = bslmf_Nil();
     return visitor(nil);
 }
 
@@ -5972,7 +5974,7 @@ RET_TYPE bdeut_VariantImp<TYPES>::apply(const VISITOR& visitor)
         return doApplyR<const VISITOR&, RET_TYPE>(visitor, this->d_type);
     }
 
-    bslmf_Nil nil;
+    bslmf_Nil nil = bslmf_Nil();
     return visitor(nil);
 }
 
@@ -6419,7 +6421,7 @@ RET_TYPE bdeut_VariantImp<TYPES>::apply(VISITOR& visitor) const
         return doApplyR<VISITOR&, RET_TYPE>(visitor, this->d_type);
     }
 
-    bslmf_Nil nil;
+    bslmf_Nil nil = bslmf_Nil();
     return visitor(nil);
 }
 
@@ -6432,7 +6434,7 @@ RET_TYPE bdeut_VariantImp<TYPES>::apply(const VISITOR& visitor) const
         return doApplyR<const VISITOR&, RET_TYPE>(visitor, this->d_type);
     }
 
-    bslmf_Nil nil;
+    bslmf_Nil nil = bslmf_Nil();
     return visitor(nil);
 }
 

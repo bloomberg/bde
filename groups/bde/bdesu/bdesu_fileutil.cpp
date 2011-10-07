@@ -153,7 +153,7 @@ bool isDotOrDots(const char *path)
 {
     BSLS_ASSERT(path);
 
-    const int length = bsl::strlen(path);
+    const int length = static_cast<int>(bsl::strlen(path));
 
     return  (length >= 2 && '/' == path[length - 2] &&
                             '.' == path[length - 1]) ||
@@ -211,13 +211,18 @@ const bdesu_FileUtil::FileDescriptor bdesu_FileUtil::INVALID_FD =
 
 bdesu_FileUtil::FileDescriptor
 bdesu_FileUtil::open(const char *pathName,
-                     bool        isReadWrite,
-                     bool        isExisting)
+                     bool        writableFlag,
+                     bool        existFlag,
+                     bool        appendFlag)
 {
     BSLS_ASSERT(pathName);
 
-    DWORD accessMode   = GENERIC_READ | (isReadWrite ? GENERIC_WRITE : 0);
-    DWORD creationInfo = isExisting ? OPEN_EXISTING : CREATE_ALWAYS;
+    DWORD accessMode   = GENERIC_READ | (writableFlag
+                                         ? appendFlag
+                                           ? FILE_APPEND_DATA
+                                           : GENERIC_WRITE
+                                         : 0);
+    DWORD creationInfo = existFlag ? OPEN_EXISTING : CREATE_ALWAYS;
 
     return CreateFile(pathName,
                       accessMode,
@@ -640,14 +645,16 @@ const bdesu_FileUtil::FileDescriptor bdesu_FileUtil::INVALID_FD = -1;
 
 bdesu_FileUtil::FileDescriptor
 bdesu_FileUtil::open(const char *pathName,
-                     bool        isReadWrite,
-                     bool        isExisting)
+                     bool        writableFlag,
+                     bool        existFlag,
+                     bool        appendFlag)
 {
     BSLS_ASSERT(pathName);
 
-    const int oflag = isReadWrite ? O_RDWR : O_RDONLY;
+    const int oflag = (writableFlag ? O_RDWR : O_RDONLY)
+                      | (writableFlag && appendFlag ? O_APPEND : 0);
 
-    if (isExisting) {
+    if (existFlag) {
 #ifdef BSLS_PLATFORM__OS_FREEBSD
         return ::open(  pathName, oflag);                             // RETURN
 #elif defined(BSLS_PLATFORM__OS_HPUX)
@@ -774,7 +781,7 @@ int bdesu_FileUtil::read(FileDescriptor  fd,
     BSLS_ASSERT(buf);
     BSLS_ASSERT(0 <= numBytesToRead);
 
-    return ::read(fd, buf, numBytesToRead);
+    return static_cast<int>(::read(fd, buf, numBytesToRead));
 }
 
 int bdesu_FileUtil::write(FileDescriptor  fd,
@@ -784,7 +791,7 @@ int bdesu_FileUtil::write(FileDescriptor  fd,
     BSLS_ASSERT(buf);
     BSLS_ASSERT(0 <= numBytesToWrite);
 
-    return ::write(fd, buf, numBytesToWrite);
+    return static_cast<int>(::write(fd, buf, numBytesToWrite));
 }
 
 int bdesu_FileUtil::map(FileDescriptor   fd,
@@ -928,7 +935,7 @@ void bdesu_FileUtil::visitPaths(
         throw bsl::bad_alloc();
     }
 
-    for (int i = 0; i < (int) pglob.gl_pathc; ++i) {
+    for (int i = 0; i < static_cast<int>(pglob.gl_pathc); ++i) {
         BSLS_ASSERT(pglob.gl_pathv[i]);
         if (!isDotOrDots(pglob.gl_pathv[i])) {
             visitor(pglob.gl_pathv[i]);
@@ -984,15 +991,23 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
 bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 {
 #if defined(BSLS_PLATFORM__OS_FREEBSD) || defined(BSLS_PLATFORM__OS_HPUX)
-    struct rlimit rl;
+    struct rlimit rl, rlMax, rlInf;
     int rc = getrlimit(RLIMIT_FSIZE, &rl);
 #else
-    struct rlimit64 rl;
+    struct rlimit64 rl, rlMax, rlInf;
     int rc = getrlimit64(RLIMIT_FSIZE, &rl);
 #endif
+
+    // Often, 'rl.rlim_cur' is an unsigned 64 bit, while 'Offset' is signed,
+    // so 'rl.rlim_cur' may have a larger value than can be represented by
+    // an 'Offset'.
+
+    rlMax.rlim_cur = OFFSET_MAX;
+    rlInf.rlim_cur = RLIM_INFINITY;
+
     if (rc) {
         return -1;                                                    // RETURN
-    } else if (rl.rlim_cur == RLIM_INFINITY) {
+    } else if (rl.rlim_cur == rlInf.rlim_cur || rl.rlim_cur > rlMax.rlim_cur) {
         return OFFSET_MAX;                                            // RETURN
     } else {
         return rl.rlim_cur;                                           // RETURN
@@ -1039,8 +1054,10 @@ int bdesu_FileUtil::createDirectories(const char *nativePath,
     }
 
     while (!directoryStack.empty()) {
-        bdesu_PathUtil::appendRaw(&path, directoryStack.back().c_str(),
-                                  directoryStack.back().length());
+        bdesu_PathUtil::appendRaw(&path, 
+                                  directoryStack.back().c_str(),
+                                  static_cast<int>(
+                                      directoryStack.back().length()));
         if (!exists(path.c_str())) {
             if (0 != makeDirectory(path.c_str())) {
                 return -1;                                            // RETURN
@@ -1115,7 +1132,8 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
         bsl::memset(buf, 1, bufferSize);
         Offset bytesToGrow = size - currentSize;
         while(bytesToGrow > 0) {
-            int nBytes = (int)bsl::min(bytesToGrow, (Offset)bufferSize);
+            int nBytes = static_cast<int>(
+                                   bsl::min(bytesToGrow, (Offset)bufferSize));
             int rc = write(fd, buf, nBytes);
             if (rc != nBytes) {
                 allocator_p->deallocate(buf);
@@ -1126,7 +1144,7 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
         allocator_p->deallocate(buf);
         return 0;                                                     // RETURN
     }
-    int res = seek(fd, size-1, BDESU_SEEK_FROM_BEGINNING);
+    Offset res = seek(fd, size-1, BDESU_SEEK_FROM_BEGINNING);
     if (-1 == res || 1 != write(fd, (const void *)"", 1))
     {
         return -1;                                                    // RETURN
@@ -1140,7 +1158,7 @@ int bdesu_FileUtil::rollFileChain(const char *path, int maxSuffix)
 
     enum { MAX_SUFFIX_LENGTH = 10 };
     bslma_Allocator *allocator_p = bslma_Default::defaultAllocator();
-    int   length     = bsl::strlen(path) + MAX_SUFFIX_LENGTH + 2;
+    int length = static_cast<int>(bsl::strlen(path)) + MAX_SUFFIX_LENGTH + 2;
 
     // Use a single allocation to insure exception neutrality.
 

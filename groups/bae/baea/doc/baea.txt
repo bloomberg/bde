@@ -1,4 +1,4 @@
- baea.txt
+baea.txt
 
 @PURPOSE: Provide common application-level facilities.
 
@@ -11,16 +11,16 @@
 @DESCRIPTION: The 'baea' package provides support for an assortment of common
  application-level services (e.g., command-line processing).  In particular,
  'baea' includes the following:
- : o Classes for parsing, validating, and accessing the command-line arguments
- :   of a program.
- : o A mechanism for monitoring and reporting the observable performance of a
- :   process.
- : o Classes for (1) defining commands (as short strings), (2) passing these
- :   commands through a pipe-channel to a running process, and (3) registering
- :   callback functions to be invoked upon reception of such commands.
- : o A metric reporting protocol and a value-semantic type to represent
- :   metrics.  Note that the metric reporting facilities provided by 'baea'
- :   have been !DEPRECATED! in lieu of 'baem'.
+ :o Classes for parsing, validating, and accessing the command-line arguments
+ :  of a program.
+ :o A mechanism for monitoring and reporting the observable performance of a
+ :  process.
+ :o Classes for (1) defining commands (as short strings), (2) passing these
+ :  commands through a pipe-channel to a running process, and (3) registering
+ :  callback functions to be invoked upon reception of such commands.
+ :o A metric reporting protocol and a value-semantic type to represent
+ :  metrics.  Note that the metric reporting facilities provided by 'baea'
+ :  have been !DEPRECATED! in lieu of 'baem'.
 
 /Component Synopsis
 /------------------

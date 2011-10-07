@@ -1,6 +1,7 @@
 // bslmf_assert.t.cpp              -*-C++-*-
 
 #include <bslmf_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
 #include <cstdlib>     // atoi()
@@ -125,12 +126,13 @@ int main(int argc, char *argv[])
 
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
-        BSLMF_ASSERT(1);  ASSERT(128 == __LINE__);
         BSLMF_ASSERT(1);  ASSERT(129 == __LINE__);
+        BSLMF_ASSERT(1);  ASSERT(130 == __LINE__);
         BSLMF_ASSERT(1 > 0 && 1);
 
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
-#if !defined(BSLS_PLATFORM__CMP_MSVC)
+#if !defined(BSLS_PLATFORM__CMP_MSVC) &&                \
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
         bslmf_Assert_129 t1; // test typedef name creation; matches above line
         bslmf_Assert_130 t2; // test typedef name creation; matches above line
         ASSERT(sizeof t1 == sizeof t2);  // use t1 and t2

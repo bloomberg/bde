@@ -61,9 +61,10 @@ bael_Record *bael_Log::getRecord(const bael_Category *category,
     if (category) {
         return bael_LoggerManager::singleton().getLogger().getRecord(file,
                                                                      line);
+                                                                      // RETURN
     }
     else {
-        return bael_LoggerManager::getRecord(file, line);
+        return bael_LoggerManager::getRecord(file, line);             // RETURN
     }
 }
 
@@ -108,9 +109,11 @@ char *bael_Log::obtainMessageBuffer(bcemt_Mutex **mutex, int *bufferSize)
         return bael_LoggerManager::
                    singleton().getLogger().obtainMessageBuffer(mutex,
                                                                bufferSize);
+                                                                      // RETURN
     }
     else {
         return bael_LoggerManager::obtainMessageBuffer(mutex, bufferSize);
+                                                                      // RETURN
     }
 }
 
@@ -153,6 +156,7 @@ bool bael_Log::isCategoryEnabled(const bael_CategoryHolder *categoryHolder,
         // uninitialized, or the logger manager is uninitialized, or the
         // category is 0) then simply test whether the severity is greater than
         // the WARNING level.
+
         return bael_Severity::BAEL_WARN >= severity;                  // RETURN
     }
 

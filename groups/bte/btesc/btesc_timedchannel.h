@@ -266,8 +266,8 @@ BDES_IDENT("$Id: $")
 // the address of an 'augStatus', which will then be modified in the event of a
 // partial result.
 //
-///USAGE EXAMPLE
-///=============
+///Usage
+///-----
 // The 'btesc' style of channel interface is used to transmit sequences of
 // specified size across some concrete channel implementation.  In this example
 // we demonstrate how to implement a remote procedure call (RPC) to a factorial

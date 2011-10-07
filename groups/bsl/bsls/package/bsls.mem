@@ -25,3 +25,5 @@ bsls_protocoltest
 bsls_stopwatch
 bsls_timeutil
 bsls_types
+bsls_unspecifiedbool
+bsls_util

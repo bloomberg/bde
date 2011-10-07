@@ -3371,6 +3371,11 @@ int main(int argc, char *argv[])
                 { L_,  "'Hello' World!",         "&apos;Hello&apos; World!"  },
                 { L_,  "Hello \"World\"",        "Hello &quot;World&quot;"   },
 
+                { L_,  "<![CDATA&]]>",           "&lt;![CDATA&amp;]]&gt;"    },
+                { L_,  "![CDATA[&]]>",           "![CDATA[&amp;]]&gt;"       },
+                { L_,  "<![CDATA[Hello]]>World",
+                                               "&lt;![CDATA[Hello]]&gt;World"},
+
                 // Two-byte character sequences.
 
                 { L_,  "\xc2\x80",               "\xc2\x80"                  },

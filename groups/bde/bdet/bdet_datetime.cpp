@@ -15,6 +15,8 @@ BDES_IDENT_RCSID(bdet_datetime_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_c_stdio.h>          // 'snprintf'
+
 static const char *const MONTHS[] = {
     0,
     "JAN", "FEB", "MAR", "APR",
@@ -104,7 +106,6 @@ int bdet_Datetime::printToBuffer(char *result, int numBytes) const
                     sec,
                     mSec);
 #endif
-
 }
 
 // FREE OPERATORS

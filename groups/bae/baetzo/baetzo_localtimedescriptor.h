@@ -14,7 +14,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
 //
-//@SEE_ALSO: baetzo_timetypetransition, baetzo_zoneinfo
+//@SEE_ALSO: baetzo_zoneinfo
 //
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, 'baetzo_LocalTimeDescriptor', that is used
@@ -122,6 +122,10 @@ BDES_IDENT("$Id: $")
 #include <bdeut_stringref.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
 #endif
@@ -153,13 +157,14 @@ class bslma_Allocator;
 class baetzo_LocalTimeDescriptor {
     // This simply constrained (value-semantic) attribute class characterizes a
     // subset of local time values.  See the Attributes section under
-    // @DESCRIPTION in the component-level documentation.  Note that the class
-    // invariants are identically the constraints on the individual attributes.
+    // @DESCRIPTION in the component-level documentation for information on the
+    // class attributes.  Note that the class invariants are identically the
+    // constraints on the individual attributes.
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
     //:   o except for 'bdex' serialization
-    //: o is *exception-neutral* (agnostic) TBD 
+    //: o is *exception-neutral* (agnostic) TBD
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
     // For terminology see 'bsldoc_glossary'.
@@ -254,11 +259,6 @@ class baetzo_LocalTimeDescriptor {
         // object was created with the same allocator as 'other'.
 
     // ACCESSORS
-    bslma_Allocator *allocator() const;
-        // Return the allocator used by this object to supply memory.  Note
-        // that if no allocator was supplied at construction the currently
-        // installed default allocator is used.
-
     const bsl::string& description() const;
         // Return a reference providing non-modifiable access to the
         // 'description' attribute of this object.  Note that 'description' is
@@ -273,6 +273,11 @@ class baetzo_LocalTimeDescriptor {
         // object.  Note that this value is in the range '[-86399 .. 86399]'.
 
                                   // Aspects
+
+    bslma_Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.  Note
+        // that if no allocator was supplied at construction the currently
+        // installed default allocator is used.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -296,7 +301,7 @@ bool operator==(const baetzo_LocalTimeDescriptor& lhs,
                 const baetzo_LocalTimeDescriptor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'baetzo_LocalTimeDescriptor' objects
-    // have the same value if the corresponding values of their
+    // have the same value if all of the corresponding values of their
     // 'utcOffsetInSeconds', 'dstInEffectFlag', and 'description' attributes
     // are the same.
 
@@ -304,7 +309,7 @@ bool operator!=(const baetzo_LocalTimeDescriptor& lhs,
                 const baetzo_LocalTimeDescriptor& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
     // same value, and 'false' otherwise.  Two 'baetzo_LocalTimeDescriptor'
-    // objects do not have the same value if the corresponding values of
+    // objects do not have the same value if any of the corresponding values of
     // their 'utcOffsetInSeconds', 'dstInEffectFlag', or 'description'
     // attributes are not the same.
 
@@ -315,7 +320,7 @@ bsl::ostream& operator<<(bsl::ostream&                     stream,
     // 'stream'.  If 'stream' is not valid on entry, this operation has no
     // effect.  Note that this human-readable format is not fully specified
     // and can change without notice.  Also note that this method has the same
-    // behavior as 'object.print(stream, 0, -1)' with the attribute names
+    // behavior as 'object.print(stream, 0, -1)', but with the attribute names
     // elided.
 
 // FREE FUNCTIONS
@@ -395,12 +400,11 @@ baetzo_LocalTimeDescriptor& baetzo_LocalTimeDescriptor::operator=(
 }
 
 inline
-void baetzo_LocalTimeDescriptor::setDescription(
-                                            const bdeut_StringRef& description)
+void baetzo_LocalTimeDescriptor::setDescription(const bdeut_StringRef& value)
 {
-    BSLS_ASSERT_SAFE(description.isBound());
+    BSLS_ASSERT_SAFE(value.isBound());
 
-    d_description.assign(description.begin(), description.end());
+    d_description.assign(value.begin(), value.end());
 }
 
 inline
@@ -424,18 +428,12 @@ void baetzo_LocalTimeDescriptor::swap(baetzo_LocalTimeDescriptor& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    bsl::swap(d_description,        other.d_description);
-    bsl::swap(d_dstInEffectFlag,    other.d_dstInEffectFlag);
-    bsl::swap(d_utcOffsetInSeconds, other.d_utcOffsetInSeconds);
+    bslalg_SwapUtil::swap(&d_description,        &other.d_description);
+    bslalg_SwapUtil::swap(&d_dstInEffectFlag,    &other.d_dstInEffectFlag);
+    bslalg_SwapUtil::swap(&d_utcOffsetInSeconds, &other.d_utcOffsetInSeconds);
 }
 
 // ACCESSORS
-inline
-bslma_Allocator *baetzo_LocalTimeDescriptor::allocator() const
-{
-    return d_description.get_allocator().mechanism();
-}
-
 inline
 const bsl::string& baetzo_LocalTimeDescriptor::description() const
 {
@@ -454,6 +452,14 @@ int baetzo_LocalTimeDescriptor::utcOffsetInSeconds() const
     return d_utcOffsetInSeconds;
 }
 
+                                  // Aspects
+
+inline
+bslma_Allocator *baetzo_LocalTimeDescriptor::allocator() const
+{
+    return d_description.get_allocator().mechanism();
+}
+
 // FREE OPERATORS
 inline
 bool operator==(const baetzo_LocalTimeDescriptor& lhs,
@@ -468,7 +474,9 @@ inline
 bool operator!=(const baetzo_LocalTimeDescriptor& lhs,
                 const baetzo_LocalTimeDescriptor& rhs)
 {
-    return !(lhs == rhs);
+    return lhs.utcOffsetInSeconds() != rhs.utcOffsetInSeconds()
+        || lhs.dstInEffectFlag()    != rhs.dstInEffectFlag()
+        || lhs.description()        != rhs.description();
 }
 
 // FREE FUNCTIONS
@@ -478,7 +486,7 @@ void swap(baetzo_LocalTimeDescriptor& a, baetzo_LocalTimeDescriptor& b)
     a.swap(b);
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

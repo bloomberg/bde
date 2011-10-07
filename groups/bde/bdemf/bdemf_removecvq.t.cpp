@@ -1,8 +1,10 @@
-// bdemf_removecvq.t.cpp            -*-C++-*-
+// bdemf_removecvq.t.cpp                                              -*-C++-*-
 
 #include <bdemf_removecvq.h>
 
 #include <bsls_platformutil.h>
+#include <bslmf_issame.h>   // for testing only
+#include <bslmf_assert.h>   // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strcmp()
@@ -50,6 +52,9 @@ static void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+#define ASSERT_REFTYPE_ISSAME(T)  \
+    BSLMF_ASSERT((bslmf_IsSame<T, bdemf_RemoveCvq<T>::Type>::VALUE));
 
 // from component doc
 
@@ -136,49 +141,17 @@ int main(int argc, char *argv[])
         const MyType cm = MyType();
 
         // References should remain unchanged.
-        bdemf_RemoveCvq<int              &>::Type ri1 = i;
-        bdemf_RemoveCvq<const int        &>::Type ri2 = ci;
-        bdemf_RemoveCvq<volatile int     &>::Type ri3 = vi;
-        bdemf_RemoveCvq<int *            &>::Type ri4 = pi;
-        bdemf_RemoveCvq<int **           &>::Type ri5 = ppi;
-        bdemf_RemoveCvq<int *const       &>::Type ri6 = cpi;
-        bdemf_RemoveCvq<int *const *     &>::Type ri7 = pcpi;
-        bdemf_RemoveCvq<int *const *const&>::Type ri8 = cpcpi;
-        bdemf_RemoveCvq<MyType           &>::Type rm1 = m1;
-        bdemf_RemoveCvq<MyType const     &>::Type rm2 = cm;
 
-        ASSERT(&ri1 == &i);
-        ASSERT(&ri2 == &ci);
-        ASSERT(&ri3 == &vi);
-        ASSERT(&ri4 == &pi);
-        ASSERT(&ri5 == &ppi);
-        ASSERT(&ri6 == &cpi);
-        ASSERT(&ri7 == &pcpi);
-        ASSERT(&ri8 == &cpcpi);
-        ASSERT(&rm1 == &m1);
-        ASSERT(&rm2 == &cm);
-
-        int              & rri1 = ri1;
-        const int        & rri2 = ri2;
-        volatile int     & rri3 = ri3;
-        int *            & rri4 = ri4;
-        int **           & rri5 = ri5;
-        int *const       & rri6 = ri6;
-        int *const *     & rri7 = ri7;
-        int *const *const& rri8 = ri8;
-        MyType           & rrm1 = rm1;
-        MyType const     & rrm2 = rm2;
-
-        (void) rri1;
-        (void) rri2;
-        rri3 = 0;
-        (void) rri4;
-        (void) rri5;
-        (void) rri6;
-        (void) rri7;
-        (void) rri8;
-        (void) rrm1;
-        (void) rrm2;
+        ASSERT_REFTYPE_ISSAME(int              &);
+        ASSERT_REFTYPE_ISSAME(const int        &);
+        ASSERT_REFTYPE_ISSAME(volatile int     &);
+        ASSERT_REFTYPE_ISSAME(int *            &);
+        ASSERT_REFTYPE_ISSAME(int **           &);
+        ASSERT_REFTYPE_ISSAME(int *const       &);
+        ASSERT_REFTYPE_ISSAME(int *const *     &);
+        ASSERT_REFTYPE_ISSAME(int *const *const&);
+        ASSERT_REFTYPE_ISSAME(MyType           &);
+        ASSERT_REFTYPE_ISSAME(MyType const     &);
 
         bdemf_RemoveCvq<const int *            >::Type a1; // const int *
         bdemf_RemoveCvq<const int **           >::Type a2; // const int **

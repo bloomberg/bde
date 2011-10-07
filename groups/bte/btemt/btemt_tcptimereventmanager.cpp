@@ -75,7 +75,6 @@ class btemt_TcpTimerEventManager_Request {
     BSLALG_DECLARE_NESTED_TRAITS(btemt_TcpTimerEventManager_Request,
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
-    // DATA
     enum OpCode {
         NO_OP,                         // no operation
         TERMINATE,                     // exit signal
@@ -89,18 +88,19 @@ class btemt_TcpTimerEventManager_Request {
         REGISTER_TIMER,                // invoke 'registerTimer'
         RESCHEDULE_TIMER,              // invoke 'rescheduleTimer'
         IS_REGISTERED,                 // invoke 'isRegistered'.
-        NUM_SOCKET_EVENTS              // invoke 'numSocketEvents'.
+        NUM_SOCKET_EVENTS,             // invoke 'numSocketEvents'.
+        CAN_REGISTER_SOCKETS           // invoke 'canRegisterSockets'.
     };
 
   private:
-    // INSTANCE DATA
+    // DATA
     OpCode                        d_opCode;       // request type
     bcemt_Mutex                  *d_mutex_p;      // result notification
     bcemt_Condition              *d_condition_p;  //
 
     // The following two fields are used in socket related requests.
     bteso_SocketHandle::Handle    d_handle;       // socket handle associated
-                                                  // with this request  (in)
+                                                  // with this request (in)
     bteso_EventType::Type         d_eventType;    // event code (in)
 
     // The following two fields are used in timer related requests.
@@ -443,7 +443,9 @@ btemt_TcpTimerEventManager_Request::btemt_TcpTimerEventManager_Request(
 , d_callback(basicAllocator)
 , d_result(-1)
 {
-    BSLS_ASSERT(NO_OP == code || TERMINATE == code);
+    BSLS_ASSERT(NO_OP == code
+             || CAN_REGISTER_SOCKETS == code
+             || TERMINATE == code);
 }
 
 inline
@@ -493,13 +495,12 @@ void btemt_TcpTimerEventManager_Request::waitForResult()
       case NO_OP:
       case IS_REGISTERED:
       case NUM_SOCKET_EVENTS:
-      {
+      case CAN_REGISTER_SOCKETS: {
         while (-1 == d_result) {
             d_condition_p->wait(d_mutex_p);
         }
       } break;
-      case REGISTER_TIMER:
-      {
+      case REGISTER_TIMER: {
         while (!d_timerId) {
             d_condition_p->wait(d_mutex_p);
         }
@@ -807,9 +808,16 @@ void btemt_TcpTimerEventManager::controlCb()
                 d_requestPool.deleteObjectRaw(req);
             } break;
             case btemt_TcpTimerEventManager_Request::NUM_SOCKET_EVENTS: {
-                int result =
-                    d_manager_p->numSocketEvents(req->socketHandle());
+                int result = d_manager_p->numSocketEvents(req->socketHandle());
                 req->setResult(result);
+                req->signal();
+            } break;
+            case btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKETS: {
+                BSLS_ASSERT(d_manager_p->hasLimitedSocketCapacity());
+
+                bool result = d_manager_p->canRegisterSockets();
+
+                req->setResult((int) result);
                 req->signal();
             } break;
             case btemt_TcpTimerEventManager_Request::IS_REGISTERED: {
@@ -1561,6 +1569,64 @@ void btemt_TcpTimerEventManager::deregisterAll()
 }
 
 // ACCESSORS
+bool btemt_TcpTimerEventManager::canRegisterSockets() const
+{
+    if (!d_manager_p->hasLimitedSocketCapacity()) {
+        return true;                                                  // RETURN
+    }
+
+    if (bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(), d_dispatcher)) {
+        return d_manager_p->canRegisterSockets();                     // RETURN
+    }
+
+    bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_stateLock);
+
+    if (BTEMT_DISABLED == d_state) {
+        d_stateLock.unlock();
+        d_stateLock.lockWrite();
+    }
+
+    bool result;
+
+    switch (d_state) {
+      case BTEMT_ENABLED: {
+        // Processing thread is enabled -- enqueue the request.
+
+        bcemt_Mutex     mutex;
+        bcemt_Condition condition;
+
+        btemt_TcpTimerEventManager_Request *req =
+            new (d_requestPool) btemt_TcpTimerEventManager_Request(
+                      btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKETS,
+                      &condition,
+                      &mutex,
+                      d_allocator_p);
+        d_requestQueue.pushBack(req);
+        BSLS_ASSERT(-1 == req->result());
+
+        bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
+        int ret = d_controlChannel.clientWrite();
+        if (0 > ret) {
+            d_requestQueue.popBack();
+            d_requestPool.deleteObjectRaw(req);
+            result = false;
+        }
+        else {
+            req->waitForResult();
+            result = (bool) req->result();
+            d_requestPool.deleteObjectRaw(req);
+        }
+      } break;
+      case BTEMT_DISABLED: {
+        // Processing thread is disabled -- upgrade to write lock
+        // and process request in this thread.
+
+        result = d_manager_p->canRegisterSockets();
+      }
+    }
+
+    return result;
+}
 
 int btemt_TcpTimerEventManager::isRegistered(
         const bteso_SocketHandle::Handle& handle,
@@ -1584,7 +1650,7 @@ int btemt_TcpTimerEventManager::isRegistered(
       case BTEMT_ENABLED: {
         // Processing thread is enabled -- enqueue the request.
 
-        bcemt_Mutex mutex;
+        bcemt_Mutex     mutex;
         bcemt_Condition condition;
         btemt_TcpTimerEventManager_Request *req =
             new (d_requestPool) btemt_TcpTimerEventManager_Request(

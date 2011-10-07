@@ -1,4 +1,4 @@
-// baea_baemmetricreporteradapter.h   -*-C++-*-
+// baea_baemmetricreporteradapter.h                                   -*-C++-*-
 #ifndef INCLUDED_BAEA_BAEMMETRICREPORTERADAPTER
 #define INCLUDED_BAEA_BAEMMETRICREPORTERADAPTER
 
@@ -10,7 +10,8 @@ BDES_IDENT_PRAGMA_ONCE
 //
 //@DEPRECATED: Use 'baem_metrics' instead.
 //
-//@CLASSES: baea_BaemMetricReporterAdapter: adapt BAEA metric reporter to BAEM
+//@CLASSES:
+//   baea_BaemMetricReporterAdapter: adapt BAEA metric reporter to BAEM
 //
 //@AUTHOR: David Rubin (drubin6)
 //
