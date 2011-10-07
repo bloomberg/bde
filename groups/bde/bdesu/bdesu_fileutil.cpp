@@ -153,7 +153,7 @@ bool isDotOrDots(const char *path)
 {
     BSLS_ASSERT(path);
 
-    const int length = (int) bsl::strlen(path);
+    const int length = static_cast<int>(bsl::strlen(path));
 
     return  (length >= 2 && '/' == path[length - 2] &&
                             '.' == path[length - 1]) ||
@@ -781,7 +781,7 @@ int bdesu_FileUtil::read(FileDescriptor  fd,
     BSLS_ASSERT(buf);
     BSLS_ASSERT(0 <= numBytesToRead);
 
-    return (int) ::read(fd, buf, numBytesToRead);
+    return static_cast<int>(::read(fd, buf, numBytesToRead));
 }
 
 int bdesu_FileUtil::write(FileDescriptor  fd,
@@ -791,7 +791,7 @@ int bdesu_FileUtil::write(FileDescriptor  fd,
     BSLS_ASSERT(buf);
     BSLS_ASSERT(0 <= numBytesToWrite);
 
-    return (int) ::write(fd, buf, numBytesToWrite);
+    return static_cast<int>(::write(fd, buf, numBytesToWrite));
 }
 
 int bdesu_FileUtil::map(FileDescriptor   fd,
@@ -935,7 +935,7 @@ void bdesu_FileUtil::visitPaths(
         throw bsl::bad_alloc();
     }
 
-    for (int i = 0; i < (int) pglob.gl_pathc; ++i) {
+    for (int i = 0; i < static_cast<int>(pglob.gl_pathc); ++i) {
         BSLS_ASSERT(pglob.gl_pathv[i]);
         if (!isDotOrDots(pglob.gl_pathv[i])) {
             visitor(pglob.gl_pathv[i]);
@@ -1054,8 +1054,10 @@ int bdesu_FileUtil::createDirectories(const char *nativePath,
     }
 
     while (!directoryStack.empty()) {
-        bdesu_PathUtil::appendRaw(&path, directoryStack.back().c_str(),
-                                  (int) directoryStack.back().length());
+        bdesu_PathUtil::appendRaw(&path, 
+                                  directoryStack.back().c_str(),
+                                  static_cast<int>(
+                                      directoryStack.back().length()));
         if (!exists(path.c_str())) {
             if (0 != makeDirectory(path.c_str())) {
                 return -1;                                            // RETURN
@@ -1130,7 +1132,8 @@ int bdesu_FileUtil::grow(FileDescriptor         fd,
         bsl::memset(buf, 1, bufferSize);
         Offset bytesToGrow = size - currentSize;
         while(bytesToGrow > 0) {
-            int nBytes = (int)bsl::min(bytesToGrow, (Offset)bufferSize);
+            int nBytes = static_cast<int>(
+                                   bsl::min(bytesToGrow, (Offset)bufferSize));
             int rc = write(fd, buf, nBytes);
             if (rc != nBytes) {
                 allocator_p->deallocate(buf);
@@ -1155,7 +1158,7 @@ int bdesu_FileUtil::rollFileChain(const char *path, int maxSuffix)
 
     enum { MAX_SUFFIX_LENGTH = 10 };
     bslma_Allocator *allocator_p = bslma_Default::defaultAllocator();
-    int length = (int) bsl::strlen(path) + MAX_SUFFIX_LENGTH + 2;
+    int length = static_cast<int>(bsl::strlen(path)) + MAX_SUFFIX_LENGTH + 2;
 
     // Use a single allocation to insure exception neutrality.
 
