@@ -175,11 +175,14 @@ unix-                   _       RETRY_ON_SIGNAL = $(RETRY) -a 3 -t $(RETRY_TIMEO
 unix-                   _       RETRY_ALLTEST   = $(RETRY) -t 0 -a 3 -s!ILL,TRAP,BUS,ABRT,SEGV,PIPE,CHLD --
 !! unix-Cygwin          _       RETRY_ALLTEST   =
 
-*                       _       ALLTEST = $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
-!! unix-AIX-*           _       ALLTEST = $(XLC_LIBPATH) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
-!! unix-SunOS-*-*-gcc-4     _   ALLTEST     = LD_LIBRARY_PATH=/opt/swt/install/gcc-$(GCC_VER)/lib:$(LD_LIBRARY_PATH) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
-!! unix-SunOS-*-*-gcc-4     64   ALLTEST     = LD_LIBRARY_PATH=/opt/swt/install/gcc-$(GCC_VER)/lib/sparcv9:$(LD_LIBRARY_PATH) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl -v -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
-!! windows      _       ALLTEST = D:/bin/wrun.exe -A -a$@ -v -t 5 -m100 -M1024 -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
+*                       _       ALLTEST_VERBOSE = -v
+*                       _       ALLTEST_PREFIX  =
+!! unix-AIX-*           _       ALLTEST_PREFIX  = $(XLC_LIBPATH)
+!! unix-SunOS-*-*-gcc-4     _   ALLTEST_PREFIX  = LD_LIBRARY_PATH=/opt/swt/install/gcc-$(GCC_VER)/lib:$(LD_LIBRARY_PATH)
+!! unix-SunOS-*-*-gcc-4     64  ALLTEST_PREFIX  = LD_LIBRARY_PATH=/opt/swt/install/gcc-$(GCC_VER)/lib/sparcv9:$(LD_LIBRARY_PATH)
+
+*                       _       ALLTEST = $(ALLTEST_PREFIX) $(RETRY_ALLTEST) $(BDE_BINDIR)all.pl $(ALLTEST_VERBOSE) -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
+!! windows              _       ALLTEST = D:/bin/wrun.exe -A -a$@ $(ALLTEST_VERBOSE) -t 5 -m100 -M1024 -t $(TEST_TIMEOUT) $(ALLTEST_OPT)
 # maximize test iterations to 100
 *           _      ALLTEST_OPT = -m100
 *           _      ALLTEST_SERIAL  = -s
@@ -550,10 +553,13 @@ unix-Linux-*-*-*       _   DEF_ENDLDFLAGS = -lrt
 # add "-Wl,-rpath -Wl,/opt/swt/install/gcc-4.3.5/lib" to 4.3.5 link lines to add search
 # path for .so files
 
-unix-Linux-*-*-gcc-4.3.5      _  RPATH_LIBDIR = lib
-!! unix-Linux-*-*-gcc-4.3.5    64 RPATH_LIBDIR = lib64
+unix-Linux-*-*-gcc-4.3.5        _  RPATH_LIBDIR = lib
+!! unix-Linux-*-*-gcc-4.3.5     64 RPATH_LIBDIR = lib64
 
-unix-Linux-*-*-gcc-4      _  DEF_ENDLDFLAGS = -Wl,-rpath -Wl,/opt/swt/install/gcc-$(GCC_VER)/$(RPATH_LIBDIR)
+unix-Linux-*-*-gcc-4.*          _  RPATH_FLAGS = -Wl,-rpath -Wl,/opt/swt/install/gcc-$(GCC_VER)/$(RPATH_LIBDIR)
+!! unix-Linux-*-*-gcc-def       _  RPATH_FLAGS =
+
+unix-Linux-*-*-*        _   DEF_ENDLDFLAGS = $(RPATH_FLAGS)
 
 # Flags for shared memory access compatibility on HP
 unix-HP_UX-*-*-*       _   DEF_LDFLAGS    = $(LINKARGSCOMMON) -AA -ext
@@ -991,6 +997,9 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 #!! unix-Linux-i686-2.6.32-gcc-4.3.5    _  COMPILERPATH = /usr/bin
 
 !! unix-Linux-*-*-gcc                  _  CXX          = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+
+# for development only; use GCC found in PATH; no retry
+!! unix-Linux-*-*-gcc-def              _  CXX          = g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
 !! unix-FreeBSD-*-*-def                _  CXX          = $(RETRY_ON_SIGNAL) g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 

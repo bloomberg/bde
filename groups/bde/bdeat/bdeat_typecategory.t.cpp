@@ -43,7 +43,7 @@ void aSsErT(int c, const char *s, int i)
     }
 }
 
-}
+}  // close unnamed namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -102,8 +102,8 @@ namespace bdeat_ArrayFunctions {
     struct IsArray<MyArrayType> {
         enum { VALUE = 1 };
     };
-}
-}
+}  // close namespace bdeat_ArrayFunctions
+}  // close namespace BloombergLP
 
 struct MyChoiceType {
     enum { SELECTION = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY };
@@ -116,8 +116,8 @@ namespace bdeat_ChoiceFunctions {
     struct IsChoice<MyChoiceType> {
         enum { VALUE = 1 };
     };
-}
-}
+}  // close namespace bdeat_ChoiceFunctions
+}  // close namespace BloombergLP
 
 struct MyCustomizedType {
     enum { SELECTION = bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY };
@@ -130,8 +130,8 @@ namespace bdeat_CustomizedTypeFunctions {
     struct IsCustomizedType<MyCustomizedType> {
         enum { VALUE = 1 };
     };
-}
-}
+}  // close namespace bdeat_CustomizedTypeFunctions
+}  // close namespace BloombergLP
 
 struct MyEnumerationType {
     enum { SELECTION = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY };
@@ -144,8 +144,8 @@ namespace bdeat_EnumFunctions {
     struct IsEnumeration<MyEnumerationType> {
         enum { VALUE = 1 };
     };
-}
-}
+}  // close namespace bdeat_EnumFunctions
+}  // close namespace BloombergLP
 
 struct MyNullableValueType {
     enum { SELECTION = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY };
@@ -158,8 +158,8 @@ namespace bdeat_NullableValueFunctions {
     struct IsNullableValue<MyNullableValueType> {
         enum { VALUE = 1 };
     };
-}
-}
+}  // close namespace bdeat_NullableValueFunctions
+}  // close namespace BloombergLP
 
 struct MySequenceType {
     enum { SELECTION = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY };
@@ -172,8 +172,8 @@ namespace bdeat_SequenceFunctions {
     struct IsSequence<MySequenceType> {
         enum { VALUE = 1 };
     };
-}
-}
+}  // close namespace bdeat_SequenceFunctions
+}  // close namespace BloombergLP
 
 
 struct MyDeclaredDynamicType {
@@ -198,11 +198,12 @@ namespace BloombergLP {
     struct bdeat_TypeCategoryDeclareDynamic<MyDeclaredDynamicType> {
         enum { VALUE = 1 };
     };
-}
+}  // close namespace BloombergLP
 
 bdeat_TypeCategory::Value
 bdeat_typeCategorySelect(const MyDeclaredDynamicType& object)
 {
+    (void)object;
     return object.d_currentCategory;
 }
 
@@ -210,6 +211,7 @@ template <typename MANIPULATOR>
 int bdeat_typeCategoryManipulateChoice(MyDeclaredDynamicType *object,
                                        MANIPULATOR&           manipulator)
 {
+    (void)object;
     return manipulator(object, bdeat_TypeCategory::Choice());
 }
 
@@ -217,6 +219,7 @@ template <typename MANIPULATOR>
 int bdeat_typeCategoryManipulateSequence(MyDeclaredDynamicType *object,
                                          MANIPULATOR&           manipulator)
 {
+    (void)object;
     return manipulator(object, bdeat_TypeCategory::Sequence());
 }
 
@@ -224,6 +227,7 @@ template <typename ACCESSOR>
 int bdeat_typeCategoryAccessChoice(const MyDeclaredDynamicType& object,
                                    ACCESSOR&                    accessor)
 {
+    (void)object;
     return accessor(object, bdeat_TypeCategory::Choice());
 }
 
@@ -231,6 +235,7 @@ template <typename ACCESSOR>
 int bdeat_typeCategoryAccessSequence(const MyDeclaredDynamicType& object,
                                      ACCESSOR&                    accessor)
 {
+    (void)object;
     return accessor(object, bdeat_TypeCategory::Sequence());
 }
 
@@ -258,18 +263,20 @@ namespace bdeat_SequenceFunctions {
     struct IsSequence<MyAutoDetectDynamicType> {
         enum { VALUE = 1 };
     };
-}
+}  // close namespace bdeat_SequenceFunctions
+
 namespace bdeat_NullableValueFunctions {
     template <>
     struct IsNullableValue<MyAutoDetectDynamicType> {
         enum { VALUE = 1 };
     };
-}
-}
+}  // close namespace bdeat_NullableValueFunctions
+}  // close namespace BloombergLP
 
 bdeat_TypeCategory::Value
 bdeat_typeCategorySelect(const MyAutoDetectDynamicType& object)
 {
+    (void)object;
     return object.d_currentCategory;
 }
 
@@ -279,57 +286,65 @@ struct MyManipulator {
     template <typename TYPE>
     int operator()(TYPE *object, bslmf_Nil)
     {
+        (void)object;
         return -1;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::DynamicType)
     {
+        (void)object;
         return 0;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Array)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Choice)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::CustomizedType)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Enumeration)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::NullableValue)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Sequence)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(TYPE *object, bdeat_TypeCategory::Simple)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     }
-
 };
 
 struct MyAccessor {
@@ -337,356 +352,360 @@ struct MyAccessor {
     template <typename TYPE>
     int operator()(const TYPE& object, bslmf_Nil)
     {
+        (void)object;
         return -1;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::DynamicType)
     {
+        (void)object;
         return 0;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Array)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Choice)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::CustomizedType)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_CUSTOMIZED_TYPE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Enumeration)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::NullableValue)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Sequence)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
     }
 
     template <typename TYPE>
     int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
     {
+        (void)object;
         return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     }
-
 };
-
-
 
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-
-///Usage Example 1
-///---------------
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Function Compile-Time Parameterized by 'TYPE'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate the usage of this component.  We
 // will create a 'printCategoryAndValue' function that is parameterized by
 // 'TYPE':
 //..
-//  #include <bdeat_typecategory.h>
-//  #include <bdeu_printmethods.h>
-//
-template <typename TYPE>
-void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
-    // Print the category of the specified 'object' followed by the value
-    // of 'object' to the specified output 'stream'.
+    template <typename TYPE>
+    void printCategoryAndValue(bsl::ostream& stream, const TYPE& object);
+        // Print the category of the specified 'object' followed by the value
+        // of 'object' to the specified output 'stream'.
 //..
 // In order to implement this function, we will use a set of helper functions
 // that are overloaded based on the category tag:
 //..
-void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Array)
-{
-    stream << "Array";
-}
+    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Array)
+    {
+        stream << "Array";
+    }
 
-void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Choice)
-{
-    stream << "Choice";
-}
+    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Choice)
+    {
+        stream << "Choice";
+    }
 
-void printCategory(bsl::ostream& stream,
-                   bdeat_TypeCategory::CustomizedType)
-{
-    stream << "CustomizedType";
-}
+    void printCategory(bsl::ostream& stream,
+                       bdeat_TypeCategory::CustomizedType)
+    {
+        stream << "CustomizedType";
+    }
 
-void printCategory(bsl::ostream& stream, bdeat_TypeCategory::DynamicType)
-{
-    stream << "DynamicType";
-}
+    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::DynamicType)
+    {
+        stream << "DynamicType";
+    }
 
-void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Enumeration)
-{
-    stream << "Enumeration";
-}
+    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Enumeration)
+    {
+        stream << "Enumeration";
+    }
 
-void printCategory(bsl::ostream& stream, bdeat_TypeCategory::NullableValue)
-{
-    stream << "NullableValue";
-}
+    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::NullableValue)
+    {
+        stream << "NullableValue";
+    }
 
-void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Sequence)
-{
-    stream << "Sequence";
-}
+    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Sequence)
+    {
+        stream << "Sequence";
+    }
 
-void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Simple)
-{
-    stream << "Simple";
-}
+    void printCategory(bsl::ostream& stream, bdeat_TypeCategory::Simple)
+    {
+        stream << "Simple";
+    }
+
 //..
 // Now we can implement the 'printCategoryAndValue' function in terms of the
 // 'printCategory' helper functions:
 //..
-template <typename TYPE>
-void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
-{
-    typedef typename
-    bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
+    template <typename TYPE>
+    void printCategoryAndValue(bsl::ostream& stream, const TYPE& object)
+    {
+        typedef typename
+        bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    printCategory(stream, TypeCategory());
+        printCategory(stream, TypeCategory());
 
-    stream << ": ";
+        stream << ": ";
 
-    bdeu_PrintMethods::print(stream, object, 0, -1);
-}
+        bdeu_PrintMethods::print(stream, object, 0, -1);
+    }
 //..
 // The following function demonstrates the output from this function:
 //..
-//  #include <bdeut_nullablevalue.h>
-//  #include <sstream>
-//  #include <string>
-//  #include <vector>
-//
-void runUsageExample1()
-{
-    bsl::ostringstream oss;
+    void runUsageExample1()
+    {
+        bsl::ostringstream oss;
 
 
-    int intVal = 123;
+        int intVal = 123;
 
-    printCategoryAndValue(oss, intVal);
-    ASSERT("Simple: 123" == oss.str());
-    oss.str("");
+        printCategoryAndValue(oss, intVal);
+        ASSERT("Simple: 123" == oss.str());
+        oss.str("");
 
-    bdeut_NullableValue<int> nullableInt;
+        bdeut_NullableValue<int> nullableInt;
 
-    printCategoryAndValue(oss, nullableInt);
-    ASSERT("NullableValue: NULL" == oss.str());
-    oss.str("");
+        printCategoryAndValue(oss, nullableInt);
+        ASSERT("NullableValue: NULL" == oss.str());
+        oss.str("");
 
-    nullableInt = 321;
+        nullableInt = 321;
 
-    printCategoryAndValue(oss, nullableInt);
-    ASSERT("NullableValue: 321" == oss.str());
-    oss.str("");
+        printCategoryAndValue(oss, nullableInt);
+        ASSERT("NullableValue: 321" == oss.str());
+        oss.str("");
 
-    bsl::vector<int> vec;
+        bsl::vector<int> vec;
 
-    vec.push_back(123);
-    vec.push_back(345);
-    vec.push_back(987);
+        vec.push_back(123);
+        vec.push_back(345);
+        vec.push_back(987);
 
-    printCategoryAndValue(oss, vec);
-    ASSERT("Array: [ 123 345 987 ]" == oss.str());
-}
+        printCategoryAndValue(oss, vec);
+        ASSERT("Array: [ 123 345 987 ]" == oss.str());
+    }
 //..
 //
-///Usage Example 2
-///---------------
-// TBD: update the header file with this new usage example
+///Example 2: Dynamic (Run-Time) Typing
+/// - - - - - - - - - - - - - - - - - -
 // The following snippets of code illustrate the usage of dynamic types.
 // Suppose we have a type that can, at runtime, be either a 'bsl::vector<char>'
 // or a 'bsl::string':
 //..
-class VectorCharOrString {
+    class VectorCharOrString {
 
-    // PRIVATE DATA MEMBERS
-    bsl::vector<char> d_vectorChar;  // Note: Production code should use a
-    bsl::string       d_string;      //       union of object buffers.
-    int               d_selector;    // 0 = vectorChar, 1 = string
+        // PRIVATE DATA MEMBERS
+        bsl::vector<char> d_vectorChar;  // Note: Production code should use a
+        bsl::string       d_string;      //       union of object buffers.
+        int               d_selector;    // 0 = vectorChar, 1 = string
 
-  public:
-    // MANIPULATORS
-    void makeVectorChar() { d_selector = 0; }
-    void makeString()     { d_selector = 1; }
+      public:
+        // MANIPULATORS
+        void makeVectorChar() { d_selector = 0; }
+        void makeString()     { d_selector = 1; }
 
-    bsl::vector<char>& theVectorChar()
-                           { ASSERT(isVectorChar()); return d_vectorChar; }
-    bsl::string& theString()
-                           { ASSERT(isString()); return d_string; }
+        bsl::vector<char>& theVectorChar()
+                               { ASSERT(isVectorChar()); return d_vectorChar; }
+        bsl::string& theString()
+                               { ASSERT(isString()); return d_string; }
 
-    // ACCESSORS
-    bool isVectorChar() const { return 0 == d_selector; }
-    bool isString() const     { return 1 == d_selector; }
+        // ACCESSORS
+        bool isVectorChar() const { return 0 == d_selector; }
+        bool isString() const     { return 1 == d_selector; }
 
-    const bsl::vector<char>& theVectorChar() const
-                           { ASSERT(isVectorChar()); return d_vectorChar; }
-    const bsl::string& theString() const
-                           { ASSERT(isString()); return d_string; }
+        const bsl::vector<char>& theVectorChar() const
+                               { ASSERT(isVectorChar()); return d_vectorChar; }
+        const bsl::string& theString() const
+                               { ASSERT(isString()); return d_string; }
 
-};
+    };
 //..
 // To make this type dynamic, we will specialize the
 // 'bdeat_TypeCategoryDeclareDynamic' meta-function in the 'BloombergLP'
 // namespace:
 //..
-namespace BloombergLP {
+    namespace BloombergLP {
 
-    template <>
-    struct bdeat_TypeCategoryDeclareDynamic<VectorCharOrString> {
-        enum { VALUE = 1 };
-    };
+        template <>
+        struct bdeat_TypeCategoryDeclareDynamic<VectorCharOrString> {
+            enum { VALUE = 1 };
+        };
 
-}  // close namespace BloombergLP
+    }  // close namespace BloombergLP
+
 //..
-// Still in the 'BloombergLP' namespace, we will open the
-// 'bdeat_TypeCategoryFunctions' namespace and implement the relevant
-// functions:
+// Next, we define bdeat_typeCategorySelect', and a suite of four function,
+// 'bdeat_typeCategory(Manipulate|Access)(Array|Simple)', each overloaded for
+// our type, 'VectorCharOrString'.
 //..
-bdeat_TypeCategory::Value
-bdeat_typeCategorySelect(const VectorCharOrString& object)
-{
-    if (object.isVectorChar()) {
-        return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
-    }
-    else if (object.isString()) {
-        return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    }
+    bdeat_TypeCategory::Value
+    bdeat_typeCategorySelect(const VectorCharOrString& object)
+    {
+        if (object.isVectorChar()) {
+            return bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;          // RETURN
+        }
+        else if (object.isString()) {
+            return bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;         // RETURN
+        }
 
-    ASSERT(0);
-    return static_cast<bdeat_TypeCategory::Value>(-1);
-}
-
-template <typename MANIPULATOR>
-int bdeat_typeCategoryManipulateArray(VectorCharOrString *object,
-                                      MANIPULATOR&        manipulator)
-{
-    if (object->isVectorChar()) {
-        return manipulator(&object->theVectorChar(),
-                           bdeat_TypeCategory::Array());
+        ASSERT(0);
+        return static_cast<bdeat_TypeCategory::Value>(-1);
     }
 
-    return manipulator(object, bslmf_Nil());
-}
+    template <typename MANIPULATOR>
+    int bdeat_typeCategoryManipulateArray(VectorCharOrString *object,
+                                          MANIPULATOR&        manipulator)
+    {
+        if (object->isVectorChar()) {
+            return manipulator(&object->theVectorChar(),
+                               bdeat_TypeCategory::Array());          // RETURN
+        }
 
-template <typename MANIPULATOR>
-int bdeat_typeCategoryManipulateSimple(VectorCharOrString *object,
-                                       MANIPULATOR&        manipulator)
-{
-    if (object->isString()) {
-        return manipulator(&object->theString(),
-                           bdeat_TypeCategory::Simple());
+        return manipulator(object, bslmf_Nil());
     }
 
-    return manipulator(object, bslmf_Nil());
-}
+    template <typename MANIPULATOR>
+    int bdeat_typeCategoryManipulateSimple(VectorCharOrString *object,
+                                           MANIPULATOR&        manipulator)
+    {
+        if (object->isString()) {
+            return manipulator(&object->theString(),
+                               bdeat_TypeCategory::Simple());         // RETURN
+        }
 
-template <typename ACCESSOR>
-int bdeat_typeCategoryAccessArray(const VectorCharOrString& object,
-                                  ACCESSOR&                 accessor)
-{
-    if (object.isVectorChar()) {
-        return accessor(object.theVectorChar(),
-                        bdeat_TypeCategory::Array());
+        return manipulator(object, bslmf_Nil());
     }
 
-    return accessor(object, bslmf_Nil());
-}
+    template <typename ACCESSOR>
+    int bdeat_typeCategoryAccessArray(const VectorCharOrString& object,
+                                      ACCESSOR&                 accessor)
+    {
+        if (object.isVectorChar()) {
+            return accessor(object.theVectorChar(),
+                            bdeat_TypeCategory::Array());             // RETURN
+        }
 
-template <typename ACCESSOR>
-int bdeat_typeCategoryAccessSimple(const VectorCharOrString& object,
-                                   ACCESSOR&                 accessor)
-{
-    if (object.isString()) {
-        return accessor(object.theString(),
-                        bdeat_TypeCategory::Simple());
+        return accessor(object, bslmf_Nil());
     }
 
-    return accessor(object, bslmf_Nil());
-}
+    template <typename ACCESSOR>
+    int bdeat_typeCategoryAccessSimple(const VectorCharOrString& object,
+                                       ACCESSOR&                 accessor)
+    {
+        if (object.isString()) {
+            return accessor(object.theString(),
+                            bdeat_TypeCategory::Simple());            // RETURN
+        }
+
+        return accessor(object, bslmf_Nil());
+    }
+
 //..
 // Now we will create an accessor that dumps the contents of the visited object
 // into an associated stream:
 //..
-struct DumpObject {
-    bsl::ostream *d_stream_p;
+    struct DumpObject {
+        bsl::ostream *d_stream_p;
 
-    template <typename TYPE>
-    int operator()(const TYPE& object, bslmf_Nil)
-    {
-        ASSERT(0);  // received invalid object
-        return -1;
-    }
+        template <typename TYPE>
+        int operator()(const TYPE& object, bslmf_Nil)
+        {
+            ASSERT(0);  // received invalid object
+            (void)object;
+            return -1;
+        }
 
-    template <typename TYPE>
-    int operator()(const TYPE& object, bdeat_TypeCategory::Array)
-    {
-        (*d_stream_p) << "Array = ";
-        bdeu_PrintMethods::print(*d_stream_p, object, 0, -1);
-        return 0;
-    }
+        template <typename TYPE>
+        int operator()(const TYPE& object, bdeat_TypeCategory::Array)
+        {
+            (*d_stream_p) << "Array = ";
+            bdeu_PrintMethods::print(*d_stream_p, object, 0, -1);
+            return 0;
+        }
 
-    template <typename TYPE>
-    int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
-    {
-        (*d_stream_p) << "Simple = ";
-        bdeu_PrintMethods::print(*d_stream_p, object, 0, -1);
-        return 0;
-    }
-};
+        template <typename TYPE>
+        int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
+        {
+            (*d_stream_p) << "Simple = ";
+            bdeu_PrintMethods::print(*d_stream_p, object, 0, -1);
+            return 0;
+        }
+    };
+
 //..
 // Now we will use the 'accessByCategory' utility function to invoke the
 // accessor and pick the correct method to invoke based on the runtime state of
 // the 'VectorCharOrString' object:
 //..
-void runUsageExample2()
-{
-    bsl::ostringstream oss;
-    DumpObject         accessor = { &oss };
+    void runUsageExample2()
+    {
+        bsl::ostringstream oss;
+        DumpObject         accessor = { &oss };
 
-    VectorCharOrString object;
-    int                ret;
+        VectorCharOrString object;
+        int                ret;
 
-    object.makeVectorChar();
-    object.theVectorChar().push_back('H');
-    object.theVectorChar().push_back('e');
-    object.theVectorChar().push_back('l');
-    object.theVectorChar().push_back('l');
-    object.theVectorChar().push_back('o');
+        object.makeVectorChar();
+        object.theVectorChar().push_back('H');
+        object.theVectorChar().push_back('e');
+        object.theVectorChar().push_back('l');
+        object.theVectorChar().push_back('l');
+        object.theVectorChar().push_back('o');
 
-    ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
-    LOOP_ASSERT(oss.str(), "Array = \"Hello\"" == oss.str());
-    oss.str("");
+        ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
+        ASSERT("Array = \"Hello\"" == oss.str());
+        oss.str("");
 
-    object.makeString();
-    object.theString() = "World";
+        object.makeString();
+        object.theString() = "World";
 
-    ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
-    LOOP_ASSERT(oss.str(), "Simple = World" == oss.str());
-}
+        ret = bdeat_TypeCategoryUtil::accessByCategory(object, accessor);
+        ASSERT("Simple = World" == oss.str());
+    }
 //..
-
 
 //=============================================================================
 //                              MAIN PROGRAM
