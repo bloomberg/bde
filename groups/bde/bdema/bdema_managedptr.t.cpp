@@ -1231,6 +1231,62 @@ struct TestCtorArgs {
 
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// No policies needed for 'load' of empty managed pointers
+
+template<typename POINTER_TYPE>
+void doConstruct(int callLine, int testLine, int index,
+            TestCtorArgs *args)
+{
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 4  > args->d_config);
+
+    bdema_ManagedPtr<POINTER_TYPE> testObject;
+
+    POINTER_TYPE *ptr = testObject.ptr();
+    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+}
+
+template<typename POINTER_TYPE>
+void doConstructOnull(int callLine, int testLine, int index,
+                 TestCtorArgs *args)
+{
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 4  > args->d_config);
+
+    bdema_ManagedPtr<POINTER_TYPE> testObject(0);
+
+    POINTER_TYPE *ptr = testObject.ptr();
+    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+}
+
+template<typename POINTER_TYPE>
+void doConstructOnullFnull(int callLine, int testLine, int index,
+                      TestCtorArgs *args)
+{
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 4  > args->d_config);
+
+    bdema_ManagedPtr<POINTER_TYPE> testObject(0, 0);
+
+    POINTER_TYPE *ptr = testObject.ptr();
+    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+}
+
+template<typename POINTER_TYPE>
+void doConstructOnullFnullDnull(int callLine, int testLine, int index,
+                           TestCtorArgs *args)
+{
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 4  > args->d_config);
+
+// A workaround for early GCC compilers
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+    bdema_ManagedPtr<POINTER_TYPE> testObject(0, 0);
+#else
+    bdema_ManagedPtr<POINTER_TYPE> testObject(0, 0, 0);
+#endif
+
+    POINTER_TYPE *ptr = testObject.ptr();
+    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+}
+
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // A simple object policy governs loading a single argument
@@ -1959,8 +2015,617 @@ void doLoadObjectFnullDeleter(int callLine, int testLine, int index,
 // need some driver functions to iterate over each valid combination (stored
 // in separate test tables) and check that the behavior transitions correctly
 // in each case.
+struct NullPolicy {};
+
+template<class TARGET>
+struct TestPolicy {
+    typedef void TestLoadFn(int, int, int, TestLoadArgs<TARGET> *);
+    typedef void TestCtorFn(int, int, int, TestCtorArgs *);
+
+    TestLoadFn  *testLoad;
+    TestCtorFn  *testCtor;
+
+    TestPolicy()
+    : testLoad(&doLoad     <TARGET>)
+    , testCtor(&doConstruct<TARGET>)
+    {
+    }
+
+    TestPolicy(NullPolicy)
+    : testLoad(&doLoadOnull     <TARGET>)
+    , testCtor(&doConstructOnull<TARGET>)
+    {
+    }
+
+    TestPolicy(NullPolicy, NullPolicy)
+    : testLoad(&doLoadOnullFnull     <TARGET>)
+    , testCtor(&doConstructOnullFnull<TARGET>)
+    {
+    }
+
+    TestPolicy(NullPolicy, NullPolicy, NullPolicy)
+    : testLoad(&doLoadOnullFnullDnull     <TARGET>)
+    , testCtor(&doConstructOnullFnullDnull<TARGET>)
+    {
+    }
+
+    template<class ObjectPolicy>
+    explicit TestPolicy(const ObjectPolicy&)
+    : testLoad(&doLoadObject     <TARGET, ObjectPolicy>)
+    , testCtor(&doConstructObject<TARGET, ObjectPolicy>)
+    {
+    }
+
+    template<class ObjectPolicy, class FactoryPolicy>
+    TestPolicy(ObjectPolicy, FactoryPolicy)
+    : testLoad(&doLoadObjectFactory     <TARGET, ObjectPolicy, FactoryPolicy>)
+    , testCtor(&doConstructObjectFactory<TARGET, ObjectPolicy, FactoryPolicy>)
+    {
+    }
+
+    template<class ObjectPolicy, class FactoryPolicy, class DeleterPolicy>
+    TestPolicy(ObjectPolicy, FactoryPolicy, DeleterPolicy)
+    : testLoad(&doLoadObjectFactoryDeleter     <TARGET, ObjectPolicy, FactoryPolicy, DeleterPolicy>)
+    , testCtor(&doConstructObjectFactoryDeleter<TARGET, ObjectPolicy, FactoryPolicy, DeleterPolicy>)
+    {
+    }
+
+    template<class ObjectPolicy, class DeleterPolicy>
+    TestPolicy(ObjectPolicy, NullPolicy, DeleterPolicy)
+    : testLoad(&doLoadObjectFnullDeleter     <TARGET, ObjectPolicy, DeleterPolicy>)
+    , testCtor(&doConstructObjectFnullDeleter<TARGET, ObjectPolicy, DeleterPolicy>)
+    {
+    }
+
+    template<class ObjectPolicy, class FactoryPolicy>
+    TestPolicy(ObjectPolicy, FactoryPolicy, NullPolicy)
+    : testLoad(&doLoadObjectFactoryDzero     <TARGET, ObjectPolicy, FactoryPolicy>)
+    , testCtor(&doConstructObjectFactoryDzero<TARGET, ObjectPolicy, FactoryPolicy>)
+    {
+    }
+};
+
 
 typedef void (*TestCtorFn)(int, int, int, TestCtorArgs *);
+
+template<class TEST_TARGET, std::size_t TEST_ARRAY_SIZE>
+void testConstructors(int callLine,
+                  const TestPolicy<TEST_TARGET>(&TEST_ARRAY)[TEST_ARRAY_SIZE])
+{
+    // This function iterates all viable variations of test functions composed
+    // of the policies above, to verify that all 'bcema_ManagedPtr::load'
+    // behave according to contract.  First, we call 'load' on an empty managed
+    // pointer using a test function from the passed array, confirming that
+    // the managed pointer takes up the correct state.  Then we allow that
+    // pointer to go out of scope, and confirm that any managed object is
+    // destroyed using the correct deleter.  Next we repeat the test, setting
+    // up the same, now well-known, state of the managed pointer, and replace
+    // it with a second call to load (by a second iterator over the array of
+    // test functions).  We confirm that the original state and managed object
+    // (if any) are destroyed correctly, and that the expected new state has
+    // been established correctly.  Finally, we allow this pointer to leave
+    // scope and confirm that all managed objects are destroyed correctly and
+    // all allocated memory has been reclaimed.  At each stage, we perform
+    // negative testing where appropriate, and check that no memory is being
+    // allocated other than by the object allocator, or the default allocator
+    // only for those test functions that return a state indicating that they
+    // used the default allocator.
+    typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
+
+    bslma_TestAllocator* ga = dynamic_cast<bslma_TestAllocator *>
+                                            (bslma_Default::globalAllocator());
+
+    bslma_TestAllocator* da = dynamic_cast<bslma_TestAllocator *>
+                                           (bslma_Default::defaultAllocator());
+
+    for(unsigned configI = 0; configI != 4; ++configI) {
+        TestCtorArgs args = { configI, false };
+
+        for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+            bslma_TestAllocatorMonitor gam(ga);
+            bslma_TestAllocatorMonitor dam(da);
+
+            args.d_useDefault = false;
+
+            TEST_ARRAY[i].testCtor(callLine, L_, i, &args);
+
+            LOOP2_ASSERT(L_, i, gam.isInUseSame());
+            LOOP2_ASSERT(L_, i, gam.isMaxSame());
+
+            LOOP2_ASSERT(L_, i, dam.isInUseSame());
+            if(!args.d_useDefault) {
+                LOOP2_ASSERT(L_, i, dam.isMaxSame());
+            }
+        }
+    }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+template<class TEST_TARGET, std::size_t TEST_ARRAY_SIZE>
+void testLoadOps(int callLine,
+                 const TestPolicy<TEST_TARGET> (&TEST_ARRAY)[TEST_ARRAY_SIZE])
+{
+    // This function iterates all viable variations of test functions composed
+    // of the policies above, to verify that all 'bcema_ManagedPtr::load'
+    // behave according to contract.  First, we call 'load' on an empty managed
+    // pointer using a test function from the passed array, confirming that
+    // the managed pointer takes up the correct state.  Then we allow that
+    // pointer to go out of scope, and confirm that any managed object is
+    // destroyed using the correct deleter.  Next we repeat the test, setting
+    // up the same, now well-known, state of the managed pointer, and replace
+    // it with a second call to load (by a second iterator over the array of
+    // test functions).  We confirm that the original state and managed object
+    // (if any) are destroyed correctly, and that the expected new state has
+    // been established correctly.  Finally, we allow this pointer to leave
+    // scope and confirm that all managed objects are destroyed correctly and
+    // all allocated memory has been reclaimed.  At each stage, we perform
+    // negative testing where appropriate, and check that no memory is being
+    // allocated other than by the object allocator, or the default allocator
+    // only for those test functions that return a state indicating that they
+    // used the default allocator.
+    typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
+
+    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
+                                           (*bslma_Default::globalAllocator());
+
+    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
+                                          (*bslma_Default::defaultAllocator());
+
+    TestLoadArgs<TEST_TARGET> args = {};
+
+    for(unsigned configI = 0; configI != 4; ++configI) {
+        for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+            bslma_TestAllocatorMonitor gam(&ga);
+            bslma_TestAllocatorMonitor dam(&da);
+
+            args.d_useDefault = false;
+            args.d_config = configI;
+
+            {
+                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
+
+                args.d_p  = &p;
+                args.d_ta = &ta;
+
+                args.d_deleteCount = 0;
+                args.d_deleteDelta = 0;
+                TEST_ARRAY[i].testLoad(callLine, L_, i, &args);
+            }
+            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
+                         args.d_deleteCount == args.d_deleteDelta);
+
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            if(!args.d_useDefault) {
+                LOOP_ASSERT(i, dam.isMaxSame());
+            }
+
+            for(unsigned configJ = 0; configJ != 4; ++configJ) {
+                for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
+                    bslma_TestAllocatorMonitor dam2(&da);
+
+                    bslma_TestAllocator ta("TestLoad 2",
+                                           g_veryVeryVeryVerbose);
+
+                    TestPointer p;
+                    ASSERT(0 == p.ptr());
+
+                    args.d_p  = &p;
+                    args.d_ta = &ta;
+                    args.d_config = configI;
+
+                    args.d_deleteCount = 0;
+                    args.d_deleteDelta = 0;
+                    args.d_useDefault  = false;
+                    TEST_ARRAY[i].testLoad(callLine, L_, i, &args);
+
+                    args.d_config = configJ;
+                    args.d_deleteCount = 0;
+                    TEST_ARRAY[j].testLoad(callLine, L_, j, &args);
+
+                    // Clear 'deleteCount' before 'p' is destroyed.
+                    args.d_deleteCount = 0;
+
+                    LOOP_ASSERT(i, gam.isInUseSame());
+                    LOOP_ASSERT(i, gam.isMaxSame());
+
+                    if(!args.d_useDefault) {
+                        LOOP_ASSERT(i, dam2.isInUseSame());
+                        LOOP_ASSERT(i, dam2.isMaxSame());
+                    }
+                }
+            }
+
+            // Validate the final deleter run when 'p' is destroyed.
+            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
+                         args.d_deleteCount == args.d_deleteDelta);
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+        }
+    }
+}
+
+//=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+template <class T>
+struct AliasTestType1 {
+    typedef MySecondDerivedObject type;
+};
+
+template <class T>
+struct AliasTestType2 {
+    typedef MySecondDerivedObject type;
+};
+
+//template <>
+//struct AliasTestType2<MyTestObject> {
+//    typedef MySecondDerivedObject<MyDerivedObject> type;
+//};
+
+template <class T>
+struct AliasTestType2<const T> : AliasTestType2<T> {};
+
+template<class TEST_TARGET, std::size_t TEST_ARRAY_SIZE>
+void testLoadAliasOps1(int callLine,
+                  const TestPolicy<TEST_TARGET> (&TEST_ARRAY)[TEST_ARRAY_SIZE])
+{
+    // This function validates the simple scenario of calling 'loadAlias' to
+    // create a simple aliased managed pointer, and confirming that pointer
+    // destroyed its managed object with the correct deleter and reclaims all
+    // memory when destroyed by leaving scope.
+    typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
+
+    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
+                                           (*bslma_Default::globalAllocator());
+
+    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
+                                          (*bslma_Default::defaultAllocator());
+
+    int aliasDeleterCount = 0;
+    typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
+
+    for(unsigned configI = 0; configI != 4; ++configI) {
+        for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+            bslma_TestAllocatorMonitor gam(&ga);
+            bslma_TestAllocatorMonitor dam(&da);
+
+            TestLoadArgs<TEST_TARGET> args = {};
+            args.d_useDefault = false;
+            args.d_config = configI;
+
+            {
+                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
+
+                args.d_p  = &p;
+                args.d_ta = &ta;
+
+                args.d_deleteCount = 0;
+                args.d_deleteDelta = 0;
+                TEST_ARRAY[i].testLoad(callLine, L_, i, &args);
+
+                // Check that no more memory is allocated or freed.
+                // All operations from here are effectively 'mode' operations.
+                bslma_TestAllocatorMonitor gam2(&ga);
+                bslma_TestAllocatorMonitor dam2(&da);
+                bslma_TestAllocatorMonitor tam2(&ta);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                if (g_veryVerbose) cout << "\tNegative testing null pointers\n";
+
+                TestPointer pAlias;
+                if (0 == p.ptr()) {
+                    bsls_AssertTestHandlerGuard guard;
+
+                    ASSERT_SAFE_FAIL( pAlias.loadAlias(p, &aliasTarget) );
+                    ASSERT_SAFE_PASS( pAlias.loadAlias(p, 0) );
+
+                    LOOP_ASSERT(p.ptr(),      0 == p.ptr());
+                    LOOP_ASSERT(pAlias.ptr(), 0 == pAlias.ptr());
+                }
+                else {
+                    bsls_AssertTestHandlerGuard guard;
+
+                    ASSERT_SAFE_FAIL( pAlias.loadAlias(p, 0) );
+                    ASSERT_SAFE_PASS( pAlias.loadAlias(p, &aliasTarget) );
+
+                    LOOP_ASSERT(p.ptr(),      0 == p.ptr());
+                    LOOP_ASSERT(pAlias.ptr(), &aliasTarget == pAlias.ptr());
+                }
+#else
+                TestPointer pAlias;
+                TEST_TARGET pTarget = 0 == p.ptr()
+                                    ? 0
+                                    : &aliasTarget;
+
+                pAlias.loadAlias(p, pTarget);
+
+                LOOP_ASSERT(p.ptr(),  0 == p.ptr());
+                LOOP2_ASSERT(pTarget, pAlias.ptr(), pTarget == pAlias.ptr());
+#endif
+
+                // Assert that no memory was allocated or freed
+                LOOP_ASSERT(i, tam2.isInUseSame());
+                LOOP_ASSERT(i, tam2.isMaxSame());
+                LOOP_ASSERT(i, dam2.isInUseSame());
+                LOOP_ASSERT(i, dam2.isMaxSame());
+                LOOP_ASSERT(i, gam2.isInUseSame());
+                LOOP_ASSERT(i, gam2.isMaxSame());
+            }
+
+            // Validate the final deleter run when 'p' is destroyed.
+            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
+                         args.d_deleteCount == args.d_deleteDelta);
+
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            if(!args.d_useDefault) {
+                LOOP_ASSERT(i, dam.isMaxSame());
+            }
+        }
+    }
+}
+
+template<class TEST_TARGET, std::size_t TEST_ARRAY_SIZE>
+void testLoadAliasOps2(int callLine,
+                  const TestPolicy<TEST_TARGET> (&TEST_ARRAY)[TEST_ARRAY_SIZE])
+{
+    // This scenario tests the correct state change for following a 'loadAlias'
+    // call with another 'loadAlias' call.  It will also test derived* -> base*
+    // conversions for the aliased pointer, and non-const* -> const*.
+    // The test process is to take an empty 'bdema_ManagedPtr' object and
+    // 'load' a known state into it using a well-known test function.  Then we
+    // "alias" this pointer by calling 'loadAlias' on another (empty) managed
+    // pointer object, and check that the new aliased state has been created
+    // correctly, without allocating any memory, and that the original managed
+    // pointer object is now empty.  Next we establish another well-known
+    // managed pointer value, and call 'loadAlias' again on the pointer in the
+    // existing aliased state.  We again confirm that the aliased state is
+    // transferred without allocating any memory, but also that the object
+    // managed by the original 'bcema_ManagedPtr' object has now been destroyed
+    // as expected.  Finally we let this final managed pointer object leave
+    // scope and confirm that all managed objects have been destroyed, as
+    // expected, and that all memory has been reclaimed.  At each step, we
+    // further implement negative testing if a null pointer may be passed, and
+    // that passing a null pointer would yield (negatively testable) undefined
+    // behavior.
+    typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
+
+    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
+                                           (*bslma_Default::globalAllocator());
+
+    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
+                                          (*bslma_Default::defaultAllocator());
+
+    TestLoadArgs<TEST_TARGET> args = {};
+
+    int aliasDeleterCount1 = 0;
+    int aliasDeleterCount2 = 0;
+    typename AliasTestType1<TEST_TARGET>::type alias1(&aliasDeleterCount1);
+    typename AliasTestType2<TEST_TARGET>::type alias2(&aliasDeleterCount2);
+
+    for(unsigned configI = 0; configI != 4; ++configI) {
+        for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+            bslma_TestAllocatorMonitor gam(&ga);
+            bslma_TestAllocatorMonitor dam(&da);
+
+            args.d_useDefault = false;
+            args.d_config = configI;
+
+            {
+                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
+
+                args.d_p  = &p;
+                args.d_ta = &ta;
+
+                args.d_deleteCount = 0;
+                args.d_deleteDelta = 0;
+                TEST_ARRAY[i].testLoad(callLine, L_, i, &args);
+
+                // Check that no more memory is allocated or freed.
+                // All operations from here are effectively 'mode' operations.
+                bslma_TestAllocatorMonitor gam2(&ga);
+                bslma_TestAllocatorMonitor dam2(&da);
+                bslma_TestAllocatorMonitor tam2(&ta);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                if (g_veryVerbose) cout << "\tNegative testing null pointers\n";
+
+                // Declare variables so that the lifetime extends to the end
+                // of the loop.  Otherwise, the 'ta' monitor tests will flag
+                // the 'pAlias2' destructor for freeing the original object.
+                TestPointer pAlias1;
+                TestPointer pAlias2;
+
+                if (0 == p.ptr()) {
+                    bsls_AssertTestHandlerGuard guard;
+
+                    ASSERT_SAFE_FAIL( pAlias1.loadAlias(p, &alias1) );
+                    ASSERT_SAFE_PASS( pAlias1.loadAlias(p, 0) );
+
+                    LOOP_ASSERT(p.ptr(),       0 == p.ptr());
+                    LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
+                }
+                else {
+                    bsls_AssertTestHandlerGuard guard;
+
+                    ASSERT_SAFE_FAIL( pAlias1.loadAlias(p, 0) );
+                    ASSERT_SAFE_PASS( pAlias1.loadAlias(p, &alias1) );
+
+                    LOOP_ASSERT(p.ptr(), 0 == p.ptr());
+                    LOOP2_ASSERT(&alias1,   pAlias1.ptr(),
+                                 &alias1 == pAlias1.ptr());
+
+                    ASSERT_SAFE_FAIL( pAlias2.loadAlias(pAlias1, 0) );
+                    ASSERT_SAFE_PASS( pAlias2.loadAlias(pAlias1, &alias2) );
+
+                    LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
+                    LOOP2_ASSERT(&alias2,   pAlias2.ptr(),
+                                 &alias2 == pAlias2.ptr());
+                }
+#else
+                TestPointer pAlias1;
+                TEST_TARGET pTarget = 0 == p.ptr()
+                                    ? 0
+                                    : &alias1;
+
+                pAlias.loadAlias(p, pTarget);
+
+                LOOP_ASSERT(p.ptr(),  0 == p.ptr());
+                LOOP2_ASSERT(pTarget, pAlias1.ptr(), pTarget == pAlias1.ptr());
+#endif
+
+                // Assert that no memory was allocated or freed
+                LOOP_ASSERT(i, tam2.isInUseSame());
+                LOOP_ASSERT(i, tam2.isMaxSame());
+                LOOP_ASSERT(i, dam2.isInUseSame());
+                LOOP_ASSERT(i, dam2.isMaxSame());
+                LOOP_ASSERT(i, gam2.isInUseSame());
+                LOOP_ASSERT(i, gam2.isMaxSame());
+            }
+
+            // Validate the final deleter run when 'p' is destroyed.
+            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
+                         args.d_deleteCount == args.d_deleteDelta);
+
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            if(!args.d_useDefault) {
+                LOOP_ASSERT(i, dam.isMaxSame());
+            }
+        }
+    }
+}
+
+
+template<class TEST_TARGET, std::size_t TEST_ARRAY_SIZE>
+void testLoadAliasOps3(int callLine,
+                   const TestPolicy<TEST_TARGET>(&TEST_ARRAY)[TEST_ARRAY_SIZE])
+{
+    // This function tests the correct interaction of 'load' and 'loadAlias'.
+    // Initially, an empty 'bdema_ManagedPtr' object is loaded into a well
+    // defined non-empty state using a well-known test loader.  This state is
+    // then transferred to a second empty pointer through a 'loadAlias' call,
+    // and we validate that no memory is allocated for this operation, and the
+    // state is correctly transferred.  Next we replace this aliased state with
+    // another well-known state using 'load' again.  We test that the initial
+    // state is correctly destroyed, and the new state is in place without any
+    // aliasing.  Then we allow this final state to be destroyed, and confirm
+    // that all managed objects have been correctly disposed of.
+    typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
+
+    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
+                                           (*bslma_Default::globalAllocator());
+
+    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
+                                          (*bslma_Default::defaultAllocator());
+
+    int aliasDeleterCount = 0;
+    typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
+
+    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
+            bslma_TestAllocatorMonitor gam(&ga);
+            bslma_TestAllocatorMonitor dam(&da);
+
+            TestLoadArgs<TEST_TARGET> args = {};
+            args.d_useDefault = false;
+            args.d_config = 0;  // We need only test a fully defined pointer,
+                                // there are no concerns about null arguments.
+            {
+                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+                TestPointer p;
+                ASSERT(0 == p.ptr());
+
+                args.d_p  = &p;
+                args.d_ta = &ta;
+
+                args.d_deleteCount = 0;
+                args.d_deleteDelta = 0;
+                TEST_ARRAY[i].testLoad(callLine, L_, i, &args);
+                if (0 == p.ptr()) {
+                    // We have no interest in tests that create a null pointer,
+                    // this scenario is negative tested in testLoadAliasOps1.
+                    continue;
+                }
+
+                // Check that no more memory is allocated or freed.
+                // All operations from here are effectively 'move' operations.
+                bslma_TestAllocatorMonitor gam2(&ga);
+                bslma_TestAllocatorMonitor dam2(&da);
+                bslma_TestAllocatorMonitor tam2(&ta);
+
+                TestPointer pAlias;
+                pAlias.loadAlias(p, &aliasTarget);
+
+                LOOP_ASSERT(p.ptr(),      0 == p.ptr());
+                LOOP_ASSERT(pAlias.ptr(), &aliasTarget == pAlias.ptr());
+
+                // Assert that no memory was allocated or freed
+                LOOP_ASSERT(i, tam2.isInUseSame());
+                LOOP_ASSERT(i, tam2.isMaxSame());
+                LOOP_ASSERT(i, dam2.isInUseSame());
+                LOOP_ASSERT(i, dam2.isMaxSame());
+                LOOP_ASSERT(i, gam2.isInUseSame());
+                LOOP_ASSERT(i, gam2.isMaxSame());
+
+                // Next we load a fresh state into the pointer to verify the
+                // final concern for 'load'; that it correctly destroys an
+                // aliased state while acquire the new value.
+                args.d_p  = &pAlias;
+
+                // The test function itself asserts correct destructor count
+                // for this transition, and that the 'pAlias' has the correct
+                // final state.
+                TEST_ARRAY[j].testLoad(callLine, L_, j, &args);
+
+                LOOP_ASSERT(i, gam.isInUseSame());
+                LOOP_ASSERT(i, gam.isMaxSame());
+
+                if(!args.d_useDefault) {
+                    LOOP_ASSERT(i, dam.isInUseSame());
+                    LOOP_ASSERT(i, dam.isMaxSame());
+                }
+
+                // Nothing further to assert, but reset 'deleteCount' to
+                // verify destroying final objects outside the loop.
+                args.d_deleteCount = 0;
+            }
+
+            // Validate the final deleter run when 'p' is destroyed.
+            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
+                         args.d_deleteCount == args.d_deleteDelta);
+
+            LOOP_ASSERT(i, gam.isInUseSame());
+            LOOP_ASSERT(i, gam.isMaxSame());
+
+            LOOP_ASSERT(i, dam.isInUseSame());
+            if(!args.d_useDefault) {
+                LOOP_ASSERT(i, dam.isMaxSame());
+            }
+        }
+    }
+}
+
+
+
+//////////////////////////////////////////////////////////////
+
+
+
 
 template<class TEST_TARGET, std::size_t TEST_ARRAY_SIZE>
 void testConstructors(int callLine,
@@ -2127,6 +2792,7 @@ void testLoadOps(int callLine,
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#if defined NOT_USING_COMBINED_TEST_TYPE
 template <class T>
 struct AliasTestType1 {
     typedef MySecondDerivedObject type;
@@ -2144,6 +2810,7 @@ struct AliasTestType2 {
 
 template <class T>
 struct AliasTestType2<const T> : AliasTestType2<T> {};
+#endif
 
 template<class TEST_TARGET,
          class TEST_FUNCTION_TYPE,
@@ -2501,158 +3168,116 @@ void testLoadAliasOps3(int callLine,
 }
 
 //=============================================================================
-
-static const TestCtorFn TEST_CTOR_BASE_ARRAY[] = {
+static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
+    // default test
+    TestPolicy<MyTestObject>(),
 
     // single object-pointer tests
+    TestPolicy<MyTestObject>( NullPolicy() ),
+    TestPolicy<MyTestObject>( NullPolicy(), NullPolicy(), NullPolicy() ),
+    TestPolicy<MyTestObject>( NullPolicy(), NullPolicy() ),
 
-    &doConstructObject<MyTestObject, Obase>,
-    &doConstructObject<MyTestObject, Oderiv>,
-    //&doConstructObject<MyTestObject, OCbase>,
-    //&doConstructObject<MyTestObject, OCderiv>,
+    TestPolicy<MyTestObject>( Obase() ),
+    TestPolicy<MyTestObject>( Oderiv() ),
+    //TestPolicy<MyTestObject>( OCbase() ),
+    //TestPolicy<MyTestObject>( OCderiv() ),
 
     // factory tests
 
-    &doConstructObjectFactory<MyTestObject, Obase,   Ftst>,
-    &doConstructObjectFactory<MyTestObject, Obase,   Fbsl>,
-    &doConstructObjectFactory<MyTestObject, Oderiv,  Ftst>,
-    &doConstructObjectFactory<MyTestObject, Oderiv,  Fbsl>,
-    //&doConstructObjectFactory<MyTestObject, OCbase,  Ftst>,
-    //&doConstructObjectFactory<MyTestObject, OCbase,  Fbsl>,
-    //&doConstructObjectFactory<MyTestObject, OCderiv, Ftst>,
-    //&doConstructObjectFactory<MyTestObject, OCderiv, Fbsl>,
-
+    TestPolicy<MyTestObject>( Obase(),   Ftst() ),
+    TestPolicy<MyTestObject>( Obase(),   Fbsl() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl() ),
+    //TestPolicy<MyTestObject>( OCbase(),  Ftst() ),
+    //TestPolicy<MyTestObject>( OCbase(),  Fbsl() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Fbsl() ),
     // deleter tests
 
     // First test the non-deprecated interface, using the policy
     // 'DVoidVoid'.
 
     // MyTestObject
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                   DVoidVoid< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                   DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
+    TestPolicy<MyTestObject>( Obase(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                   DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                   DVoidVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                   DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    TestPolicy<MyTestObject>( Obase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                   DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // const MyTestObject
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                               DVoidVoid< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Fbsl,
-    //                               DVoidVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    //TestPolicy<MyTestObject>( OCbase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                               DVoidVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< Obase,   Ftst > >,
+    TestPolicy<MyTestObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Ftst >() ),
+    TestPolicy<MyTestObject>( Oderiv(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                   DVoidVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                   DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(), Fbsl(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< OCbase,  Ftst > >,
+    TestPolicy<MyTestObject>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    TestPolicy<MyTestObject>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                   DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                   DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                               DVoidVoid< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                               DVoidVoid< OCbase,  Ftst > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                               DVoidVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                               DVoidVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                               DVoidVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                               DVoidVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                    DVoidVoid<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                    DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
+    TestPolicy<MyTestObject>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Fdflt,
-    //                                DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCbase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                    DVoidVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                    DVoidVoid<Obase,   Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(), Fdflt(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(), Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                    DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                    DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                DVoidVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
-    &doConstructObjectFnullDeleter<MyTestObject, Obase,
-                                  DVoidVoid<Obase,   Fdflt> >,
-    &doConstructObjectFnullDeleter<MyTestObject, Obase,
-                                  DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Obase(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
+    TestPolicy<MyTestObject>( Obase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, OCbase,
-    //                              DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCbase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-                                  DVoidVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-                                  DVoidVoid<Obase,   Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
 
-    &doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-                                  DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-                                  DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, OCderiv,
-    //                              DVoidVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyTestObject, OCderiv,
-    //                              DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 
     // Next we test the deprecated support for deleters other than
@@ -2662,266 +3287,176 @@ static const TestCtorFn TEST_CTOR_BASE_ARRAY[] = {
     // 'DVoidFac' policy..
 
     // MyTestObject
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DVoidFac< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                    DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
+    TestPolicy<MyTestObject>( Obase(),   Fbsl(), DVoidFac< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DVoidFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DVoidFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                    DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    TestPolicy<MyTestObject>( Obase(),   Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // const MyTestObject
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                DVoidFac< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Fbsl,
-    //                                DVoidFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCbase(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    //TestPolicy<MyTestObject>( OCbase(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                DVoidFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCbase(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< Obase,   Ftst > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Ftst >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DVoidFac< Obase,   Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DVoidFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DVoidFac< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DVoidFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< OCbase,  Ftst > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DVoidFac< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DVoidFac< OCbase,  Ftst > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Ftst >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                DVoidFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                DVoidFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DVoidFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DVoidFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                     DVoidFac<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                     DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
+    TestPolicy<MyTestObject>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Fdflt,
-    //                                 DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCbase(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DVoidFac<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DVoidFac<Obase,   Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DVoidFac<Oderiv,  Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DVoidFac<Obase,   Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DVoidFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                               DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                               DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCderiv(), Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
     // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
     //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doConstructObjectFnullDeleter<MyTestObject, Obase,
-    //                               DVoidFac<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyTestObject, Obase,
-    //                               DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( Obase(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
+    //TestPolicy<MyTestObject>( Obase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-    //                               DVoidFac<Oderiv,  Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-    //                               DVoidFac<Obase,   Fdflt> >,
+    //TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DVoidFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-    //                               DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-    //                               DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
     // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
     // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
-    //&doConstructObjectFnullDeleter<MyTestObject, OCbase,
-    //                               DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCbase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, OCderiv,
-    //                               DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyTestObject, OCderiv,
-    //                               DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
 
     // Now we test deleters that are strongly typed for the
     // 'object' parameter, but type-erase the 'factory'.
 
     // MyTestObject
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DObjVoid< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                    DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
+    TestPolicy<MyTestObject>( Obase(),   Fbsl(), DObjVoid< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DObjVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DObjVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                    DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    TestPolicy<MyTestObject>( Obase(),   Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // const MyTestObject
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                DObjVoid< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Fbsl,
-    //                                DObjVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCbase(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    //TestPolicy<MyTestObject>( OCbase(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                DObjVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCbase(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< Obase,   Ftst > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Ftst >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjVoid< Obase,   Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DObjVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DObjVoid< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< OCbase,  Ftst > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DObjVoid< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DObjVoid< OCbase,  Ftst > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Ftst >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                DObjVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                DObjVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DObjVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DObjVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                     DObjVoid<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                     DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
+    TestPolicy<MyTestObject>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Fdflt,
-    //                                 DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCbase(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DObjVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DObjVoid<Obase,   Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DObjVoid<Obase,   Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                 DObjVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                 DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCderiv(), Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
-    &doConstructObjectFnullDeleter<MyTestObject, Obase,
-                                   DObjVoid<Obase,   Fdflt> >,
-    &doConstructObjectFnullDeleter<MyTestObject, Obase,
-                                   DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Obase(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
+    TestPolicy<MyTestObject>( Obase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, OCbase,
-    //                             DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCbase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-                                   DObjVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-                                   DObjVoid<Obase,   Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
 
-    &doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-                                   DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-                                   DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, OCderiv,
-    //                               DObjVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyTestObject, OCderiv,
-    //                               DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
 
     // Finally we test the most generic combination of generic
@@ -2930,302 +3465,213 @@ static const TestCtorFn TEST_CTOR_BASE_ARRAY[] = {
     // 'factory' types.
 
     // MyTestObject
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                     DObjFac< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                     DObjFac< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
+    TestPolicy<MyTestObject>( Obase(),   Fbsl(), DObjFac< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                     DObjFac< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DObjFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                     DObjFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                     DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DObjFac< OCbase,  Ftst >() ),
+    TestPolicy<MyTestObject>( Obase(),   Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                     DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // const MyTestObject
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                 DObjFac< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Fbsl,
-    //                                 DObjFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCbase(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
+    //TestPolicy<MyTestObject>( OCbase(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                 DObjFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCbase(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< Obase,   Ftst > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Ftst >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjFac< Obase,   Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                     DObjFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                     DObjFac< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DObjFac< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< Obase,   Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< OCbase,  Ftst > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjFac< OCderiv, Ftst >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                     DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                     DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                 DObjFac< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                 DObjFac< OCbase,  Ftst > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Ftst >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Ftst >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                 DObjFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                 DObjFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                 DObjFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                 DObjFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                      DObjFac<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                      DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
+    TestPolicy<MyTestObject>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCbase,  Fdflt,
-    //                                  DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCbase(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                      DObjFac<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                      DObjFac<Obase,   Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DObjFac<Oderiv,  Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DObjFac<Obase,   Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                      DObjFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                      DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                  DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                  DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCderiv(), Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
     // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
     //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doConstructObjectFnullDeleter<MyTestObject, Obase,
-    //                                DObjFac<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyTestObject, Obase,
-    //                                DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( Obase(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
+    //TestPolicy<MyTestObject>( Obase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, OCbase,
-    //                                DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCbase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-    //                                DObjFac<Oderiv,  Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-    //                                DObjFac<Obase,   Fdflt> >,
+    //TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DObjFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-    //                                DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyTestObject, Oderiv,
-    //                                DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyTestObject>( Oderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyTestObject, OCderiv,
-    //                                DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyTestObject, OCderiv,
-    //                                DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
 
     // negative tests for deleters look for a null pointer lvalue.
     // Note that null pointer literal would be a compile-fail test
-    &doConstructObjectFactoryDzero<MyTestObject, Obase,   Ftst>,
-    &doConstructObjectFactoryDzero<MyTestObject, Obase,   Fbsl>,
-    &doConstructObjectFactoryDzero<MyTestObject, Oderiv,  Ftst>,
-    &doConstructObjectFactoryDzero<MyTestObject, Oderiv,  Fbsl>,
-    //&doConstructObjectFactoryDzero<MyTestObject, OCbase,  Ftst>,
-    //&doConstructObjectFactoryDzero<MyTestObject, OCbase,  Fbsl>,
-    //&doConstructObjectFactoryDzero<MyTestObject, OCderiv, Ftst>,
-    //&doConstructObjectFactoryDzero<MyTestObject, OCderiv, Fbsl>
+    TestPolicy<MyTestObject>( Obase(),   Ftst(), NullPolicy() ),
+    TestPolicy<MyTestObject>( Obase(),   Fbsl(), NullPolicy() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Ftst(), NullPolicy() ),
+    TestPolicy<MyTestObject>( Oderiv(),  Fbsl(), NullPolicy() ),
+    //TestPolicy<MyTestObject>( OCbase(),  Ftst(), NullPolicy() ),
+    //TestPolicy<MyTestObject>( OCbase(),  Fbsl(), NullPolicy() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Ftst(), NullPolicy() ),
+    //TestPolicy<MyTestObject>( OCderiv(), Fbsl(), NullPolicy() )
 };
-static const int TEST_CTOR_BASE_ARRAY_SIZE =
-                            sizeof(TEST_CTOR_BASE_ARRAY)/sizeof(TEST_CTOR_BASE_ARRAY[0]);
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-static const TestCtorFn TEST_CTOR_CONST_BASE_ARRAY[] = {
+static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
+    // default test
+    TestPolicy<const MyTestObject>(),
 
     // single object-pointer tests
+    TestPolicy<const MyTestObject>( NullPolicy() ),
 
-    &doConstructObject<const MyTestObject, Obase>,
-    &doConstructObject<const MyTestObject, Oderiv>,
-    &doConstructObject<const MyTestObject, OCbase>,
-    &doConstructObject<const MyTestObject, OCderiv>,
+    TestPolicy<const MyTestObject>( Obase() ),
+    TestPolicy<const MyTestObject>( Oderiv() ),
+    TestPolicy<const MyTestObject>( OCbase() ),
+    TestPolicy<const MyTestObject>( OCderiv() ),
 
     // factory tests
+    TestPolicy<const MyTestObject>( NullPolicy(), NullPolicy() ),
 
-    &doConstructObjectFactory<const MyTestObject, Obase,   Ftst>,
-    &doConstructObjectFactory<const MyTestObject, Obase,   Fbsl>,
-    &doConstructObjectFactory<const MyTestObject, Oderiv,  Ftst>,
-    &doConstructObjectFactory<const MyTestObject, Oderiv,  Fbsl>,
-    &doConstructObjectFactory<const MyTestObject, OCbase,  Ftst>,
-    &doConstructObjectFactory<const MyTestObject, OCbase,  Fbsl>,
-    &doConstructObjectFactory<const MyTestObject, OCderiv, Ftst>,
-    &doConstructObjectFactory<const MyTestObject, OCderiv, Fbsl>,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fbsl() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl() ),
+    TestPolicy<const MyTestObject>( OCbase(),  Ftst() ),
+    TestPolicy<const MyTestObject>( OCbase(),  Fbsl() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Fbsl() ),
 
     // deleter tests
+    TestPolicy<const MyTestObject>( NullPolicy(), NullPolicy(), NullPolicy() ),
 
     // First test the non-deprecated interface, using the policy
     // 'DVoidVoid'.
 
     // MyTestObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                         DVoidVoid< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                         DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
+    TestPolicy<const MyTestObject>( Obase(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                         DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                         DVoidVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    TestPolicy<const MyTestObject>( Obase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // const MyTestObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                         DVoidVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Fbsl,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    TestPolicy<const MyTestObject>( OCbase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< Obase,   Ftst > >,
+    TestPolicy<const MyTestObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Ftst >() ),
+    TestPolicy<const MyTestObject>( Oderiv(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                         DVoidVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                         DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(), Fbsl(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< OCbase,  Ftst > >,
+    TestPolicy<const MyTestObject>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    TestPolicy<const MyTestObject>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                         DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                         DVoidVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                         DVoidVoid< OCbase,  Ftst > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                         DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                         DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                          DVoidVoid<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                          DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
+    TestPolicy<const MyTestObject>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Fdflt,
-                                          DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCbase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                          DVoidVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                          DVoidVoid<Obase,   Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(), Fdflt(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(), Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                          DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                          DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                          DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                          DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
-    &doConstructObjectFnullDeleter<const MyTestObject, Obase,
-                                        DVoidVoid<Obase,   Fdflt> >,
-    &doConstructObjectFnullDeleter<const MyTestObject, Obase,
-                                        DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Obase(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
+    TestPolicy<const MyTestObject>( Obase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFnullDeleter<const MyTestObject, OCbase,
-                                        DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCbase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-                                        DVoidVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-                                        DVoidVoid<Obase,   Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
 
-    &doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-                                        DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-                                        DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFnullDeleter<const MyTestObject, OCderiv,
-                                        DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<const MyTestObject, OCderiv,
-                                        DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 
     // Next we test the deprecated support for deleters other than
@@ -3235,837 +3681,176 @@ static const TestCtorFn TEST_CTOR_CONST_BASE_ARRAY[] = {
     // 'DVoidFac' policy..
 
     // MyTestObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DVoidFac< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                          DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fbsl(), DVoidFac< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DVoidFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DVoidFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // const MyTestObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                          DVoidFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Fbsl,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCbase(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    TestPolicy<const MyTestObject>( OCbase(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCbase(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< Obase,   Ftst > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Ftst >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DVoidFac< Obase,   Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DVoidFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DVoidFac< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DVoidFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< OCbase,  Ftst > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DVoidFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DVoidFac< OCbase,  Ftst > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                          DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                           DVoidFac<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                           DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Fdflt,
-                                           DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCbase(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DVoidFac<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DVoidFac<Obase,   Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DVoidFac<Oderiv,  Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DVoidFac<Obase,   Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DVoidFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                           DVoidFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                           DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCderiv(), Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
     // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
     //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doConstructObjectFnullDeleter<const MyTestObject, Obase,
-    //                                     DVoidFac<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<const MyTestObject, Obase,
-    //                                     DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<const MyTestObject>( Obase(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
+    //TestPolicy<const MyTestObject>( Obase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                     DVoidFac<Oderiv,  Fdflt> >,
-    //&doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                     DVoidFac<Obase,   Fdflt> >,
+    //TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DVoidFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                     DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                     DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const MyTestObject, OCbase,
-    //                                     DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const MyTestObject, OCderiv,
-    //                                     DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<const MyTestObject, OCderiv,
-    //                                     DVoidFac<OCbase,  Fdflt> >,
-
-
-    // Now we test deleters that are strongly typed for the
-    // 'object' parameter, but type-erase the 'factory'.
-
-    // MyTestObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DObjVoid< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                          DObjVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DObjVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                          DObjVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Fbsl,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DObjVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DObjVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DObjVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DObjVoid< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                          DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                           DObjVoid<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                           DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Fdflt,
-                                           DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DObjVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DObjVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                           DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                           DObjVoid<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    &doConstructObjectFnullDeleter<const MyTestObject, Obase,
-                                         DObjVoid<Obase,   Fdflt> >,
-    &doConstructObjectFnullDeleter<const MyTestObject, Obase,
-                                         DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const MyTestObject, OCbase,
-                                         DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-                                         DObjVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-                                         DObjVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-                                         DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-                                         DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const MyTestObject, OCderiv,
-                                         DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<const MyTestObject, OCderiv,
-                                         DObjVoid<OCbase,  Fdflt> >,
-
-
-    // Finally we test the most generic combination of generic
-    // object type, a factory, and a deleter taking two arguments
-    // compatible with pointers to the invoking 'object' and
-    // 'factory' types.
-
-    // MyTestObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                           DObjFac< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                           DObjFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                           DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                           DObjFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                           DObjFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Fbsl,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                           DObjFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                           DObjFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                           DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                           DObjFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                           DObjFac< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                           DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                           DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                            DObjFac<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                            DObjFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCbase,  Fdflt,
-                                            DObjFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                            DObjFac<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                            DObjFac<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                            DObjFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                            DObjFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                            DObjFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                            DObjFac<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doConstructObjectFnullDeleter<const MyTestObject, Obase,
-    //                                      DObjFac<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<const MyTestObject, Obase,
-    //                                      DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const MyTestObject, OCbase,
-    //                                      DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                      DObjFac<Oderiv,  Fdflt> >,
-    //&doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                      DObjFac<Obase,   Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                      DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                      DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const MyTestObject, OCderiv,
-    //                                      DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<const MyTestObject, OCderiv,
-    //                                      DObjFac<OCbase,  Fdflt> >,
-
-
-    // negative tests for deleters look for a null pointer lvalue.
-    // Note that null pointer literal would be a compile-fail test
-    &doConstructObjectFactoryDzero<const MyTestObject, Obase,   Ftst>,
-    &doConstructObjectFactoryDzero<const MyTestObject, Obase,   Fbsl>,
-    &doConstructObjectFactoryDzero<const MyTestObject, Oderiv,  Ftst>,
-    &doConstructObjectFactoryDzero<const MyTestObject, Oderiv,  Fbsl>,
-    &doConstructObjectFactoryDzero<const MyTestObject, OCbase,  Ftst>,
-    &doConstructObjectFactoryDzero<const MyTestObject, OCbase,  Fbsl>,
-    &doConstructObjectFactoryDzero<const MyTestObject, OCderiv, Ftst>,
-    &doConstructObjectFactoryDzero<const MyTestObject, OCderiv, Fbsl>
-};
-static const int TEST_CTOR_CONST_BASE_ARRAY_SIZE =
-                sizeof(TEST_CTOR_CONST_BASE_ARRAY)/sizeof(TEST_CTOR_CONST_BASE_ARRAY[0]);
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-static const TestCtorFn TEST_CTOR_DERIVED_ARRAY[] = {
-
-    // single object-pointer tests
-
-    //&doConstructObject<MyDerivedObject, Obase>,
-    &doConstructObject<MyDerivedObject, Oderiv>,
-    //&doConstructObject<MyDerivedObject, OCbase>,
-    //&doConstructObject<MyDerivedObject, OCderiv>,
-
-    // factory tests
-
-    //&doConstructObjectFactory<MyDerivedObject, Obase,   Ftst>,
-    //&doConstructObjectFactory<MyDerivedObject, Obase,   Fbsl>,
-    &doConstructObjectFactory<MyDerivedObject, Oderiv,  Ftst>,
-    &doConstructObjectFactory<MyDerivedObject, Oderiv,  Fbsl>,
-    //&doConstructObjectFactory<MyDerivedObject, OCbase,  Ftst>,
-    //&doConstructObjectFactory<MyDerivedObject, OCbase,  Fbsl>,
-    //&doConstructObjectFactory<MyDerivedObject, OCderiv, Ftst>,
-    //&doConstructObjectFactory<MyDerivedObject, OCderiv, Fbsl>,
-
-    // deleter tests
-
-    // First test the non-deprecated interface, using the policy
-    // 'DVoidVoid'.
-
-    // MyTestObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                  DVoidVoid< Obase,   Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                  DVoidVoid< Obase,   Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                  DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                  DVoidVoid< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                  DVoidVoid< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Fbsl,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                      DVoidVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                      DVoidVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                      DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                      DVoidVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                  DVoidVoid< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                  DVoidVoid< OCbase,  Ftst > >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                  DVoidVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                  DVoidVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                   DVoidVoid<Obase,   Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                   DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Fdflt,
-    //                                   DVoidVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                       DVoidVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                       DVoidVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                       DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                       DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                   DVoidVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                   DVoidVoid<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                 DVoidVoid<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                 DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCbase,
-    //                                 DVoidVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                     DVoidVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                     DVoidVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                     DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                     DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                 DVoidVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                 DVoidVoid<OCbase,  Fdflt> >,
-
-
-    // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that
-    // type-erase the 'object' type, but have a strongly typed
-    // 'factory' argument.  Such deleters are generated by the
-    // 'DVoidFac' policy..
-
-    // MyTestObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DVoidFac< Obase,   Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                   DVoidFac< Obase,   Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DVoidFac< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                   DVoidFac< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Fbsl,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DVoidFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DVoidFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DVoidFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DVoidFac< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DVoidFac< OCbase,  Ftst > >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                   DVoidFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DVoidFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                    DVoidFac<Obase,   Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                    DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Fdflt,
-    //                                    DVoidFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DVoidFac<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DVoidFac<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DVoidFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                    DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                    DVoidFac<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                  DVoidFac<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                  DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                  DVoidFac<Oderiv,  Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                  DVoidFac<Obase,   Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                  DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                  DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
     // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
     // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCbase,
-    //                                  DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<const MyTestObject>( OCbase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                  DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                  DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
 
     // Now we test deleters that are strongly typed for the
     // 'object' parameter, but type-erase the 'factory'.
 
     // MyTestObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DObjVoid< Obase,   Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                   DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fbsl(), DObjVoid< Obase,   Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DObjVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DObjVoid< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // const MyTestObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                   DObjVoid< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Fbsl,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCbase(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    TestPolicy<const MyTestObject>( OCbase(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCbase(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< Obase,   Ftst > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Ftst >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjVoid< Obase,   Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DObjVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DObjVoid< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< OCbase,  Ftst > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DObjVoid< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DObjVoid< OCbase,  Ftst > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Ftst >() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                   DObjVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DObjVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                    DObjVoid<Obase,   Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                    DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Fdflt,
-    //                                    DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCbase(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DObjVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DObjVoid<Obase,   Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DObjVoid<Obase,   Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                    DObjVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                    DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCderiv(), Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                  DObjVoid<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                  DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Obase(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
+    TestPolicy<const MyTestObject>( Obase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCbase,
-    //                                  DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCbase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                      DObjVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                      DObjVoid<Obase,   Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
 
-    &doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                      DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                      DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                  DObjVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                  DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
 
     // Finally we test the most generic combination of generic
@@ -4074,1452 +3859,216 @@ static const TestCtorFn TEST_CTOR_DERIVED_ARRAY[] = {
     // 'factory' types.
 
     // MyTestObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                    DObjFac< Obase,   Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                    DObjFac< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fbsl(), DObjFac< Obase,   Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                    DObjFac< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DObjFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                    DObjFac< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DObjFac< OCbase,  Ftst >() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // const MyTestObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                    DObjFac< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Fbsl,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCbase(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
+    TestPolicy<const MyTestObject>( OCbase(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCbase(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< Obase,   Ftst > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Ftst >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjFac< Obase,   Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                        DObjFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                        DObjFac< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DObjFac< Obase,   Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< Obase,   Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< OCbase,  Ftst > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjFac< OCderiv, Ftst >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                        DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                        DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                    DObjFac< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                    DObjFac< OCbase,  Ftst > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Ftst >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Ftst >() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                    DObjFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                    DObjFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                     DObjFac<Obase,   Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                     DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCbase,  Fdflt,
-    //                                     DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCbase(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                         DObjFac<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                         DObjFac<Obase,   Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DObjFac<Oderiv,  Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DObjFac<Obase,   Fdflt>() ),
 
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                         DObjFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                         DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                     DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                     DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<const MyTestObject>( OCderiv(), Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
     // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
     //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                   DObjFac<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                   DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<const MyTestObject>( Obase(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
+    //TestPolicy<const MyTestObject>( Obase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCbase,
-    //                                   DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<const MyTestObject>( OCbase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                   DObjFac<Oderiv,  Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                   DObjFac<Obase,   Fdflt> >,
+    //TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DObjFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                   DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                   DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<const MyTestObject>( Oderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                   DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                   DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<const MyTestObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
 
     // negative tests for deleters look for a null pointer lvalue.
     // Note that null pointer literal would be a compile-fail test
-    //&doConstructObjectFactoryDzero<MyDerivedObject, Obase,   Ftst>,
-    //&doConstructObjectFactoryDzero<MyDerivedObject, Obase,   Fbsl>,
-    &doConstructObjectFactoryDzero<MyDerivedObject, Oderiv,  Ftst>,
-    &doConstructObjectFactoryDzero<MyDerivedObject, Oderiv,  Fbsl>,
-    //&doConstructObjectFactoryDzero<MyDerivedObject, OCbase,  Ftst>,
-    //&doConstructObjectFactoryDzero<MyDerivedObject, OCbase,  Fbsl>,
-    //&doConstructObjectFactoryDzero<MyDerivedObject, OCderiv, Ftst>,
-    //&doConstructObjectFactoryDzero<MyDerivedObject, OCderiv, Fbsl>
+    TestPolicy<const MyTestObject>( Obase(),   Ftst(), NullPolicy() ),
+    TestPolicy<const MyTestObject>( Obase(),   Fbsl(), NullPolicy() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Ftst(), NullPolicy() ),
+    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl(), NullPolicy() ),
+    TestPolicy<const MyTestObject>( OCbase(),  Ftst(), NullPolicy() ),
+    TestPolicy<const MyTestObject>( OCbase(),  Fbsl(), NullPolicy() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Ftst(), NullPolicy() ),
+    TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), NullPolicy() )
 };
-static const int TEST_CTOR_DERIVED_ARRAY_SIZE =
-                      sizeof(TEST_CTOR_DERIVED_ARRAY)/sizeof(TEST_CTOR_DERIVED_ARRAY[0]);
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-static const TestCtorFn TEST_CTOR_VOID_ARRAY[] = {
-    // single object-pointer tests
-
-    &doConstructObject<void, Obase>,
-    &doConstructObject<void, Oderiv>,
-    //&doConstructObject<void, OCbase>,
-    //&doConstructObject<void, OCderiv>,
-
-    // factory tests
-
-    &doConstructObjectFactory<void, Obase,   Ftst>,
-    &doConstructObjectFactory<void, Obase,   Fbsl>,
-    &doConstructObjectFactory<void, Oderiv,  Ftst>,
-    &doConstructObjectFactory<void, Oderiv,  Fbsl>,
-    //&doConstructObjectFactory<void, OCbase,  Ftst>,
-    //&doConstructObjectFactory<void, OCbase,  Fbsl>,
-    //&doConstructObjectFactory<void, OCderiv, Ftst>,
-    //&doConstructObjectFactory<void, OCderiv, Fbsl>,
-
-    // deleter tests
-
-    // First test the non-deprecated interface, using the policy
-    // 'DVoidVoid'.
-
-    // MyTestObject
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                           DVoidVoid< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fbsl,
-                           DVoidVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                           DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                           DVoidVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fbsl,
-                           DVoidVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                           DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                       DVoidVoid< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Fbsl,
-    //                       DVoidVoid< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                       DVoidVoid< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                           DVoidVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                           DVoidVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                           DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                           DVoidVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                       DVoidVoid< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                       DVoidVoid< OCbase,  Ftst > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                       DVoidVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                       DVoidVoid< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                       DVoidVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                       DVoidVoid< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<void, Obase,   Fdflt,
-                            DVoidVoid<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fdflt,
-                            DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Fdflt,
-    //                        DVoidVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                            DVoidVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                            DVoidVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                            DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                            DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                        DVoidVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                        DVoidVoid<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    &doConstructObjectFnullDeleter<void, Obase,
-                          DVoidVoid<Obase,   Fdflt> >,
-    &doConstructObjectFnullDeleter<void, Obase,
-                          DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, OCbase,
-    //                      DVoidVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<void, Oderiv,
-                          DVoidVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFnullDeleter<void, Oderiv,
-                          DVoidVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFnullDeleter<void, Oderiv,
-                          DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<void, Oderiv,
-                          DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, OCderiv,
-    //                      DVoidVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<void, OCderiv,
-    //                      DVoidVoid<OCbase,  Fdflt> >,
-
-
-    // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that
-    // type-erase the 'object' type, but have a strongly typed
-    // 'factory' argument.  Such deleters are generated by the
-    // 'DVoidFac' policy..
-
-    // MyTestObject
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                            DVoidFac< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fbsl,
-                            DVoidFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                            DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                            DVoidFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fbsl,
-                            DVoidFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                            DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                        DVoidFac< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Fbsl,
-    //                        DVoidFac< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                        DVoidFac< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DVoidFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DVoidFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DVoidFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DVoidFac< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DVoidFac< OCbase,  Ftst > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                        DVoidFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                        DVoidFac< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DVoidFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DVoidFac< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<void, Obase,   Fdflt,
-                             DVoidFac<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fdflt,
-                             DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Fdflt,
-    //                         DVoidFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DVoidFac<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DVoidFac<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DVoidFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                         DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                         DVoidFac<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doConstructObjectFnullDeleter<void, Obase,
-    //                       DVoidFac<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<void, Obase,
-    //                       DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, Oderiv,
-    //                       DVoidFac<Oderiv,  Fdflt> >,
-    //&doConstructObjectFnullDeleter<void, Oderiv,
-    //                       DVoidFac<Obase,   Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, Oderiv,
-    //                       DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<void, Oderiv,
-    //                       DVoidFac<OCbase,  Fdflt> >,
-
-    // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
-    // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
-    //&doConstructObjectFnullDeleter<void, OCbase,
-    //                       DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, OCderiv,
-    //                       DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<void, OCderiv,
-    //                       DVoidFac<OCbase,  Fdflt> >,
-
-
-    // Now we test deleters that are strongly typed for the
-    // 'object' parameter, but type-erase the 'factory'.
-
-    // MyTestObject
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                            DObjVoid< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fbsl,
-                            DObjVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                            DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                            DObjVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fbsl,
-                            DObjVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                            DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                        DObjVoid< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Fbsl,
-    //                        DObjVoid< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                        DObjVoid< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DObjVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DObjVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DObjVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DObjVoid< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DObjVoid< OCbase,  Ftst > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                        DObjVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                        DObjVoid< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DObjVoid< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DObjVoid< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<void, Obase,   Fdflt,
-                             DObjVoid<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fdflt,
-                             DObjVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Fdflt,
-    //                         DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DObjVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DObjVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DObjVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                         DObjVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                         DObjVoid<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    &doConstructObjectFnullDeleter<void, Obase,
-                           DObjVoid<Obase,   Fdflt> >,
-    &doConstructObjectFnullDeleter<void, Obase,
-                           DObjVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, OCbase,
-    //                       DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<void, Oderiv,
-                           DObjVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFnullDeleter<void, Oderiv,
-                           DObjVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFnullDeleter<void, Oderiv,
-                           DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<void, Oderiv,
-                           DObjVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, OCderiv,
-    //                       DObjVoid<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<void, OCderiv,
-    //                       DObjVoid<OCbase,  Fdflt> >,
-
-
-    // Finally we test the most generic combination of generic
-    // object type, a factory, and a deleter taking two arguments
-    // compatible with pointers to the invoking 'object' and
-    // 'factory' types.
-
-    // MyTestObject
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                             DObjFac< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fbsl,
-                             DObjFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                             DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                             DObjFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fbsl,
-                             DObjFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Obase,   Ftst,
-                             DObjFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                         DObjFac< OCbase,  Ftst > >,
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Fbsl,
-    //                         DObjFac< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                         DObjFac< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                             DObjFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                             DObjFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                             DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                             DObjFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                         DObjFac< OCderiv, Ftst > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                         DObjFac< OCbase,  Ftst > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                         DObjFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                         DObjFac< OCbase,  Fbsl > >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                         DObjFac< OCderiv, Fbsl > >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                         DObjFac< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<void, Obase,   Fdflt,
-                              DObjFac<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Obase,   Fdflt,
-                              DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<void, OCbase,  Fdflt,
-    //                          DObjFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                              DObjFac<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                              DObjFac<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                              DObjFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                              DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                          DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                          DObjFac<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doConstructObjectFnullDeleter<void, Obase,
-    //                        DObjFac<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<void, Obase,
-    //                        DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, OCbase,
-    //                        DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, Oderiv,
-    //                        DObjFac<Oderiv,  Fdflt> >,
-    //&doConstructObjectFnullDeleter<void, Oderiv,
-    //                        DObjFac<Obase,   Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, Oderiv,
-    //                        DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<void, Oderiv,
-    //                        DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<void, OCderiv,
-    //                        DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<void, OCderiv,
-    //                        DObjFac<OCbase,  Fdflt> >,
-
-
-    // negative tests for deleters look for a null pointer lvalue.
-    // Note that null pointer literal would be a compile-fail test
-    &doConstructObjectFactoryDzero<void, Obase,   Ftst>,
-    &doConstructObjectFactoryDzero<void, Obase,   Fbsl>,
-    &doConstructObjectFactoryDzero<void, Oderiv,  Ftst>,
-    &doConstructObjectFactoryDzero<void, Oderiv,  Fbsl>,
-    //&doConstructObjectFactoryDzero<void, OCbase,  Ftst>,
-    //&doConstructObjectFactoryDzero<void, OCbase,  Fbsl>,
-    //&doConstructObjectFactoryDzero<void, OCderiv, Ftst>,
-    //&doConstructObjectFactoryDzero<void, OCderiv, Fbsl>
-};
-static const int TEST_CTOR_VOID_ARRAY_SIZE =
-                            sizeof(TEST_CTOR_VOID_ARRAY)/sizeof(TEST_CTOR_VOID_ARRAY[0]);
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-static const TestCtorFn TEST_CTOR_CONST_VOID_ARRAY[] = {
-
-    // single object-pointer tests
-
-    &doConstructObject<const void, Obase>,
-    &doConstructObject<const void, Oderiv>,
-    &doConstructObject<const void, OCbase>,
-    &doConstructObject<const void, OCderiv>,
-
-    // factory tests
-
-    &doConstructObjectFactory<const void, Obase,   Ftst>,
-    &doConstructObjectFactory<const void, Obase,   Fbsl>,
-    &doConstructObjectFactory<const void, Oderiv,  Ftst>,
-    &doConstructObjectFactory<const void, Oderiv,  Fbsl>,
-    &doConstructObjectFactory<const void, OCbase,  Ftst>,
-    &doConstructObjectFactory<const void, OCbase,  Fbsl>,
-    &doConstructObjectFactory<const void, OCderiv, Ftst>,
-    &doConstructObjectFactory<const void, OCderiv, Fbsl>,
-
-    // deleter tests
-
-    // First test the non-deprecated interface, using the policy
-    // 'DVoidVoid'.
-
-    // MyTestObject
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                 DVoidVoid< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                 DVoidVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                 DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                 DVoidVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                 DVoidVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Fbsl,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                 DVoidVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                 DVoidVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                 DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                 DVoidVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                 DVoidVoid< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                 DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                 DVoidVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                  DVoidVoid<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                  DVoidVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Fdflt,
-                                  DVoidVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                  DVoidVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                  DVoidVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                  DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                  DVoidVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                  DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                  DVoidVoid<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    &doConstructObjectFnullDeleter<const void, Obase,
-                                DVoidVoid<Obase,   Fdflt> >,
-    &doConstructObjectFnullDeleter<const void, Obase,
-                                DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const void, OCbase,
-    //                            DVoidVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const void, Oderiv,
-                                DVoidVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFnullDeleter<const void, Oderiv,
-                                DVoidVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const void, Oderiv,
-                                DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<const void, Oderiv,
-                                DVoidVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const void, OCderiv,
-                                DVoidVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<const void, OCderiv,
-                                DVoidVoid<OCbase,  Fdflt> >,
-
-
-    // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that
-    // type-erase the 'object' type, but have a strongly typed
-    // 'factory' argument.  Such deleters are generated by the
-    // 'DVoidFac' policy..
-
-    // MyTestObject
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DVoidFac< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                  DVoidFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DVoidFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                  DVoidFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Fbsl,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DVoidFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DVoidFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DVoidFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DVoidFac< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                  DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DVoidFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                   DVoidFac<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                   DVoidFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Fdflt,
-                                   DVoidFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DVoidFac<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DVoidFac<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DVoidFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DVoidFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                   DVoidFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                   DVoidFac<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doConstructObjectFnullDeleter<const void, Obase,
-    //                             DVoidFac<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<const void, Obase,
-    //                             DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const void, Oderiv,
-    //                             DVoidFac<Oderiv,  Fdflt> >,
-    //&doConstructObjectFnullDeleter<const void, Oderiv,
-    //                             DVoidFac<Obase,   Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const void, Oderiv,
-    //                             DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<const void, Oderiv,
-    //                             DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const void, OCbase,
-    //                            DVoidFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const void, OCderiv,
-    //                            DVoidFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<const void, OCderiv,
-    //                            DVoidFac<OCbase,  Fdflt> >,
-
-
-    // Now we test deleters that are strongly typed for the
-    // 'object' parameter, but type-erase the 'factory'.
-
-    // MyTestObject
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DObjVoid< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                  DObjVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DObjVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                  DObjVoid< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Fbsl,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DObjVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DObjVoid< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DObjVoid< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DObjVoid< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                  DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DObjVoid< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                   DObjVoid<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                   DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Fdflt,
-                                   DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DObjVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DObjVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                   DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                   DObjVoid<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    &doConstructObjectFnullDeleter<const void, Obase,
-                                 DObjVoid<Obase,   Fdflt> >,
-    &doConstructObjectFnullDeleter<const void, Obase,
-                                 DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const void, OCbase,
-                                 DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const void, Oderiv,
-                                 DObjVoid<Oderiv,  Fdflt> >,
-    &doConstructObjectFnullDeleter<const void, Oderiv,
-                                 DObjVoid<Obase,   Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const void, Oderiv,
-                                 DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<const void, Oderiv,
-                                 DObjVoid<OCbase,  Fdflt> >,
-
-    &doConstructObjectFnullDeleter<const void, OCderiv,
-                                 DObjVoid<OCderiv, Fdflt> >,
-    &doConstructObjectFnullDeleter<const void, OCderiv,
-                                 DObjVoid<OCbase,  Fdflt> >,
-
-
-    // Finally we test the most generic combination of generic
-    // object type, a factory, and a deleter taking two arguments
-    // compatible with pointers to the invoking 'object' and
-    // 'factory' types.
-
-    // MyTestObject
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                   DObjFac< Obase,   Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                   DObjFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                   DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                   DObjFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Obase,   Ftst,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                   DObjFac< OCbase,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Fbsl,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< Oderiv,  Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< Obase,   Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                   DObjFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                   DObjFac< Obase,   Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< Oderiv,  Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                   DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                   DObjFac< OCderiv, Ftst > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                   DObjFac< OCbase,  Ftst > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                   DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                   DObjFac< OCderiv, Fbsl > >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                    DObjFac<Obase,   Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                    DObjFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, OCbase,  Fdflt,
-                                    DObjFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                    DObjFac<Oderiv,  Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                    DObjFac<Obase,   Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                    DObjFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                    DObjFac<OCbase,  Fdflt> >,
-
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                    DObjFac<OCderiv, Fdflt> >,
-    &doConstructObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                    DObjFac<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doConstructObjectFnullDeleter<const void, Obase,
-    //                              DObjFac<Obase,   Fdflt> >,
-    //&doConstructObjectFnullDeleter<const void, Obase,
-    //                              DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const void, OCbase,
-    //                              DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const void, Oderiv,
-    //                              DObjFac<Oderiv,  Fdflt> >,
-    //&doConstructObjectFnullDeleter<const void, Oderiv,
-    //                              DObjFac<Obase,   Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const void, Oderiv,
-    //                              DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<const void, Oderiv,
-    //                              DObjFac<OCbase,  Fdflt> >,
-
-    //&doConstructObjectFnullDeleter<const void, OCderiv,
-    //                              DObjFac<OCderiv, Fdflt> >,
-    //&doConstructObjectFnullDeleter<const void, OCderiv,
-    //                              DObjFac<OCbase,  Fdflt> >,
-
-
-    // negative tests for deleters look for a null pointer lvalue.
-    // Note that null pointer literal would be a compile-fail test
-    &doConstructObjectFactoryDzero<const void, Obase,   Ftst>,
-    &doConstructObjectFactoryDzero<const void, Obase,   Fbsl>,
-    &doConstructObjectFactoryDzero<const void, Oderiv,  Ftst>,
-    &doConstructObjectFactoryDzero<const void, Oderiv,  Fbsl>,
-    &doConstructObjectFactoryDzero<const void, OCbase,  Ftst>,
-    &doConstructObjectFactoryDzero<const void, OCbase,  Fbsl>,
-    &doConstructObjectFactoryDzero<const void, OCderiv, Ftst>,
-    &doConstructObjectFactoryDzero<const void, OCderiv, Fbsl>
-};
-static const int TEST_CTOR_CONST_VOID_ARRAY_SIZE =
-                sizeof(TEST_CTOR_CONST_VOID_ARRAY)/sizeof(TEST_CTOR_CONST_VOID_ARRAY[0]);
 
 //=============================================================================
-
-typedef void (*TestBaseFn)(int, int, int, TestLoadArgs<MyTestObject> *);
-
-static const TestBaseFn TEST_BASE_ARRAY[] = {
+static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     // default test
-    &doLoad<MyTestObject>,
+    TestPolicy<void>(),
 
     // single object-pointer tests
-    &doLoadOnull <MyTestObject>,
+    TestPolicy<void>( NullPolicy() ),
 
-    &doLoadObject<MyTestObject, Obase>,
-    &doLoadObject<MyTestObject, Oderiv>,
-    //&doLoadObject<MyTestObject, OCbase>,
-    //&doLoadObject<MyTestObject, OCderiv>,
+
+    TestPolicy<void>( Obase() ),
+    TestPolicy<void>( Oderiv() ),
+    //TestPolicy<void>( OCbase() ),
+    //TestPolicy<void>( OCderiv() ),
 
     // factory tests
-    &doLoadOnullFnull <MyTestObject>,
+    TestPolicy<void>( NullPolicy(), NullPolicy() ),
 
-    &doLoadObjectFactory<MyTestObject, Obase,   Ftst>,
-    &doLoadObjectFactory<MyTestObject, Obase,   Fbsl>,
-    &doLoadObjectFactory<MyTestObject, Oderiv,  Ftst>,
-    &doLoadObjectFactory<MyTestObject, Oderiv,  Fbsl>,
-    //&doLoadObjectFactory<MyTestObject, OCbase,  Ftst>,
-    //&doLoadObjectFactory<MyTestObject, OCbase,  Fbsl>,
-    //&doLoadObjectFactory<MyTestObject, OCderiv, Ftst>,
-    //&doLoadObjectFactory<MyTestObject, OCderiv, Fbsl>,
+    TestPolicy<void>( Obase(),   Ftst() ),
+    TestPolicy<void>( Obase(),   Fbsl() ),
+    TestPolicy<void>( Oderiv(),  Ftst() ),
+    TestPolicy<void>( Oderiv(),  Fbsl() ),
+    //TestPolicy<void>( OCbase(),  Ftst() ),
+    //TestPolicy<void>( OCbase(),  Fbsl() ),
+    //TestPolicy<void>( OCderiv(), Ftst() ),
+    //TestPolicy<void>( OCderiv(), Fbsl() ),
 
     // deleter tests
-    &doLoadOnullFnullDnull <MyTestObject>,
+    TestPolicy<void>( NullPolicy(), NullPolicy(), NullPolicy() ),
 
     // First test the non-deprecated interface, using the policy
     // 'DVoidVoid'.
 
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                   DVoidVoid< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                   DVoidVoid< Obase,   Fbsl > >,
+    // void
+    TestPolicy<void>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
+    TestPolicy<void>( Obase(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                   DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<void>( Obase(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                   DVoidVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                   DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<void>( Obase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    TestPolicy<void>( Obase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                   DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<void>( Obase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                               DVoidVoid< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Fbsl,
-    //                               DVoidVoid< OCbase,  Fbsl > >,
+    // const void
+    //TestPolicy<void>( OCbase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    //TestPolicy<void>( OCbase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                               DVoidVoid< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCbase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< Obase,   Ftst > >,
+    TestPolicy<void>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Ftst >() ),
+    TestPolicy<void>( Oderiv(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                   DVoidVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                   DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<void>( Oderiv(), Fbsl(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<void>( Oderiv(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<void>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<void>( Oderiv(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< OCbase,  Ftst > >,
+    TestPolicy<void>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    TestPolicy<void>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                   DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                   DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<void>( Oderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<void>( Oderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                   DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<void>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<void>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                               DVoidVoid< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                               DVoidVoid< OCbase,  Ftst > >,
+    //TestPolicy<void>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    //TestPolicy<void>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                               DVoidVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                               DVoidVoid< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<void>( OCderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                               DVoidVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                               DVoidVoid< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<void>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                    DVoidVoid<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                    DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<void>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
+    TestPolicy<void>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Fdflt,
-    //                                DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCbase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                    DVoidVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                    DVoidVoid<Obase,   Fdflt> >,
+    TestPolicy<void>( Oderiv(), Fdflt(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<void>( Oderiv(), Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                    DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                    DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<void>( Oderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<void>( Oderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                DVoidVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<void>( OCderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
-    &doLoadObjectFnullDeleter<MyTestObject, Obase,
-                                  DVoidVoid<Obase,   Fdflt> >,
-    &doLoadObjectFnullDeleter<MyTestObject, Obase,
-                                  DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<void>( Obase(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
+    TestPolicy<void>( Obase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, OCbase,
-    //                              DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCbase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-                                  DVoidVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-                                  DVoidVoid<Obase,   Fdflt> >,
+    TestPolicy<void>( Oderiv(), NullPolicy(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<void>( Oderiv(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-                                  DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-                                  DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<void>( Oderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<void>( Oderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, OCderiv,
-    //                              DVoidVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyTestObject, OCderiv,
-    //                              DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 
     // Next we test the deprecated support for deleters other than
@@ -5528,267 +4077,177 @@ static const TestBaseFn TEST_BASE_ARRAY[] = {
     // 'factory' argument.  Such deleters are generated by the
     // 'DVoidFac' policy..
 
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DVoidFac< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                    DVoidFac< Obase,   Fbsl > >,
+    // void
+    TestPolicy<void>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
+    TestPolicy<void>( Obase(),   Fbsl(), DVoidFac< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<void>( Obase(),   Ftst(), DVoidFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DVoidFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                    DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<void>( Obase(),   Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    TestPolicy<void>( Obase(),   Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<void>( Obase(),   Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                DVoidFac< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Fbsl,
-    //                                DVoidFac< OCbase,  Fbsl > >,
+    // const void
+    //TestPolicy<void>( OCbase(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    //TestPolicy<void>( OCbase(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                DVoidFac< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCbase(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< Obase,   Ftst > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Ftst >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DVoidFac< Obase,   Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DVoidFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Fbsl(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Fbsl(), DVoidFac< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DVoidFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< OCbase,  Ftst > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DVoidFac< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DVoidFac< OCbase,  Ftst > >,
+    //TestPolicy<void>( OCderiv(), Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    //TestPolicy<void>( OCderiv(), Ftst(), DVoidFac< OCbase,  Ftst >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                DVoidFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                DVoidFac< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCderiv(), Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    //TestPolicy<void>( OCderiv(), Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DVoidFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DVoidFac< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    //TestPolicy<void>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                     DVoidFac<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                     DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<void>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
+    TestPolicy<void>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Fdflt,
-    //                                 DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCbase(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DVoidFac<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DVoidFac<Obase,   Fdflt> >,
+    TestPolicy<void>( Oderiv(),  Fdflt(), DVoidFac<Oderiv,  Fdflt>() ),
+    TestPolicy<void>( Oderiv(),  Fdflt(), DVoidFac<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DVoidFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<void>( Oderiv(),  Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    TestPolicy<void>( Oderiv(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                               DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                               DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCderiv(), Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<void>( OCderiv(), Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
     // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
     //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doLoadObjectFnullDeleter<MyTestObject, Obase,
-    //                               DVoidFac<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyTestObject, Obase,
-    //                               DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( Obase(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
+    //TestPolicy<void>( Obase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-    //                               DVoidFac<Oderiv,  Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-    //                               DVoidFac<Obase,   Fdflt> >,
+    //TestPolicy<void>( Oderiv(), NullPolicy(), DVoidFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<void>( Oderiv(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-    //                               DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-    //                               DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( Oderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<void>( Oderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
     // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
     // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
-    //&doLoadObjectFnullDeleter<MyTestObject, OCbase,
-    //                               DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCbase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, OCderiv,
-    //                               DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyTestObject, OCderiv,
-    //                               DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<void>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
 
     // Now we test deleters that are strongly typed for the
     // 'object' parameter, but type-erase the 'factory'.
 
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DObjVoid< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                    DObjVoid< Obase,   Fbsl > >,
+    // void
+    TestPolicy<void>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
+    TestPolicy<void>( Obase(),   Fbsl(), DObjVoid< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<void>( Obase(),   Ftst(), DObjVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DObjVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                    DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<void>( Obase(),   Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    TestPolicy<void>( Obase(),   Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                    DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<void>( Obase(),   Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                DObjVoid< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Fbsl,
-    //                                DObjVoid< OCbase,  Fbsl > >,
+    // const void
+    //TestPolicy<void>( OCbase(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    //TestPolicy<void>( OCbase(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                DObjVoid< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCbase(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< Obase,   Ftst > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Ftst >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjVoid< Obase,   Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DObjVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Fbsl(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Fbsl(), DObjVoid< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< OCbase,  Ftst > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                    DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                    DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DObjVoid< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DObjVoid< OCbase,  Ftst > >,
+    //TestPolicy<void>( OCderiv(), Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    //TestPolicy<void>( OCderiv(), Ftst(), DObjVoid< OCbase,  Ftst >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                DObjVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                DObjVoid< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCderiv(), Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<void>( OCderiv(), Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DObjVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                DObjVoid< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<void>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                     DObjVoid<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                     DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<void>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
+    TestPolicy<void>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Fdflt,
-    //                                 DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCbase(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DObjVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DObjVoid<Obase,   Fdflt> >,
+    TestPolicy<void>( Oderiv(),  Fdflt(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<void>( Oderiv(),  Fdflt(), DObjVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                     DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<void>( Oderiv(),  Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<void>( Oderiv(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                 DObjVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                 DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCderiv(), Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<void>( OCderiv(), Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
-    &doLoadObjectFnullDeleter<MyTestObject, Obase,
-                                   DObjVoid<Obase,   Fdflt> >,
-    &doLoadObjectFnullDeleter<MyTestObject, Obase,
-                                   DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<void>( Obase(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
+    TestPolicy<void>( Obase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, OCbase,
-    //                             DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCbase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-                                   DObjVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-                                   DObjVoid<Obase,   Fdflt> >,
+    TestPolicy<void>( Oderiv(), NullPolicy(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<void>( Oderiv(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-                                   DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-                                   DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<void>( Oderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<void>( Oderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, OCderiv,
-    //                               DObjVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyTestObject, OCderiv,
-    //                               DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<void>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
 
     // Finally we test the most generic combination of generic
@@ -5796,311 +4255,214 @@ static const TestBaseFn TEST_BASE_ARRAY[] = {
     // compatible with pointers to the invoking 'object' and
     // 'factory' types.
 
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                     DObjFac< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                     DObjFac< Obase,   Fbsl > >,
+    // void
+    TestPolicy<void>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
+    TestPolicy<void>( Obase(),   Fbsl(), DObjFac< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                     DObjFac< Obase,   Fbsl > >,
+    TestPolicy<void>( Obase(),   Ftst(), DObjFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                     DObjFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fbsl,
-                                     DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<void>( Obase(),   Ftst(), DObjFac< OCbase,  Ftst >() ),
+    TestPolicy<void>( Obase(),   Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Ftst,
-                                     DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<void>( Obase(),   Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                 DObjFac< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Fbsl,
-    //                                 DObjFac< OCbase,  Fbsl > >,
+    // const void
+    //TestPolicy<void>( OCbase(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
+    //TestPolicy<void>( OCbase(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Ftst,
-    //                                 DObjFac< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCbase(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< Obase,   Ftst > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Ftst >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjFac< Obase,   Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                     DObjFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                     DObjFac< Obase,   Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Fbsl(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Fbsl(), DObjFac< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< Obase,   Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< OCbase,  Ftst > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjFac< OCderiv, Ftst >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                     DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fbsl,
-                                     DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Ftst,
-                                     DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                 DObjFac< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                 DObjFac< OCbase,  Ftst > >,
+    //TestPolicy<void>( OCderiv(), Ftst(), DObjFac< OCderiv, Ftst >() ),
+    //TestPolicy<void>( OCderiv(), Ftst(), DObjFac< OCbase,  Ftst >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                 DObjFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fbsl,
-    //                                 DObjFac< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCderiv(), Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    //TestPolicy<void>( OCderiv(), Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                 DObjFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Ftst,
-    //                                 DObjFac< OCbase,  Fbsl > >,
+    //TestPolicy<void>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    //TestPolicy<void>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                      DObjFac<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Obase,   Fdflt,
-                                      DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<void>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
+    TestPolicy<void>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCbase,  Fdflt,
-    //                                  DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCbase(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                      DObjFac<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                      DObjFac<Obase,   Fdflt> >,
+    TestPolicy<void>( Oderiv(),  Fdflt(), DObjFac<Oderiv,  Fdflt>() ),
+    TestPolicy<void>( Oderiv(),  Fdflt(), DObjFac<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                      DObjFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyTestObject, Oderiv,  Fdflt,
-                                      DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<void>( Oderiv(),  Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    TestPolicy<void>( Oderiv(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                  DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyTestObject, OCderiv, Fdflt,
-    //                                  DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCderiv(), Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<void>( OCderiv(), Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
     // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
     //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doLoadObjectFnullDeleter<MyTestObject, Obase,
-    //                                DObjFac<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyTestObject, Obase,
-    //                                DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( Obase(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
+    //TestPolicy<void>( Obase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, OCbase,
-    //                                DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCbase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-    //                                DObjFac<Oderiv,  Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-    //                                DObjFac<Obase,   Fdflt> >,
+    //TestPolicy<void>( Oderiv(), NullPolicy(), DObjFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<void>( Oderiv(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-    //                                DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyTestObject, Oderiv,
-    //                                DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( Oderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<void>( Oderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyTestObject, OCderiv,
-    //                                DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyTestObject, OCderiv,
-    //                                DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<void>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<void>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
 
     // negative tests for deleters look for a null pointer lvalue.
     // Note that null pointer literal would be a compile-fail test
-    &doLoadObjectFactoryDzero<MyTestObject, Obase,   Ftst>,
-    &doLoadObjectFactoryDzero<MyTestObject, Obase,   Fbsl>,
-    &doLoadObjectFactoryDzero<MyTestObject, Oderiv,  Ftst>,
-    &doLoadObjectFactoryDzero<MyTestObject, Oderiv,  Fbsl>,
-    //&doLoadObjectFactoryDzero<MyTestObject, OCbase,  Ftst>,
-    //&doLoadObjectFactoryDzero<MyTestObject, OCbase,  Fbsl>,
-    //&doLoadObjectFactoryDzero<MyTestObject, OCderiv, Ftst>,
-    //&doLoadObjectFactoryDzero<MyTestObject, OCderiv, Fbsl>
+    TestPolicy<void>( Obase(),   Ftst(), NullPolicy() ),
+    TestPolicy<void>( Obase(),   Fbsl(), NullPolicy() ),
+    TestPolicy<void>( Oderiv(),  Ftst(), NullPolicy() ),
+    TestPolicy<void>( Oderiv(),  Fbsl(), NullPolicy() ),
+    //TestPolicy<void>( OCbase(),  Ftst(), NullPolicy() ),
+    //TestPolicy<void>( OCbase(),  Fbsl(), NullPolicy() ),
+    //TestPolicy<void>( OCderiv(), Ftst(), NullPolicy() ),
+    //TestPolicy<void>( OCderiv(), Fbsl(), NullPolicy() )
 };
-static const int TEST_BASE_ARRAY_SIZE =
-                            sizeof(TEST_BASE_ARRAY)/sizeof(TEST_BASE_ARRAY[0]);
 
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-typedef void (*TestConstBaseFn)(int, int, int,
-                                TestLoadArgs<const MyTestObject> *);
-
-static const TestConstBaseFn TEST_CONST_BASE_ARRAY[] = {
+static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     // default test
-    &doLoad<const MyTestObject>,
+    TestPolicy<const void>(),
 
     // single object-pointer tests
-    &doLoadOnull <const MyTestObject>,
+    TestPolicy<const void>( NullPolicy() ),
 
-    &doLoadObject<const MyTestObject, Obase>,
-    &doLoadObject<const MyTestObject, Oderiv>,
-    &doLoadObject<const MyTestObject, OCbase>,
-    &doLoadObject<const MyTestObject, OCderiv>,
+    TestPolicy<const void>( Obase() ),
+    TestPolicy<const void>( Oderiv() ),
+    TestPolicy<const void>( OCbase() ),
+    TestPolicy<const void>( OCderiv() ),
 
     // factory tests
-    &doLoadOnullFnull <const MyTestObject>,
+    TestPolicy<const void>( NullPolicy(), NullPolicy() ),
 
-    &doLoadObjectFactory<const MyTestObject, Obase,   Ftst>,
-    &doLoadObjectFactory<const MyTestObject, Obase,   Fbsl>,
-    &doLoadObjectFactory<const MyTestObject, Oderiv,  Ftst>,
-    &doLoadObjectFactory<const MyTestObject, Oderiv,  Fbsl>,
-    &doLoadObjectFactory<const MyTestObject, OCbase,  Ftst>,
-    &doLoadObjectFactory<const MyTestObject, OCbase,  Fbsl>,
-    &doLoadObjectFactory<const MyTestObject, OCderiv, Ftst>,
-    &doLoadObjectFactory<const MyTestObject, OCderiv, Fbsl>,
+    TestPolicy<const void>( Obase(),   Ftst() ),
+    TestPolicy<const void>( Obase(),   Fbsl() ),
+    TestPolicy<const void>( Oderiv(),  Ftst() ),
+    TestPolicy<const void>( Oderiv(),  Fbsl() ),
+    TestPolicy<const void>( OCbase(),  Ftst() ),
+    TestPolicy<const void>( OCbase(),  Fbsl() ),
+    TestPolicy<const void>( OCderiv(), Ftst() ),
+    TestPolicy<const void>( OCderiv(), Fbsl() ),
 
     // deleter tests
-    &doLoadOnullFnullDnull <const MyTestObject>,
+    TestPolicy<const void>( NullPolicy(), NullPolicy(), NullPolicy() ),
 
     // First test the non-deprecated interface, using the policy
     // 'DVoidVoid'.
 
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                         DVoidVoid< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                         DVoidVoid< Obase,   Fbsl > >,
+    // void
+    TestPolicy<const void>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
+    TestPolicy<const void>( Obase(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                         DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<const void>( Obase(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                         DVoidVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Obase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    TestPolicy<const void>( Obase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Obase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    // const MyTestObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                         DVoidVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Fbsl,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    // const void
+    TestPolicy<const void>( OCbase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    TestPolicy<const void>( OCbase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCbase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< Obase,   Ftst > >,
+    TestPolicy<const void>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Ftst >() ),
+    TestPolicy<const void>( Oderiv(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                         DVoidVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                         DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<const void>( Oderiv(), Fbsl(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<const void>( Oderiv(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< Obase,   Fbsl > >,
+    TestPolicy<const void>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<const void>( Oderiv(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< OCbase,  Ftst > >,
+    TestPolicy<const void>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    TestPolicy<const void>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                         DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Oderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( Oderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                         DVoidVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                         DVoidVoid< OCbase,  Ftst > >,
+    TestPolicy<const void>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    TestPolicy<const void>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                         DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( OCderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                         DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                         DVoidVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                          DVoidVoid<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                          DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
+    TestPolicy<const void>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Fdflt,
-                                          DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCbase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                          DVoidVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                          DVoidVoid<Obase,   Fdflt> >,
+    TestPolicy<const void>( Oderiv(), Fdflt(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<const void>( Oderiv(), Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                          DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                          DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Oderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( Oderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                          DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                          DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( OCderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
-    &doLoadObjectFnullDeleter<const MyTestObject, Obase,
-                                        DVoidVoid<Obase,   Fdflt> >,
-    &doLoadObjectFnullDeleter<const MyTestObject, Obase,
-                                        DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Obase(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
+    TestPolicy<const void>( Obase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<const MyTestObject, OCbase,
-                                        DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCbase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-                                        DVoidVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-                                        DVoidVoid<Obase,   Fdflt> >,
+    TestPolicy<const void>( Oderiv(), NullPolicy(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<const void>( Oderiv(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-                                        DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-                                        DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Oderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( Oderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<const MyTestObject, OCderiv,
-                                        DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<const MyTestObject, OCderiv,
-                                        DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 
     // Next we test the deprecated support for deleters other than
@@ -6109,845 +4471,177 @@ static const TestConstBaseFn TEST_CONST_BASE_ARRAY[] = {
     // 'factory' argument.  Such deleters are generated by the
     // 'DVoidFac' policy..
 
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DVoidFac< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                          DVoidFac< Obase,   Fbsl > >,
+    // void
+    TestPolicy<const void>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
+    TestPolicy<const void>( Obase(),   Fbsl(), DVoidFac< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<const void>( Obase(),   Ftst(), DVoidFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DVoidFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Obase(),   Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    TestPolicy<const void>( Obase(),   Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Obase(),   Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-    // const MyTestObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                          DVoidFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Fbsl,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    // const void
+    TestPolicy<const void>( OCbase(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    TestPolicy<const void>( OCbase(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCbase(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< Obase,   Ftst > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Ftst >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DVoidFac< Obase,   Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DVoidFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DVoidFac< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< Obase,   Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DVoidFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< OCbase,  Ftst > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DVoidFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DVoidFac< OCbase,  Ftst > >,
+    TestPolicy<const void>( OCderiv(), Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    TestPolicy<const void>( OCderiv(), Ftst(), DVoidFac< OCbase,  Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                          DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCderiv(), Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( OCderiv(), Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DVoidFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                           DVoidFac<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                           DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
+    TestPolicy<const void>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Fdflt,
-                                           DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCbase(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DVoidFac<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DVoidFac<Obase,   Fdflt> >,
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DVoidFac<Oderiv,  Fdflt>() ),
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DVoidFac<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DVoidFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                           DVoidFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                           DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCderiv(), Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( OCderiv(), Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
     // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
     //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doLoadObjectFnullDeleter<const MyTestObject, Obase,
-    //                                     DVoidFac<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<const MyTestObject, Obase,
-    //                                     DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<const void>( Obase(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
+    //TestPolicy<const void>( Obase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                     DVoidFac<Oderiv,  Fdflt> >,
-    //&doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                     DVoidFac<Obase,   Fdflt> >,
+    //TestPolicy<const void>( Oderiv(), NullPolicy(), DVoidFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<const void>( Oderiv(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                     DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                     DVoidFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const MyTestObject, OCbase,
-    //                                     DVoidFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const MyTestObject, OCderiv,
-    //                                     DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<const MyTestObject, OCderiv,
-    //                                     DVoidFac<OCbase,  Fdflt> >,
-
-
-    // Now we test deleters that are strongly typed for the
-    // 'object' parameter, but type-erase the 'factory'.
-
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DObjVoid< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                          DObjVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DObjVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                          DObjVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Fbsl,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< Obase,   Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DObjVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DObjVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DObjVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DObjVoid< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                          DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                          DObjVoid< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                           DObjVoid<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                           DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Fdflt,
-                                           DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DObjVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DObjVoid<Obase,   Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                           DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                           DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                           DObjVoid<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    &doLoadObjectFnullDeleter<const MyTestObject, Obase,
-                                         DObjVoid<Obase,   Fdflt> >,
-    &doLoadObjectFnullDeleter<const MyTestObject, Obase,
-                                         DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const MyTestObject, OCbase,
-                                         DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-                                         DObjVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-                                         DObjVoid<Obase,   Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-                                         DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-                                         DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const MyTestObject, OCderiv,
-                                         DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<const MyTestObject, OCderiv,
-                                         DObjVoid<OCbase,  Fdflt> >,
-
-
-    // Finally we test the most generic combination of generic
-    // object type, a factory, and a deleter taking two arguments
-    // compatible with pointers to the invoking 'object' and
-    // 'factory' types.
-
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                           DObjFac< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                           DObjFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                           DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                           DObjFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fbsl,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Ftst,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                           DObjFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Fbsl,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Ftst,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< Obase,   Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                           DObjFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                           DObjFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                           DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fbsl,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Ftst,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                           DObjFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                           DObjFac< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                           DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fbsl,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                           DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Ftst,
-                                           DObjFac< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                            DObjFac<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Obase,   Fdflt,
-                                            DObjFac<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCbase,  Fdflt,
-                                            DObjFac<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                            DObjFac<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                            DObjFac<Obase,   Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                            DObjFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, Oderiv,  Fdflt,
-                                            DObjFac<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                            DObjFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const MyTestObject, OCderiv, Fdflt,
-                                            DObjFac<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doLoadObjectFnullDeleter<const MyTestObject, Obase,
-    //                                      DObjFac<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<const MyTestObject, Obase,
-    //                                      DObjFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const MyTestObject, OCbase,
-    //                                      DObjFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                      DObjFac<Oderiv,  Fdflt> >,
-    //&doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                      DObjFac<Obase,   Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                      DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<const MyTestObject, Oderiv,
-    //                                      DObjFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const MyTestObject, OCderiv,
-    //                                      DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<const MyTestObject, OCderiv,
-    //                                      DObjFac<OCbase,  Fdflt> >,
-
-
-    // negative tests for deleters look for a null pointer lvalue.
-    // Note that null pointer literal would be a compile-fail test
-    &doLoadObjectFactoryDzero<const MyTestObject, Obase,   Ftst>,
-    &doLoadObjectFactoryDzero<const MyTestObject, Obase,   Fbsl>,
-    &doLoadObjectFactoryDzero<const MyTestObject, Oderiv,  Ftst>,
-    &doLoadObjectFactoryDzero<const MyTestObject, Oderiv,  Fbsl>,
-    &doLoadObjectFactoryDzero<const MyTestObject, OCbase,  Ftst>,
-    &doLoadObjectFactoryDzero<const MyTestObject, OCbase,  Fbsl>,
-    &doLoadObjectFactoryDzero<const MyTestObject, OCderiv, Ftst>,
-    &doLoadObjectFactoryDzero<const MyTestObject, OCderiv, Fbsl>
-};
-static const int TEST_CONST_BASE_ARRAY_SIZE =
-                sizeof(TEST_CONST_BASE_ARRAY)/sizeof(TEST_CONST_BASE_ARRAY[0]);
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-typedef void (*TestDerivedFn)(int, int, int, TestLoadArgs<MyDerivedObject> *);
-
-static const TestDerivedFn TEST_DERIVED_ARRAY[] = {
-    // default test
-    &doLoad<MyDerivedObject>,
-
-    // single object-pointer tests
-    &doLoadOnull <MyDerivedObject>,
-
-    //&doLoadObject<MyDerivedObject, Obase>,
-    &doLoadObject<MyDerivedObject, Oderiv>,
-    //&doLoadObject<MyDerivedObject, OCbase>,
-    //&doLoadObject<MyDerivedObject, OCderiv>,
-
-    // factory tests
-    &doLoadOnullFnull <MyDerivedObject>,
-
-    //&doLoadObjectFactory<MyDerivedObject, Obase,   Ftst>,
-    //&doLoadObjectFactory<MyDerivedObject, Obase,   Fbsl>,
-    &doLoadObjectFactory<MyDerivedObject, Oderiv,  Ftst>,
-    &doLoadObjectFactory<MyDerivedObject, Oderiv,  Fbsl>,
-    //&doLoadObjectFactory<MyDerivedObject, OCbase,  Ftst>,
-    //&doLoadObjectFactory<MyDerivedObject, OCbase,  Fbsl>,
-    //&doLoadObjectFactory<MyDerivedObject, OCderiv, Ftst>,
-    //&doLoadObjectFactory<MyDerivedObject, OCderiv, Fbsl>,
-
-    // deleter tests
-    &doLoadOnullFnullDnull <MyDerivedObject>,
-
-    // First test the non-deprecated interface, using the policy
-    // 'DVoidVoid'.
-
-    // MyTestObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                  DVoidVoid< Obase,   Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                  DVoidVoid< Obase,   Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                  DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                  DVoidVoid< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                  DVoidVoid< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Fbsl,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< Obase,   Ftst > >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                      DVoidVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                      DVoidVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                      DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                      DVoidVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                      DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                  DVoidVoid< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                  DVoidVoid< OCbase,  Ftst > >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                  DVoidVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                  DVoidVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                  DVoidVoid< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                   DVoidVoid<Obase,   Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                   DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Fdflt,
-    //                                   DVoidVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                       DVoidVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                       DVoidVoid<Obase,   Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                       DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                       DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                   DVoidVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                   DVoidVoid<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                 DVoidVoid<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                 DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCbase,
-    //                                 DVoidVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                     DVoidVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                     DVoidVoid<Obase,   Fdflt> >,
-
-    &doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                     DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                     DVoidVoid<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                 DVoidVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                 DVoidVoid<OCbase,  Fdflt> >,
-
-
-    // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that
-    // type-erase the 'object' type, but have a strongly typed
-    // 'factory' argument.  Such deleters are generated by the
-    // 'DVoidFac' policy..
-
-    // MyTestObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DVoidFac< Obase,   Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                   DVoidFac< Obase,   Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DVoidFac< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                   DVoidFac< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Fbsl,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< Obase,   Ftst > >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DVoidFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DVoidFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DVoidFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DVoidFac< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DVoidFac< OCbase,  Ftst > >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                   DVoidFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DVoidFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DVoidFac< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                    DVoidFac<Obase,   Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                    DVoidFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Fdflt,
-    //                                    DVoidFac<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DVoidFac<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DVoidFac<Obase,   Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DVoidFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DVoidFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                    DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                    DVoidFac<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                  DVoidFac<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                  DVoidFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                  DVoidFac<Oderiv,  Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                  DVoidFac<Obase,   Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                  DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                  DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<const void>( Oderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<const void>( Oderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
     // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
     // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCbase,
-    //                                  DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<const void>( OCbase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                  DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                  DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<const void>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
 
     // Now we test deleters that are strongly typed for the
     // 'object' parameter, but type-erase the 'factory'.
 
-    // MyTestObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DObjVoid< Obase,   Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                   DObjVoid< Obase,   Fbsl > >,
+    // void
+    TestPolicy<const void>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
+    TestPolicy<const void>( Obase(),   Fbsl(), DObjVoid< Obase,   Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<const void>( Obase(),   Ftst(), DObjVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DObjVoid< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Obase(),   Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    TestPolicy<const void>( Obase(),   Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Obase(),   Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                   DObjVoid< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Fbsl,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    // const void
+    TestPolicy<const void>( OCbase(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    TestPolicy<const void>( OCbase(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCbase(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< Obase,   Ftst > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Ftst >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjVoid< Obase,   Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DObjVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DObjVoid< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< Obase,   Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< OCbase,  Ftst > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                       DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                       DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DObjVoid< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DObjVoid< OCbase,  Ftst > >,
+    TestPolicy<const void>( OCderiv(), Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    TestPolicy<const void>( OCderiv(), Ftst(), DObjVoid< OCbase,  Ftst >() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                   DObjVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCderiv(), Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( OCderiv(), Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DObjVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                   DObjVoid< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                    DObjVoid<Obase,   Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                    DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
+    TestPolicy<const void>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Fdflt,
-    //                                    DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCbase(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DObjVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DObjVoid<Obase,   Fdflt> >,
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DObjVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                        DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                    DObjVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                    DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCderiv(), Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( OCderiv(), Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                  DObjVoid<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                  DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Obase(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
+    TestPolicy<const void>( Obase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCbase,
-    //                                  DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCbase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                      DObjVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                      DObjVoid<Obase,   Fdflt> >,
+    TestPolicy<const void>( Oderiv(), NullPolicy(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<const void>( Oderiv(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                      DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-                                      DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Oderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( Oderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                  DObjVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                  DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
 
     // Finally we test the most generic combination of generic
@@ -6955,310 +4649,215 @@ static const TestDerivedFn TEST_DERIVED_ARRAY[] = {
     // compatible with pointers to the invoking 'object' and
     // 'factory' types.
 
-    // MyTestObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                    DObjFac< Obase,   Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                    DObjFac< Obase,   Fbsl > >,
+    // void
+    TestPolicy<const void>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
+    TestPolicy<const void>( Obase(),   Fbsl(), DObjFac< Obase,   Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                    DObjFac< Obase,   Fbsl > >,
+    TestPolicy<const void>( Obase(),   Ftst(), DObjFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                    DObjFac< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fbsl,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Obase(),   Ftst(), DObjFac< OCbase,  Ftst >() ),
+    TestPolicy<const void>( Obase(),   Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Ftst,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Obase(),   Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                    DObjFac< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Fbsl,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    // const void
+    TestPolicy<const void>( OCbase(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
+    TestPolicy<const void>( OCbase(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Ftst,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCbase(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< Obase,   Ftst > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Ftst >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjFac< Obase,   Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                        DObjFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                        DObjFac< Obase,   Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DObjFac< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< Obase,   Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< OCbase,  Ftst > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjFac< OCderiv, Ftst >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                        DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fbsl,
-                                        DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Ftst,
-                                        DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                    DObjFac< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                    DObjFac< OCbase,  Ftst > >,
+    TestPolicy<const void>( OCderiv(), Ftst(), DObjFac< OCderiv, Ftst >() ),
+    TestPolicy<const void>( OCderiv(), Ftst(), DObjFac< OCbase,  Ftst >() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                    DObjFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fbsl,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCderiv(), Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( OCderiv(), Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                    DObjFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Ftst,
-    //                                    DObjFac< OCbase,  Fbsl > >,
+    TestPolicy<const void>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<const void>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                     DObjFac<Obase,   Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, Obase,   Fdflt,
-    //                                     DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
+    TestPolicy<const void>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCbase,  Fdflt,
-    //                                     DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCbase(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                         DObjFac<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                         DObjFac<Obase,   Fdflt> >,
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DObjFac<Oderiv,  Fdflt>() ),
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DObjFac<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                         DObjFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<MyDerivedObject, Oderiv,  Fdflt,
-                                         DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( Oderiv(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                     DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<MyDerivedObject, OCderiv, Fdflt,
-    //                                     DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<const void>( OCderiv(), Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    TestPolicy<const void>( OCderiv(), Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
     // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
     //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                   DObjFac<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Obase,
-    //                                   DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<const void>( Obase(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
+    //TestPolicy<const void>( Obase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCbase,
-    //                                   DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<const void>( OCbase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                   DObjFac<Oderiv,  Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                   DObjFac<Obase,   Fdflt> >,
+    //TestPolicy<const void>( Oderiv(), NullPolicy(), DObjFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<const void>( Oderiv(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                   DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, Oderiv,
-    //                                   DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<const void>( Oderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<const void>( Oderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                   DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<MyDerivedObject, OCderiv,
-    //                                   DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<const void>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<const void>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
 
     // negative tests for deleters look for a null pointer lvalue.
     // Note that null pointer literal would be a compile-fail test
-    //&doLoadObjectFactoryDzero<MyDerivedObject, Obase,   Ftst>,
-    //&doLoadObjectFactoryDzero<MyDerivedObject, Obase,   Fbsl>,
-    &doLoadObjectFactoryDzero<MyDerivedObject, Oderiv,  Ftst>,
-    &doLoadObjectFactoryDzero<MyDerivedObject, Oderiv,  Fbsl>,
-    //&doLoadObjectFactoryDzero<MyDerivedObject, OCbase,  Ftst>,
-    //&doLoadObjectFactoryDzero<MyDerivedObject, OCbase,  Fbsl>,
-    //&doLoadObjectFactoryDzero<MyDerivedObject, OCderiv, Ftst>,
-    //&doLoadObjectFactoryDzero<MyDerivedObject, OCderiv, Fbsl>
+    TestPolicy<const void>( Obase(),   Ftst(), NullPolicy() ),
+    TestPolicy<const void>( Obase(),   Fbsl(), NullPolicy() ),
+    TestPolicy<const void>( Oderiv(),  Ftst(), NullPolicy() ),
+    TestPolicy<const void>( Oderiv(),  Fbsl(), NullPolicy() ),
+    TestPolicy<const void>( OCbase(),  Ftst(), NullPolicy() ),
+    TestPolicy<const void>( OCbase(),  Fbsl(), NullPolicy() ),
+    TestPolicy<const void>( OCderiv(), Ftst(), NullPolicy() ),
+    TestPolicy<const void>( OCderiv(), Fbsl(), NullPolicy() )
 };
-static const int TEST_DERIVED_ARRAY_SIZE =
-                      sizeof(TEST_DERIVED_ARRAY)/sizeof(TEST_DERIVED_ARRAY[0]);
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-typedef void (*TestVoidFn)(int, int, int, TestLoadArgs<void> *);
-
-static const TestVoidFn TEST_VOID_ARRAY[] = {
+static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
     // default test
-    &doLoad<void>,
+    TestPolicy<MyDerivedObject>(),
 
     // single object-pointer tests
-    &doLoadOnull <void>,
+    TestPolicy<MyDerivedObject>( NullPolicy() ),
+    TestPolicy<MyDerivedObject>( NullPolicy(), NullPolicy(), NullPolicy() ),
+    TestPolicy<MyDerivedObject>( NullPolicy(), NullPolicy() ),
 
-    &doLoadObject<void, Obase>,
-    &doLoadObject<void, Oderiv>,
-    //&doLoadObject<void, OCbase>,
-    //&doLoadObject<void, OCderiv>,
+    //TestPolicy<MyDerivedObject>( Obase() ),
+    TestPolicy<MyDerivedObject>( Oderiv() ),
+    //TestPolicy<MyDerivedObject>( OCbase() ),
+    //TestPolicy<MyDerivedObject>( OCderiv() ),
 
     // factory tests
-    &doLoadOnullFnull <void>,
 
-    &doLoadObjectFactory<void, Obase,   Ftst>,
-    &doLoadObjectFactory<void, Obase,   Fbsl>,
-    &doLoadObjectFactory<void, Oderiv,  Ftst>,
-    &doLoadObjectFactory<void, Oderiv,  Fbsl>,
-    //&doLoadObjectFactory<void, OCbase,  Ftst>,
-    //&doLoadObjectFactory<void, OCbase,  Fbsl>,
-    //&doLoadObjectFactory<void, OCderiv, Ftst>,
-    //&doLoadObjectFactory<void, OCderiv, Fbsl>,
-
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl() ),
     // deleter tests
-    &doLoadOnullFnullDnull <void>,
 
     // First test the non-deprecated interface, using the policy
     // 'DVoidVoid'.
 
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                           DVoidVoid< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fbsl,
-                           DVoidVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                           DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                           DVoidVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fbsl,
-                           DVoidVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                           DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                       DVoidVoid< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Fbsl,
-    //                       DVoidVoid< OCbase,  Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                       DVoidVoid< OCbase,  Fbsl > >,
-
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< Obase,   Ftst > >,
+    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                           DVoidVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                           DVoidVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< Obase,   Fbsl > >,
+    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< OCbase,  Ftst > >,
+    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                           DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                           DVoidVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                           DVoidVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                       DVoidVoid< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                       DVoidVoid< OCbase,  Ftst > >,
+    //TestPolicy<MyDerivedObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCbase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                       DVoidVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                       DVoidVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyDerivedObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                       DVoidVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                       DVoidVoid< OCbase,  Fbsl > >,
+    // MyDerivedObject
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
-                            DVoidVoid<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
-                            DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Fdflt,
-    //                        DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                            DVoidVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                            DVoidVoid<Obase,   Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                            DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                            DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                        DVoidVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                        DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
-    &doLoadObjectFnullDeleter<void, Obase,
-                          DVoidVoid<Obase,   Fdflt> >,
-    &doLoadObjectFnullDeleter<void, Obase,
-                          DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, OCbase,
-    //                      DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<void, Oderiv,
-                          DVoidVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFnullDeleter<void, Oderiv,
-                          DVoidVoid<Obase,   Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<void, Oderiv,
-                          DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<void, Oderiv,
-                          DVoidVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, OCderiv,
-    //                      DVoidVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<void, OCderiv,
-    //                      DVoidVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
 
 
     // Next we test the deprecated support for deleters other than
@@ -7267,267 +4866,177 @@ static const TestVoidFn TEST_VOID_ARRAY[] = {
     // 'factory' argument.  Such deleters are generated by the
     // 'DVoidFac' policy..
 
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                            DVoidFac< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fbsl,
-                            DVoidFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                            DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                            DVoidFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fbsl,
-                            DVoidFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                            DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                        DVoidFac< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Fbsl,
-    //                        DVoidFac< OCbase,  Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                        DVoidFac< OCbase,  Fbsl > >,
-
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< Obase,   Ftst > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DVoidFac< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DVoidFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DVoidFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< Obase,   Fbsl > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< OCbase,  Ftst > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DVoidFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DVoidFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DVoidFac< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DVoidFac< OCbase,  Ftst > >,
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                        DVoidFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                        DVoidFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DVoidFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DVoidFac< OCbase,  Fbsl > >,
+    // MyDerivedObject
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Obase,   Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< Obase,   Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Ftst >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
-                             DVoidFac<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
-                             DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Fdflt,
-    //                         DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DVoidFac<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DVoidFac<Obase,   Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DVoidFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DVoidFac<OCbase,  Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                         DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                         DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
     // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
     //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doLoadObjectFnullDeleter<void, Obase,
-    //                       DVoidFac<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<void, Obase,
-    //                       DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, Oderiv,
-    //                       DVoidFac<Oderiv,  Fdflt> >,
-    //&doLoadObjectFnullDeleter<void, Oderiv,
-    //                       DVoidFac<Obase,   Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, Oderiv,
-    //                       DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<void, Oderiv,
-    //                       DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
     // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
     // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
-    //&doLoadObjectFnullDeleter<void, OCbase,
-    //                       DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, OCderiv,
-    //                       DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<void, OCderiv,
-    //                       DVoidFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
 
 
     // Now we test deleters that are strongly typed for the
     // 'object' parameter, but type-erase the 'factory'.
 
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                            DObjVoid< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fbsl,
-                            DObjVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                            DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                            DObjVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fbsl,
-                            DObjVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                            DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                        DObjVoid< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Fbsl,
-    //                        DObjVoid< OCbase,  Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                        DObjVoid< OCbase,  Fbsl > >,
-
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< Obase,   Ftst > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjVoid< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DObjVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DObjVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< Obase,   Fbsl > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< OCbase,  Ftst > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                            DObjVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                            DObjVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DObjVoid< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DObjVoid< OCbase,  Ftst > >,
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                        DObjVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                        DObjVoid< OCbase,  Fbsl > >,
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DObjVoid< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                        DObjVoid< OCbase,  Fbsl > >,
+    // MyDerivedObject
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Obase,   Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< Obase,   Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Ftst >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
-                             DObjVoid<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
-                             DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Fdflt,
-    //                         DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DObjVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DObjVoid<Obase,   Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                             DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                         DObjVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                         DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
-    &doLoadObjectFnullDeleter<void, Obase,
-                           DObjVoid<Obase,   Fdflt> >,
-    &doLoadObjectFnullDeleter<void, Obase,
-                           DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, OCbase,
-    //                       DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<void, Oderiv,
-                           DObjVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFnullDeleter<void, Oderiv,
-                           DObjVoid<Obase,   Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
 
-    &doLoadObjectFnullDeleter<void, Oderiv,
-                           DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<void, Oderiv,
-                           DObjVoid<OCbase,  Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, OCderiv,
-    //                       DObjVoid<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<void, OCderiv,
-    //                       DObjVoid<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
 
 
     // Finally we test the most generic combination of generic
@@ -7535,727 +5044,102 @@ static const TestVoidFn TEST_VOID_ARRAY[] = {
     // compatible with pointers to the invoking 'object' and
     // 'factory' types.
 
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                             DObjFac< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fbsl,
-                             DObjFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                             DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                             DObjFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fbsl,
-                             DObjFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Obase,   Ftst,
-                             DObjFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                         DObjFac< OCbase,  Ftst > >,
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Fbsl,
-    //                         DObjFac< OCbase,  Fbsl > >,
-
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Ftst,
-    //                         DObjFac< OCbase,  Fbsl > >,
-
     // MyDerivedObject
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< Obase,   Ftst > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjFac< Obase,   Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                             DObjFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                             DObjFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< Obase,   Fbsl > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< Obase,   Fbsl >() ),
 
     // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< OCbase,  Ftst > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                             DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fbsl,
-                             DObjFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Ftst,
-                             DObjFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
     // const MyDerivedObject
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                         DObjFac< OCderiv, Ftst > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                         DObjFac< OCbase,  Ftst > >,
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                         DObjFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fbsl,
-    //                         DObjFac< OCbase,  Fbsl > >,
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                         DObjFac< OCderiv, Fbsl > >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Ftst,
-    //                         DObjFac< OCbase,  Fbsl > >,
+    // MyDerivedObject
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Obase,   Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< Obase,   Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCderiv, Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Ftst >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjFac< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
 
 
     // Also test a deleter that does not use the 'factory'
     // argument.  These tests must also validate passing a null
     // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
-                              DObjFac<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Obase,   Fdflt,
-                              DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCbase,  Fdflt,
-    //                          DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                              DObjFac<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                              DObjFac<Obase,   Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<Obase,   Fdflt>() ),
 
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                              DObjFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<void, Oderiv,  Fdflt,
-                              DObjFac<OCbase,  Fdflt> >,
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                          DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFactoryDeleter<void, OCderiv, Fdflt,
-    //                          DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjFac<OCbase,  Fdflt>() ),
 
     // Also, verify null pointer literal can be used for the
     // factory argument in each case.
     // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
     //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doLoadObjectFnullDeleter<void, Obase,
-    //                        DObjFac<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<void, Obase,
-    //                        DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, OCbase,
-    //                        DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, Oderiv,
-    //                        DObjFac<Oderiv,  Fdflt> >,
-    //&doLoadObjectFnullDeleter<void, Oderiv,
-    //                        DObjFac<Obase,   Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, Oderiv,
-    //                        DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<void, Oderiv,
-    //                        DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
-    //&doLoadObjectFnullDeleter<void, OCderiv,
-    //                        DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<void, OCderiv,
-    //                        DObjFac<OCbase,  Fdflt> >,
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
 
 
     // negative tests for deleters look for a null pointer lvalue.
     // Note that null pointer literal would be a compile-fail test
-    &doLoadObjectFactoryDzero<void, Obase,   Ftst>,
-    &doLoadObjectFactoryDzero<void, Obase,   Fbsl>,
-    &doLoadObjectFactoryDzero<void, Oderiv,  Ftst>,
-    &doLoadObjectFactoryDzero<void, Oderiv,  Fbsl>,
-    //&doLoadObjectFactoryDzero<void, OCbase,  Ftst>,
-    //&doLoadObjectFactoryDzero<void, OCbase,  Fbsl>,
-    //&doLoadObjectFactoryDzero<void, OCderiv, Ftst>,
-    //&doLoadObjectFactoryDzero<void, OCderiv, Fbsl>
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), NullPolicy() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), NullPolicy() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), NullPolicy() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), NullPolicy() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), NullPolicy() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), NullPolicy() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), NullPolicy() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), NullPolicy() )
 };
-static const int TEST_VOID_ARRAY_SIZE =
-                            sizeof(TEST_VOID_ARRAY)/sizeof(TEST_VOID_ARRAY[0]);
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-typedef void (*TestConstVoidFn)(int, int, int, TestLoadArgs<const void> *);
-
-static const TestConstVoidFn TEST_CONST_VOID_ARRAY[] = {
-    // default test
-    &doLoad<const void>,
-
-    // single object-pointer tests
-    &doLoadOnull <const void>,
-
-    &doLoadObject<const void, Obase>,
-    &doLoadObject<const void, Oderiv>,
-    &doLoadObject<const void, OCbase>,
-    &doLoadObject<const void, OCderiv>,
-
-    // factory tests
-    &doLoadOnullFnull <const void>,
-
-    &doLoadObjectFactory<const void, Obase,   Ftst>,
-    &doLoadObjectFactory<const void, Obase,   Fbsl>,
-    &doLoadObjectFactory<const void, Oderiv,  Ftst>,
-    &doLoadObjectFactory<const void, Oderiv,  Fbsl>,
-    &doLoadObjectFactory<const void, OCbase,  Ftst>,
-    &doLoadObjectFactory<const void, OCbase,  Fbsl>,
-    &doLoadObjectFactory<const void, OCderiv, Ftst>,
-    &doLoadObjectFactory<const void, OCderiv, Fbsl>,
-
-    // deleter tests
-    &doLoadOnullFnullDnull <const void>,
-
-    // First test the non-deprecated interface, using the policy
-    // 'DVoidVoid'.
-
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                 DVoidVoid< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                 DVoidVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                 DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                 DVoidVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                 DVoidVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Fbsl,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< Obase,   Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                 DVoidVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                 DVoidVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                 DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                 DVoidVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                 DVoidVoid< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                 DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                 DVoidVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                 DVoidVoid< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                  DVoidVoid<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                  DVoidVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Fdflt,
-                                  DVoidVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                  DVoidVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                  DVoidVoid<Obase,   Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                  DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                  DVoidVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                  DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                  DVoidVoid<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    &doLoadObjectFnullDeleter<const void, Obase,
-                                DVoidVoid<Obase,   Fdflt> >,
-    &doLoadObjectFnullDeleter<const void, Obase,
-                                DVoidVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const void, OCbase,
-                                DVoidVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const void, Oderiv,
-                                DVoidVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFnullDeleter<const void, Oderiv,
-                                DVoidVoid<Obase,   Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const void, Oderiv,
-                                DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<const void, Oderiv,
-                                DVoidVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const void, OCderiv,
-                                DVoidVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<const void, OCderiv,
-                                DVoidVoid<OCbase,  Fdflt> >,
-
-
-    // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that
-    // type-erase the 'object' type, but have a strongly typed
-    // 'factory' argument.  Such deleters are generated by the
-    // 'DVoidFac' policy..
-
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DVoidFac< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                  DVoidFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DVoidFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                  DVoidFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Fbsl,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< Obase,   Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DVoidFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DVoidFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DVoidFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DVoidFac< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                  DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DVoidFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DVoidFac< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                   DVoidFac<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                   DVoidFac<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Fdflt,
-                                   DVoidFac<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DVoidFac<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DVoidFac<Obase,   Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DVoidFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DVoidFac<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                   DVoidFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                   DVoidFac<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doLoadObjectFnullDeleter<const void, Obase,
-    //                             DVoidFac<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<const void, Obase,
-    //                             DVoidFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const void, Oderiv,
-    //                             DVoidFac<Oderiv,  Fdflt> >,
-    //&doLoadObjectFnullDeleter<const void, Oderiv,
-    //                             DVoidFac<Obase,   Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const void, Oderiv,
-    //                             DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<const void, Oderiv,
-    //                             DVoidFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const void, OCbase,
-    //                            DVoidFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const void, OCderiv,
-    //                            DVoidFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<const void, OCderiv,
-    //                            DVoidFac<OCbase,  Fdflt> >,
-
-
-    // Now we test deleters that are strongly typed for the
-    // 'object' parameter, but type-erase the 'factory'.
-
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DObjVoid< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                  DObjVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DObjVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                  DObjVoid< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Fbsl,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< Obase,   Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DObjVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DObjVoid< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DObjVoid< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DObjVoid< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                  DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DObjVoid< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                  DObjVoid< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                   DObjVoid<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                   DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Fdflt,
-                                   DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DObjVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DObjVoid<Obase,   Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                   DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                   DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                   DObjVoid<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    &doLoadObjectFnullDeleter<const void, Obase,
-                                 DObjVoid<Obase,   Fdflt> >,
-    &doLoadObjectFnullDeleter<const void, Obase,
-                                 DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const void, OCbase,
-                                 DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const void, Oderiv,
-                                 DObjVoid<Oderiv,  Fdflt> >,
-    &doLoadObjectFnullDeleter<const void, Oderiv,
-                                 DObjVoid<Obase,   Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const void, Oderiv,
-                                 DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<const void, Oderiv,
-                                 DObjVoid<OCbase,  Fdflt> >,
-
-    &doLoadObjectFnullDeleter<const void, OCderiv,
-                                 DObjVoid<OCderiv, Fdflt> >,
-    &doLoadObjectFnullDeleter<const void, OCderiv,
-                                 DObjVoid<OCbase,  Fdflt> >,
-
-
-    // Finally we test the most generic combination of generic
-    // object type, a factory, and a deleter taking two arguments
-    // compatible with pointers to the invoking 'object' and
-    // 'factory' types.
-
-    // MyTestObject
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                   DObjFac< Obase,   Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                   DObjFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                   DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                   DObjFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fbsl,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Obase,   Ftst,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    // const MyTestObject
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                   DObjFac< OCbase,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Fbsl,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Ftst,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    // MyDerivedObject
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< Oderiv,  Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< Obase,   Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                   DObjFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                   DObjFac< Obase,   Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< Oderiv,  Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< Obase,   Fbsl > >,
-
-    // ... plus safe const-conversions
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                   DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fbsl,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Ftst,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    // const MyDerivedObject
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                   DObjFac< OCderiv, Ftst > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                   DObjFac< OCbase,  Ftst > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                   DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fbsl,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                   DObjFac< OCderiv, Fbsl > >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Ftst,
-                                   DObjFac< OCbase,  Fbsl > >,
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                    DObjFac<Obase,   Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Obase,   Fdflt,
-                                    DObjFac<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, OCbase,  Fdflt,
-                                    DObjFac<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                    DObjFac<Oderiv,  Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                    DObjFac<Obase,   Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                    DObjFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, Oderiv,  Fdflt,
-                                    DObjFac<OCbase,  Fdflt> >,
-
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                    DObjFac<OCderiv, Fdflt> >,
-    &doLoadObjectFactoryDeleter<const void, OCderiv, Fdflt,
-                                    DObjFac<OCbase,  Fdflt> >,
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //&doLoadObjectFnullDeleter<const void, Obase,
-    //                              DObjFac<Obase,   Fdflt> >,
-    //&doLoadObjectFnullDeleter<const void, Obase,
-    //                              DObjFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const void, OCbase,
-    //                              DObjFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const void, Oderiv,
-    //                              DObjFac<Oderiv,  Fdflt> >,
-    //&doLoadObjectFnullDeleter<const void, Oderiv,
-    //                              DObjFac<Obase,   Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const void, Oderiv,
-    //                              DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<const void, Oderiv,
-    //                              DObjFac<OCbase,  Fdflt> >,
-
-    //&doLoadObjectFnullDeleter<const void, OCderiv,
-    //                              DObjFac<OCderiv, Fdflt> >,
-    //&doLoadObjectFnullDeleter<const void, OCderiv,
-    //                              DObjFac<OCbase,  Fdflt> >,
-
-
-    // negative tests for deleters look for a null pointer lvalue.
-    // Note that null pointer literal would be a compile-fail test
-    &doLoadObjectFactoryDzero<const void, Obase,   Ftst>,
-    &doLoadObjectFactoryDzero<const void, Obase,   Fbsl>,
-    &doLoadObjectFactoryDzero<const void, Oderiv,  Ftst>,
-    &doLoadObjectFactoryDzero<const void, Oderiv,  Fbsl>,
-    &doLoadObjectFactoryDzero<const void, OCbase,  Ftst>,
-    &doLoadObjectFactoryDzero<const void, OCbase,  Fbsl>,
-    &doLoadObjectFactoryDzero<const void, OCderiv, Ftst>,
-    &doLoadObjectFactoryDzero<const void, OCderiv, Fbsl>
-};
-static const int TEST_CONST_VOID_ARRAY_SIZE =
-                sizeof(TEST_CONST_VOID_ARRAY)/sizeof(TEST_CONST_VOID_ARRAY[0]);
 
 } // close anonymous namespace
 
@@ -9176,9 +6060,9 @@ testCompsite();
             if (veryVerbose)
                  cout << "Testing bdema_ManagedPtr<MyTestObject>::loadAlias\n";
 
-            testLoadAliasOps1<MyTestObject>(L_, TEST_BASE_ARRAY);
-            testLoadAliasOps2<MyTestObject>(L_, TEST_BASE_ARRAY);
-            testLoadAliasOps3<MyTestObject>(L_, TEST_BASE_ARRAY);
+            testLoadAliasOps1(L_, TEST_POLICY_BASE_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_BASE_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_BASE_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -9187,9 +6071,9 @@ testCompsite();
             if (veryVerbose) cout <<
                    "Testing bdema_ManagedPtr<const MyTestObject>::loadAlias\n";
 
-            testLoadAliasOps1<const MyTestObject>(L_, TEST_CONST_BASE_ARRAY);
-            testLoadAliasOps2<const MyTestObject>(L_, TEST_CONST_BASE_ARRAY);
-            testLoadAliasOps3<const MyTestObject>(L_, TEST_CONST_BASE_ARRAY);
+            testLoadAliasOps1(L_, TEST_POLICY_CONST_BASE_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_CONST_BASE_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_CONST_BASE_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -9208,9 +6092,9 @@ testCompsite();
             if (veryVerbose)
                          cout << "Testing bdema_ManagedPtr<void>::loadAlias\n";
 
-            testLoadAliasOps1<void>(L_, TEST_VOID_ARRAY);
-            testLoadAliasOps2<void>(L_, TEST_VOID_ARRAY);
-            testLoadAliasOps3<void>(L_, TEST_VOID_ARRAY);
+            testLoadAliasOps1(L_, TEST_POLICY_VOID_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_VOID_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_VOID_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -9219,9 +6103,9 @@ testCompsite();
             if (veryVerbose)
                    cout << "Testing bdema_ManagedPtr<const void>::loadAlias\n";
 
-            testLoadAliasOps1<const void>(L_, TEST_CONST_VOID_ARRAY);
-            testLoadAliasOps2<const void>(L_, TEST_CONST_VOID_ARRAY);
-            testLoadAliasOps3<const void>(L_, TEST_CONST_VOID_ARRAY);
+            testLoadAliasOps1(L_, TEST_POLICY_CONST_VOID_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_CONST_VOID_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_CONST_VOID_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -9576,7 +6460,7 @@ testCompsite();
             if (veryVerbose)
                       cout << "Testing bdema_ManagedPtr<MyTestObject>::load\n";
 
-            testConstructors<MyTestObject>(L_, TEST_CTOR_BASE_ARRAY);
+            testConstructors(L_, TEST_POLICY_BASE_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -9585,7 +6469,7 @@ testCompsite();
             if (veryVerbose)
                 cout << "Testing bdema_ManagedPtr<const MyTestObject>::load\n";
 
-            testConstructors<const MyTestObject>(L_, TEST_CTOR_CONST_BASE_ARRAY);
+            testConstructors(L_, TEST_POLICY_CONST_BASE_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -9594,7 +6478,7 @@ testCompsite();
             if (veryVerbose)
                    cout << "Testing bdema_ManagedPtr<MyDerivedObject>::load\n";
 
-            testConstructors<MyDerivedObject>(L_, TEST_CTOR_DERIVED_ARRAY);
+            testConstructors(L_, TEST_POLICY_DERIVED_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -9602,7 +6486,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "Testing bdema_ManagedPtr<void>::load\n";
 
-            testConstructors<void>(L_, TEST_CTOR_VOID_ARRAY);
+            testConstructors(L_, TEST_POLICY_VOID_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -9611,8 +6495,10 @@ testCompsite();
             if (veryVerbose)
                         cout << "Testing bdema_ManagedPtr<const void>::load\n";
 
-            testConstructors<const void>(L_, TEST_CTOR_CONST_VOID_ARRAY);
-        }        using namespace CREATORS_TEST_NAMESPACE;
+            testConstructors(L_, TEST_POLICY_CONST_VOID_ARRAY);
+        }
+
+        using namespace CREATORS_TEST_NAMESPACE;
 
         bslma_TestAllocator ta("object", veryVeryVeryVerbose);
 
@@ -10493,8 +7379,9 @@ testCompsite();
             if (veryVerbose)
                  cout << "Testing bdema_ManagedPtr<MyTestObject>::loadAlias\n";
 
-            testLoadAliasOps1<MyTestObject>(L_, TEST_BASE_ARRAY);
-            testLoadAliasOps2<MyTestObject>(L_, TEST_BASE_ARRAY);
+            testLoadAliasOps1(L_, TEST_POLICY_BASE_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_BASE_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_BASE_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10503,8 +7390,9 @@ testCompsite();
             if (veryVerbose) cout <<
                    "Testing bdema_ManagedPtr<const MyTestObject>::loadAlias\n";
 
-            testLoadAliasOps1<const MyTestObject>(L_, TEST_CONST_BASE_ARRAY);
-            testLoadAliasOps2<const MyTestObject>(L_, TEST_CONST_BASE_ARRAY);
+            testLoadAliasOps1(L_, TEST_POLICY_CONST_BASE_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_CONST_BASE_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_CONST_BASE_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10513,8 +7401,9 @@ testCompsite();
             //if (veryVerbose) cout <<
             //          "Testing bdema_ManagedPtr<MyDerivedObject>::loadAlias\n";
 
-            //testLoadAliasOps1<MyDerivedObject>(L_, TEST_DERIVED_ARRAY);
-            //testLoadAliasOps2<MyDerivedObject>(L_, TEST_DERIVED_ARRAY);
+            //testLoadAliasOps1(L_, TEST_POLICY_DERIVED_ARRAY);
+            //testLoadAliasOps2(L_, TEST_POLICY_DERIVED_ARRAY);
+            //testLoadAliasOps3(L_, TEST_POLICY_DERIVED_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10523,8 +7412,9 @@ testCompsite();
             if (veryVerbose)
                          cout << "Testing bdema_ManagedPtr<void>::loadAlias\n";
 
-            testLoadAliasOps1<void>(L_, TEST_VOID_ARRAY);
-            testLoadAliasOps2<void>(L_, TEST_VOID_ARRAY);
+            testLoadAliasOps1(L_, TEST_POLICY_VOID_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_VOID_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_VOID_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10533,8 +7423,9 @@ testCompsite();
             if (veryVerbose)
                    cout << "Testing bdema_ManagedPtr<const void>::loadAlias\n";
 
-            testLoadAliasOps1<const void>(L_, TEST_CONST_VOID_ARRAY);
-            testLoadAliasOps2<const void>(L_, TEST_CONST_VOID_ARRAY);
+            testLoadAliasOps1(L_, TEST_POLICY_CONST_VOID_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_CONST_VOID_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_CONST_VOID_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10721,7 +7612,7 @@ testCompsite();
             if (veryVerbose)
                       cout << "Testing bdema_ManagedPtr<MyTestObject>::load\n";
 
-            testLoadOps<MyTestObject>(L_, TEST_BASE_ARRAY);
+            testLoadOps(L_, TEST_POLICY_BASE_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10730,7 +7621,7 @@ testCompsite();
             if (veryVerbose)
                 cout << "Testing bdema_ManagedPtr<const MyTestObject>::load\n";
 
-            testLoadOps<const MyTestObject>(L_, TEST_CONST_BASE_ARRAY);
+            testLoadOps(L_, TEST_POLICY_CONST_BASE_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10739,7 +7630,7 @@ testCompsite();
             if (veryVerbose)
                    cout << "Testing bdema_ManagedPtr<MyDerivedObject>::load\n";
 
-            testLoadOps<MyDerivedObject>(L_, TEST_DERIVED_ARRAY);
+            testLoadOps(L_, TEST_POLICY_DERIVED_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10747,7 +7638,7 @@ testCompsite();
         {
             if (veryVerbose) cout << "Testing bdema_ManagedPtr<void>::load\n";
 
-            testLoadOps<void>(L_, TEST_VOID_ARRAY);
+            testLoadOps(L_, TEST_POLICY_VOID_ARRAY);
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -10756,7 +7647,7 @@ testCompsite();
             if (veryVerbose)
                         cout << "Testing bdema_ManagedPtr<const void>::load\n";
 
-            testLoadOps<const void>(L_, TEST_CONST_VOID_ARRAY);
+            testLoadOps(L_, TEST_POLICY_CONST_VOID_ARRAY);
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
