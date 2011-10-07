@@ -565,8 +565,8 @@ int main(int argc, char *argv[]) {
                        break;
                    }
                    else {
-                       LOOP_ASSERT(resp,
-                             resp == bteso_SocketHandle::BTESO_ERROR_TIMEDOUT);
+                       ASSERT(resp ==
+                                     bteso_SocketHandle::BTESO_ERROR_TIMEDOUT);
                    }
                }
 
