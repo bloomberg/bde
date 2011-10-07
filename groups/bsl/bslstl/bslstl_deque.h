@@ -123,16 +123,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_issame.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ADDRESSOF
-#include <bsls_addressof.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_CSTRING
@@ -1304,9 +1304,9 @@ deque<VALUE_TYPE,ALLOCATOR>::privateAppend(
             insertPoint = guard.end();  // 'insertAtBack(1)' invalidated iter
         }
         BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-                                                  BSLS_ADDRESSOF(*insertPoint),
-                                                  *first,
-                                                  this->bslmaAllocator());
+                                             BSLS_UTIL_ADDRESSOF(*insertPoint),
+                                             *first,
+                                             this->bslmaAllocator());
         ++guard;
     }
 
@@ -1349,9 +1349,9 @@ deque<VALUE_TYPE,ALLOCATOR>::privateAppend(INPUT_ITER              first,
             insertPoint = guard.end();  // 'insertAtBack(1)' invalidated iter
         }
         BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-                                                  BSLS_ADDRESSOF(*insertPoint),
-                                                  *first,
-                                                  this->bslmaAllocator());
+                                             BSLS_UTIL_ADDRESSOF(*insertPoint),
+                                             *first,
+                                             this->bslmaAllocator());
         ++guard;
     }
 
@@ -1823,9 +1823,9 @@ deque<VALUE_TYPE,ALLOCATOR>::privatePrepend(
         }
         --insertPoint;
         BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-                                                  BSLS_ADDRESSOF(*insertPoint),
-                                                  *--last,
-                                                  this->bslmaAllocator());
+                                             BSLS_UTIL_ADDRESSOF(*insertPoint),
+                                             *--last,
+                                             this->bslmaAllocator());
         ++guard;
     } while (first != last);
 
@@ -1867,9 +1867,9 @@ deque<VALUE_TYPE,ALLOCATOR>::privatePrepend(
         }
         --insertPoint;
         BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-                                                  BSLS_ADDRESSOF(*insertPoint),
-                                                  *--last,
-                                                  this->bslmaAllocator());
+                                             BSLS_UTIL_ADDRESSOF(*insertPoint),
+                                             *--last,
+                                             this->bslmaAllocator());
         ++guard;
     } while (first != last);
 

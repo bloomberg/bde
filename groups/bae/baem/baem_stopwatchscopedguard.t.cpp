@@ -1030,7 +1030,7 @@ int main(int argc, char *argv[])
                 bdet_DatetimeTz TIME_STAMP(bdet_Datetime(dt), 0);
 
                 sample.setTimeStamp(TIME_STAMP);
-                sample.appendGroup(&records.front(),
+                sample.appendGroup(records.data(),
                                    records.size(),
                                    ELAPSED_TIME);
 

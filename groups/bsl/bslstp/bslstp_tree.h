@@ -99,12 +99,12 @@ iterators invalidated are those referring to the deleted node.
 #include <bslalg_typetraitsgroupstlordered.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ADDRESSOF
-#include <bsls_addressof.h>
-#endif
-
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -323,7 +323,7 @@ protected:
     _Link_type __tmp = this->_M_header.allocate(1);
     BSLS_TRY {
       BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-          BSLS_ADDRESSOF(__tmp->_M_value_field), __x,
+          BSLS_UTIL_ADDRESSOF(__tmp->_M_value_field), __x,
           this->_M_header.bslmaAllocator());
     }
     BSLS_CATCH(...) {
@@ -519,7 +519,7 @@ public:
                                                          this->_M_header._M_data->_M_left,
                                                          this->_M_header._M_data->_M_right);
     BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
-                                          BSLS_ADDRESSOF(__y->_M_value_field));
+                                     BSLS_UTIL_ADDRESSOF(__y->_M_value_field));
     this->_M_header.deallocate(__y,1);
     --_M_node_count;
   }
@@ -1261,7 +1261,7 @@ _Rb_tree<_Key,_Value,_KeyOfValue,
     _M_erase(_S_right(__x));
     _Link_type __y = _S_left(__x);
     BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
-                                          BSLS_ADDRESSOF(__x->_M_value_field));
+                                     BSLS_UTIL_ADDRESSOF(__x->_M_value_field));
     this->_M_header.deallocate(__x,1);
     __x = __y;
   }
