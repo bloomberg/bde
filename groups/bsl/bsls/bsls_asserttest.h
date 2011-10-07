@@ -516,47 +516,69 @@ BSLS_IDENT("$Id: $")
     )                                                                    \
 )
 
-#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, EXPRESSION_UNDER_TEST) { \
-    try {                                                                \
-        EXPRESSION_UNDER_TEST;                                           \
-                                                                         \
-        ASSERT(bsls_AssertTest::tryProbe(RESULT));                       \
-    }                                                                    \
-    catch (const bsls_AssertTestException& e) {                          \
-        ASSERT(bsls_AssertTest::catchProbe(RESULT, e, __FILE__));        \
-    }                                                                    \
+#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, EXPRESSION_UNDER_TEST) {  \
+    try {                                                                 \
+        EXPRESSION_UNDER_TEST;                                            \
+                                                                          \
+        ASSERT(bsls_AssertTest::tryProbe(RESULT));                        \
+    }                                                                     \
+    catch (const bsls_AssertTestException& e) {                           \
+        if (!bsls_AssertTest::catchProbe(RESULT, e, __FILE__)) {          \
+            if ('P' == RESULT) {                                          \
+               ASSERT(false && "Unexpected assertion");                   \
+            }                                                             \
+            else {                                                        \
+               ASSERT(false &&                                            \
+               "(Expected) assertion raised by a lower level component"); \
+            }                                                             \
+        }                                                                 \
+    }                                                                     \
 }
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-    #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
+// The following macros are not expanded on the Microsoft compiler to avoid
+// internal compiler errors in optimized builds, which are the result of
+// attempts to optimize many try/catch blocks in large switch statements.
+// Note that the resulting test driver is just as thorough, but will crash on
+// failure rather than capturing and reporting the error.
 
-    #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
+#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
 #else
-    #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST)
-    #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
+         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
+
+# define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST) \
+         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST) \
+         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
+#endif
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) \
+       BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
+#else
+#   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)
 #endif
 
 #ifdef BSLS_ASSERT_IS_ACTIVE
-    #define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST) \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
-
     #define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST)
     #define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST)
 #endif
 
 #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-    #define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST) \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
-
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST)
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST)
 #endif
 
@@ -566,41 +588,38 @@ BSLS_IDENT("$Id: $")
                                                                              \
         ASSERT(bsls_AssertTest::tryProbe(RESULT));                           \
     }                                                                        \
-    catch (const bsls_AssertTestException& e) {                              \
+    catch (const bsls_AssertTestException&) {                                \
         ASSERT(bsls_AssertTest::catchProbeRaw(RESULT));                      \
     }                                                                        \
 }
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-    #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
+#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
 
+#define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+        BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
+
+#define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+        BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST)
     #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
 
 #ifdef BSLS_ASSERT_IS_ACTIVE
-    #define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST) \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
-
     #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST)
     #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
 
 #ifdef BSLS_ASSERT_OPT_IS_ACTIVE
-    #define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
-
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST)
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
 
@@ -713,15 +732,15 @@ struct bsls_AssertTest {
         // registered assertion-failure handler function in 'bsls_assert'.
 };
 
-}  // close namespace BloombergLP
-
-#endif // test driver include guard
-
-#undef BSLS_ASSERTTEST_NORETURN
-
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+
+}  // close namespace BloombergLP
+
+#endif // test driver internal include guard
+
+#undef BSLS_ASSERTTEST_NORETURN
 
 #endif
 
