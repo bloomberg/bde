@@ -108,54 +108,74 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM__CMP_SUN)
   // Sun CC 5.5 or above
-# define BSL_NATIVE_CPP_LIB_HEADER(filename) <../CC/Cstd/filename>
-# define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../CC/filename>
-# define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../CC/Cstd/filename>
-# define BSL_NATIVE_CPP_C_HEADER(filename) <../CC/std/filename>
-# define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-# define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+  //
+#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CISO646_HEADER(filename) <../CC/std/filename>
+
+#   if !defined(BDE_BUILD_TARGET_STLPORT)
+#       define BSL_NATIVE_CPP_LIB_HEADER(filename) <../CC/Cstd/filename>
+#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../CC/filename>
+#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../CC/Cstd/filename>
+#       define BSL_NATIVE_CPP_C_HEADER(filename) <../CC/std/filename>
+#   else
+#       define BSL_NATIVE_SUN_STLPORT_HEADER(filename)                        \
+                                                      <../CC/stlport4/filename>
+#       define BSL_NATIVE_CPP_LIB_HEADER(filename)                            \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#       define BSL_NATIVE_CPP_RUNTIME_HEADER(filename)                        \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#       define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename)                     \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
+                                        BSL_NATIVE_SUN_STLPORT_HEADER(filename)
+#   endif
 
 #elif defined(BSLS_PLATFORM__CMP_GNU)
   // gcc 4.1 or above
-# define BSL_NATIVE_CPP_LIB_HEADER(filename) \
+#   define BSL_NATIVE_CPP_LIB_HEADER(filename) \
             <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-# define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
+#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
             <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-# define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
+#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
             <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/backward/filename>
-# define BSL_NATIVE_CPP_C_HEADER(filename) \
+#   define BSL_NATIVE_CPP_C_HEADER(filename) \
             <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
-# define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CISO646_HEADER(filename) \
+            <../__GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__/filename>
+#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
 
-# if defined(BSLS_PLATFORM__OS_HPUX)
-#  define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include-fixed/filename>
-# else
-#  define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
-# endif
+#   if defined(BSLS_PLATFORM__OS_HPUX)
+#       define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include-fixed/filename>
+#   else
+#       define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+#   endif
 
 #elif defined(BSLS_PLATFORM__CMP_HP)
   // HP C/aC++
-# define BSL_NATIVE_CPP_LIB_HEADER(filename) <../include_std/filename>
-# define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../include_std/filename>
-# define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../include_std/filename>
-# define BSL_NATIVE_CPP_C_HEADER(filename) <../include_std/filename>
-# define BSL_NATIVE_C_LIB_HEADER(filename) <../include_std/filename>
-# define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CPP_LIB_HEADER(filename) <../include_std/filename>
+#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../include_std/filename>
+#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../include_std/filename>
+#   define BSL_NATIVE_CPP_C_HEADER(filename) <../include_std/filename>
+#   define BSL_NATIVE_CISO646_HEADER(filename) <../include_std/filename>
+#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include_std/filename>
+#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 
 #else
   // Most other compilers
-# define BSL_NATIVE_CPP_LIB_HEADER(filename) <../include/filename>
-# define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../include/filename>
-# define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../include/filename>
-# define BSL_NATIVE_CPP_C_HEADER(filename) <../include/filename>
-# define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-# define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CPP_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CPP_C_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_CISO646_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 #endif
 
 #else /* ! __cplusplus */
 
-# define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
-# define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 
 #endif /* __cplusplus */
 
@@ -164,7 +184,7 @@ BSLS_IDENT("$Id: $")
 /*
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2009
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

@@ -237,13 +237,15 @@ class baesu_StackTraceFrame {
     baesu_StackTraceFrame(bslma_Allocator *basicAllocator = 0);
         // Create a 'baesu_StackTraceFrame' object having the (default)
         // attribute values:
-        //: o 'address            == 0'
-        //: o 'libraryFileName    == ""'
-        //: o 'lineNumber         == -1'
-        //: o 'mangledSymbolName  == ""'
-        //: o 'offsetFromSymbol   == (size_t)-1'
-        //: o 'sourceFileName     == ""'
-        //: o 'symbolName         == ""'
+        //..
+        //  address            == 0
+        //  libraryFileName    == ""
+        //  lineNumber         == -1
+        //  mangledSymbolName  == ""
+        //  offsetFromSymbol   == (size_t)-1
+        //  sourceFileName     == ""
+        //  symbolName         == ""
+        //..
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.

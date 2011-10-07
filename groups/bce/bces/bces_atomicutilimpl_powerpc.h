@@ -65,6 +65,8 @@ long __fetch_and_addlp(volatile long *, long);
 
 namespace BloombergLP {
 
+// See the implementation notes of the corresponding .cpp file for the
+// explanation of 'EXTERN_C_32'.
 #if defined(BSLS_PLATFORM__CPU_64_BIT)
 #   define EXTERN_C_32
 #else

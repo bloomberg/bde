@@ -71,14 +71,17 @@ using namespace bsl;  // automatically added by script
 // [ 8] dispatch
 //
 // ACCESSORS
+// [11] canRegisterSockets
+// [11] hasLimitedSocketCapacity
 // [ 3] numSocketEvents
 // [ 3] numEvents
 // [ 3] isRegistered
 //-----------------------------------------------------------------------------
-// [ 9] Usage example
+// [12] Usage example
 // [ 1] Breathing test
-// [10] Test for DRQS 10117512: Connect to non-listening port may result in
+// [ 9] Test for DRQS 10117512: Connect to non-listening port may result in
 //      100 % CPU utilization and a connect callback is NOT invoked
+// [10] Test for DRQS 10105162:
 //==========================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
@@ -281,272 +284,7 @@ int main(int argc, char *argv[]) {
                                  bteso_TimeMetrics::BTESO_CPU_BOUND);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case -2: {
-        // -----------------------------------------------------------------
-        // PERFORMANCE TESTING 'registerSocketEvent':
-        //   Get the performance data.
-        //
-        // Plan:
-        //   Open multiple sockets and register a read event for each
-        //   socket, calculate the average time taken to register a read
-        //   event for a given number of registered read event.
-        // Testing:
-        //   'dispatch' capacity
-        // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
-
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
-
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
-        {
-
-            const char *FILENAME = "pollRegister.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-            if (veryVerbose) {
-                cout << "Number of test sockets: " << numPairs
-                     << "; number of measurements: " << numMeasurements
-                     << bsl::endl;
-            }
-
-            Obj mX(&timeMetric, &testAllocator);
-            bdet_TimeInterval infinite, timeout;
-            if (!outFile) {
-                cout << "Cannot open pollregisterPerformance.dat "
-                     << "errno: " << errno << endl;
-                return 0;
-            }
-            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
-                                     numPairs, numMeasurements, controlFlag);
-            outFile.close();
-        }
-      } break;
-      case -1: {
-        // -----------------------------------------------------------------
-        // PERFORMANCE TESTING 'dispatch':
-        //   Get the performance data.
-        //
-        // Plan:
-        //   Set up multiple connections and register a read event for each
-        //   connection, calculate the average time taken to dispatch a read
-        //   event for a given number of registered read event.
-        // Testing:
-        //   'dispatch' capacity
-        // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
-
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
-
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-        if (verbose)
-            cout << endl
-                << "PERFORMANCE TESTING 'dispatch'" << endl
-                << "==============================" << endl;
-        {
-            const char *FILENAME = "pollDispatch.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-            if (veryVerbose) {
-                cout << "Number of test socket pairs: " << numPairs
-                     << "; number of measurements: " << numMeasurements
-                     << bsl::endl;
-            }
-
-            Obj mX(&timeMetric, &testAllocator);
-            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
-                                    numPairs, numMeasurements, controlFlag);
-            outFile.close();
-        }
-      } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // TESTING FOR DRQS 10105162
-        // Concerns:
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-              << "VERIFYING 'deregisterAll' IN 'dispatch' CALLBACK" << endl
-              << "================================================" << endl;
-
-        enum { NUM_BYTES = 16 };
-
-        Obj mX; const Obj& X = mX;
-
-        bteso_SocketHandle::Handle socket[2];
-
-        int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
-                             socket, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-        ASSERT(0 == rc);
-
-        bdef_Function<void (*)()> deregisterCallback(
-                bdef_MemFnUtil::memFn(&Obj::deregisterAll, &mX));
-
-        ASSERT(0 == mX.registerSocketEvent(socket[0],
-                                           bteso_EventType::BTESO_READ,
-                                           deregisterCallback));
-        ASSERT(0 == mX.registerSocketEvent(socket[0],
-                                           bteso_EventType::BTESO_WRITE,
-                                           deregisterCallback));
-        ASSERT(0 == mX.registerSocketEvent(socket[1],
-                                           bteso_EventType::BTESO_READ,
-                                           deregisterCallback));
-        ASSERT(0 == mX.registerSocketEvent(socket[1],
-                                           bteso_EventType::BTESO_WRITE,
-                                           deregisterCallback));
-
-        char wBuffer[NUM_BYTES];
-        memset(wBuffer,'4', NUM_BYTES);
-        rc = bteso_SocketImpUtil::write(socket[0], &wBuffer, NUM_BYTES, 0);
-        ASSERT(0 < rc);
-
-        ASSERT(1 == mX.dispatch(bdet_TimeInterval(1.0), 0));
-
-      } break;
-      case 10: {
-        // -----------------------------------------------------------------
-        // TESTING FOR DRQS 10117512
-        //   When initiating a non-blocking connect to a non-listening port,
-        //   the registered callback is never invoked and the process uses
-        //   100 % CPU
-        //
-        // Plan:
-        //   Create a socket and issue a non-blocking connect to a
-        //   non-listening port.  Create an object under test and register a
-        //   callback to be invoked.  Dispatch the callbacks (with a timeout)
-        //   and verify that the callback is invoked.
-        //
-        // Testing:
-        //   registerSocketEvent(CONNECT)
-        // -----------------------------------------------------------------
-        if (verbose) cout << "\n'registerSocketEvent' for NON-BLOCKING CONNECT"
-                          << "\n=============================================="
-                          << endl;
-        {
-            if (verbose) {
-                bsl::cout << "-> Creating a socket" << bsl::endl;
-            }
-
-            bteso_SocketHandle::Handle handle;
-            int result
-                = bteso_SocketImpUtil::open<bteso_IPv4Address>(&handle,
-                                     bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-            ASSERT(!result);
-
-            result = bteso_IoUtil::setBlockingMode(
-                                              handle,
-                                              bteso_IoUtil::BTESO_NONBLOCKING);
-            ASSERT(!result);
-
-            if (verbose) {
-                bsl::cout << "-> Issuing a non-blocking connect: ";
-            }
-            bteso_IPv4Address server;
-            server.setPortNumber(1);
-
-            result = bteso_SocketImpUtil::connect(handle, server);
-            if (verbose) {
-                bsl::cout << "rc = " << result << ", errno = " << errno
-                    << ": " << strerror(errno) << bsl::endl;
-            }
-
-            ASSERT(result != 0); // connection failed
-
-            if (result != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
-                // connection failed with an error other than EWOULDBLOCK
-                bteso_SocketImpUtil::close(handle);
-            }
-
-            bteso_TimeMetrics timeMetric(
-                                   bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
-                                   bteso_TimeMetrics::BTESO_CPU_BOUND);
-            Obj mX(&timeMetric, &testAllocator);
-            bool isInvoked = false;
-
-            bteso_EventManager::Callback connectCb(
-                    bdef_BindUtil::bind( &testInvocationCb
-                                       , &isInvoked
-                                       , &mX
-                                       , handle
-                                       , bteso_EventType::BTESO_CONNECT));
-
-            ASSERT(!mX.registerSocketEvent(handle,
-                                           bteso_EventType::BTESO_CONNECT,
-                                           connectCb));
-            ASSERT(!isInvoked);
-            int rc = mX.dispatch(bdetu_SystemTime::now() + 5.0, 0); // 5 sec
-            ASSERT(isInvoked);
-            // Deregistration is done in the callback
-
-        }
-      } break;
-      case 9: {
+      case 12: {
         // -----------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -661,6 +399,182 @@ int main(int argc, char *argv[]) {
                                         bteso_EventType::BTESO_WRITE));
         }
       } break;
+
+      case 11: {
+        // -----------------------------------------------------------------
+        // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
+        //
+        // Concern:
+        //: 1 'hasLimitiedSocketCapacity' returns 'false'.
+        //:
+        //: 2 'canRegisterSockets' always returns 'true'.
+        //
+        // Plan:
+        //: 1 Assert that 'hasLimitedSocketCapacity' returns 'false'.
+        //:
+        //: 2 Assert that 'canRegisterSockets' returns 'true'.
+        //
+        // Testing:
+        //   bool canRegisterSockets() const;
+        //   bool hasLimitedSocketCapacity() const;
+        // -----------------------------------------------------------------
+
+        if (verbose) cout << endl
+                << "TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity"
+                << endl
+                << "=========================================================="
+                << endl;
+
+        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            bool hlsc = X.hasLimitedSocketCapacity();
+            LOOP_ASSERT(hlsc, false == hlsc);
+        }
+
+        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            bool crs = X.canRegisterSockets();
+            LOOP_ASSERT(crs, true == crs);
+        }
+      } break;
+
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING FOR DRQS 10105162
+        //   Dispatching signaled user callbacks works correctly even if one
+        //   of the callbacks deregisters all socket events.
+        //
+        // Plan:
+        //   Create a socket pair and register a read and write events on both
+        //   sockets in the pair.  The registered callback would invoke
+        //   'deregisterAll'.  Dispatch the callbacks (with a timeout)
+        //   and verify that the callback is invoked correctly
+        //
+        // Testing:
+        //   int dispatchCallbacks(...)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+              << "VERIFYING 'deregisterAll' IN 'dispatch' CALLBACK" << endl
+              << "================================================" << endl;
+
+        enum { NUM_BYTES = 16 };
+
+        Obj mX; const Obj& X = mX;
+
+        bteso_SocketHandle::Handle socket[2];
+
+        int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
+                             socket, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+        ASSERT(0 == rc);
+
+        bdef_Function<void (*)()> deregisterCallback(
+                bdef_MemFnUtil::memFn(&Obj::deregisterAll, &mX));
+
+        ASSERT(0 == mX.registerSocketEvent(socket[0],
+                                           bteso_EventType::BTESO_READ,
+                                           deregisterCallback));
+        ASSERT(0 == mX.registerSocketEvent(socket[0],
+                                           bteso_EventType::BTESO_WRITE,
+                                           deregisterCallback));
+        ASSERT(0 == mX.registerSocketEvent(socket[1],
+                                           bteso_EventType::BTESO_READ,
+                                           deregisterCallback));
+        ASSERT(0 == mX.registerSocketEvent(socket[1],
+                                           bteso_EventType::BTESO_WRITE,
+                                           deregisterCallback));
+
+        char wBuffer[NUM_BYTES];
+        memset(wBuffer,'4', NUM_BYTES);
+        rc = bteso_SocketImpUtil::write(socket[0], &wBuffer, NUM_BYTES, 0);
+        ASSERT(0 < rc);
+        rc = bteso_SocketImpUtil::write(socket[1], &wBuffer, NUM_BYTES, 0);
+        ASSERT(0 < rc);
+
+        ASSERT(1 == mX.dispatch(bdet_TimeInterval(1.0), 0));
+
+      } break;
+
+      case 9: {
+        // -----------------------------------------------------------------
+        // TESTING FOR DRQS 10117512
+        //   When initiating a non-blocking connect to a non-listening port,
+        //   the registered callback is never invoked and the process uses
+        //   100 % CPU
+        //
+        // Plan:
+        //   Create a socket and issue a non-blocking connect to a
+        //   non-listening port.  Create an object under test and register a
+        //   callback to be invoked.  Dispatch the callbacks (with a timeout)
+        //   and verify that the callback is invoked.
+        //
+        // Testing:
+        //   registerSocketEvent(CONNECT)
+        // -----------------------------------------------------------------
+        if (verbose) cout << "\n'registerSocketEvent' for NON-BLOCKING CONNECT"
+                          << "\n=============================================="
+                          << endl;
+        {
+            if (verbose) {
+                bsl::cout << "-> Creating a socket" << bsl::endl;
+            }
+
+            bteso_SocketHandle::Handle handle;
+            int result
+                = bteso_SocketImpUtil::open<bteso_IPv4Address>(&handle,
+                                     bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+            ASSERT(!result);
+
+            result = bteso_IoUtil::setBlockingMode(
+                                              handle,
+                                              bteso_IoUtil::BTESO_NONBLOCKING);
+            ASSERT(!result);
+
+            if (verbose) {
+                bsl::cout << "-> Issuing a non-blocking connect: ";
+            }
+            bteso_IPv4Address server;
+            server.setPortNumber(1);
+
+            result = bteso_SocketImpUtil::connect(handle, server);
+            if (verbose) {
+                bsl::cout << "rc = " << result << ", errno = " << errno
+                    << ": " << strerror(errno) << bsl::endl;
+            }
+
+            ASSERT(result != 0); // connection failed
+
+            if (result != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+                // connection failed with an error other than EWOULDBLOCK
+                bteso_SocketImpUtil::close(handle);
+            }
+
+            bteso_TimeMetrics timeMetric(
+                                   bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
+                                   bteso_TimeMetrics::BTESO_CPU_BOUND);
+            Obj mX(&timeMetric, &testAllocator);
+            bool isInvoked = false;
+
+            bteso_EventManager::Callback connectCb(
+                    bdef_BindUtil::bind( &testInvocationCb
+                                       , &isInvoked
+                                       , &mX
+                                       , handle
+                                       , bteso_EventType::BTESO_CONNECT));
+
+            ASSERT(!mX.registerSocketEvent(handle,
+                                           bteso_EventType::BTESO_CONNECT,
+                                           connectCb));
+            ASSERT(!isInvoked);
+            int rc = mX.dispatch(bdetu_SystemTime::now() + 5.0, 0); // 5 sec
+            ASSERT(isInvoked);
+            // Deregistration is done in the callback
+
+        }
+      } break;
+
       case 8: {
         // -----------------------------------------------------------------
         // TESTING 'deregisterSocket' FUNCTION:
@@ -1221,6 +1135,7 @@ int main(int argc, char *argv[]) {
                                           bteso_TimeMetrics::BTESO_CPU_BOUND));
         }
       } break;
+
       case 1: {
         // -----------------------------------------------------------------
         // BREATHING TEST
@@ -1279,6 +1194,152 @@ int main(int argc, char *argv[]) {
                     P_(LINE);   P(fails);
                 }
             }
+        }
+      } break;
+
+      case -1: {
+        // -----------------------------------------------------------------
+        // PERFORMANCE TESTING 'dispatch':
+        //   Get the performance data.
+        //
+        // Plan:
+        //   Set up multiple connections and register a read event for each
+        //   connection, calculate the average time taken to dispatch a read
+        //   event for a given number of registered read event.
+        // Testing:
+        //   'dispatch' capacity
+        // -----------------------------------------------------------------
+        enum {
+            DEFAULT_NUM_PAIRS        = 1024,
+            DEFAULT_NUM_MEASUREMENTS = 10
+        };
+
+        int numPairs = DEFAULT_NUM_PAIRS;
+        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+
+        if (2 < argc) {
+            int pairs = atoi(argv[2]);
+            if (0 > pairs) {
+                verbose = 0;
+                numPairs = -pairs;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
+            }
+            else {
+                numPairs = pairs;
+            }
+        }
+
+        if (3 < argc) {
+            int measurements = atoi(argv[3]);
+            if (0 > measurements) {
+                veryVerbose = 0;
+                numMeasurements = -measurements;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
+            }
+            else {
+                numMeasurements = measurements;
+            }
+        }
+        if (verbose)
+            cout << endl
+                << "PERFORMANCE TESTING 'dispatch'" << endl
+                << "==============================" << endl;
+        {
+            const char *FILENAME = "pollDispatch.dat";
+
+            ofstream outFile(FILENAME, ios_base::out);
+            if (!outFile) {
+                cout << "Cannot open " << FILENAME << " for writing."
+                     << endl;
+                return -1;
+            }
+            if (veryVerbose) {
+                cout << "Number of test socket pairs: " << numPairs
+                     << "; number of measurements: " << numMeasurements
+                     << bsl::endl;
+            }
+
+            Obj mX(&timeMetric, &testAllocator);
+            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
+                                    numPairs, numMeasurements, controlFlag);
+            outFile.close();
+        }
+      } break;
+
+      case -2: {
+        // -----------------------------------------------------------------
+        // PERFORMANCE TESTING 'registerSocketEvent':
+        //   Get the performance data.
+        //
+        // Plan:
+        //   Open multiple sockets and register a read event for each
+        //   socket, calculate the average time taken to register a read
+        //   event for a given number of registered read event.
+        // Testing:
+        //   'dispatch' capacity
+        // -----------------------------------------------------------------
+        enum {
+            DEFAULT_NUM_PAIRS        = 1024,
+            DEFAULT_NUM_MEASUREMENTS = 10
+        };
+
+        int numPairs = DEFAULT_NUM_PAIRS;
+        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+
+        if (2 < argc) {
+            int pairs = atoi(argv[2]);
+            if (0 > pairs) {
+                verbose = 0;
+                numPairs = -pairs;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
+            }
+            else {
+                numPairs = pairs;
+            }
+        }
+
+        if (3 < argc) {
+            int measurements = atoi(argv[3]);
+            if (0 > measurements) {
+                veryVerbose = 0;
+                numMeasurements = -measurements;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
+            }
+            else {
+                numMeasurements = measurements;
+            }
+        }
+
+        if (verbose)
+            cout << endl
+            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
+            << "=========================================" << endl;
+        {
+
+            const char *FILENAME = "pollRegister.dat";
+
+            ofstream outFile(FILENAME, ios_base::out);
+            if (!outFile) {
+                cout << "Cannot open " << FILENAME << " for writing."
+                     << endl;
+                return -1;
+            }
+            if (veryVerbose) {
+                cout << "Number of test sockets: " << numPairs
+                     << "; number of measurements: " << numMeasurements
+                     << bsl::endl;
+            }
+
+            Obj mX(&timeMetric, &testAllocator);
+            bdet_TimeInterval infinite, timeout;
+            if (!outFile) {
+                cout << "Cannot open pollregisterPerformance.dat "
+                     << "errno: " << errno << endl;
+                return 0;
+            }
+            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
+                                     numPairs, numMeasurements, controlFlag);
+            outFile.close();
         }
       } break;
 

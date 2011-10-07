@@ -24,7 +24,8 @@ BSLS_IDENT("$Id: $")
 // requirements for a forward iterator is found in "Table 106: Forward iterator
 // requirements", under the tag "[forward.iterators]".  (Note that this
 // reference is sourced in N3092, a C++0x working paper; the actual table
-// number may vary in the actual standard.)
+// number may vary in the actual standard.)  Include bsl_iterator.h to use this
+// component.
 //
 ///Usage
 ///-----
@@ -95,6 +96,10 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_ITERATOR
@@ -301,7 +306,7 @@ template <typename T, typename ITER_IMP, typename TAG_TYPE>
 inline
 T *bslstl_ForwardIterator<T,ITER_IMP,TAG_TYPE>::operator->() const
 {
-    return &(*d_imp);
+    return BSLS_UTIL_ADDRESSOF(*d_imp);
 }
 
 template <typename T, typename ITER_IMP, typename TAG_TYPE>
