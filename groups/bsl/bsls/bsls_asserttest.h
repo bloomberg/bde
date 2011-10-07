@@ -10,7 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a test facility for assertion macros.
 //
 //@CLASSES:
-//   bsls_AssertTest: namespace for "assert" validating functions
+//              bsls_AssertTest: namespace for "assert" validating functions
+//  bsls_AssertTestHandlerGuard: guard for the negative testing assert-handler
 //
 //@MACROS:
 //   BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION)
@@ -732,9 +733,37 @@ struct bsls_AssertTest {
         // registered assertion-failure handler function in 'bsls_assert'.
 };
 
+                   // ====================================
+                   // class bsls_AssertFailureHandlerGuard
+                   // ====================================
+
+class bsls_AssertTestHandlerGuard {
+    // This class provides a guard that will install and uninstall the negative
+    // testing assertion handler, 'bsls_AssertTest::failTestDriver', within the
+    // protected scope.
+
+    // DATA
+    bsls_AssertFailureHandlerGuard d_guard;
+
+  public:
+    bsls_AssertTestHandlerGuard();
+        // Create a 'bsls_AssertTestHandlerGuard' object, installing the
+        // 'bsls_AssertTest::failTestDriver' assertion handler.
+
+    //! ~bsls_AssertTestHandlerGuard() = default;
+        // Destroy this object and uninstall 'bsls_AssertTest::failTestDriver'
+        // as the current assertion handler.
+};
+
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
+
+inline
+bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
+: d_guard(&bsls_AssertTest::failTestDriver)
+{
+}
 
 }  // close namespace BloombergLP
 
