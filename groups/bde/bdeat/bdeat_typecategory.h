@@ -138,7 +138,6 @@ BDES_IDENT("$Id: $")
 //  {
 //      stream << "Simple";
 //  }
-//
 //..
 // Now we can implement the 'printCategoryAndValue' function in terms of the
 // 'printCategory' helper functions:
