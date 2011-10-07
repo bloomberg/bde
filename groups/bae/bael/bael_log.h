@@ -1063,7 +1063,7 @@ do {                                                                       \
          && BAEL_LOG_CATEGORY && (BAEL_LOG_THRESHOLD >= SEVERITY))
 
 #define BAEL_LOG_IS_ENABLED(BAEL_SEVERITY)                                    \
-    ((BAEL_LOG_THRESHOLD >= (BAEL_SEVERITY)) &&                         \
+    ((BAEL_LOG_THRESHOLD >= (BAEL_SEVERITY)) &&                               \
     bael_Log::isCategoryEnabled(&BAEL_LOG_CATEGORYHOLDER, BAEL_SEVERITY))
 
 namespace BloombergLP {
