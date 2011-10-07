@@ -708,7 +708,7 @@ enum  {
 
 const char* checkRcToString(int type)
 {
-    #define CASE(T)	    case T: return #T
+    #define CASE(T)         case T: return #T
     switch (type) {
       CASE(ERROR_IMPOSSIBLE_WRITE_SUCCEEDED);
       CASE(ERROR_MAX_POSSIBLE_WRITE_FAILED);

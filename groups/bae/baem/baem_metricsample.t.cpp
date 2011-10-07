@@ -234,7 +234,7 @@ int gg(bsl::vector<baem_MetricSampleGroup>   *groups,
     const char *c = specification;
 
     int totalNumRecords = 0;
-    const baem_MetricRecord *head    = &recordBuffer.front();
+    const baem_MetricRecord *head    = recordBuffer.data();
     const baem_MetricRecord *current = head;
     while (*c) {
         if (!*c || !*(c+1) || !(*c+2) || !(*c+3)) {
@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
     sample.appendGroup(buffer1,
                        sizeof(buffer1) / sizeof(*buffer1),
                        bdet_TimeInterval(1, 0));
-    sample.appendGroup(&buffer2.front(),
+    sample.appendGroup(buffer2.data(),
                        buffer2.size(),
                        bdet_TimeInterval(2, 0));
 //..
@@ -427,7 +427,7 @@ int main(int argc, char *argv[])
          ASSERT(buffer1              == sample.sampleGroup(0).records());
          ASSERT(2                    == sample.sampleGroup(0).numRecords());
          ASSERT(bdet_TimeInterval(2) == sample.sampleGroup(1).elapsedTime());
-         ASSERT(&buffer2.front()     == sample.sampleGroup(1).records());
+         ASSERT(buffer2.data()       == sample.sampleGroup(1).records());
          ASSERT(buffer2.size()       == sample.sampleGroup(1).numRecords());
 //..
 // Finally we can obtain an iterator over the sample's sequence of groups.  In
@@ -656,8 +656,8 @@ int main(int argc, char *argv[])
 
         Obj mX(Z); const Obj& MX = mX;
         mX.setTimeStamp(timeStamp);
-        mX.appendGroup(&RV1.front(), RV1.size(), bdet_TimeInterval(1,0));
-        mX.appendGroup(&RV2.front(), RV2.size(), bdet_TimeInterval(2,0));
+        mX.appendGroup(RV1.data(), RV1.size(), bdet_TimeInterval(1,0));
+        mX.appendGroup(RV2.data(), RV2.size(), bdet_TimeInterval(2,0));
 
         bsl::ostringstream buf1, buf2;
 
@@ -1061,7 +1061,7 @@ int main(int argc, char *argv[])
             << "TEST HELPERS: gg()\n"
             << "==================\n";
 
-        const baem_MetricRecord *BEGIN = &RECORD_BUFFER.front();
+        const baem_MetricRecord *BEGIN = RECORD_BUFFER.data();
         const baem_MetricRecord *END   = BEGIN + RECORD_BUFFER.size();
         {
             if (veryVerbose) cout << "\tTesting empty spec\n";
@@ -1167,7 +1167,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == MX.begin());
         ASSERT(0 == MX.end());
         for (int i = 0; i < NUM_VALUES; ++i) {
-            Group mX(&VALUES[i].d_records->front(),
+            Group mX(VALUES[i].d_records->data(),
                      VALUES[i].d_records->size(),
                      bdet_TimeInterval(VALUES[i].d_time, 0));
             const Group& MX = mX;
@@ -1194,7 +1194,7 @@ int main(int argc, char *argv[])
                               << endl;
         bsl::ostringstream buf1, buf2;
 
-        Group mX(&RV1.front(), RV1.size(), bdet_TimeInterval(1, 0));
+        Group mX(RV1.data(), RV1.size(), bdet_TimeInterval(1, 0));
         const Group& MX = mX;
 
         const char *EXP_1 =
@@ -1263,11 +1263,11 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             for (int j = 0; j < NUM_VALUES; ++j) {
-                Group u(&VALUES[i].d_records->front(),
+                Group u(VALUES[i].d_records->data(),
                         VALUES[i].d_records->size(),
                         bdet_TimeInterval(VALUES[i].d_time, 0));
                 const Group& U = u;
-                Group v(&VALUES[j].d_records->front(),
+                Group v(VALUES[j].d_records->data(),
                         VALUES[j].d_records->size(),
                         bdet_TimeInterval(VALUES[j].d_time, 0));
                 const Group& V = v;
@@ -1284,7 +1284,7 @@ int main(int argc, char *argv[])
                               << endl;
 
         for (int i = 0; i < NUM_VALUES; ++i) {
-            Group u(&VALUES[i].d_records->front(),
+            Group u(VALUES[i].d_records->data(),
                     VALUES[i].d_records->size(),
                     bdet_TimeInterval(VALUES[i].d_time, 0));
             const Group& U = u;
@@ -1328,12 +1328,12 @@ int main(int argc, char *argv[])
         const int NUM_VALUES = sizeof(VALUES)/sizeof(*VALUES);
 
         for (int i = 0; i < NUM_VALUES; ++i) {
-            Group x(&VALUES[i].d_records->front(),
+            Group x(VALUES[i].d_records->data(),
                     VALUES[i].d_records->size(),
                     bdet_TimeInterval(VALUES[i].d_time, 0));
             const Group& X = x;
 
-            Group w(&VALUES[i].d_records->front(),
+            Group w(VALUES[i].d_records->data(),
                     VALUES[i].d_records->size(),
                     bdet_TimeInterval(VALUES[i].d_time, 0));
             const Group& W = w;
@@ -1383,14 +1383,14 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             bdet_TimeInterval interval(VALUES[i].d_time, 0);
-            Group u(&VALUES[i].d_records->front(),
-                     VALUES[i].d_records->size(),
-                     interval);
+            Group u(VALUES[i].d_records->data(),
+                    VALUES[i].d_records->size(),
+                    interval);
             const Group& U = u;
 
             for (int j = 0; j < NUM_VALUES; ++j) {
                 bdet_TimeInterval interval(VALUES[j].d_time, 0);
-                Group v(&VALUES[j].d_records->front(),
+                Group v(VALUES[j].d_records->data(),
                         VALUES[j].d_records->size(),
                         interval);
                 const Group& V = v;
@@ -1434,14 +1434,14 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             bdet_TimeInterval interval(VALUES[i].d_time, 0);
-            Group mX(&VALUES[i].d_records->front(),
+            Group mX(VALUES[i].d_records->data(),
                      VALUES[i].d_records->size(),
                      interval);
             const Group& MX = mX;
 
-            ASSERT(interval                      == MX.elapsedTime());
-            ASSERT(&VALUES[i].d_records->front() == MX.records());
-            ASSERT(VALUES[i].d_records->size()   == MX.numRecords());
+            ASSERT(interval                    == MX.elapsedTime());
+            ASSERT(VALUES[i].d_records->data() == MX.records());
+            ASSERT(VALUES[i].d_records->size() == MX.numRecords());
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1511,12 +1511,12 @@ int main(int argc, char *argv[])
 
             Group mX; const Group& MX = mX;
             mX.setElapsedTime(interval);
-            mX.setRecords(&VALUES[i].d_records->front(),
+            mX.setRecords(VALUES[i].d_records->data(),
                           VALUES[i].d_records->size());
 
-            ASSERT(interval                      == MX.elapsedTime());
-            ASSERT(&VALUES[i].d_records->front() == MX.records());
-            ASSERT(VALUES[i].d_records->size()   == MX.numRecords());
+            ASSERT(interval                    == MX.elapsedTime());
+            ASSERT(VALUES[i].d_records->data() == MX.records());
+            ASSERT(VALUES[i].d_records->size() == MX.numRecords());
             ASSERT(0 == defaultAllocator.numBytesInUse());
         }
         ASSERT(0 == defaultAllocator.numBytesInUse());
@@ -1588,8 +1588,8 @@ int main(int argc, char *argv[])
         Obj mX1(Z); const Obj& X1 = mX1;
 
         mX1.setTimeStamp(timeStamp1);
-        mX1.appendGroup(&RV1.front(), RV1.size(), interval1);
-        mX1.appendGroup(&RV2.front(), RV2.size(), interval2);
+        mX1.appendGroup(RV1.data(), RV1.size(), interval1);
+        mX1.appendGroup(RV2.data(), RV2.size(), interval2);
 
         if (veryVerbose) { cout << '\t';  P(X1); }
         if (veryVerbose) cout << "\ta. Check initial state of x1." << endl;
@@ -1598,10 +1598,10 @@ int main(int argc, char *argv[])
         ASSERT(3            == X1.numRecords());
         ASSERT(2            == X1.numGroups());
         ASSERT(2            == X1.sampleGroup(0).numRecords());
-        ASSERT(&RV1.front() == X1.sampleGroup(0).records());
+        ASSERT(RV1.data()   == X1.sampleGroup(0).records());
         ASSERT(interval1    == X1.sampleGroup(0).elapsedTime());
         ASSERT(1            == X1.sampleGroup(1).numRecords());
-        ASSERT(&RV2.front() == X1.sampleGroup(1).records());
+        ASSERT(RV2.data()   == X1.sampleGroup(1).records());
         ASSERT(interval2    == X1.sampleGroup(1).elapsedTime());
 
         if (veryVerbose) cout <<
@@ -1619,10 +1619,10 @@ int main(int argc, char *argv[])
         ASSERT(3            == X2.numRecords());
         ASSERT(2            == X2.numGroups());
         ASSERT(2            == X2.sampleGroup(0).numRecords());
-        ASSERT(&RV1.front() == X2.sampleGroup(0).records());
+        ASSERT(RV1.data()   == X2.sampleGroup(0).records());
         ASSERT(interval1    == X2.sampleGroup(0).elapsedTime());
         ASSERT(1            == X2.sampleGroup(1).numRecords());
-        ASSERT(&RV2.front() == X2.sampleGroup(1).records());
+        ASSERT(RV2.data()   == X2.sampleGroup(1).records());
         ASSERT(interval2    == X2.sampleGroup(1).elapsedTime());
 
         if (veryVerbose) cout <<
@@ -1636,7 +1636,7 @@ int main(int argc, char *argv[])
 
         mX1.setTimeStamp(timeStamp2);
         mX1.removeAllRecords();
-        mX1.appendGroup(&RV3.front(), RV3.size(), interval3);
+        mX1.appendGroup(RV3.data(), RV3.size(), interval3);
 
         if (veryVerbose) { cout << '\t';  P(X1); }
         if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
@@ -1645,7 +1645,7 @@ int main(int argc, char *argv[])
         ASSERT(1            == X1.numRecords());
         ASSERT(1            == X1.numGroups());
         ASSERT(1            == X1.sampleGroup(0).numRecords());
-        ASSERT(&RV3.front() == X1.sampleGroup(0).records());
+        ASSERT(RV3.data()   == X1.sampleGroup(0).records());
         ASSERT(interval3    == X1.sampleGroup(0).elapsedTime());
 
         if (veryVerbose) cout <<
@@ -1695,9 +1695,9 @@ int main(int argc, char *argv[])
 
         mX3.removeAllRecords();
         mX3.setTimeStamp(timeStamp3);
-        mX3.appendGroup(&RV3.front(), RV3.size(), interval3);
-        mX3.appendGroup(&RV2.front(), RV2.size(), interval2);
-        mX3.appendGroup(&RV1.front(), RV1.size(), interval1);
+        mX3.appendGroup(RV3.data(), RV3.size(), interval3);
+        mX3.appendGroup(RV2.data(), RV2.size(), interval2);
+        mX3.appendGroup(RV1.data(), RV1.size(), interval1);
 
         if (veryVerbose) { cout << '\t';  P(X3); }
 
@@ -1707,13 +1707,13 @@ int main(int argc, char *argv[])
         ASSERT(4            == X3.numRecords());
         ASSERT(3            == X3.numGroups());
         ASSERT(1            == X3.sampleGroup(0).numRecords());
-        ASSERT(&RV3.front() == X3.sampleGroup(0).records());
+        ASSERT(RV3.data()   == X3.sampleGroup(0).records());
         ASSERT(interval3    == X3.sampleGroup(0).elapsedTime());
         ASSERT(1            == X3.sampleGroup(1).numRecords());
-        ASSERT(&RV2.front() == X3.sampleGroup(1).records());
+        ASSERT(RV2.data()   == X3.sampleGroup(1).records());
         ASSERT(interval2    == X3.sampleGroup(1).elapsedTime());
         ASSERT(2            == X3.sampleGroup(2).numRecords());
-        ASSERT(&RV1.front() == X3.sampleGroup(2).records());
+        ASSERT(RV1.data()   == X3.sampleGroup(2).records());
         ASSERT(interval1    == X3.sampleGroup(2).elapsedTime());
 
         if (veryVerbose) cout <<
@@ -1735,7 +1735,7 @@ int main(int argc, char *argv[])
         ASSERT(1            == X2.numRecords());
         ASSERT(1            == X2.numGroups());
         ASSERT(1            == X2.sampleGroup(0).numRecords());
-        ASSERT(&RV3.front() == X2.sampleGroup(0).records());
+        ASSERT(RV3.data()   == X2.sampleGroup(0).records());
         ASSERT(interval3    == X2.sampleGroup(0).elapsedTime());
 
         if (veryVerbose) cout <<
@@ -1757,13 +1757,13 @@ int main(int argc, char *argv[])
         ASSERT(4            == X2.numRecords());
         ASSERT(3            == X2.numGroups());
         ASSERT(1            == X2.sampleGroup(0).numRecords());
-        ASSERT(&RV3.front() == X2.sampleGroup(0).records());
+        ASSERT(RV3.data()   == X2.sampleGroup(0).records());
         ASSERT(interval3    == X2.sampleGroup(0).elapsedTime());
         ASSERT(1            == X2.sampleGroup(1).numRecords());
-        ASSERT(&RV2.front() == X2.sampleGroup(1).records());
+        ASSERT(RV2.data()   == X2.sampleGroup(1).records());
         ASSERT(interval2    == X2.sampleGroup(1).elapsedTime());
         ASSERT(2            == X2.sampleGroup(2).numRecords());
-        ASSERT(&RV1.front() == X2.sampleGroup(2).records());
+        ASSERT(RV1.data()   == X2.sampleGroup(2).records());
         ASSERT(interval1    == X2.sampleGroup(2).elapsedTime());
 
         if (veryVerbose) cout <<
@@ -1786,7 +1786,7 @@ int main(int argc, char *argv[])
         ASSERT(1            == X1.numRecords());
         ASSERT(1            == X1.numGroups());
         ASSERT(1            == X1.sampleGroup(0).numRecords());
-        ASSERT(&RV3.front() == X1.sampleGroup(0).records());
+        ASSERT(RV3.data()   == X1.sampleGroup(0).records());
         ASSERT(interval3    == X1.sampleGroup(0).elapsedTime());
 
         if (veryVerbose) cout <<
@@ -1861,14 +1861,14 @@ int main(int argc, char *argv[])
         Group mX1; const Group& X1 = mX1;
 
         mX1.setElapsedTime(interval1);
-        mX1.setRecords(&RV1.front(), RV1.size());
+        mX1.setRecords(RV1.data(), RV1.size());
 
         if (veryVerbose) { cout << '\t';  P(X1); }
         if (veryVerbose) cout << "\ta. Check initial state of x1." << endl;
 
         ASSERT(interval1    == X1.elapsedTime());
         ASSERT(2            == X1.numRecords());
-        ASSERT(&RV1.front() == X1.records());
+        ASSERT(RV1.data()   == X1.records());
 
         if (veryVerbose) cout <<
             "\tb. Try equality operators: x1 <op> x1." << endl;
@@ -1884,7 +1884,7 @@ int main(int argc, char *argv[])
 
         ASSERT(interval1    == X2.elapsedTime());
         ASSERT(2            == X2.numRecords());
-        ASSERT(&RV1.front() == X2.records());
+        ASSERT(RV1.data()   == X2.records());
 
         if (veryVerbose) cout <<
             "\tb. Try equality operators: x2 <op> x1, x2." << endl;
@@ -1896,14 +1896,14 @@ int main(int argc, char *argv[])
                              "\t\t\t{ x1:VB x2:VA }" << endl;
 
         mX1.setElapsedTime(interval2);
-        mX1.setRecords(&RV2.front(), RV2.size());
+        mX1.setRecords(RV2.data(), RV2.size());
 
         if (veryVerbose) { cout << '\t';  P(X1); }
         if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
 
-        ASSERT(interval2    == X1.elapsedTime());
-        ASSERT(1            == X1.numRecords());
-        ASSERT(&RV2.front() == X1.records());
+        ASSERT(interval2  == X1.elapsedTime());
+        ASSERT(1          == X1.numRecords());
+        ASSERT(RV2.data() == X1.records());
 
         if (veryVerbose) cout <<
             "\tb. Try equality operators: x1 <op> x1, x2." << endl;
@@ -1951,15 +1951,15 @@ int main(int argc, char *argv[])
                              "\t\t\t{ x1:VB x2:VA x3:VC x4:U }" << endl;
 
         mX3.setElapsedTime(interval3);
-        mX3.setRecords(&RV3.front(), RV3.size());
+        mX3.setRecords(RV3.data(), RV3.size());
 
         if (veryVerbose) { cout << '\t';  P(X3); }
 
         if (veryVerbose) cout << "\ta. Check new state of x3." << endl;
 
-        ASSERT(interval3    == X3.elapsedTime());
-        ASSERT(1            == X3.numRecords());
-        ASSERT(&RV3.front() == X3.records());
+        ASSERT(interval3  == X3.elapsedTime());
+        ASSERT(1          == X3.numRecords());
+        ASSERT(RV3.data() == X3.records());
 
         if (veryVerbose) cout <<
             "\tb. Try equality operators: x3 <op> x1, x2, x3, x4." << endl;
@@ -1976,9 +1976,9 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\ta. Check new state of x2." << endl;
 
-        ASSERT(interval2    == X2.elapsedTime());
-        ASSERT(1            == X2.numRecords());
-        ASSERT(&RV2.front() == X2.records());
+        ASSERT(interval2  == X2.elapsedTime());
+        ASSERT(1          == X2.numRecords());
+        ASSERT(RV2.data() == X2.records());
 
         if (veryVerbose) cout <<
             "\tb. Try equality operators: x2 <op> x1, x2, x3, x4." << endl;
@@ -1995,9 +1995,9 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\ta. Check new state of x2." << endl;
 
-        ASSERT(interval3    == X2.elapsedTime());
-        ASSERT(1            == X2.numRecords());
-        ASSERT(&RV3.front() == X2.records());
+        ASSERT(interval3  == X2.elapsedTime());
+        ASSERT(1          == X2.numRecords());
+        ASSERT(RV3.data() == X2.records());
 
         if (veryVerbose) cout <<
             "\tb. Try equality operators: x2 <op> x1, x2, x3, x4." << endl;
@@ -2015,9 +2015,9 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\ta. Check new state of x1." << endl;
 
-        ASSERT(interval2    == X1.elapsedTime());
-        ASSERT(1            == X1.numRecords());
-        ASSERT(&RV2.front() == X1.records());
+        ASSERT(interval2  == X1.elapsedTime());
+        ASSERT(1          == X1.numRecords());
+        ASSERT(RV2.data() == X1.records());
 
         if (veryVerbose) cout <<
             "\tb. Try equality operators: x1 <op> x1, x2, x3, x4." << endl;
