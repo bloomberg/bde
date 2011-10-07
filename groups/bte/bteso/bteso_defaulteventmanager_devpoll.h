@@ -297,7 +297,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_HPUX)
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>

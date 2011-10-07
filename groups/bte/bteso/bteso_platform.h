@@ -50,8 +50,11 @@ struct bteso_Platform {
         struct POLL {};       // 'poll' syscall is available
         struct SIGNAL {};
         struct SELECT {};
-        #ifdef BSLS_PLATFORM__OS_SOLARIS
+        #if defined(BSLS_PLATFORM__OS_SOLARIS) || \
+            defined(BSLS_PLATFORM__OS_HPUX)
             struct DEVPOLL {};
+        #endif
+        #ifdef BSLS_PLATFORM__OS_SOLARIS
             typedef DEVPOLL DEFAULT_POLLING_MECHANISM;
         #endif
 

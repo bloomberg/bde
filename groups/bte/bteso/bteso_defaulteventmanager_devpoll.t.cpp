@@ -22,7 +22,7 @@
 #include <bsls_assert.h>
 
 using namespace BloombergLP;
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_HPUX)
     #define BTESO_EVENTMANAGER_ENABLETEST
     typedef bteso_DefaultEventManager<bteso_Platform::DEVPOLL> Obj;
 #endif
@@ -461,6 +461,13 @@ int main(int argc, char *argv[]) {
 
         enum { NUM_PAIRS = 10 };
 
+#ifdef BSLS_PLATFORM__OS_HPUX
+        // There seems to be a ~20ms latency between creation of a socket and
+        // when it really starts working properly on HPUX.
+
+        bcemt_ThreadUtil::microSleep(40 * 1000);
+#endif
+
         bteso_EventManagerTestPair testPairs[NUM_PAIRS];
         for (int i = 0; i < NUM_PAIRS; i++) {
             testPairs[i].setObservedBufferOptions(BUF_LEN, 1);
@@ -505,7 +512,12 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, 1 == rc);
                 LOOP_ASSERT(i, testPairs[i].observedFd() == registration.fd)
                 LOOP_ASSERT(i, POLLIN == registration.revents);
+#ifndef BSLS_PLATFORM__OS_HPUX
+                // The Solaris doc guarantees that .events == 0, the HPUX doc
+                // doesn't say.
+
                 LOOP_ASSERT(i, 0 == registration.events);
+#endif
             }
             ASSERT(0 == close(devPollFd));
         }
@@ -541,7 +553,12 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, 1 == rc);
                 LOOP_ASSERT(i, testPairs[i].observedFd() == registration.fd)
                 LOOP_ASSERT(i, POLLIN == registration.revents);
+#ifndef BSLS_PLATFORM__OS_HPUX
+                // The Solaris doc guarantees that .events == 0, the HPUX doc
+                // doesn't say.
+
                 LOOP_ASSERT(i, 0 == registration.events);
+#endif
             }
             ASSERT(0 == close(devPollFd));
         }
@@ -681,9 +698,11 @@ int main(int argc, char *argv[]) {
                 control.dp_nfds = NUM_PAIRS;
                 control.dp_timeout = 0;
                 int rc = ioctl(devPollFd, DP_POLL, &control);
-                LOOP_ASSERT(i, 1 == rc);
-                LOOP_ASSERT(i, testPairs[i].observedFd() == result[0].fd);
-                LOOP_ASSERT(i, POLLIN  == result[0].revents);
+                LOOP2_ASSERT(i, rc, 1 == rc);
+                LOOP2_ASSERT(i, result[0].fd,
+                                testPairs[i].observedFd() == result[0].fd);
+                LOOP2_ASSERT(i, result[0].revents,
+                                POLLIN  == result[0].revents);
 
                 char byte;
                 rc = read(testPairs[i].observedFd(), &byte, sizeof(char));
@@ -1589,6 +1608,53 @@ int main(int argc, char *argv[]) {
                       numPairs, numMeasurements, controlFlag);
 
             outFile.close();
+        }
+      } break;
+
+      case -3: {
+        // -----------------------------------------------------------------
+        // Interactive gg test shell
+        // -----------------------------------------------------------------
+
+        while (1) {
+            char script[1000];
+            cout << "Enter script: " << flush;
+            cin.getline(script, 1000);
+
+            if (0 == bsl::strncmp(script, "quit", 4) ||
+                                                   (!script[0] && cin.eof())) {
+                break;
+            }
+
+            const int NUM_PAIR = 4;
+            bteso_EventManagerTestPair socketPairs[NUM_PAIR];
+
+#ifdef BSLS_PLATFORM__OS_HPUX
+            // There seems to be a ~20ms latency between creation of a socket
+            // and when it really starts working properly on HPUX.
+
+            bcemt_ThreadUtil::microSleep(40 * 1000);
+#endif
+
+            for (int j = 0; j < NUM_PAIR; j++) {
+                socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
+                socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
+            }
+
+            int i = 0;
+            for (; i < 4; ++i) {
+                Obj mX(&timeMetric, &testAllocator);
+
+                int fails = bteso_EventManagerTester::gg(&mX, socketPairs,
+                                                         script,
+                                                         controlFlag);
+                if (fails) {
+                    break;
+                }
+            }
+            if (4 == i) {
+                cout << "Success!  " << endl;
+            }
         }
       } break;
 
