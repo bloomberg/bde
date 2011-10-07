@@ -22,8 +22,6 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_configuration_cpp,"$Id$ $CSID$")
 
-static bces_AtomicUtil::Int defaultThreadStackSizeValue = -1;
-
 #if defined(BCES_PLATFORM__POSIX_THREADS)
 
 # ifdef BSLS_PLATFORM__OS_SOLARIS
@@ -103,33 +101,36 @@ static int nativeDefaultThreadStackSizeImp()
 
 namespace BloombergLP {
 
+static bces_AtomicUtil::Int defaultThreadStackSizeValue = { -1 };
+
 int bcemt_Configuration::defaultThreadStackSize()
 {
-    if (defaultThreadStackSizeValue < 0) {
+    if (bces_AtomicUtil::getIntRelaxed(defaultThreadStackSizeValue) < 0) {
         return nativeDefaultThreadStackSize();                        // RETURN
     }
 
-    return defaultThreadStackSizeValue;
+    return bces_AtomicUtil::getIntRelaxed(defaultThreadStackSizeValue);
 }
 
 int bcemt_Configuration::nativeDefaultThreadStackSize()
 {
-    static bces_AtomicUtil::Int ret = -1;
+    static bces_AtomicUtil::Int ret = { -1 };
 
-    if (ret < 0) {
-        ret = nativeDefaultThreadStackSizeImp();
-        BSLS_ASSERT(ret >= 1);
+    if (bces_AtomicUtil::getIntRelaxed(ret) < 0) {
+        bces_AtomicUtil::setIntRelaxed(&ret,
+                                       nativeDefaultThreadStackSizeImp());
+        BSLS_ASSERT(bces_AtomicUtil::getIntRelaxed(ret) >= 1);
     }
 
-    return ret;
+    return bces_AtomicUtil::getIntRelaxed(ret);
 }
 
 int bcemt_Configuration::nativeDefaultThreadGuardSize()
 {
 #if defined(BCES_PLATFORM__POSIX_THREADS)
-    static bces_AtomicUtil:Int ret = -1;
+    static bces_AtomicUtil::Int ret = { -1 };
 
-    if (ret < 0) {
+    if (bces_AtomicUtil::getIntRelaxed(ret) < 0) {
         pthread_attr_t attr;
         int rc = pthread_attr_init(&attr);
         BSLS_ASSERT(0 == rc);
@@ -144,10 +145,10 @@ int bcemt_Configuration::nativeDefaultThreadGuardSize()
         BSLS_ASSERT(guardSizeT > 0);
         BSLS_ASSERT(guardSizeT <= static_cast<bsl::size_t>(INT_MAX));
 
-        ret = static_cast<int>(guardSizeT);
+        bces_AtomicUtil::setIntRelaxed(&ret, static_cast<int>(guardSizeT));
     }
 
-    return ret;
+    return bces_AtomicUtil::getIntRelaxed(ret);
 #else
     // WIN32_THREADS
 
@@ -179,7 +180,7 @@ void bcemt_Configuration::setDefaultThreadStackSize(int numBytes)
     BSLS_ASSERT_OPT(numBytes > 0);
 #endif
 
-    defaultThreadStackSizeValue = numBytes;
+    bces_AtomicUtil::setIntRelaxed(&defaultThreadStackSizeValue, numBytes);
 }
 
 }  // close enterprise namespace
