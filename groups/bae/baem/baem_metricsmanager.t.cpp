@@ -936,7 +936,7 @@ void ConcurrencyTest::execute()
         baem_MetricSample              sample;
         mX->collectSample(&sample,
                           &records,
-                          &allCategories.front(),
+                          allCategories.data(),
                           allCategories.size());
 
         bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT();
@@ -950,7 +950,7 @@ void ConcurrencyTest::execute()
         ASSERT(withinWindow(sample.timeStamp(), now, 100));
 
         // Test 'publish'.
-        mX->publish(&allCategories.front(), allCategories.size());
+        mX->publish(allCategories.data(), allCategories.size());
 
         // Verify the callbacks were invoked.
         ASSERT(2 <= aCb.invocations());
@@ -974,7 +974,7 @@ void ConcurrencyTest::execute()
         ASSERT(1 == s2Pub.lastRecords().size());
         ASSERT(s2Pub.contains(idS2));
 
-        mX->publish(&allCategories.front(), allCategories.size());
+        mX->publish(allCategories.data(), allCategories.size());
 
         // Verify the callbacks were invoked.
         ASSERT(3 <= aCb.invocations());
@@ -1793,7 +1793,7 @@ int main(int argc, char *argv[])
             const bsl::vector<const Category *>& cats = combIt.current();
             mX.collectSample(&sample,
                              &records,
-                             (!cats.empty() ? &cats.front() : 0),
+                             cats.data(),
                              cats.size(),
                              false);
             ASSERT(NUM_METRICS * cats.size() == sample.numRecords());
@@ -1829,7 +1829,7 @@ int main(int argc, char *argv[])
             // Test with a reset.
             mX.collectSample(&sample,
                              &records2,
-                             (!cats.empty() ? &cats.front() : 0),
+                             cats.data(),
                              cats.size(),
                              true);
             ASSERT(NUM_METRICS * cats.size() == sample.numRecords());
@@ -3070,7 +3070,7 @@ int main(int argc, char *argv[])
             const bsl::vector<const Category *>& categories = combIt.current();
             bdet_Datetime tmStamp = bdetu_SystemTime::nowAsDatetimeGMT();
             if (categories.size() > 0) {
-                mX.publish(&categories.front(), categories.size());
+                mX.publish(categories.data(), categories.size());
             }
 
             //   3. For each combination of (category, metric name) to be
@@ -3668,7 +3668,7 @@ int main(int argc, char *argv[])
                 bdet_DatetimeTz TIME_STAMP(bdet_Datetime(dt), 0);
 
                 sample.setTimeStamp(TIME_STAMP);
-                sample.appendGroup(&records.front(),
+                sample.appendGroup(records.data(),
                                    records.size(),
                                    ELAPSED_TIME);
 

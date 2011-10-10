@@ -180,6 +180,12 @@ BDES_IDENT("$Id: $")
 //      filename as established by the 'BAEL_LOG_SET_CATEGORY' (or
 //      'BAEL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
 //      Also note that each use of these macros must be terminated by a ';'.
+//
+//  BAEL_LOG_IS_ENABLED(BAEL_SEVERITY)
+//      Return 'true' if the specified 'BAEL_SEVERITY' is more severe than any
+//      of the threshold levels of the current context's logging category
+//      (which must be established using 'BAEL_LOG_SET_CATEGORY'), and 'false'
+//      otherwise.
 //..
 ///Macro Usage
 ///-----------
@@ -1051,9 +1057,14 @@ do {                                                                       \
                        // Utility Macros
                        // ==============
 
-#define BAEL_IS_ENABLED(SEVERITY)                                          \
-        (BloombergLP::bael_LoggerManager::isInitialized()                  \
+// [!DEPRECATED!] Use 'BAEL_LOG_IS_ENABLED' instead.
+#define BAEL_IS_ENABLED(SEVERITY)                                             \
+        (BloombergLP::bael_LoggerManager::isInitialized()                     \
          && BAEL_LOG_CATEGORY && (BAEL_LOG_THRESHOLD >= SEVERITY))
+
+#define BAEL_LOG_IS_ENABLED(BAEL_SEVERITY)                                    \
+    ((BAEL_LOG_THRESHOLD >= (BAEL_SEVERITY)) &&                               \
+    bael_Log::isCategoryEnabled(&BAEL_LOG_CATEGORYHOLDER, BAEL_SEVERITY))
 
 namespace BloombergLP {
 
@@ -1225,6 +1236,7 @@ class bael_Log_Stream {
 
     bsl::ostream         d_stream;      // stream to which log message is put
 
+  private:
     // NOT IMPLEMENTED
     bael_Log_Stream(const bael_Log_Stream&);
     bael_Log_Stream& operator=(const bael_Log_Stream&);
@@ -1307,6 +1319,7 @@ class bael_Log_Formatter {
     bcemt_Mutex         *d_mutex_p;     // mutex to lock buffer (held, not
                                         // owned)
 
+  private:
     // NOT IMPLEMENTED
     bael_Log_Formatter(const bael_Log_Formatter&);
     bael_Log_Formatter& operator=(const bael_Log_Formatter&);

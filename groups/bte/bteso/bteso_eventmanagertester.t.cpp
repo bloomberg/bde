@@ -2,8 +2,10 @@
 
 #include <bteso_eventmanagertester.h>
 
-#include <bteso_socketimputil.h>
 #include <bteso_eventmanager.h>
+#include <bteso_ioutil.h>
+#include <bteso_socketimputil.h>
+
 #include <bcemt_thread.h>
 
 #include <bslma_testallocator.h>                // for testing only
@@ -651,6 +653,59 @@ int main(int argc, char *argv[])
     testAllocator.setNoAbort(1);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 12: {
+        // ------------------------------------------------------------------
+        // TESTING SOCKET START-UP
+        //
+        // Concern:
+        //   That newly created socket does correct i/o.  HPUX sockets are
+        //   observed to take ~ 20 ms to get started properly.
+        //
+        // Plan:
+        //   Write to a socket IMMEDIATELY after creating it.  Verify that
+        //   the data is eventually received correctly.
+        // ------------------------------------------------------------------
+
+        const char *testData =
+                        "There are more things in heaven and earth, Horatio,\n"
+                        "than are dreamt of in your philosophy.\n";
+        const int testLen = bsl::strlen(testData);
+
+        bdet_TimeInterval start = bdetu_SystemTime::now();
+
+        bteso_EventManagerTestPair mX(veryVerbose);
+        int rc = bteso_IoUtil::setBlockingMode(mX.observedFd(),
+                                               bteso_IoUtil::BTESO_BLOCKING);
+        ASSERT(0 == rc);
+
+        rc = bteso_SocketImpUtil::write(mX.controlFd(), testData, testLen);
+        ASSERT(testLen == rc);
+        char readBuf[1000];
+        rc = bteso_SocketImpUtil::read(readBuf, mX.observedFd(), testLen);
+        bdet_TimeInterval finish = bdetu_SystemTime::now();
+        LOOP2_ASSERT(testLen, rc, testLen == rc);
+        ASSERT(0 == bsl::memcmp(readBuf, testData, testLen));
+
+        double elapsed = (finish - start).totalSecondsAsDouble();
+        LOOP_ASSERT(elapsed, elapsed <= 0.40);
+
+        // verify that now that the socket's woken up, it's quite fast
+
+        bsl::memset(readBuf, 0, testLen);
+        rc = bteso_SocketImpUtil::write(mX.controlFd(), testData, testLen);
+        ASSERT(testLen == rc);
+        rc = bteso_SocketImpUtil::read(readBuf, mX.observedFd(), testLen);
+        bdet_TimeInterval finish2 = bdetu_SystemTime::now();
+        LOOP2_ASSERT(testLen, rc, testLen == rc);
+        ASSERT(0 == bsl::memcmp(readBuf, testData, testLen));
+
+        double elapsed2 = (finish2 - finish).totalSecondsAsDouble();
+        LOOP2_ASSERT(elapsed, elapsed2, elapsed2 <= 0.0001);
+
+        if (verbose) {
+            P_(elapsed) P(elapsed2);
+        }
+      } break;
       case 11: {
         // ------------------------------------------------------------------
         // TESTING bteso_EventManagerTestPair

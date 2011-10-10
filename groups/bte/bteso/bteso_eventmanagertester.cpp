@@ -1158,8 +1158,8 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
           {L_, "+0w28720; Dn,1; +0w26000; Dn120,0; -0w; T0"                 },
 #endif
 #if defined(BSLS_PLATFORM__OS_AIX)
-          {L_, "+0w8192; Dn,1; +0w8192; Dn300,1; Dn150,0; -0w; T0"          },
-          {L_, "+0w8192; Dn,1; +0w8192; Dn120,1; Dn150,0; -0w; T0"          },
+          {L_, "+0w131072; Dn,1; +0w8192; Dn300,1; Dn150,0; -0w; T0"        },
+          {L_, "+0w131072; Dn,1; +0w8192; Dn120,1; Dn150,0; -0w; T0"        },
 #endif
 #if defined(BSLS_PLATFORM__OS_SOLARIS)
           {L_, "+0w73728; Dn,1; +0w26000; Dn150,0; -0w; T0"                 },
@@ -1170,6 +1170,15 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
         for (int i = 0; i < NUM_SCRIPTS; ++i) {
             enum { NUM_PAIRS = 4 };
             SocketPair socketPairs[NUM_PAIRS];
+
+#ifdef BSLS_PLATFORM__OS_HPUX
+            // For some reason, sockets on HPUX are woozy for the first ~ 20 ms
+            // or so after they're created, after that they seem to be OK.  In
+            // a polling interface, this just means events will take a few
+            // cycles to catch up.
+
+            bcemt_ThreadUtil::microSleep(40 * 1000);
+#endif
 
             for (int j = 0; j < NUM_PAIRS; ++j) {
                 socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);

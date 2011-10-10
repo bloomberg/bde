@@ -53,7 +53,7 @@ bsl::ostream& baem_MetricFormatSpec::formatValue(
 
     bsl::vector<char> newBuffer;
     newBuffer.resize(rc + 1);
-    rc = snprintf(&newBuffer.front(),
+    rc = snprintf(newBuffer.data(),
                   newBuffer.size(),
                   formatSpec.format(),
                   value * formatSpec.scale());
@@ -62,7 +62,7 @@ bsl::ostream& baem_MetricFormatSpec::formatValue(
                << bsl::flush;
         return stream;
     }
-    stream << &newBuffer.front() << bsl::flush;
+    stream << newBuffer.data() << bsl::flush;
     return stream;
 }
 
