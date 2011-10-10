@@ -460,6 +460,7 @@ int main(int argc, char *argv[]) {
         if (veryVerbose) cout << "\tInitializing socket pairs." << endl;
 
         enum { NUM_PAIRS = 10 };
+        bteso_EventManagerTestPair testPairs[NUM_PAIRS];
 
 #ifdef BSLS_PLATFORM__OS_HPUX
         // There seems to be a ~20ms latency between creation of a socket and
@@ -468,7 +469,6 @@ int main(int argc, char *argv[]) {
         bcemt_ThreadUtil::microSleep(40 * 1000);
 #endif
 
-        bteso_EventManagerTestPair testPairs[NUM_PAIRS];
         for (int i = 0; i < NUM_PAIRS; i++) {
             testPairs[i].setObservedBufferOptions(BUF_LEN, 1);
             testPairs[i].setControlBufferOptions(BUF_LEN, 1);
@@ -860,12 +860,19 @@ int main(int argc, char *argv[]) {
             const int NUM_SCRIPTS = sizeof SCRIPTS / sizeof *SCRIPTS;
 
             for (int i = 0; i < NUM_SCRIPTS; ++i) {
+                enum { NUM_PAIRS = 4 };
+                bteso_EventManagerTestPair socketPairs[NUM_PAIRS];
+
+#ifdef BSLS_PLATFORM__OS_HPUX
+                // Sockets take ~ 20 ms to fully 'wake up' on HPUX.  Note that
+                // case 12 in bteso_eventmanagertester.t.cpp verifies that data
+                // is still correct during this time.
+
+                bcemt_ThreadUtil::microSleep(40 * 100);
+#endif
 
                 Obj mX(&timeMetric, &testAllocator);
                 const int LINE =  SCRIPTS[i].d_line;
-
-                enum { NUM_PAIRS = 4 };
-                bteso_EventManagerTestPair socketPairs[NUM_PAIRS];
 
                 for (int j = 0; j < NUM_PAIRS; j++) {
                     socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
@@ -955,6 +962,14 @@ int main(int argc, char *argv[]) {
 
                 bteso_EventManagerTestPair socketPairs[4];
 
+#ifdef BSLS_PLATFORM__OS_HPUX
+                // Sockets take ~ 20 ms to fully 'wake up' on HPUX.  Note that
+                // case 12 in bteso_eventmanagertester.t.cpp verifies that data
+                // is still correct during this time.
+
+                bcemt_ThreadUtil::microSleep(40 * 100);
+#endif
+
                 const int NUM_PAIR =
                                sizeof socketPairs / sizeof socketPairs[0];
 
@@ -1002,27 +1017,28 @@ int main(int argc, char *argv[]) {
         {
             bteso_EventManagerTestPair socketPair;
             bdef_Function<void (*)()> nullFunctor;
-            const int NUM_ATTEMPTS = 1000;
-            for (int i = 0; i < NUM_ATTEMPTS; ++i) {
+            const int NUM_ATTEMPTS = 10 * 1000;
+            for (int i = 0; i < NUM_ATTEMPTS; i += 11) {
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(socketPair.observedFd(),
                                        bteso_EventType::BTESO_READ,
                                        nullFunctor);
 
-                bdet_TimeInterval deadline = bdetu_SystemTime::now();
-
-                deadline.addMilliseconds(i % 10);
-                deadline.addNanoseconds(i % 1000);
+                bdet_TimeInterval start    = bdetu_SystemTime::now();
+                bdet_TimeInterval deadline = start + (i * 1e-9);
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
-                                          deadline,
-                                          bteso_Flag::BTESO_ASYNC_INTERRUPT));
+                                           deadline,
+                                           bteso_Flag::BTESO_ASYNC_INTERRUPT));
 
-                bdet_TimeInterval now = bdetu_SystemTime::now();
-                LOOP_ASSERT(i, deadline <= now);
+                bdet_TimeInterval finish = bdetu_SystemTime::now();
+                LOOP2_ASSERT(i, (finish - start).totalSecondsAsDouble(),
+                                                           start <= finish);
+                LOOP2_ASSERT(i, (deadline - finish).totalSecondsAsDouble(),
+                                                           deadline <= finish);
 
                 if (veryVeryVerbose) {
-                    P_(deadline); P(now);
+                    P_(deadline); P(finish);
                 }
             }
         }
