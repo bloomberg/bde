@@ -773,7 +773,6 @@ int main(int argc, char *argv[]) {
         if (verbose) cout << endl << "Testing 'dispatch' method." << endl
                                   << "==========================" << endl;
 
-#if 0
         if (verbose)
             cout << "Standard test for 'dispatch'" << endl
                  << "============================" << endl;
@@ -784,7 +783,6 @@ int main(int argc, char *argv[]) {
                                                                controlFlag);
             ASSERT(0 == fails);
         }
-#endif
 
         if (verbose)
             cout << "Customized test for 'dispatch'" << endl
@@ -874,10 +872,20 @@ int main(int argc, char *argv[]) {
                 Obj mX(&timeMetric, &testAllocator);
                 const int LINE =  SCRIPTS[i].d_line;
 
-                bteso_EventManagerTestPair socketPairs[4];
+                enum { NUM_PAIR = 4 };
+                bteso_EventManagerTestPair socketPairs[NUM_PAIR];
 
-                const int NUM_PAIR =
-                               sizeof socketPairs / sizeof socketPairs[0];
+#ifdef BSLS_PLATFORM__OS_HPUX
+                // For some reason, sockets on HPUX are woozy for the first
+                // ~ 20 ms or so after they're created, after that they seem
+                // to be OK.  In a polling interface, this just means events
+                // will take a few cycles to catch up.  Note that test case
+                // 12 in bteso_eventmanagertester.t.cpp verifies that, though
+                // it takes awhile for the socket to wake up, i/o to it during
+                // that time is at least correct.
+
+                bcemt_ThreadUtil::microSleep(40 * 1000);
+#endif
 
                 for (int j = 0; j < NUM_PAIR; j++) {
                     socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
