@@ -486,7 +486,7 @@ bool bteso_DefaultEventManager<bteso_Platform::DEVPOLL>::
 
 }  // close namespace BloombergLP
 
-#endif // BSLS_PLATFORM__OS_SOLARIS
+#endif // SOLARIS || HPUX
 
 #endif
 
