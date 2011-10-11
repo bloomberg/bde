@@ -17,6 +17,8 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bsls_stopwatch.h>
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bdetu_systemtime.h>
 #include <bdet_time.h>
@@ -99,6 +101,13 @@ static void aSsErT(int c, const char *s, int i)
        #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
+
+//-----------------------------------------------------------------------------
+//            SEMI-STANDARD NEGATIVE TESTING CONVENIENCE MACROS
+//-----------------------------------------------------------------------------
+
+#define ASSERT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -710,7 +719,7 @@ int main(int argc, char *argv[])
         // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
         //
         // Concern:
-        //: 1 'hasLimitiedSocketCapacity' returns 'true' if the underlying
+        //: 1 'hasLimitiedSocketCapacity' returns 'true' if the underlying 
         //:   event manager returns 'true' and 'false' otherwise.
         //:
         //: 2 'canRegisterSockets' always returns 'true' if
