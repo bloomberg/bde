@@ -860,6 +860,14 @@ int main(int argc, char *argv[]) {
             const int NUM_SCRIPTS = sizeof SCRIPTS / sizeof *SCRIPTS;
 
             for (int i = 0; i < NUM_SCRIPTS; ++i) {
+                const int LINE     = SCRIPTS[i].d_line;
+                const char *SCRIPT = SCRIPTS[i].d_script;
+                const int FAILS    = SCRIPTS[i].d_fails;
+
+                if (veryVerbose) {
+                    P_(LINE) P(SCRIPT);
+                }
+
                 enum { NUM_PAIRS = 4 };
                 bteso_EventManagerTestPair socketPairs[NUM_PAIRS];
 
@@ -868,11 +876,10 @@ int main(int argc, char *argv[]) {
                 // case 12 in bteso_eventmanagertester.t.cpp verifies that data
                 // is still correct during this time.
 
-                bcemt_ThreadUtil::microSleep(40 * 100);
+                bcemt_ThreadUtil::microSleep(40 * 1000);
 #endif
 
                 Obj mX(&timeMetric, &testAllocator);
-                const int LINE =  SCRIPTS[i].d_line;
 
                 for (int j = 0; j < NUM_PAIRS; j++) {
                     socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
@@ -880,10 +887,10 @@ int main(int argc, char *argv[]) {
                 }
 
                 int fails = bteso_EventManagerTester::gg(&mX, socketPairs,
-                                                         SCRIPTS[i].d_script,
+                                                         SCRIPT,
                                                          controlFlag);
 
-                LOOP_ASSERT(LINE, SCRIPTS[i].d_fails == fails);
+                LOOP3_ASSERT(LINE, FAILS, fails, FAILS == fails);
             }
         }
       } break;
@@ -967,7 +974,7 @@ int main(int argc, char *argv[]) {
                 // case 12 in bteso_eventmanagertester.t.cpp verifies that data
                 // is still correct during this time.
 
-                bcemt_ThreadUtil::microSleep(40 * 100);
+                bcemt_ThreadUtil::microSleep(40 * 1000);
 #endif
 
                 const int NUM_PAIR =
