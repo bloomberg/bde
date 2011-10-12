@@ -5481,53 +5481,6 @@ testCompsite();
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING bdema_ManagedPtrNoOpDeleter
-        //
-        // Concerns:
-        //: 1 The 'deleter' method can be used as a deleter policy by
-        //:   'bdema_ManagedPtr'.
-        //:
-        //: 2 When invoked, 'bdema_ManagedPtrNoOpDeleter::deleter' has no
-        //:   effect.
-        //:
-        //: 3 No memory is allocated from the global or default allocators.
-        //
-        // Plan:
-        //: 1 blah ...
-        //
-        // Testing:
-        //    bdema_ManagedPtrNoOpDeleter::deleter
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTESTING bdema_ManagedPtrNoOpDeleter"
-                          << "\n-----------------------------------" << endl;
-
-        if (verbose) cout << "\tConfirm the deleter does not destroy the "
-                             "passsed object\n";
-
-        int deleteCount = 0;
-        MyTestObject t(&deleteCount);
-        bdema_ManagedPtrNoOpDeleter::deleter(&t, 0);
-        LOOP_ASSERT(deleteCount, 0 == deleteCount);
-
-        if (verbose) cout << "\tConfirm the deleter can be registered with "
-                             "a managed pointer\n";
-
-        bslma_TestAllocatorMonitor gam(&globalAllocator);
-        bslma_TestAllocatorMonitor dam(&da);
-
-        int x;
-        int y;
-        bdema_ManagedPtr<int> p(&x, 0,
-                                &bdema_ManagedPtrNoOpDeleter::deleter);
-
-        p.load(&y, 0, &bdema_ManagedPtrNoOpDeleter::deleter);
-
-        ASSERT(dam.isInUseSame());
-        ASSERT(gam.isInUseSame());
-      } break;
-      case 15: {
-        // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtrNilDeleter
         //
         // Concerns:
@@ -5565,11 +5518,68 @@ testCompsite();
 
         int x;
         int y;
-        bdema_ManagedPtr<int> p(&x, 0,
-                                &bdema_ManagedPtrNilDeleter<int>::deleter);
+        {
+            bdema_ManagedPtr<int> p(&x, 0,
+                                    &bdema_ManagedPtrNilDeleter<int>::deleter);
+            ASSERT(dam.isInUseSame());
+            ASSERT(gam.isInUseSame());
 
-        p.load(&y, 0, &bdema_ManagedPtrNilDeleter<int>::deleter);
+            p.load(&y, 0, &bdema_ManagedPtrNilDeleter<int>::deleter);
+            ASSERT(dam.isInUseSame());
+            ASSERT(gam.isInUseSame());
+        }
+        ASSERT(dam.isInUseSame());
+        ASSERT(gam.isInUseSame());
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING bdema_ManagedPtrNoOpDeleter
+        //
+        // Concerns:
+        //: 1 The 'deleter' method can be used as a deleter policy by
+        //:   'bdema_ManagedPtr'.
+        //:
+        //: 2 When invoked, 'bdema_ManagedPtrNoOpDeleter::deleter' has no
+        //:   effect.
+        //:
+        //: 3 No memory is allocated from the global or default allocators.
+        //
+        // Plan:
+        //: 1 blah ...
+        //
+        // Testing:
+        //    bdema_ManagedPtrNoOpDeleter::deleter
+        // --------------------------------------------------------------------
 
+        if (verbose) cout << "\nTESTING bdema_ManagedPtrNoOpDeleter"
+                          << "\n-----------------------------------" << endl;
+
+        if (verbose) cout << "\tConfirm the deleter does not destroy the "
+                             "passsed object\n";
+
+        int deleteCount = 0;
+        MyTestObject t(&deleteCount);
+        bdema_ManagedPtrNoOpDeleter::deleter(&t, 0);
+        LOOP_ASSERT(deleteCount, 0 == deleteCount);
+
+        if (verbose) cout << "\tConfirm the deleter can be registered with "
+                             "a managed pointer\n";
+
+        bslma_TestAllocatorMonitor gam(&globalAllocator);
+        bslma_TestAllocatorMonitor dam(&da);
+
+        int x;
+        int y;
+        {
+            bdema_ManagedPtr<int> p(&x, 0,
+                                    &bdema_ManagedPtrNoOpDeleter::deleter);
+            ASSERT(dam.isInUseSame());
+            ASSERT(gam.isInUseSame());
+
+            p.load(&y, 0, &bdema_ManagedPtrNoOpDeleter::deleter);
+            ASSERT(dam.isInUseSame());
+            ASSERT(gam.isInUseSame());
+        }
         ASSERT(dam.isInUseSame());
         ASSERT(gam.isInUseSame());
       } break;
