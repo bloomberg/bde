@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a test facility for assertion macros.
 //
 //@CLASSES:
-//             bsls_AssertTest: namespace for "assert" validating functions
-// bsls_AssertTestHandlerGuard: a guard for the negative testing assert-handler
+//              bsls_AssertTest: namespace for "assert" validating functions
+//  bsls_AssertTestHandlerGuard: guard for the negative testing assert-handler
 //
 //@MACROS:
 //   BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION)

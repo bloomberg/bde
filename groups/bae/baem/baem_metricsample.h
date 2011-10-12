@@ -82,7 +82,7 @@ BDES_IDENT("$Id: $")
 //  sample.appendGroup(buffer1,
 //                     sizeof(buffer1) / sizeof(*buffer1),
 //                     bdet_TimeInterval(1.0));
-//  sample.appendGroup(&buffer2.front(),
+//  sample.appendGroup(buffer2.data(),
 //                     buffer2.size(),
 //                     bdet_TimeInterval(2.0));
 //..
@@ -95,7 +95,7 @@ BDES_IDENT("$Id: $")
 //       assert(buffer1              == sample.sampleGroup(0).records());
 //       assert(2                    == sample.sampleGroup(0).numRecords());
 //       assert(bdet_TimeInterval(2) == sample.sampleGroup(1).elapsedTime());
-//       assert(&buffer2.front()     == sample.sampleGroup(1).records());
+//       assert(buffer2.data()       == sample.sampleGroup(1).records());
 //       assert(1                    == sample.sampleGroup(1).numRecords());
 //..
 // Finally we can obtain an iterator over the sample's sequence of groups.  In

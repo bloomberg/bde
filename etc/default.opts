@@ -882,10 +882,6 @@ unix-SunOS-*-*-gcc  64  GCCEXTRAWFLAGS  =   \
      -W$(GCCEXTRAWERROR)overflow -Wlarger-than-100000                       \
      -W$(GCCEXTRAWERROR)larger-than-100000
 
-# add -Winline to help catch inline reordering issues.  Note that this is not a
-# cscompile/glint option.
-*-*-*-*-gcc  _  GCCEXTRAWFLAGS  = -Winline
-
 *                       _   CC64FLAGS   =
 *-*-*-*-gcc             _   CC64FLAGS   = -m32
 !! *-*-*-*-gcc          64  CC64FLAGS   = -m64

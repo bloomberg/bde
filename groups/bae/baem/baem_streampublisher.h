@@ -66,7 +66,7 @@ BDES_IDENT("$Id: $")
 //  sample.setElapsedTime(bdet_TimeInterval(5));
 //  sample.setTimeStamp(
 //                 bdet_DatetimeTz(bdetu_SystemTime::nowAsDatetimeGMT(), 0));
-//  sample.appendRecords(&records.front(), records.size());
+//  sample.appendRecords(records.data(), records.size());
 //
 //  myPublisher.publish(sample);
 //..

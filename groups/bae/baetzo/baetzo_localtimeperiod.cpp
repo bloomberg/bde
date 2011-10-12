@@ -27,9 +27,9 @@ bsl::ostream& baetzo_LocalTimePeriod::print(bsl::ostream& stream,
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.print(d_descriptor,   "descriptor");
-    printer.print(d_utcStartTime, "utcStartTime");
-    printer.print(d_utcEndTime,   "utcEndTime");
+    printer.printAttribute("descriptor",   d_descriptor);
+    printer.printAttribute("utcStartTime", d_utcStartTime);
+    printer.printAttribute("utcEndTime",   d_utcEndTime);
     printer.end();
 
     return stream;
