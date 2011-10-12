@@ -613,9 +613,9 @@ void validateManagedState(unsigned int                   LINE,
 {
     // Testing the following properties of the specified 'obj'
     //   operator BoolType() const;
-    //   TYPE& operator*() const;
-    //   TYPE *operator->() const;
-    //   TYPE *ptr() const;
+    //   void operator*() const;
+    //   void *operator->() const;
+    //   void *ptr() const;
     //   const bdema_ManagedPtrDeleter& deleter() const;
 
     bslma_TestAllocatorMonitor gam(dynamic_cast<bslma_TestAllocator*>
@@ -672,9 +672,9 @@ void validateManagedState(unsigned int                        LINE,
 {
     // Testing the following properties of the specified 'obj'
     //   operator BoolType() const;
-    //   TYPE& operator*() const;
-    //   TYPE *operator->() const;
-    //   TYPE *ptr() const;
+    //   void operator*() const;
+    //   const void *operator->() const;
+    //   const void *ptr() const;
     //   const bdema_ManagedPtrDeleter& deleter() const;
 
     bslma_TestAllocatorMonitor gam(dynamic_cast<bslma_TestAllocator*>
@@ -1220,7 +1220,9 @@ struct TestCtorArgs {
     // policy based test function.  It collects all information for the range
     // of tests and expectations to be set up on entry, and reported on exit.
     bool d_useDefault;  // Set to true if the test uses the default allocator
-    unsigned int d_config; // Valid values are 0-3.  The low-bit represents whether to pass a null for 'object', the second bit whether to pass a null for 'factory'
+    unsigned int d_config; // Valid values are 0-3.  The low-bit represents
+                           // whether to pass a null for 'object', the second
+                           // bit whether to pass a null for 'factory'.
 };
 
 
@@ -1401,12 +1403,12 @@ void doConstructObjectFactory(int callLine, int testLine, int,// index,
 
         bsls_AssertTestHandlerGuard guard;
 
-        ASSERT_SAFE_FAIL_RAW(bdema_ManagedPtr<POINTER_TYPE> testObject(pO, pF));
+        ASSERT_SAFE_FAIL_RAW(
+                            bdema_ManagedPtr<POINTER_TYPE> testObject(pO, pF));
 
         pAlloc->deleteObject(pO);
 
-        LOOP_ASSERT(deleteCount,
-                    ObjectPolicy::DELETE_DELTA == deleteCount);
+        LOOP_ASSERT(deleteCount, ObjectPolicy::DELETE_DELTA == deleteCount);
 #else
     if (verbose) cout << "\tNegative testing disabled due to lack of "
                          "exception support\n";
@@ -1478,8 +1480,10 @@ void doConstructObjectFactoryDzero(int callLine, int testLine, int,// index,
 
         bsls_AssertTestHandlerGuard guard;
 
-        ASSERT_SAFE_FAIL_RAW(bdema_ManagedPtr<POINTER_TYPE> testObject(pO, pF, nullFn));
-        ASSERT_SAFE_FAIL_RAW(bdema_ManagedPtr<POINTER_TYPE> testObject(pO,  0, nullFn));
+        ASSERT_SAFE_FAIL_RAW(
+                    bdema_ManagedPtr<POINTER_TYPE> testObject(pO, pF, nullFn));
+        ASSERT_SAFE_FAIL_RAW(
+                    bdema_ManagedPtr<POINTER_TYPE> testObject(pO,  0, nullFn));
 
         pAlloc->deleteObject(pO);
         LOOP2_ASSERT(expectedCount,   deleteCount,
@@ -2059,22 +2063,26 @@ struct TestPolicy {
 
     template<class ObjectPolicy, class FactoryPolicy, class DeleterPolicy>
     TestPolicy(ObjectPolicy, FactoryPolicy, DeleterPolicy)
-    : testLoad(&doLoadObjectFactoryDeleter     <TARGET, ObjectPolicy, FactoryPolicy, DeleterPolicy>)
-    , testCtor(&doConstructObjectFactoryDeleter<TARGET, ObjectPolicy, FactoryPolicy, DeleterPolicy>)
+    : testLoad(&doLoadObjectFactoryDeleter     
+                          <TARGET, ObjectPolicy, FactoryPolicy, DeleterPolicy>)
+    , testCtor(&doConstructObjectFactoryDeleter
+                          <TARGET, ObjectPolicy, FactoryPolicy, DeleterPolicy>)
     {
     }
 
     template<class ObjectPolicy, class DeleterPolicy>
     TestPolicy(ObjectPolicy, NullPolicy, DeleterPolicy)
-    : testLoad(&doLoadObjectFnullDeleter     <TARGET, ObjectPolicy, DeleterPolicy>)
-    , testCtor(&doConstructObjectFnullDeleter<TARGET, ObjectPolicy, DeleterPolicy>)
+    : testLoad(&doLoadObjectFnullDeleter <TARGET, ObjectPolicy, DeleterPolicy>)
+    , testCtor(&doConstructObjectFnullDeleter
+                                         <TARGET, ObjectPolicy, DeleterPolicy>)
     {
     }
 
     template<class ObjectPolicy, class FactoryPolicy>
     TestPolicy(ObjectPolicy, FactoryPolicy, NullPolicy)
-    : testLoad(&doLoadObjectFactoryDzero     <TARGET, ObjectPolicy, FactoryPolicy>)
-    , testCtor(&doConstructObjectFactoryDzero<TARGET, ObjectPolicy, FactoryPolicy>)
+    : testLoad(&doLoadObjectFactoryDzero <TARGET, ObjectPolicy, FactoryPolicy>)
+    , testCtor(&doConstructObjectFactoryDzero
+                                         <TARGET, ObjectPolicy, FactoryPolicy>)
     {
     }
 };
@@ -2436,7 +2444,8 @@ void testLoadAliasOps2(int callLine,
                 bslma_TestAllocatorMonitor tam2(&ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
-                if (g_veryVerbose) cout << "\tNegative testing null pointers\n";
+                if (g_veryVerbose) cout <<
+                                          "\tNegative testing null pointers\n";
 
                 // Declare variables so that the lifetime extends to the end
                 // of the loop.  Otherwise, the 'ta' monitor tests will flag
@@ -6145,9 +6154,19 @@ testCompsite();
         //:   implicitly convert to a 'bdema_ManagedPtr_Ref' of any compatible
         //:   type, i.e., where a pointer to the specified '_Ref' type may be
         //:   converted from a pointer to the specified 'Managed' type.
+        //:
+        //: 7 A 'bdema_ManagedPtr' object is left in an empty state after being
+        //:   supplied as the source to a move operation.
         //
         // Plan:
-        //   TBD...
+        //   First we test the conversion operator, including compile-fail test
+        //   for incompatible types
+        //
+        //   Next we test construction from a 'bdema_ManagedPtr_Ref' object
+        //
+        //   Finally we test the tricky combinations of invoking the (lvalue)
+        //   move constructor, including with rvalues, and values of different
+        //   target types.
         //
         // Tested:
         //   operator bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>();
@@ -6175,13 +6194,24 @@ testCompsite();
                 Obj  o(&x, 0, countedNilDelete);
 
                 bdema_ManagedPtr_Ref<TObj> r = o;
+                // Check no memory is allocated/released and no deleters run
                 LOOP_ASSERT(g_deleteCount, 0 == g_deleteCount);
                 ASSERT(0 == numDeletes);
 
+                // check the pointer reference an object with the correct data
                 ASSERT(&x == r.base()->pointer());
                 ASSERT(&x == r.base()->deleter().object());
                 ASSERT(0 == r.base()->deleter().factory());
                 ASSERT(&countedNilDelete == r.base()->deleter().deleter());
+
+                // finally, check the address of the pointed-to object lies
+                // within 'o', as we cannot directly query the address of the
+                // private member
+                const void *p1 = &o;
+                const void *p2 = reinterpret_cast<const unsigned char *>(p1) +
+                                                                     sizeof(o);
+                const void *pRef = r.base();
+                LOOP3_ASSERT(p1, pRef, p2, p1 <= pRef && pRef < p2);
             }
             LOOP_ASSERT(g_deleteCount, 1 == g_deleteCount);
             LOOP_ASSERT(numDeletes, 1 == numDeletes);

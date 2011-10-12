@@ -18,17 +18,72 @@ BDES_IDENT("$Id: $")
 //         Alisdair Meredith (ameredith1@blooomberg.net)
 //
 //@DESCRIPTION: This component provides a proctor, similar to 'bsl::auto_ptr',
-// that supports user-specified deleters.  The proctor (OED: "a person employed
-// to manage the affairs of another") is responsible for the automatic
-// destruction of the object referenced by the managed pointer.  (See
+// that supports user-specified deleters.  The proctor is responsible for the
+// automatic destruction of the object referenced by the managed pointer.  (See
 // "Aliasing" section below for the detailed description of this behavior.)
 //
 ///Deleters
 ///--------
-// When a managed pointer is destroyed, the managed object is destroyed
-// using the user supplied "deleter".  A deleter is simply a function
-// that is invoked with a pointer to the object to be deleted, and an optional
-// pointer to a 'factory'.  The meaning of 'factory' depends on the deleter.
+// When a managed pointer is destroyed, the managed object is destroyed using
+// the user supplied "deleter".  A deleter is simply a function that is invoked
+// with a pointer to the object to be destroyed, and an optional pointer to a
+// 'factory'.  The meaning of 'factory' depends on the deleter.
+//
+///Exception Safety
+///----------------
+// The principal usage of a managed pointer is to guarantee that a local object
+// will be deallocated properly should an operation throw after its allocation.
+// In this, it is very similar to 'bsl::auto_ptr'.  It is required for the
+// proper functioning of this component that a deleter does not throw at
+// invocation (upon destruction or re-assignment of the managed pointer).
+//
+///Aliasing
+///--------
+// In a managed pointer, the pointer value (the value returned by the 'ptr'
+// method) and the pointer to the managed object need not be the same value.
+// the 'loadAlias' method allows a managed pointer to be constructed as an
+// "alias" to another managed pointer (possibly of a different type), which
+// we'll call the "original" managed pointer.  When 'ptr' is invoked on the
+// alias, the aliased pointer value is returned, but when the managed pointer
+// is destroyed, the original managed instance will be passed to the deleter.
+// (See also the documentation of the 'alias' constructor or of the
+// 'loadAlias' method.)
+//
+// For instance, suppose that we wish to give access to an item in a temporary
+// array via a pointer which we'll call the "finger".  The entire array must
+// remain valid until the finger is destroyed, but the finger is the only
+// reference to the array or any part of the array.  The finger is the only
+// pointer to the array or any part of the array, but the entire array must be
+// valid until the finger is destroyed, at which time the entire array must be
+// deleted.  We handle this situation by first creating a managed pointer to
+// the entire array, then creating an alias of that pointer for the
+// finger.  The finger takes ownership of the array instance, and when the
+// finger is destroyed, it is the array's address, rather than the finger,
+// that is passed to the deleter.
+//
+///Type Casting
+///------------
+// 'bdema_ManagedPtr' objects can be implicitly and explicitly cast to
+// different types in the same way that native pointers can.
+//
+///Implicit Casting
+/// - - - - - - - -
+// As with native pointers, a managed pointer of the type 'B' that is derived
+// from the type 'A', can be directly assigned to a 'bdema_ManagedPtr' of 'A'.
+// Likewise a managed pointer of type 'B' can be directly assigned to a
+// 'bdema_ManagedPtr' of 'const B'.
+//
+///Explicit Casting
+/// - - - - - - - -
+// Through "aliasing", a managed pointer of any type can be explicitly cast
+// to a managed pointer of any other type using any legal cast expression.
+//
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Converting Between UTC and Local Times
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The following are examples of deleter functions:
 //..
 // void nilDeleter(void *, void*)
@@ -69,38 +124,8 @@ BDES_IDENT("$Id: $")
 // that the proper destructor logic is called regardless of how the managed
 // pointer is transformed.
 //
-///Exception Safety
-///----------------
-// The principal usage of a managed pointer is to guarantee that a local object
-// will be deallocated properly should an operation throw after its allocation.
-// In this, it is very similar to 'bsl::auto_ptr'.  It is required for the
-// proper functioning of this component that a deleter does not throw at
-// invocation (upon destruction or re-assignment of the managed pointer).
-//
-///Aliasing
-///--------
-// In a managed pointer, the pointer value (the value returned by the 'ptr'
-// method) and the pointer to the managed object need not be the same value.
-// the 'loadAlias' method allows a managed pointer to be constructed as an
-// "alias" to another managed pointer (possibly of a different type), which
-// we'll call the "original" managed pointer.  When 'ptr' is invoked on the
-// alias, the aliased pointer value is returned, but when the managed pointer
-// is destroyed, the original managed instance will be passed to the deleter.
-// (See also the documentation of the 'alias' constructor or of the
-// 'loadAlias' method.)
-//
-// For instance, suppose that we wish to give access to an item in a temporary
-// array via a pointer which we'll call the "finger".  The entire array must
-// remain valid until the finger is destroyed, but the finger is the only
-// reference to the array or any part of the array.  The finger is the only
-// pointer to the array or any part of the array, but the entire array must be
-// valid until the finger is destroyed, at which time the entire array must be
-// deleted.  We handle this situation by first creating a managed pointer to
-// the entire array, then creating an alias of that pointer for the
-// finger.  The finger takes ownership of the array instance, and when the
-// finger is destroyed, it is the array's address, rather than the finger,
-// that is passed to the deleter.
-//
+///Example 2: Aliasing
+///- - - - - - - - - -
 // What follows is a concrete example illustrating the alias concept.
 // Let's say our array stores data acquired from a ticker
 // plant accessible by a global 'getQuote()' function:
@@ -312,10 +337,6 @@ BDES_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -364,13 +385,14 @@ class bdema_ManagedPtr {
     // This class provides a "smart pointer" to an object of the parameterized
     // 'BDEMA_TYPE', which supports sole ownership of objects: a managed
     // pointer ensures that the object it manages is destroyed when the managed
-    // pointer is destroyed, using the appropriate deletion method.  The object
-    // (of the parameterized 'BDEMA_TYPE') pointed to by a shared pointer
-    // instance may be accessed directly using the '->' operator, or the
-    // dereference operator (operator '*') can be used to get a reference to
-    // that object.  See the component-level documentation for a thorough
-    // description and examples of its many usages.  The specified 'BDEMA_TYPE'
-    // may be 'const'-qualified, but shall not be 'volatile' qualified.
+    // pointer is destroyed, or re-assigned, using the appropriate deletion
+    // method.  The object (of the parameterized 'BDEMA_TYPE') pointed to by a
+    // managed pointer instance may be accessed directly using the '->'
+    // operator, or the dereference operator (operator '*') can be used to get
+    // a reference to that object.  See the component-level documentation for a
+    // thorough description and examples of its many usages.  The specified
+    // 'BDEMA_TYPE' may be 'const'-qualified, but shall not be 'volatile'
+    // qualified.
     //
     // Note that the object managed by a managed pointer instance is usually
     // the same as the object pointed to by that instance (of the same
@@ -479,91 +501,95 @@ class bdema_ManagedPtr {
     explicit bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type = 0,
                               bdema_ManagedPtr_Nullptr::Type = 0,
                               bdema_ManagedPtr_Nullptr::Type = 0);
-        // Construct a managed pointer that is in an unset state.  Note that
-        // this constructor is necessary to match a null-pointer literal
+        // Create a managed pointer that is in an unset state.  Note that
+        // this constructor is necessary to match null-pointer literal
         // arguments, in order to break ambiguities and provide valid type
         // deduction with the other constructor templates in this class.
 
     template<class BDEMA_TARGET_TYPE>
     explicit
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr);
-        // Construct a managed pointer that manages the specified 'ptr' using
+        // Create a managed pointer that manages the specified 'ptr' using
         // the current default allocator to destroy 'ptr' when this managed
         // pointer is destroyed or re-assigned, unless it is released before
-        // then.  Note that the object will be initialized to an unset state
-        // if 'ptr' == 0.  The behavior is undefined unless the object referred
-        // to by 'ptr' can by destroyed by the current default allocator.
-        // The behavior is undefined if the lifetime of the object referred to
-        // by 'ptr' is already managed by another object.  The behavior is
-        // undefined unless 'BDEMA_TARGET_TYPE *' is convertible to
+        // then.  The object will be initialized to an unset state if
+        // 'ptr' == 0.  The deleter will invoke the destructor of
+        // 'BDEMA_TARGET_TYPE' and not the destructor of 'BDEMA_TYPE'.  This
+        // allows 'bdema_ManagedPtr' to be defined for void pointers, and calls
+        // the correct destructor for 'ptr', even if the destructor for
+        // 'BDEMA_TYPE' is not declared as 'virtual'.  The behavior is
+        // undefined unless the object referred to by 'ptr' can by destroyed by
+        // the current default allocator (or 'ptr' == 0).  Also note that the
+        // behavior is undefined if the lifetime of object referred to by 'ptr'
+        // is already managed by another object.  Further note that the
+        // behavior is undefined unless 'BDEMA_TARGET_TYPE *' is convertible to
         // 'BDEMA_TYPE *'.
-        // TBD We still say nothing about bad casts and deleting a 'void*'
-
-    bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
-        // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
-        // from the managed pointer referred-to by the specified 'ref' object
-        // to this managed pointer.  Note that the managed pointer referred-to
-        // by 'ref' will be re-initialized to an unset state.  This constructor
-        // is used to construct from a managed pointer rvalue, or from a
-        // managed pointer to a "compatible" type, where "compatible" means a
-        // built-in conversion from 'OTHER_TYPE *' to 'BDEMA_TYPE *' is
-        // defined, e.g., 'derived *' -> 'base *', 'int *' -> 'const int *', or
-        // 'any_type *' -> 'void *'.
 
     bdema_ManagedPtr(bdema_ManagedPtr& other);
-        // Construct a 'bdema_ManagedPtr' and transfer the value and ownership
-        // from the specified 'other' managed pointer to this managed pointer.
-        // Note that 'other' will be re-initialized to an unset state.
+        // Cretae a 'bdema_ManagedPtr' and transfer the value and ownership of
+        // the object managed by the specified 'other' (if any) to this managed
+        // pointer.  Re-initialize 'other' to an unset state.
+
+    bdema_ManagedPtr(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+        // Create a 'bdema_ManagedPtr' and transfer the value and ownership
+        // from the managed pointer referred-to by the specified 'ref' object
+        // to this managed pointer.  The managed pointer referred-to by 'ref'
+        // will be re-initialized to an unset state.  This constructor is used
+        // to construct from a managed pointer rvalue, or from a managed
+        // pointer to a "compatible" type, where "compatible" means a built-in
+        // conversion from 'OTHER_TYPE *' to 'BDEMA_TYPE *' is defined, e.g.,
+        // 'derived *' -> 'base *', 'int *' -> 'const int *', or 
+        // 'any_type *' -> 'void *'.
 
     template <class BDEMA_OTHER_TYPE>
     bdema_ManagedPtr(bdema_ManagedPtr<BDEMA_OTHER_TYPE>& alias,
                      BDEMA_TYPE                         *ptr);
-        // Construct a managed pointer that takes over management of the value
-        // of the specified 'alias' managed pointer, but which has the
-        // specified 'ptr' as an externally-visible value.  The value of 'ptr'
-        // is treated as an alias to all or part of 'alias.ptr()'.  Unless it
-        // is released first, destroying or re-assigning a managed pointer
-        // created with this constructor will delete the object originally
-        // managed by 'alias' -- the destructor for '*ptr' is not called
-        // directly.  Note that 'alias' will be re-initialized to an unset
-        // state, and that the object previously managed by 'alias' will not be
-        // deleted until this managed pointer is destroyed or re-assigned.
-        // Compilation will fail unless 'BDEMA_OTHER_TYPE *' is convertible to
-        // 'BDEMA_TYPE*'.  If '0 == ptr', then this object will be
-        // initialized to an unset state.  The behavior is undefined if 'ptr'
-        // is already managed by a managed pointer other than 'alias'.
+        // Create a managed pointer that takes ownership of the object managed
+        // by the specified 'alias' pointer, but which has the specified 'ptr'
+        // as its externally-visible value, and re-initialize 'alias' to an
+        // unset state unless '0 == ptr', in which case this object will be
+        // initialized to an unset state and 'alias' continues to own its
+        // managed object.  The value of 'ptr' is treated as an alias to all or
+        // part of 'alias.ptr()'.  Note that destroying or re-assigning a
+        // managed pointer created with this constructor will destroy the
+        // object originally managed by 'alias' (unless 'release' is called
+        // first), the destructor for '*ptr' is not called directly. Also note
+        // that behavior is undefined if 'alias' is empty, but '0 != ptr'.
+        // Further note that compilation will fail unless 'BDEMA_OTHER_TYPE *'
+        // is convertible to 'BDEMA_TYPE*'.
 
     template <class BDEMA_TARGET_TYPE, class BDEMA_FACTORY>
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr, BDEMA_FACTORY *factory);
-        // Construct a managed pointer to manage the specified 'ptr' using the
+        // Create a managed pointer to manage the specified 'ptr' using the
         // specified 'factory' to destroy 'ptr' when this managed pointer is
-        // destroyed or re-assigned, unless it is released before then.  The
-        // 'BDEMA_FACTORY' class can be any class that has a 'deleteObject'
-        // method.  'bslma_Allocator' or any class derived from
-        // 'bslma_Allocator' meets the requirements for 'BDEMA_FACTORY'.  If
-        // '0 == ptr', then this object will be initialized to an unset state.
-        // The behavior is undefined if 'ptr' is already managed by another
-        // managed pointer.
+        // destroyed or re-assigned (unless 'release' is called before then).
+        // If '0 == ptr' then this object will be initialized to an unset
+        // state.  The class 'BDEMA_FACTORY' can be any class that has a
+        // 'deleteObject' method, which takes a single argument of type
+        // 'BDEMA_TYPE *'.  Note that 'bslma_Allocator' or any class derived
+        // from 'bslma_Allocator' meets the requirements for 'BDEMA_FACTORY'.
+        // The behavior is undefined unless '0 != factory', or if 'ptr' is
+        // already managed by another object.
 
     template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
                      void *,
                      void (*deleter)(BDEMA_TARGET_BASE*, void*));
-        // [!DEPRECATED!] Construct a managed pointer to manage the specified
+        // [!DEPRECATED!] Create a managed pointer to manage the specified
         // 'ptr' using the specified 'deleter' to destroy 'ptr' when this
         // managed pointer is destroyed or re-assigned (unless it is released
         // before then).  If '0 == ptr', then this object will be initialized
         // to an unset state.  The behavior is undefined if 'ptr' is already
-        // managed by another managed pointer.  Note that behavior is undefined
-        // unless 'deleter' accepts null pointers in the second argument.  Note
-        // that this constructor is needed only to support passing a null
-        // pointer literal as the factory object when the user passes a deleter
-        // taking 'BDEMA_TYPE' rather than 'void *', and the factory type is
-        // not used.  Note that this function is *deprecated* as it relies on
-        // undefined compiler behavior for its implementation, that happens to
-        // to perform as required on every known compiler.  The overload taking
-        // a 'DeleterFunc' (with two 'void *' arguments) should be preferred
-        // for new code.
+        // managed by another object.  Note that behavior is undefined unless
+        // 'deleter' accepts null pointers in the second argument.  Note that
+        // this constructor is needed only to support passing a null pointer
+        // literal as the factory object when the user passes a deleter taking
+        // 'BDEMA_TYPE' rather than 'void *', and so behavior is undefined
+        // unless this pointer has a null value.  Note that this function is
+        // *deprecated* as it relies on undefined compiler behavior for its
+        // implementation (that happens to to perform as required on every
+        // known compiler).  The overload taking a 'DeleterFunc' with two
+        // 'void *' arguments should be preferred for new code.
 
     template <class BDEMA_TARGET_TYPE,
               class BDEMA_TARGET_BASE,
@@ -572,19 +598,18 @@ class bdema_ManagedPtr {
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
                      BDEMA_FACTORY     *factory,
                      void (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*));
-        // [!DEPRECATED!] Construct a managed pointer to manage the specified
+        // [!DEPRECATED!] Create a managed pointer to manage the specified
         // 'ptr' using the specified 'deleter' and associated 'factory' to
         // destroy 'ptr' when this managed pointer is destroyed or re-assigned
         // (unless it is released before then).  If 0 == 'ptr', then this
         // object will be initialized to an unset state.  The behavior is
-        // undefined if 'ptr' is already managed by another managed pointer.
-        // Note that if '0 == factory' then behavior is undefined unless
-        // 'deleter' accepts null pointers in the second argument.  Note that
-        // this function is *deprecated* as it relies on undefined compiler
-        // behavior for its implementation, that happens to to perform as
-        // required on every known compiler.  The overload taking a
-        // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
-        // new code.
+        // undefined if 'ptr' is already managed by another object.  Note that
+        // if '0 == factory' then behavior is undefined unless 'deleter' allows
+        // null pointers in the second argument.  Note that this function is
+        // *deprecated* as it relies on undefined compiler behavior for its
+        // implementation (that happens to to perform as required on every
+        // known compiler).  The overload taking a 'DeleterFunc' with two
+        // 'void *' arguments should be preferred for new code.
 
     ~bdema_ManagedPtr();
         // Destroy this managed pointer object and any managed object by
@@ -604,19 +629,19 @@ class bdema_ManagedPtr {
         // Transfer the value and ownership from the managed pointer supplying
         // the specified 'ref' to this managed pointer.  Note that 'ref' will
         // be re-initialized to an unset state and that the previous contents
-        // of this pointer (if any) are destroyed unless this pointer and 'ref'
-        // point to the same object.  This operator is used to assign from a
-        // managed pointer rvalue, or from a managed pointer to a "compatible"
-        // type, where "compatible" means a built-in conversion from
-        // 'OTHER_TYPE *' to 'BDEMA_TYPE *' is defined, e.g., 'derived *' ->
-        // 'base *', 'T *' -> 'const T *', or 'T *' -> 'void *'.
+        // of this managed pointer (if any) are destroyed unless this object
+        // and 'ref' point to the same object.  Note that this operator is used
+        // to assign from a managed pointer rvalue, or from a managed pointer
+        // to a "compatible" type, where "compatible" means a built-in
+        // conversion from 'OTHER_TYPE *' to 'BDEMA_TYPE *' is defined, e.g.,
+        // 'derived *' -> 'base *', 'T *' -> 'const T *', or 'T *' -> 'void *'.
 
     template <class BDEMA_OTHER_TYPE>
     operator bdema_ManagedPtr_Ref<BDEMA_OTHER_TYPE>();
-        // Implicit conversion to a managed pointer reference.  This
-        // conversion operator is used to allow the construction of managed
-        // pointer rvalues because temporaries cannot be passed by modifiable
-        // reference.
+        // Return a managed pointer reference, referring to this object.  Note
+        // that this conversion operator is used to allow the construction of
+        // managed pointers from rvalues because temporaries cannot be passed
+        // by modifiable reference.
 
     void clear();
         // Destroy the current managed object (if any) and re-initialize this
@@ -629,28 +654,46 @@ class bdema_ManagedPtr {
         // managed pointer to an unset state.
 
     template<class BDEMA_TARGET_TYPE>
+    void load(BDEMA_TARGET_TYPE *ptr);
+        // Destroy the current managed object (if any) and re-initialize this
+        // managed pointer to manage the specified 'ptr' using the default
+        // allocator to destroy 'ptr' when this managed pointer is destroyed
+        // or re-assigned, unless 'release' is called before then.  Note that
+        // if '0 == 'ptr', then this object will be initialized to an unset
+        // state.  The behavior is undefined if 'ptr' is already managed by
+        // another object.
+
+    template <class BDEMA_TARGET_TYPE, class BDEMA_FACTORY>
+    void load(BDEMA_TARGET_TYPE *ptr, BDEMA_FACTORY *factory);
+        // Destroy the current managed object (if any) and re-initialize this
+        // managed pointer to manage the specified 'ptr' using the specified
+        // 'factory' deleter to destroy 'ptr' when this managed pointer is
+        // destroyed or re-assigned, unless it is released before then.  Note
+        // that if '0 == ptr', then this object will be initialized to an
+        // unset state.  The behavior is undefined if 'ptr' is already managed
+        // by another object or if '0 == factory && 0 != ptr'
+
+    template<class BDEMA_TARGET_TYPE>
     void load(BDEMA_TARGET_TYPE *ptr, void *factory, DeleterFunc deleter);
         // Destroy the current managed object (if any) and re-initialize this
         // managed pointer to manage the specified 'ptr' using the specified
         // 'deleter' with arguments 'ptr' and the specified 'factory' to
-        // destroy 'ptr' when this managed pointer is destroyed or
-        // re-assigned, unless it is released before then.  Note that if
-        // '0 == ptr', then this object will be initialized to an unset state.
-        // The behavior is undefined if 'ptr' is already managed by another
-        // managed pointer.
+        // destroy 'ptr' when this managed pointer is destroyed or re-assigned,
+        // unless 'release' is called before then.  Note that if '0 == ptr',
+        // then this object will be re-initialized to an unset state.  The 
+        // behavior is undefined if 'ptr' is already managed by another
+        // object, or if '0 == deleter && 0 != ptr'.
 
 #if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
-    void load(BDEMA_TYPE  *ptr,
-              void        *factory,
-              DeleterFunc  deleter);
+    void load(BDEMA_TYPE  *ptr, void *factory, DeleterFunc  deleter);
         // Destroy the current managed object (if any) and re-initialize this
         // managed pointer to manage the specified 'ptr' using the specified
         // 'deleter' with arguments 'ptr' and the specified 'factory' to
-        // destroy 'ptr' when this managed pointer is destroyed or
-        // re-assigned, unless it is released before then.  Note that if
-        // '0 == ptr', then this object will be initialized to an unset state.
-        // The behavior is undefined if 'ptr' is already managed by another
-        // managed pointer.
+        // destroy 'ptr' when this managed pointer is destroyed or re-assigned,
+        // unless 'release' is called before then.  Note that if '0 == ptr',
+        // then this object will be re-initialized to an unset state.  The 
+        // behavior is undefined if 'ptr' is already managed by another
+        // object, or if '0 == deleter' and '0 != ptr'.
 #endif
 
     template<class BDEMA_TARGET_TYPE, typename BDEMA_FACTORY>
@@ -664,27 +707,7 @@ class bdema_ManagedPtr {
         // re-assigned, unless it is released before then.  Note that if
         // '0 == ptr', then this object will be initialized to an unset state.
         // The behavior is undefined if 'ptr' is already managed by another
-        // managed pointer.
-
-    template<class BDEMA_TARGET_TYPE>
-    void load(BDEMA_TARGET_TYPE *ptr);
-        // Destroy the current managed object (if any) and re-initialize this
-        // managed pointer to manage the specified 'ptr' using the default
-        // allocator to destroy 'ptr' when this managed pointer is destroyed
-        // or re-assigned, unless it is released before then.  Note that if
-        // '0 == 'ptr', then this object will be initialized to an unset state.
-        // The behavior is undefined if 'ptr' is already managed by another
-        // managed pointer.
-
-    template <class BDEMA_TARGET_TYPE, class BDEMA_FACTORY>
-    void load(BDEMA_TARGET_TYPE *ptr, BDEMA_FACTORY *factory);
-        // Destroy the current managed object (if any) and re-initialize this
-        // managed pointer to manage the specified 'ptr' using the specified
-        // 'factory' deleter to destroy 'ptr' when this managed pointer is
-        // destroyed or re-assigned, unless it is released before then.  Note
-        // that if '0 == ptr', then this object will be initialized to an
-        // unset state.  The behavior is undefined if 'ptr' is already managed
-        // by another managed pointer.
+        // object.
 
     template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
     void load(BDEMA_TARGET_TYPE *ptr,
@@ -768,8 +791,8 @@ class bdema_ManagedPtr {
 
     typename bslmf_AddReference<BDEMA_TYPE>::Type operator*() const;
         // Return a reference to the managed object.  The behavior is undefined
-        // if this managed pointer is in an unset state, or 'BDEMA_TYPE' is
-        // 'void'.
+        // if this managed pointer is in an unset state, or if 'BDEMA_TYPE' is
+        // 'void' or 'const void'.
 
     BDEMA_TYPE *operator->() const;
         // Return the address of the managed (modifiable) object, or 0 if
@@ -783,6 +806,12 @@ class bdema_ManagedPtr {
         // Return a non-modifiable reference to the deleter information
         // associated with this managed pointer.
 };
+
+template <class BDEMA_TYPE>
+class bdema_ManagedPtr<volatile BDEMA_TYPE>;
+    // This specialization provides an early compile-fail check to catch misuse
+    // of managed pointer to volatile types, which is explicitly called out as
+    // not supported in the primary class template contract.
 
 template <class BDEMA_TYPE>
 void swap(bdema_ManagedPtr<BDEMA_TYPE>& a, bdema_ManagedPtr<BDEMA_TYPE>& b);
@@ -964,6 +993,8 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
                                      BDEMA_TYPE                         *ptr)
 : d_members()
 {
+    BSLS_ASSERT_SAFE( 0 != alias.ptr() || 0 == ptr );
+
     if(0 != ptr) {
         d_members.move(alias.d_members);
         d_members.setAliasPtr(stripPointerType(ptr));
@@ -982,7 +1013,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::
                                                                        VALUE));
-
     BSLS_ASSERT_SAFE(0 != factory || 0 == ptr);
 }
 
@@ -990,7 +1020,7 @@ template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                                    void *,
+                                    void * factory,
                                     void (*deleter)(BDEMA_TARGET_BASE*, void*))
 : d_members(stripPointerType(ptr),
             0,
@@ -999,10 +1029,10 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                       BDEMA_TYPE *>::VALUE));
     BSLMF_ASSERT((bslmf_IsConvertible<
-                        typename bslmf_RemovePtrCvq<BDEMA_TARGET_TYPE *>::Type,
-                        BDEMA_TARGET_BASE *>::VALUE));
+                        BDEMA_TARGET_TYPE *,
+                        const BDEMA_TARGET_BASE *>::VALUE));
 
-    //BSLS_ASSERT_SAFE(0 != deleter);
+    BSLS_ASSERT_SAFE(0 == factory);
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 }
 
@@ -1023,8 +1053,8 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                       BDEMA_TYPE *>::VALUE));
     BSLMF_ASSERT((bslmf_IsConvertible<
-                        typename bslmf_RemovePtrCvq<BDEMA_TARGET_TYPE *>::Type,
-                        BDEMA_TARGET_BASE *>::VALUE));
+                        BDEMA_TARGET_TYPE *,
+                        const BDEMA_TARGET_BASE *>::VALUE));
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_FACTORY *,
                                       BDEMA_BASE_FACTORY *>::VALUE));
 
@@ -1153,7 +1183,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
                                    void  *,
                                    void (*deleter)(BDEMA_TARGET_BASE *, void*))
 {
-    BSLMF_ASSERT(( !bdema_ManagedPtr_IsVoid<BDEMA_TARGET_BASE>::VALUE ));
+    BSLMF_ASSERT((!bdema_ManagedPtr_IsVoid<BDEMA_TARGET_BASE>::VALUE ));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TYPE *>::VALUE));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
