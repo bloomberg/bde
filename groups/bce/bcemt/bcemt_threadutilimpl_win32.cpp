@@ -310,9 +310,9 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::create(
     ThreadStartupInfo *startInfo = allocStartupInfo();
 
     int stackSize = attribute.stackSize();
-    if (Attr::BCEMT_UNSET_STACK_SIZE == stackSize) {
+    if (bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE == stackSize) {
         stackSize = bcemt_Configuration::defaultThreadStackSize();
-        if (Attr::BCEMT_UNSET_STACK_SIZE == stackSize) {
+        if (bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE == stackSize) {
             stackSize = bcemt_Configuration::nativeDefaultThreadStackSize();
         }
     }
