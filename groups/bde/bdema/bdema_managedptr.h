@@ -104,8 +104,86 @@ BDES_IDENT("$Id: $")
 ///-----
 // In this section we show intended usage of this component.
 //
-///Example 1: Basic usage
-/// - - - - - - - - - - -
+///Example 1: Implementing a protocol
+/// - - - - - - - - - - - - - - - - -
+// We demonstrate using 'bdema_ManagedPtr' to configure and return a managed
+// object implementing an abstract protocol.
+//
+// First we define our protocol.  A 'Talker' is a type of object that knows how
+// to 'speak':
+//..
+//  struct Talker {
+//      virtual const char * speak() const = 0;
+//          // Return a pointer to a null-terminated string that will remain
+//          // valid for at least the lifetime of this object.  The string
+//          // should in some way reflect the nature of this 'Talker'.
+//  };
+//..
+// Then we define a couple of classes that implement the 'Talker' protocol, a
+// 'Cat' and a 'Dog':
+//..
+//  class Cat {
+//      virtual const char * speak() const;
+//          // Return a string literal, "meow!"
+//  };
+//
+//  class Dog {
+//      virtual const char * speak() const;
+//          // Return a string literal, "meow!"
+//  };
+//
+//  const char * Cat::speak() const {
+//      return "meow!";
+//  }
+//
+//  const char * Dog::speak() const {
+//      return "woof!";
+//  }
+//..
+// Then we define an enumeration that lists each implementation of the 'Talker'
+// protocol:
+//..
+//  struct Talkers {
+//    enum VALUES = { TLK_CAT, TLK_DOG };
+//  };
+//..
+// Now we can define a function that will return a 'Cat' object or a 'Dog'
+// object according to the specified 'kind' parameter:
+//..
+//  bdema_ManagedPtr<Talker> makeTalker(Talkers::VALUES kind)
+//  {
+//      bslma_Allocator alloc = bslma_Default::defaultAllocator();
+//      bdema_ManagedPtr<Talker> result;
+//      switch (kind) {
+//      Talkers::TLK_CAT : {
+//              Cat *tom = new(*alloc)Cat;
+//              result.load(tom);
+//              break;
+//          }
+//      Talkers::TLK_DOG : {
+//              Dog *spike = new(*alloc)Dog;
+//              result.load(spike);
+//              break;
+//          }
+//      };
+//      return result;
+//  }
+//..
+// Finally, we can use our function to create talkers of different kinds, and
+// check that they say the right thing:
+//..
+//  void testTalkers()
+//  {
+//      bdema_ManagedPtr<Talker> toon = makeTalker(Talkers::TLK_CAT);
+//      assert(0 != toon);
+//      assert(!strcmp("meow!", toon->speak()));
+//
+//      toon = makeTalker(Talkers::TLK_DOG);
+//      assert(0 != toon);
+//      assert(!strcmp("woof!", toon->speak()));
+//  }
+//..
+//
 // The following are examples of deleter functions:
 //..
 // void nilDeleter(void *, void*)

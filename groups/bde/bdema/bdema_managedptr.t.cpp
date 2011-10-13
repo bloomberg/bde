@@ -5271,8 +5271,88 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-namespace USAGE_EXAMPLE {
+namespace USAGE_EXAMPLES {
 
+///Example 1: Implementing a protocol
+/// - - - - - - - - - - - - - - - - -
+// We demonstrate using 'bdema_ManagedPtr' to configure and return a managed
+// object implementing an abstract protocol.
+//
+// First we define our protocol.  A 'Talker' is a type of object that knows how
+// to 'speak':
+//..
+    struct Talker {
+        virtual const char * speak() const = 0;
+            // Return a pointer to a null-terminated string that will remain
+            // valid for at least the lifetime of this object.  The string
+            // should in some way reflect the nature of this 'Talker'.
+    };
+//..
+// Then we define a couple of classes that implement the 'Talker' protocol, a
+// 'Cat' and a 'Dog':
+//..
+    class Cat : public Talker {
+        virtual const char * speak() const;
+            // Return a string literal, "meow!"
+    };
+
+    class Dog : public Talker {
+        virtual const char * speak() const;
+            // Return a string literal, "meow!"
+    };
+
+    const char * Cat::speak() const {
+        return "meow!";
+    }
+
+    const char * Dog::speak() const {
+        return "woof!";
+    }
+//..
+// Then we define an enumeration that lists each implementation of the 'Talker'
+// protocol:
+//..
+    struct Talkers {
+        enum VALUES { TLK_CAT, TLK_DOG };
+    };
+//..
+// Now we can define a function that will return a 'Cat' object or a 'Dog'
+// object according to the specified 'kind' parameter:
+//..
+    bdema_ManagedPtr<Talker> makeTalker(Talkers::VALUES kind)
+    {
+        bslma_Allocator *alloc = bslma_Default::defaultAllocator();
+        bdema_ManagedPtr<Talker> result;
+        switch (kind) {
+        case Talkers::TLK_CAT : {
+                Cat *tom = new(*alloc)Cat;
+                result.load(tom);
+                break;
+            }
+        case Talkers::TLK_DOG : {
+                Dog *spike = new(*alloc)Dog;
+                result.load(spike);
+                break;
+            }
+        };
+        return result;
+    }
+//..
+// Finally, we can use our function to create talkers of different kinds, and
+// check that they say the right thing:
+//..
+    void testTalkers()
+    {
+        bdema_ManagedPtr<Talker> toon = makeTalker(Talkers::TLK_CAT);
+        ASSERT(0 != toon);
+        ASSERT(!strcmp("meow!", toon->speak()));
+
+        toon = makeTalker(Talkers::TLK_DOG);
+        ASSERT(0 != toon);
+        ASSERT(!strcmp("woof!", toon->speak()));
+    }
+//..
+//
 // What follows is a concrete example illustrating the alias concept.
 // Let's say our array stores data acquired from a ticker
 // plant accessible by a global 'getQuote' function:
@@ -5377,7 +5457,7 @@ namespace USAGE_EXAMPLE {
     }
 //..
 
-}  // close namespace USAGE_EXAMPLE
+}  // close namespace USAGE_EXAMPLES
 
 //=============================================================================
 //                  TEST PROGRAM
@@ -5404,7 +5484,7 @@ testCompsite();
     bslma_Default::setDefaultAllocator(&da);
 
     switch (test) { case 0:
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -5420,7 +5500,7 @@ testCompsite();
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        using namespace USAGE_EXAMPLE;
+        using namespace USAGE_EXAMPLES;
 
         if (verbose) cout << "\nUSAGE EXAMPLE"
                           << "\n-------------" << endl;
@@ -5428,7 +5508,7 @@ testCompsite();
         usageExample1();
 
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION EXAMPLES
         //
@@ -5478,6 +5558,24 @@ testCompsite();
         }
 
         LOOP_ASSERT(numdels, 20202 == numdels);
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 1
+        //
+        // Concerns
+        //: 1 The usage example compiles and runs correctly.
+        //
+        // Plan:
+        //: 1 Compile and run the usage example (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE 1
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING Usage Example 1"
+                          << "\n-----------------------" << endl;
+
+        USAGE_EXAMPLES::testTalkers();
       } break;
       case 16: {
         // --------------------------------------------------------------------
