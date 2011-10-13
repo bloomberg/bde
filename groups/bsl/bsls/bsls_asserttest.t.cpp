@@ -44,10 +44,12 @@ using namespace BloombergLP;
 // [ 7] bsls_AssertTest::catchProbe
 // [ 7] bsls_AssertTest::catchProbeRaw
 // [ 5] bsls_AssertTest::failTestDriver
+// [10] bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
+// [10] ~bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] Test case 1: vector
-// [11] Test case 2: MyUtil::f
+// [11] Test case 1: vector
+// [12] Test case 2: MyUtil::f
 // [-1] Testing try-probes that write diagnostics to the console
 // [-2] Testing catch-probes that write diagnostics to the console
 //=============================================================================
@@ -531,7 +533,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // zero is always the leading case
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING usage example 2
         //
@@ -548,7 +550,7 @@ int main(int argc, char *argv[])
 
         testMyUtilF();
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING usage example 1
         //
@@ -564,6 +566,35 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         testVectorArrayAccess();
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING bsls_AssertTestHandlerGuard
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Run the usage example.
+        //
+        // Testing:
+        //   class bsls_AssertTestHandlerGuard
+        // --------------------------------------------------------------------
+
+        if (globalVerbose) printf("\nTESTING bsls_AssertTestHandlerGuard"
+                                  "\n===================================\n");
+
+        bsls_AssertFailureHandlerGuard outerGuard(&bsls_Assert::failAbort);
+
+        ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
+        {
+            bsls_AssertTestHandlerGuard innerGuard;
+
+            ASSERT(&bsls_AssertTest::failTestDriver ==
+                                                bsls_Assert::failureHandler());
+        }
+        ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
       } break;
       case 9: {
         // --------------------------------------------------------------------

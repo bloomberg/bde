@@ -2653,7 +2653,7 @@ int main(int argc, char *argv[])
                 bdet_DatetimeTz   timeStamp(datetime, key);
                 baem_MetricSample sample(Z);
                 sample.setTimeStamp(timeStamp);
-                sample.appendGroup(&records.front(),
+                sample.appendGroup(records.data(),
                                    records.size(),
                                    elapsedTime);
 
