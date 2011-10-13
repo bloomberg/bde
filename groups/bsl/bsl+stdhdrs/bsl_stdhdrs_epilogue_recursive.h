@@ -168,6 +168,20 @@
 #   include <bslstl_iterator.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
+
+// Also include iterator adapters.
+
+# ifndef INCLUDED_BSLSTL_FORWARDITERATOR
+#   include <bslstl_forwarditerator.h>
+# endif
+
+# ifndef INCLUDED_BSLSTL_BIDIRECTIONALITERATOR
+#   include <bslstl_bidirectionaliterator.h>
+#  endif
+
+# ifndef INCLUDED_BSLSTL_RANDOMACCESSITERATOR
+#   include <bslstl_randomaccessiterator.h>
+# endif
 #endif
 
 #ifdef BSL_INCLUDE_BSL_STRING

@@ -1,8 +1,12 @@
-// bsls_addressof.cpp                                                 -*-C++-*-
-#include <bsls_addressof.h>
+// bslstl_stringrefdata.cpp                                           -*-C++-*-
+#include <bslstl_stringrefdata.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+namespace BloombergLP {
+
+}  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------
 // NOTICE:
