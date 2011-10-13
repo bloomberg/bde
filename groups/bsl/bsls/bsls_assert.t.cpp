@@ -1,17 +1,17 @@
 // bsls_assert.t.cpp                                                  -*-C++-*-
 #include <bsls_assert.h>
 
+#include <bsls_asserttestexception.h>
 #include <bsls_platform.h>
 
 // Include 'cassert' to make sure no macros conflict between 'bsls_assert.h'
 // and 'cassert'.  This test driver does *not* invoke 'assert(expression)'.
-#include <stdexcept>
 #include <cassert>
 
-#include <cstdio>
-#include <cstdlib>
-#include <iostream>
-#include <string>
+#include <cstdio>    // 'fprintf'
+#include <cstdlib>   // 'atio'
+#include <cstring>   // 'strcmp'
+#include <iostream>  // 'cout'
 
 #ifdef BSLS_PLATFORM__OS_UNIX
 #include <signal.h>
@@ -83,11 +83,11 @@ using namespace std;
 // [ 3] CONCERN: ubiquitously detect multiply-defined assertion-mode flags
 // [ 5] CONCERN: that locking does not stop the handlerGuard from working
 // [-1] CONCERN: 'bsls_Assert::failAbort' aborts
-// [-1] CONCERN: 'bsls_Assert::failAbort' prints to 'cerr' not 'cout'
+// [-1] CONCERN: 'bsls_Assert::failAbort' prints to 'stderr' not 'stdout'
 // [-2] CONCERN: 'bsls_Assert::failThrow' aborts in non-exception build
-// [-2] CONCERN: 'bsls_Assert::failThrow' prints to 'cerr' for NON-EXC
+// [-2] CONCERN: 'bsls_Assert::failThrow' prints to 'stderr' for NON-EXC
 // [-3] CONCERN: 'bsls_Assert::failSleep' sleeps forever
-// [-3] CONCERN: 'bsls_Assert::failSleep' prints to 'cerr' not 'cout'
+// [-3] CONCERN: 'bsls_Assert::failSleep' prints to 'stderr' not 'stdout'
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
@@ -152,8 +152,8 @@ int globalVeryVerbose     = 0;
 int globalVeryVeryVerbose = 0;
 
 static bool globalAssertFiredFlag;
-static std::string globalText;
-static std::string globalFile;
+static const char *globalText;
+static const char *globalFile;
 static int globalLine;
 
 //=============================================================================
@@ -196,15 +196,15 @@ static void globalReset()
     globalFile = "";
     globalLine = -1;
 
-    ASSERT("" == globalText);
-    ASSERT("" == globalFile);
+    ASSERT( 0 == std::strcmp("", globalText));
+    ASSERT( 0 == std::strcmp("", globalFile));
     ASSERT(-1 == globalLine);
 }
 
 //-----------------------------------------------------------------------------
 
 BSLS_ASSERT_NORETURN
-static void failTest(const char *text, const char *file, int line)
+static void testDriverHandler(const char *text, const char *file, int line)
     // Set the 'globalAssertFiredFlag' to 'true' and store the specified
     // expression 'text', 'file' name, and 'line' number values in
     // 'globalText', globalFile', and 'globalLine', respectively.  Then throw
@@ -212,7 +212,7 @@ static void failTest(const char *text, const char *file, int line)
     // defined; otherwise, abort the program.
 {
     if (globalVeryVeryVerbose) {
-        cout << "*** failTest: "; P_(text) P_(file) P(line)
+        cout << "*** testDriverHandler: "; P_(text) P_(file) P(line)
     }
 
     globalAssertFiredFlag = true;
@@ -230,7 +230,7 @@ static void failTest(const char *text, const char *file, int line)
 //-----------------------------------------------------------------------------
 
 BSLS_ASSERT_NORETURN
-static void failPrint(const char *text, const char *file, int line)
+static void testDriverPrint(const char *text, const char *file, int line)
     // Format, in verbose mode, the specified expression 'text', 'file' name,
     // and 'line' number the same way as the 'bsls_Assert::failAbort'
     // assertion-failure handler function might, but on 'cout' instead of
@@ -239,7 +239,7 @@ static void failPrint(const char *text, const char *file, int line)
 
 {
     if (globalVeryVeryVerbose) {
-        cout << "*** failPrint: "; P_(text) P_(file) P(line)
+        cout << "*** testDriverPrint: "; P_(text) P_(file) P(line)
     }
 
     if (globalVeryVerbose) {
@@ -576,10 +576,10 @@ void TestConfigurationMacros();
 // Sometimes we may want to replace, temporarily (i.e., within some local
 // lexical scope), the currently installed assertion-failure handler function.
 // In particular, we sometimes use the 'bsls_AssertFailureHandlerGuard' class
-// to replace the current handler with one that throws an exception (because
-// we know that such an exception is safe in the local context).  Let's start
-// with the simple factorial function below, which validates, in "debug mode"
-// (or "safe mode"), that its input is non-negative:
+// to replace the current handler with one that throws an exception (because we
+// know that such an exception is safe in the local context).  Let's start with
+// the simple factorial function below, which validates, in "debug mode" (or
+// "safe mode"), that its input is non-negative:
 //..
     double fact(int n)
         // Return 'n!'.  The behavior is undefined unless '0 <= n'.
@@ -605,10 +605,10 @@ void TestConfigurationMacros();
 // then caught by the wrapper and reported to the caller as a "bad" status.
 // Hence, when within the runtime scope of this function, we want to install,
 // temporarily, the assertion-failure handler 'bsls_Assert::failThrow', which,
-// when invoked, causes an 'std::logic_error' to be thrown.  (Note that we are
-// not advocating this approach for "recovery", but rather for an orderly
-// shut-down, or perhaps during testing.)  The 'bsls_AssertFailureHandlerGuard'
-// class is provided for just this purpose:
+// when invoked, causes an 'bsls_AssertTestException' object to be thrown.
+// (Note that we are not advocating this approach for "recovery", but rather
+// for an orderly shut-down, or perhaps during testing.)  The
+// 'bsls_AssertFailureHandlerGuard' class is provided for just this purpose:
 //..
     ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
 
@@ -618,7 +618,7 @@ void TestConfigurationMacros();
 //..
 // Next we open up a 'try' block, and somewhere within the 'try' we
 // "accidentally" invoke 'fact' with an out-of-contract value (i.e., '-1'):
-
+//..
     #ifdef BDE_BUILD_TARGET_EXC
         try
     #endif
@@ -631,18 +631,21 @@ void TestConfigurationMacros();
             // ...
         }
     #ifdef BDE_BUILD_TARGET_EXC
-        catch (const std::logic_error& e) {
+        catch (const bsls_AssertTestException& e) {
             result = BAD;
             if (verboseFlag) {
-                std::cout << "Internal Error: " << e.what() << std::endl;
+                std::cout << "Internal Error: "
+                          << e.expression() << ", "
+                          << e.filename()   << ", "
+                          << e.lineNumber() << std::endl;
             }
         }
     #endif
         return result;
     }
 //..
-// Assuming exceptions are enabled (i.e., 'BDE_BUILD_TARGET_EXC is defined'),
-// if a 'std::logic_error' exception occurs below this wrapper function, the
+// Assuming exceptions are enabled (i.e., 'BDE_BUILD_TARGET_EXC' is defined),
+// if an 'bsls_AssertTestException' occurs below this wrapper function, the
 // exception will be caught, a message will be printed to 'stdout', e.g.,
 //..
 //  Internal Error: bsls_assert.t.cpp:500: 0 <= n
@@ -654,6 +657,10 @@ void TestConfigurationMacros();
 // Assertion failed: 0 <= n, file bsls_assert.t.cpp, line 500
 // Abort (core dumped)
 //..
+// Finally note that the 'bsls_AssertFailureHandlerGuard' is not thread-aware.
+// In particular, a guard that is created in one thread will also affect the
+// failure handlers that are used in other threads.  Care should be taken when
+// using this guard when more than a single thread is executing.
 //
 /// 6. Using (BSLS) "ASSERT" Macros in Conjunction w/ 'BDE_BUILD_TARGET_SAFE_2'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -814,13 +821,13 @@ void TestConfigurationMacros();
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+    int         verbose = argc > 2;
+    int     veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    globalVerbose         = verbose;
-    globalVeryVerbose     = veryVerbose;
+            globalVerbose =         verbose;
+        globalVeryVerbose =     veryVerbose;
     globalVeryVeryVerbose = veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
@@ -854,8 +861,10 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILD_TARGET_SAFE_2
         if (veryVerbose) cout << "\tSAFE MODE 2 *is* defined." << endl;
 
-        // bsls_Assert::setFailureHandler(::failPrint); // for usage example
-        bsls_Assert::setFailureHandler(::failTest);     // for regression
+        // bsls_Assert::setFailureHandler(::testDriverPrint);  
+                                                          // for usage example
+        bsls_Assert::setFailureHandler(::testDriverHandler);
+                                                          // for regression
         globalReset();
         ASSERT(false == globalAssertFiredFlag);
         sillyFunc(veryVerbose);
@@ -994,7 +1003,7 @@ int main(int argc, char *argv[])
 
         // See usage examples section at top of this file.
 
-        bsls_Assert::setFailureHandler(::failPrint);
+        bsls_Assert::setFailureHandler(::testDriverPrint);
 
         ASSERTION_TEST_BEGIN
         someFunc(1, 1, 0);
@@ -1058,10 +1067,10 @@ int main(int argc, char *argv[])
         //   4. That 'lockAssertAdministration' has no effect on guard.
         //
         // Plan:
-        //   Create a guard, passing it the 'failTest' handler, and verify,
-        //   using 'failureHandler', that this new handler was installed.
-        //   Then lock the administration, and repeat in nested fashion with
-        //   the 'failSleep' handler.  Verify restoration on the way out.
+        // Create a guard, passing it the 'testDriverHandler' handler, and
+        // verify, using 'failureHandler', that this new handler was installed.
+        // Then lock the administration, and repeat in nested fashion with the
+        // 'failSleep' handler.  Verify restoration on the way out.
         //
         // Testing:
         //   class bsls_AssertFailureHandlerGuard
@@ -1076,13 +1085,14 @@ int main(int argc, char *argv[])
 
         ASSERT(bsls_Assert::failAbort == bsls_Assert::failureHandler());
 
-        if (verbose) cout << "\nCreate guard with 'failTest' handler." << endl;
+        if (verbose) cout << "\nCreate guard with 'testDriverHandler' handler."
+                                                                       << endl;
         {
-            bsls_AssertFailureHandlerGuard guard(::failTest);
+            bsls_AssertFailureHandlerGuard guard(::testDriverHandler);
 
             if (verbose) cout << "\nVerify new assert handler." << endl;
 
-            ASSERT(::failTest == bsls_Assert::failureHandler());
+            ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
 
             if (verbose) cout << "\nLock administration." << endl;
 
@@ -1090,7 +1100,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\nRe-verify new assert handler." << endl;
 
-            ASSERT(failTest == bsls_Assert::failureHandler());
+            ASSERT(testDriverHandler == bsls_Assert::failureHandler());
 
             if (verbose) cout <<
                      "\nCreate second guard with 'failSleep' handler." << endl;
@@ -1108,10 +1118,11 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\nVerify new assert handler." << endl;
 
-            ASSERT(::failTest == bsls_Assert::failureHandler());
+            ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
 
             if (verbose) cout <<
-                  "\nDestroy guard created with '::failTest' handler." << endl;
+                  "\nDestroy guard created with '::testDriverHandler' handler."
+                                                                       << endl;
         }
 
         if (verbose) cout << "\nVerify initial assert handler." << endl;
@@ -1172,7 +1183,7 @@ int main(int argc, char *argv[])
             try {
                 f(text, file, line);
             }
-            catch (std::logic_error) {
+            catch (bsls_AssertTestException) {
                 if (veryVerbose) cout << "\tException Text Succeeded!" << endl;
             }
             catch (...) {
@@ -1295,19 +1306,20 @@ int main(int argc, char *argv[])
                           << "ASSERT-MACRO TEST" << endl
                           << "=================" << endl;
 
-        if (verbose) cout << "\nInstall 'failTest' assertion-handler." << endl;
+        if (verbose) cout << "\nInstall 'testDriverHandler' assertion-handler."
+                                                                       << endl;
 
-        bsls_Assert::setFailureHandler(&failTest);
-        ASSERT(::failTest == bsls_Assert::failureHandler());
+        bsls_Assert::setFailureHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
 
         if (veryVerbose) cout << "\tSet up all but line numbers now. " << endl;
 
-        const void        *p    = 0;
-        const std::string  text = "p";
-        const std::string  file = __FILE__;
-        int                line;                    // initialized each time
+        const void *p    = 0;
+        const char *text = "p";
+        const char *file = __FILE__;
+        int         line;                    // initialized each time
 
-        const std::string  expr = "false == true";
+        const char *expr = "false == true";
 
         if (verbose) {
             cout << "\nCurrent build-mode settings:" << endl;
@@ -1407,8 +1419,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_SAFE(p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText, text == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         globalReset();
@@ -1417,8 +1429,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT     (p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText, text == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         globalReset();
@@ -1427,8 +1439,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText, text == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         if (veryVerbose) cout << "\tCheck for expression with spaces." << endl;
@@ -1439,8 +1451,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_SAFE(false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText, expr == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         globalReset();
@@ -1449,8 +1461,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT     (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText, expr == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         globalReset();
@@ -1459,8 +1471,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText, expr == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 #endif
 
@@ -1502,8 +1514,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT     (p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText, text == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         globalReset();
@@ -1512,8 +1524,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText, text == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         if (veryVerbose) cout << "\tCheck for expression with spaces." << endl;
@@ -1527,8 +1539,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT     (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText, expr == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         globalReset();
@@ -1537,8 +1549,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText, expr == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 #endif
 
@@ -1576,8 +1588,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText, text == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         if (veryVerbose) cout << "\tCheck for expression with spaces." << endl;
@@ -1594,8 +1606,8 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText, expr == globalText);
-        LOOP2_ASSERT(file, globalFile, file == globalFile);
+        LOOP2_ASSERT(expr, globalText, 0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(file, globalFile, 0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 #endif
 
@@ -1643,9 +1655,9 @@ int main(int argc, char *argv[])
         //   mode" (i.e., with no build flags specified).
         //
         // Plan:
-        //   Call 'setAssertHandler' to install the 'failTest' "assert"
-        //   function in order to observe that the installed function was
-        //   called using the 'invokeHandler' method -- and, contingently,
+        //   Call 'setAssertHandler' to install the 'testDriverHandler'
+        //   "assert" function in order to observe that the installed function
+        //   was called using the 'invokeHandler' method -- and, contingently,
         //   the 'BSLS_ASSERT_OPT(X)' macro -- with various arguments.
         //
         // Testing:
@@ -1670,8 +1682,8 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
            "\nVerify that we can install a new assert callback." << endl;
 
-        bsls_Assert::setFailureHandler(&failTest);
-        ASSERT(::failTest == bsls_Assert::failureHandler());
+        bsls_Assert::setFailureHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
 
         if (verbose) cout <<
            "\nVerify that 'invokeHandler' properly transmits its arguments."
@@ -1684,10 +1696,10 @@ int main(int argc, char *argv[])
         bsls_Assert::invokeHandler("ExPrEsSiOn", "FiLe", -12345678);
         ASSERTION_TEST_END
 
-        ASSERT(true         == globalAssertFiredFlag);
-        ASSERT("ExPrEsSiOn" == globalText);
-        ASSERT("FiLe"       == globalFile);
-        ASSERT(-12345678    == globalLine);
+        ASSERT(     true == globalAssertFiredFlag);
+        ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
+        ASSERT(        0 == std::strcmp("FiLe",       globalFile));
+        ASSERT(-12345678 == globalLine);
 
         if (verbose) cout <<
            "\nVerify that 'lockAssertAdminisration' blocks callback changes."
@@ -1696,7 +1708,7 @@ int main(int argc, char *argv[])
         bsls_Assert::lockAssertAdministration();
 
         bsls_Assert::setFailureHandler(&bsls_Assert::failAbort);
-        ASSERT(::failTest == bsls_Assert::failureHandler());
+        ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
 
 #ifdef BSLS_ASSERT_LEVEL_NONE
         if (verbose) cout <<
@@ -1746,8 +1758,8 @@ int main(int argc, char *argv[])
             ASSERTION_TEST_END
 
             ASSERT(true == globalAssertFiredFlag);
-            LOOP2_ASSERT(text, globalText, text == globalText);
-            LOOP2_ASSERT(file, globalFile, file == globalFile);
+            LOOP2_ASSERT(text, globalText, 0 == std::strcmp(text, globalText));
+            LOOP2_ASSERT(file, globalFile, 0 == std::strcmp(file, globalFile));
             LOOP2_ASSERT(line, globalLine, line == globalLine);
         }
 
@@ -1766,8 +1778,8 @@ int main(int argc, char *argv[])
             ASSERTION_TEST_END
 
             ASSERT(true == globalAssertFiredFlag);
-            LOOP2_ASSERT(text, globalText, text == globalText);
-            LOOP2_ASSERT(file, globalFile, file == globalFile);
+            LOOP2_ASSERT(text, globalText, 0 == std::strcmp(text, globalText));
+            LOOP2_ASSERT(file, globalFile, 0 == std::strcmp(file, globalFile));
             LOOP2_ASSERT(line, globalLine, line == globalLine);
         }
 
@@ -1839,7 +1851,7 @@ int main(int argc, char *argv[])
 
         cerr << "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
                 "BSLS_ASSERTION ERROR: An uncaught exception is pending;"
-                                   " cannot throw 'std::logic_error'." << endl;
+                " cannot throw 'bsls_asserttestexception'." << endl;
         cerr <<
   "assertion failed: 'failThrow' handler called from ~BadBoy, file f.c, line 9"
              << endl;
@@ -1985,7 +1997,7 @@ int main(int argc, char *argv[])
 //                                              X   X
 //                  X                           X
 //             X                                X   X
-//             X    X                           X   
+//             X    X                           X
 //         X                                    X   X   X
 //         X        X                           X   X   X
 //         X   X                                X   X   X
@@ -6271,7 +6283,7 @@ void TestConfigurationMacros()
     catch(AssertFailed)          { ASSERT(true);  }
 
 
-//===================== SAFE DBG OPT LEVEL_ASSERT_SAFE ============================//
+//===================== SAFE DBG OPT LEVEL_ASSERT_SAFE ======================//
 
 // [1] Reset all configuration macros
 
