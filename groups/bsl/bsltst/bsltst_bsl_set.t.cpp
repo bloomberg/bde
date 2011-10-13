@@ -13,7 +13,7 @@
 #include <bslalg_hastrait.h>
 #include <bslalg_typetraits.h>
 
-#include <bsls_addressof.h>
+#include <bsls_util.h>
 
 #include <iostream>
 #include <cstring>

@@ -219,6 +219,13 @@ int openLogFile(bsl::ostream *stream, const char *filename)
                                                              fileExistFlag,
                                                              true);
 
+#ifdef BSLS_PLATFORM__OS_UNIX
+    // Add read/write access to other, because 'bdesu_FileUtil::open' set file
+    // permission to 'rw-rw----'.
+
+    chmod(filename, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+#endif
+
     if (fd == bdesu_FileUtil::INVALID_FD) {
         fprintf(
               stderr,
@@ -281,6 +288,14 @@ void computeNextRotationTime(bdet_Datetime                *result,
 
     *result = fileCreationTime;
     result->addMilliseconds(timeLeft);
+
+    // Prevent rotation at 'referenceStartTime' as this may cause an empty log
+    // to be generated if 'rotateOnTimeInterval' is called after
+    // 'enableFileLogging'.
+
+    if (referenceStartTime == *result + localTimeOffset) {
+        *result += interval;
+    }
 }
 
 }  // close unnamed namespace

@@ -23,16 +23,16 @@
  components.  The package prefix and underscore ('bslma_') are omitted from
  the full component names to simplify the layout.
 ..
-  Level  6: autorawdeleter           destructorproctor
+  Level  6: autorawdeleter         destructorproctor
 
-  Level  5: autodeallocator          autodestructor           deallocatorguard
-            deallocatorproctor       defaultallocatorguard    destructorguard
-            rawdeleterguard          rawdeleterproctor
+  Level  5: autodeallocator        autodestructor          deallocatorguard
+            deallocatorproctor     defaultallocatorguard   destructorguard
+            rawdeleterguard        rawdeleterproctor       testallocatormonitor
 
-  Level  4: default                  testallocator
+  Level  4: default                testallocator
 
-  Level  3: bufferallocator          mallocfreeallocator      managedallocator
-            newdeleteallocator       testallocatorexception
+  Level  3: bufferallocator        mallocfreeallocator     managedallocator
+            newdeleteallocator     testallocatorexception
 
   Level  2: allocator
 
@@ -68,6 +68,8 @@
                                     buffer under- and over-run detection.
   'bslma_testallocatorexception'  - exception type thrown by the standard
                                     'bslma' exception testing.
+  'bslma_testallocatormonitor'    - mechanism summarizing test allocator
+                                    statistics
 ..
 
 @Component Overview:
@@ -208,6 +210,12 @@
  'bslma_testallocatorexception' defines an exception object for use in testing
  exceptions during memory allocations.
 
+/'bslma_testallocatormonitor'
+/----------------------------
+ 'bslma_testallocatormonitor' provides a "monitor", a mechanism class, that
+ allows concise tests of state change (or lack of change) in the test allocator
+ provided at the monitor's construction.
+
 @Allocators and Other Memory-Dispensing Mechanisms
  An allocator is a memory manager that derives from the 'bslma_Allocator'
  protocol and provides an 'allocate' method for obtaining memory, and a
@@ -229,7 +237,7 @@
     * Whether or not the object isA 'bslma_Allocator'.
     * Whether or not the allocator supports memory reuse.
     * Whether allocation requests consume the exact amount of memory requested,
-      an additive number of additional bytes, or a non-addative number of
+      an additive number of additional bytes, or a non-additive number of
       additional bytes (e.g., the smallest power of two that can satisfy the
       request).
     * Whether or not the allocator supports multi-threading.
@@ -293,7 +301,7 @@
  necessarily one byte.  As a practical matter, for each entity separately, some
  alignments are "safe" and some are not.  By "not safe" we mean that, for most
  platforms (e.g., all of our Unix machines), attempting to access an entity at
- an address that is not safely aligned for that entitiy will cause a bus error,
+ an address that is not safely aligned for that entity will cause a bus error,
  crashing the program on the spot.  In the very best case, the access will
  incur a performance penalty as the memory is shifted appropriately between its
  initial address and its target address (e.g., a register).

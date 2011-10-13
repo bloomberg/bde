@@ -138,7 +138,7 @@ void waitForASec()
 } // close namespace TEST_CASE_COLLECT_TIME_METRICS
 
 //=============================================================================
-//       ADDITIONAL 'enable()' and 'isEnabled()' TEST: DRQS 15212134
+//       ADDITIONAL 'enable' and 'isEnabled' TEST: DRQS 15212134
 //-----------------------------------------------------------------------------
 
 namespace TEST_CASE_DRQS15212134 {
@@ -719,7 +719,7 @@ int main(int argc, char *argv[])
         // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
         //
         // Concern:
-        //: 1 'hasLimitiedSocketCapacity' returns 'true' if the underlying 
+        //: 1 'hasLimitiedSocketCapacity' returns 'true' if the underlying
         //:   event manager returns 'true' and 'false' otherwise.
         //:
         //: 2 'canRegisterSockets' always returns 'true' if
@@ -794,7 +794,7 @@ int main(int argc, char *argv[])
                         break;
                     }
                     sockets.push_back(socket);
-                    
+
                     if (veryVerbose) { P_(numRead) P(socket->handle()) }
 
                     int rc = mX.registerSocketEvent(
@@ -955,11 +955,11 @@ int main(int argc, char *argv[])
           //
           //   (Black Box) 2) Configure a tcp timer event manager to collect
           //           metrics, and provide a callback that blocks for a
-          //           long period.  Verify that 'timeMetrics()' reflects a
+          //           long period.  Verify that 'timeMetrics' reflects a
           //           CPU bound operation.
           //
           //   (White Box) 3) Configure a tcp timer event manager to not
-          //           collect metrics.  Set 'timeMetrics()' to IO_BOUND.
+          //           collect metrics.  Set 'timeMetrics' to IO_BOUND.
           //           Supply a callback that blocks for a long period.
           //           Verify 'timeMetrics' reflects a I/O bound (the default
           //           state).
@@ -972,7 +972,7 @@ int main(int argc, char *argv[])
           // ----------------------------------------------------------------
 
           if (verbose)
-              cout << "TESTING: 'collectTimeMetrics' and 'hasTimeMetrics()'\n"
+              cout << "TESTING: 'collectTimeMetrics' and 'hasTimeMetrics'\n"
                    << "====================================================\n";
 
           using namespace TEST_CASE_COLLECT_TIME_METRICS;
@@ -1083,12 +1083,12 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
           // ----------------------------------------------------------------
-          // ADDITIONAL 'enable()' and 'isEnabled()' TEST: DRQS 15212134
+          // ADDITIONAL 'enable' and 'isEnabled' TEST: DRQS 15212134
           //
           // Concerns:
           //   o DRQS 151212134 -
           //           that callbacks dispatched by events registed prior
-          //           to invoking 'enable()', find 'isEnabled()' to be 'true'.
+          //           to invoking 'enable', find 'isEnabled' to be 'true'.
           //
           // Plan:
           //   Create a socket pair and write data to both ends of the open
@@ -1096,7 +1096,7 @@ int main(int argc, char *argv[])
           //   sockets would dispatch a 'READ' event on each socket.  Register
           //   these socket handles with the tcp event manager under dispatch,
           //   such that they will dispatch 'READ' events to the test callback
-          //   'testIsEnabled()'.  Then call 'enable()'.
+          //   'testIsEnabled'.  Then call 'enable'.
           //
           // Testing:
           //    int enable();
@@ -1725,8 +1725,8 @@ int main(int argc, char *argv[])
         // TESTING 'enable' AND 'disable' METHODS
         //   Verify that 'enable' and 'disable' methods work as advertised.
         // Particularly verify that
-        //   o an instance can be enabled from any state (i.e., enabled or not)
-        //   o an instance can be disabled in any state (i.e., enabled or not)
+        //   o an object can be enabled from any state (i.e., enabled or not)
+        //   o an object can be disabled in any state (i.e., enabled or not)
         //   o an object can be destroyed, whether enabled or not
         //   Use 'isEnabled' to verify state.
         // Testing:
@@ -1848,7 +1848,7 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   Ensure the basic liveness of an event manager instance.
+        //   Ensure the basic liveness of an event manager object.
         //
         // Testing:
         //   Create an object of this event manager under test.  Perform
