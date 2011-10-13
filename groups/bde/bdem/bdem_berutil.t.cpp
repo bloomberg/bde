@@ -117,6 +117,7 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
 typedef bdem_BerUtil Util;
+typedef bdeut_StringRef StringRef;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -285,14 +286,14 @@ void usageExample()
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    bool verbose = argc > 2;
+    bool veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -310,7 +311,7 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING 'putIdentifierOctets' & 'getIdentifierOctets'
         //
@@ -484,7 +485,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING 'putIndefiniteLengthOctet' & 'put/getEndOfContentOctets'
         //
@@ -608,7 +609,7 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "End of test." << bsl::endl;
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING 'putValue' & 'getValue' for date/time components
         //
@@ -870,6 +871,82 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING 'putValue' & 'getValue' for 'bdeut_StringRef'
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING 'putValue', 'getValue' for string"
+                               << "\n========================================="
+                               << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_string;   // string value
+                const char *d_exp;      // expected value
+            } DATA[] = {
+                //line no.  string                exp
+                //-------   ------                ---
+                { L_,        "",                  "00" },
+                { L_,        " ",                 "01 20" },
+                { L_,        "-+",                "02 2D 2B" },
+                { L_,        "Hello",             "05 48 65 6C 6C 6F" },
+                { L_,        "12345",             "05 31 32 33 34 35" },
+                { L_,        "&$#",               "03 26 24 23" },
+                { L_,        "Have a nice day",   "0F 48 61 76 65 20 61 20 6E"
+                                                  "69 63 65 20 64 61 79" },
+                { L_,        "QWERTY",            "06 51 57 45 52 54 59" },
+                { L_,        "This is an extremely long line that spans "
+                             "a few lines",       "35 54 68 69 73 20 69 73 20"
+                                                  "61 6E 20 65 78 74 72 65 6D"
+                                                  "65 6C 79 20 6C 6F 6E 67 20"
+                                                  "6C 69 6E 65 20 74 68 61 74"
+                                                  "20 73 70 61 6E 73 20 61 20"
+                                                "66 65 77 20 6C 69 6E 65 73" },
+            };
+
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int di = 0; di < NUM_DATA; ++di) {
+                const int        LINE = DATA[di].d_lineNum;
+                const StringRef  VAL  = DATA[di].d_string;
+                const char      *EXP  = DATA[di].d_exp;
+                const int        LEN  = numOctets(EXP);
+
+                string  val;
+
+                bdesb_MemOutStreamBuf osb;
+                LOOP_ASSERT(LINE, 0   == Util::putValue(&osb, VAL));
+                LOOP_ASSERT(LINE, LEN == osb.length());
+                LOOP_ASSERT(LINE, 0   == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    P(EXP)
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+
+                int numBytesConsumed = 0;
+                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                LOOP_ASSERT(LINE, SUCCESS  == Util::getValue(
+                                                           &isb,
+                                                           &val,
+                                                           &numBytesConsumed));
+                LOOP_ASSERT(LINE, 0 == isb.length());
+                LOOP2_ASSERT(VAL, val, VAL == val);
+                LOOP3_ASSERT(LINE,
+                             LEN,
+                             numBytesConsumed,
+                             LEN == numBytesConsumed);
+            }
+        }
       } break;
       case 13: {
         // --------------------------------------------------------------------
