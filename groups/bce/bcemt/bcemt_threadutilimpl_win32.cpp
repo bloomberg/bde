@@ -309,16 +309,13 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::create(
 
     ThreadStartupInfo *startInfo = allocStartupInfo();
 
-    enum { STACK_FUDGE = 4096 * sizeof(void *) };
-        // In threadutil.t.cpp test case -4, before 'STACK_FUDGE' was added,
-        // the crash on 32 bit was further than 12K away from the end of the
-        // stack, the crash on 64 bit was further than 16K away.
-
     int stackSize = attribute.stackSize();
-    if (stackSize < 0) {
+    if (Attr::BCEMT_UNSET_STACK_SIZE == stackSize) {
         stackSize = bcemt_Configuration::defaultThreadStackSize();
+        if (Attr::BCEMT_UNSET_STACK_SIZE == stackSize) {
+            stackSize = bcemt_Configuration::nativeDefaultThreadStackSize();
+        }
     }
-    stackSize += STACK_FUDGE;
 
     startInfo->d_threadArg = userData;
     startInfo->d_function  = function;

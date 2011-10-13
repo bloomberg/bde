@@ -12,7 +12,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  bcemt_ThreadAttributes: description of the attributes of a thread
 //
-//@SEE_ALSO: bcemt_threadutil, bcemt_default
+//@SEE_ALSO: bcemt_threadutil, bcemt_configuration
 //
 //@DESCRIPTION: This component provides a simply constrained (value-semantic)
 // attribute class, 'bcemt_ThreadAttributes', for describing attributes of a
@@ -55,7 +55,7 @@ BDES_IDENT("$Id: $")
 // The 'stackSize' attribute indicates the size, in bytes, of the stack that
 // should be provided to a newly created thread.  If the stack size is
 // 'BCEMT_UNSET_STACK_SIZE' then a created thread will be provided a default
-// stack size (see 'bcemt_default').  The 'stackSize' attribute should be
+// stack size (see 'bcemt_configuration').  The 'stackSize' attribute should be
 // interpreted to mean that a created thread can safely define an automatic
 // variable of the configured 'stackSize' bytes in its thread-entry function.
 // Note that, on some platforms, an ajusted value derived from the 'stackSize'
@@ -71,7 +71,7 @@ BDES_IDENT("$Id: $")
 // If a thread's stack pointer overflows into a guard area, the task will
 // receive an error (e.g., a signal).  If 'guardSize' is
 // 'BCEMT_UNSET_GUARD_SIZE', then a created thread will be provided with a
-// default native guard size (see 'bcemt_default').  Note that the
+// default native guard size (see 'bcemt_configuration').  Note that the
 // interpretation of 'guardSize' may vary among platforms, and the value may be
 // adjusted up (e.g., by rounding up to a multiple of page size) or ignored
 // entirely (e.g., the Windows platform does not support this attribute).
@@ -395,8 +395,9 @@ class bcemt_ThreadAttributes {
         // 'value' (in bytes).  'BCEMT_UNSET_GUARD_SIZE == guardSize' is
         // intended to indicate that the default value as defined by the
         // platform is to be used.  This default value is typically the size of
-        // one or two pages (see 'bcemt_default').  The behavior is undefined
-        // unless 'BCEMT_UNSET_GUARD_SIZE == guardSize' or 'guardSize >= 0'.
+        // one or two pages (see 'bcemt_configuration').  The behavior is
+        // undefined unless 'BCEMT_UNSET_GUARD_SIZE == guardSize' or
+        // 'guardSize >= 0'.
 
     void setInheritSchedule(bool value);
         // Set the 'inheritSchedule' attribute of this object to the specified
@@ -427,8 +428,8 @@ class bcemt_ThreadAttributes {
     void setStackSize(int value);
         // Set the 'stackSize' attribute of this object to the specified
         // 'value.  If 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread creation
-        // should use the default stack size value provided by 'bcemt_default'.
-        // The behavior is undefined unless
+        // should use the default stack size value provided by
+        // 'bcemt_configuration'.  The behavior is undefined unless
         // 'BCEMT_UNSET_STACK_SIZE == stackSize' or '0 <= stackSize'.
 
     // ACCESSORS
@@ -445,7 +446,7 @@ class bcemt_ThreadAttributes {
         // value 'BCEMT_UNSET_GUARD_SIZE == guardSize' is intended to indicate
         // that the default value as defined by the platform (which is
         // typically the size of one or two pages) should be obtained from
-        // 'bcemt_default' and used.
+        // 'bcemt_configuration' and used.
 
     bool inheritSchedule() const;
         // Return the value of the 'inheritSchedule' attribute of this object.
@@ -474,7 +475,7 @@ class bcemt_ThreadAttributes {
     int stackSize() const;
         // Return the value of the 'stackSize' attribute of this object.  If
         // 'stackSize' is 'BCEMT_UNSET_STACK_SIZE', thread creation should use
-        // the default stack size value provided by 'bcemt_default'.
+        // the default stack size value provided by 'bcemt_configuration'.
 };
 
 // FREE OPERATORS

@@ -22,13 +22,9 @@ BDES_IDENT("$Id: $")
 // parameters.  The 'bcemt_Configuration' utility currently provides static
 // methods to access and modify the BCE library's default stack size, as well
 // as functions that access the platform's native default stack size and guard
-// size.  The BCE default stack size is initially configured to be the
-// platform's native stack size.
-//
-// The stack-size values accessed and managed by this component indicate that a
-// stack created with a given size will be able to declare a buffer of that
-// size (in bytes) in the thread entry function of the created thread (see
-// 'bcemt_threadutil').
+// size.  The BCE default stack size is initially configured to
+// 'bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE', in which case thread
+// creation is to use the native default thread stack size.
 //
 ///Usage
 ///-----
@@ -54,11 +50,11 @@ BDES_IDENT("$Id: $")
 //
 //  assert(nativeDefault > 0);
 //..
-// Then, we verify that, when 'defaultThreadStackSize' is called, it returns
-// the native size:
+// Then, we verify that 'defaultThreadStackSize' is unset.
 //..
-//  assert(nativeDefault == bcemt_Configuration::defaultThreadStackSize());
-//..
+//  assert(bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+//                              bcemt_Configuration::defaultThreadStackSize());
+//
 // Next, we define 'newDefaultStackSize' to some size other than the platform's
 // native default stack size:
 //..
@@ -95,11 +91,11 @@ struct bcemt_Configuration {
 
     // CLASS METHODS
     static int defaultThreadStackSize();
-        // Return the current default thread stack size (in bytes).  If
-        // 'setDefaultThreadStackSize' has never been called, this value will
-        // be the same value returned by 'nativeDefaultThreadStackSize',
-        // otherwise it will be the value set by the last call to
-        // 'setDefaultThreadStackSize'.
+        // Return the value set by the last call to
+        // 'setDefaultThreadStackSize'; if 'setDefaultThreadStackSize' has
+        // never been called, return
+        // 'bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE' which will signal
+        // thread creation to use the thread stack size native to the platform.
 
     static int nativeDefaultThreadStackSize();
         // Return the "native" default thread stack size (in bytes) as

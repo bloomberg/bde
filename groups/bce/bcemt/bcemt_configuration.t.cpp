@@ -1,6 +1,8 @@
 // bcemt_conofiguration.t.cpp                                         -*-C++-*-
 #include <bcemt_configuration.h>
 
+#include <bcemt_threadattributes.h>
+
 #include <bsl_cstdlib.h>  // atoi()
 #include <bsl_iostream.h>
 #include <bsl_limits.h>   // INT_MAX
@@ -103,7 +105,8 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < 10; ++i) {
             ASSERT(native == Obj::nativeDefaultThreadStackSize());
-            ASSERT(native == Obj::defaultThreadStackSize());
+            ASSERT(bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+                                                Obj::defaultThreadStackSize());
         }
 
         const int setSize = native * 2;
@@ -143,10 +146,10 @@ int main(int argc, char *argv[])
                            bcemt_Configuration::nativeDefaultThreadStackSize();
         ASSERT(nativeDefault > 0);
 
-        // Then, we verify that when 'defaultThreadStackSize' is called, it
-        // returns the native size:
+        // Then, we verify that 'defaultThreadStackSize' is unset.
 
-        ASSERT(bcemt_Configuration::defaultThreadStackSize() == nativeDefault);
+        ASSERT(bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+                                bcemt_Configuration::defaultThreadStackSize());
 
         // Next, we define 'newDefaultStackSize' to some size other than the
         // native default size:
@@ -224,9 +227,11 @@ int main(int argc, char *argv[])
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
-        const bsl::size_t defaultStackSize = Obj::defaultThreadStackSize();
-        ASSERT(Obj::nativeDefaultThreadStackSize() == (int) defaultStackSize);
+        bsl::size_t defaultStackSize = Obj::defaultThreadStackSize();
+        ASSERT(bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE ==
+                                                       (int) defaultStackSize);
 
+        defaultStackSize = Obj::nativeDefaultThreadStackSize();
         ASSERT(defaultStackSize > 0);
         int maxint = bsl::numeric_limits<int>::max();
         ASSERT(defaultStackSize <= static_cast<bsl::size_t>(maxint));

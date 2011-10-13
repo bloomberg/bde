@@ -1,6 +1,8 @@
 // bcemt_configuration.cpp                                            -*-C++-*-
 #include <bcemt_configuration.h>
 
+#include <bcemt_threadattributes.h>
+
 #include <bces_atomicutil.h>
 #include <bces_platform.h>
 
@@ -106,7 +108,7 @@ static bces_AtomicUtil::Int defaultThreadStackSizeValue = { -1 };
 int bcemt_Configuration::defaultThreadStackSize()
 {
     if (bces_AtomicUtil::getIntRelaxed(defaultThreadStackSizeValue) < 0) {
-        return nativeDefaultThreadStackSize();                        // RETURN
+        return bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE;        // RETURN
     }
 
     return bces_AtomicUtil::getIntRelaxed(defaultThreadStackSizeValue);

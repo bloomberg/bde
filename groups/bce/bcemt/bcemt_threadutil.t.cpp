@@ -204,8 +204,21 @@ struct Func {
 template <int BUFFER_SIZE>
 void testStackSize()
 {
+#ifdef BSLS_PLATFORM__OS_UNIX
+    // In test cases -2 and -4, Linux was crashing about 4K away from the stack
+    // in 32 & 64 bit.  All other unix platforms were running past the end of
+    // the stack without crashing.
+
+    enum { FUDGE_FACTOR = 8192 };
+#else
+    // In test case -4, the crash on 32 bit was further than 12K away from
+    // the end of the stack stack, on 64 bit it was further than 16k away.
+
+    enum { FUDGE_FACTOR = 8192 + 2048 * sizeof(void *) };
+#endif
+
     bcemt_ThreadAttributes attr;
-    attr.setStackSize(BUFFER_SIZE);
+    attr.setStackSize(BUFFER_SIZE + FUDGE_FACTOR);
     attr.setGuardSize(0);
 
     Obj::Handle handle;
@@ -640,16 +653,16 @@ int main(int argc, char *argv[])
         // STACK SIZE
         //
         // Concern:
-        //   Does setting 'stackSize' allow one to create a buffer of that size
-        //   in the thread?
+        //   Does setting 'stackSize' allow one to create a buffer of nearly
+        //   that size in the thread?
         //
         // Plan:
         //   For various stack sizes, create threads with that stack size and
-        //   create a buffer of that size in the thread, and see if we crash.
-        //   Note that this test is not guaranteed to fail if there is a
-        //   problem -- it is possible that if there is a bug and invalid
-        //   memory access occurs, it will just abuse the heap but not result
-        //   in a crash.
+        //   create a buffer of nearly that size in the thread (minus a
+        //   platform-dependent fudge factor), and see if we crash.  Note that
+        //   this test is not guaranteed to fail if there is a problem -- it is
+        //   possible that if there is a bug and invalid memory access occurs,
+        //   it will just abuse the heap but not result in a crash.
         // --------------------------------------------------------------------
 
         namespace TC = TEST_CASE_7;

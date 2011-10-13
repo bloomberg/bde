@@ -12,7 +12,7 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  bcemt_ThreadUtil: namespace for portable thread management utilities
 //
-//@SEE_ALSO: bcemt_threadattributes, bcemt_default
+//@SEE_ALSO: bcemt_threadattributes, bcemt_configuration
 //
 //@DESCRIPTION: This component defines a utility 'struct', 'bcemt_ThreadUtil',
 // that serves as a name space for suit of pure functions to create threads,

@@ -78,10 +78,9 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
                                                     : PTHREAD_CREATE_JOINABLE);
 
     int guardSize = src.guardSize();
-    if (Attr::BCEMT_UNSET_GUARD_SIZE == guardSize) {
-        guardSize = bcemt_Configuration::nativeDefaultThreadGuardSize();
+    if (Attr::BCEMT_UNSET_GUARD_SIZE != guardSize) {
+        rc |= pthread_attr_setguardsize(dest, guardSize);
     }
-    rc |= pthread_attr_setguardsize(dest, guardSize);
 
     if (!src.inheritSchedule()) {
         rc |= pthread_attr_setinheritsched(dest, PTHREAD_EXPLICIT_SCHED);
@@ -98,33 +97,32 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
         }
     }
 
-    enum { STACK_ADJUSTMENT = 8192 };
-        // Before 'STACK_ADJUSTMENT' was added, in bcemt_threadutil.t.cpp cases
-        // -2 and -4, Linux was crashing about 4K away from the end of the
-        // stack in 32 & 64 bit.  All other unix platforms were running past
-        // the end of the stack without crashing.
-
     int stackSize = src.stackSize();
     if (Attr::BCEMT_UNSET_STACK_SIZE == stackSize) {
         stackSize = bcemt_Configuration::defaultThreadStackSize();
     }
-    stackSize += STACK_ADJUSTMENT;
-#if defined(BSLS_PLATFORM__OS_HPUX)
-    // The Itanium divides the stack into two sections: a variable stack and a
-    // control stack.  To make 'stackSize' have the same meaning across
-    // platforms, we must double it on this platform.
+    if (Attr::BCEMT_UNSET_STACK_SIZE != stackSize) {
+        // Note that if 'stackSize' is still unset, we just leave the '*dest'
+        // to its default, initialized state.
 
-    stackSize *= 2;
+#if defined(BSLS_PLATFORM__OS_HPUX)
+        // The Itanium divides the stack into two sections: a variable stack
+        // and a control stack.  To make 'stackSize' have the same meaning
+        // across platforms, we must double it on this platform.
+
+        stackSize *= 2;
 #endif
 #if defined(PTHREAD_STACK_MIN)
-    // Note sometimes PTHREAD_STACK_MIN is a function.
+        // Note sometimes PTHREAD_STACK_MIN is a function so cache the call to
+        // a variable.
 
-    const int pthreadStackMin = PTHREAD_STACK_MIN;
-    if (stackSize < pthreadStackMin) {
-        stackSize = pthreadStackMin;
-    }
+        const int pthreadStackMin = PTHREAD_STACK_MIN;
+        if (stackSize < pthreadStackMin) {
+            stackSize = pthreadStackMin;
+        }
 #endif
-    rc |= pthread_attr_setstacksize(dest, stackSize);
+        rc |= pthread_attr_setstacksize(dest, stackSize);
+    }
 
     return rc;
 }
