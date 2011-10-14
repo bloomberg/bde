@@ -432,20 +432,9 @@ class bteso_TcpTimerEventManager : public bteso_TimerEventManager
         // operations vs. total time (see 'bteso_timemetrics').
 
     // ACCESSORS
-    bool canRegisterSockets() const;
-        // Return 'true' if this event manager can register additional sockets,
-        // and 'false' otherwise.  Note that if 'canRegisterSockets' is
-        // 'false' then a subsequent call to register an event (without an
-        // intervening call to deregister an event) will result in undefined
-        // behavior.
-
     bool hasLimitedSocketCapacity() const;
         // Return 'true' if this event manager has a limited socket capacity,
-        // and 'false' otherwise.  Note that if 'hasLimitedSocketCapacity' is
-        // 'true' then 'canRegisterSockets' may either return 'true' or
-        // 'false' depending on whether the socket capacity of this event
-        // manager has been reached, but if 'hasLimitedSocketCapacity' is
-        // 'false' then 'canRegisterSockets' is (always) 'true'.
+        // and 'false' otherwise.
 
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      bteso_EventType::Type             eventType) const;
@@ -475,12 +464,7 @@ class bteso_TcpTimerEventManager : public bteso_TimerEventManager
 //                      INLINE FUNCTION DEFINITIONS
 //-----------------------------------------------------------------------------
 
-inline
-bool bteso_TcpTimerEventManager::canRegisterSockets() const
-{
-    return d_manager_p->canRegisterSockets();
-}
-
+// ACCESSORS
 inline
 bool bteso_TcpTimerEventManager::hasLimitedSocketCapacity() const
 {

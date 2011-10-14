@@ -479,20 +479,9 @@ class bteso_TimerEventManager {
         // registered.
 
     // ACCESSORS
-    virtual bool canRegisterSockets() const = 0;
-        // Return 'true' if this event manager can register additional sockets,
-        // and 'false' otherwise.  Note that if 'canRegisterSockets' is
-        // 'false' then a subsequent call to register an event (without an
-        // intervening call to deregister an event) will result in undefined
-        // behavior.
-
     virtual bool hasLimitedSocketCapacity() const = 0;
         // Return 'true' if this event manager has a limited socket capacity,
-        // and 'false' otherwise.  Note that if 'hasLimitedSocketCapacity' is
-        // 'true' then 'canRegisterSockets' may either return 'true' or
-        // 'false' depending on whether the socket capacity of this event
-        // manager has been reached, but if 'hasLimitedSocketCapacity' is
-        // 'false' then 'canRegisterSockets' is (always) 'true'.
+        // and 'false' otherwise.
 
     virtual int numTimers() const = 0;
         // Return the number of timers that are currently registered.
