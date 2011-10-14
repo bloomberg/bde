@@ -58,7 +58,7 @@ BDES_IDENT("$Id: $")
 // stack size (see 'bcemt_configuration').  The 'stackSize' attribute should be
 // interpreted to mean that a created thread can safely define an automatic
 // variable of the configured 'stackSize' bytes in its thread-entry function.
-// Note that, on some platforms, an ajusted value derived from the 'stackSize'
+// Note that, on some platforms, an adjusted value derived from the 'stackSize'
 // attribute may be supplied to the underlying representation by the thread
 // creation function -- for example, on Itanium (HPUX), the 'stackSize'
 // attribute value must be scaled up to account for the extra stack space
@@ -92,7 +92,7 @@ BDES_IDENT("$Id: $")
 // schedule the created thread for execution.  Typically clients should use the
 // default platform supplied scheduling policy, which is indicated by the
 // 'BCEMT_SCHED_DEFAULT' value.  The alternative scheduling policies,
-// 'BCEMT_THREAD_FIFO' and 'BCEMT_SCHED_RR', are "real-time" schduling
+// 'BCEMT_THREAD_FIFO' and 'BCEMT_SCHED_RR', are "real-time" scheduling
 // policies, and may not be available unless the task is run with the
 // appropriate privileges.  'BCEMT_SCHED_FIFO' indicates a thread should run
 // until it either yields or is interrupted by a thread of higher priority.
@@ -160,7 +160,7 @@ BDES_IDENT("$Id: $")
 //  {
 //..
 // Next, we create a thread attributes object, 'attributes', and set its
-// 'stackSize' attribute to a value large enough to accomodate the
+// 'stackSize' attribute to a value large enough to accommodate the
 // 'BUFFER_SIZE' buffer used by 'myThreadFunction'.  Note that we use
 // 'BUFFER_SIZE' as an illustration; in practice, it is difficult or impossible
 // to gauge the exact amount of stack size required for a typical thread, and
@@ -303,7 +303,7 @@ class bcemt_ThreadAttributes {
 
     enum {
         // The following constants indicate that the 'stackSize', 'guardSize',
-        // and 'schedulingPrioity' attributes, respectively, are unspecified
+        // and 'schedulingPriority' attributes, respectively, are unspecified
         // and the thread creation routine is use platform-specific defaults.
         // These attributes are initialized to these values when a thread
         // attributes object is default constructed.
@@ -342,7 +342,7 @@ class bcemt_ThreadAttributes {
     static int getMaxSchedPriority(SchedulingPolicy policy);
         // Return the maximum available priority for the 'policy', where
         // 'policy' is of type 'bcemt_ThreadAttributes::SchedulingPolicy'.
-        // Note that for some platform / policy cominations,
+        // Note that for some platform / policy combinations,
         // 'getMinSchedPriority(policy)' and 'getMaxSchedPriority(policy)'
         // return the same value.  The behavior is undefined unless 'policy' is
         // a valid value of enum 'bcemt_ThreadAttributes::SchedulingPolicy'.
@@ -353,7 +353,7 @@ class bcemt_ThreadAttributes {
     static int getMinSchedPriority(SchedulingPolicy policy);
         // Return the minimum available priority for the 'policy', where
         // 'policy' is of type 'bcemt_ThreadAttributes::SchedulingPolicy'.
-        // Note that for some platform / policy cominations,
+        // Note that for some platform / policy combinations,
         // 'getMinSchedPriority(policy)' and 'getMaxSchedPriority(policy)'
         // return the same value.  The behavior is undefined unless 'policy' is
         // a valid value of enum 'bcemt_ThreadAttributes::SchedulingPolicy'.

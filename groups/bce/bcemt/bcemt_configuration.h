@@ -106,7 +106,7 @@ struct bcemt_Configuration {
 
     static int nativeDefaultThreadGuardSize();
         // Return the default thread stack guard size (in bytes) determined by
-        // the underlying platfrom.  Note that this value reflects semantics,
+        // the underlying platform.  Note that this value reflects semantics,
         // and may be influenced by the choice of platform, environment
         // variables, compiler/linker options, or shell configuration, and may
         // vary somewhat among different platforms.

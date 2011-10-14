@@ -55,7 +55,7 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(
     int priority = sched_get_priority_max(pPolicy);
 
 # if defined(BSLS_PLATFORM__OS_AIX)
-    // Note max prirority returned above is 127 regardless of policy on AIX,
+    // Note max priority returned above is 127 regardless of policy on AIX,
     // yet for non-superusers, thread creation fails if 'priority > 60'.  See
     // AIX doc "http://publib.boulder.ibm.com/infocenter/aix/v6r1/index.jsp?
     // topic=%2Fcom.ibm.aix.basetechref%2Fdoc%2Fbasetrf1%2F
@@ -65,7 +65,7 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(
            MAX_AIX_PRIORITY          = 80 };
 
     if (0 == geteuid()) {
-        // priviledged user
+        // privileged user
 
         // On AIX 5.3 and above, all priorities above 80 are equivalent to 80.
 
@@ -74,7 +74,7 @@ int bcemt_ThreadAttributes::getMaxSchedPriority(
         }
     }
     else {
-        // non-priviledged user
+        // non-privileged user
 
         if (priority > MAX_AIX_NON_ROOT_PRIORITY) {
             priority = MAX_AIX_NON_ROOT_PRIORITY;
@@ -147,7 +147,8 @@ bcemt_ThreadAttributes::bcemt_ThreadAttributes()
 , d_schedulingPolicy(BCEMT_SCHED_DEFAULT)
 , d_schedulingPriority(BCEMT_UNSET_PRIORITY)
 , d_stackSize(BCEMT_UNSET_STACK_SIZE)
-{}
+{
+}
 
 // FREE OPERATORS
 bool operator==(const bcemt_ThreadAttributes& lhs,
