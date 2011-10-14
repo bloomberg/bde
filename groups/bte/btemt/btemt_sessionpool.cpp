@@ -17,6 +17,8 @@ BDES_IDENT_RCSID(btemt_sessionpool_cpp,"$Id$ $CSID$")
 #include <bdef_function.h>
 #include <bdef_memfn.h>
 
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bdet_timeinterval.h>
 #include <bdetu_systemtime.h>
 
@@ -595,7 +597,13 @@ int btemt_SessionPool::stop()
         ret = d_channelPool_p->stop();
     }
 
-    bsl::vector<HandlePtr> handles;
+    const int NUM_HANDLES = 32;
+    const int SIZE        = NUM_HANDLES * sizeof(HandlePtr);
+
+    char BUFFER[SIZE];
+    bdema_BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
+
+    bsl::vector<HandlePtr> handles(&bufferAllocator);
     {
         bcec_ObjectCatalogIter<HandlePtr> itr(d_handles);
 
