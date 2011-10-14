@@ -102,10 +102,6 @@ BDES_IDENT("$Id: $")
 #include <bdem_berconstants.h>
 #endif
 
-#ifndef INCLUDED_BDEUT_STRINGREF
-#include <bdeut_stringref.h>
-#endif
-
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -263,7 +259,7 @@ struct bdem_BerUtil {
         // Encode the specified 'value' to the specified 'streamBuf'.  Return 0
         // on success, and a non-zero value otherwise.  Note that the value
         // consists of the length and contents primitives.  Also note that only
-        // fundamental C++ types, 'bsl::string', 'bdeut_StringRef' and BDE
+        // fundamental C++ types, 'bsl::string', 'bslstl_StringRef' and BDE
         // date/time types are supported.
 };
 
@@ -327,8 +323,8 @@ struct bdem_BerUtil_Imp {
     static int getValue(bsl::streambuf *streamBuf,
                         bsl::string    *value,
                         int             length);
-    static int getValue(bsl::streambuf  *streamBuf,
-                        bdeut_StringRef *value,
+    static int getValue(bsl::streambuf   *streamBuf,
+                        bslstl_StringRef *value,
                         int              length);
     static int getValue(bsl::streambuf *streamBuf,
                         bdet_Date      *value,
@@ -379,8 +375,8 @@ struct bdem_BerUtil_Imp {
     static int putValue(bsl::streambuf *streamBuf, float value);
     static int putValue(bsl::streambuf *streamBuf, double value);
     static int putValue(bsl::streambuf *streamBuf, const bsl::string& value);
-    static int putValue(bsl::streambuf         *streamBuf,
-                        const bdeut_StringRef&  value);
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bslstl_StringRef&  value);
     static int putValue(bsl::streambuf *streamBuf, const bdet_Date& value);
     static int putValue(bsl::streambuf *streamBuf, const bdet_Datetime& value);
     static int putValue(bsl::streambuf         *streamBuf,
@@ -823,8 +819,8 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf     *streamBuf,
 }
 
 inline
-int bdem_BerUtil_Imp::putValue(bsl::streambuf         *streamBuf,
-                               const bdeut_StringRef&  value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                               const bslstl_StringRef&  value)
 {
     return putStringValue(streamBuf,
                           value.data(),

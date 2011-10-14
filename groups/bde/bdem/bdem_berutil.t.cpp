@@ -117,7 +117,7 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 
 typedef bdem_BerUtil Util;
-typedef bdeut_StringRef StringRef;
+typedef bslstl_StringRef StringRef;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -874,7 +874,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING 'putValue' & 'getValue' for 'bdeut_StringRef'
+        // TESTING 'putValue' & 'getValue' for 'bslstl_StringRef'
         //
         // Concerns:
         //
