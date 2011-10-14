@@ -29,13 +29,13 @@ bsl::ostream& baetzo_ZoneinfoBinaryHeader::print(
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.print(static_cast<int>(d_version), "version");
-    printer.print(d_numIsGmt,                  "numIsGmt");
-    printer.print(d_numIsStd,                  "numIsStd");
-    printer.print(d_numLeaps,                  "numLeaps");
-    printer.print(d_numTransitions,            "numTransitions");
-    printer.print(d_numLocalTimeTypes,         "numLocalTimeTypes");
-    printer.print(d_abbrevDataSize,            "abbrevDataSize");
+    printer.printAttribute("version",           static_cast<int>(d_version));
+    printer.printAttribute("numIsGmt",          d_numIsGmt);
+    printer.printAttribute("numIsStd",          d_numIsStd);
+    printer.printAttribute("numLeaps",          d_numLeaps);
+    printer.printAttribute("numTransitions",    d_numTransitions);
+    printer.printAttribute("numLocalTimeTypes", d_numLocalTimeTypes);
+    printer.printAttribute("abbrevDataSize",    d_abbrevDataSize);
     printer.end();
 
     return stream;

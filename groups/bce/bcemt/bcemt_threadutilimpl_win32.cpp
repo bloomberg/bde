@@ -8,6 +8,7 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 
 #include <windows.h>
 
+#include <bcemt_configuration.h>
 #include <bcemt_threadattributes.h>
 
 #include <bsl_cstring.h>  // 'memcpy'
@@ -35,6 +36,7 @@ const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle
 struct ThreadStartupInfo{
     // Control structure used to pass startup information to the thread entry
     // function.
+
     bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle  d_handle;
     bcemt_ThreadFunction                                       d_function;
     void                                                      *d_threadArg;
@@ -44,6 +46,7 @@ struct ThreadStartupInfo{
 struct ThreadSpecificDestructor {
     // This structure implements a linked list of destructors associated
     // with thread-specific key.
+
     bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Key  d_key;
     bcemt_KeyDestructorFunction                             d_destructor;
     ThreadSpecificDestructor                               *d_next;
@@ -81,6 +84,7 @@ static CRITICAL_SECTION          s_returnValueMapLock;
 
 struct HandleLess {
     bool operator()(HANDLE x, HANDLE y) const
+        // compare two 'HANDLE' objects
     {
         return (unsigned long long)(x) < (unsigned long long)(y);
     }
@@ -132,7 +136,7 @@ int bcemt_threadutil_win32_Initialize()
 #endif
             InterlockedExchange(&s_initializationState, INITIALIZED);
         }
-        return INITIALIZED == s_initializationState ? 0 : 1;
+        return INITIALIZED == s_initializationState ? 0 : 1;          // RETURN
     }
 }
 
@@ -305,11 +309,19 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::create(
 
     ThreadStartupInfo *startInfo = allocStartupInfo();
 
+    int stackSize = attribute.stackSize();
+    if (bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE == stackSize) {
+        stackSize = bcemt_Configuration::defaultThreadStackSize();
+        if (bcemt_ThreadAttributes::BCEMT_UNSET_STACK_SIZE == stackSize) {
+            stackSize = bcemt_Configuration::nativeDefaultThreadStackSize();
+        }
+    }
+
     startInfo->d_threadArg = userData;
     startInfo->d_function  = function;
     handle->d_handle = (HANDLE)_beginthreadex(
                                              0,
-                                             attribute.stackSize(),
+                                             stackSize,
                                              ThreadEntry,
                                              startInfo,
                                              STACK_SIZE_PARAM_IS_A_RESERVATION,
@@ -318,13 +330,15 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::create(
         freeStartupInfo(startInfo);
         return 1;                                                     // RETURN
     }
-    if (bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED == attribute.detachedState()) {
+    if (bcemt_ThreadAttributes::BCEMT_CREATE_DETACHED ==
+                                                   attribute.detachedState()) {
         HANDLE tmpHandle = handle->d_handle;
         handle->d_handle  = 0;
         startInfo->d_handle = *handle;
         ResumeThread(tmpHandle);
         CloseHandle(tmpHandle);
-    } else {
+    }
+    else {
         startInfo->d_handle = *handle;
         ResumeThread(handle->d_handle);
     }
@@ -336,6 +350,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::join(
            void                                                       **status)
 {
     // Cannot self - join
+
     if (!handle.d_handle || handle.d_id == GetCurrentThreadId()) {
         return 1;                                                     // RETURN
     }
@@ -348,6 +363,7 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::join(
 #ifdef BCEMT_USE_RETURN_VALUE_MAP
     // In this case, we ignore 'exitStatus', but we're still fetching
     // it in to get the 'result' value
+
     if (status) {
         EnterCriticalSection(&s_returnValueMapLock);
         if (s_returnValueMapValid) {
@@ -462,14 +478,11 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::deleteKey(Key& key)
     return 0;
 }
 
-bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::isEqual(
-          const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& lhs,
-          const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& rhs)
+bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(
+            const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& a,
+            const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& b)
 {
-    if (lhs.d_id == rhs.d_id) {
-        return true;                                                  // RETURN
-    }
-    return false;
+    return a.d_id == b.d_id;
 }
 
 }  // close namespace BloombergLP

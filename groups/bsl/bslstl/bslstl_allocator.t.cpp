@@ -15,6 +15,7 @@
 #include <cstdlib>
 
 #include <new>
+#include <limits>
 
 using namespace BloombergLP;
 using namespace std;
@@ -602,14 +603,15 @@ int main(int argc, char *argv[])
 
             bsl::allocator<char> charAlloc;
             bsize cas = charAlloc.max_size();
-            bsize casplus = cas + 1;
+
+            // verify that max_size() is the largest positive integer of type
+            // size_type
             LOOP_ASSERT(cas, cas > 0);
-            LOOP_ASSERT(casplus, casplus < cas); // overflow
+            LOOP_ASSERT(cas, cas == std::numeric_limits<bsize>::max());
 
             if (verbose) {
-                printf("As long: cas = %ld, casplus = %ld.\n", cas, casplus);
-                printf("As unsigned long: cas = %lu, casplus = %lu.\n",
-                        cas, casplus);
+                printf("As long: cas = %ld\n", cas);
+                printf("As unsigned long: cas = 0x%lx\n", cas);
             }
 
             bsl::allocator<MyObject> objAlloc;
