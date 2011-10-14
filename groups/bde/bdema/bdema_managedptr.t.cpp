@@ -5340,7 +5340,7 @@ namespace USAGE_EXAMPLES {
         return result;
     }
 //..
-// Finally, we can use our function to create talkers of different kinds, and
+// Then, we can use our function to create talkers of different kinds, and
 // check that they say the right thing:
 //..
     void testTalkers()
@@ -5350,6 +5350,46 @@ namespace USAGE_EXAMPLES {
         ASSERT(!strcmp("meow!", toon->speak()));
 
         toon = makeTalker(Talkers::TLK_DOG);
+        ASSERT(0 != toon);
+        ASSERT(!strcmp("woof!", toon->speak()));
+    }
+//..
+// Next, we observe that as we are creating objects dynamically, we should pass
+// an allocator to the 'makeTalkers' function, rather than simply accepting the
+// default allocator each time.  Note that when we do this, we pass the user's
+// allocator to the 'bdema_ManagedPtr' object as the "factory".
+//..
+    bdema_ManagedPtr<Talker> makeTalker(Talkers::VALUES  kind,
+                                        bslma_Allocator *allocator)
+    {
+        bslma_Allocator *alloc = bslma_Default::allocator(allocator);
+        bdema_ManagedPtr<Talker> result;
+        switch (kind) {
+        case Talkers::TLK_CAT : {
+                Cat *tom = new(*alloc)Cat;
+                result.load(tom, alloc);
+                break;
+            }
+        case Talkers::TLK_DOG : {
+                Dog *spike = new(*alloc)Dog;
+                result.load(spike, alloc);
+                break;
+            }
+        };
+        return result;
+    }
+//..
+// Finally we repeat the earlier test, additionally passing a test allocator:
+//..
+    void testTalkersToo()
+    {
+        bslma_TestAllocator ta("object");
+
+        bdema_ManagedPtr<Talker> toon = makeTalker(Talkers::TLK_CAT, &ta);
+        ASSERT(0 != toon);
+        ASSERT(!strcmp("meow!", toon->speak()));
+
+        toon = makeTalker(Talkers::TLK_DOG, &ta);
         ASSERT(0 != toon);
         ASSERT(!strcmp("woof!", toon->speak()));
     }
@@ -5419,7 +5459,7 @@ namespace USAGE_EXAMPLES {
         for (int i = 1; i <= MAX_QUOTES; ++i) {
             double quote = Ticker::getQuote();
             quotes[i] = quote;
-            if (! finger && quote > threshold) {
+            if (!finger && quote > threshold) {
                 finger = &quotes[i];
             }
         }
@@ -5454,8 +5494,8 @@ namespace USAGE_EXAMPLES {
         }
         if (g_verbose) bsl::cout << bsl::endl;
 //..
-// To move the finger, e.g., to the last position printed, one must be careful
-// to retain the ownership of the entire array.  Using the statement
+// Then, to move the finger, e.g., to the last position printed, one must be
+// careful to retain the ownership of the entire array.  Using the statement
 // 'result.load(result.ptr()-i)' would be an error, because it would first
 // compute the pointer value 'result.ptr()-i' of the argument, then release the
 // entire array before starting to manage what has now become an invalid
@@ -5473,7 +5513,98 @@ namespace USAGE_EXAMPLES {
         return 0;
     }
 //..
+//
+///Example 3: Factories and Deleters
+///- - - - - - - - - - - - - - - - -
+// Suppose we want to track the number of objects currently managed by
+// 'bdema_ManagedPtr' objects.
+//
+// First we define a factory type, that holds an allocator and a usage-counter:
+//..
+    class CountedFactory {
+        // DATA
+        int              d_count;
+        bslma_Allocator *d_allocator;
 
+        // NOT IMPLEMENTED
+        CountedFactory(const CountedFactory&);
+        CountedFactory& operator=(const CountedFactory&);
+
+      public:
+        // CREATORS
+        explicit CountedFactory(bslma_Allocator *alloc = 0);
+
+        ~CountedFactory();
+
+        // MANIPULATORS
+        template <class TYPE>
+        TYPE *createObject();
+
+        template <class TYPE>
+        void deleteObject(const TYPE *object);
+
+        // ACCESSORS
+        int count() const;
+    };
+
+    CountedFactory::CountedFactory(bslma_Allocator *alloc)
+    : d_count(0)
+    , d_allocator(bslma_Default::allocator(alloc))
+    {
+    }
+
+    CountedFactory::~CountedFactory()
+    {
+        ASSERT(0 == d_count);
+    }
+
+    template <class TYPE>
+    TYPE *CountedFactory::createObject()
+    {
+        TYPE *result = new(*d_allocator)TYPE;
+        ++d_count;
+        return result;
+    }
+
+    template <class TYPE>
+    void CountedFactory::deleteObject(const TYPE *object)
+    {
+        d_allocator->deleteObject(object);
+        --d_count;
+    }
+
+    inline
+    int CountedFactory::count() const
+    {
+        return d_count;
+    }
+//..
+// Then ...
+//..
+    void testCountedFactory()
+    {
+        bslma_TestAllocator ta;
+        CountedFactory cf(&ta);
+
+        {
+            bdema_ManagedPtr<int> pData[4];
+
+            int i = 0;
+            while (i != 4) {
+                pData[i++].load(cf.createObject<int>(), &cf);
+                ASSERT(cf.count() == i);
+            }
+
+            pData[1].clear();
+            ASSERT(3 == cf.count());
+
+            pData[2].load(cf.createObject<int>(), &cf);
+            ASSERT(3 == cf.count());
+        }
+
+        ASSERT(0 == cf.count());
+    }
+//..
 }  // close namespace USAGE_EXAMPLES
 
 //=============================================================================
@@ -5573,6 +5704,9 @@ testCompsite();
 
         USAGE_EXAMPLES::aliasExample();
 
+        // move usage-example 3 up to its own case
+        USAGE_EXAMPLES::testCountedFactory();
+
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -5591,6 +5725,7 @@ testCompsite();
                           << "\n-----------------------" << endl;
 
         USAGE_EXAMPLES::testTalkers();
+        USAGE_EXAMPLES::testTalkersToo();
       } break;
       case 16: {
         // --------------------------------------------------------------------
