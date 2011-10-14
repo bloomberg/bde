@@ -42,6 +42,10 @@ BDES_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
+#ifndef INCLUDED_BCEMT_THREADATTRIBUTES
+#include <bcemt_threadattributes.h>
+#endif
+
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
 #endif
@@ -82,8 +86,6 @@ extern "C" {
 };
 
 namespace BloombergLP {
-
-class bcemt_ThreadAttributes;
 
 template <typename THREAD_POLICY>
 struct bcemt_ThreadUtilImpl;
@@ -166,6 +168,22 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // made once the thread terminates to reclaim any system resources
         // associated with the newly created identifier.
 
+    static int getMinSchedulingPriority(
+                              bcemt_ThreadAttributes::SchedulingPolicy policy);
+        // Return the non-negative minimum available priority for the
+        // optionally-specified 'policy' on success, where 'policy' is of type
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
+        // error.  Note that for some platform / policy cominations,
+        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+
+    static int getMaxSchedulingPriority(
+                              bcemt_ThreadAttributes::SchedulingPolicy policy);
+        // Return the non-negative maximum available priority for the
+        // optionally-specified 'policy' on success, where 'policy' is of type
+        // 'bcemt_ThreadAttributes::SchedulingPolicy'.  Return 'INT_MIN' on
+        // error.  Note that for some platform / policy cominations,
+        // 'getMinSchedPriority(policy) == getMaxSchedPriority(policy)'.
+
     static int join(Handle& thread, void **status = 0);
         // Suspend execution of the current thread until the thread specified
         // by 'threadHandle' terminates, and reclaim any system resources
@@ -202,7 +220,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
     static Handle self();
         // Return a thread 'Handle' that can be used to refer to the current
         // thread.  The handle can be specified to any function that supports
-        // operations on itself (e.g., 'detach', 'isEqual').  Note that the
+        // operations on itself (e.g., 'detach', 'areEqual').  Note that the
         // returned handle is only valid in the context of the calling thread.
 
     static int detach(Handle& threadHandle);
@@ -216,8 +234,8 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // Return the platform specific identifier associated with the thread
         // specified by 'threadHandle'.
 
-    static bool isEqual(const Handle& lhs, const Handle& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' thread handles
+    static bool areEqual(const Handle& a, const Handle& b);
+        // Return 'true' if the specified 'a' and 'b' thread handles
         // identify the same thread and a 'false' value otherwise.
 
     static Id selfId();
@@ -253,9 +271,9 @@ struct bcemt_ThreadUtilImpl<bces_Platform::Win32Threads> {
         // Note that this value is only valid until the thread terminates and
         // may be reused thereafter.
 
-    static bool isEqualId(const Id& lhs, const Id& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' thread id identify
-        // the same thread and 'false' otherwise.
+    static bool areEqualId(const Id& a, const Id& b);
+        // Return 'true' if the specified 'a' and 'b' thread id identify the
+        // same thread and 'false' otherwise.
 
     static int createKey(Key *key, bcemt_KeyDestructorFunction destructor);
         // Store into the specified 'key', an identifier that can be used to
@@ -307,8 +325,8 @@ bool operator==(
           const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& lhs,
           const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Handle& rhs)
 {
-    return bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::isEqual(lhs,
-                                                                      rhs);
+    return bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqual(lhs,
+                                                                       rhs);
 }
 
 inline
@@ -324,6 +342,22 @@ bool operator!=(
             // -------------------------------------------------------
 
 // CLASS METHODS
+inline
+int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
+                         getMinSchedulingPriority(
+                               bcemt_ThreadAttributes::SchedulingPolicy policy)
+{
+    return -1;    // priorities not supported on Windows
+}
+
+inline
+int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::
+                         getMaxSchedulingPriority(
+                               bcemt_ThreadAttributes::SchedulingPolicy policy)
+{
+    return -1;    // priorities not supported on Windows
+}
+
 inline
 void bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::yield()
 {
@@ -402,11 +436,11 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::idAsInt(
 }
 
 inline
-bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::isEqualId(
-              const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Id& lhs,
-              const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Id& rhs)
+bool bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::areEqualId(
+                const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Id& a,
+                const bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::Id& b)
 {
-    return lhs == rhs;
+    return a == b;
 }
 
 inline

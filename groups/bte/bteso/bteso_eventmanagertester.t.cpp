@@ -1399,7 +1399,10 @@ int main(int argc, char *argv[])
             } SCRIPTS[] =
             {
                {L_, 0, "T0; E0r; E0rwa; E1caw; E0rwac"},
+// TBD: UNCOMMENT
+#ifndef BSLS_PLATFORM__OS_HPUX            
                {L_, 0, "W0,30; R0,24"},
+#endif
                {L_, 0, "Di,1; Dn,1;  Di150,1; Dn400,1"},
                {L_, 0, "T0; +0w21; W1,20; +1r11"},
             };

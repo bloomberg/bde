@@ -17,6 +17,8 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
 #include <bsls_stopwatch.h>
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bdetu_systemtime.h>
 #include <bdet_time.h>
@@ -100,6 +102,13 @@ static void aSsErT(int c, const char *s, int i)
        #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
        aSsErT(1, #X, __LINE__); } }
 
+//-----------------------------------------------------------------------------
+//            SEMI-STANDARD NEGATIVE TESTING CONVENIENCE MACROS
+//-----------------------------------------------------------------------------
+
+#define ASSERT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -110,13 +119,13 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef btemt_TcpTimerEventManager Obj;
 
-void noopFunction()
-{
-}
-
 //=============================================================================
 //           TEST: 'collectTimeMetrics' configuration flag
 //-----------------------------------------------------------------------------
+
+void noopFunction()
+{
+}
 
 namespace TEST_CASE_COLLECT_TIME_METRICS {
 
