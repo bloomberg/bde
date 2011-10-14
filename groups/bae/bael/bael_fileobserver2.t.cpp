@@ -660,7 +660,7 @@ int main(int argc, char *argv[])
             bdesu_FileUtil::remove(BASENAME.c_str());
 
             mX.rotateOnTimeInterval(bdet_DatetimeInterval(0, 0, 0, 2),
-                                    bdet_Datetime(9999, 12, 31));
+                                    bdet_Datetime(9999, 12, 31, 23, 59, 59));
 
             ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
