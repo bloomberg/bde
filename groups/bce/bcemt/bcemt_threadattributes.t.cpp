@@ -1,8 +1,14 @@
 // bcemt_threadattributes.t.cpp                                       -*-C++-*-
 #include <bcemt_threadattributes.h>
 
+#include <bces_platform.h>
+
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
+
+#ifdef BCES_PLATFORM__POSIX_THREADS
+#include <pthread.h>
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -12,7 +18,8 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -218,9 +225,12 @@ int main(int argc, char *argv[])
         const Obj& X = mX;
 
         ASSERT(Obj::BCEMT_CREATE_JOINABLE == X.detachedState());
-        ASSERT(Obj::BCEMT_SCHED_OTHER == X.schedulingPolicy());
+        ASSERT(Obj::BCEMT_SCHED_DEFAULT == X.schedulingPolicy());
         ASSERT(X.inheritSchedule());
         ASSERT(0 != X.stackSize());
+
+#if 0
+        // 'Imp has been eliminated
 
         typedef bcemt_ThreadAttributes::Imp Imp;
 
@@ -235,9 +245,137 @@ int main(int argc, char *argv[])
                                                    Imp::BCEMT_SCHED_FIFO);
         ASSERT(bcemt_ThreadAttributes::BCEMT_SCHED_RR    ==
                                                    Imp::BCEMT_SCHED_RR);
-
+#endif
       } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // DEFAULT VALUES FROM PTHREADS
+        //   Sg: Solaris gcc
+        //   SC: Solaris CC
+        //   AI: AIX
+        //   HP: HPUX
+        //   Li: Linux
+        //
+        //   Sg 32: Other (-20, 0, 20), Fifo (0, 0, 59), RR (0, 0, 59)
+        //   Sg 64: Other (-20, 0, 20), Fifo (0, 0, 59), RR (0, 0, 59)
+        //
+        //   Sc 32: Other (-20, 0, 20), Fifo (0, 0, 59), RR (0, 0, 59)
+        //   Sc 64: Other (-20, 0, 20), Fifo (0, 0, 59), RR (0, 0, 59)
+        //
+        //   AI 32: Other (1, 1, 127), Fifo (1, 1, 127), RR (1, 1, 127)
+        //   AI 64: Other (1, 1, 127), Fifo (1, 1, 127), RR (1, 1, 127)
+        //
+        //   HP 32: Other (-256, -192, -129), Fifo (0, 0, 31), RR (0, 0, 31)
+        //   HP 64: Other (-256, -192, -129), Fifo (0, 0, 31), RR (0, 0, 31)
+        //
+        //   Li 32: Other (0, 0, 0), Fifo (1, 0, 99), RR (1, 0, 99)
+        //   Li 64: Other (0, 0, 0), Fifo (1, 0, 99), RR (1, 0, 99)
+        // --------------------------------------------------------------------
 
+#ifdef BCES_PLATFORM__POSIX_THREADS
+        int rc = 0;
+
+        pthread_attr_t attr;
+        rc |= pthread_attr_init(&attr);
+
+        int policy;
+        rc |= pthread_attr_getschedpolicy(&attr, &policy);
+        ASSERT(SCHED_OTHER == policy);
+
+        sched_param param;
+        rc |= pthread_attr_getschedparam(&attr, &param);
+        int priority = param.sched_priority;
+
+#define MAXPRI(policy)  sched_get_priority_max(policy)
+#define MINPRI(policy)  sched_get_priority_min(policy)
+
+        cout << "Other (" << MINPRI(policy) << ", " <<
+                             priority       << ", " <<
+                             MAXPRI(policy) << "), ";
+
+        policy = SCHED_FIFO;
+        rc |= pthread_attr_setschedpolicy(&attr, policy);
+        rc |= pthread_attr_getschedparam(&attr, &param);
+        priority = param.sched_priority;
+
+        cout << "Fifo (" << MINPRI(policy) << ", " <<
+                            priority       << ", " <<
+                            MAXPRI(policy) << "), ";
+
+        policy = SCHED_RR;
+        rc |= pthread_attr_setschedpolicy(&attr, policy);
+        rc |= pthread_attr_getschedparam(&attr, &param);
+        priority = param.sched_priority;
+
+        cout << "RR (" << MINPRI(policy) << ", " <<
+                          priority       << ", " <<
+                          MAXPRI(policy) << ")\n";
+
+        ASSERT(0 == rc);
+#undef MAXPRI
+#undef MINPRI
+#endif
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // DEFAULT VALUES FROM THREADATTRIBUTES
+        //
+        // Results:
+        //   Sg: Solaris gcc
+        //   SC: Solaris CC
+        //   AI: AIX
+        //   HP: HPUX
+        //   Li: Linux
+        //
+        //   Sg 32: Other (-20, 0, 20), Fifo (0, 0, 59), Rr (0, 0, 59)
+        //   Sg 64: Other (-20, 0, 20), Fifo (0, 0, 59), Rr (0, 0, 59)
+        //
+        //   Sc 32: Other (-20, 0, 20), Fifo (0, 0, 59), Rr (0, 0, 59)
+        //   Sc 64: Other (-20, 0, 20), Fifo (0, 0, 59), Rr (0, 0, 59)
+        //
+        //   AI 32: Other (1, 1, 60), Fifo (1, 1, 60), Rr (1, 1, 60)
+        //   AI 64: Other (1, 1, 60), Fifo (1, 1, 60), Rr (1, 1, 60)
+        //
+        //   HP 32: Other (-256, -256, -129), Fifo (0, 0, 31), Rr (0, 0, 31)
+        //   HP 64: Other (-256, -256, -129), Fifo (0, 0, 31), Rr (0, 0, 31)
+        //
+        //   Li 32: Other (0, 0, 0), Fifo (1, 1, 99), Rr (1, 1, 99)
+        //   Li 64: Other (0, 0, 0), Fifo (1, 1, 99), Rr (1, 1, 99)
+        // --------------------------------------------------------------------
+
+        bcemt_ThreadAttributes attr;
+
+#define MAXPRI(policy)  (bcemt_ThreadAttributes::getMaxSchedPriority(policy))
+#define MINPRI(policy)  (bcemt_ThreadAttributes::getMinSchedPriority(policy))
+
+        typedef bcemt_ThreadAttributes::SchedulingPolicy Policy;
+
+        const Policy OTHER = bcemt_ThreadAttributes::BCEMT_SCHED_OTHER;
+        const Policy FIFO  = bcemt_ThreadAttributes::BCEMT_SCHED_FIFO;
+        const Policy RR    = bcemt_ThreadAttributes::BCEMT_SCHED_RR;
+
+        attr.setSchedulingPolicy(OTHER);
+
+        cout << "Other ("   << MINPRI(OTHER) <<
+                ", "        << attr.schedulingPriority() <<
+                ", "        << MAXPRI(OTHER);
+
+        attr.setSchedulingPolicy(FIFO);
+
+        cout << "), Fifo (" << MINPRI(FIFO) <<
+                ", "        << attr.schedulingPriority() <<
+                ", "        << MAXPRI(FIFO);
+
+        attr.setSchedulingPolicy(RR);
+
+        cout << "), Rr ("   << MINPRI(RR) <<
+                ", "        << attr.schedulingPriority() <<
+                ", "        << MAXPRI(RR) <<
+
+                ")\n";
+#undef MAXPRI
+#undef MINPRI
+      }  break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

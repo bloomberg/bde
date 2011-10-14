@@ -42,6 +42,10 @@ BDES_IDENT("$Id: $")
 
 // Platform-specific implementation starts here.
 
+#ifndef INCLUDED_BCEMT_THREADATTRIBUTES
+#include <bcemt_threadattributes.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -58,7 +62,6 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
 class bdet_TimeInterval;
-class bcemt_ThreadAttributes;
 
 template <typename THREAD_POLICY>
 struct bcemt_ThreadUtilImpl;
@@ -98,6 +101,8 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
     static const pthread_t INVALID_HANDLE;
 
     // CLASS METHODS
+                          // *** Thread Management ***
+
     static int create(Handle                        *thread,
                       const bcemt_ThreadAttributes&  attributes,
                       bcemt_ThreadFunction           function,
@@ -127,12 +132,54 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // made once the thread terminates to reclaim any system resources
         // associated with the newly created identifier.
 
+    static int detach(Handle& threadHandle);
+        // "Detach" the thread identified by 'threadHandle', such that when
+        // it terminates, the resources associated the thread will
+        // automatically be reclaimed.  Note that once a thread is "detached",
+        // it is no longer possible to 'join' the thread to retrieve the its
+        // exit status.
+
+    static void exit(void *status);
+        // Exit the current thread and return the specified 'status'.  If
+        // the current thread is not "detached", then a call to 'join' must be
+        // made to reclaim any resources used by the thread, and to retrieve
+        // the exit status.  Note that generally, the preferred method of
+        // exiting a thread is to return form the entry point function.
+
+    static int getMinSchedulingPriority(
+                              bcemt_ThreadAttributes::SchedulingPolicy policy);
+        // Return the minimum available priority for the specified 'policy'.
+        // Note that for some platform / policy cominations,
+        // 'getMinSchedulingPriority(policy)' and
+        // 'getMaxSchedulingPriority(policy)' return the same value.
+
+    static int getMaxSchedulingPriority(
+                              bcemt_ThreadAttributes::SchedulingPolicy policy);
+        // Return the maximum available priority for the specified 'policy'.
+        // Note that for some platform / policy cominations,
+        // 'getMinSchedulingPriority(policy)' and
+        // 'getMaxSchedulingPriority(policy)' return the same value.
+
     static int join(Handle& threadHandle, void **status = (void**)0);
         // Suspend execution of the current thread until the thread specified
         // by 'threadHandle' terminates, and reclaim any system resources
         // associated with the specified 'threadHandle'.  If the specified
         // 'status' is not 0, load into the specified 'status', the value
         // returned by the specified 'thread'.
+
+    static int microSleep(int                microseconds,
+                          int                seconds = 0,
+                          bdet_TimeInterval *unsleptTime = 0);
+        // Suspend execution of the current thread for a period of at least the
+        // specified 'seconds' and microseconds (relative time), and optionally
+        // load into the specified 'unsleptTime' the amount of time that was
+        // not slept by this function if the operation was interrupted by a
+        // signal.  Return 0 on success, and non-zero if the operation was
+        // interrupted by a signal.  Note that the actual time suspended
+        // depends on many factors including system scheduling, and system
+        // timer resolution.  Note that the actual time suspended depends on
+        // many factors including system scheduling, and system timer
+        // resolution.
 
     static int sleep(const bdet_TimeInterval&  sleepTime,
                      bdet_TimeInterval        *unsleptTime = 0);
@@ -150,45 +197,30 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // schedule another thread to run.  This allows cooperating threads of
         // the same priority to share CPU resources equally.
 
-    static int microSleep(int                microseconds,
-                          int                seconds = 0,
-                          bdet_TimeInterval *unsleptTime = 0);
-        // Suspend execution of the current thread for a period of at least the
-        // specified 'seconds' and microseconds (relative time), and optionally
-        // load into the specified 'unsleptTime' the amount of time that was
-        // not slept by this function if the operation was interrupted by a
-        // signal.  Return 0 on success, and non-zero if the operation was
-        // interrupted by a signal.  Note that the actual time suspended
-        // depends on many factors including system scheduling, and system
-        // timer resolution.  Note that the actual time suspended depends on
-        // many factors including system scheduling, and system timer
-        // resolution.
+                       // *** Thread Identification ***
 
-    static void exit(void *status);
-        // Exit the current thread and return the specified 'status'.  If
-        // the current thread is not "detached", then a call to 'join' must be
-        // made to reclaim any resources used by the thread, and to retrieve
-        // the exit status.  Note that generally, the preferred method of
-        // exiting a thread is to return form the entry point function.
+    static bool areEqual(const Handle& a, const Handle& b);
+        // Return 'true' if the specified 'a' and 'b' thread handles, identify
+        // the same thread, and 'false' otherwise.
 
-    static Handle self();
-        // Return an identifier that can be used to refer to the current thread
-        // in future calls to this utility.
+    static bool areEqualId(const Id& a, const Id& b);
+        // Return 'true' if the specified 'a' and 'b' thread id identify the
+        // same thread, and 'false' otherwise.
 
-    static int detach(Handle& threadHandle);
-        // "Detach" the thread identified by 'threadHandle', such that when
-        // it terminates, the resources associated the thread will
-        // automatically be reclaimed.  Note that once a thread is "detached",
-        // it is no longer possible to 'join' the thread to retrieve the its
-        // exit status.
+    static int idAsInt(const Id& threadId);
+        // Return the unique integral identifier of a thread uniquely
+        // identified by the specified 'threadId' within the current process.
+        // This representation is particularly useful for logging purposes.
+        // Note that this value is only valid until the thread terminates and
+        // may be reused thereafter.
 
     static NativeHandle nativeHandle(const Handle& threadHandle);
         // Return the platform specific identifier associated with the thread
         // specified by 'threadHandle'.
 
-    static bool isEqual(const Handle& lhs, const Handle& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' thread handles,
-        // identify the same thread, and 'false' otherwise.
+    static Handle self();
+        // Return an identifier that can be used to refer to the current thread
+        // in future calls to this utility.
 
     static Id selfId();
         // Return an identifier that can be used to uniquely identify the
@@ -214,16 +246,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // 'threadHandle' within the current process.  Note that this value is
         // only valid until the thread terminates and may be reused thereafter.
 
-    static int idAsInt(const Id& threadId);
-        // Return the unique integral identifier of a thread uniquely
-        // identified by the specified 'threadId' within the current process.
-        // This representation is particularly useful for logging purposes.
-        // Note that this value is only valid until the thread terminates and
-        // may be reused thereafter.
-
-    static bool isEqualId(const Id& lhs, const Id& rhs);
-        // Return 'true' if the specified 'lhs' and 'rhs' thread id identify
-        // the same thread, and 'false' otherwise.
+                // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
     static int createKey(Key *key, bcemt_KeyDestructorFunction destructor);
         // Load, into the specified 'key', an identifier that can be used to
@@ -259,6 +282,7 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
             // -------------------------------------------------------
 
 // CLASS METHODS
+                          // *** Thread Management ***
 inline
 int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::create(
            bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle *handle,
@@ -266,6 +290,19 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::create(
            void                                                      *userData)
 {
     return pthread_create(handle, 0, function, userData);
+}
+
+inline
+int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::detach(
+             bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle& handle)
+{
+    return pthread_detach(handle);
+}
+
+inline
+void bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::exit(void *status)
+{
+    pthread_exit(status);
 }
 
 inline
@@ -282,24 +319,40 @@ void bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::yield()
     sched_yield();
 }
 
+                       // *** Thread Identification ***
+
 inline
-void bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::exit(void *status)
+bool bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::areEqual(
+            const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle& a,
+            const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle& b)
 {
-    pthread_exit(status);
+    return pthread_equal(a, b);
 }
 
 inline
-bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle
-bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::self()
+bool bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::areEqualId(
+                const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Id& a,
+                const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Id& b)
 {
-    return pthread_self();
+    return pthread_equal(a, b);
 }
 
 inline
-int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::detach(
-             bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle& handle)
+bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Id
+bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::handleToId(
+                                                    const Handle& threadHandle)
 {
-    return pthread_detach(handle);
+    return threadHandle;
+}
+
+inline
+int
+bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::idAsInt(const Id& threadId)
+{
+    // Our interface is not good if the id is a pointer.  The two casts will
+    // avoid a compilation error though.  TBD
+
+    return (int)(bsls_PlatformUtil::IntPtr)threadId;
 }
 
 inline
@@ -311,11 +364,10 @@ bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::nativeHandle(
 }
 
 inline
-bool bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::isEqual(
-          const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle& lhs,
-          const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle& rhs)
+bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Handle
+bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::self()
 {
-    return pthread_equal(lhs, rhs);
+    return pthread_self();
 }
 
 inline
@@ -339,31 +391,7 @@ bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::selfIdAsUint64()
     return (bsls_PlatformUtil::Uint64)selfId();
 }
 
-inline
-bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Id
-bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::handleToId(
-                                                    const Handle& threadHandle)
-{
-    return threadHandle;
-}
-
-inline
-int
-bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::idAsInt(const Id& threadId)
-{
-    // Our interface is not good if the id is a pointer.  The two casts will
-    // avoid a compilation error though.  TBD
-
-    return (int)(bsls_PlatformUtil::IntPtr)threadId;
-}
-
-inline
-bool bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::isEqualId(
-              const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Id& lhs,
-              const bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::Id& rhs)
-{
-    return pthread_equal(lhs, rhs);
-}
+                // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
 inline
 int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::createKey(

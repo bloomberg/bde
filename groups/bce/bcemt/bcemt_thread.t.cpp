@@ -45,7 +45,8 @@ using namespace bsl;  // automatically added by script
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i) {
+static void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
              << "    (failed)" << endl;
@@ -221,7 +222,7 @@ class my_Account {
     my_Account();
         // Create an account with zero balance.
 
-    my_Account(const my_Account& other);
+    my_Account(const my_Account& original);
         // Create an account having the balance of the specified
         // 'other' account.
 
@@ -250,8 +251,8 @@ my_Account::my_Account()
 {
 }
 
-my_Account::my_Account(const my_Account& other)
-: d_money(other.d_money)
+my_Account::my_Account(const my_Account& original)
+: d_money(original.d_money)
 {
 }
 
@@ -300,6 +301,7 @@ class my_SafeAccountHandle {
 
   public:
     // CREATORS
+    explicit
     my_SafeAccountHandle(my_Account *account);
         // Create a thread-safe handle to the specified 'account'.
 
@@ -338,10 +340,12 @@ class my_SafeAccountHandle {
 // CREATORS
 my_SafeAccountHandle::my_SafeAccountHandle(my_Account *account)
 : d_account_p(account)
-{ }
+{
+}
 
 my_SafeAccountHandle::~my_SafeAccountHandle()
-{ }
+{
+}
 
 // MANIPULATORS
 void my_SafeAccountHandle::deposit(double amount)
@@ -387,33 +391,34 @@ double my_SafeAccountHandle::balance() const
                         // ===================
 
 class ThreadChecker {
-
-   bcemt_Mutex d_mutex;
-   int d_count;
+    bcemt_Mutex d_mutex;
+    int         d_count;
 
   public:
     // CREATORS
     ThreadChecker() : d_count(0) {}
 
     // MANIPULATORS
-    void eval() {
-       d_mutex.lock();
-       ++d_count;
-       d_mutex.unlock();
+    void eval()
+    {
+        d_mutex.lock();
+        ++d_count;
+        d_mutex.unlock();
     }
 
     bdef_Function<void(*)()> getFunctor()
     {
-       return bdef_BindUtil::bind(&ThreadChecker::eval, this);
+        return bdef_BindUtil::bind(&ThreadChecker::eval, this);
     }
 
     // ACCESSORS
-    int count() const {
+    int count() const
+    {
        return d_count;
     }
 };
 
-} // close unnamed namespace
+}  // close unnamed namespace
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -728,31 +733,13 @@ int main(int argc, char *argv[])
         //    bcemt_Attribute::BCEMT_SCHED_RR
         // --------------------------------------------------------------------
 
-        typedef bcemt_ThreadAttributesImpl<bces_Platform::ThreadPolicy> Imp;
-
-        ASSERT(bcemt_Attribute::BCEMT_CREATE_JOINABLE ==
-                                                   Imp::BCEMT_CREATE_JOINABLE);
-        ASSERT(bcemt_Attribute::BCEMT_CREATE_DETACHED ==
-                                                   Imp::BCEMT_CREATE_DETACHED);
-
-        ASSERT(bcemt_Attribute::BCEMT_SCHED_OTHER == Imp::BCEMT_SCHED_OTHER);
-        ASSERT(bcemt_Attribute::BCEMT_SCHED_FIFO  == Imp::BCEMT_SCHED_FIFO);
-        ASSERT(bcemt_Attribute::BCEMT_SCHED_RR    == Imp::BCEMT_SCHED_RR);
-
         if (verbose) {
             P((int)bcemt_Attribute::BCEMT_CREATE_JOINABLE);
             P((int)bcemt_Attribute::BCEMT_CREATE_DETACHED);
             P((int)bcemt_Attribute::BCEMT_SCHED_OTHER);
             P((int)bcemt_Attribute::BCEMT_SCHED_FIFO);
             P((int)bcemt_Attribute::BCEMT_SCHED_RR);
-
-            P((int)Imp::BCEMT_CREATE_JOINABLE);
-            P((int)Imp::BCEMT_CREATE_DETACHED);
-            P((int)Imp::BCEMT_SCHED_OTHER);
-            P((int)Imp::BCEMT_SCHED_FIFO);
-            P((int)Imp::BCEMT_SCHED_RR);
         }
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
