@@ -7,6 +7,9 @@
 #include <bdetu_systemtime.h>
 
 #include <bsls_platform.h>
+#include <bsls_types.h>
+
+#include <bsl_sstream.h>
 
 #ifndef BSLS_PLATFORM__OS_WINDOWS
 #include <errno.h>
@@ -171,6 +174,57 @@ bsl::string tempFileName()
     return result;
 }
 
+class MMIXRand {
+    // Pseudo-Random number generator based on Donald Knuth's 'MMIX'
+
+    static const bsls_Types::Uint64 A = 6364136223846793005ULL;
+    static const bsls_Types::Uint64 C = 1442695040888963407ULL;
+
+    // DATA
+    bsls_Types::Uint64       d_reg;
+    bsl::stringstream        d_ss;
+    char                     d_outBuffer[17];
+
+  public:
+    // CREATOR
+    MMIXRand()
+    : d_reg(0)
+    {
+        memset(d_outBuffer, 0, sizeof(d_outBuffer));
+    }
+
+    // MANIPULATORS
+    void munge()
+        // Iterate 'd_reg' through one cycle
+    {
+        d_reg = d_reg * A + C;
+    }
+
+    void reset()
+        // Reset 'd_reg'
+    {
+        d_reg = 0;
+    }
+
+    const char *display()
+        // Display the current state of d_reg in hex
+    {
+        d_ss.str("");
+        memset(d_outBuffer, ' ', 16);
+
+        d_ss << bsl::hex << d_reg;
+        const bsl::string& str = d_ss.str();
+        LOOP_ASSERT(str.length(), 16 >= str.length());
+        char *writeTo = d_outBuffer + (16 - str.length());
+
+        bsl::strcpy(writeTo, str.c_str());
+        ASSERT(16 == bsl::strlen(d_outBuffer));
+
+        return d_outBuffer;
+    }
+};
+
+
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -225,12 +279,12 @@ int main(int argc, char *argv[]) {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    // int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch(test) { case 0:
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -308,7 +362,7 @@ int main(int argc, char *argv[]) {
 
         if (veryVerbose) {
             cout << "List of files found: " << endl;
-            for (int i = 0; i < results.size(); ++i) {
+            for (int i = 0; i < (int) results.size(); ++i) {
                 bsl::cout << "\t" << results[i] << endl;
             }
         }
@@ -317,7 +371,7 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -408,6 +462,21 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
       } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // GETFILESIZELIMIT TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "getFileSizeLimit test\n"
+                             "=====================\n";
+
+        bdesu_FileUtil::Offset limit = bdesu_FileUtil::getFileSizeLimit();
+
+        ASSERT(limit > 0);
+        ASSERT(limit > (1LL << 32));
+
+        if (verbose) P(limit);
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // APPEND TEST
@@ -492,7 +561,6 @@ int main(int argc, char *argv[]) {
         bdesu_FileUtil::remove(dirName, true);
         bdesu_FileUtil::createDirectories(dirName, true);
         bdesu_FileUtil::setWorkingDirectory(dirName);
-        bdesu_FileUtil::FileDescriptor fd;
         for(int i=0; i<4; ++i) {
             char name[16];
             sprintf(name, "woof.a.%d", i);
@@ -769,7 +837,7 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 != bdesu_FileUtil::remove(tmpFile)); // does not exist
         tmpFile += ".0";
-        int pos = tmpFile.length()-1;
+        int pos = (int) tmpFile.length()-1;
 
         for (int i = 0; i < MAXSUFFIX; ++i) {
             int value = -1;
@@ -803,7 +871,7 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 != bdesu_FileUtil::remove(tmpFile, true)); // does not exist
         tmpFile += ".0";
-        pos = tmpFile.length()-1;
+        pos = (int) tmpFile.length()-1;
 
         for (int i = 0; i < MAXSUFFIX; ++i) {
             int value = -1;
@@ -981,9 +1049,9 @@ int main(int argc, char *argv[]) {
 
             // Add one to account for the null terminator for the filename.
 
-            const int ADDR_LEN = sizeof(address.sun_family) +
-                                 filename.size() +
-                                 1;
+            const int ADDR_LEN = (int) (sizeof(address.sun_family) +
+                                        filename.size() +
+                                        1);
 
             int rc = bind(socketFd, (struct sockaddr *)&address, ADDR_LEN);
             LOOP3_ASSERT(rc, errno, strerror(errno), 0 == rc);
@@ -1088,7 +1156,8 @@ int main(int argc, char *argv[]) {
         bdesu_PathUtil::popLeaf(&path);
 
         vector<bsl::string> resultPaths;
-        for (int i = 0; i < sizeof(parameters)/sizeof(*parameters); ++i) {
+        enum { NUM_PARAMETERS = sizeof(parameters) / sizeof(*parameters) };
+        for (int i = 0; i < NUM_PARAMETERS; ++i) {
             const Parameters& p = parameters[i];
 #ifdef BSLS_PLATFORM__OS_WINDOWS
             string filename(p.pattern);
@@ -1293,6 +1362,9 @@ int main(int argc, char *argv[]) {
 #endif
       } break;
       case -2: {
+        // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
+
         static const char* foo = "/tmp/blahblah.tmp";
         bdesu_FileUtil::remove(foo);
         bdesu_FileUtil::FileDescriptor fd = bdesu_FileUtil::open(foo, 1, 0);
@@ -1332,6 +1404,121 @@ int main(int argc, char *argv[]) {
         }
 #endif
       } break;
+      case -3: {
+        // --------------------------------------------------------------------
+        // LARGE FILE TEST CASE
+        //
+        // Concern:
+        //   We need a straightforward test case, using writes and reads,
+        //   to create and read back a 5G file.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "SIMPLE 5G FILE TEST CASE\n"
+                             "========================\n";
+
+        typedef bdesu_FileUtil Util;
+
+#if 1
+        const bsls_Types::Int64 fiveGig = 5LL * 1000LL * 1000LL * 1000LL;
+        const bsls_Types::Int64 deltaMileStone = 100LL * 1000LL * 1000LL;
+#else
+        const bsls_Types::Int64 fiveGig = 5 * 1000LL * 1000LL;
+        const bsls_Types::Int64 deltaMileStone = 100LL * 1000LL;
+#endif
+
+        bsls_Types::Int64 mileStone = deltaMileStone;
+
+        bsls_Types::Int64 bytesWritten = 0;
+
+        char record[80] = "123456789 123456789 123456789 123456789 "
+                          "123456789 123456789 123";
+        char * const writeTo = record + 63;
+
+        MMIXRand rand;
+
+        LOOP_ASSERT(Util::getFileSizeLimit(),
+                                           Util::getFileSizeLimit() > fiveGig);
+
+        const char *fileName = "tmpFiveGig.txt";
+        Util::FileDescriptor fd = Util::open(fileName, true, false);
+        ASSERT(Util::INVALID_FD != fd);
+
+        for (;;) {
+            rand.munge();
+            bsl::strcpy(writeTo, rand.display());
+            record[79] = '\n';
+
+            int rc = Util::write(fd, record, 80);
+            if (80 != rc) {
+                ASSERT(0 && "80 != rc");
+                break;
+            }
+            bytesWritten += 80;
+
+            if (bytesWritten >= mileStone) {
+                cout << bytesWritten << " written -- last: " <<
+                                                        rand.display() << endl;
+                if (bytesWritten >= fiveGig) {
+                    break;
+                }
+                mileStone += deltaMileStone;
+            }
+        }
+        ASSERT(fiveGig == bytesWritten);
+        ASSERT(Util::seek(fd, 0, Util::BDESU_SEEK_FROM_CURRENT) ==
+                                                                 bytesWritten);
+        ASSERT(Util::seek(fd, 0, Util::BDESU_SEEK_FROM_END) ==   bytesWritten);
+
+        cout << "Writing done\n";
+
+        if (verbose) P(bytesWritten);
+
+        ASSERT(Util::getFileSize(fileName) == bytesWritten);
+
+        char inBuf[80];
+        bsls_Types::Int64 bytesRead = 0;
+        rand.reset();
+        mileStone = deltaMileStone;
+
+        ASSERT(0 == Util::seek(fd, 0, Util::BDESU_SEEK_FROM_BEGINNING));
+
+        for (;;) {
+            int rc = Util::read(fd, inBuf, 80);
+            ASSERT(80 == rc);
+            ASSERT(0 == bsl::memcmp(record, inBuf, 63));
+
+            rand.munge();
+            ASSERT(0 == bsl::memcmp(inBuf + 63, rand.display(), 16));
+
+            ASSERT('\n' == inBuf[79]);
+
+            bytesRead += 80;
+
+            if (bytesRead >= mileStone) {
+                cout << bytesRead << " read -- last: " << rand.display() <<
+                                                                          endl;
+                if (bytesRead >= fiveGig) {
+                    break;
+                }
+                mileStone += deltaMileStone;
+            }
+        }
+        ASSERT(fiveGig == bytesRead);
+        ASSERT(bytesWritten == bytesRead);
+        ASSERT(Util::seek(fd, 0, Util::BDESU_SEEK_FROM_CURRENT) == bytesRead);
+        ASSERT(Util::seek(fd, 0, Util::BDESU_SEEK_FROM_END)     == bytesRead);
+
+        cout << "Reading done\n";
+
+        ASSERT(0 == Util::close(fd));
+
+        ASSERT(Util::getFileSize(fileName) == fiveGig);
+
+        {
+            int rc = Util::remove(fileName);
+            ASSERT(0 == rc);
+        }       
+      }  break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

@@ -83,7 +83,7 @@ class bsls_AssertTestException {
         // 'expression', 'filename', and 'lineNumber'.  The behavior is
         // undefined unless '0 < line' and both 'expression' and 'filename'
         // point to valid null-terminated character strings that will remain
-        // unmodified for the lifetime of this object.
+        // unmodified for the lifetime of this object (e.g., string literals).
 
     //! bsls_AssertTestException(const bsls_AssertTestException& original);
         // Create a 'bsls_AssertTestException' object that is a copy of the

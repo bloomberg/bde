@@ -421,7 +421,7 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::registerSocketEvent(
 
 void bteso_DefaultEventManager<bteso_Platform::SELECT>::deregisterSocketEvent(
                                       const bteso_SocketHandle::Handle& handle,
-                                      const bteso_EventType::Type       event)
+                                      bteso_EventType::Type             event)
 {
     bteso_Event ev(handle, event);
 
