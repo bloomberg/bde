@@ -5130,16 +5130,17 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
     typedef MyTestObject A;
     typedef MyDerivedObject B;
 
-///Type Casting
-///------------
+///Example 3: Type Casting
+///- - - - - - - - - - - -
 // 'bdema_ManagedPtr' objects can be implicitly and explicitly cast to
-// different types in the same way as native pointers can.
+// different types in the same way that native pointers can.
 //
 ///Implicit Casting
-/// - - - - - - - -
+///-  -  -  -  -  -
 // As with native pointers, a pointer of the type 'B' that is derived from the
 // type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
-// In other words, consider the following code snippets:
+//
+// First, consider the following code snippets:
 //..
     void implicitCastingExample()
     {
@@ -5181,21 +5182,21 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
             a_mp1 = b_mp3;      // conversion assignment of nonnil to nonnil
             ASSERT(a_mp1 && !b_mp3);
 
-            a_mp1 = b_mp3;  // conversion assignment of nil to nonnil
+            a_mp1 = b_mp3;      // conversion assignment of nil to nonnil
             ASSERT(!a_mp1 && !b_mp3);
 
-            // c'tor conversion init with nil
+            // constructor conversion init with nil
             bdema_ManagedPtr<A> a_mp4(b_mp3, b_mp3.ptr());
             ASSERT(!a_mp4 && !b_mp3);
 
-            // c'tor conversion init with nonnil
+            // constructor conversion init with nonnil
             B *p_b5 = new (localTa) B(&numdels);
             bdema_ManagedPtr<B> b_mp5(p_b5, &localTa);
             bdema_ManagedPtr<A> a_mp5(b_mp5, b_mp5.ptr());
             ASSERT(a_mp5 && !b_mp5);
             ASSERT(a_mp5.ptr() == p_b5);
 
-            // c'tor conversion init with nonnil
+            // constructor conversion init with nonnil
             B *p_b6 = new (localTa) B(&numdels);
             bdema_ManagedPtr<B> b_mp6(p_b6, &localTa);
             bdema_ManagedPtr<A> a_mp6(b_mp6);
@@ -5206,14 +5207,15 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
                 int d_i[10];
             };
 
-#if 0
+#if 1
             S *pS = new (localTa) S;
+            bdema_ManagedPtr<S> s_mp1(pS, &localTa);
+
             for (int i = 0; 10 > i; ++i) {
                 pS->d_i[i] = i;
             }
 
-            bdema_ManagedPtr<S> s_mp1(pS);
-            bdema_ManagedPtr<int> i_mp1(pS, static_cast<int*>(pS.ptr()) + 4);
+            bdema_ManagedPtr<int> i_mp1(s_mp1, s_mp1->d_i + 4);
             ASSERT(4 == *i_mp1);
 #endif
 
@@ -5225,7 +5227,7 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 //..
 //
 ///Explicit Casting
-/// - - - - - - - -
+///-  -  -  -  -  -
 // Through "aliasing", a managed pointer of any type can be explicitly cast
 // to a managed pointer of any other type using any legal cast expression.
 // For example, to static-cast a managed pointer of type A to a shared pointer
@@ -5298,7 +5300,7 @@ namespace USAGE_EXAMPLES {
 
     class Dog : public Talker {
         virtual const char * speak() const;
-            // Return a string literal, "meow!"
+            // Return a string literal, "woof!"
     };
 
     const char * Cat::speak() const {
@@ -5353,24 +5355,38 @@ namespace USAGE_EXAMPLES {
     }
 //..
 //
-// What follows is a concrete example illustrating the alias concept.
-// Let's say our array stores data acquired from a ticker
-// plant accessible by a global 'getQuote' function:
+///Example 2: Aliasing
+///- - - - - - - - - -
+// Suppose that we wish to give access to an item in a temporary
+// array via a pointer which we'll call the "finger".  The finger is the only
+// pointer to the array or any part of the array, but the entire array must be
+// valid until the finger is destroyed, at which time the entire array must be
+// deleted.  We handle this situation by first creating a managed pointer to
+// the entire array, then creating an alias of that pointer for the finger.
+// The finger takes ownership of the array instance, and when the finger is
+// destroyed, it is the array's address, rather than the finger, that is passed
+// to the deleter.
+//
+// First, let's say our array stores data acquired from a ticker plant
+// accessible by a global 'getQuote' function:
 //..
-    double getQuote() // From ticker plant. Simulated here
-    {
-        static const double QUOTES[] = {
-            7.25, 12.25, 11.40, 12.00, 15.50, 16.25, 18.75, 20.25, 19.25, 21.00
-        };
-        static const int NUM_QUOTES = sizeof(QUOTES) / sizeof(QUOTES[0]);
-        static int index = 0;
+    struct Ticker {
 
-        double ret = QUOTES[index];
-        index = (index + 1) % NUM_QUOTES;
-        return ret;
-    }
+        static double getQuote() // From ticker plant. Simulated here
+        {
+            static const double QUOTES[] = {
+            7.25, 12.25, 11.40, 12.00, 15.50, 16.25, 18.75, 20.25, 19.25, 21.00
+            };
+            static const int NUM_QUOTES = sizeof(QUOTES) / sizeof(QUOTES[0]);
+            static int index = 0;
+
+            double ret = QUOTES[index];
+            index = (index + 1) % NUM_QUOTES;
+            return ret;
+        }
+    };
 //..
-// We now want to find the first quote larger than a specified threshold, but
+// Then, we want to find the first quote larger than a specified threshold, but
 // would also like to keep the earlier and later quotes for possible
 // examination.  Our 'getFirstQuoteLargerThan' function must allocate memory
 // for an array of quotes (the threshold and its neighbors).  It thus returns
@@ -5383,40 +5399,40 @@ namespace USAGE_EXAMPLES {
     {
         ASSERT( END_QUOTE < 0 && 0 <= threshold );
 //..
-// We allocate our array with extra room to mark the beginning and end with a
-// special 'END_QUOTE' value:
+// Next, we allocate our array with extra room to mark the beginning and end
+// with a special 'END_QUOTE' value:
 //..
         const int MAX_QUOTES = 100;
         int numBytes = (MAX_QUOTES + 2) * sizeof(double);
         double *quotes = (double*) allocator->allocate(numBytes);
         quotes[0] = quotes[MAX_QUOTES + 1] = END_QUOTE;
 //..
-// Then we read quotes until the array is full, keeping track of the first
+// Then, we create a managed pointer to the entire array:
+//..
+        bdema_ManagedPtr<double> managedQuotes(quotes, allocator);
+//..
+// Next, we read quotes until the array is full, keeping track of the first
 // quote that exceeds the threshold.
 //..
         double *finger = 0;
 
         for (int i = 1; i <= MAX_QUOTES; ++i) {
-            double quote = getQuote();
+            double quote = Ticker::getQuote();
             quotes[i] = quote;
             if (! finger && quote > threshold) {
                 finger = &quotes[i];
             }
         }
 //..
-// Before we return, we create a managed pointer to the entire array:
-//..
-        bdema_ManagedPtr<double> managedQuotes(quotes, allocator);
-//..
-// Then we use the alias constructor to create a managed pointer that points
+// Now, we use the alias constructor to create a managed pointer that points
 // to the desired value (the finger) but manages the entire array:
 //..
         return bdema_ManagedPtr<double>(managedQuotes, finger);
     }
 //..
-// Our main program calls 'getFirstQuoteLargerThan' like this:
+// Then, our main program calls 'getFirstQuoteLargerThan' like this:
 //..
-    int usageExample1()
+    int aliasExample()
     {
         bslma_TestAllocator ta;
         bdema_ManagedPtr<double> result = getFirstQuoteLargerThan(16.00, &ta);
@@ -5424,10 +5440,10 @@ namespace USAGE_EXAMPLES {
         ASSERT(1 == ta.numBlocksInUse());
         if (g_verbose) bsl::cout << "Found quote: " << *result << bsl::endl;
 //..
-// We also print the preceding 5 quotes in last-to-first order:
+// Next, We also print the preceding 5 quotes in last-to-first order:
 //..
-        int i;
         if (g_verbose) bsl::cout << "Preceded by:";
+        int i;
         for (i = -1; i >= -5; --i) {
             double quote = result.ptr()[i];
             if (END_QUOTE == quote) {
@@ -5437,6 +5453,7 @@ namespace USAGE_EXAMPLES {
             if (g_verbose) bsl::cout << ' ' << quote;
         }
         if (g_verbose) bsl::cout << bsl::endl;
+//..
 // To move the finger, e.g., to the last position printed, one must be careful
 // to retain the ownership of the entire array.  Using the statement
 // 'result.load(result.ptr()-i)' would be an error, because it would first
@@ -5447,7 +5464,7 @@ namespace USAGE_EXAMPLES {
 //..
         result.loadAlias(result, result.ptr()-i);
 //..
-// If we reset the result pointer, the entire array is deallocated:
+// Finally, if we reset the result pointer, the entire array is deallocated:
 //..
         result.clear();
         ASSERT(0 == ta.numBlocksInUse());
@@ -5485,30 +5502,6 @@ testCompsite();
 
     switch (test) { case 0:
       case 19: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //
-        // Concerns
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
-        //
-        // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        using namespace USAGE_EXAMPLES;
-
-        if (verbose) cout << "\nUSAGE EXAMPLE"
-                          << "\n-------------" << endl;
-
-        usageExample1();
-
-      } break;
-      case 18: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION EXAMPLES
         //
@@ -5558,6 +5551,28 @@ testCompsite();
         }
 
         LOOP_ASSERT(numdels, 20202 == numdels);
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 2
+        //
+        // Concerns
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into driver, remove leading
+        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE 2
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING USAGE EXAMPLE 2"
+                          << "\n-----------------------" << endl;
+
+        USAGE_EXAMPLES::aliasExample();
+
       } break;
       case 17: {
         // --------------------------------------------------------------------
