@@ -207,10 +207,6 @@ private:
         // Remove all parameter data saved for the previous function calls.
 
     // ACCESSORS
-    virtual bool canRegisterSockets() const;
-        // Return 'true' if this event manager can register additional sockets,
-        // and 'false' otherwise.
-
     virtual bool hasLimitedSocketCapacity() const;
         // Return 'true' if this event manager has limited socket capacity, and
         // 'false' otherwise.
@@ -333,11 +329,6 @@ const bsl::vector<HelperEventManager::OperationDetails>&
                              // ---------
                              // ACCESSORS
                              // ---------
-
-bool HelperEventManager::canRegisterSockets() const
-{
-    return true;
-}
 
 bool HelperEventManager::hasLimitedSocketCapacity() const
 {
