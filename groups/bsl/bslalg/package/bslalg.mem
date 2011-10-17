@@ -11,6 +11,9 @@ bslalg_dequeprimitives
 bslalg_hastrait
 bslalg_passthroughtrait
 bslalg_rangecompare
+bslalg_rbtreeanchor
+bslalg_rbtreenode
+bslalg_rbtreeprimitives
 bslalg_scalardestructionprimitives
 bslalg_scalarprimitives
 bslalg_selecttrait
