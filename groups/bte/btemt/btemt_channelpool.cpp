@@ -2612,8 +2612,7 @@ int btemt_ChannelPool::listen(const bteso_IPv4Address&   endpoint,
     bcemt_LockGuard<bcemt_Mutex> aGuard(&d_acceptorsLock);
 
     ServerStateMap::iterator idx = d_acceptors.find(serverId);
-    if (idx != d_acceptors.end())
-    {
+    if (idx != d_acceptors.end()) {
         return DUPLICATE_ID;                                          // RETURN
     }
 
