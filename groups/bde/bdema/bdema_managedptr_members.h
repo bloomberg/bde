@@ -14,9 +14,11 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
 //
+//@SEE_ALSO: bdema_managedptr
+//
 //@DESCRIPTION: This component provides a class to store and manage the
 // internal state of a 'bdema_ManagedPtr' object.  It enforces the rules for
-// correct transfer of ownership from one members object to another.
+// correct transfer of ownership from one Members object to another.
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
@@ -131,7 +133,7 @@ class bdema_ManagedPtr_Members {
         // produce undefined behavior, unless this object's current deleter
         // specifically supports such usage.
 
-    void                          *pointer() const;
+    void *pointer() const;
         // Return a pointer to the currently managed object.
 
     const bdema_ManagedPtrDeleter& deleter() const;

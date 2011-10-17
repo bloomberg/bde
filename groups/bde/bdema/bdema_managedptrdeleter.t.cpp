@@ -1,20 +1,16 @@
 // bdema_managedptrdeleter.t.cpp                                      -*-C++-*-
+#include <bdema_managedptrdeleter.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bteso_lingeroptions_t_cpp,"$Id$ $CSID$")
 
-#include <bdema_managedptrdeleter.h>
-
+#include <bslalg_hastrait.h>
+#include <bsls_asserttest.h>
 #include <bsls_types.h>
 
-#include <bsl_climits.h>     // 'INT_MIN', 'INT_MAX'
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
-
-#include <bslalg_hastrait.h>
-
-#include <bsls_asserttest.h>
 
 using namespace BloombergLP;
 using namespace bsl;

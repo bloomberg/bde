@@ -38,22 +38,6 @@ BDES_IDENT("$Id: $")
 //:            method to destroy object.
 //..
 //
-///Usage
-///-----
-// In this section we show intended usage of this component.
-//
-///Example 1: Setting Linger Options
-///- - - - - - - - - - - - - - - - -
-// The following snippets of code illustrate how to set linger options:
-//..
-//  bdema_ManagedPtrDeleter lingerOptions;
-//
-//  // Set the lingering option with a timeout of 2 seconds.
-//  lingerOptions.setUseLingeringFlag(true);
-//  lingerOptions.setTimeout(2);
-//..
-// We can then set these linger options on any socket handle using
-// 'bteso_SocketOptions'.
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
@@ -81,9 +65,9 @@ class bdema_ManagedPtrDeleter {
     // through the 'set' method.  It is stored in a sub-structure to allow the
     // compiler to copy it more efficiently.
 
-//    //See the Attributes section under @DESCRIPTION in the
-//    // component-level documentation.  Note that the class invariants are
-//    // identically the constraints on the individual attributes.
+    //See the Attributes section under @DESCRIPTION in the
+    // component-level documentation.  Note that the class invariants are
+    // identically the constraints on the individual attributes.
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations

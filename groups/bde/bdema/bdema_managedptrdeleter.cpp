@@ -5,12 +5,10 @@
 BDES_IDENT_RCSID(bdema_managedptrdeleter_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
+#include <bsls_assert.h>
 
 #include <bsl_ios.h>
 #include <bsl_ostream.h>
-
-#include <bsls_assert.h>
-
 
 namespace BloombergLP {
 

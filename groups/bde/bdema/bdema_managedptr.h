@@ -541,8 +541,8 @@ class bdema_ManagedPtr {
 
   private:
     // NOT IMPLEMENTED
-    //template <class BDEMA_FACTORY>
-    //bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type, BDEMA_FACTORY *);
+    template <class BDEMA_FACTORY>
+    bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type, BDEMA_FACTORY *);
         // It is an error to pass a null pointer literal along with a non-null
         // factory.  If you really must create an empty managed pointer that
         // ignores the passed factory, pass a variable holding a null pointer
@@ -550,10 +550,10 @@ class bdema_ManagedPtr {
 
   private:
     // NOT IMPLEMENTED
-    //template <class BDEMA_OTHER_TYPE, class BDEMA_FACTORY>
-    //bdema_ManagedPtr(BDEMA_OTHER_TYPE *,
-    //                 BDEMA_FACTORY *,
-    //                 bdema_ManagedPtr_Nullptr::Type);
+    template <class BDEMA_OTHER_TYPE, class BDEMA_FACTORY>
+    bdema_ManagedPtr(BDEMA_OTHER_TYPE *,
+                     BDEMA_FACTORY *,
+                     bdema_ManagedPtr_Nullptr::Type);
         // It is never defined behavior to pass a null literal as a factory,
         // unless the 'object' pointer is also a null pointer literal.
 

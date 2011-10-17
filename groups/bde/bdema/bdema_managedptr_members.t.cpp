@@ -313,7 +313,7 @@ int main(int argc, char *argv[])
         //: 1 TBD Enumerate concerns
         //
         // Plan:
-        //: 1 blah ...
+        //: 1 TBD Describe the test plan
         //
         // Testing:
         //    bdema_ManagedPtr_Members();
