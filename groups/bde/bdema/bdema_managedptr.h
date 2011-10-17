@@ -122,14 +122,14 @@ BDES_IDENT("$Id: $")
 // Then we define a couple of classes that implement the 'Talker' protocol, a
 // 'Cat' and a 'Dog':
 //..
-//  class Cat {
+//  class Cat : public Talker {
 //      virtual const char * speak() const;
 //          // Return a string literal, "meow!"
 //  };
 //
-//  class Dog {
+//  class Dog : public Talker {
 //      virtual const char * speak() const;
-//          // Return a string literal, "meow!"
+//          // Return a string literal, "woof!"
 //  };
 //
 //  const char * Cat::speak() const {
@@ -144,7 +144,7 @@ BDES_IDENT("$Id: $")
 // protocol:
 //..
 //  struct Talkers {
-//    enum VALUES = { TLK_CAT, TLK_DOG };
+//      enum VALUES { TLK_CAT, TLK_DOG };
 //  };
 //..
 // Now we can define a function that will return a 'Cat' object or a 'Dog'
@@ -152,15 +152,15 @@ BDES_IDENT("$Id: $")
 //..
 //  bdema_ManagedPtr<Talker> makeTalker(Talkers::VALUES kind)
 //  {
-//      bslma_Allocator alloc = bslma_Default::defaultAllocator();
+//      bslma_Allocator *alloc = bslma_Default::defaultAllocator();
 //      bdema_ManagedPtr<Talker> result;
 //      switch (kind) {
-//      Talkers::TLK_CAT : {
+//      case Talkers::TLK_CAT : {
 //              Cat *tom = new(*alloc)Cat;
 //              result.load(tom);
 //              break;
 //          }
-//      Talkers::TLK_DOG : {
+//      case Talkers::TLK_DOG : {
 //              Dog *spike = new(*alloc)Dog;
 //              result.load(spike);
 //              break;
@@ -169,81 +169,93 @@ BDES_IDENT("$Id: $")
 //      return result;
 //  }
 //..
-// Finally, we can use our function to create talkers of different kinds, and
+// Then, we can use our function to create talkers of different kinds, and
 // check that they say the right thing:
 //..
 //  void testTalkers()
 //  {
 //      bdema_ManagedPtr<Talker> toon = makeTalker(Talkers::TLK_CAT);
-//      assert(0 != toon);
-//      assert(!strcmp("meow!", toon->speak()));
+//      ASSERT(0 != toon);
+//      ASSERT(!strcmp("meow!", toon->speak()));
 //
 //      toon = makeTalker(Talkers::TLK_DOG);
-//      assert(0 != toon);
-//      assert(!strcmp("woof!", toon->speak()));
+//      ASSERT(0 != toon);
+//      ASSERT(!strcmp("woof!", toon->speak()));
 //  }
 //..
-//
-// The following are examples of deleter functions:
+// Next, we observe that as we are creating objects dynamically, we should pass
+// an allocator to the 'makeTalkers' function, rather than simply accepting the
+// default allocator each time.  Note that when we do this, we pass the user's
+// allocator to the 'bdema_ManagedPtr' object as the "factory".
 //..
-// void nilDeleter(void *, void*)
-// {
-//    // Do nothing
-// }
-//
-// void MyFactoryDeleter(MyObject *object, MyFactory *factory)
-// {
-//    factory->deleteObject(object);
-// }
-//
-// void MyReleaseOnlyDeleter(MyObject *object, MyFactory *factory)
-// {
-//    factory->releaseObject(object);
-// }
+//  bdema_ManagedPtr<Talker> makeTalker(Talkers::VALUES  kind,
+//                                      bslma_Allocator *allocator)
+//  {
+//      bslma_Allocator *alloc = bslma_Default::allocator(allocator);
+//      bdema_ManagedPtr<Talker> result;
+//      switch (kind) {
+//      case Talkers::TLK_CAT : {
+//              Cat *tom = new(*alloc)Cat;
+//              result.load(tom, alloc);
+//              break;
+//          }
+//      case Talkers::TLK_DOG : {
+//              Dog *spike = new(*alloc)Dog;
+//              result.load(spike, alloc);
+//              break;
+//          }
+//      };
+//      return result;
+//  }
 //..
-// 'bdema_ManagedPtr' provides default deleters for factory objects that
-// provide a 'deleteObject' operation in the fashion of the second example
-// above (e.g., 'bslma_Allocator').  For example, to construct a managed
-// pointer to an object constructed from a 'bdema_Pool' memory pool, simply do
-// the following:
+// Finally we repeat the earlier test, additionally passing a test allocator:
 //..
-// bdema_ManagedPtr<MyObject> createObject(bdema_Pool *pool)
-// {
-//    return bdema_ManagedPtr<MyObject>(new(*pool) MyObject(), pool);
-// }
-//..
-// In the above example, when the returned managed pointer is destroyed,
-// 'deleteObject' will be invoked on 'pool' with a pointer to the 'MyObject'
-// instance, returning all memory allocated by 'MyObject' to the 'pool'.
+//  void testTalkersToo()
+//  {
+//      bslma_TestAllocator ta("object");
 //
-// Note that the instance pointer that is passed to the deleter is always the
-// object that was used to initialize the managed pointer.  That is, if the
-// managed pointer is converted to a new pointer value through either casting
-// or aliasing, then the original object pointer is remembered, and will be
-// passed to the deleter when destroying the managed instance.  This ensures
-// that the proper destructor logic is called regardless of how the managed
-// pointer is transformed.
+//      bdema_ManagedPtr<Talker> toon = makeTalker(Talkers::TLK_CAT, &ta);
+//      ASSERT(0 != toon);
+//      ASSERT(!strcmp("meow!", toon->speak()));
+//
+//      toon = makeTalker(Talkers::TLK_DOG, &ta);
+//      ASSERT(0 != toon);
+//      ASSERT(!strcmp("woof!", toon->speak()));
+//  }
+//..
 //
 ///Example 2: Aliasing
 ///- - - - - - - - - -
-// What follows is a concrete example illustrating the alias concept.
-// Let's say our array stores data acquired from a ticker
-// plant accessible by a global 'getQuote()' function:
-//..
-//  double getQuote() // From ticker plant.  Simulated here
-//  {
-//      static const double QUOTES[] = {
-//          7.25, 12.25, 11.40, 12.00, 15.50, 16.25, 18.75, 20.25, 19.25, 21.00
-//      };
-//      static const int NUM_QUOTES = sizeof(QUOTES) / sizeof(QUOTES[0]);
-//      static int index = 0;
+// Suppose that we wish to give access to an item in a temporary
+// array via a pointer which we'll call the "finger".  The finger is the only
+// pointer to the array or any part of the array, but the entire array must be
+// valid until the finger is destroyed, at which time the entire array must be
+// deleted.  We handle this situation by first creating a managed pointer to
+// the entire array, then creating an alias of that pointer for the finger.
+// The finger takes ownership of the array instance, and when the finger is
+// destroyed, it is the array's address, rather than the finger, that is passed
+// to the deleter.
 //
-//      double ret = QUOTES[index];
-//      index = (index + 1) % NUM_QUOTES;
-//      return ret;
-//  }
+// First, let's say our array stores data acquired from a ticker plant
+// accessible by a global 'getQuote' function:
 //..
-// We now want to find the first quote larger than a specified threshold, but
+//  struct Ticker {
+//
+//      static double getQuote() // From ticker plant. Simulated here
+//      {
+//          static const double QUOTES[] = {
+//          7.25, 12.25, 11.40, 12.00, 15.50, 16.25, 18.75, 20.25, 19.25, 21.00
+//          };
+//          static const int NUM_QUOTES = sizeof(QUOTES) / sizeof(QUOTES[0]);
+//          static int index = 0;
+//
+//          double ret = QUOTES[index];
+//          index = (index + 1) % NUM_QUOTES;
+//          return ret;
+//      }
+//  };
+//..
+// Then, we want to find the first quote larger than a specified threshold, but
 // would also like to keep the earlier and later quotes for possible
 // examination.  Our 'getFirstQuoteLargerThan' function must allocate memory
 // for an array of quotes (the threshold and its neighbors).  It thus returns
@@ -254,65 +266,65 @@ BDES_IDENT("$Id: $")
 //  bdema_ManagedPtr<double>
 //  getFirstQuoteLargerThan(double threshold, bslma_Allocator *allocator)
 //  {
-//      assert( END_QUOTE < 0 && 0 <= threshold );
+//      ASSERT( END_QUOTE < 0 && 0 <= threshold );
 //..
-// We allocate our array with extra room to mark the beginning and end with a
-// special 'END_QUOTE' value:
+// Next, we allocate our array with extra room to mark the beginning and end
+// with a special 'END_QUOTE' value:
 //..
 //      const int MAX_QUOTES = 100;
 //      int numBytes = (MAX_QUOTES + 2) * sizeof(double);
 //      double *quotes = (double*) allocator->allocate(numBytes);
 //      quotes[0] = quotes[MAX_QUOTES + 1] = END_QUOTE;
 //..
-// Then we read quotes until the array is full, keeping track of the first
+// Then, we create a managed pointer to the entire array:
+//..
+//      bdema_ManagedPtr<double> managedQuotes(quotes, allocator);
+//..
+// Next, we read quotes until the array is full, keeping track of the first
 // quote that exceeds the threshold.
 //..
 //      double *finger = 0;
 //
 //      for (int i = 1; i <= MAX_QUOTES; ++i) {
-//          double quote = getQuote();
+//          double quote = Ticker::getQuote();
 //          quotes[i] = quote;
-//          if (! finger && quote > threshold) {
+//          if (!finger && quote > threshold) {
 //              finger = &quotes[i];
 //          }
 //      }
 //..
-// Before we return, we create a managed pointer to the entire array:
-//..
-//      bdema_ManagedPtr<double> managedQuotes(quotes, allocator);
-//..
-// Then we use the alias constructor to create a managed pointer that points
+// Now, we use the alias constructor to create a managed pointer that points
 // to the desired value (the finger) but manages the entire array:
 //..
 //      return bdema_ManagedPtr<double>(managedQuotes, finger);
 //  }
 //..
-// Our main program calls 'getFirstQuoteLargerThan' like this:
+// Then, our main program calls 'getFirstQuoteLargerThan' like this:
 //..
-//  int main()
+//  int aliasExample()
 //  {
 //      bslma_TestAllocator ta;
 //      bdema_ManagedPtr<double> result = getFirstQuoteLargerThan(16.00, &ta);
-//      assert(*result > 16.00);
-//      assert(1 == ta.numBlocksInUse());
-//      bsl::cout << "Found quote: " << *result << bsl::endl;
+//      ASSERT(*result > 16.00);
+//      ASSERT(1 == ta.numBlocksInUse());
+//      if (g_verbose) bsl::cout << "Found quote: " << *result << bsl::endl;
 //..
-// We also print the preceding 5 quotes in last-to-first order:
+// Next, We also print the preceding 5 quotes in last-to-first order:
 //..
+//      if (g_verbose) bsl::cout << "Preceded by:";
 //      int i;
-//      bsl::cout << "Preceded by:";
 //      for (i = -1; i >= -5; --i) {
 //          double quote = result.ptr()[i];
 //          if (END_QUOTE == quote) {
 //              break;
 //          }
-//          assert(quote < *result);
-//          bsl::cout << ' ' << quote;
+//          ASSERT(quote < *result);
+//          if (g_verbose) bsl::cout << ' ' << quote;
 //      }
-//      bsl::cout << bsl::endl;
+//      if (g_verbose) bsl::cout << bsl::endl;
 //..
-// To move the finger, e.g., to the last position printed, one must be careful
-// to retain the ownership of the entire array.  Using the statement
+// Then, to move the finger, e.g., to the last position printed, one must be
+// careful to retain the ownership of the entire array.  Using the statement
 // 'result.load(result.ptr()-i)' would be an error, because it would first
 // compute the pointer value 'result.ptr()-i' of the argument, then release the
 // entire array before starting to manage what has now become an invalid
@@ -321,17 +333,109 @@ BDES_IDENT("$Id: $")
 //..
 //      result.loadAlias(result, result.ptr()-i);
 //..
-// If we reset the result pointer, the entire array is deallocated:
+// Finally, if we reset the result pointer, the entire array is deallocated:
 //..
 //      result.clear();
-//      assert(0 == ta.numBlocksInUse());
-//      assert(0 == ta.numBytesInUse());
+//      ASSERT(0 == ta.numBlocksInUse());
+//      ASSERT(0 == ta.numBytesInUse());
 //
 //      return 0;
 //  }
 //..
 //
-///Example 3: Type Casting
+///Example 3: Factories and Deleters
+///- - - - - - - - - - - - - - - - -
+// Suppose we want to track the number of objects currently managed by
+// 'bdema_ManagedPtr' objects.
+//
+// First we define a factory type, that holds an allocator and a usage-counter:
+//..
+//  class CountedFactory {
+//      // DATA
+//      int              d_count;
+//      bslma_Allocator *d_allocator;
+//
+//      // NOT IMPLEMENTED
+//      CountedFactory(const CountedFactory&);
+//      CountedFactory& operator=(const CountedFactory&);
+//
+//    public:
+//      // CREATORS
+//      explicit CountedFactory(bslma_Allocator *alloc = 0);
+//
+//      ~CountedFactory();
+//
+//      // MANIPULATORS
+//      template <class TYPE>
+//      TYPE *createObject();
+//
+//      template <class TYPE>
+//      void deleteObject(const TYPE *object);
+//
+//      // ACCESSORS
+//      int count() const;
+//  };
+//
+//  CountedFactory::CountedFactory(bslma_Allocator *alloc)
+//  : d_count(0)
+//  , d_allocator(bslma_Default::allocator(alloc))
+//  {
+//  }
+//
+//  CountedFactory::~CountedFactory()
+//  {
+//      ASSERT(0 == d_count);
+//  }
+//
+//  template <class TYPE>
+//  TYPE *CountedFactory::createObject()
+//  {
+//      TYPE *result = new(*d_allocator)TYPE;
+//      ++d_count;
+//      return result;
+//  }
+//
+//  template <class TYPE>
+//  void CountedFactory::deleteObject(const TYPE *object)
+//  {
+//      d_allocator->deleteObject(object);
+//      --d_count;
+//  }
+//
+//  inline
+//  int CountedFactory::count() const
+//  {
+//      return d_count;
+//  }
+//..
+// Then ...
+//..
+//  void testCountedFactory()
+//  {
+//      bslma_TestAllocator ta;
+//      CountedFactory cf(&ta);
+//
+//      {
+//          bdema_ManagedPtr<int> pData[4];
+//
+//          int i = 0;
+//          while (i != 4) {
+//              pData[i++].load(cf.createObject<int>(), &cf);
+//              ASSERT(cf.count() == i);
+//          }
+//
+//          pData[1].clear();
+//          ASSERT(3 == cf.count());
+//
+//          pData[2].load(cf.createObject<int>(), &cf);
+//          ASSERT(3 == cf.count());
+//      }
+//
+//      ASSERT(0 == cf.count());
+//  }
+//..
+//
+///Example 4: Type Casting
 ///- - - - - - - - - - - -
 // 'bdema_ManagedPtr' objects can be implicitly and explicitly cast to
 // different types in the same way as native pointers can.

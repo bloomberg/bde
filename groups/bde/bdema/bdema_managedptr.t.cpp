@@ -1,5 +1,6 @@
 // bdema_managedptr.t.cpp                                             -*-C++-*-
 #include <bdema_managedptr.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -724,22 +725,20 @@ void validateManagedState(unsigned int                        LINE,
     ASSERT(dam.isMaxSame());
 }
 //=============================================================================
-//                             'LOAD' TESTING SUPPORT
+//                      'LOAD' and constructor TESTING SUPPORT
 //-----------------------------------------------------------------------------
 // The following functions load a 'bdema_ManagedPtr' into a defined final state
 // assuming that it is passed in with an initial state known to the calling
 // function.  None of the following functions have their own test case, as they
-// vital implementation details of testing the 'load' function, which in turn
-// is later used to test the basic accessors.  However, these functions are
-// very thoroughly exercised in the basic 'load' test case, in particular by
-// taking an empty 'bdema_ManagedPtr' and taking it to the known state expected
-// of each of these functions.  Similarly, we will test each transition from
-// every possible initial state (in the simplified state space of owning a
-// "kind" of pointer, factory, and deleter, rather than each possible value of
-// pointer, factory, and deleter) through each of these functions to validate
-// all 'load' state transitions.  Essentially, these are implementation details
-// of the 'load' test case that may be deemed validated by that test case, and
-// so safely relied on for all later test cases.
+// are vital implementation details of testing the 'load' function, which in
+// turn is later used to test the basic accessors.  However, these functions
+// are very thoroughly exercised in the basic 'load' test case, in particular
+// by taking an empty 'bdema_ManagedPtr' and taking it to the known state
+// expected of each of these functions.  Similarly, we will test each
+// transition from every possible initial state through each of these functions
+// to validate all 'load' state transitions.  Essentially, these are
+// implementation details of the 'load' test case that may be deemed validated
+// by that test case, and so safely relied on for all later test cases.
 //
 // Each function below has the same signature so that they can be used to
 // populate a test table supporting table-driven testing techniques.  This will
@@ -749,18 +748,19 @@ void validateManagedState(unsigned int                        LINE,
 // test cases.
 //
 // Each function performs the same set of operations in turn:
-//: 1 Copy the initial values stored in passed pointers to compute expected
-//:   side effects of calling 'load'.
+//: 1 Copy the initial values stored in passed pointers to compute the side-
+//:   effects expected of calling 'load', typically observed as a consequence
+//:   of destroying any held managed object.
 //:
-//: 2 'load' the specified 'Obj' pointer 'o' into the new defined state.
+//: 2 'load' the specified pointer 'o' into the new defined state.
 //:
-//: 3 Set the new value for 'deleteDelta' when this new state of 'o' is
-//    destroyed.
+//: 3 Set the new value for 'deleteDelta' for when this new state of 'o' is
+//:   destroyed.
 //:
-//: 3 confirm the act of 'load'ing ran the expected deleters by comparing
+//: 4 confirm the act of 'load'ing ran the expected deleters by comparing
 //:   new state of 'deleteCount' with the computed value in (1).
 //:
-//: 4 confirm that each (defined) attribute of 'o' is in the expected state.
+//: 5 confirm that each (defined) attribute of 'o' is in the expected state.
 //
 // The state combinations that need testing are invoking load with 0, 1, 2 or 3
 // arguments.  Each combination should be tested for 'bdema_ManagedPtr'
@@ -947,7 +947,7 @@ struct TestLoadArgs {
     // policy based test function.  It collects all information for the range
     // of tests and expectations to be set up on entry, and reported on exit.
     int  d_deleteCount; // An integer to be passed to 'MyTestObject's
-    int  d_deleteDelta; //
+    int  d_deleteDelta; // Expected change in delete counter when a new value is 'load'ed
     bool d_useDefault;  // Set to true if the test uses the default allocator
     bslma_TestAllocator *d_ta; // pointer to a test allocator whose lifetime will outlast the function call
     unsigned int d_config; // Valid values are 0-3.  The low-bit represents whether to pass a null for 'object', the second bit whether to pass a null for 'factory'
@@ -1380,7 +1380,7 @@ void doConstructObjectFactory(int callLine, int testLine, int,// index,
     if(!negativeTesting) {
         typedef typename
         bdema_ManagedPtr_FactoryDeleterType<ObjectType,FactoryType>::Type
-                                                              DeleterClass;
+                                                                  DeleterClass;
 
         const bdema_ManagedPtrDeleter del;
 
@@ -2840,7 +2840,8 @@ void testLoadAliasOps1(int callLine,
                 bslma_TestAllocatorMonitor tam2(&ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
-                if (g_veryVerbose) cout << "\tNegative testing null pointers\n";
+                if (g_veryVerbose)
+                                  cout << "\tNegative testing null pointers\n";
 
                 TestPointer pAlias;
                 if (0 == p.ptr()) {
@@ -2964,7 +2965,8 @@ void testLoadAliasOps2(int callLine,
                 bslma_TestAllocatorMonitor tam2(&ta);
 
 #ifdef BDE_BUILD_TARGET_EXC
-                if (g_veryVerbose) cout << "\tNegative testing null pointers\n";
+                if (g_veryVerbose)
+                                  cout << "\tNegative testing null pointers\n";
 
                 // Declare variables so that the lifetime extends to the end
                 // of the loop.  Otherwise, the 'ta' monitor tests will flag
@@ -3189,10 +3191,9 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     TestPolicy<MyTestObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
 
     // const MyTestObject
-    //TestPolicy<MyTestObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
-    //TestPolicy<MyTestObject>( OCbase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyTestObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
+    //TestPolicy<MyTestObject>( OCbase(), Ftst(), DVoidVoid< OCbase, Ftst >() ),
+    //TestPolicy<MyTestObject>( OCbase(), Fbsl(), DVoidVoid< OCbase, Fbsl >() ),
+    //TestPolicy<MyTestObject>( OCbase(), Ftst(), DVoidVoid< OCbase, Fbsl >() ),
 
     // MyDerivedObject
     TestPolicy<MyTestObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Ftst >() ),
@@ -6246,12 +6247,20 @@ testCompsite();
         //
         // Concerns:
         //   managed pointer can hold an alias
+        //
         //   'ptr' returns the alias pointer, and not the managed pointer
+        //
         //   correct deleter is run when an aliased pointer is destroyed
-        //   appropriate object is cleared/deleters run when assigning to/from an aliased managed pointer
+        //
+        //   appropriate object is cleared/deleters run when assigning to/from
+        //   an aliased managed pointer
+        //
         //   a managed pointer can alias itself
+        //
         //   alias type need not be the same as the managed type (often isn't)
-        //   aliasing a null pointer clears the managed pointer, releasing any previously held object
+        //
+        //   aliasing a null pointer clears the managed pointer, releasing any
+        //   previously held object
         //
         //: X No 'bdema_ManagedPtr' method should allocate any memory.
         //
@@ -6284,7 +6293,7 @@ testCompsite();
         //     Test 3: (to be written)
         //       Create an alias
         //       Check aliased state, and original managed pointer
-        //       run another 'load' function, and check alias destroys correctly
+        //       run another 'load' function and check alias destroys correctly
         //       destroy 'load'ed managed pointer, validating results
         // --------------------------------------------------------------------
 
@@ -6315,9 +6324,10 @@ testCompsite();
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        {
+        {   // TBD Create a further derived class to allow this aliasing test
+            //     case to compile.
             //if (veryVerbose) cout <<
-            //          "Testing bdema_ManagedPtr<MyDerivedObject>::loadAlias\n";
+            //        "Testing bdema_ManagedPtr<MyDerivedObject>::loadAlias\n";
 
             //testLoadAliasOps1<MyDerivedObject>(L_, TEST_DERIVED_ARRAY);
             //testLoadAliasOps2<MyDerivedObject>(L_, TEST_DERIVED_ARRAY);
@@ -6497,7 +6507,8 @@ testCompsite();
                         ASSERT(px == r.base()->pointer());
                         ASSERT(px == r.base()->deleter().object());
                         ASSERT(0 == r.base()->deleter().factory());
-                        ASSERT(&countedNilDelete == r.base()->deleter().deleter());
+                        ASSERT(&countedNilDelete == 
+                                                r.base()->deleter().deleter());
                     }
                 };
 
@@ -6609,7 +6620,7 @@ testCompsite();
             ASSERT(o);
             Obj o2(r);
 
-            ASSERT(!o && !o.ptr()); // should not be testing operator! until test 13
+            ASSERT(!o && !o.ptr());
             ASSERT(0 == numDeletes);
 
             ASSERT(o2.ptr() == p);
@@ -6942,6 +6953,7 @@ testCompsite();
         //   TYPE *operator->() const;
         //   TYPE *ptr() const;
         //   const bdema_ManagedPtrDeleter& deleter() const;
+        //   (implicit operator!() via operator BoolType())
         // --------------------------------------------------------------------
 
         bslma_TestAllocator ta("object", veryVeryVeryVerbose);
@@ -7290,10 +7302,12 @@ testCompsite();
         //   managed pointer can hold an alias
         //   'ptr' returns the alias pointer, and not the managed pointer
         //   correct deleter is run when an aliased pointer is destroyed
-        //   appropriate object is cleared/deleters run when assigning to/from an aliased managed pointer
+        //   appropriate object is cleared/deleters run when assigning to/from
+        //       an aliased managed pointer
         //   a managed pointer can alias itself
         //   alias type need not be the same as the managed type (often isn't)
-        //   aliasing a null pointer clears the managed pointer, releasing any previously held object
+        //   aliasing a null pointer clears the managed pointer, releasing any
+        //       previously held object
         //
         //: X No 'bdema_ManagedPtr' method should allocate any memory.
         //
@@ -7325,7 +7339,7 @@ testCompsite();
         //     Test 3: (to be written)
         //       Create an alias
         //       Check aliased state, and original managed pointer
-        //       run another 'load' function, and check alias destroys correctly
+        //       run another 'load' function and check alias destroys correctly
         //       destroy 'load'ed managed pointer, validating results
         // --------------------------------------------------------------------
 
@@ -7448,12 +7462,17 @@ testCompsite();
         //      confirm pointer is initially null
         //      confirm new pointer value is stored by 'ptr'
         //      confirm destructor destroys target object
-        //      be sure to pass both '0' and valid pointer values to each potential overload
+        //      be sure to pass both '0' and valid pointer values to each
+        //          potential overload
         //   Write a pair of nested loops
-        //     For each iteration, first create a default-constructed bdema_ManagedPtr
-        //     Then call a load function (testing each overload by the first loop)
-        //     Then, in inner loop, load a second pointer and verify first target is destroyed
-        //     Then verify the new target is destroyed when test object goes out of scope.
+        //     For each iteration, first create a default-constructed
+        //         'bdema_ManagedPtr'
+        //     Then call a load function (testing each overload by the first
+        //         loop)
+        //     Then, in inner loop, load a second pointer and verify first
+        //         target is destroyed
+        //     Then verify the new target is destroyed when test object goes
+        //         out of scope.
         //
         //   Test a number of scenarios in a consistent way.
         //   The 5 scenarios are:  (TestTarget)
