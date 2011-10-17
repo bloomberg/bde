@@ -778,7 +778,6 @@ void writerThread(unsigned threadIndex)
         oldSignal = sig;
 
         int rc = channelPool->write(s_channelId, blob);
-        LOOP_ASSERT(rc, !rc);
 
         if (rc == 0) {
             consecutiveFailures = 0;
@@ -4511,9 +4510,9 @@ namespace TEST_CASE_19_NAMESPACE {
 
 static
 void case19PoolStateCallback(
-    int              state,
-    int              serverId,
-    int              severity,
+    int               state,
+    int               serverId,
+    int               severity,
     bces_AtomicInt64 *acceptErrors)
 {
     ASSERT(acceptErrors);
@@ -11229,9 +11228,6 @@ int main(int argc, char *argv[])
         using namespace TEST_CASE_19_NAMESPACE;
         bcema_TestAllocator ta(veryVeryVerbose);
         {
-            //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Test Initialization
-
             enum {
                 MAX_THREADS = 5,
                 SERVER_ID   = 1013410001,
@@ -11246,11 +11242,11 @@ int main(int argc, char *argv[])
             btemt_ChannelPool::ChannelStateChangeCallback channelCb;
             makeNull(&channelCb);
 
-            btemt_ChannelPool::PoolStateChangeCallback    poolCb(
-                    bdef_BindUtil::bindA( &ta
-                                        , &case19PoolStateCallback
-                                        , _1, _2, _3
-                                        , &acceptErrors));
+            btemt_ChannelPool::PoolStateChangeCallback poolCb(
+                                 bdef_BindUtil::bindA(&ta,
+                                                      &case19PoolStateCallback,
+                                                      _1, _2, _3,
+                                                      &acceptErrors));
 
             btemt_ChannelPool::DataReadCallback         dataCb;
             makeNull(&dataCb);
@@ -11262,7 +11258,9 @@ int main(int argc, char *argv[])
 
             struct rlimit rlim;
             ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
-#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_LINUX)
+
+#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_LINUX) \
+ || defined(BSLS_PLATFORM__OS_HPUX)
             rlim.rlim_cur = 4 * MAX_THREADS + 2;
 #else
             rlim.rlim_cur = 4 * MAX_THREADS + 5;
@@ -11304,19 +11302,23 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
-                                              bteso_Flag::BTESO_BLOCKING_MODE);
+                                           bteso_Flag::BTESO_NONBLOCKING_MODE);
                 LOOP2_ASSERT(i, retCode, 0 == retCode);
             }
 
             for (int i = 0; i < MAX_THREADS; ++i) {
                 retCode = sockets[i]->connect(PEER);
                 if (veryVerbose) { P_(retCode); P(errno); }
+
+                // Give time to the channel pool to process accept error
+                // callbacks.
+                bcemt_ThreadUtil::microSleep(0, 1);
             }
 
             // Give time to the channel pool to process accept error callbacks.
             bcemt_ThreadUtil::microSleep(0, 8);
-
             ASSERT(acceptErrors);
+
             if (veryVerbose) { P(acceptErrors); }
 
             for (int i = 0; i < MAX_THREADS; ++i) {
