@@ -1358,14 +1358,22 @@ bteso_EventManagerTester::testDispatchPerformance(
 
             bslalg_ScalarPrimitives::defaultConstruct(&readCb[i],
                                                       &testAllocator);
+        }
+
+#ifdef BSLS_PLATFORM__OS_HPUX
+        // On HPUX, newly created sockets need about ~ 20ms to wake up.
+
+        bcemt_ThreadUtil::microSleep(40 * 1000);
+#endif
+
+        for (i = 0; i < numSocketPairs; i++) {
             int bytes = 1;
             const char *cbScript = 0;  // dummy argument.
 
             if (!socketPairs[i].isValid())  {
-                if (flags & BTESO_VERBOSE) {
-                    std::printf("Invalid socket pair index: %d\n", i);
-                    std::fflush(stdout);
-                }
+                std::printf("Invalid socket pair index: %d\n", i);
+                std::fflush(stdout);
+                fails = 1;
                 break;
             }
             socketPairs[i].setObservedBufferOptions(BUF_LEN, 1);
@@ -1388,6 +1396,7 @@ bteso_EventManagerTester::testDispatchPerformance(
             }
             const int SAMPLE_DISTANCE = i / numMeasurements;
             bdet_TimeInterval timer;
+            int actualNumMeasurements = 0;
 
             for (int j = 0; j < numMeasurements; ++j) {
                 char ch = ' ';
@@ -1404,8 +1413,14 @@ bteso_EventManagerTester::testDispatchPerformance(
                 t1 = bdetu_SystemTime::now();
                 int ret = mX->dispatch(0);
                 t2 = bdetu_SystemTime::now();
-                timer += t2 - t1;
-                averageTimer += t2 - t1;
+                if (t2 > t1) {
+                    // On Linux, time sometimes goes backward according to
+                    // 'now()'.
+
+                    timer += t2 - t1;
+                    averageTimer += t2 - t1;
+                    ++actualNumMeasurements;
+                }
 
                 if (1 != ret) {
                     std::printf(" i: %d; dispatch return : %d; errno: %d\n",
@@ -1419,8 +1434,18 @@ bteso_EventManagerTester::testDispatchPerformance(
                     }
                 }
             }
-            int microseconds = (timer.seconds() * 1000000 +
-                      timer.nanoseconds() / 1000) / numMeasurements;
+            if (numMeasurements - actualNumMeasurements >
+                                           bsl::max(2, numMeasurements / 10)) {
+                std::printf(" i: %d Time went backward %d out of %d times\n",
+                                    i, numMeasurements - actualNumMeasurements,
+                                                              numMeasurements);
+                std::fflush(stdout);
+            }
+
+            if (0 == actualNumMeasurements) actualNumMeasurements = 1;
+
+            int microseconds = (int)
+                  (1e6 * timer.totalSecondsAsDouble() / actualNumMeasurements);
 
             stream << microseconds << '\n' << bsl::flush;
         }
