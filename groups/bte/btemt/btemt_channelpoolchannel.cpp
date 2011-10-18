@@ -12,6 +12,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bcema_poolallocator.h>
 #include <bcemt_lockguard.h>
 
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bdet_timeinterval.h>
 #include <bdetu_systemtime.h>
 
@@ -604,7 +606,13 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
 
 void btemt_ChannelPoolChannel::cancelRead()
 {
-    ReadQueue cancelQueue;
+    const int NUM_ENTRIES = 16;
+    const int SIZE        = NUM_ENTRIES * sizeof(ReadQueueEntry);
+
+    char BUFFER[SIZE];
+    bdema_BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
+
+    ReadQueue cancelQueue(&bufferAllocator);
 
     {
         bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);

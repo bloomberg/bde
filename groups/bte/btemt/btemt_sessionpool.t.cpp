@@ -1917,7 +1917,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 24968477
         //  Ensure that the bug where d_numSessions is decremented in stop and
-        //  then again when the session handle is destroyed.
+        //  then again when the session handle is destroyed has been fixed.
         //
         // Concerns:
         //: 1 d_numSessions is not decremented twice after a call to 'stop'.
@@ -2245,7 +2245,7 @@ int main(int argc, char *argv[])
 
         my_EchoServer echoServer(&coutMutex, 0, BACKLOG, REUSE, &ta);
         {
-            bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+            bteso_InetStreamSocketFactory<bteso_IPv4Address> factory(&ta);
             bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
 
             const char STRING[] = "Hello World!";

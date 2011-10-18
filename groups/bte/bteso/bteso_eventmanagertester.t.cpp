@@ -207,10 +207,6 @@ private:
         // Remove all parameter data saved for the previous function calls.
 
     // ACCESSORS
-    virtual bool canRegisterSockets() const;
-        // Return 'true' if this event manager can register additional sockets,
-        // and 'false' otherwise.
-
     virtual bool hasLimitedSocketCapacity() const;
         // Return 'true' if this event manager has limited socket capacity, and
         // 'false' otherwise.
@@ -333,11 +329,6 @@ const bsl::vector<HelperEventManager::OperationDetails>&
                              // ---------
                              // ACCESSORS
                              // ---------
-
-bool HelperEventManager::canRegisterSockets() const
-{
-    return true;
-}
 
 bool HelperEventManager::hasLimitedSocketCapacity() const
 {
@@ -1399,7 +1390,10 @@ int main(int argc, char *argv[])
             } SCRIPTS[] =
             {
                {L_, 0, "T0; E0r; E0rwa; E1caw; E0rwac"},
+// TBD: UNCOMMENT
+#ifndef BSLS_PLATFORM__OS_HPUX            
                {L_, 0, "W0,30; R0,24"},
+#endif
                {L_, 0, "Di,1; Dn,1;  Di150,1; Dn400,1"},
                {L_, 0, "T0; +0w21; W1,20; +1r11"},
             };
