@@ -325,7 +325,7 @@ struct bdem_BerUtil_Imp {
                         int             length);
     static int getValue(bsl::streambuf   *streamBuf,
                         bslstl_StringRef *value,
-                        int              length);
+                        int               length);
     static int getValue(bsl::streambuf *streamBuf,
                         bdet_Date      *value,
                         int             length);
