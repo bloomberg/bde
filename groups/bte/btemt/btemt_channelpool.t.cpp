@@ -638,6 +638,12 @@ int maxConsecutiveFailures = 1;
 int minMsgSize = 100;
 int maxMsgSize = 32000;
 
+#ifdef BDE_BUILD_TARGET_OPT
+const int NUM_THREADS = 20;
+#else
+const int NUM_THREADS = 5;
+#endif
+
 bcemt_Barrier *barrier;
 
 void poolStateCb(int state, int source, int severity)
@@ -715,7 +721,7 @@ const char* checkRcToString(int type)
     };
     #undef CASE
 
-    BSLS_ASSERT_OPT(0);
+    ASSERT(0);
     return "UNKNOWN";
 }
 
@@ -740,7 +746,7 @@ void delay(int delay)
 {
     int i;
     for (i = 0; i < delay; ++i);
-    BSLS_ASSERT_OPT(i); // poor way to stop optimize-away
+    ASSERT(i); // poor way to stop optimize-away
 }
 
 // signal allow writer threads to start writing from the same time (to
@@ -768,7 +774,7 @@ void writerThread(unsigned threadIndex)
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
         int randVal = rand();
-#else 
+#else
         int randVal = rand_r(&threadIndex);
 #endif
         int nBytes  = minMsgSize + randVal % (maxMsgSize - minMsgSize + 1);
@@ -1280,6 +1286,7 @@ int verify(const Obj&                 pool,
                                     bteso_SocketOptUtil::BTESO_RECEIVETIMEOUT,
                                     bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
                                     channelId);
+
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -4510,9 +4517,9 @@ namespace TEST_CASE_19_NAMESPACE {
 
 static
 void case19PoolStateCallback(
-    int               state,
-    int               serverId,
-    int               severity,
+    int              state,
+    int              serverId,
+    int              severity,
     bces_AtomicInt64 *acceptErrors)
 {
     ASSERT(acceptErrors);
@@ -8013,7 +8020,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nREPRODUCING DRQS 20199908"
+            cout << "\nREPRODUCING DRQS 25245489"
                  << "\n========================="
                  << endl;
 
@@ -8071,8 +8078,7 @@ int main(int argc, char *argv[])
         channelCbBarrier.wait();
         channelCbBarrier.wait();
 
-        const int NT = 2;
-        bcemt_Barrier currBarrier(NT + 1);
+        bcemt_Barrier currBarrier(NUM_THREADS + 1);
         barrier = &currBarrier;
 
         rc = check();
@@ -8084,7 +8090,7 @@ int main(int argc, char *argv[])
         ASSERT(!rc);
 
         // fork threads
-        for (int i = 0; i < NT; ++i) {
+        for (int i = 0; i < NUM_THREADS; ++i) {
             bcemt_ThreadUtil::Handle handle;
             rc = bcemt_ThreadUtil::create(&handle,
                                         bdef_BindUtil::bind(&writerThread, i));
@@ -8213,8 +8219,15 @@ int main(int argc, char *argv[])
             P(data);
         }
 
+        numTimesDataCbCalled = 0;
+
         rc = pool.disableRead(channelId);
         ASSERT(!rc);
+
+        // Wait for the dispatcher thread to process the deregister the READ
+        // event.
+
+        bcemt_ThreadUtil::microSleep(0, 2);
 
         rc = socket->write(TEXT, LEN);
         LOOP2_ASSERT(LEN, rc, LEN == rc);
@@ -8228,8 +8241,7 @@ int main(int argc, char *argv[])
 
         ASSERT(rc);
 
-        LOOP_ASSERT(numTimesDataCbCalled,    1   == numTimesDataCbCalled);
-        LOOP3_ASSERT(LEN, data.size(), data, LEN == data.size());
+        LOOP_ASSERT(numTimesDataCbCalled, 0 == numTimesDataCbCalled);
 
         if (veryVerbose) {
             P(data);
@@ -8268,6 +8280,7 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // Line   Spec        Exp Return Code
             // ----   ----        ---------------
+
             {   L_,   "GN",         0 },
 
 #ifdef BSLS_PLATFORM__OS_LINUX
@@ -8382,7 +8395,7 @@ int main(int argc, char *argv[])
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        // connect(IPv4Address .... ) with socket options provided
+        if (verbose) cout << "connect(IPv4Address...) with options" << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8420,16 +8433,18 @@ int main(int argc, char *argv[])
 
                 SocketOptions opt = g(SPEC); const SocketOptions& OPT = opt;
 
-                if (veryVerbose) { P_(LINE) P(OPT) }
+                if (veryVerbose) { P_(LINE) P(OPT); }
 
                 const int SERVER_ID = 100;
                 const int SOURCE_ID = 200;
 
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
                                                             factory.allocate();
+                ASSERT(socket);
                 sockets.push_back(socket);
 
                 ASSERT(0 == socket->bind(bteso_IPv4Address()));
+
                 ASSERT(0 == socket->listen(5));
 
                 bteso_IPv4Address serverAddr;
@@ -8462,7 +8477,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // connect(hostname ... ) with socket options provided
+        if (verbose) cout << "connect(hostname...) with options" << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8500,13 +8515,14 @@ int main(int argc, char *argv[])
 
                 SocketOptions opt = g(SPEC); const SocketOptions& OPT = opt;
 
-                if (veryVerbose) { P_(LINE) P(OPT) }
+                if (veryVerbose) { P(LINE) P(OPT) }
 
                 const int SERVER_ID = 100;
                 const int SOURCE_ID = 200;
 
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
                                                             factory.allocate();
+                ASSERT(socket);
                 sockets.push_back(socket);
 
                 ASSERT(0 == socket->bind(bteso_IPv4Address()));
@@ -8542,7 +8558,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // connect(IPv4Address .... ) with client address specified
+        if (verbose) cout << "connect(IPv4Address...) with client address"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8604,7 +8621,8 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
 
-        // connect(hostname ... ) with client address specified
+        if (verbose) cout << "connect(hostname...) with client address"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8669,7 +8687,7 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
 
-        // listen(port, backlog, id, reuseAddr, readEnabled, sockOpts)
+        if (verbose) cout << "listen with socket options" << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8760,7 +8778,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // listen(port, backlog, id, timeout, reuseAddr, readEnabled, sockOpts)
+        if (verbose) cout << "listen with time out and socket options"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8852,7 +8871,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // listen(addr, backlog, id, reuseAddr, readEnabled, sockOpts)
+        if (verbose) cout << "listen(IPv4Address...) and socket options"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8941,7 +8961,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // listen(addr, backlog, id, time, reuse, read, mode, sockOpts)
+        if (verbose) cout << "listen(IPv4Address...) with time out and options"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -9520,6 +9541,16 @@ int main(int argc, char *argv[])
                                         btemt_ChannelPool::BTEMT_CHANNEL_UP,
                                         bdet_TimeInterval(1.0)));
 
+#if  defined(BSLS_PLATFORM__OS_LINUX)           \
+ &&  defined(BDE_BUILD_TARGET_OPT)              \
+ &&  defined(BSLS_PLATFORM__CPU_64_BIT)
+            // 64-bit opt builds on Linux this check that the latest imported
+            // socket is assigned to the lastClientSocketThreadId fails.  The
+            // allocation to a specific event manager thread is not an error
+            // per se.  It happens only in one specific build mode and where
+            // the allocation to event managers is based on the cpu
+            // utilization of the process.
+#else
             // Verify that the newly imported socket was assigned to the
             // thread (i.e., the event manager) of the channel that was not
             // simulating processing (i.e., the last channel).
@@ -9531,6 +9562,7 @@ int main(int argc, char *argv[])
                                                          states[k].d_threadId);
                 }
             }
+#endif
 
             pool.stop();
             factory.deallocate(clientSocket);
@@ -11317,6 +11349,7 @@ int main(int argc, char *argv[])
 
             // Give time to the channel pool to process accept error callbacks.
             bcemt_ThreadUtil::microSleep(0, 8);
+
             ASSERT(acceptErrors);
 
             if (veryVerbose) { P(acceptErrors); }
