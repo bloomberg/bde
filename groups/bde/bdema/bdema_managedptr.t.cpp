@@ -5208,7 +5208,7 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
                 int d_i[10];
             };
 
-#if 1
+#if 0
             S *pS = new (localTa) S;
             bdema_ManagedPtr<S> s_mp1(pS, &localTa);
 
