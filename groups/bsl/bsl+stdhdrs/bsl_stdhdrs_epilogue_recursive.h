@@ -187,6 +187,9 @@
 #ifdef BSL_INCLUDE_BSL_STRING
 # ifndef INCLUDED_BSLSTL_STRING
 #   include <bslstl_string.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_STRINGREF
 #   include <bslstl_stringref.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
