@@ -2110,7 +2110,11 @@ void doLoadObjectFactoryDeleter2(int callLine, int testLine, int index,
         args->d_p->load(pO, pF, deleter);
     }
     else {
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+        args->d_p->load( (POINTER_TYPE*)pO, (void*)pF, deleter);
+#else
         args->d_p->load( pO, (void*)pF, deleter);
+#endif
     }
 
     LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
