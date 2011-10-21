@@ -51,6 +51,12 @@ int baenet_HttpMessageGenerator::startEntity(
         d_transferEncoding = header.basicFields().transferEncoding()[0];
     }
 
+    if (d_transferEncoding == baenet_HttpTransferEncoding::BAENET_CHUNKED) {
+        if (!header.basicFields().contentLength().isNull()) {
+            return -2;                                                // RETURN
+        }
+    }
+
     bcema_Blob data(d_blobBufferFactory_p);
     int rc = baenet_HttpGeneratorUtil::generateHeader(&data,
                                                       requestLine,
@@ -84,8 +90,7 @@ int baenet_HttpMessageGenerator::startEntity(
     }
 
     if (d_transferEncoding == baenet_HttpTransferEncoding::BAENET_CHUNKED) {
-        if (!header.basicFields().contentLength().isNull())
-        {
+        if (!header.basicFields().contentLength().isNull()) {
             return -2;                                                // RETURN
         }
     }

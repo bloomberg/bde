@@ -90,6 +90,10 @@ void printBlob(const bcema_Blob& data)
     bcema_BlobUtil::hexDump(bsl::cout, data);
 }
 
+void ignoreCallBack(const bcema_Blob& data) 
+{
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -104,6 +108,88 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 3: {
+        // --------------------------------------------------------------------
+        // SENDING NULL CONTENT-LENGTH RESPONSE/REQUEST SHOULD WORK
+        // --------------------------------------------------------------------
+        {
+        if (verbose) bsl::cout << bsl::endl
+                               << "SENDING NULL CONTENT-LENGTH RESPONSE" 
+                               << bsl::endl
+                               << "====================================" 
+                               << bsl::endl;
+        baenet_HttpStatusLine     startLine;
+        baenet_HttpResponseHeader header;
+
+        startLine.majorVersion() = 1;
+        startLine.minorVersion() = 1;
+        startLine.statusCode()   = baenet_HttpStatusCode::BAENET_OK;
+
+        header.basicFields().transferEncoding().push_back( 
+                                baenet_HttpTransferEncoding::BAENET_CHUNKED);
+
+        bcema_PooledBlobBufferFactory factory(5);
+
+        baenet_HttpMessageGenerator msgGen(&factory, 
+                                           bslma_Default::defaultAllocator());
+
+        int rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
+
+        ASSERT(0 == rc);
+        if (verbose) bsl::cout << bsl::endl
+                               << "SENDING NON-NULL CONTENT-LENGTH RESPONSE" 
+                               << bsl::endl
+                               << "========================================" 
+                               << bsl::endl;
+
+        header.basicFields().contentLength() = 0;
+
+        rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
+
+        ASSERT(0 != rc);
+        }
+
+
+        if (verbose) bsl::cout << bsl::endl
+                               << "SENDING NULL CONTENT-LENGTH REQUEST" 
+                               << bsl::endl
+                               << "========================================" 
+                               << bsl::endl;
+
+        {
+        //Dummy a request with a null and make sure it works
+        baenet_HttpRequestLine     startLine;
+        baenet_HttpRequestHeader header;
+
+        startLine.majorVersion() = 1;
+        startLine.minorVersion() = 1;
+        //startLine.statusCode()   = baenet_HttpStatusCode::BAENET_OK;
+
+        header.basicFields().transferEncoding().push_back( 
+                                baenet_HttpTransferEncoding::BAENET_CHUNKED);
+
+        bcema_PooledBlobBufferFactory factory(5);
+
+        baenet_HttpMessageGenerator msgGen(&factory, 
+                                           bslma_Default::defaultAllocator());
+
+        int rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
+
+        ASSERT(0 == rc);
+        if (verbose) bsl::cout << bsl::endl
+                               << "SENDING NON-NULL CONTENT-LENGTH REQUEST" 
+                               << bsl::endl
+                               << "========================================" 
+                               << bsl::endl;
+
+        header.basicFields().contentLength() = 0;
+
+        rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
+
+        ASSERT(0 != rc);
+        }
+        
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // RESPONSE BREATHING TEST
