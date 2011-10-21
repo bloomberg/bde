@@ -110,43 +110,56 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
         // --------------------------------------------------------------------
-        // SENDING NULL CONTENT-LENGTH RESPONSE/REQUEST SHOULD WORK
+        //  TESTING sending startEntity handling of content-length in header
+        //
+        //  Concerns:
+        //    -Implementation must reject generated chunked responses/requests
+        //     with non-null content-length. 
+        //    -Conversely, it must accept valid responses/requests with NULL
+        //     content-length.
+        //
+        //  Plan:
+        //    Send valid NULL content-length response and request and assert
+        //    that success is returned.  Also send non-NULL response and
+        //    request and assert that startEntity fails.
         // --------------------------------------------------------------------
         {
-        if (verbose) bsl::cout << bsl::endl
-                               << "SENDING NULL CONTENT-LENGTH RESPONSE" 
-                               << bsl::endl
-                               << "====================================" 
-                               << bsl::endl;
-        baenet_HttpStatusLine     startLine;
-        baenet_HttpResponseHeader header;
+            if (verbose) bsl::cout << bsl::endl
+                                   << "SENDING NULL CONTENT-LENGTH RESPONSE" 
+                                   << bsl::endl
+                                   << "====================================" 
+                                   << bsl::endl;
+            baenet_HttpStatusLine     startLine;
+            baenet_HttpResponseHeader header;
 
-        startLine.majorVersion() = 1;
-        startLine.minorVersion() = 1;
-        startLine.statusCode()   = baenet_HttpStatusCode::BAENET_OK;
+            startLine.majorVersion() = 1;
+            startLine.minorVersion() = 1;
+            startLine.statusCode()   = baenet_HttpStatusCode::BAENET_OK;
 
-        header.basicFields().transferEncoding().push_back( 
-                                baenet_HttpTransferEncoding::BAENET_CHUNKED);
+            header.basicFields().transferEncoding().push_back( 
+                                  baenet_HttpTransferEncoding::BAENET_CHUNKED);
 
-        bcema_PooledBlobBufferFactory factory(5);
+            bcema_PooledBlobBufferFactory factory(5);
 
-        baenet_HttpMessageGenerator msgGen(&factory, 
-                                           bslma_Default::defaultAllocator());
+            baenet_HttpMessageGenerator msgGen(&factory, 
+                                            bslma_Default::defaultAllocator());
 
-        int rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
+            int rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
 
-        ASSERT(0 == rc);
-        if (verbose) bsl::cout << bsl::endl
-                               << "SENDING NON-NULL CONTENT-LENGTH RESPONSE" 
-                               << bsl::endl
-                               << "========================================" 
-                               << bsl::endl;
+            ASSERT(0 == rc);
+            if (verbose) bsl::cout << bsl::endl
+                                   << "SENDING NON-NULL CONTENT-LENGTH "
+                                       "RESPONSE" 
+                                   << bsl::endl
+                                   << "==============================="
+                                      "=========" 
+                                   << bsl::endl;
 
-        header.basicFields().contentLength() = 0;
+            header.basicFields().contentLength() = 0;
 
-        rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
+            rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
 
-        ASSERT(0 != rc);
+            ASSERT(0 != rc);
         }
 
 
@@ -157,36 +170,38 @@ int main(int argc, char *argv[])
                                << bsl::endl;
 
         {
-        //Dummy a request with a null and make sure it works
-        baenet_HttpRequestLine     startLine;
-        baenet_HttpRequestHeader header;
+            //Dummy a request with a null and make sure it works
+            baenet_HttpRequestLine     startLine;
+            baenet_HttpRequestHeader header;
 
-        startLine.majorVersion() = 1;
-        startLine.minorVersion() = 1;
-        //startLine.statusCode()   = baenet_HttpStatusCode::BAENET_OK;
+            startLine.majorVersion() = 1;
+            startLine.minorVersion() = 1;
+            //startLine.statusCode()   = baenet_HttpStatusCode::BAENET_OK;
 
-        header.basicFields().transferEncoding().push_back( 
-                                baenet_HttpTransferEncoding::BAENET_CHUNKED);
+            header.basicFields().transferEncoding().push_back( 
+                                  baenet_HttpTransferEncoding::BAENET_CHUNKED);
 
-        bcema_PooledBlobBufferFactory factory(5);
+            bcema_PooledBlobBufferFactory factory(5);
 
-        baenet_HttpMessageGenerator msgGen(&factory, 
-                                           bslma_Default::defaultAllocator());
+            baenet_HttpMessageGenerator msgGen(&factory, 
+                                            bslma_Default::defaultAllocator());
 
-        int rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
+            int rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
 
-        ASSERT(0 == rc);
-        if (verbose) bsl::cout << bsl::endl
-                               << "SENDING NON-NULL CONTENT-LENGTH REQUEST" 
-                               << bsl::endl
-                               << "========================================" 
-                               << bsl::endl;
+            ASSERT(0 == rc);
+            if (verbose) bsl::cout << bsl::endl
+                                   << "SENDING NON-NULL CONTENT-LENGTH "
+                                       "REQUEST" 
+                                   << bsl::endl
+                                   << "=============================="
+                                      "==========" 
+                                   << bsl::endl;
 
-        header.basicFields().contentLength() = 0;
+            header.basicFields().contentLength() = 0;
 
-        rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
+            rc = msgGen.startEntity(startLine, header, &ignoreCallBack);
 
-        ASSERT(0 != rc);
+            ASSERT(0 != rc);
         }
         
       } break;
