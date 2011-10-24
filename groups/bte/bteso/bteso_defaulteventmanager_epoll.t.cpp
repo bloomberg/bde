@@ -1391,74 +1391,38 @@ int main(int argc, char *argv[]) {
       } break;
 
       case -1: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PERFORMANCE TESTING 'dispatch':
         //   Get the performance data.
         //
         // Plan:
-        //   Set up multiple connections and register a read event for each
-        //   connection, calculate the average time taken to dispatch a read
-        //   event for a given number of registered read event.
+        //   Set up a collection of socketPairs and register one end of all the
+        //   pairs with the event manager.  Write 1 byte to
+        //   'fracBusy * numSocketPairs' of the connections, and measure the
+        //   average time taken to dispatch a read event for a given number of
+        //   registered read event.  If 'timeOut > 0' register a timeout
+        //   interval with the 'dispatch' call.  If 'R|N' is 'R', actually read
+        //   the bytes in the dispatch, if it's 'N', just call a null function
+        //   within the dispatch.
+        //
         // Testing:
         //   'dispatch' capacity
-        // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
+        //
+        // Results (all 32 bit):
+        //   SocketPairs FracBusy TimeOut R|N Platform microSeconds
+        //      5000        0        0     R    Linux        20
+        //      5000        0       0.1    R    Linux        23
+        //      5000       0.5       0     R    Linux     11000
+        //      5000       0.5       0     N    Linux      2300
+        // --------------------------------------------------------------------
 
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+        if (verbose) cout << "PERFORMANCE TESTING 'dispatch'\n"
+                             "==============================\n";
 
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
         {
-            const char *FILENAME = "epollDispatch.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
-                      numPairs, numMeasurements, controlFlag);
-
-            outFile.close();
+            Obj mX(&timeMetric, &testAllocator);
+            bteso_EventManagerTester::testDispatchPerformance(&mX, "epoll",
+                                                                  controlFlag);
         }
       } break;
 

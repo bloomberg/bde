@@ -26,6 +26,8 @@ BDES_IDENT_RCSID(bteso_eventmanagertester_cpp,"$Id$ $CSID$")
 
 #include <bsl_fstream.h>
 #include <bsl_iomanip.h>
+#include <bsl_iostream.h>
+#include <bsl_sstream.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>                             // abort
@@ -33,6 +35,9 @@ BDES_IDENT_RCSID(bteso_eventmanagertester_cpp,"$Id$ $CSID$")
 #ifdef BSLS_PLATFORM__OS_UNIX
 #include <bsl_c_signal.h>
 #include <pthread.h>
+#if defined(BSLS_PLATFORM__OS_LINUX)
+# include <sys/resource.h>
+#endif
 #endif
 
 namespace BloombergLP {
@@ -100,9 +105,14 @@ static int ggHelper(bteso_EventManager         *mX,
                     const char                 *test,
                     int                         flags);
 
+extern "C"
+void bteso_eventmanagertester_nullFunctor()
+{
+}
+
 #ifdef BSLS_PLATFORM__OS_UNIX
 extern "C"
-void* threadSignalGenerator(void *arg)
+void* bteso_eventmanagertester_threadSignalGenerator(void *arg)
     // Generate signal 'SIGSYS' and deliver it to a thread specified in 'arg'.
     // Note the test can only work on UNIX platforms since window doesn't
     // support signal operations.
@@ -1201,7 +1211,7 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
             }
         }
     }
-    #ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM__OS_UNIX
 
     if (flags & bteso_EventManagerTester::BTESO_VERBOSE) {
         std::puts("Testing 'Interrupt options'\n"
@@ -1244,9 +1254,11 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
 
             ThreadInfo threadInfo = {
                 socketPairs[i].controlFd(), tid, VALUES[i].d_timeFlag, flags };
-            int ret = bcemt_ThreadUtil::create(&threadHandle[i], attributes,
-                                            threadSignalGenerator,
-                                            &threadInfo);
+            int ret = bcemt_ThreadUtil::create(
+                               &threadHandle[i],
+                               attributes,
+                               &bteso_eventmanagertester_threadSignalGenerator,
+                               &threadInfo);
             if (0 != ret)
             {
                 std::printf("bcemt_ThreadUtil::create() call at line %d "
@@ -1324,40 +1336,144 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
             bcemt_ThreadUtil::join(threadHandle[i]);
         }
     }
-    #endif
+#endif
     return numFailures;
 }
 
 int
 bteso_EventManagerTester::testDispatchPerformance(
-                                          bteso_EventManager *mX,
-                                          bsl::ostream&       stream,
-                                          int                 numSocketPairs,
-                                          int                 numMeasurements,
-                                          int                 flags)
+                                     bteso_EventManager       *mX,
+                                     const char               *pollingMechName,
+                                     int                       flags)
 {
-
+    enum { NUM_MEASUREMENTS = 10 };
     int fails = 0, i = 0;
+    const char *cbScript = 0;  // dummy argument.
+
     if (flags & bteso_EventManagerTester::BTESO_VERBOSE) {
-        std::puts("TESTING 'dispatch()' capacity\n"
-                  "=============================");
+        std::puts("TESTING BUSY 'dispatch()' capacity\n"
+                  "==================================");
     }
+
+    bsl::cout << "Enter args: <numPairs> <fractionBusy> <timeOut> <R | N>\n"
+                          "    where 'R' means do reads, 'N' means no reads\n";
+
+    int               numSocketPairs;
+    double            fractionBusy;
+    double            timeOutDouble;
+    bdet_TimeInterval timeOut;
+    char              reads;    // 'R' for do reads, 'N' for no reads
+
     {
-        bslma_TestAllocator testAllocator(flags & BTESO_VERY_VERY_VERBOSE);
+        bsl::string inString;
+        getline(bsl::cin, inString);
+        bsl::stringstream ss(inString);
+
+        bool inputSuccess = false;
+        ss >> numSocketPairs >> fractionBusy >> timeOutDouble >> reads;
+        if (ss.fail()) {
+            bsl::cout << "Bad or incomplete input.";
+        }
+        else if (numSocketPairs < 11) {
+            bsl::cout << "'numPairs' must be > 10.";
+        }
+        else if (fractionBusy < 0.0 || fractionBusy > 1.0) {
+            bsl::cout << "'fractionBusy' must be in range [ 0.0, 1.0 ].";
+        }
+        else if (timeOutDouble < 0.0 || timeOutDouble > 1.0) {
+            bsl::cout << "'timeOut' must be in range [ 0.0, 1.0 ].";
+        }
+        else if ('R' != reads && 'N' != reads) {
+            bsl::cout << "'reads' must be 'R' or 'N'.";
+        }
+        else {
+            inputSuccess = true;
+        }
+        if (!inputSuccess) {
+            bsl::cout << "  Test not run.\n";
+            return 1;
+        }
+
+        timeOut = timeOutDouble;
+    }
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+    const unsigned filesNeeded = 2 * numSocketPairs + 10;
+    struct ::rlimit rl;
+    int rc = getrlimit(RLIMIT_NOFILE, &rl);
+    BSLS_ASSERT_OPT(0 == rc);
+
+    if (filesNeeded > rl.rlim_cur) {
+        bsl::cout << "Process is currently limited to " << rl.rlim_cur / 2 <<
+                                 " socket pairs.  You need to 'ulimit -n " <<
+                                                          filesNeeded << "'\n";
+        return -1;
+    }
+#endif
+
+    bsl::stringstream outFileNameSS;
+    outFileNameSS << "tmp." << pollingMechName << ":dsp";
+
+#if   defined(BSLS_PLATFORM__OS_LINUX)
+    outFileNameSS << ":lnx";
+#elif defined(BSLS_PLATFORM__OS_SOLARIS)
+    outFileNameSS << ":sun";
+#elif defined(BSLS_PLATFORM__OS_HPUX)
+    outFileNameSS << ":hp_";
+#elif defined(BSLS_PLATFORM__OS_AIX)
+    outFileNameSS << ":aix";
+#elif defined(BSLS_PLATFORM__OS_FREEBSD)
+    outFileNameSS << ":fre";
+#elif defined(BSLS_PLATFORM__OS_CYGWIN)
+    outFileNameSS << ":cyg";
+#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+    outFileNameSS << ":win";
+#else
+#   error unrecognized platform
+#endif
+
+    outFileNameSS << (sizeof(void *) * 8);
+
+    outFileNameSS << ':' << numSocketPairs;
+    outFileNameSS << ':' << fractionBusy;
+    outFileNameSS << ':' << timeOutDouble;
+    outFileNameSS << (('N' == reads) ? ":noReads.txt" : ":timeReads.txt");
+
+    bsl::cout << "testDispatchPerformance:\n"
+                 "Polling Mechanism: " << pollingMechName <<     bsl::endl <<
+                 "Num Socket Pairs:  " << numSocketPairs  <<     bsl::endl <<
+                 "Fraction Busy:     " << fractionBusy    <<     bsl::endl <<
+                 "Timeout:           " << timeOutDouble   <<     bsl::endl <<
+                 (('N' == reads) ? "No reads\n" : "Time reads\n") <<
+                 "Output in:         " << outFileNameSS.str() << bsl::endl;
+
+    bsl::ofstream os(outFileNameSS.str().c_str());
+
+    {
+        bslma_TestAllocator testAllocator(
+                    flags & bteso_EventManagerTester::BTESO_VERY_VERY_VERBOSE);
         SocketPair *socketPairs = (SocketPair *)
                   testAllocator.allocate(numSocketPairs * sizeof (SocketPair));
 
         bteso_EventManager::Callback *readCb =(bteso_EventManager::Callback *)
                   testAllocator.allocate(numSocketPairs * sizeof (*readCb));
 
-        bdet_TimeInterval averageTimer;
+        bool *writtenFlags = (bool *) testAllocator.allocate(numSocketPairs);
 
-        for (i = 0; i < numSocketPairs; i++) {
+        for (i = 0; i < numSocketPairs; ++i) {
             bslalg_ScalarPrimitives::defaultConstruct(&socketPairs[i],
                                                       &testAllocator);
 
             bslalg_ScalarPrimitives::defaultConstruct(&readCb[i],
                                                       &testAllocator);
+        }
+
+        for (i = 0; i < numSocketPairs; ++i) {
+            if (!socketPairs[i].isValid())  {
+                std::printf("Invalid socket pair index: %d\n", i);
+                std::fflush(stdout);
+                return 1;
+            }
         }
 
 #ifdef BSLS_PLATFORM__OS_HPUX
@@ -1366,97 +1482,151 @@ bteso_EventManagerTester::testDispatchPerformance(
         bcemt_ThreadUtil::microSleep(40 * 1000);
 #endif
 
-        for (i = 0; i < numSocketPairs; i++) {
+        for (i = 0; i < numSocketPairs; ++i) {
             int bytes = 1;
-            const char *cbScript = 0;  // dummy argument.
 
-            if (!socketPairs[i].isValid())  {
-                std::printf("Invalid socket pair index: %d\n", i);
-                std::fflush(stdout);
-                fails = 1;
-                break;
-            }
             socketPairs[i].setObservedBufferOptions(BUF_LEN, 1);
             socketPairs[i].setControlBufferOptions(BUF_LEN, 1);
 
-            readCb[i] = bdef_BindUtil::bind(&genericCb,
-                                            bteso_EventType::BTESO_READ,
-                      i, bytes, mX, (SocketPair*)socketPairs, cbScript, flags);
+            if ('N' == reads) {
+                readCb[i] = &bteso_eventmanagertester_nullFunctor;
+            }
+            else {
+                readCb[i] = bdef_BindUtil::bind(&genericCb,
+                                                bteso_EventType::BTESO_READ,
+                                                i,
+                                                bytes,
+                                                mX,
+                                                socketPairs,
+                                                cbScript,
+                                                flags);
+            }
 
             mX->registerSocketEvent(socketPairs[i].observedFd(),
                                     bteso_EventType::BTESO_READ,
                                     readCb[i]);
             if (i + 1 != mX->numEvents()) {
-                if (flags & bteso_EventManagerTester::BTESO_ABORT) {
-                    BSLS_ASSERT(0);
-                }
-                else {
-                    ++fails;
-                }
+                bsl::cout << "Socket registration " << i << "failed\n";
+                ++fails;
             }
-            const int SAMPLE_DISTANCE = i / numMeasurements;
+        }
+
+        for (i = numSocketPairs - 10; !fails && i < numSocketPairs; i++) {
+            const int SAMPLE_DISTANCE = (i + 1) / NUM_MEASUREMENTS;
+            int toWrite = bsl::max((int) ((i + 1) * fractionBusy), 1);
+            BSLS_ASSERT_OPT(toWrite <= i + 1);
+            BSLS_ASSERT_OPT(toWrite >= 1);
+        
             bdet_TimeInterval timer;
             int actualNumMeasurements = 0;
 
-            for (int j = 0; j < numMeasurements; ++j) {
+            for (int j = 0; j < NUM_MEASUREMENTS; ++j) {
                 char ch = ' ';
                 int idx = 0;
+                int skip;
                 if (0 == SAMPLE_DISTANCE) {
-                    idx = j%(i+1);
+                    idx = j % (i + 1);
+                    skip = 1;
                 }
                 else {
                     idx = j * SAMPLE_DISTANCE;
+                    skip = SAMPLE_DISTANCE;
                 }
-                bteso_SocketImpUtil::write(socketPairs[idx].controlFd(),
-                                           &ch, sizeof(char));
+
+                bsl::memset(writtenFlags, 0, i + 1);
+                for (int leftToWrite = toWrite; leftToWrite;
+                                                  idx = (idx + skip) % (i+1)) {
+                    while (writtenFlags[idx]) {
+                        idx = (idx + 1) % (i + 1);
+                    }
+                    bteso_SocketImpUtil::write(socketPairs[idx].controlFd(),
+                                               &ch, sizeof(char));
+                    writtenFlags[idx] = true;
+                    --leftToWrite;
+                }
+
+                // sleep to allow for latency in the sockets, which are not
+                // the fault of the dispatcher
+
+                bcemt_ThreadUtil::microSleep(10 * 1000);
+
+                int ret = 0;
+                int attempts = 0;
                 bdet_TimeInterval t1, t2;
-                t1 = bdetu_SystemTime::now();
-                int ret = mX->dispatch(0);
-                t2 = bdetu_SystemTime::now();
-                if (t2 > t1) {
-                    // On Linux, time sometimes goes backward according to
-                    // 'now()'.
+                for (; ret < toWrite; ++attempts) {
+                    if (attempts) {
+                        bsl::printf(
+                              "Repeat on i:%d, %d events missing, errno: %d\n",
+                              i, toWrite - ret, errno);
+                        std::fflush(stdout);
+                        if (flags & bteso_EventManagerTester::BTESO_ABORT) {
+                            BSLS_ASSERT(0);
+                        }
+                    }
 
-                    timer += t2 - t1;
-                    averageTimer += t2 - t1;
-                    ++actualNumMeasurements;
-                }
-
-                if (1 != ret) {
-                    std::printf(" i: %d; dispatch return : %d; errno: %d\n",
-                                i, ret, errno);
-                    std::fflush(stdout);
-                    if (flags & bteso_EventManagerTester::BTESO_ABORT) {
-                        BSLS_ASSERT(0);
+                    if (timeOut > 0.0) {
+                        t1 = bdetu_SystemTime::now();
+                        ret += mX->dispatch(timeOut, 0);
+                        t2 = bdetu_SystemTime::now();
                     }
                     else {
-                        ++fails;
+                        t1 = bdetu_SystemTime::now();
+                        ret += mX->dispatch(0);
+                        t2 = bdetu_SystemTime::now();
+                    }
+                    if (t2 > t1) {
+                        // On Linux, time sometimes goes backward according to
+                        // 'now()'.
+
+                        timer += t2 - t1;
+                        ++actualNumMeasurements;
+                    }
+                }
+
+                if ('N' == reads) {
+                    // actually do all the reads so there is no data in any of
+                    // the sockets.
+
+                    for (int k = 0; k <= i; ++k) {
+                        if (writtenFlags[k]) {
+                            genericCb(bteso_EventType::BTESO_READ,
+                                      k,
+                                      1,
+                                      mX,
+                                      socketPairs,
+                                      cbScript,
+                                      flags);
+                        }
                     }
                 }
             }
-            if (numMeasurements - actualNumMeasurements >
-                                           bsl::max(2, numMeasurements / 10)) {
+            if (NUM_MEASUREMENTS - actualNumMeasurements > 2) {
                 std::printf(" i: %d Time went backward %d out of %d times\n",
-                                    i, numMeasurements - actualNumMeasurements,
-                                                              numMeasurements);
+                                   i, NUM_MEASUREMENTS - actualNumMeasurements,
+                                                             NUM_MEASUREMENTS);
                 std::fflush(stdout);
             }
 
             if (0 == actualNumMeasurements) actualNumMeasurements = 1;
 
-            int microseconds = (int)
+            double microseconds =
                   (1e6 * timer.totalSecondsAsDouble() / actualNumMeasurements);
 
-            stream << microseconds << '\n' << bsl::flush;
+            os << microseconds << '\n' << bsl::flush;
         }
 
         for (int j = 0; j < i; j++){ //have to 'destructor' one by one
             bslalg_ScalarDestructionPrimitives::destroy(socketPairs+j);
             bslalg_ScalarDestructionPrimitives::destroy(readCb+j);
         }
+
         testAllocator.deallocate(readCb);
         testAllocator.deallocate(socketPairs);
+        testAllocator.deallocate(writtenFlags);
     }
+
+    os.close();
+
     return fails;
 }
 

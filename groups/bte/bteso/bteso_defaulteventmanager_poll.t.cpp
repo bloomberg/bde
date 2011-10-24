@@ -1380,71 +1380,53 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case -1: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PERFORMANCE TESTING 'dispatch':
         //   Get the performance data.
         //
         // Plan:
-        //   Set up multiple connections and register a read event for each
-        //   connection, calculate the average time taken to dispatch a read
-        //   event for a given number of registered read event.
+        //   Set up a collection of socketPairs and register one end of all the
+        //   pairs with the event manager.  Write 1 byte to
+        //   'fracBusy * numSocketPairs' of the connections, and measure the
+        //   average time taken to dispatch a read event for a given number of
+        //   registered read event.  If 'timeOut > 0' register a timeout
+        //   interval with the 'dispatch' call.  If 'R|N' is 'R', actually read
+        //   the bytes in the dispatch, if it's 'N', just call a null function
+        //   within the dispatch.
+        //
         // Testing:
         //   'dispatch' capacity
-        // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
+        //
+        // Results (all 32 bit):
+        //   SocketPairs FracBusy TimeOut R|N Platform microSeconds
+        //      5000        0        0     R    Linux      3200
+        //      5000        0        0     R   Solaris      750
+        //      5000        0        0     R     HPUX      8200
+        //      5000        0        0     R     AIX       8400
+        //
+        //      5000        0       0.1    R    Linux      2200
+        //      5000        0       0.1    R   Solaris      690
+        //      5000        0       0.1    R     HPUX      8900
+        //      5000        0       0.1    R     AIX       5800
+        //
+        //      5000       0.5       0     R    Linux     12000
+        //      5000       0.5       0     R   Solaris    58000
+        //      5000       0.5       0     R     HPUX     55000
+        //      5000       0.5       0     R     AIX      17000
+        //
+        //      5000       0.5       0     N    Linux      3675
+        //      5000       0.5       0     N   Solaris    24000
+        //      5000       0.5       0     N     HPUX     23000
+        //      5000       0.5       0     N     AIX       7500
+        // --------------------------------------------------------------------
 
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+        if (verbose) cout << "PERFORMANCE TESTING 'dispatch'\n"
+                             "==============================\n";
 
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-        if (verbose)
-            cout << endl
-                << "PERFORMANCE TESTING 'dispatch'" << endl
-                << "==============================" << endl;
         {
-            const char *FILENAME = "pollDispatch.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-            if (veryVerbose) {
-                cout << "Number of test socket pairs: " << numPairs
-                     << "; number of measurements: " << numMeasurements
-                     << bsl::endl;
-            }
-
             Obj mX(&timeMetric, &testAllocator);
-            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
-                                    numPairs, numMeasurements, controlFlag);
-            outFile.close();
+            bteso_EventManagerTester::testDispatchPerformance(&mX, "poll",
+                                                                  controlFlag);
         }
       } break;
       case -2: {
