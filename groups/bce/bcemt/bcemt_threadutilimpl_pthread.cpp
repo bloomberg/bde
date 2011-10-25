@@ -105,6 +105,8 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
         // Note that if 'stackSize' is still unset, we just leave the '*dest'
         // to its default, initialized state.
 
+	BSLS_ASSERT_OPT(stackSize > 0);
+
 #if defined(BSLS_PLATFORM__OS_HPUX)
         // The Itanium divides the stack into two sections: a variable stack
         // and a control stack.  To make 'stackSize' have the same meaning

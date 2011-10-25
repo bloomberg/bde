@@ -113,10 +113,12 @@ struct bcemt_ThreadUtilImpl<bces_Platform::PosixThreads> {
         // 'threadHandle' an identifier that may be used to refer to the thread
         // in future calls to this utility.  Return 0 on success, and a
         // non-zero value otherwise.  The behavior is undefined if 'thread' is
-        // 0.  Note that unless explicitly "detached" (by 'detach'), or unless
-        // the 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
-        // must be made once the thread terminates to reclaim any system
-        // resources associated with the newly created identifier.
+        // 0 or if 'attributes.stackSize()' has been set to a negative value
+        // other than the unset value.  Note that unless explicitly "detached"
+        // (by 'detach'), or unless the 'BCEMT_CREATE_DETACHED' attribute is
+        // specified, a call to 'join' must be made once the thread terminates
+        // to reclaim any system resources associated with the newly created
+        // identifier.
 
     static int create(Handle               *thread,
                       bcemt_ThreadFunction  function,
