@@ -809,8 +809,6 @@ void validateManagedState(unsigned int                        LINE,
 //:    const base  OCbase   pointer to allocated 'const MyTestObject'
 //:       derived  Oderiv   pointer to allocated 'MyDerivedObject'
 //: const derived  OCderiv  pointer to allocated 'const MyDerivedObject'
-
-//:  cast derived  Octob    'MyDerivedObject *' cast to 'MyTestObject *'
 //:
 //:       Factory  Code     Value
 //:       -------  ----     -----
@@ -820,8 +818,6 @@ void validateManagedState(unsigned int                        LINE,
 //:          Test  Ftst    'bslma_TestAllocator' factory
 //:       default  Fdflt    default allocator, passed as 'bslma_Allocator *'
 
-//:     void Test  FVtest  'bslma_TestAllocator' factory cast as 'void *'
-//:  void default  FVdflt   default allocator, passed as 'void *'
 //: [No const factory support by default, but can 'deleter' support this?]
 //: [Probably only through the deprecated interface, and no code can do this yet?]
 //:
@@ -928,18 +924,6 @@ void validateManagedState(unsigned int                        LINE,
 //: doLoadOCbaseFnull
 //: doLoadOderivFnull
 //: doLoadOCderivFnull
-
-//: doLoadOnullFVtest
-//: doLoadObaseFVtest
-//: doLoadOCbaseFVtest
-//: doLoadOderivFVtest
-//: doLoadOCderivFVtest
-
-//: doLoadOnullFVdflt
-//: doLoadObaseFVdflt
-//: doLoadOCbaseFVdflt
-//: doLoadOderivFVdflt
-//: doLoadOCderivFVdflt
 
 namespace {
 
@@ -2110,11 +2094,7 @@ void doLoadObjectFactoryDeleter2(int callLine, int testLine, int index,
         args->d_p->load(pO, pF, deleter);
     }
     else {
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
-        args->d_p->load( (POINTER_TYPE*)pO, (void*)pF, deleter);
-#else
         args->d_p->load( pO, (void*)pF, deleter);
-#endif
     }
 
     LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,

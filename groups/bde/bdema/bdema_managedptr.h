@@ -525,6 +525,10 @@ BDES_IDENT("$Id: $")
 #include <bdema_managedptr_members.h>
 #endif
 
+#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_typetraits.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ADDREFERENCE
 #include <bslmf_addreference.h>
 #endif
@@ -608,6 +612,11 @@ class bdema_ManagedPtr {
     // (i.e., manages no object, has an unspecified deleter, and points to 0).
 
   public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS2(bdema_ManagedPtr,
+                                  bslalg_TypeTraitHasPointerSemantics,
+                                  bslalg_TypeTraitBitwiseMoveable);
+
     // INTERFACE TYPES
 
     typedef bdema_ManagedPtrDeleter::Deleter DeleterFunc;
