@@ -11,6 +11,8 @@ BDES_IDENT_RCSID(bcemt_threadutilimpl_win32_cpp,"$Id$ $CSID$")
 #include <bcemt_configuration.h>
 #include <bcemt_threadattributes.h>
 
+#include <bsls_assert.h>
+
 #include <bsl_cstring.h>  // 'memcpy'
 
 #include <process.h>      // '_begintthreadex', '_endthreadex'
@@ -316,6 +318,13 @@ int bcemt_ThreadUtilImpl<bces_Platform::Win32Threads>::create(
             stackSize = bcemt_Configuration::nativeDefaultThreadStackSize();
         }
     }
+
+    BSLS_ASSERT_OPT(stackSize >= 0);    // 0 is a valid stack size to pass to
+                                        // _beginthreadex -- it means 'the same
+                                        // size as the main thread'.  This is
+                                        // is not documented bde behavior, but
+                                        // allow it just in case anyone was
+                                        // depending on it.
 
     startInfo->d_threadArg = userData;
     startInfo->d_function  = function;
