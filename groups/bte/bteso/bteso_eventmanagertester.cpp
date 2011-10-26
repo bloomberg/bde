@@ -404,17 +404,6 @@ genericCb(bteso_EventType::Type event,
     }
 }
 
-static void
-readCallback(bteso_EventType::Type      ,  // event
-             bteso_SocketHandle::Handle ,  // socket
-             int                        ,  // bytes
-             bteso_EventManager *)         // mX
-    // This function is used to test the registerSocketEvent() performance,
-    // it's a dummy callback function.
-{
-    return ;
-}
-
 static int ggHelper(bteso_EventManager         *mX,
                     bteso_EventManagerTestPair *fds,
                     const char                 *test,
@@ -1632,93 +1621,118 @@ bteso_EventManagerTester::testDispatchPerformance(
 
 int
 bteso_EventManagerTester::testRegisterPerformance(
-                                           bteso_EventManager *mX,
-                                           bsl::ostream&       stream,
-                                           int                 numSockets,
-                                           int                 numMeasurements,
-                                           int                 flags)
+                                     bteso_EventManager       *mX,
+                                     int                       flags)
 {
-    int fails = 0, i = 0;
-    if (flags & bteso_EventManagerTester::BTESO_VERBOSE) {
-        std::puts("TESTING 'registerSocketEvent() capacity'\n"
-                  "========================================");
+    enum { NUM_MEASUREMENTS = 10 };
+
+    int numSockets;
+    double fractionRegistered;
+
+    bsl::cout <<
+                "Enter args: <num sockets> <fraction previously registered>\n";
+    bsl::cin >> numSockets >> fractionRegistered;
+
+    if (numSockets < 10) {
+        bsl::cout << "<num sockets> must be >= 10\n";
+        return 1;
     }
-    {
-        bslma_TestAllocator testAllocator(flags & BTESO_VERY_VERY_VERBOSE);
-        bteso_SocketHandle::Handle *socket = (bteso_SocketHandle::Handle *)
-                  testAllocator.allocate(numSockets * sizeof (*socket));
+    if (fractionRegistered < 0 || fractionRegistered > 1.0) {
+        bsl::cout << "<fraction previously registered> must be in the range"
+                                                             " [ 0.0, 1.0 ]\n";
+        return 1;
+    }
 
-        bteso_EventManager::Callback *readCb =(bteso_EventManager::Callback *)
-                  testAllocator.allocate(numSockets * sizeof (*readCb));
+    BSLS_ASSERT_OPT(numSockets >= 10);
 
+    bdet_TimeInterval t1, t2;
+    int i = 0;
+    bteso_EventManager::Callback nullCb =
+                                         &bteso_eventmanagertester_nullFunctor;
+
+    bslma_TestAllocator testAllocator(flags &
+                        bteso_EventManagerTester::BTESO_VERY_VERY_VERBOSE);
+    bteso_SocketHandle::Handle *socket = (bteso_SocketHandle::Handle *)
+              testAllocator.allocate(numSockets * sizeof (*socket));
+
+    bool *registeredFlags = (bool *) testAllocator.allocate(numSockets);
+
+    for (i = 0; i < numSockets; i++) {
+        bslalg_ScalarPrimitives::defaultConstruct(&socket[i],
+                                                  &testAllocator);
+
+        int ret = bteso_SocketImpUtil::open<bteso_IPv4Address>(
+                                     &socket[i],
+                                     bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+        if (0 != ret) {
+            std::cout << "Unable to open more than " << i << " sockets\n";
+#ifdef BSLS_PLATFORM__OS_UNIX
+            std::cout << "Try 'ulimit -n " << (numSockets + 10) << "'\n";
+#endif
+            return 1;
+        }
+    }
+
+    for (i = numSockets - 10; i < numSockets; ++i) {
         bdet_TimeInterval timer;
+        const int SAMPLE_DISTANCE = i / NUM_MEASUREMENTS;
 
-        for (i = 0; i < numSockets; i++) {
-            bslalg_ScalarPrimitives::defaultConstruct(&socket[i],
-                                                      &testAllocator);
+        int toPreRegister = bsl::min((int) ((i + 1) * fractionRegistered),
+                                     i);
 
-            bslalg_ScalarPrimitives::defaultConstruct(&readCb[i],
-                                                      &testAllocator);
-
-            int ret = bteso_SocketImpUtil::open<bteso_IPv4Address>(
-                                 &socket[i],
-                                 bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-            if (0 != ret) {
-                std::printf(" i: %d; Invalid socket, ret: %d\n", i, ret);
-                std::fflush(stdout);
-
-                if (flags & bteso_EventManagerTester::BTESO_ABORT) {
-                    BSLS_ASSERT(0);
-                }
-                else {
-                    ++fails;
-                }
+        for (int j = 0; j < NUM_MEASUREMENTS; ++j) {
+            int idx;
+            int skip;
+            if (0 == SAMPLE_DISTANCE) {
+                idx = j % (i + 1);
+                skip = 1;
             }
-            const int SAMPLE_DISTANCE = i / numMeasurements;
+            else {
+                idx = j * SAMPLE_DISTANCE;
+                skip = SAMPLE_DISTANCE;
+            }
 
-            for (int j = 0; j < numMeasurements; ++j) {
-                int bytes = 1;
-                readCb[i] = bdef_BindUtil::bind(&readCallback,
-                                                bteso_EventType::BTESO_READ,
-                                                socket[j], bytes, mX);
+            bsl::memset(registeredFlags, 0, i + 1);
+            registeredFlags[idx] = true;
 
-                int idx = 0;
-                if (0 == SAMPLE_DISTANCE) {
-                    idx = j%(i+1);
+            int preIdx = 0;
+            for (int leftToRegister = toPreRegister; leftToRegister;
+                                          preIdx = (preIdx + skip) % (i + 1)) {
+                while (registeredFlags[preIdx]) {
+                    preIdx = (preIdx + 1) % (i + 1);
                 }
-                else {
-                    idx = j * SAMPLE_DISTANCE;
-                }
-                bdet_TimeInterval t1, t2;
-                t1 = bdetu_SystemTime::now();
-                mX->registerSocketEvent(socket[idx],
+                mX->registerSocketEvent(socket[preIdx],
                                         bteso_EventType::BTESO_READ,
-                                        readCb[i]);
-                t2 = bdetu_SystemTime::now();
-                timer += t2 - t1;
-                mX->deregisterAll();
+                                        nullCb);
+                registeredFlags[preIdx] = true;
+                --leftToRegister;
             }
-            int microseconds = (timer.seconds() * 1000000 +
-                                timer.nanoseconds() / 1000) / numMeasurements;
-            stream << microseconds << '\n' << bsl::flush;
-            if (0 != mX->numEvents()) {
-                if (flags & bteso_EventManagerTester::BTESO_ABORT) {
-                    BSLS_ASSERT(0);
-                }
-                else {
-                    ++fails;
-                }
-            }
+            registeredFlags[idx] = false;
+
+            t1 = bdetu_SystemTime::now();
+            mX->registerSocketEvent(socket[idx],
+                                    bteso_EventType::BTESO_READ,
+                                    nullCb);
+            t2 = bdetu_SystemTime::now();
+            timer += t2 - t1;
+            mX->deregisterAll();
+
+            BSLS_ASSERT_OPT(0 == mX->numEvents());
         }
-        for (int j = 0; j < i; j++){ //have to 'destructor' one by one
-            bteso_SocketImpUtil::close(socket[j]);
-            // (socket+j)->~bteso_SocketHandle::Handle();
-            bslalg_ScalarDestructionPrimitives::destroy(readCb+j);
-        }
-        testAllocator.deallocate(readCb);
-        testAllocator.deallocate(socket);
+
+        double microseconds =
+                       (1e6 * timer.totalSecondsAsDouble() / NUM_MEASUREMENTS);
+        bsl::cout << microseconds << bsl::endl;
     }
-    return fails;
+
+    for (int j = 0; j < i; j++){ //have to 'destructor' one by one
+        bteso_SocketImpUtil::close(socket[j]);
+        // (socket+j)->~bteso_SocketHandle::Handle();
+    }
+    testAllocator.deallocate(socket);
+    testAllocator.deallocate(registeredFlags);
+
+    return 0;
 }
 
 bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)

@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
 
         enum { NUM_BYTES = 16 };
 
-        Obj mX; const Obj& X = mX;
+        Obj mX;
 
         bteso_SocketHandle::Handle socket[2];
 
@@ -329,10 +329,9 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
         {
-            Obj mX;  const Obj& X = mX;
+            Obj mX;
             if (veryVerbose) { P(Obj::BTESO_MAX_NUM_HANDLES); }
 
-            int errorCode = 0;
             bteso_SocketHandle::Handle handle = 0;
             for (; handle < Obj::BTESO_MAX_NUM_HANDLES; ++handle) {
 
@@ -1651,70 +1650,28 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   Obj::registerSocketEvent
+        //
+        // Results: microseconds per registration:
+        //   Platform    Sockets Total    Fraction Busy     MicroSeconds
+        //   --------    -------------    -------------     ------------
+        //    Linux           250               0               2.2
+        //   Solaris          250               0               5.4
+        //     HPUX           250               0               0.9
+        //     AIX            250               0               2.3
+        //
+        //    Linux           250              0.5              2.0
+        //   Solaris          250              0.5              5.3
+        //     HPUX           250              0.5              0.9
+        //     AIX            250              0.5              2.4
         // -----------------------------------------------------------------
-        enum {
-            MAX_NUM_HANDLES =
-                Obj::BTESO_MAX_NUM_HANDLES,
-            DEFAULT_NUM_PAIRS        = MAX_NUM_HANDLES,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
 
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+        if (verbose) cout << "PERFORMANCE TESTING 'registerSocketEvent'\n"
+                             "=========================================\n";
 
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-            if (numPairs > MAX_NUM_HANDLES) {
-                numPairs = MAX_NUM_HANDLES;
-            }
-        }
+        if (veryVerbose) P(FD_SETSIZE);
 
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
-        {
-            const char *FILENAME = "selectRawRegister.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
-                      numPairs, numMeasurements,  controlFlag);
-            outFile.close();
-        }
-
+        Obj mX(&timeMetric, &testAllocator);
+        bteso_EventManagerTester::testRegisterPerformance(&mX, controlFlag);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

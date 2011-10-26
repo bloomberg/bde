@@ -156,7 +156,7 @@ enum {
 
 static void
 genericCb(bteso_EventType::Type event, bteso_SocketHandle::Handle socket,
-          int bytes, bteso_EventManager *mX)
+          int bytes, bteso_EventManager *)
 {
     // User specified callback function that will be called after an event
     // is dispatched to do the "real" things.
@@ -1535,74 +1535,34 @@ int main(int argc, char *argv[]) {
 
       case -2: {
         // -----------------------------------------------------------------
-        // PERFORMANCE TESTING 'registerSocketEvent':
-        //   Get the performance data.
+        // TESTING PERFORMANCE 'registerSocketEvent' METHOD:
+        //   Get performance data.
         //
         // Plan:
         //   Open multiple sockets and register a read event for each
         //   socket, calculate the average time taken to register a read
         //   event for a given number of registered read event.
+        //
         // Testing:
-        //   'registerSocketEvent' capacity
+        //   Obj::registerSocketEvent
+        //
+        // Results: microseconds per registration:
+        //   Platform    Sockets Total    Fraction Busy     MicroSeconds
+        //   --------    -------------    -------------     ------------
+        //   Solaris         5000               0               13.1
+        //     HPUX          5000               0                4.9
+        //
+        //   Solaris         5000              0.5              15.9
+        //     HPUX          5000              0.5               9.2
         // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
 
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+        if (verbose) cout << "PERFORMANCE TESTING 'registerSocketEvent'\n"
+                             "=========================================\n";
 
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
+        if (veryVerbose) P(FD_SETSIZE);
 
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
-        {
-            const char *FILENAME = "devpollRegister.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
-                      numPairs, numMeasurements, controlFlag);
-
-            outFile.close();
-        }
+        Obj mX(&timeMetric, &testAllocator);
+        bteso_EventManagerTester::testRegisterPerformance(&mX, controlFlag);
       } break;
 
       case -3: {

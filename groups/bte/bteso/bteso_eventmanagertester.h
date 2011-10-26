@@ -640,20 +640,17 @@ struct bteso_EventManagerTester {
         // verbosity in 'flags' with verbosity flags defined in this class.
         // Return 0 on success and a non-zero value if any failures occurred.
 
-    static int testRegisterPerformance(bteso_EventManager *eventManager,
-                                       bsl::ostream&       stream,
-                                       int                 numSockets,
-                                       int                 numMeasurements,
-                                       int                 flags);
+    static int testRegisterPerformance(
+                                     bteso_EventManager       *mX,
+                                     int                       flags);
         // Test the performance of the 'registerSocketEvent' method of the
-        // specified 'eventManager', using the specified 'numSockets' as the
-        // maximum number of sockets and the specified 'flags' to control
-        // execution.  For each socket, call 'registerSocketEvent' the
-        // specified 'numMeasurement' times, recording the elapsed time and
-        // calculating the average.  Write each average elapsed time to the
-        // specified 'stream' of type 'ostream'.  Return the number of failures
-        // detected.  Note that if the 'ABORT' bit is set in 'flags', a
-        // detected failure will force the test to abort.
+        // specified eventManager '*mX', prompting the user interactively for
+        // int 'numSockets' and double 'fractionRegistered', registering
+        // 'fractionRegistered * numSockets' prior to registering one socket
+        // and timing that registration.  Repeat the experiment 10 times,
+        // reporting the # of microseconds taken to 'cout'.  Or verbosity bits
+        // together in 'flags.  Return 0 on success and a non-zero value
+        // otherwise.
 };
 
 //-----------------------------------------------------------------------------
