@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-    case 12: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -228,8 +228,8 @@ int main(int argc, char *argv[])
             ASSERT( 1 == i6.nanoseconds() );
         }
 
-    } break;
-    case 11: {
+      } break;
+      case 11: {
       // --------------------------------------------------------------------
       // TESTING 'localTimeOffset' METHOD
       //  The 'localTimeOffset' function returns the difference between the
@@ -280,8 +280,8 @@ int main(int argc, char *argv[])
             ASSERT(i2 <= dt2 - dt1);
         }
 
-    } break;
-    case 10: {
+      } break;
+      case 10: {
       // --------------------------------------------------------------------
       // TESTING 'nowAsDatetimeLocal' METHOD
       //  The 'nowAsDatetimeGMT' function returns a 'bdet_DatetimeInterval'
@@ -331,8 +331,8 @@ int main(int argc, char *argv[])
             ASSERT (dt1 <= dt2);
         }
 
-    } break;
-    case 9: {
+      } break;
+      case 9: {
       // --------------------------------------------------------------------
       // TESTING 'nowAsDatetime' METHOD - stress testing for monotonicity
       //  The 'nowAsDatetime' function returns a 'bdet_TimeInterval' value
@@ -411,8 +411,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "|" << endl;
         }
 
-    } break;
-    case 8: {
+      } break;
+      case 8: {
       // --------------------------------------------------------------------
       // TESTING 'nowAsDatetimeGMT' METHOD - stress testing for monotonicity
       //  The 'nowAsDatetimeGMT' function returns a 'bdet_TimeInterval' value
@@ -492,8 +492,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "|" << endl;
         }
 
-    } break;
-    case 7: {
+      } break;
+      case 7: {
       // --------------------------------------------------------------------
       // TESTING 'now' METHOD - stress testing for monotonicity
       //  The 'now' function returns a 'bdet_TimeInterval' value representing
@@ -571,8 +571,8 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "|" << endl;
         }
 
-    } break;
-    case 6: {
+      } break;
+      case 6: {
       // --------------------------------------------------------------------
       // TESTING 'nowAsDatetime' METHOD
       //  The 'nowAsDatetime' function returns a 'bdet_DatetimeInterval' value
@@ -740,8 +740,8 @@ int main(int argc, char *argv[])
             i7 = bdetu_SystemTime::now();
             ASSERT( 1 == i7.seconds() && 1 == i7.nanoseconds() );
         }
-    } break;
-    case 5: {
+      } break;
+      case 5: {
       // --------------------------------------------------------------------
       // TESTING 'now' and 'nowAsDatetimeGMT' METHODS
       //  The 'now' function returns a 'bdet_TimeInterval' value representing
@@ -916,8 +916,8 @@ int main(int argc, char *argv[])
             i7 = bdetu_SystemTime::now();
             ASSERT( 1 == i7.seconds() && 1 == i7.nanoseconds() );
         }
-    } break;
-    case 4: {
+      } break;
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING static int inOrder()
         //
@@ -1086,8 +1086,8 @@ int main(int argc, char *argv[])
             ASSERT( 1 == i7.seconds() && 1 == i7.nanoseconds() );
         }
 
-    } break;
-    case 2: {
+      } break;
+      case 2: {
 
         // --------------------------------------------------------------------
         // TESTING 'setSystemTimeCallback' and 'currentCallback' METHODS
@@ -1142,8 +1142,8 @@ int main(int argc, char *argv[])
             bdetu_SystemTime::setSystemTimeCallback(user_p2);
             ASSERT( user_p2 == bdetu_SystemTime::currentCallback() );
 
-    } break;
-    case 1: {
+      } break;
+      case 1: {
         // --------------------------------------------------------------------
         // TESTING 'loadSystemTimeDefault' METHOD
         //   Provides a default implementation for system time retrieval.
@@ -1221,6 +1221,23 @@ int main(int argc, char *argv[])
             }
         }
 
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // DETERMINE RESOLUTION OF 'now()'.
+        // --------------------------------------------------------------------
+
+        for (int i = 0; i < 10; ++i) {
+            bdet_TimeInterval ti1, ti2;
+
+            ti1 = bdetu_SystemTime::now();
+            do {
+                ti2 = bdetu_SystemTime::now();
+            } while (ti2 <= ti1);
+
+            cout << "Resolution: " << (ti2 - ti1).totalSecondsAsDouble() <<
+                                                                  " seconds\n";
+        }
       } break;
       default: {
           cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
