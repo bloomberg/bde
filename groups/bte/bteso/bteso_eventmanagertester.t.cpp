@@ -250,7 +250,7 @@ HelperEventManager::~HelperEventManager()
                              // ------------
 
 int HelperEventManager::dispatch(const bdet_TimeInterval& deadline,
-                                 int                      flags)
+                                 int)
 {
     OperationDetails info;
     info.d_functionCode = DISPATCHTIMEOUT;
@@ -262,7 +262,7 @@ int HelperEventManager::dispatch(const bdet_TimeInterval& deadline,
     return 1;
 }
 
-int HelperEventManager::dispatch(int flags)
+int HelperEventManager::dispatch(int)
 {
     OperationDetails info;
     info.d_functionCode = DISPATCH;
@@ -948,7 +948,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1013,7 +1013,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                                                   details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1100,7 +1100,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1185,7 +1185,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1270,7 +1270,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1345,7 +1345,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1421,7 +1421,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1512,7 +1512,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
