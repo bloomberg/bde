@@ -1651,6 +1651,12 @@ int main(int argc, char *argv[])
         // Testing:
         //   Obj::registerSocketEvent
         //
+        //   Note that on Windows the # of sockets is even more severely
+        //   limited, and the 'now()' function is really too fine grained for
+        //   this experiment.  However, it is not worth redesigning the
+        //   experiment for Windows -- select is the only event manager that
+        //   works there, so there is no need to compare it with others.
+        //
         // Results: microseconds per registration:
         //   Platform    Sockets Total    Fraction Busy     MicroSeconds
         //   --------    -------------    -------------     ------------
@@ -1658,11 +1664,13 @@ int main(int argc, char *argv[])
         //   Solaris          250               0               5.4
         //     HPUX           250               0               0.9
         //     AIX            250               0               2.3
+        //   Windows          250               0                0
         //
         //    Linux           250              0.5              2.0
         //   Solaris          250              0.5              5.3
         //     HPUX           250              0.5              0.9
         //     AIX            250              0.5              2.4
+        //   Windows          250              0.5               0
         // -----------------------------------------------------------------
 
         if (verbose) cout << "PERFORMANCE TESTING 'registerSocketEvent'\n"
