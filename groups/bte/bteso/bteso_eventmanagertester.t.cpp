@@ -52,8 +52,154 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 1] Breathing Test
 // [ 8] USAGE Example
+
+//=============================================================================
+//          CENTRAL TABLE OF RESULTS OF TESTS OF 'testDispatchPerforamnce'
+//                              ON ALL PLATFORMS
+//=============================================================================
+//
+// This test is a compilation of tables at the -1 test cases of
+// 'bteso_defaulteventmanager_*.t.cpp'.
+//
+// (note 'select' has a severe limit on the # of sockets it can listen to,
+//  so it has to be treated differently.  Also, Windows has a limitation on
+//  the total # of sockets).
+//
+// Linux: ---------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R    Linux        20        epoll
+//      5000        0        0     R    Linux      3200        poll
+//       500        0        0     R    Linux       300        select
+//
+//      5000        0       0.1    R    Linux        23        epoll
+//      5000        0       0.1    R    Linux      2200        poll
+//       500        0       0.1    R    Linux       390        select
+//
+//      5000       0.5       0     R    Linux     11000        epoll
+//      5000       0.5       0     R    Linux     12000        poll
+//       500       0.5       0     R    Linux      1100        select
+//
+//      5000       0.5       0     N    Linux      2300        epoll
+//      5000       0.5       0     N    Linux      3675        poll
+//       500       0.5       0     N    Linux       550        select
+//
+// Solaris: -------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R   Solaris       50        devpoll
+//      5000        0        0     R   Solaris      750        poll
+//       500        0        0     R   Solaris      430        select
+//
+//      5000        0       0.1    R   Solaris       52        devpoll
+//      5000        0       0.1    R   Solaris      690        poll
+//       500        0       0.1    R   Solaris      450        select
+//
+//      5000       0.5       0     R   Solaris     56000       devpoll
+//      5000       0.5       0     R   Solaris     58000       poll
+//       500       0.5       0     R   Solaris      5600       select
+//
+//      5000       0.5       0     N   Solaris     13500       devpoll
+//      5000       0.5       0     N   Solaris     24000       poll
+//       500       0.5       0     N   Solaris      2250       select
+//
+// HPUX: ----------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R     HPUX        10        devpoll
+//      5000        0        0     R     HPUX      8200        poll
+//       500        0        0     R     HPUX       148        select
+//
+//      5000        0       0.1    R     HPUX        13        devpoll
+//      5000        0       0.1    R     HPUX      8900        poll
+//       500        0       0.1    R     HPUX       143        select
+//
+//      5000       0.5       0     R     HPUX     49000        devpoll
+//      5000       0.5       0     R     HPUX     55000        poll
+//       500       0.5       0     R     HPUX      1100        select
+//
+//      5000       0.5       0     N     HPUX     10500        devpoll
+//      5000       0.5       0     N     HPUX     23000        poll
+//       500       0.5       0     N     HPUX       400        select
+//
+// AIX: -----------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R     AIX       8400        poll
+//       500        0        0     R     AIX        740        select
+//
+//      5000        0       0.1    R     AIX       5800        poll
+//       500        0       0.1    R     AIX        540        select
+//
+//      5000       0.5       0     R     AIX      17000        poll
+//       500       0.5       0     R     AIX       1620        select
+//
+//      5000       0.5       0     N     AIX       7500        poll
+//       500       0.5       0     N     AIX        870        select
+//
+// Windows: -------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//       250        0        0     R   Windows        0        select
+//
+//       250        0       0.1    R   Windows        0        select
+//
+//       250       0.5       0     R   Windows        0        select
+//
+//       250       0.5       0     N   Windows        0        select
 //=============================================================================
 
+//=============================================================================
+//          CENTRAL TABLE OF RESULTS OF TESTS OF 'testRegisterPerforamnce'
+//                              ON ALL PLATFORMS
+//=============================================================================
+//
+// This test is a compilation of tables at the -2 test cases of
+// 'bteso_defaulteventmanager_*.t.cpp'.
+//
+// (note 'select' has a severe limit on the # of sockets it can listen to,
+//  so it has to be treated differently.  Also, Windows has a limitation on
+//  the total # of sockets).
+//
+// Linux: ---------------------------------------------------------------------
+//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//    Linux          5000               0               3.5        epoll
+//    Linux          5000               0               2.4        poll
+//    Linux           250               0               2.2        select
+//
+//    Linux          5000              0.5              4.5        epoll
+//    Linux          5000              0.5              3.5        poll
+//    Linux           250              0.5              2.0        select
+//
+// Solaris: -------------------------------------------------------------------
+//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//   Solaris         5000               0              13.1        devpoll
+//   Solaris         5000               0              14.2        poll
+//   Solaris          250               0               5.4        select
+//
+//   Solaris         5000              0.5              15.9       devpoll
+//   Solaris         5000              0.5             14.9        poll
+//   Solaris          250              0.5              5.3        select
+//
+// HPUX: ----------------------------------------------------------------------
+//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//     HPUX          5000               0               4.9        devpoll
+//     HPUX          5000               0               2.1        poll
+//     HPUX           250               0               0.9        select
+//
+//     HPUX          5000              0.5              9.2        devpoll
+//     HPUX          5000              0.5              2.7        poll
+//     HPUX           250              0.5              0.9        select
+//
+// AIX: -----------------------------------------------------------------------
+//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//     AIX           5000               0               3.9        poll
+//     AIX            250               0               2.3        select
+//
+//     AIX           5000              0.5              4.5        poll
+//     AIX            250              0.5              2.4        select
+//
+// Windows: -------------------------------------------------------------------
+//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//=============================================================================
+
+
+//=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
@@ -1618,3 +1764,4 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
+
