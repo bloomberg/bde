@@ -1625,6 +1625,9 @@ int main(int argc, char *argv[])
         //       500       0.5       0     N     HPUX       400
         //       500       0.5       0     N     AIX        870
         //       250       0.5       0     N   Windows        0
+        //
+        // See the compilation of results for all event managers & platforms
+        // at the beginning of 'bteso_eventmanagertester.t.cpp'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "PERFORMANCE TESTING 'dispatch'\n"
@@ -1671,6 +1674,9 @@ int main(int argc, char *argv[])
         //     HPUX           250              0.5              0.9
         //     AIX            250              0.5              2.4
         //   Windows          250              0.5               0
+        //
+        // See the compilation of results for all event managers & platforms
+        // at the beginning of 'bteso_eventmanagertester.t.cpp'.
         // -----------------------------------------------------------------
 
         if (verbose) cout << "PERFORMANCE TESTING 'registerSocketEvent'\n"

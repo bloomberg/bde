@@ -1521,6 +1521,9 @@ int main(int argc, char *argv[]) {
         //
         //      5000       0.5       0     N   Solaris     13500
         //      5000       0.5       0     N    HPUX       10500
+        //
+        // See the compilation of results for all event managers & platforms
+        // at the beginning of 'bteso_eventmanagertester.t.cpp'.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "PERFORMANCE TESTING 'dispatch'\n"
@@ -1554,6 +1557,9 @@ int main(int argc, char *argv[]) {
         //
         //   Solaris         5000              0.5              15.9
         //     HPUX          5000              0.5               9.2
+        //
+        // See the compilation of results for all event managers & platforms
+        // at the beginning of 'bteso_eventmanagertester.t.cpp'.
         // -----------------------------------------------------------------
 
         if (verbose) cout << "PERFORMANCE TESTING 'registerSocketEvent'\n"

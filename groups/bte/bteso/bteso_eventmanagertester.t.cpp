@@ -135,13 +135,12 @@ using namespace BloombergLP;
 //
 // Windows: -------------------------------------------------------------------
 //   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
-//       250        0        0     R   Windows        0        select
 //
-//       250        0       0.1    R   Windows        0        select
+//       'bdetu_SystemTime::now()' has a resolution of 1/60th of a second
+//       on Windows, so it just reports 0 microseconds everywhere.  It is
+//       not worth redoing the test to get meaningful results on Windows,
+//       since the only choice of event manager there is 'select.
 //
-//       250       0.5       0     R   Windows        0        select
-//
-//       250       0.5       0     N   Windows        0        select
 //=============================================================================
 
 //=============================================================================
@@ -196,6 +195,12 @@ using namespace BloombergLP;
 //
 // Windows: -------------------------------------------------------------------
 //   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//
+//       'bdetu_SystemTime::now()' has a resolution of 1/60th of a second
+//       on Windows, so it just reports 0 microseconds everywhere.  It is
+//       not worth redoing the test to get meaningful results on Windows,
+//       since the only choice of event manager there is 'select.
+//
 //=============================================================================
 
 
