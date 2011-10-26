@@ -187,7 +187,9 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     // TBD: these tests frequently timeout on Windows, disabling until fixed
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#if 0 && defined(BSLS_PLATFORM__OS_WINDOWS)
+    cout << "Test driver disabled\n";
+
     testStatus = -1;
 #else
 
@@ -1594,26 +1596,36 @@ int main(int argc, char *argv[])
         //   Note the # of sockets is severely limited to 1024, so we can only
         //   do 500 socket pairs.
         //
+        //   Note that on Windows the # of sockets is even more severely
+        //   limited, and the 'now()' function is really too fine grained for
+	//   this experiment.  However, it is not worth redesigning the
+	//   experiment for Windows -- select is the only event manager that
+	//   works there, so there is no need to compare it with others.
+	//
         //   SocketPairs FracBusy TimeOut R|N Platform microSeconds
         //       500        0        0     R    Linux       300
         //       500        0        0     R   Solaris      430
         //       500        0        0     R     HPUX       148
         //       500        0        0     R     AIX        740
+        //       250        0        0     R   Windows        0
         //
         //       500        0       0.1    R    Linux       390
-        //       500        0       0.1    R   Solaris      450  
+        //       500        0       0.1    R   Solaris      450
         //       500        0       0.1    R     HPUX       143
         //       500        0       0.1    R     AIX        540
+	//       250        0       0.1    R   Windows        0
         //
         //       500       0.5       0     R    Linux      1100
         //       500       0.5       0     R   Solaris     5600
         //       500       0.5       0     R     HPUX      1100
         //       500       0.5       0     R     AIX       1620
+	//       250       0.5       0     R   Windows        0
 	//
-	//       500       0.5       0     N    Linux       550 
+	//       500       0.5       0     N    Linux       550
 	//       500       0.5       0     N   Solaris     2250
 	//       500       0.5       0     N     HPUX       400
 	//       500       0.5       0     N     AIX        870
+	//       250       0.5       0     N   Windows        0
         // --------------------------------------------------------------------
 
         if (verbose) cout << "PERFORMANCE TESTING 'dispatch'\n"

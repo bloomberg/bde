@@ -1412,32 +1412,32 @@ bteso_EventManagerTester::testDispatchPerformance(
 #endif
 
     bsl::stringstream outFileNameSS;
-    outFileNameSS << "tmp." << pollingMechName << ":dsp";
+    outFileNameSS << "tmp." << pollingMechName << "_dsp";
 
 #if   defined(BSLS_PLATFORM__OS_LINUX)
-    outFileNameSS << ":lnx";
+    outFileNameSS << "_lnx";
 #elif defined(BSLS_PLATFORM__OS_SOLARIS)
-    outFileNameSS << ":sun";
+    outFileNameSS << "_sun";
 #elif defined(BSLS_PLATFORM__OS_HPUX)
-    outFileNameSS << ":hp_";
+    outFileNameSS << "_hp_";
 #elif defined(BSLS_PLATFORM__OS_AIX)
-    outFileNameSS << ":aix";
+    outFileNameSS << "_aix";
 #elif defined(BSLS_PLATFORM__OS_FREEBSD)
-    outFileNameSS << ":fre";
+    outFileNameSS << "_fre";
 #elif defined(BSLS_PLATFORM__OS_CYGWIN)
-    outFileNameSS << ":cyg";
+    outFileNameSS << "_cyg";
 #elif defined(BSLS_PLATFORM__OS_WINDOWS)
-    outFileNameSS << ":win";
+    outFileNameSS << "_win";
 #else
 #   error unrecognized platform
 #endif
 
     outFileNameSS << (sizeof(void *) * 8);
 
-    outFileNameSS << ':' << numSocketPairs;
-    outFileNameSS << ':' << fractionBusy;
-    outFileNameSS << ':' << timeOutDouble;
-    outFileNameSS << (('N' == reads) ? ":noReads.txt" : ":timeReads.txt");
+    outFileNameSS << '_' << numSocketPairs;
+    outFileNameSS << '_' << fractionBusy;
+    outFileNameSS << '_' << timeOutDouble;
+    outFileNameSS << (('N' == reads) ? "_noReads.txt" : "_timeReads.txt");
 
     bsl::cout << "testDispatchPerformance:\n"
                  "Polling Mechanism: " << pollingMechName <<     bsl::endl <<
@@ -1574,7 +1574,7 @@ bteso_EventManagerTester::testDispatchPerformance(
                         ret += mX->dispatch(0);
                         t2 = bdetu_SystemTime::now();
                     }
-                    if (t2 > t1) {
+                    if (t2 >= t1) {
                         // On Linux, time sometimes goes backward according to
                         // 'now()'.
 
