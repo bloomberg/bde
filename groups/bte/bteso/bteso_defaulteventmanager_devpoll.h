@@ -33,6 +33,9 @@ BDES_IDENT("$Id: $")
 // that appropriate method (i.e., 'dispatch') is called.  Once deregistered,
 // the callback will no longer be invoked.
 //
+// Documentation for the underlying facility can be found in 'man 7d poll' on
+// Solaris and 'man 7 poll' on HPUX.
+//
 ///Availability
 ///------------
 // The '/dev/poll' device (and consequently this specialized component) is
