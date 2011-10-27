@@ -1606,24 +1606,28 @@ int main(int argc, char *argv[])
         //       500        0        0     R   Solaris      430
         //       500        0        0     R     HPUX       148
         //       500        0        0     R     AIX        740
+        //      5000        0        0     R     AIX       6600
         //       250        0        0     R   Windows        0
         //
         //       500        0       0.1    R    Linux       390
         //       500        0       0.1    R   Solaris      450
         //       500        0       0.1    R     HPUX       143
         //       500        0       0.1    R     AIX        540
+        //      5000        0       0.1    R     AIX       4100
         //       250        0       0.1    R   Windows        0
         //
         //       500       0.5       0     R    Linux      1100
         //       500       0.5       0     R   Solaris     5600
         //       500       0.5       0     R     HPUX      1100
         //       500       0.5       0     R     AIX       1620
+        //      5000       0.5       0     R     AIX      16500
         //       250       0.5       0     R   Windows        0
         //
         //       500       0.5       0     N    Linux       550
         //       500       0.5       0     N   Solaris     2250
         //       500       0.5       0     N     HPUX       400
         //       500       0.5       0     N     AIX        870
+        //      5000       0.5       0     N     AIX       7800
         //       250       0.5       0     N   Windows        0
         //
         // See the compilation of results for all event managers & platforms

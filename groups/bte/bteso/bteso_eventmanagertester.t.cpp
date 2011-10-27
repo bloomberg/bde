@@ -122,16 +122,16 @@ using namespace BloombergLP;
 // AIX: -----------------------------------------------------------------------
 //   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
 //      5000        0        0     R     AIX       8400        poll
-//       500        0        0     R     AIX        740        select
+//      5000        0        0     R     AIX       6600        select
 //
 //      5000        0       0.1    R     AIX       5800        poll
-//       500        0       0.1    R     AIX        540        select
+//      5000        0       0.1    R     AIX       4100        select
 //
 //      5000       0.5       0     R     AIX      17000        poll
-//       500       0.5       0     R     AIX       1620        select
+//      5000       0.5       0     R     AIX      16500        select
 //
 //      5000       0.5       0     N     AIX       7500        poll
-//       500       0.5       0     N     AIX        870        select
+//      5000       0.5       0     N     AIX       7800        select
 //
 // Windows: -------------------------------------------------------------------
 //   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
