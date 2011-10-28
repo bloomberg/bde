@@ -4,6 +4,7 @@
 #include <bsls_assert.h>
 #include <bsls_macroincrement.h>
 #include <bsls_platform.h>
+#include <bsls_testutil.h>
 
 // limit ourselves to the "C" library for packages below 'bslstl'
 #include <limits.h>
@@ -67,7 +68,7 @@ static void aSsErT(bool b, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-
+#if 0
 //=============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -102,7 +103,7 @@ static void aSsErT(bool b, const char *s, int i) {
 #define P_(X) dbg_print(#X " = ", X, ", "); // P(X) without '\n'
 #define L_ __LINE__                         // current Line number
 #define T_ putchar('\t');                   // Print a tab (w/o newline)
-
+#endif
 //=============================================================================
 //                    GLOBAL CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -127,44 +128,6 @@ bool globalVeryVeryVerbose = false;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-// Fundamental-type-specific print functions.
-inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val); fflush(stdout);
-}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) {
-    printf("%lu", val); fflush(stdout);
-}
-inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
-inline void dbg_print(unsigned long long val) {
-    printf("%llu", val); fflush(stdout);
-}
-inline void dbg_print(float val) {
-    printf("'%f'", (double)val); fflush(stdout);
-}
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(long double val) {
-    printf("'%Lf'", val); fflush(stdout);
-}
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
-
-// Generic debug print function (3-arguments).
-template <typename T>
-void dbg_print(const char* s, const T& val, const char* nl) {
-    printf("%s", s); dbg_print(val);
-    printf("%s", nl);
-    fflush(stdout);
-}
 
 //=============================================================================
 //                 USAGE EXAMPLE EXTRACTED AS STAND-ALONE CODE

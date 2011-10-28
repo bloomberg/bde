@@ -6,6 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_asserttestexception.h>
 #include <bsls_platform.h>
+#include <bsls_testutil.h>   // for testing purposes only
 
 #include <stdio.h>
 #include <stdlib.h>
