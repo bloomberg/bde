@@ -234,6 +234,12 @@ BDES_IDENT("$Id: $")
 //     Write <N> bytes into the control socket of socket pair fds[<FD>],
 //           <FD>: the index into the array of socket pairs
 //           <N> : the number of bytes to be written into the control socket
+//
+// 11. 'S'<T>
+//     Sleep for <T> milliseconds
+//           <T> : the number of milliseconds to sleep for.  Bear in mind the
+//                 minimum resolution of sleeping on many platforms is 10
+//                 milliseconds.
 //..
 // The following examples interpret a given script in the order from left to
 // right to configure a list of I/O request commands for an event manager test
@@ -543,6 +549,7 @@ struct bteso_EventManagerTester {
                                         // not execute the test script, but
                                         // only parse the test script to the
                                         // standard output.
+
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
       , VERBOSE           = BTESO_VERBOSE
       , VERY_VERBOSE      = BTESO_VERY_VERBOSE
@@ -611,35 +618,39 @@ struct bteso_EventManagerTester {
         // that if the 'ABORT' bit is set in 'flags', a detected failure will
         // force the test to abort.
 
-    static int testDispatchPerformance(bteso_EventManager *eventManager,
-                                       bsl::ostream&       stream,
-                                       int                 numSocketPairs,
-                                       int                 numMeasurements,
-                                       int                 flags);
-        // Test the performance of the 'dispatch' method of the specified
-        // 'eventManager', using the specified 'numSocketPairs' as the maximum
-        // number of connected socket pairs and the specified 'flags' to
-        // control execution.  For each socket pair, call 'dispatch' the
-        // specified 'numMeasurement' times, recording the elapsed time and
-        // calculating the average.  Write each average elapsed time to the
-        // specified 'stream' of type 'ostream'.  Return the number of failures
-        // detected.  Note that if the 'ABORT' bit is set in 'flags', a
-        // detected failure will force the test to abort.
+    static int testDispatchPerformance(
+                                     bteso_EventManager       *mX,
+                                     const char               *pollingMechName,
+                                     int                       flags);
+        // Test the performance of the 'mX->dispatch' function.  Specify
+        // 'pollingMechName' which reflects the name of the type of event
+        // manager used.  4 paramters are read interactively from 'cin':
+        // 'numPairs', the number of socket pairs listened to, a double
+        // specifying the fraction of those socket pairs that have data waiting
+        // (a value of 0.0 means that one socket has data waiting), a double
+        // which is the seconds to timeout (a value of 0.0 means that no
+        // timeout is specified), and whether reads on those sockets with data
+        // waiting are to be timed as part of the performance test.  Note that
+        // those sockets that have data waiting will have one byte of data
+        // apiece.  A file name will be created that reflects the values of
+        // 'pollingMechName' and the parameters interactively specified, and
+        // that file will contain the results, which will be the test run with
+        // values of 'numPairs' ranging from 'numPairs - 9' to 'numPairs', and
+        // the microseconds taken per dispatch, one value per line.  Specify
+        // verbosity in 'flags' with verbosity flags defined in this class.
+        // Return 0 on success and a non-zero value if any failures occurred.
 
-    static int testRegisterPerformance(bteso_EventManager *eventManager,
-                                       bsl::ostream&       stream,
-                                       int                 numSockets,
-                                       int                 numMeasurements,
-                                       int                 flags);
+    static int testRegisterPerformance(
+                                     bteso_EventManager       *mX,
+                                     int                       flags);
         // Test the performance of the 'registerSocketEvent' method of the
-        // specified 'eventManager', using the specified 'numSockets' as the
-        // maximum number of sockets and the specified 'flags' to control
-        // execution.  For each socket, call 'registerSocketEvent' the
-        // specified 'numMeasurement' times, recording the elapsed time and
-        // calculating the average.  Write each average elapsed time to the
-        // specified 'stream' of type 'ostream'.  Return the number of failures
-        // detected.  Note that if the 'ABORT' bit is set in 'flags', a
-        // detected failure will force the test to abort.
+        // specified eventManager '*mX', prompting the user interactively for
+        // int 'numSockets' and double 'fractionRegistered', registering
+        // 'fractionRegistered * numSockets' prior to registering one socket
+        // and timing that registration.  Repeat the experiment 10 times,
+        // reporting the # of microseconds taken to 'cout'.  Or verbosity bits
+        // together in 'flags.  Return 0 on success and a non-zero value
+        // otherwise.
 };
 
 //-----------------------------------------------------------------------------

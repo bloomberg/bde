@@ -30,7 +30,9 @@ BDES_IDENT("$Id: $")
 //
 //  allowBroadcasting          BTESO_BROADCAST       This option indicates
 //                                                   whether broadcast messages
-//                                                   can be sent.
+//                                                   can be sent.  Not supported
+//                                                   for datagram sockets on
+//                                                   windows.
 //
 //  reuseAddress               BTESO_REUSEADDRESS    This option indicates
 //                                                   whether local addresses
@@ -40,7 +42,8 @@ BDES_IDENT("$Id: $")
 //                                                   whether connections should
 //                                                   be kept alive by enabling
 //                                                   periodic transmission of
-//                                                   messages.
+//                                                   messages.  Not support for
+//                                                   stream sockets on windows.
 //
 //  bypassNormalRouting        BTESO_DONTROUTE       This option indicates
 //                                                   whether out-going messages
@@ -56,7 +59,10 @@ BDES_IDENT("$Id: $")
 //                                                   whether out-of-band data
 //                                                   (i.e., data marked urgent)
 //                                                   should be left in the
-//                                                   normal input queue.
+//                                                   normal input queue.  Not
+//                                                   supported for stream
+//                                                   sockets on Linux or
+//                                                   Windows.
 //
 //  sendBufferSize             BTESO_SENDBUFFER      This option specifies the
 //                                                   size of the output buffer

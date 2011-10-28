@@ -2,8 +2,10 @@
 
 #include <bteso_eventmanagertester.h>
 
-#include <bteso_socketimputil.h>
 #include <bteso_eventmanager.h>
+#include <bteso_ioutil.h>
+#include <bteso_socketimputil.h>
+
 #include <bcemt_thread.h>
 
 #include <bslma_testallocator.h>                // for testing only
@@ -50,8 +52,159 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // [ 1] Breathing Test
 // [ 8] USAGE Example
+
+//=============================================================================
+//          CENTRAL TABLE OF RESULTS OF TESTS OF 'testDispatchPerforamnce'
+//                              ON ALL PLATFORMS
+//=============================================================================
+//
+// This test is a compilation of tables at the -1 test cases of
+// 'bteso_defaulteventmanager_*.t.cpp'.
+//
+// (note 'select' has a severe limit on the # of sockets it can listen to,
+//  so it has to be treated differently.  Also, Windows has a limitation on
+//  the total # of sockets).
+//
+// Linux: ---------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R    Linux        20        epoll
+//      5000        0        0     R    Linux      3200        poll
+//       500        0        0     R    Linux       300        select
+//
+//      5000        0       0.1    R    Linux        23        epoll
+//      5000        0       0.1    R    Linux      2200        poll
+//       500        0       0.1    R    Linux       390        select
+//
+//      5000       0.5       0     R    Linux     11000        epoll
+//      5000       0.5       0     R    Linux     12000        poll
+//       500       0.5       0     R    Linux      1100        select
+//
+//      5000       0.5       0     N    Linux      2300        epoll
+//      5000       0.5       0     N    Linux      3675        poll
+//       500       0.5       0     N    Linux       550        select
+//
+// Solaris: -------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R   Solaris       50        devpoll
+//      5000        0        0     R   Solaris      750        poll
+//       500        0        0     R   Solaris      430        select
+//
+//      5000        0       0.1    R   Solaris       52        devpoll
+//      5000        0       0.1    R   Solaris      690        poll
+//       500        0       0.1    R   Solaris      450        select
+//
+//      5000       0.5       0     R   Solaris     56000       devpoll
+//      5000       0.5       0     R   Solaris     58000       poll
+//       500       0.5       0     R   Solaris      5600       select
+//
+//      5000       0.5       0     N   Solaris     13500       devpoll
+//      5000       0.5       0     N   Solaris     24000       poll
+//       500       0.5       0     N   Solaris      2250       select
+//
+// HPUX: ----------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R     HPUX        10        devpoll
+//      5000        0        0     R     HPUX      8200        poll
+//       500        0        0     R     HPUX       148        select
+//
+//      5000        0       0.1    R     HPUX        13        devpoll
+//      5000        0       0.1    R     HPUX      8900        poll
+//       500        0       0.1    R     HPUX       143        select
+//
+//      5000       0.5       0     R     HPUX     49000        devpoll
+//      5000       0.5       0     R     HPUX     55000        poll
+//       500       0.5       0     R     HPUX      1100        select
+//
+//      5000       0.5       0     N     HPUX     10500        devpoll
+//      5000       0.5       0     N     HPUX     23000        poll
+//       500       0.5       0     N     HPUX       400        select
+//
+// AIX: -----------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//      5000        0        0     R     AIX       8400        poll
+//      5000        0        0     R     AIX       6600        select
+//
+//      5000        0       0.1    R     AIX       5800        poll
+//      5000        0       0.1    R     AIX       4100        select
+//
+//      5000       0.5       0     R     AIX      17000        poll
+//      5000       0.5       0     R     AIX      16500        select
+//
+//      5000       0.5       0     N     AIX       7500        poll
+//      5000       0.5       0     N     AIX       7800        select
+//
+// Windows: -------------------------------------------------------------------
+//   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
+//
+//       'bdetu_SystemTime::now()' has a resolution of 1/60th of a second
+//       on Windows, so it just reports 0 microseconds everywhere.  It is
+//       not worth redoing the test to get meaningful results on Windows,
+//       since the only choice of event manager there is 'select.
+//
 //=============================================================================
 
+//=============================================================================
+//          CENTRAL TABLE OF RESULTS OF TESTS OF 'testRegisterPerforamnce'
+//                              ON ALL PLATFORMS
+//=============================================================================
+//
+// This test is a compilation of tables at the -2 test cases of
+// 'bteso_defaulteventmanager_*.t.cpp'.
+//
+// (note 'select' has a severe limit on the # of sockets it can listen to,
+//  so it has to be treated differently.  Also, Windows has a limitation on
+//  the total # of sockets).
+//
+// Linux: ---------------------------------------------------------------------
+//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//    Linux          5000               0               3.5        epoll
+//    Linux          5000               0               2.4        poll
+//    Linux           250               0               2.2        select
+//
+//    Linux          5000              0.5              4.5        epoll
+//    Linux          5000              0.5              3.5        poll
+//    Linux           250              0.5              2.0        select
+//
+// Solaris: -------------------------------------------------------------------
+//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//   Solaris         5000               0              13.1        devpoll
+//   Solaris         5000               0              14.2        poll
+//   Solaris          250               0               5.4        select
+//
+//   Solaris         5000              0.5              15.9       devpoll
+//   Solaris         5000              0.5             14.9        poll
+//   Solaris          250              0.5              5.3        select
+//
+// HPUX: ----------------------------------------------------------------------
+//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//     HPUX          5000               0               4.9        devpoll
+//     HPUX          5000               0               2.1        poll
+//     HPUX           250               0               0.9        select
+//
+//     HPUX          5000              0.5              9.2        devpoll
+//     HPUX          5000              0.5              2.7        poll
+//     HPUX           250              0.5              0.9        select
+//
+// AIX: -----------------------------------------------------------------------
+//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//     AIX           5000               0               3.9        poll
+//     AIX            250               0               2.3        select
+//
+//     AIX           5000              0.5              4.5        poll
+//     AIX            250              0.5              2.4        select
+//
+// Windows: -------------------------------------------------------------------
+//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//
+//       'bdetu_SystemTime::now()' has a resolution of 1/60th of a second
+//       on Windows, so it just reports 0 microseconds everywhere.  It is
+//       not worth redoing the test to get meaningful results on Windows,
+//       since the only choice of event manager there is 'select.
+//
+//=============================================================================
+
+
+//=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
@@ -248,7 +401,7 @@ HelperEventManager::~HelperEventManager()
                              // ------------
 
 int HelperEventManager::dispatch(const bdet_TimeInterval& deadline,
-                                 int                      flags)
+                                 int)
 {
     OperationDetails info;
     info.d_functionCode = DISPATCHTIMEOUT;
@@ -260,7 +413,7 @@ int HelperEventManager::dispatch(const bdet_TimeInterval& deadline,
     return 1;
 }
 
-int HelperEventManager::dispatch(int flags)
+int HelperEventManager::dispatch(int)
 {
     OperationDetails info;
     info.d_functionCode = DISPATCH;
@@ -614,6 +767,7 @@ int buildOpDetails(
       } break;
       case 'R':
       case 'W':
+      case 'S':
         break;
 
       default:
@@ -650,7 +804,60 @@ int main(int argc, char *argv[])
     testAllocator.setNoAbort(1);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 12: {
+        // ------------------------------------------------------------------
+        // TESTING SOCKET START-UP
+        //
+        // Concern:
+        //   That newly created socket does correct i/o.  HPUX sockets are
+        //   observed to take ~ 20 ms to get started properly.
+        //
+        // Plan:
+        //   Write to a socket IMMEDIATELY after creating it.  Verify that
+        //   the data is eventually received correctly.
+        // ------------------------------------------------------------------
+
+        const char *testData =
+                        "There are more things in heaven and earth, Horatio,\n"
+                        "than are dreamt of in your philosophy.\n";
+        const int testLen = bsl::strlen(testData);
+
+        bdet_TimeInterval start = bdetu_SystemTime::now();
+
+        bteso_EventManagerTestPair mX(veryVerbose);
+        int rc = bteso_IoUtil::setBlockingMode(mX.observedFd(),
+                                               bteso_IoUtil::BTESO_BLOCKING);
+        ASSERT(0 == rc);
+
+        rc = bteso_SocketImpUtil::write(mX.controlFd(), testData, testLen);
+        ASSERT(testLen == rc);
+        char readBuf[1000];
+        rc = bteso_SocketImpUtil::read(readBuf, mX.observedFd(), testLen);
+        bdet_TimeInterval finish = bdetu_SystemTime::now();
+        LOOP2_ASSERT(testLen, rc, testLen == rc);
+        ASSERT(0 == bsl::memcmp(readBuf, testData, testLen));
+
+        double elapsed = (finish - start).totalSecondsAsDouble();
+        LOOP_ASSERT(elapsed, elapsed <= 0.40);
+
+        // verify that now that the socket's woken up, it's quite fast
+
+        bsl::memset(readBuf, 0, testLen);
+        rc = bteso_SocketImpUtil::write(mX.controlFd(), testData, testLen);
+        ASSERT(testLen == rc);
+        rc = bteso_SocketImpUtil::read(readBuf, mX.observedFd(), testLen);
+        bdet_TimeInterval finish2 = bdetu_SystemTime::now();
+        LOOP2_ASSERT(testLen, rc, testLen == rc);
+        ASSERT(0 == bsl::memcmp(readBuf, testData, testLen));
+
+        double elapsed2 = (finish2 - finish).totalSecondsAsDouble();
+        LOOP2_ASSERT(elapsed, elapsed2, elapsed2 <= 0.0001);
+
+        if (verbose) {
+            P_(elapsed) P(elapsed2);
+        }
+      } break;
+      case 11: {
         // ------------------------------------------------------------------
         // TESTING bteso_EventManagerTestPair
         // Concerns:
@@ -674,7 +881,7 @@ int main(int argc, char *argv[])
         ASSERT(NULL != X.observedFd());     ASSERT(NULL != X.controlFd());
 #endif
       } break;
-      case 9: {
+      case 10: {
         // ------------------------------------------------------------------
         // USAGE EXAMPLE:
         //   Test building the operation details which will be used to verify
@@ -735,7 +942,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 8: {
+      case 9: {
         // ------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -816,6 +1023,25 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(LINE, 0 == fails);
 
       } break;
+      case 8: {
+        // ------------------------------------------------------------------
+        // TESTING 'sleep'
+        //
+        // Plan:
+        //   Issue a 'sleep' command and verify that an appropriate amount of
+        //   time passed.
+        // ------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "Testing 'gg' for sleep\n"
+                                  "======================\n";
+
+        double start   = bdetu_SystemTime::now().totalSecondsAsDouble();
+        int fails = bteso_EventManagerTester::gg(0, 0, "S100; S150", 0);
+        double elapsed = bdetu_SystemTime::now().totalSecondsAsDouble() -
+                                                                         start;
+        ASSERT(0 == fails);
+        ASSERT(elapsed >= 0.25);
+      } break;
       case 7: {
         // ------------------------------------------------------------------
         // TESTING 'testDispatch':
@@ -873,7 +1099,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -938,7 +1164,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                                                   details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1025,7 +1251,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1110,7 +1336,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1195,7 +1421,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1270,7 +1496,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1346,7 +1572,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1399,9 +1625,17 @@ int main(int argc, char *argv[])
             } SCRIPTS[] =
             {
                {L_, 0, "T0; E0r; E0rwa; E1caw; E0rwac"},
-               {L_, 0, "W0,30; R0,24"},
+#if defined(BSLS_PLATFORM__OS_HPUX)
+               {L_, 0, "W0,30; S40; R0,24"},
+#else
+               {L_, 0, "W0,30; S1; R0,24"},
+#endif
                {L_, 0, "Di,1; Dn,1;  Di150,1; Dn400,1"},
-               {L_, 0, "T0; +0w21; W1,20; +1r11"},
+#if defined(BSLS_PLATFORM__OS_HPUX)
+               {L_, 0, "T0; +0w21; W1,20; S40; +1r11"},
+#else
+               {L_, 0, "T0; +0w21; W1,20; S1; +1r11"},
+#endif
             };
 
             const int NUM_SCRIPTS = sizeof SCRIPTS / sizeof *SCRIPTS;
@@ -1429,7 +1663,7 @@ int main(int argc, char *argv[])
                 const bsl::vector<HelperEventManager::OperationDetails>&
                     details = mX.opDetails();
                 int len = opDetails.size();
-                LOOP_ASSERT(i, len == details.size());
+                LOOP_ASSERT(i, len == (int) details.size());
 
                 for (int j = 0; j < len; ++j) {
                     if (veryVerbose) {
@@ -1472,6 +1706,50 @@ int main(int argc, char *argv[])
         }
       } break;
 
+      case -1: {
+        // -----------------------------------------------------------------
+        // Interactive gg test shell
+        // -----------------------------------------------------------------
+
+        while (1) {
+            char script[1000];
+            cout << "Enter script: " << flush;
+            cin.getline(script, 1000);
+
+            if (cin.eof() && '\0' == script[0]) {
+                cout << endl;
+                break;
+            }
+            if (0 == bsl::strncmp(script, "quit", 4)) {
+                break;
+            }
+
+            int i = 0;
+            for (; i < 4; ++i) {
+                HelperEventManager mX(&testAllocator);
+
+                const int NUM_PAIR = 4;
+                bteso_EventManagerTestPair socketPairs[NUM_PAIR];
+
+                for (int j = 0; j < NUM_PAIR; j++) {
+                    socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
+                    socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
+                }
+
+                int ctrlFlag = 0;
+                int fails = bteso_EventManagerTester::gg(&mX, socketPairs,
+                                                         script,
+                                                         ctrlFlag);
+                if (fails) {
+                    break;
+                }
+            }
+            if (4 == i) {
+                cout << "Success!\n";
+            }
+        }
+      } break;
+
       default: {
           cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
           testStatus = -1;
@@ -1491,3 +1769,4 @@ int main(int argc, char *argv[])
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
+

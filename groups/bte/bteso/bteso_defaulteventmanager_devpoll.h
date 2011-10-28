@@ -33,6 +33,9 @@ BDES_IDENT("$Id: $")
 // that appropriate method (i.e., 'dispatch') is called.  Once deregistered,
 // the callback will no longer be invoked.
 //
+// Documentation for the underlying facility can be found in 'man 7d poll' on
+// Solaris and 'man 7 poll' on HPUX.
+//
 ///Availability
 ///------------
 // The '/dev/poll' device (and consequently this specialized component) is
@@ -297,7 +300,7 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_HPUX)
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>
@@ -486,7 +489,7 @@ bool bteso_DefaultEventManager<bteso_Platform::DEVPOLL>::
 
 }  // close namespace BloombergLP
 
-#endif // BSLS_PLATFORM__OS_SOLARIS
+#endif // SOLARIS || HPUX
 
 #endif
 
