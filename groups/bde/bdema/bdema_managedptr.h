@@ -37,7 +37,7 @@ BDES_IDENT("$Id: $")
 // to the appropriate types for pointers to the factory and managed object.
 // This component still supports (deprecated) legacy deleters that expect to be
 // passed pointers to the specific factory and managed object types in use.
-// This form of deleter is now deprecated as this relies on undefined behavior
+// This form of deleter is now deprecated as it relies on undefined behavior,
 // casting such function pointers to the correct form (taking two 'void *'
 // arguments) and invoking the function with two 'void *' pointer arguments.
 // While this is undefined behavior, it is known to have the desired effect on
@@ -57,23 +57,13 @@ BDES_IDENT("$Id: $")
 ///--------
 // In a managed pointer, the pointer value (the value returned by the 'ptr'
 // method) and the pointer to the managed object need not have the same value.
-// The 'loadAlias' method allows a managed pointer to be constructed as an
-// "alias" to another managed pointer (possibly of a different type), which
-// we'll call the "original" managed pointer.  When 'ptr' is invoked on the
-// alias, the aliased pointer value is returned, but when the managed pointer
-// is destroyed, the original managed object will be passed to the deleter.
-// (See also the documentation of the 'alias' constructor or of the 'loadAlias'
+// The 'loadAlias' method allows a managed pointer to be created as an "alias"
+// to another managed pointer (possibly of a different type), which we'll call
+// the "original" managed pointer.  When 'ptr' is invoked on the alias, the
+// aliased pointer value is returned, but when the managed pointer is
+// destroyed, the original managed object will be passed to the deleter. (See
+// also the documentation of the 'alias' constructor or of the 'loadAlias'
 // method.)
-//
-// For instance, suppose that we wish to give access to an item in a temporary
-// array via a pointer which we'll call the "finger".  The finger is the only
-// pointer to the array or any part of the array, but the entire array must be
-// valid until the finger is destroyed, at which time the entire array must be
-// deleted.  We handle this situation by first creating a managed pointer to
-// the entire array, then creating an alias of that pointer for the finger.
-// The finger takes ownership of the array instance, and when the finger is
-// destroyed, it is the array's address, rather than the finger, that is passed
-// to the deleter.
 //
 ///Exception Safety
 ///----------------
@@ -98,7 +88,8 @@ BDES_IDENT("$Id: $")
 ///Explicit Casting
 /// - - - - - - - -
 // Through "aliasing", a managed pointer of any type can be explicitly cast
-// to a managed pointer of any other type using any legal cast expression.
+// to a managed pointer of any other type using any legal cast expression.  See
+// the 'casting' example below for more details.
 //
 ///Usage
 ///-----
@@ -109,99 +100,135 @@ BDES_IDENT("$Id: $")
 // We demonstrate using 'bdema_ManagedPtr' to configure and return a managed
 // object implementing an abstract protocol.
 //
-// First we define our protocol.  A 'Talker' is a type of object that knows how
-// to 'speak':
+// First we define our protocol, 'Shape', a type of object that knows how to
+// compute its 'area'.
 //..
-//  struct Talker {
-//      virtual const char * speak() const = 0;
-//          // Return a pointer to a null-terminated string that will remain
-//          // valid for at least the lifetime of this object.  The string
-//          // should in some way reflect the nature of this 'Talker'.
+//  struct Shape {
+//      virtual double area() const = 0;
+//          // Return the 'area' of this shape.
 //  };
 //..
-// Then we define a couple of classes that implement the 'Talker' protocol, a
-// 'Cat' and a 'Dog':
+// Then we define a couple of classes that implement the 'Shape' protocol, a
+// 'Circle' and a 'Square'.
 //..
-//  class Cat : public Talker {
-//      virtual const char * speak() const;
-//          // Return a string literal, "meow!"
+//  class Circle : public Shape {
+//    private:
+//      // DATA
+//      double d_radius;
+//
+//    public:
+//      // CREATORS
+//      explicit Circle(double r);
+//          // Create a 'Circle' object having radius 'r'.
+//
+//      // ACCESSORS
+//      virtual double area() const;
+//          // Return the area of this Circle, given by the forumula pi*r*r.
 //  };
 //
-//  class Dog : public Talker {
-//      virtual const char * speak() const;
-//          // Return a string literal, "woof!"
-//  };
+//  class Square : public Shape {
+//    private:
+//      // DATA
+//      double d_sideLength;
 //
-//  const char * Cat::speak() const {
-//      return "meow!";
+//    public:
+//      // CREATORS
+//      explicit Square(double side);
+//          // Create a 'Square' having sides of length 'side'.
+//
+//      // ACCESSORS
+//      virtual double area() const;
+//          // Return the area of this Square, given by the forumula side*side
+//  };
+//..
+// Next we implement the methods for a 'Circle'.
+//..
+//  Circle::Circle(double r)
+//  : d_radius(r)
+//  {
 //  }
 //
-//  const char * Dog::speak() const {
-//      return "woof!";
+//  double Circle::area() const {
+//      return 3.141592653589793238462 * d_radius * d_radius;
 //  }
 //..
-// Then we define an enumeration that lists each implementation of the 'Talker'
-// protocol:
+// Then we implement the methods for a 'Square'..
 //..
-//  struct Talkers {
-//      enum VALUES { TLK_CAT, TLK_DOG };
+//  Square::Square(double side)
+//  : d_sideLength(side)
+//  {
+//  }
+//
+//  double Square::area() const {
+//      return d_sideLength * d_sideLength;
+//  }
+//..
+// Then we define an enumeration that lists each implementation of the 'Shape'
+// protocol.
+//..
+//  struct Shapes {
+//      enum VALUES { SHAPE_CIRCLE, SHAPE_SQUARE };
 //  };
 //..
-// Now we can define a function that will return a 'Cat' object or a 'Dog'
-// object according to the specified 'kind' parameter:
+// Now we can define a function that will return a 'Circle' object or a
+// 'Square' object according to the specified 'kind' parameter, and having its
+// 'dimension' specified by the caller.
 //..
-//  bdema_ManagedPtr<Talker> makeTalker(Talkers::VALUES kind)
+//  bdema_ManagedPtr<Shape> makeShape(Shapes::VALUES kind, double dimension)
 //  {
 //      bslma_Allocator *alloc = bslma_Default::defaultAllocator();
-//      bdema_ManagedPtr<Talker> result;
+//      bdema_ManagedPtr<Shape> result;
 //      switch (kind) {
-//      case Talkers::TLK_CAT : {
-//              Cat *tom = new(*alloc)Cat;
-//              result.load(tom);
+//      case Shapes::SHAPE_CIRCLE : {
+//              Circle *circ = new(*alloc)Circle(dimension);
+//              result.load(circ);
 //              break;
 //          }
-//      case Talkers::TLK_DOG : {
-//              Dog *spike = new(*alloc)Dog;
-//              result.load(spike);
+//      case Shapes::SHAPE_SQUARE : {
+//              Square *sqr = new(*alloc)Square(dimension);
+//              result.load(sqr);
 //              break;
 //          }
 //      };
 //      return result;
 //  }
 //..
-// Then, we can use our function to create talkers of different kinds, and
-// check that they say the right thing:
+// Then, we can use our function to create shapes of different kinds, and check
+// that they report the correct area.  Note that are using a radius of '1.0'
+// for the 'Circle' and integral side-length for the 'Square' to support an
+// accurate 'operator==' with floating-point quantities.
 //..
-//  void testTalkers()
+//  void testShapes()
 //  {
-//      bdema_ManagedPtr<Talker> toon = makeTalker(Talkers::TLK_CAT);
-//      ASSERT(0 != toon);
-//      ASSERT(!strcmp("meow!", toon->speak()));
+//      bdema_ManagedPtr<Shape> shape = makeShape(Shapes::SHAPE_CIRCLE, 1.0);
+//      ASSERT(0 != shape);
+//      ASSERT(3.141592653589793238462 == shape->area());
 //
-//      toon = makeTalker(Talkers::TLK_DOG);
-//      ASSERT(0 != toon);
-//      ASSERT(!strcmp("woof!", toon->speak()));
+//      shape = makeShape(Shapes::SHAPE_SQUARE, 2.0);
+//      ASSERT(0 != shape);
+//      ASSERT(4.0 == shape->area());
 //  }
 //..
 // Next, we observe that as we are creating objects dynamically, we should pass
-// an allocator to the 'makeTalkers' function, rather than simply accepting the
+// an allocator to the 'makeShape' function, rather than simply accepting the
 // default allocator each time.  Note that when we do this, we pass the user's
 // allocator to the 'bdema_ManagedPtr' object as the "factory".
 //..
-//  bdema_ManagedPtr<Talker> makeTalker(Talkers::VALUES  kind,
-//                                      bslma_Allocator *allocator)
+//  bdema_ManagedPtr<Shape> makeShape(Shapes::VALUES   kind,
+//                                    double           dimension,
+//                                    bslma_Allocator *allocator)
 //  {
 //      bslma_Allocator *alloc = bslma_Default::allocator(allocator);
-//      bdema_ManagedPtr<Talker> result;
+//      bdema_ManagedPtr<Shape> result;
 //      switch (kind) {
-//      case Talkers::TLK_CAT : {
-//              Cat *tom = new(*alloc)Cat;
-//              result.load(tom, alloc);
+//      case Shapes::SHAPE_CIRCLE : {
+//              Circle *circ = new(*alloc)Circle(dimension);
+//              result.load(circ, alloc);
 //              break;
 //          }
-//      case Talkers::TLK_DOG : {
-//              Dog *spike = new(*alloc)Dog;
-//              result.load(spike, alloc);
+//      case Shapes::SHAPE_SQUARE : {
+//              Square *sqr = new(*alloc)Square(dimension);
+//              result.load(sqr, alloc);
 //              break;
 //          }
 //      };
@@ -210,17 +237,18 @@ BDES_IDENT("$Id: $")
 //..
 // Finally we repeat the earlier test, additionally passing a test allocator:
 //..
-//  void testTalkersToo()
+//  void testShapesToo()
 //  {
 //      bslma_TestAllocator ta("object");
 //
-//      bdema_ManagedPtr<Talker> toon = makeTalker(Talkers::TLK_CAT, &ta);
-//      ASSERT(0 != toon);
-//      ASSERT(!strcmp("meow!", toon->speak()));
+//      bdema_ManagedPtr<Shape> shape =
+//                                   makeShape(Shapes::SHAPE_CIRCLE, 1.0, &ta);
+//      ASSERT(0 != shape);
+//      ASSERT(3.141592653589793238462 == shape->area());
 //
-//      toon = makeTalker(Talkers::TLK_DOG, &ta);
-//      ASSERT(0 != toon);
-//      ASSERT(!strcmp("woof!", toon->speak()));
+//      shape = makeShape(Shapes::SHAPE_SQUARE, 3.0, &ta);
+//      ASSERT(0 != shape);
+//      ASSERT(9.0 == shape->area());
 //  }
 //..
 //
@@ -348,34 +376,62 @@ BDES_IDENT("$Id: $")
 // Suppose we want to track the number of objects currently managed by
 // 'bdema_ManagedPtr' objects.
 //
-// First we define a factory type, that holds an allocator and a usage-counter:
+// First we define a factory type, that holds an allocator and a usage-counter.
 //..
 //  class CountedFactory {
 //      // DATA
 //      int              d_count;
 //      bslma_Allocator *d_allocator;
-//
+//..
+// Then we note that such a type cannot be sensibly copied, as the notion of
+// 'count' becomes confused.
+//..
 //      // NOT IMPLEMENTED
 //      CountedFactory(const CountedFactory&);
 //      CountedFactory& operator=(const CountedFactory&);
-//
+//..
+// Next we declare a public constructor that can be used to create objects of
+// this factory type, and a public destructor.
+//..
 //    public:
 //      // CREATORS
 //      explicit CountedFactory(bslma_Allocator *alloc = 0);
+//          // Create a 'CountedFactory' object which uses the supplied
+//          // allocator 'alloc'
 //
 //      ~CountedFactory();
-//
+//          // Destroy this object.
+//..
+// Then we provide the ability for the factory to create objects of any type
+// requested by the user, using the allocator supplied at construction time.
+//..
 //      // MANIPULATORS
 //      template <class TYPE>
 //      TYPE *createObject();
-//
+//          // Return a pointer to a newly allocated object of type 'TYPE'
+//          // created using its default constructor.  Memory for the object
+//          // is supplied by the allocator supplied to this factory's
+//          // constructor, and the count of valid object is incremented.
+//..
+// Now we provide the 'deleteObject' function required of factory types to be
+// used with 'bdema_ManagedPtr'.
+//..
 //      template <class TYPE>
-//      void deleteObject(const TYPE *object);
-//
+//      void deleteObject(const TYPE *target);
+//          // Destroy the object pointed to be 'target' and reclaim the
+//          // memory.  Decrement the count of currently valid objects.
+//..
+// Then we round out the class with the ability to query the 'count' of
+// currently allocated objects.
+//..
 //      // ACCESSORS
 //      int count() const;
+//          // Return the number of currently valid objects allocated by this
+//          // factory.
 //  };
-//
+//..
+// Next we define the operations declared by the class.
+//..
 //  CountedFactory::CountedFactory(bslma_Allocator *alloc)
 //  : d_count(0)
 //  , d_allocator(bslma_Default::allocator(alloc))
@@ -408,84 +464,157 @@ BDES_IDENT("$Id: $")
 //      return d_count;
 //  }
 //..
-// Then ...
+// Then we can create a test function to illustrate how such a factory would be
+// used with 'bdema_ManagedPtr'.
 //..
 //  void testCountedFactory()
 //  {
+//..
+// Next we declare a test allocator, and an object of our 'CountedFactory' type
+// using that allocator.
+//..
 //      bslma_TestAllocator ta;
 //      CountedFactory cf(&ta);
-//
+//..
+// Then we open a new local scope and declare an array of managed pointers.  We
+// need a local scope in order to observe the behavior of the destructors at
+// end of the scope, and use an array as an easy way to count more than one
+// object.
+//..
 //      {
 //          bdema_ManagedPtr<int> pData[4];
-//
+//..
+// Next we load each managed pointer in the array with a new 'int' using our
+// factory 'cf' and assert that the factory 'count' is correct after each new
+// 'int' is created.
+//..
 //          int i = 0;
 //          while (i != 4) {
 //              pData[i++].load(cf.createObject<int>(), &cf);
 //              ASSERT(cf.count() == i);
 //          }
-//
+//..
+// Then we 'clear' the contents of a single managed pointer in the array, and
+// assert that the factory 'count' is appropriately reduced.
+//..
 //          pData[1].clear();
 //          ASSERT(3 == cf.count());
-//
+//..
+// Next we 'load' a managed pointer with another new 'int' value, again using
+// 'cf' as the factory, and assert that the 'count' of valid objects remains
+// the same (destroy one object and add another).
+//..
 //          pData[2].load(cf.createObject<int>(), &cf);
 //          ASSERT(3 == cf.count());
 //      }
-//
+//..
+// Finally, we allow the array of managed pointers to fall out of scope and
+// confirm that when all managed objects are destroyed, the factory 'count'
+// falls to zero, and does not overshoot.
+//..
 //      ASSERT(0 == cf.count());
 //  }
 //..
-//
 ///Example 4: Type Casting
 ///- - - - - - - - - - - -
 // 'bdema_ManagedPtr' objects can be implicitly and explicitly cast to
-// different types in the same way as native pointers can.
+// different types in the same way that native pointers can.
 //
 ///Implicit Casting
 ///-  -  -  -  -  -
 // As with native pointers, a pointer of the type 'B' that is derived from the
-// type 'A', can be directly assigned a 'bdema_ManagedPtr' of 'A'.  In other
-// words, consider the following code snippets:
+// type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
+//
+// First, consider the following code snippets:
 //..
 //  void implicitCastingExample()
 //  {
 //..
 // If the statements:
 //..
-//      B *b_p = 0;
-//      A *a_p = b_p; // conversion from 'B*' to 'A*'
+//      bslma_TestAllocator localDefaultTa;
+//      bslma_TestAllocator localTa;
+//
+//      bslma_DefaultAllocatorGuard guard(&localDefaultTa);
+//
+//      int numdels = 0;
+//
+//      {
+//          B *b_p = 0;
+//          A *a_p = b_p;
 //..
 // are legal expressions, then the statements
 //..
-//      bdema_ManagedPtr<B> b_mp1;
-//      bdema_ManagedPtr<A> a_mp1;
-//      a_mp1 = b_mp1; // conversion assignment
+//          bdema_ManagedPtr<A> a_mp1;
+//          bdema_ManagedPtr<B> b_mp1;
+//
+//          ASSERT(!a_mp1 && !b_mp1);
+//
+//          a_mp1 = b_mp1;      // conversion assignment of nil ptr to nil
+//          ASSERT(!a_mp1 && !b_mp1);
+//
+//          B *b_p2 = new (localDefaultTa) B(&numdels);
+//          bdema_ManagedPtr<B> b_mp2(b_p2);    // default allocator
+//          ASSERT(!a_mp1 && b_mp2);
+//
+//          a_mp1 = b_mp2;      // conversion assignment of nonnil ptr to nil
+//          ASSERT(a_mp1 && !b_mp2);
+//
+//          B *b_p3 = new (localTa) B(&numdels);
+//          bdema_ManagedPtr<B> b_mp3(b_p3, &localTa);
+//          ASSERT(a_mp1 && b_mp3);
+//
+//          a_mp1 = b_mp3;      // conversion assignment of nonnil to nonnil
+//          ASSERT(a_mp1 && !b_mp3);
+//
+//          a_mp1 = b_mp3;      // conversion assignment of nil to nonnil
+//          ASSERT(!a_mp1 && !b_mp3);
+//
+//          // constructor conversion init with nil
+//          bdema_ManagedPtr<A> a_mp4(b_mp3, b_mp3.ptr());
+//          ASSERT(!a_mp4 && !b_mp3);
+//
+//          // constructor conversion init with nonnil
+//          B *p_b5 = new (localTa) B(&numdels);
+//          bdema_ManagedPtr<B> b_mp5(p_b5, &localTa);
+//          bdema_ManagedPtr<A> a_mp5(b_mp5, b_mp5.ptr());
+//          ASSERT(a_mp5 && !b_mp5);
+//          ASSERT(a_mp5.ptr() == p_b5);
+//
+//          // constructor conversion init with nonnil
+//          B *p_b6 = new (localTa) B(&numdels);
+//          bdema_ManagedPtr<B> b_mp6(p_b6, &localTa);
+//          bdema_ManagedPtr<A> a_mp6(b_mp6);
+//          ASSERT(a_mp6 && !b_mp6);
+//          ASSERT(a_mp6.ptr() == p_b6);
+//
+//          struct S {
+//              int d_i[10];
+//          };
+//
+//          ASSERT(200 == numdels);
+//      }
+//
+//      ASSERT(400 == numdels);
+//  } // implicitCastingExample()
 //..
-// and
-//..
-//      bdema_ManagedPtr<B> b_mp2;
-//      bdema_ManagedPtr<A> a_mp2(b_mp2); // conversion construction
-//  }
-//..
-// should also be valid.  Note that in all of the above cases, the proper
-// destructor of 'B' will be invoked when the instance is destroyed even if
-// 'A' does not provide a polymorphic destructor.
 //
 ///Explicit Casting
 ///-  -  -  -  -  -
 // Through "aliasing", a managed pointer of any type can be explicitly cast
 // to a managed pointer of any other type using any legal cast expression.
-// For example, to static-cast a managed pointer of type A to a managed pointer
+// For example, to static-cast a managed pointer of type A to a shared pointer
 // of type B, one can simply do the following:
 //..
-//  void explicitCastingExample()
-//  {
-//      bdema_ManagedPtr<A> a_mp1;
-//      bdema_ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp1.ptr()));
-//..
-// or even use the less safe "C"-style casts:
-//..
-//      bdema_ManagedPtr<A> a_mp2;
-//      bdema_ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp2.ptr()));
+//  void explicitCastingExample() {
+//
+//      bdema_ManagedPtr<A> a_mp;
+//      bdema_ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp.ptr()));
+//      //..
+//      // or even use the less safe "C"-style casts:
+//      //..
+//      // bdema_ManagedPtr<A> a_mp;
+//      bdema_ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp.ptr()));
 //
 //  } // explicitCastingExample()
 //..
@@ -493,21 +622,25 @@ BDES_IDENT("$Id: $")
 // pointer will be reset to an unset state, and the source will not be
 // modified.  Consider for example the following snippet of code:
 //..
-//  void processPolymorphicObject(bdema_ManagedPtr<A> aPtr)
+//  void processPolymorphicObject(bdema_ManagedPtr<A> aPtr,
+//                                bool *castSucceeded)
 //  {
 //      bdema_ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.ptr()));
 //      if (bPtr) {
-//          processBObject(bPtr);
+//          ASSERT(!aPtr);
+//          *castSucceeded = true;
 //      }
 //      else {
-//          processAObject(aPtr);
+//          ASSERT(aPtr);
+//          *castSucceeded = false;
 //      }
 //  }
 //..
 // If the value of 'aPtr' can be dynamically cast to 'B*' then ownership is
 // transferred to 'bPtr', otherwise 'aPtr' is to be modified.  As previously
-// stated, the managed instance will be destroyed correctly regardless of how
+// stated, the managed object will be destroyed correctly regardless of how
 // it is cast.
+//..
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
