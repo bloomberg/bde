@@ -96,7 +96,7 @@ void bsls_TestUtil::printValue(double val)
     printf("'%f'", val);
 }
 
-void bsls_TestUtil::bsls_TestUtil::printValue(long double val)
+void bsls_TestUtil::printValue(long double val)
 {
     printf("'%Lf'", val);
 }

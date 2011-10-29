@@ -68,42 +68,7 @@ static void aSsErT(bool b, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-#if 0
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-//# define LOOP_ASSERT(I,X) { \
-//    if (!(X)) { printf("%s = %s\n", #I, (I)); aSsErT(!(X), #X, __LINE__); } }
-//
-//# define LOOP2_ASSERT(I,J,X) { \
-//    if (!(X)) { printf("%s = %s %s = %s\n", #I, (I), #J, (J)); \
-//                aSsErT(!(X), #X, __LINE__); } }
-//
-//#define LOOP3_ASSERT(I,J,K,X) { \
-//    if (!(X)) { printf("%s = %s %s = %s %s = %s\n", #I, (I), #J, (J),  \
-//                       #K, (K));                                       \
-//                aSsErT(!(X), #X, __LINE__); } }
 
-# define LOOP_ASSERT(I,X) { \
-    if (!(X)) { P_(I); aSsErT(!(X), #X, __LINE__); } }
-
-# define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { P(I) P_(J);   \
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { P(I) P(J) P_(K) \
-                aSsErT(!(X), #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");      // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n");  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", "); // P(X) without '\n'
-#define L_ __LINE__                         // current Line number
-#define T_ putchar('\t');                   // Print a tab (w/o newline)
-#endif
 //=============================================================================
 //                    GLOBAL CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
