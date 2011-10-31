@@ -122,15 +122,19 @@ using namespace BloombergLP;
 // AIX: -----------------------------------------------------------------------
 //   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
 //      5000        0        0     R     AIX       8400        poll
+//      5000        0        0     R     AIX         25        pollset
 //      5000        0        0     R     AIX       6600        select
 //
 //      5000        0       0.1    R     AIX       5800        poll
+//      5000        0       0.1    R     AIX         30        pollset
 //      5000        0       0.1    R     AIX       4100        select
 //
 //      5000       0.5       0     R     AIX      17000        poll
+//      5000       0.5       0     R     AIX      12500        pollset
 //      5000       0.5       0     R     AIX      16500        select
 //
 //      5000       0.5       0     N     AIX       7500        poll
+//      5000       0.5       0     N     AIX       4600        pollset
 //      5000       0.5       0     N     AIX       7800        select
 //
 // Windows: -------------------------------------------------------------------
@@ -188,9 +192,11 @@ using namespace BloombergLP;
 // AIX: -----------------------------------------------------------------------
 //   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
 //     AIX           5000               0               3.9        poll
+//     AIX           5000               0                 6        pollset
 //     AIX            250               0               2.3        select
 //
 //     AIX           5000              0.5              4.5        poll
+//     AIX           5000              0.5                7        pollset
 //     AIX            250              0.5              2.4        select
 //
 // Windows: -------------------------------------------------------------------
