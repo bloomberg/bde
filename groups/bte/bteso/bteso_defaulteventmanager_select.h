@@ -33,6 +33,17 @@ BDES_IDENT("$Id: $")
 // registration limit.  If that is the case then clients can create more
 // objects of this class for registering their sockets.
 //
+///Component Diagram
+///-----------------
+// This specialized component is one of the specializations of the
+// 'bteso_defaulteventmanager' component; the other components are shown
+// (schematically) on the following diagram:
+//..
+//                          _bteso_defaulteventmanager_
+//                 _______/     |       |        |     \________
+//                 *_poll  *_pollset *_select *_devpoll  *_epoll
+//
+//..
 ///Thread-safety
 ///-------------
 // The 'select'-based multiplexers provided by this component depend on a

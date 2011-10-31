@@ -45,9 +45,9 @@ BDES_IDENT("$Id: $")
 // 'bteso_defaulteventmanager' component; the other components are shown
 // (schematically) on the following diagram:
 //..
-//                          _bteso_defaulteventmanager_
-//                 _______/          |         |        \______
-//                 *_poll        *_select  *_devpoll      *_wfmo
+//                           _bteso_defaulteventmanager_
+//                 _______/    |         |         |      \_________
+//                 *_poll  *_select  *_devpoll  *_epoll    *_pollset
 //
 //..
 ///Thread-safety

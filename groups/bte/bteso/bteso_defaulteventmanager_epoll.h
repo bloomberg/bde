@@ -45,8 +45,8 @@ BDES_IDENT("$Id: $")
 // (schematically) on the following diagram:
 //..
 //                         _____bteso_defaulteventmanager_____
-//                 _______/    |           |         |        \______
-//                 *_poll   *_epoll     *_select  *_devpoll      *_wfmo
+//                 _______/    |           |         |        \_________
+//                 *_poll   *_epoll     *_select  *_devpoll    *_pollset
 //..
 ///Thread-safety
 ///-------------
