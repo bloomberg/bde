@@ -1,4 +1,4 @@
-// bdem_berutil.cpp                  -*-C++-*-
+// bdem_berutil.cpp                                                   -*-C++-*-
 
 // IMPLEMENTATION NOTES:
 //
@@ -99,12 +99,12 @@
 
 #include <bdem_berutil.h>
 
-#include <bslmf_assert.h>
 #include <bdepu_iso8601.h>
-#include <bsls_assert.h>
+
 #include <bdes_bitutil.h>
-#include <bsls_platformutil.h>
+
 #include <bdesb_fixedmemoutstreambuf.h>
+
 #include <bdet_date.h>
 #include <bdet_datetime.h>
 #include <bdet_datetimetz.h>
@@ -112,10 +112,10 @@
 #include <bdet_time.h>
 #include <bdet_timetz.h>
 
-#ifdef BDE_FOR_TESTING_ONLY
-#include <bdesb_memoutstreambuf.h>               // for testing only
-#include <bdesb_fixedmeminstreambuf.h>           // for testing only
-#endif
+#include <bslmf_assert.h>
+
+#include <bsls_assert.h>
+#include <bsls_platformutil.h>
 
 #include <cstring>
 
@@ -141,14 +141,14 @@ enum {
 
     MAX_TAG_NUMBER_IN_ONE_OCTET        = 30,    // the maximum tag number if
                                                 // the tag has one octet
-                                               
+
     NUM_VALUE_BITS_IN_TAG_OCTET        = 7,     // number of bits used for the
                                                 // tag number in multi-octet
                                                 // tags
-                                     
+
     LONG_FORM_LENGTH_FLAG_MASK         = 0x80,  // mask that indicates a
                                                 // "long-form" length
-                                     
+
     LONG_FORM_LENGTH_VALUE_MASK        = 0x7f,  // mask for value from
                                                 // "long-form" length
 
@@ -287,7 +287,7 @@ int getValueUsingIso8601(bsl::streambuf *streamBuf,
     if (bytesConsumed != length) {
         return FAILURE;
     }
-    
+
     return bdepu_Iso8601::parse(value, buf, length);
 }
 
@@ -533,7 +533,7 @@ int bdem_BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
     if (FAILURE == shift) {
         return FAILURE;                                               // RETURN
     }
-    shift = 63 - shift; 
+    shift = 63 - shift;
 
     // Subtract the number of exponent bits and the sign bit.
     shift            -= DOUBLE_NUM_EXPONENT_BITS + 1;
@@ -684,7 +684,7 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
     // fact that our implementation (and almost every other implementation) is
     // contiguous.  We assert this assumption here:
     BSLS_ASSERT(&value[length-1] == &value[0] + length - 1);
-    
+
     const int bytesConsumed = streamBuf->sgetn(&(*value)[0], length);
 
     return length == bytesConsumed ? SUCCESS : FAILURE;
@@ -732,6 +732,36 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
     return getValueUsingIso8601(streamBuf, value, length);
 }
 
+int bdem_BerUtil_Imp::numBytesToStream(short value)
+{
+    // This overload of 'numBytesToStream' is optimized for a 16-bit 'value'.
+
+    if (0 == value) {
+        return 1;                                                     // RETURN
+    }
+
+    int numBits;
+    if (value > 0) {
+        // For positive values, all but one 0 bits on the left are redundant.
+        // - 'find1AtLargestIndex' returns 0 .. 14 (since bit 15 is 0).
+        // - Add 1 to convert from an index to a count in range 1 .. 15.
+        // - Add 1 to preserve the sign bit, for a value in range 2 .. 16.
+
+        numBits = bdes_BitUtil::find1AtLargestIndex(value) + 2;
+    }
+    else {
+        // For negative values, all but one 1 bits on the left are redundant.
+        // - 'find0AtLargestIndex' returns 0 .. 14 (since bit 15 is 1).
+        // - Add 1 to convert from an index to a count in range 1 .. 15.
+        // - Add 1 to preserve the sign bit, for a value in range 2 .. 16.
+
+        numBits = bdes_BitUtil::find0AtLargestIndex(value) + 2;
+    }
+
+    // Round up to correct number of bytes:
+    return (numBits + BITS_PER_OCTET - 1) / BITS_PER_OCTET;           // RETURN
+}
+
 int bdem_BerUtil_Imp::numBytesToStream(int value)
 {
     // This overload of 'numBytesToStream' is optimized for a 32-bit 'value'.
@@ -751,7 +781,7 @@ int bdem_BerUtil_Imp::numBytesToStream(int value)
     }
     else {
         // For negative values, all but one 1 bits on the left are redundant.
-        // - 'find1AtLargestIndex' returns 0 .. 30 (since bit 31 is 0).
+        // - 'find0AtLargestIndex' returns 0 .. 30 (since bit 31 is 1).
         // - Add 1 to convert from an index to a count in range 1 .. 31.
         // - Add 1 to preserve the sign bit, for a value in range 2 .. 32.
 
@@ -822,7 +852,7 @@ int bdem_BerUtil_Imp::putDoubleValue(bsl::streambuf *stream, double value)
         else {
             // For NaN use bit pattern 0x42.
            char NaN = NAN_ID;
-           
+
            return (1        == stream->sputc(1)
                && NaN       == stream->sputc(NaN))
                 ? SUCCESS

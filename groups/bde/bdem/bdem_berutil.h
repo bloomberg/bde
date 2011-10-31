@@ -345,6 +345,7 @@ struct bdem_BerUtil_Imp {
                         bdet_TimeTz    *value,
                         int             length);
 
+    static int numBytesToStream(short value);
     static int numBytesToStream(int value);
     static int numBytesToStream(long long value);
     template <typename TYPE>
