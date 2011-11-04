@@ -528,6 +528,16 @@ unix-AIX-*-*-*      _   ENABLE_TLS      =
 !! windows-*-*-*-cl-14.00           _    DEF_CFLAGS      = /nologo /Oi /bigobj /we4715 /D_CRT_SECURE_NO_DEPRECATE /D_SCL_SECURE_NO_DEPRECATE /DNOMINMAX $(NOGDI) $(WIN_VERSION_FLAGS)
 !! windows-*-*-*-cl-14.00           _    DEF_CXXFLAGS    = /nologo /Oi /bigobj /we4715 /D_CRT_SECURE_NO_DEPRECATE /D_SCL_SECURE_NO_DEPRECATE /DNOMINMAX $(NOGDI) /GR /wd4661 /we4150 /wd4510 /wd4610 $(WIN_VERSION_FLAGS)
 
+!! unix-*                           _   BDE_STATIC = -Bstatic
+!! unix-AIX-*                       _   BDE_STATIC = -bstatic
+!! unix-HP_UX-*                     _   BDE_STATIC =
+!! windows-*                        _   BDE_STATIC =
+
+!! unix-*                           _   BDE_DYNAMIC = -Bdynamic
+!! unix-AIX-*                       _   BDE_DYNAMIC = -bdynamic
+!! unix-HP_UX-*                     _   BDE_DYNAMIC =
+!! windows-*                        _   BDE_DYNAMIC =
+
 !! unix-HP_UX-*-*-* _   SHR_PRELDFLAGS  =
 !! unix-HP_UX-*-*-* shr SHR_PRELDFLAGS  = -Wl,-a,shared
 
@@ -1072,7 +1082,7 @@ unix-SunOS      _   F77     = -xarch=v8plusa -xchip=generic -xcache=generic
 !! unix-AIX     ins     INSURE_CMD  = $(INSURE_PATH)/insure
 
 !! *            ins_mt  MT_LDFLAGS  =
-*               ins_mt  BDE_LDFLAGS = -Bdynamic -mt -Bstatic
+*               ins_mt  BDE_LDFLAGS = $(BDE_DYNAMIC) -mt $(BDE_STATIC)
 
 # prepend to existing compiler command
 -- *            ins     CC      = $(INSURE_CMD) $(INSURE_OPTS) $(INSURE_USEROPTS)
