@@ -11,7 +11,6 @@ BDES_IDENT("$Id: $")
 //
 //@CLASSES:
 //            bdema_ManagedPtr: proctor for automatic memory management
-//  bdema_ManagedPtrNilDeleter: (DEPRECATED)deleter for stack-allocated objects
 // bdema_ManagedPtrNoOpDeleter: deleter for stack-allocated objects
 //
 //@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern),
@@ -678,8 +677,16 @@ BDES_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISVOID
+#include <bslmf_isvoid.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_NULLPTR
+#include <bsls_nullptr.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -700,24 +707,6 @@ class bslma_Allocator;
 
 template <class BDEMA_TYPE>
 class bdema_ManagedPtr_Ref;
-
-                       // ==============================
-                       // class bdema_ManagedPtr_Nullptr
-                       // ==============================
-
-struct bdema_ManagedPtr_Nullptr {
-    // This 'struct' provides an alias for a type that can match a null pointer
-    // literal, but is not a pointer itself.  This provides a limited emulation
-    // of the C++11 'std::nullptr_t' type.
-
-  private:
-    struct Nullptr_ProxyType { int dummy; }; // private class to supply a
-                                             // unique pointer-to-member type.
-
-  public:
-    typedef int Nullptr_ProxyType::* Type;   // alias to an "unspecified" null
-                                             // pointer type.
-};
 
                            // ======================
                            // class bdema_ManagedPtr
@@ -781,14 +770,14 @@ class bdema_ManagedPtr {
   private:
     // NOT IMPLEMENTED
     template <class BDEMA_OTHER_TYPE>
-    bdema_ManagedPtr(BDEMA_OTHER_TYPE *, bdema_ManagedPtr_Nullptr::Type);
+    bdema_ManagedPtr(BDEMA_OTHER_TYPE *, bsl::nullptr_t);
         // It is never defined behavior to pass a null pointer literal as a
         // factory, unless the 'object' pointer is also a null pointer literal.
 
   private:
     // NOT IMPLEMENTED
     template <class BDEMA_FACTORY>
-    bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type, BDEMA_FACTORY *);
+    bdema_ManagedPtr(bsl::nullptr_t, BDEMA_FACTORY *);
         // It is an error to pass a null pointer literal along with a non-null
         // factory.  If you really must create an empty managed pointer that
         // ignores the passed factory, pass a variable holding a null pointer
@@ -799,7 +788,7 @@ class bdema_ManagedPtr {
     template <class BDEMA_OTHER_TYPE, class BDEMA_FACTORY>
     bdema_ManagedPtr(BDEMA_OTHER_TYPE *,
                      BDEMA_FACTORY *,
-                     bdema_ManagedPtr_Nullptr::Type);
+                     bsl::nullptr_t);
         // It is never defined behavior to pass a null literal as a factory,
         // unless the 'object' pointer is also a null pointer literal.
 
@@ -808,7 +797,7 @@ class bdema_ManagedPtr {
     template <typename BDEMA_ANY_FACTORY>
     void load(BDEMA_TYPE *,
               BDEMA_ANY_FACTORY *,
-              bdema_ManagedPtr_Nullptr::Type);
+              bsl::nullptr_t);
         // It is never defined behavior to pass a null literal as a factory,
         // unless the 'object' pointer is also a null pointer literal.
 
@@ -816,8 +805,8 @@ class bdema_ManagedPtr {
     //// NOT IMPLEMENTED
     template <class BDEMA_OTHER_TYPE>
     void load(BDEMA_OTHER_TYPE *,
-              bdema_ManagedPtr_Nullptr::Type,
-              bdema_ManagedPtr_Nullptr::Type);
+              bsl::nullptr_t,
+              bsl::nullptr_t);
         // It is never defined behavior to pass a null literal as a factory,
         // unless the 'object' pointer is also a null pointer literal.
 
@@ -840,8 +829,7 @@ class bdema_ManagedPtr {
 
   public:
     // CREATORS
-    explicit bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type = 0,
-                              bdema_ManagedPtr_Nullptr::Type = 0);
+    explicit bdema_ManagedPtr(bsl::nullptr_t = 0, bsl::nullptr_t = 0);
         // Create a managed pointer that is in an unset state.  Note that
         // this constructor is necessary to match null-pointer literal
         // arguments, in order to break ambiguities and provide valid type
@@ -1013,8 +1001,7 @@ class bdema_ManagedPtr {
         // Destroy the current managed object (if any) and re-initialize this
         // managed pointer to an unset state.
 
-    void load(bdema_ManagedPtr_Nullptr::Type =0,
-              bdema_ManagedPtr_Nullptr::Type =0);
+    void load(bsl::nullptr_t =0, bsl::nullptr_t =0);
         // Destroy the current managed object (if any) and re-initialize this
         // managed pointer to an unset state.
 
@@ -1199,10 +1186,12 @@ struct bdema_ManagedPtrNoOpDeleter {
 
 template <class BDEMA_TYPE>
 struct bdema_ManagedPtrNilDeleter : bdema_ManagedPtrNoOpDeleter {
-    // [!DEPRECATED!] This utility class provides a general no-op deleter,
+    // [!DEPRECATED!] Use 'bdema_ManagedPtrNoOpDeleter' instead.
+    // This utility class provides a general no-op deleter,
     // which is useful when creating managed pointers to stack-allocated
     // objects.  Note that the non-template class 'bdema_ManagedPtrNoOpDeleter'
-    // should be used in preference to this deprecated class.
+    // should be used in preference to this deprecated class, avoiding both
+    // template bloat and undefined behavior.
 };
 
                     // ==================================
@@ -1280,27 +1269,6 @@ struct bdema_ManagedPtr_FactoryDeleterType {
         // 'BDEMA_TYPE' using the preferred factory type.
 };
 
-             // ==================================================
-             // private metafunction class bdema_ManagedPtr_IsVoid
-             // ==================================================
-
-template <class BDEMA_TYPE>
-struct bdema_ManagedPtr_IsVoid {
-    // This metafunction struct contains a nested 'VALUE' which converts to
-    // 'true' if 'BDEMA_TYPE' is type 'void' and to 'false' otherwise.
-
-    enum { VALUE = false };
-};
-
-
-template <>
-struct bdema_ManagedPtr_IsVoid<void> {
-    // This metafunction struct contains a nested 'VALUE' which converts to
-    // 'true' if 'T' is type 'void' and to 'false' otherwise.
-
-    enum { VALUE = true };
-};
-
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -1312,9 +1280,7 @@ struct bdema_ManagedPtr_IsVoid<void> {
 // CREATORS
 template <class BDEMA_TYPE>
 inline
-bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(bdema_ManagedPtr_Nullptr::Type,
-//                                               bdema_ManagedPtr_Nullptr::Type,
-                                               bdema_ManagedPtr_Nullptr::Type)
+bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(bsl::nullptr_t, bsl::nullptr_t)
 {
 }
 
@@ -1468,8 +1434,7 @@ void *bdema_ManagedPtr<BDEMA_TYPE>::stripPointerType(BDEMA_TYPE *ptr)
 
 template <class BDEMA_TYPE>
 inline
-void bdema_ManagedPtr<BDEMA_TYPE>::load(bdema_ManagedPtr_Nullptr::Type,
-                                        bdema_ManagedPtr_Nullptr::Type)
+void bdema_ManagedPtr<BDEMA_TYPE>::load(bsl::nullptr_t, bsl::nullptr_t)
 {
     this->clear();
 }
@@ -1561,7 +1526,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
                                    void  *,
                                    void (*deleter)(BDEMA_TARGET_BASE *, void*))
 {
-    BSLMF_ASSERT((!bdema_ManagedPtr_IsVoid<BDEMA_TARGET_BASE>::VALUE ));
+    BSLMF_ASSERT((!bslmf_IsVoid<BDEMA_TARGET_BASE>::VALUE ));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TYPE *>::VALUE));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
