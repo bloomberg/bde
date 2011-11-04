@@ -32,8 +32,8 @@ BSLS_IDENT("$Id: $")
 #  include <bsls_platform.h>
 #else
 
-// Hack to detect the GCC compiler version, until bsls_platform.h is fixed to
-// compile by a C compiler.
+// Workaround to detect the GCC compiler version, until bsls_platform.h is
+// fixed to compile by a C compiler.
 #if !defined(__cplusplus)
     #if defined (__GNUC__)
         #define BSLS_PLATFORM__CMP_GNU 1
