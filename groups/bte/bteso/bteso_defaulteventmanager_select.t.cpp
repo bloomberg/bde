@@ -1670,13 +1670,13 @@ int main(int argc, char *argv[])
         //    Linux           250               0               2.2
         //   Solaris          250               0               5.4
         //     HPUX           250               0               0.9
-        //     AIX            250               0               2.3
+        //     AIX           5000               0               2.5
         //   Windows          250               0                0
         //
         //    Linux           250              0.5              2.0
         //   Solaris          250              0.5              5.3
         //     HPUX           250              0.5              0.9
-        //     AIX            250              0.5              2.4
+        //     AIX           5000              0.5              2.8
         //   Windows          250              0.5               0
         //
         // See the compilation of results for all event managers & platforms

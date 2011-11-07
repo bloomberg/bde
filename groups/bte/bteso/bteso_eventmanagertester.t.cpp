@@ -193,11 +193,11 @@ using namespace BloombergLP;
 //   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
 //     AIX           5000               0               3.9        poll
 //     AIX           5000               0                 6        pollset
-//     AIX            250               0               2.3        select
+//     AIX           5000               0               2.5        select
 //
 //     AIX           5000              0.5              4.5        poll
 //     AIX           5000              0.5                7        pollset
-//     AIX            250              0.5              2.4        select
+//     AIX           5000              0.5              2.8        select
 //
 // Windows: -------------------------------------------------------------------
 //   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
