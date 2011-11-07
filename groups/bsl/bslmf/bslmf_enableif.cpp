@@ -9,7 +9,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_ispolymorphic.h>  // for testing purposes only
 #include <bslmf_issame.h>         // for testing purposes only
 
-#include <bsls_testutil.h>        // for testing purposes only
+#include <bsls_bsltestutil.h>     // for testing purposes only
 
 // ----------------------------------------------------------------------------
 // NOTICE:

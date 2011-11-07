@@ -4,7 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsls_testutil.h>    // for testing purposes only
+#include <bsls_bsltestutil.h>    // for testing purposes only
 
 // ---------------------------------------------------------------------------
 // NOTICE:

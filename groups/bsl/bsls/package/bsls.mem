@@ -9,6 +9,7 @@ bsls_assert
 bsls_asserttest
 bsls_asserttestexception
 bsls_blockgrowth
+bsls_bsltestutil
 bsls_buildtarget
 bsls_byteorder
 bsls_compilerfeatures
@@ -23,7 +24,6 @@ bsls_platform
 bsls_platformutil
 bsls_protocoltest
 bsls_stopwatch
-bsls_testutil
 bsls_timeutil
 bsls_types
 bsls_unspecifiedbool

@@ -1,6 +1,6 @@
-// bsls_testutil.h                                                    -*-C++-*-
-#ifndef INCLUDED_BSLS_TESTUTIL
-#define INCLUDED_BSLS_TESTUTIL
+// bsls_bsltestutil.h                                                 -*-C++-*-
+#ifndef INCLUDED_BSLS_BSLTESTUTIL
+#define INCLUDED_BSLS_BSLTESTUTIL
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -21,65 +21,66 @@ BSLS_IDENT("$Id: $")
 //=============================================================================
 //                  STANDARD BDE LOOP-ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
-# define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsls_TestUtil::dbg_print(#I ": ", I, ",\t"); \
+# define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) { \
+    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
-# define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsls_TestUtil::dbg_print(#I ": ", I, "\t"); \
-                bsls_TestUtil::dbg_print(#J ": ", J, ",\t"); \
+# define BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X) { \
+    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, "\t");  \
+                bsls_BslTestUtil::debugPrint(#J ": ", J, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { bsls_TestUtil::dbg_print(#I ": ", I, "\t"); \
-                bsls_TestUtil::dbg_print(#J ": ", J, "\t"); \
-                bsls_TestUtil::dbg_print(#K ": ", K, ",\t"); \
+#define BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X) { \
+    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, "\t");  \
+                bsls_BslTestUtil::debugPrint(#J ": ", J, "\t");  \
+                bsls_BslTestUtil::debugPrint(#K ": ", K, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { bsls_TestUtil::dbg_print(#I ": ", I, "\t"); \
-                bsls_TestUtil::dbg_print(#J ": ", J, "\t"); \
-                bsls_TestUtil::dbg_print(#K ": ", K, "\t"); \
-                bsls_TestUtil::dbg_print(#L ": ", L, ",\t"); \
+#define BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X) { \
+    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, "\t");  \
+                bsls_BslTestUtil::debugPrint(#J ": ", J, "\t");  \
+                bsls_BslTestUtil::debugPrint(#K ": ", K, "\t");  \
+                bsls_BslTestUtil::debugPrint(#L ": ", L, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-    if (!(X)) { bsls_TestUtil::dbg_print(#I ": ", I, "\t"); \
-                bsls_TestUtil::dbg_print(#J ": ", J, "\t"); \
-                bsls_TestUtil::dbg_print(#K ": ", K, "\t"); \
-                bsls_TestUtil::dbg_print(#L ": ", L, "\t"); \
-                bsls_TestUtil::dbg_print(#M ": ", M, ",\t"); \
+#define BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X) { \
+    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, "\t");  \
+                bsls_BslTestUtil::debugPrint(#J ": ", J, "\t");  \
+                bsls_BslTestUtil::debugPrint(#K ": ", K, "\t");  \
+                bsls_BslTestUtil::debugPrint(#L ": ", L, "\t");  \
+                bsls_BslTestUtil::debugPrint(#M ": ", M, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-    if (!(X)) { bsls_TestUtil::dbg_print(#I ": ", I, "\t"); \
-                bsls_TestUtil::dbg_print(#J ": ", J, "\t"); \
-                bsls_TestUtil::dbg_print(#K ": ", K, "\t"); \
-                bsls_TestUtil::dbg_print(#L ": ", L, "\t"); \
-                bsls_TestUtil::dbg_print(#M ": ", M, "\t"); \
-                bsls_TestUtil::dbg_print(#N ": ", N, ",\t"); \
+#define BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X) { \
+    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, "\t");  \
+                bsls_BslTestUtil::debugPrint(#J ": ", J, "\t");  \
+                bsls_BslTestUtil::debugPrint(#K ": ", K, "\t");  \
+                bsls_BslTestUtil::debugPrint(#L ": ", L, "\t");  \
+                bsls_BslTestUtil::debugPrint(#M ": ", M, "\t");  \
+                bsls_BslTestUtil::debugPrint(#N ": ", N, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
-#define Q(X)  bsls_TestUtil::printString("<| " #X " |>\n");
+#define BSLS_BSLTESTUTIL_Q(X)  bsls_BslTestUtil::printString("<| " #X " |>\n");
     // Quote identifier literally.
 
-#define P(X)  bsls_TestUtil::dbg_print(#X " = ", X, "\n");
+#define BSLS_BSLTESTUTIL_P(X)  bsls_BslTestUtil::debugPrint(#X " = ", X, "\n");
     // Print identifier and value.
 
-#define P_(X) bsls_TestUtil::dbg_print(#X " = ", X, ", ");
+#define BSLS_BSLTESTUTIL_P_(X) bsls_BslTestUtil::debugPrint(#X " = ", X, ", ");
     // P(X) without '\n'.
 
-#define L_ __LINE__                         // current Line number
-#define T_ bsls_TestUtil::printTab();       // Print a tab (w/o newline).
+#define BSLS_BSLTESTUTIL_L_ __LINE__                     // current Line number
+#define BSLS_BSLTESTUTIL_T_ bsls_BslTestUtil::printTab();
+    // Print a tab (w/o newline).
 
 //-----------------------------------------------------------------------------
 
 namespace BloombergLP {
 
-struct bsls_TestUtil
+struct bsls_BslTestUtil
 {
   private:
     static void flush();
@@ -109,7 +110,7 @@ struct bsls_TestUtil
   public:
         
     template <typename T>
-    static void dbg_print(const char *s, const T& val, const char *nl);
+    static void debugPrint(const char *s, const T& val, const char *nl);
 
     static void printString(const char *s);
 
@@ -118,7 +119,7 @@ struct bsls_TestUtil
 
 // Generic debug print function (3-arguments).
 template <typename T>
-void bsls_TestUtil::dbg_print(const char *s, const T& val, const char *nl)
+void bsls_BslTestUtil::debugPrint(const char *s, const T& val, const char *nl)
 {
     printString(s);
     printValue(val);
