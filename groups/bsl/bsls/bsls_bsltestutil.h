@@ -82,8 +82,14 @@ namespace BloombergLP {
 
 struct bsls_BslTestUtil
 {
+    // This class provides a namespace for utilities that are useful when
+    // writing a test driver that may not use the standard C++ iostream
+    // facilities.  This is a typical requirement for test drivers in the 'bsl'
+    // package group.
+
   private:
     static void flush();
+        // Commit any outstanding write operations to the standard console.
 
     // Fundamental-type-specific print functions.
     // One print function for each fundamental type.
@@ -102,24 +108,40 @@ struct bsls_BslTestUtil
     static void printValue(float val);
     static void printValue(double val);
     static void printValue(long double val);
-    static void printValue(const char *s);
     static void printValue(char *s);
+    static void printValue(const char *s);
     static void printValue(void *p);
     static void printValue(const void *p);
+        // Print the specified argument to the console using the "C" library
+        // function 'printf' and a format string appropriate for the type of
+        // argument.
 
   public:
         
-    template <typename T>
-    static void debugPrint(const char *s, const T& val, const char *nl);
+    template <typename BSLS_TYPE>
+    static void debugPrint(const char      *s,
+                          const BSLS_TYPE&  val,
+                          const char       *nl);
+        // Print a message to the console consististing of the specified
+        // initial string 's', followed by the specified value 'val' formatted
+        // as a string, followed by the specified trailing string 'nl', then
+        // 'flush' the stream to ensure the text is written.  
 
     static void printString(const char *s);
+        // Print the specified string 's' to the console.
 
     static void printTab();
+        // Print a tab character to the console, and then 'flush' the stream.
 };
 
-// Generic debug print function (3-arguments).
-template <typename T>
-void bsls_BslTestUtil::debugPrint(const char *s, const T& val, const char *nl)
+// ============================================================================
+//                      INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+template <typename BSLS_TYPE>
+void bsls_BslTestUtil::debugPrint(const char       *s,
+                                  const BSLS_TYPE&  val,
+                                  const char       *nl)
 {
     printString(s);
     printValue(val);
