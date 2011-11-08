@@ -67,7 +67,7 @@ BSLS_IDENT("$Id: $")
     // Quote identifier literally.
 
 #define BSLS_BSLTESTUTIL_P(X)  bsls_BslTestUtil::debugPrint(#X " = ", X, "\n");
-    // Print identifier and value.
+    // Print identifier and vue.
 
 #define BSLS_BSLTESTUTIL_P_(X) bsls_BslTestUtil::debugPrint(#X " = ", X, ", ");
     // P(X) without '\n'.
@@ -87,67 +87,60 @@ struct bsls_BslTestUtil
     // facilities.  This is a typical requirement for test drivers in the 'bsl'
     // package group.
 
-  private:
-    static void flush();
-        // Commit any outstanding write operations to the standard console.
-
-    // Fundamental-type-specific print functions.
-    // One print function for each fundamental type.
-    static void printValue(bool b);
-    static void printValue(char c);
-    static void printValue(unsigned char c);
-    static void printValue(signed char c);
-    static void printValue(short val);
-    static void printValue(unsigned short val);
-    static void printValue(int val);
-    static void printValue(unsigned int val);
-    static void printValue(long val);
-    static void printValue(unsigned long val);
-    static void printValue(long long val);
-    static void printValue(unsigned long long val);
-    static void printValue(float val);
-    static void printValue(double val);
-    static void printValue(long double val);
-    static void printValue(char *s);
-    static void printValue(const char *s);
-    static void printValue(void *p);
-    static void printValue(const void *p);
-        // Print the specified argument to the console using the "C" library
-        // function 'printf' and a format string appropriate for the type of
-        // argument.
-
   public:
         
-    template <typename BSLS_TYPE>
-    static void debugPrint(const char      *s,
-                          const BSLS_TYPE&  val,
-                          const char       *nl);
+    static void debugPrint(const char *s, bool v, const char *t);
         // Print a message to the console consististing of the specified
-        // initial string 's', followed by the specified value 'val' formatted
-        // as a string, followed by the specified trailing string 'nl', then
-        // 'flush' the stream to ensure the text is written.  
+        // initial string 's', followed by the specified value 'v' formatted
+        // as a string, followed by the specified trailing string 't', then
+        // 'flush' the stream to ensure the text is written.
+
+    static void debugPrint(const char *s, char v, const char *t);
+    static void debugPrint(const char *s, signed char v, const char *t);
+    static void debugPrint(const char *s, unsigned char v, const char *t);
+    static void debugPrint(const char *s, short v, const char *t);
+    static void debugPrint(const char *s, unsigned short v, const char *t);
+    static void debugPrint(const char *s, int v, const char *t);
+    static void debugPrint(const char *s, unsigned int v, const char *t);
+    static void debugPrint(const char *s, long v, const char *t);
+    static void debugPrint(const char *s, unsigned long v, const char *t);
+    static void debugPrint(const char *s, long long v, const char *t);
+    static void debugPrint(const char *s, unsigned long long v, const char *t);
+        // Print a message to the console consististing of the specified
+        // initial string 's', followed by the specified value 'v' formatted
+        // as a string, followed by the specified trailing string 't', then
+        // 'flush' the stream to ensure the text is written.
+
+    static void debugPrint(const char *s, float v, const char *t);
+    static void debugPrint(const char *s, double v, const char *t);
+    static void debugPrint(const char *s, long double v, const char *t);
+        // Print a message to the console consististing of the specified
+        // initial string 's', followed by the specified value 'v' formatted
+        // as a string enclosed by single-quote characters ('), followed by the
+        // specified trailing string 't', then 'flush' the stream to ensure the
+        // text is written.
+
+    static void debugPrint(const char *s, char *v, const char *t);
+    static void debugPrint(const char *s, const char *v, const char *t);
+        // Print a message to the console consististing of the specified
+        // initial string 's', followed by the specified string 'v' enclosed by
+        // quote characters ("), followed by the specified trailing string 't',
+        // then 'flush' the stream to ensure the text is written.
+
+    static void debugPrint(const char *s, void *p, const char *t);
+    static void debugPrint(const char *s, const void *p, const char *t);
+        // Print a message to the console consististing of the specified
+        // initial string 's', followed by the specified pointer address 'p'
+        // formatted as a hexadecimal value, followed by the specified trailing
+        // string 't', then 'flush' the stream to ensure the text is written.
 
     static void printString(const char *s);
-        // Print the specified string 's' to the console.
+        // Print the specified string 's' to the console.  Note that the stream
+        // is *not* flushed.
 
     static void printTab();
         // Print a tab character to the console, and then 'flush' the stream.
 };
-
-// ============================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ============================================================================
-
-template <typename BSLS_TYPE>
-void bsls_BslTestUtil::debugPrint(const char       *s,
-                                  const BSLS_TYPE&  val,
-                                  const char       *nl)
-{
-    printString(s);
-    printValue(val);
-    printString(nl);
-    flush();
-}
 
 }  // close namespace BloombergLP
 
