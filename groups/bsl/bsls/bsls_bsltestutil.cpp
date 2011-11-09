@@ -15,7 +15,6 @@ void flush()
     fflush(stdout);
 }
 
-        
 // Fundamental-type-specific print functions.
 inline
 void printValue(bool b)
