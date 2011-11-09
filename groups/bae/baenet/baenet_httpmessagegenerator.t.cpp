@@ -10,6 +10,7 @@
 #include <bcema_blob.h>
 #include <bcema_blobutil.h>
 #include <bcema_pooledblobbufferfactory.h>
+#include <bcema_testallocator.h>
 
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
@@ -104,6 +105,7 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+    int veryVeryVeryVerbose = argc > 5;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -153,7 +155,7 @@ int main(int argc, char *argv[])
                 baenet_HttpRequestLine   requestLine;
                 baenet_HttpRequestHeader header;
 
-                requsetLine.majorVersion() = 1;
+                requestLine.majorVersion() = 1;
                 requestLine.minorVersion() = 1;
                 requestLine.method()       = baenet_HttpRequestMethod::
                                              BAENET_GET;
@@ -164,7 +166,7 @@ int main(int argc, char *argv[])
 
                 baenet_HttpMessageGenerator messageGenerator(&factory, &ta);
 
-                rc = messageGenerator.startEntity(startLine,
+                rc = messageGenerator.startEntity(requestLine,
                                                   header,
                                                   &ignoreCallBack);
                 ASSERT(0 == rc);
@@ -178,7 +180,7 @@ int main(int argc, char *argv[])
 
                 header.basicFields().contentLength() = 0;
 
-                rc = messageGenerator.startEntity(startLine,
+                rc = messageGenerator.startEntity(requestLine,
                                                   header,
                                                   &ignoreCallBack);
                 ASSERT(0 != rc);
