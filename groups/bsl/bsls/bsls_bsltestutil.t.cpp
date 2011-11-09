@@ -67,7 +67,7 @@ static void aSsErT(bool b, const char *s, int i)
 //..
 //=============================================================================
 //                       STANDARD BDE TEST DRIVER MACROS
-//----------------------------BSLS_BSLTESTUTIL_-------------------------------------------------
+//-----------------------------------------------------------------------------
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
 #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
@@ -81,7 +81,8 @@ static void aSsErT(bool b, const char *s, int i)
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 //..
-// Finally, we write the test case for the 'value' function of this component.
+// Finally, we write the test case for the 'value' function of this component,
+// using the (standard) abbreviated macro names we have just defined.
 //..
 //=============================================================================
 //                                MAIN PROGRAM
@@ -223,7 +224,7 @@ int main(int argc, char *argv[])
             LOOP6_ASSERT(verbose, ss, us, sll, ull, si, !verbose);
 
             testStatus -= 6;
-        } 
+        }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

@@ -106,31 +106,32 @@ void printValue(long double val)
     // Note that the "C" standard requires the inconsistent upper case 'L' in
     // the format string below, while requiring lower case 'l' characters in
     // the format strings for integer values above.
+
     printf("'%Lg'", val);
 }
 
 inline
 void printValue(const char *s)
 {
-   printf("\"%s\"", s);
+    printf("\"%s\"", s);
 }
 
 inline
 void printValue(char *s)
 {
-   printf("\"%s\"", s);
+    printf("\"%s\"", s);
 }
 
 inline
 void printValue(void *p)
 {
-   printf("%p", p);
+    printf("%p", p);
 }
 
 inline
 void printValue(const void *p)
 {
-   printf("%p", p);
+    printf("%p", p);
 }
 
 template <typename BSLS_TYPE>
@@ -142,7 +143,7 @@ void doDebugPrint(const char *s, const BSLS_TYPE& v, const char *t)
     flush();
 }
 
-} // close un-named namespace
+}  // close unnamed namespace
 
 namespace BloombergLP
 {
@@ -162,7 +163,8 @@ void bsls_BslTestUtil::debugPrint(const char *s, signed char v, const char *t)
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, unsigned char v, const char *t)
+void
+bsls_BslTestUtil::debugPrint(const char *s, unsigned char v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
@@ -172,7 +174,8 @@ void bsls_BslTestUtil::debugPrint(const char *s, short v, const char *t)
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, unsigned short v, const char *t)
+void
+bsls_BslTestUtil::debugPrint(const char *s, unsigned short v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
@@ -192,7 +195,8 @@ void bsls_BslTestUtil::debugPrint(const char *s, long v, const char *t)
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, unsigned long v, const char *t)
+void
+bsls_BslTestUtil::debugPrint(const char *s, unsigned long v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
@@ -202,7 +206,9 @@ void bsls_BslTestUtil::debugPrint(const char *s, long long v, const char *t)
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, unsigned long long v, const char *t)
+void bsls_BslTestUtil::debugPrint(const char         *s,
+                                  unsigned long long  v,
+                                  const char         *t)
 {
     doDebugPrint(s, v, t);
 }
@@ -249,11 +255,11 @@ void bsls_BslTestUtil::printString(const char *s)
 
 void bsls_BslTestUtil::printTab()
 {
-   putchar('\t');
-   flush();
+    putchar('\t');
+    flush();
 }
 
-} // close enterprise namespace
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

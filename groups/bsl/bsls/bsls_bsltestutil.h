@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsls_BslTestUtil: utilities to aid writing 'bsl' test drivers
 //
-//@AUTHOR: Alisdair Meredith (ameredit) 
+//@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides a set of macros and utility functions
 // to support writing test drivers in the 'bsl' package group that is layered
@@ -178,9 +178,9 @@ struct bsls_BslTestUtil
     // package group.
 
   public:
-        
+
     static void debugPrint(const char *s, bool b, const char *t);
-        // Print a message to the console consististing of the specified 
+        // Print a message to the console consististing of the specified
         // initial string 's', followed by the string "true" if the specified
         // 'b' is true, or the string "false" otherwise, followed by the
         // specified trailing string 't', then 'flush' the stream to ensure the
