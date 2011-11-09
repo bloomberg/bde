@@ -7,13 +7,19 @@
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide low level test utilities that do not use <iostream>.
+//@PURPOSE: Provide test utilities for 'bsl' that do not use <iostream>.
 //
 //@CLASSES:
+//   bsls_BslTestUtil: utilities to aid writing 'bsl' test drivers
 //
 //@AUTHOR: Alisdair Meredith (ameredit) 
 //
-//@DESCRIPTION: This component ...
+//@DESCRIPTION: This component provides a set of macros and utility functions
+// to support writing test drivers in the 'bsl' package group that is layered
+// below the standard library, restricting the use of 'iostreams'.  The inent
+// is to use only the macros listed below to implement the standard test driver
+// macros inside a given component.  It is required that the "host" test driver
+// define the standard 'aSsErT' function.
 //
 ///Usage
 ///-----
@@ -89,13 +95,19 @@ struct bsls_BslTestUtil
 
   public:
         
-    static void debugPrint(const char *s, bool v, const char *t);
-        // Print a message to the console consististing of the specified
-        // initial string 's', followed by the specified value 'v' formatted
-        // as a string, followed by the specified trailing string 't', then
-        // 'flush' the stream to ensure the text is written.
+    static void debugPrint(const char *s, bool b, const char *t);
+        // Print a message to the console consististing of the specified 
+        // initial string 's', followed by the string "true" if the specified
+        // 'b' is true, or the string "false" otherwise, followed by the
+        // specified trailing string 't', then 'flush' the stream to ensure the
+        // text is written.
 
-    static void debugPrint(const char *s, char v, const char *t);
+    static void debugPrint(const char *s, char c, const char *t);
+        // Print a message to the console consististing of the specified
+        // initial string 's', followed by the specified character 'c' enclosed
+        // by single-quote characters ('), followed by the specified trailing
+        // string 't', then 'flush' the stream to ensure the text is written.
+
     static void debugPrint(const char *s, signed char v, const char *t);
     static void debugPrint(const char *s, unsigned char v, const char *t);
     static void debugPrint(const char *s, short v, const char *t);
@@ -107,9 +119,9 @@ struct bsls_BslTestUtil
     static void debugPrint(const char *s, long long v, const char *t);
     static void debugPrint(const char *s, unsigned long long v, const char *t);
         // Print a message to the console consististing of the specified
-        // initial string 's', followed by the specified value 'v' formatted
-        // as a string, followed by the specified trailing string 't', then
-        // 'flush' the stream to ensure the text is written.
+        // initial string 's', followed by the specified integer value 'v'
+        // formatted as a string, followed by the specified trailing string
+        // 't', then 'flush' the stream to ensure the text is written.
 
     static void debugPrint(const char *s, float v, const char *t);
     static void debugPrint(const char *s, double v, const char *t);
@@ -120,19 +132,20 @@ struct bsls_BslTestUtil
         // specified trailing string 't', then 'flush' the stream to ensure the
         // text is written.
 
-    static void debugPrint(const char *s, char *v, const char *t);
-    static void debugPrint(const char *s, const char *v, const char *t);
+    static void debugPrint(const char *s, char *str, const char *t);
+    static void debugPrint(const char *s, const char *str, const char *t);
         // Print a message to the console consististing of the specified
-        // initial string 's', followed by the specified string 'v' enclosed by
-        // quote characters ("), followed by the specified trailing string 't',
-        // then 'flush' the stream to ensure the text is written.
+        // initial string 's', followed by the specified string 'str' enclosed
+        // by quote characters ("), followed by the specified trailing string
+        // 't', then 'flush' the stream to ensure the text is written.
 
     static void debugPrint(const char *s, void *p, const char *t);
     static void debugPrint(const char *s, const void *p, const char *t);
         // Print a message to the console consististing of the specified
-        // initial string 's', followed by the specified pointer address 'p'
-        // formatted as a hexadecimal value, followed by the specified trailing
-        // string 't', then 'flush' the stream to ensure the text is written.
+        // initial string 's', followed by the specified memory address 'p'
+        // formatted as a hexadecimal integer, followed by the specified
+        // trailing string 't', then 'flush' the stream to ensure the text is
+        // written.
 
     static void printString(const char *s);
         // Print the specified string 's' to the console.  Note that the stream

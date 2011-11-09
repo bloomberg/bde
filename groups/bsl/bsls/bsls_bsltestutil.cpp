@@ -9,109 +9,130 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace
 {
 
-inline void flush()
+inline
+void flush()
 {
     fflush(stdout);
 }
 
         
 // Fundamental-type-specific print functions.
-inline void printValue(bool b)
+inline
+void printValue(bool b)
 {
     printf(b ? "true" : "false");
 }
 
-inline void printValue(char c)
+inline
+void printValue(char c)
 {
-    printf("%c", c);
+    printf("'%c'", c);
 }
 
-inline void printValue(unsigned char c)
+inline
+void printValue(signed char c)
 {
-    printf("%c", c);
+    printf("%hhd", c);
 }
 
-inline void printValue(signed char c)
+inline
+void printValue(unsigned char c)
 {
-    printf("%c", c);
+    printf("%hhu", c);
 }
 
-inline void printValue(short val)
+inline
+void printValue(short val)
 {
-    printf("%d", (int)val);
+    printf("%hd", (int)val);
 }
 
-inline void printValue(unsigned short val)
+inline
+void printValue(unsigned short val)
 {
-    printf("%d", (int)val);
+    printf("%hu", (int)val);
 }
 
-inline void printValue(int val)
+inline
+void printValue(int val)
 {
     printf("%d", val);
 }
 
-inline void printValue(unsigned int val)
+inline
+void printValue(unsigned int val)
 {
     printf("%u", val);
 }
 
-inline void printValue(long val)
+inline
+void printValue(long val)
 {
     printf("%ld", val);
 }
 
-inline void printValue(unsigned long val)
+inline
+void printValue(unsigned long val)
 {
     printf("%lu", val);
 }
 
-inline void printValue(long long val)
+inline
+void printValue(long long val)
 {
     printf("%lld", val);
 }
 
-inline void printValue(unsigned long long val)
+inline
+void printValue(unsigned long long val)
 {
     printf("%llu", val);
 }
 
-inline void printValue(float val)
+inline
+void printValue(float val)
 {
-    printf("'%f'", (double)val);
+    printf("'%g'", (double)val);
 }
 
-inline void printValue(double val)
+inline
+void printValue(double val)
 {
-    printf("'%f'", val);
+    printf("'%g'", val);
 }
 
-inline void printValue(long double val)
+inline
+void printValue(long double val)
 {
-    printf("'%Lf'", val);
+    // Note that the "C" standard requires the inconsistent upper case 'L' in
+    // the format string below, while requiring lower case 'l' characters in
+    // the format strings for integer values above.
+    printf("'%Lg'", val);
 }
 
-inline void printValue(const char *s)
+inline
+void printValue(const char *s)
 {
    printf("\"%s\"", s);
 }
 
-inline void printValue(char *s)
+inline
+void printValue(char *s)
 {
    printf("\"%s\"", s);
 }
 
-inline void printValue(void *p)
+inline
+void printValue(void *p)
 {
    printf("%p", p);
 }
 
-inline void printValue(const void *p)
+inline
+void printValue(const void *p)
 {
    printf("%p", p);
 }
-
-
 
 template <typename BSLS_TYPE>
 void doDebugPrint(const char *s, const BSLS_TYPE& v, const char *t)
@@ -122,7 +143,7 @@ void doDebugPrint(const char *s, const BSLS_TYPE& v, const char *t)
     flush();
 }
 
-}
+} // close un-named namespace
 
 namespace BloombergLP
 {
@@ -233,7 +254,7 @@ void bsls_BslTestUtil::printTab()
    flush();
 }
 
-}
+} // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:
