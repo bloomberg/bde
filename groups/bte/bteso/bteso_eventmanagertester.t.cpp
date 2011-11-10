@@ -65,6 +65,11 @@ using namespace BloombergLP;
 //  so it has to be treated differently.  Also, Windows has a limitation on
 //  the total # of sockets).
 //
+// This set of test data is OBSOLETE, the tests were redone (see below).  This
+// data is only kept around to show that passing a timeout to the dispatcher
+// does not seem to significantly degrade performance (in the case of AIX it
+// resulted in a slight speedup, but that may just be spurious).
+//
 // Linux: ---------------------------------------------------------------------
 //   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
 //      5000        0        0     R    Linux        20        epoll
@@ -147,68 +152,100 @@ using namespace BloombergLP;
 //
 //=============================================================================
 
-//=============================================================================
-//          CENTRAL TABLE OF RESULTS OF TESTS OF 'testRegisterPerforamnce'
-//                              ON ALL PLATFORMS
-//=============================================================================
+// ----------------------------------------------------------------------------
+// Table of AIX Dispatcher Results, 2nd Pass:
 //
-// This test is a compilation of tables at the -2 test cases of
-// 'bteso_defaulteventmanager_*.t.cpp'.
+//                                  ----------- Microseconds ---------
+// SocketsTotal   # Busy    R|N         Poll      Pollset       Select
+// ------------   ------    ---     --------     --------     --------
+//     5000            1     R       5092.62        18.99      5989.99
+//     5000         2500     R      13228.7      12034.6      15593.9
+//     5000         2500     N       4973.89      3316.96      6724.12
 //
-// (note 'select' has a severe limit on the # of sockets it can listen to,
-//  so it has to be treated differently.  Also, Windows has a limitation on
-//  the total # of sockets).
+//    20000            1     R      27978.8         20.81     32116.5
+//    20000        10000     R      69348.3      59668.2      86618.5
+//    20000        10000     N      27031.1      17862.9      42468.9
 //
-// Linux: ---------------------------------------------------------------------
-//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
-//    Linux          5000               0               3.5        epoll
-//    Linux          5000               0               2.4        poll
-//    Linux           250               0               2.2        select
 //
-//    Linux          5000              0.5              4.5        epoll
-//    Linux          5000              0.5              3.5        poll
-//    Linux           250              0.5              2.0        select
+// ----------------------------------------------------------------------------
+// Table of HP_UX Dispatcher Results, 2nd Pass:
 //
-// Solaris: -------------------------------------------------------------------
-//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
-//   Solaris         5000               0              13.1        devpoll
-//   Solaris         5000               0              14.2        poll
-//   Solaris          250               0               5.4        select
+//                                  ---- Microseconds ----
+// SocketsTotal   # Busy    R|N         Poll     /dev/poll
+// ------------   ------    ---     --------     ---------
+//     5000            1     R          7169             7
+//     5000         2500     R         19960         13468
+//     5000         2500     N          9736          2365
 //
-//   Solaris         5000              0.5              15.9       devpoll
-//   Solaris         5000              0.5             14.9        poll
-//   Solaris          250              0.5              5.3        select
+//    20000            1     R         44575             8
+//    20000        10000     R        104580         88438
+//    20000        10000     N         47988         17161
 //
-// HPUX: ----------------------------------------------------------------------
-//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
-//     HPUX          5000               0               4.9        devpoll
-//     HPUX          5000               0               2.1        poll
-//     HPUX           250               0               0.9        select
+// Note: times given are for the 10th poll.  The first time the set of
+// descriptors is polled, there is an addition 3 ms lag when using 'poll', and
+// 8-30 ms lag when using '/dev/poll', depending how many ports are being
+// listed to.  This is a one time event.
 //
-//     HPUX          5000              0.5              9.2        devpoll
-//     HPUX          5000              0.5              2.7        poll
-//     HPUX           250              0.5              0.9        select
 //
-// AIX: -----------------------------------------------------------------------
-//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
-//     AIX           5000               0               3.9        poll
-//     AIX           5000               0                 6        pollset
-//     AIX           5000               0               2.5        select
+// ----------------------------------------------------------------------------
+// Table of Linux Dispatcher Results, 2nd Pass:
 //
-//     AIX           5000              0.5              4.5        poll
-//     AIX           5000              0.5                7        pollset
-//     AIX           5000              0.5              2.8        select
+//                                  ---- Microseconds ----
+// SocketsTotal   # Busy    R|N         Poll         EPoll
+// ------------   ------    ---     --------     ---------
+//     5000            1     R       3124.35         22.78
+//     5000         2500     R       8427.31       7355.13
+//     5000         2500     N       3215.38       1951.78
 //
-// Windows: -------------------------------------------------------------------
-//   Platform    Sockets Total    Fraction Busy     MicroSeconds EventManager
+//    20000            1     R      12586.4          23.5
+//    20000        10000     R      36049.7       32431
+//    20000        10000     N      13151.7       11217.8
 //
-//       'bdetu_SystemTime::now()' has a resolution of 1/60th of a second
-//       on Windows, so it just reports 0 microseconds everywhere.  It is
-//       not worth redoing the test to get meaningful results on Windows,
-//       since the only choice of event manager there is 'select.
 //
-//=============================================================================
+// ----------------------------------------------------------------------------
+// Table of Solaris Dispatcher Results, 2nd Pass:
+//
+//                                  ---- Microseconds ----
+// SocketsTotal   # Busy    R|N         Poll     /dev/poll
+// ------------   ------    ---     --------     ---------
+//      5000           1     R           599            66
+//      5000        2500     R         45395         39890
+//      5000        2500     N         16744         16911
+//
+//     20000           1     R          2380            89
+//     20000       10000     R        183668        169349
+//     20000       10000     N         73020         57642
+//
+// Note: times given are for the 10th poll.  The first time the set of
+// descriptors is polled, there is an addition 33-120 ms lag when using 'poll',
+// and 22-93 ms lag when using '/dev/poll', depending how many ports are being
+// listed to.  This is a one time event.
+// ----------------------------------------------------------------------------
+//
+// Benchmark of Windows is not done here, since only 'select' works there,
+// there is no decision of a default event manager to be made.
+// ----------------------------------------------------------------------------
 
+
+// ----------------------------------------------------------------------------
+// Registration time tests: test case -2 in bteso_defaulteventmanager_*.t.cpp
+//
+//                         ----- Microseconds to Register all Sockets -----
+//                                            Event Manager
+// Platform NumSockets      devpoll     epoll      poll   pollset    select
+// -------- ----------     --------  --------  --------  --------  --------
+//     AIX      5000                            21562.8   40285.9   20559.9
+//     AIX     20000                            95107.5  168850     87524.4
+//
+//    HPUX      5000        40080               13111
+//    HPUX     20000       219252               49592
+//
+//   Linux      5000                  14072      8116
+//   Linux     20000                  58735     34352
+//
+// Solaris      5000       117983               49223
+// Solaris     20000       471784              219840
+// ----------------------------------------------------------------------------
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
