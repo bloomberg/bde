@@ -33,12 +33,19 @@ BDES_IDENT_RCSID(bteso_eventmanagertester_cpp,"$Id$ $CSID$")
 #include <bsl_cstdlib.h>                             // abort
 
 #ifdef BSLS_PLATFORM__OS_UNIX
-#include <bsl_c_signal.h>
-#include <pthread.h>
-#if defined(BSLS_PLATFORM__OS_LINUX)
-# include <sys/resource.h>
+
+# include <bsl_c_signal.h>
+# include <pthread.h>
+# include <sys/types.h>
+# include <sys/socket.h>                             // ::socketpair
+
+# if defined(BSLS_PLATFORM__OS_LINUX)
+#   include <sys/resource.h>
+# endif
+
 #endif
-#endif
+
+#define BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR 1 // TBD -- should be 0
 
 namespace BloombergLP {
 
@@ -1335,7 +1342,11 @@ bteso_EventManagerTester::testDispatchPerformance(
                                      const char               *pollingMechName,
                                      int                       flags)
 {
+#if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_SOLARIS)
+    enum { NUM_MEASUREMENTS = 1 };
+#else
     enum { NUM_MEASUREMENTS = 10 };
+#endif
     int fails = 0, i = 0;
     const char *cbScript = 0;  // dummy argument.
 
@@ -1500,6 +1511,8 @@ bteso_EventManagerTester::testDispatchPerformance(
             }
         }
 
+        double averageResult = 0;
+
         for (i = numSocketPairs - 10; !fails && i < numSocketPairs; i++) {
             const int SAMPLE_DISTANCE = (i + 1) / NUM_MEASUREMENTS;
             int toWrite = bsl::max((int) ((i + 1) * fractionBusy), 1);
@@ -1601,8 +1614,15 @@ bteso_EventManagerTester::testDispatchPerformance(
             double microseconds =
                   (1e6 * timer.totalSecondsAsDouble() / actualNumMeasurements);
 
-            os << microseconds << '\n' << bsl::flush;
+            os        << microseconds << bsl::endl;
+            bsl::cout << microseconds << bsl::endl;
+            averageResult += microseconds;
         }
+
+        averageResult /= 10;
+
+        os        << "\n" << averageResult << "\n";
+        bsl::cout << "\n" << averageResult << "\n";
 
         for (int j = 0; j < i; j++){ //have to 'destructor' one by one
             bslalg_ScalarDestructionPrimitives::destroy(socketPairs+j);
@@ -1620,52 +1640,66 @@ bteso_EventManagerTester::testDispatchPerformance(
 }
 
 int
-bteso_EventManagerTester::testRegisterPerformance(
-                                     bteso_EventManager       *mX,
-                                     int                       flags)
+bteso_EventManagerTester::testRegisterPerformance(bteso_EventManager *mX,
+                                                  int                 flags)
 {
     enum { NUM_MEASUREMENTS = 10 };
 
     int numSockets;
     double fractionRegistered;
 
-    bsl::cout <<
-                "Enter args: <num sockets> <fraction previously registered>\n";
-    bsl::cin >> numSockets >> fractionRegistered;
+    bsl::cout << "Enter arg: <num sockets>\n";
+    bsl::cin >> numSockets;
 
     if (numSockets < 10) {
         bsl::cout << "<num sockets> must be >= 10\n";
         return 1;
     }
-    if (fractionRegistered < 0 || fractionRegistered > 1.0) {
-        bsl::cout << "<fraction previously registered> must be in the range"
-                                                             " [ 0.0, 1.0 ]\n";
+    if (numSockets & 1) {
+        bsl::cout << "<num sockets> must be even\n";
         return 1;
     }
 
     BSLS_ASSERT_OPT(numSockets >= 10);
 
-    bdet_TimeInterval t1, t2;
-    int i = 0;
     bteso_EventManager::Callback nullCb =
                                          &bteso_eventmanagertester_nullFunctor;
 
     bslma_TestAllocator testAllocator(flags &
                         bteso_EventManagerTester::BTESO_VERY_VERY_VERBOSE);
     bteso_SocketHandle::Handle *socket = (bteso_SocketHandle::Handle *)
-              testAllocator.allocate(numSockets * sizeof (*socket));
+                         testAllocator.allocate(numSockets * sizeof (*socket));
 
-    bool *registeredFlags = (bool *) testAllocator.allocate(numSockets);
-
-    for (i = 0; i < numSockets; i++) {
-        bslalg_ScalarPrimitives::defaultConstruct(&socket[i],
+    for (int ii = 0; ii < numSockets; ii += 2) {
+        bslalg_ScalarPrimitives::defaultConstruct(&socket[ii],
+                                                  &testAllocator);
+        bslalg_ScalarPrimitives::defaultConstruct(&socket[ii + 1],
                                                   &testAllocator);
 
+#if BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
+        // We found creating 40,000 sockets in the -1 and -2 cases of
+        // defaulteventmanager_*.t.cpp would crash ibm7.  If we create them
+        // this way it will be OK, though some test drivers may complain in
+        // other ways.
+
+        static bool firstTime = true;
+        if (firstTime) {
+            firstTime = false;
+            bsl::cout <<
+               "testRegisterPerformance: Fix me: using '::socketpair' kluge\n";
+        }
+
+        int ret = ::socketpair(AF_UNIX, SOCK_STREAM, 0, &socket[ii]);
+#else
         int ret = bteso_SocketImpUtil::open<bteso_IPv4Address>(
-                                     &socket[i],
+                                     &socket[ii],
                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+        ret    |= bteso_SocketImpUtil::open<bteso_IPv4Address>(
+                                     &socket[ii + 1],
+                                     bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+#endif
         if (0 != ret) {
-            std::cout << "Unable to open more than " << i << " sockets\n";
+            std::cout << "Unable to open more than " << ii << " sockets\n";
 #ifdef BSLS_PLATFORM__OS_UNIX
             std::cout << "Try 'ulimit -n " << (numSockets + 10) << "'\n";
 #endif
@@ -1673,73 +1707,64 @@ bteso_EventManagerTester::testRegisterPerformance(
         }
     }
 
-    for (i = numSockets - 10; i < numSockets; ++i) {
-        bdet_TimeInterval timer;
-        const int SAMPLE_DISTANCE = i / NUM_MEASUREMENTS;
-
-        int toPreRegister = bsl::min((int) ((i + 1) * fractionRegistered),
-                                     i);
-
-        for (int j = 0; j < NUM_MEASUREMENTS; ++j) {
-            int idx;
-            int skip;
-            if (0 == SAMPLE_DISTANCE) {
-                idx = j % (i + 1);
-                skip = 1;
-            }
-            else {
-                idx = j * SAMPLE_DISTANCE;
-                skip = SAMPLE_DISTANCE;
-            }
-
-            bsl::memset(registeredFlags, 0, i + 1);
-            registeredFlags[idx] = true;
-
-            int preIdx = 0;
-            for (int leftToRegister = toPreRegister; leftToRegister;
-                                          preIdx = (preIdx + skip) % (i + 1)) {
-                while (registeredFlags[preIdx]) {
-                    preIdx = (preIdx + 1) % (i + 1);
-                }
-                mX->registerSocketEvent(socket[preIdx],
-                                        bteso_EventType::BTESO_READ,
-                                        nullCb);
-                registeredFlags[preIdx] = true;
-                --leftToRegister;
-            }
-            registeredFlags[idx] = false;
-
-            t1 = bdetu_SystemTime::now();
-            mX->registerSocketEvent(socket[idx],
+    bdet_TimeInterval t1, t2;
+    double totalMicroseconds = 0;
+    for (int j = 0; j < NUM_MEASUREMENTS; ++j) {
+        t1 = bdetu_SystemTime::now();
+        for (int k = 0; k < numSockets; ++k) {
+            mX->registerSocketEvent(socket[k],
                                     bteso_EventType::BTESO_READ,
                                     nullCb);
-            t2 = bdetu_SystemTime::now();
-            timer += t2 - t1;
-            mX->deregisterAll();
-
-            BSLS_ASSERT_OPT(0 == mX->numEvents());
         }
+        t2 = bdetu_SystemTime::now();
 
-        double microseconds =
-                       (1e6 * timer.totalSecondsAsDouble() / NUM_MEASUREMENTS);
+        mX->deregisterAll();
+        BSLS_ASSERT_OPT(0 == mX->numEvents());
+
+        double microseconds = 1e6 * (t2 - t1).totalSecondsAsDouble();
         bsl::cout << microseconds << bsl::endl;
+        totalMicroseconds += microseconds;
     }
 
-    for (int j = 0; j < i; j++){ //have to 'destructor' one by one
+    bsl::cout << bsl::endl << (totalMicroseconds / NUM_MEASUREMENTS) <<
+                                                                     bsl::endl;
+
+    for (int j = 0; j < numSockets; j++) {
         bteso_SocketImpUtil::close(socket[j]);
-        // (socket+j)->~bteso_SocketHandle::Handle();
+        bslalg_ScalarDestructionPrimitives::destroy(&socket[j]);
     }
     testAllocator.deallocate(socket);
-    testAllocator.deallocate(registeredFlags);
 
     return 0;
 }
 
+                        // --------------------------
+                        // bteso_EventManagerTestPair
+                        // --------------------------
+
+// CREATORS
 bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
 : d_verboseFlag(verboseFlag)
 {
+#if BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
+    // We found creating 40,000 sockets in the -1 and -2 cases of
+    // defaulteventmanager_*.t.cpp would crash ibm7.  Allegedly, if we
+    // create them this way it will be OK, though some test drivers may
+    // complain in other ways.
+
+    static bool firstTime = true;
+    if (firstTime) {
+        firstTime = false;
+        bsl::cout << "bteso_EventManagerTestPair: Fix me: using '::socketpair'"
+                        " kluge\n";
+    }
+
+    int rc = ::socketpair(AF_UNIX, SOCK_STREAM, 0, d_fds);
+#else
     int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
                               d_fds, bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
+#endif
+
     if (d_verboseFlag) {
         bsl::printf("T%d: socketPair (%d, %d): %d\n",
                     bcemt_ThreadUtil::self(), d_fds[0], d_fds[1], rc);
@@ -1760,6 +1785,7 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
             bsl::printf("T%d: setBlockingMode (%d): %d\n",
                         bcemt_ThreadUtil::self(), d_fds[1], rc);
         }
+#if !BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR
         rc |= bteso_SocketOptUtil::setOption(d_fds[0],
                       bteso_SocketOptUtil::BTESO_TCPLEVEL,
                       bteso_SocketOptUtil::BTESO_TCPNODELAY, 1);
@@ -1775,6 +1801,7 @@ bteso_EventManagerTestPair::bteso_EventManagerTestPair(int verboseFlag)
             bsl::printf("T%d: setOption (TCPNODELAY) (%d): %d\n",
                         bcemt_ThreadUtil::self(), d_fds[1], rc);
         }
+#endif
 
         if (rc) {
             if (d_verboseFlag) {
