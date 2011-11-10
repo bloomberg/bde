@@ -1172,6 +1172,7 @@ class list {
 #endif
     iterator insert(const_iterator position, const TYPE& x);
     iterator insert(const_iterator position, size_type n, const TYPE& x);
+
     template <class InputIter>
     iterator insert(const_iterator position, InputIter first, InputIter last,
                     typename BloombergLP::bslmf_EnableIf<
