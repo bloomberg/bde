@@ -45,7 +45,7 @@ BDES_IDENT_RCSID(bteso_eventmanagertester_cpp,"$Id$ $CSID$")
 
 #endif
 
-#define BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR 1 // TBD -- should be 0
+#define BTESO_EVENTMANAGERTESTER_USE_RAW_SOCKETPAIR 0
 
 namespace BloombergLP {
 
