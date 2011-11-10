@@ -134,13 +134,41 @@ BSLS_IDENT("$Id: $")
 //  | a.reverse()                                        | O(n)               |
 //  +----------------------------------------------------+--------------------+
 //..
+///Terminology
+///-----------
+// For convenience and consistency in describing the interfaces to
+// standard containers, a common terminology is used throughout this
+// component.  Given a container 'X' having an 'allocator_type' identical to
+// 'A' and a 'value_type' identical to 'T' and given a pointer 'p' of type
+// 'T*' and an expression 'v' of type 'T', the following terms are defined:
+//
+//: "default-insertion": Construction of a new element 'e' into 'X'.  If 'A'
+//:     is convertible from 'bslma_Allocator*', and 'T' conforms to the bslma
+//:     allocator protocol, then 'X.get_allocator().mechanism()' is passed as
+//:     the sole constructor argument to 'e'; otherwise, no arguments are
+//:     passed to the constructor of 'e'.
+//:
+//: "copy-insertion" (from 'v'): Construction of a new element 'e' into 'X'
+//:     using the constructor argument 'v'.  If 'A' is convertible from
+//:     'bslma_Allocator*', and 'T' conforms to the bslma allocator protocol,
+//:     pass 'X.get_allocator().mechanism()' as an additional (second)
+//:     constructor argument to 'e'; otherwise, construct 'e' from 'v' with no
+//:     allocator argument.
+//:
+//: "emplace-construction" (from *args*): Construction of a new element 'e'
+//:     into 'X' using zero or more constructor arguments, *args*.  If 'A' is
+//:     convertible from 'bslma_Allocator*', and 'T' conforms to the bslma
+//:     allocator protocol, pass 'X.get_allocator().mechanism()' as an
+//:     additional (final) constructor argument to 'e'; otherwise, construct
+//:     'e' from args with an allocator argument.
+//
 ///Thread Safety
 ///-------------
-// 'list' provides basic thread safety guarantees.  Separate threads can
-// safely access and modify separate 'list' objects.  Separate threads can
-// safely perform 'const' operations on a single 'list' object.  Separate
-// threads cannot safely perform operations on a single 'list' object if at
-// least one of those operations modifies the list.  If an iterator or
+// 'list' is "'const' Thread-Safe [TS.2]" (see {'bsldoc_glossary'}).  Separate
+// threads can safely access and modify separate 'list' objects.  Separate
+// threads can safely perform 'const' operations on a single 'list' object.
+// Separate threads cannot safely perform operations on a single 'list' object
+// if at least one of those operations modifies the list.  If an iterator or
 // reference to a list element is obtained in one thread, it may become
 // invalidated if the list is modified in the same or another thread, even if
 // the iterator is a 'const_iterator' or the reference is a
@@ -150,8 +178,8 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustates intended usage of this component
 //
-///Example 1: Using push_back, erase, and iteration
-///- - - - - - - - - - - - - - - - - - - - - - - - 
+///Usage 1: Using push_back, erase, and iteration
+/// - - - - - - - - - - - - - - - - - - - - - - - 
 // An observatory needs to analyze the results of a sky survey.  The raw data
 // is a text file of star observations where each star is represented by a
 // tuple of three numbers: (x, y, b), where x and y represent the angular
@@ -261,8 +289,8 @@ BSLS_IDENT("$Id: $")
 //      return 0;
 //  }
 //..
-///Example 2: Using insert, splice, merge, and unique
-///- - - - - - - - - - - - - - - - - - - - - - - - - 
+///Usage 2: Using insert, splice, merge, and unique
+/// - - - - - - - - - - - - - - - - - - - - - - - - 
 // Now we want to combine the results from two star surveys into a single
 // list.  We begin by reading both lists and filtering them.  (Our test data is
 // selected so that the second data file contains 8 starts of which 3 are
@@ -389,32 +417,6 @@ BSLS_IDENT("$Id: $")
 //      else
 //          return a.brightness() < b.brightness();
 //  }
-//..
-//@TEMINOLOGY For convenience and consistency in describing the interfaces to
-// standard containers, a common terminology is used throughout this
-// component.  Given a container 'X' having an 'allocator_type' identical to
-// 'A' and a 'value_type' identical to 'T' and given a pointer 'p' of type
-// 'T*' and an expression 'v' of type 'T', the following terms are defined:
-//..
-//  default-insertion: Construction of a new element 'e' into 'X'.  If 'A' is
-//      convertible from 'bslma_Allocator*', and 'T' conforms to the bslma
-//      allocator protocol, then 'X.get_allocator().mechanism()' is passed as
-//      the sole constructor argument to 'e'; otherwise, no arguments are
-//      passed to the constructor of 'e'.
-//
-//  copy-insertion from 'v': Construction of a new element 'e' into 'X' using
-//      the constructor argument 'v'.  If 'A' is convertible from
-//      'bslma_Allocator*', and 'T' conforms to the bslma allocator protocol,
-//      pass 'X.get_allocator().mechanism()' as an additional (second)
-//      constructor argument to 'e'; otherwise, construct 'e' from 'v' with no
-//      allocator argument.
-//
-//  emplace-construction from args: Construction of a new element 'e' into 'X'
-//      using zero or more constructor arguments, args.  If 'A' is convertible
-//      from 'bslma_Allocator*', and 'T' conforms to the bslma allocator
-//      protocol, pass 'X.get_allocator().mechanism()' as an additional (final)
-//      constructor argument to 'e'; otherwise, construct 'e' from args with
-//      on allocator argument.
 //..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
@@ -544,6 +546,8 @@ struct List_node {
 template <class TYPE, class NODEPTR, class DIFFTYPE>
 class List_iterator
 {
+    // Implementation of std::list::iterator
+
     typedef typename BloombergLP::bslmf_RemoveCvq<TYPE>::Type  NcType;
     typedef List_iterator<NcType, NODEPTR, DIFFTYPE>           NcIter;
     typedef List_node<NcType>                                  Node;
@@ -692,6 +696,7 @@ class list {
         // This class provides a proctor to free a node containing an
         // uninitialized 'TYPE' object in the event that an exception is
         // thrown.
+
         list     *d_list;
         NodePtr   d_p;
       public:
@@ -706,6 +711,7 @@ class list {
         // always, the same as that provided by 'std::less<TYPE>'.  The
         // standard requires that certain functions use 'operator<', which
         // means that divergent specializations of 'std::less' are ignored.
+
         bool operator()(const TYPE& a, const TYPE& b) const
             { return a < b; }
     };
@@ -790,25 +796,25 @@ class list {
     explicit list(size_type n);
         // Construct a list containing the specified 'n' elements and using a
         // default-constructed allocator.  The initial elements in the list
-        // are constructed by default-insertion (see @TERMINOLOGY).
+        // are constructed by "default-insertion" (see {Terminology}).
 
     list(size_type n, const TYPE& value, const ALLOC& a = ALLOC());
         // Construct a list using the specified allocator 'a' and insert the
-        // specified 'n' number of elements created by copy-insertion (see
-        // @TERMINOLOGY) from 'value'.
+        // specified 'n' number of elements created by "copy-insertion" (see
+        // {Terminology}) from 'value'.
 
     template <class InputIter>
       list(InputIter first, InputIter last, const ALLOC& a = ALLOC(),
            typename BloombergLP::bslmf_EnableIf<
                !BloombergLP::bslmf_IsFundamental<InputIter>::VALUE
-           >::type * = 0)
+           >::type* = 0)
         // Construct a list using the specified allocator 'a' and insert the
         // number of elements determined by the size of the specified range
-        // '[first, last)'.  Each initial element is created by copy-insertion
-        // (see @TERMINOLOGY) from the corresponding element in '[first,
-        // last)'.  Does not participate in overload resolution unless
-        // 'InputIter' is an iterator type.  The behavior is undefined unless
-        // '[first, last)' defines a range of valid objects.
+        // '[first, last)'.  Each initial element is created by 
+        // "copy-insertion" (see {Terminology}) from the corresponding element
+        // in '[first, last)'.  Does not participate in overload resolution
+        // unless 'InputIter' is an iterator type.  The behavior is undefined
+        // unless '[first, last)' defines a range of valid objects.
         //
         // TBD: This function's signature is specified using 'bslmf_EnableIf'
         // in such a way that it will not be selected during overload
@@ -824,9 +830,14 @@ class list {
         // EnableIf be in-place inline.
 
         // '*this' is in an invalid but destructible state (size == -1).
+        // Create a temporary list, 'tmp' with the specified data.  If an
+        // exception is thrown, 'tmp's destructor will clean up.  Otherwise,
+        // swap 'tmp' with '*this', leaving 'tmp' in an invalid but
+        // destructible state and leaving '*this' fully constructed.
+
         list tmp(allocator());
-        tmp.assign(first, last); // 'tmp's destructor will clean up on throw.
-        quick_swap(tmp);  // Leave 'tmp' in an invalid but destructible state.
+        tmp.assign(first, last);
+        quick_swap(tmp);
     }
 
     list(const list& x);
@@ -834,14 +845,14 @@ class list {
         // convertible from 'bslma_Allocator*', then the resulting list will
         // use the default allocator; otherwise, the resulting list will use a
         // copy of 'x.get_allocator()'.  Each element in the resulting list is
-        // constructed by copy-insertion from the corresponding element in
-        // 'x'.
+        // constructed by "copy-insertion" (see {Terminology}) from the
+        // corresponding element in 'x'.
 
     list(const list&, const ALLOC& a);
         // Construct a copy of the specified list 'x' using a copy of the
         // specified allocator 'a'.  Each element in the resulting list is
-        // constructed by copy-insertion from the corresponding element in
-        // 'x'.
+        // constructed by "copy-insertion" (See {Terminology}) from the
+        // corresponding element in 'x'.
 
 #ifdef BDE_CXX0X_RVALUES
     list(list&& x);
@@ -856,9 +867,9 @@ class list {
         // and using a copy of the specified allocator 'a'.  If 'a ==
         // a.get_allocator()', then no copy or move constructors are called
         // for individual elements.  Otherwise, each element in the resulting
-        // list is constructed by copy-insertion from the corresponding
-        // element in 'x'.  After the construction, the value of 'x' is valid,
-        // but unspecified.
+        // list is constructed by "copy-insertion" (See {Terminology}) from
+        // the corresponding element in 'x'.  After the construction, the
+        // value of 'x' is valid, but unspecified.
 
 #endif // BDE_CXX0X_RVALUES
 
@@ -880,9 +891,9 @@ class list {
         // the elements of the specified list 'x'.  If 'x.get_allocator() ==
         // this->get_allocator()', then no move or copy operations are applied
         // to any individual elements; otherwise each element this list is
-        // modified by either copy-assignment or copy-insertion from the
-        // corresponding element of 'x'.  After the construction, the value of
-        // 'x' is valid, but unspecified.
+        // modified by either copy-assignment or "copy-insertion" (see
+        // {Terminology}) from the corresponding element of 'x'.  After the
+        // construction, the value of 'x' is valid, but unspecified.
 
 #endif // BDE_CXX0X_RVALUES
 //    list& operator=(initializer_list<TYPE>);
@@ -894,11 +905,11 @@ class list {
                 >::type * = 0)
         // Replace the contents of this list with copies of the elements in
         // the specified range '[first, last)'.  Each element in this list is
-        // set by either copy-assignment or copy-insertion from the
-        // corresponding element in '[first, last)'.  Does not participate in
-        // overload resolution unless 'InputIter' is an iterator type.  The
-        // behavior is undefined unless '[first, last)' is a range of valid
-        // iterators not into this list.
+        // set by either copy-assignment or "copy-insertion" (see
+        // {Terminology}) from the corresponding element in '[first, last)'.
+        // Does not participate in overload resolution unless 'InputIter' is
+        // an iterator type.  The behavior is undefined unless '[first, last)'
+        // is a range of valid iterators not into this list.
         //
         // TBD: This function's signature is specified using 'bslmf_EnableIf'
         // in such a way that it will not be selected during overload
@@ -929,7 +940,7 @@ class list {
     void assign(size_type n, const TYPE& t);
         // Replace the contents of this list with the specified 'n' copies of
         // the specified value 't'.  Each element in this list is set by
-        // either copy-assignment or copy-insertion (See @TERMINOLOGY) from
+        // either copy-assignment or "copy-insertion" (See {Terminology}) from
         // 't'.
 
 //  void assign(initializer_list<TYPE>);
@@ -1005,7 +1016,7 @@ class list {
         // Resize this list to the specified 'sz' elements.  If 'sz' is less
         // than or equal to the previous size of this list, then erase the
         // excess elements from the end.  Otherwise, append additional
-        // elements to the end using default-insertion (see @TERMINOLOGY)
+        // elements to the end using "default-insertion" (see {Terminology})
         // until there are a total of 'sz' elements.
 
     void resize(size_type sz, const TYPE& c);
@@ -1013,7 +1024,7 @@ class list {
         // elements being copies of the specified value 'c'.  If 'sz' is less
         // than or equal to the previous size of this list, then erase the
         // excess elements from the end.  Otherwise, append additional
-        // elements to the end using copy-insertion (see @TERMINOLOGY) from
+        // elements to the end using "copy-insertion" (see {Terminology}) from
         // 'c' until there are a total of 'sz' elements.
 
     // element access:
@@ -1042,38 +1053,38 @@ class list {
     template <class... Args>
     void emplace_front(Args&&... args);
         // Insert a new element at the front of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // 'args'.
 #else
     void emplace_front();
         // Insert a new element at the front of this list and construct it
-        // using default-insertion (see @TERMINOLOGY).
+        // using "default-insertion" (see {Terminology}).
     template <class ARG1>
     void emplace_front(const ARG1& a1);
         // Insert a new element at the front of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // argument 'a1'.
     template <class ARG1, class ARG2>
     void emplace_front(const ARG1& a1, const ARG2& a2);
         // Insert a new element at the front of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // arguments 'a1' and 'a2'.
     template <class ARG1, class ARG2, class ARG3>
     void emplace_front(const ARG1& a1, const ARG2& a2, const ARG3& a3);
         // Insert a new element at the front of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // arguments 'a1', 'a2', and 'a3'.
     template <class ARG1, class ARG2, class ARG3, class ARG4>
     void emplace_front(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                        const ARG4& a4);
         // Insert a new element at the front of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // arguments 'a1', 'a2', 'a3', and 'a4'.
     template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
     void emplace_front(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                        const ARG4& a4, const ARG5& a5);
         // Insert a new element at the front of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // arguments 'a1', 'a2', 'a3', 'a4', and 'a5'.
 #endif
     void pop_front();
@@ -1084,38 +1095,38 @@ class list {
     template <class... Args>
     void emplace_back(Args&&... args);
         // Insert a new element at the back of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // 'args'.
 #else
     void emplace_back();
         // Insert a new element at the back of this list and construct it
-        // using default-insertion (see @TERMINOLOGY).
+        // using "default-insertion" (see {Terminology}).
     template <class ARG1>
     void emplace_back(const ARG1& a1);
         // Insert a new element at the back of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // argument 'a1'.
     template <class ARG1, class ARG2>
     void emplace_back(const ARG1& a1, const ARG2& a2);
         // Insert a new element at the back of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // arguments 'a1' and 'a2'.
     template <class ARG1, class ARG2, class ARG3>
     void emplace_back(const ARG1& a1, const ARG2& a2, const ARG3& a3);
         // Insert a new element at the back of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // arguments 'a1', 'a2', and 'a3'.
     template <class ARG1, class ARG2, class ARG3, class ARG4>
     void emplace_back(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                        const ARG4& a4);
         // Insert a new element at the back of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // arguments 'a1', 'a2', 'a3', and 'a4'.
     template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
     void emplace_back(const ARG1& a1, const ARG2& a2, const ARG3& a3,
                        const ARG4& a4, const ARG5& a5);
         // Insert a new element at the back of this list and construct it
-        // using emplace-construction (see @TERMINOLOGY) from the specified
+        // using "emplace-construction" (see {Terminology}) from the specified
         // arguments 'a1', 'a2', 'a3', 'a4', and 'a5'.
 #endif
 
@@ -1124,55 +1135,56 @@ class list {
         // undefined unless this list contains at least one element.
 
     void push_front(const TYPE& x);
-        // Insert a new element at the front of this list using copy-insertion
-        // (see @TERMINOLOGY) from the specified value 'x'.
+        // Insert a new element at the front of this list using
+        // "copy-insertion" (see {Terminology}) from the specified value 'x'.
 
     void push_back(const TYPE& x);
-        // Append a new element to the end of this list using copy-insertion
-        // (see @TERMINOLOGY) from the specified value 'x'.
+        // Append a new element to the end of this list using
+        // "copy-insertion" (see {Terminology}) from the specified value 'x'.
 
 #ifdef BDE_CXX0X_VARIADIC_TEMPLATES
     template <class... Args>
     iterator emplace(const_iterator position, Args&&... args);
         // Insert a new element into this list before the element at the
-        // specified 'position' using emplace-construction (see @TERMINOLOGY)
-        // from the specified 'args'.
+        // specified 'position' using "emplace-construction" (see
+        // {Terminology}) from the specified 'args'.
 #else
     iterator emplace(const_iterator position);
         // Insert a new element into this list before the element at the
-        // specified 'position' using default-insertion (see @TERMINOLOGY).
+        // specified 'position' using "default-insertion" (see {Terminology}).
     template <class ARG1>
     iterator emplace(const_iterator position, const ARG1& a1);
         // Insert a new element into this list before the element at the
-        // specified 'position' using emplace-construction (see @TERMINOLOGY)
-        // from the specified argument 'a1'.
+        // specified 'position' using "emplace-construction" (see
+        // {Terminology}) from the specified argument 'a1'.
     template <class ARG1, class ARG2>
     iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2);
         // Insert a new element into this list before the element at the
-        // specified 'position' using emplace-construction (see @TERMINOLOGY)
-        // from the specified arguments 'a1' and 'a2'.
+        // specified 'position' using "emplace-construction" (see
+        // {Terminology}) from the specified arguments 'a1' and 'a2'.
     template <class ARG1, class ARG2, class ARG3>
     iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2,
                      const ARG3& a3);
         // Insert a new element into this list before the element at the
-        // specified 'position' using emplace-construction (see @TERMINOLOGY)
-        // from the specified arguments 'a1', 'a2', and 'a3'.
+        // specified 'position' using "emplace-construction" (see
+        // {Terminology}) from the specified arguments 'a1', 'a2', and 'a3'.
     template <class ARG1, class ARG2, class ARG3, class ARG4>
     iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2,
                      const ARG3& a3, const ARG4& a4);
         // Insert a new element into this list before the element at the
-        // specified 'position' using emplace-construction (see @TERMINOLOGY)
-        // from the specified arguments 'a1', 'a2', 'a3', and 'a4'.
+        // specified 'position' using "emplace-construction" (see
+        // {Terminology}) from the specified arguments 'a1', 'a2', 'a3', and
+        // 'a4'.
     template <class ARG1, class ARG2, class ARG3, class ARG4, class ARG5>
     iterator emplace(const_iterator position, const ARG1& a1, const ARG2& a2,
                      const ARG3& a3, const ARG4& a4, const ARG5& a5);
         // Insert a new element into this list before the element at the
-        // specified 'position' using emplace-construction (see @TERMINOLOGY)
-        // from the specified arguments 'a1', 'a2', 'a3', 'a4', and 'a5'.
+        // specified 'position' using "emplace-construction" (see
+        // {Terminology}) from the specified arguments 'a1', 'a2', 'a3', 'a4',
+        // and 'a5'.
 #endif
     iterator insert(const_iterator position, const TYPE& x);
     iterator insert(const_iterator position, size_type n, const TYPE& x);
-
     template <class InputIter>
     iterator insert(const_iterator position, InputIter first, InputIter last,
                     typename BloombergLP::bslmf_EnableIf<
