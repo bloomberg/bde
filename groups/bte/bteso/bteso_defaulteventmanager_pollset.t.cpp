@@ -1229,16 +1229,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   'dispatch' capacity
         //
-        // Results (all 32 bit):
-        //   SocketPairs FracBusy TimeOut R|N Platform microSeconds
-        //      5000        0        0     R     AIX         25
-        //
-        //      5000        0       0.1    R     AIX         30
-        //
-        //      5000       0.5       0     R     AIX      12500
-        //
-        //      5000       0.5       0     N     AIX       4600
-        //
         // See the compilation of results for all event managers & platforms
         // at the beginning of 'bteso_eventmanagertester.t.cpp'.
         // --------------------------------------------------------------------
@@ -1263,13 +1253,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   Obj::registerSocketEvent
-        //
-        // Results: microseconds per registration:
-        //   Platform    Sockets Total    Fraction Busy     MicroSeconds
-        //   --------    -------------    -------------     ------------
-        //     AIX           5000               0                 6
-        //
-        //     AIX           5000              0.5                7
         //
         // See the compilation of results for all event managers & platforms
         // at the beginning of 'bteso_eventmanagertester.t.cpp'.

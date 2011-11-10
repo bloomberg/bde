@@ -1397,28 +1397,6 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   'dispatch' capacity
         //
-        // Results (all 32 bit):
-        //   SocketPairs FracBusy TimeOut R|N Platform microSeconds
-        //      5000        0        0     R    Linux      3200
-        //      5000        0        0     R   Solaris      750
-        //      5000        0        0     R     HPUX      8200
-        //      5000        0        0     R     AIX       8400
-        //
-        //      5000        0       0.1    R    Linux      2200
-        //      5000        0       0.1    R   Solaris      690
-        //      5000        0       0.1    R     HPUX      8900
-        //      5000        0       0.1    R     AIX       5800
-        //
-        //      5000       0.5       0     R    Linux     12000
-        //      5000       0.5       0     R   Solaris    58000
-        //      5000       0.5       0     R     HPUX     55000
-        //      5000       0.5       0     R     AIX      17000
-        //
-        //      5000       0.5       0     N    Linux      3675
-        //      5000       0.5       0     N   Solaris    24000
-        //      5000       0.5       0     N     HPUX     23000
-        //      5000       0.5       0     N     AIX       7500
-        //
         // See the compilation of results for all event managers & platforms
         // at the beginning of 'bteso_eventmanagertester.t.cpp'.
         // --------------------------------------------------------------------
@@ -1444,19 +1422,6 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   Obj::registerSocketEvent
-        //
-        // Results: microseconds per registration:
-        //   Platform    Sockets Total    Fraction Busy     MicroSeconds
-        //   --------    -------------    -------------     ------------
-        //    Linux          5000               0               2.4
-        //   Solaris         5000               0              14.2
-        //     HPUX          5000               0               2.1
-        //     AIX           5000               0               3.9
-        //
-        //    Linux          5000              0.5              3.5
-        //   Solaris         5000              0.5             14.9
-        //     HPUX          5000              0.5              2.7
-        //     AIX           5000              0.5              4.5
         //
         // See the compilation of results for all event managers & platforms
         // at the beginning of 'bteso_eventmanagertester.t.cpp'.

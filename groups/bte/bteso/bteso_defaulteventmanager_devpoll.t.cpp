@@ -1508,20 +1508,6 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   'dispatch' capacity
         //
-        // Results (all 32 bit):
-        //   SocketPairs FracBusy TimeOut R|N Platform microSeconds
-        //      5000       0.0       0     R   Solaris      50
-        //      5000       0.0       0     R    HPUX        10
-        //
-        //      5000       0.0      0.1    R   Solaris      52
-        //      5000       0.0      0.1    R    HPUX        13
-        //
-        //      5000       0.5       0     R   Solaris     56000
-        //      5000       0.5       0     R    HPUX       49000
-        //
-        //      5000       0.5       0     N   Solaris     13500
-        //      5000       0.5       0     N    HPUX       10500
-        //
         // See the compilation of results for all event managers & platforms
         // at the beginning of 'bteso_eventmanagertester.t.cpp'.
         // --------------------------------------------------------------------
@@ -1548,15 +1534,6 @@ int main(int argc, char *argv[]) {
         //
         // Testing:
         //   Obj::registerSocketEvent
-        //
-        // Results: microseconds per registration:
-        //   Platform    Sockets Total    Fraction Busy     MicroSeconds
-        //   --------    -------------    -------------     ------------
-        //   Solaris         5000               0               13.1
-        //     HPUX          5000               0                4.9
-        //
-        //   Solaris         5000              0.5              15.9
-        //     HPUX          5000              0.5               9.2
         //
         // See the compilation of results for all event managers & platforms
         // at the beginning of 'bteso_eventmanagertester.t.cpp'.
