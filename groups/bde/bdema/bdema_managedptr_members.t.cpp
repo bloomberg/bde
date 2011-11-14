@@ -83,10 +83,6 @@ void aSsErT(int c, const char *s, int i)
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define PA(X, L) cout << #X " = "; printArray(X, L); cout << endl;
-                                              // Print array 'X' of length 'L'
-#define PA_(X, L) cout << #X " = "; printArray(X, L); cout << ", " << flush;
-                                              // PA(X, L) without '\n'
 #define L_ __LINE__                           // current Line number
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)

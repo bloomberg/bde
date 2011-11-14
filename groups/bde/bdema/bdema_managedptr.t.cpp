@@ -173,10 +173,6 @@ void aSsErT(int c, const char *s, int i)
 #define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
 #define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
 #define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define PA(X, L) cout << #X " = "; printArray(X, L); cout << endl;
-                                              // Print array 'X' of length 'L'
-#define PA_(X, L) cout << #X " = "; printArray(X, L); cout << ", " << flush;
-                                              // PA(X, L) without '\n'
 #define L_ __LINE__                           // current Line number
 
 #define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
@@ -229,7 +225,7 @@ struct Base1 : virtual Base {
     {
     }
 
-    ~Base1() { *d_count_p += 10; }
+    ~Base1() { *d_count_p += 9; }
 
     char d_padding;
 };
@@ -241,7 +237,7 @@ struct Base2 : virtual Base {
     {
     }
 
-    ~Base2() { *d_count_p += 100; }
+    ~Base2() { *d_count_p += 99; }
 
     char d_padding;
 };
@@ -253,7 +249,7 @@ struct Composite : Base1, Base2 {
     {
     }
 
-    ~Composite() { *d_count_p += 1000; }
+    ~Composite() { *d_count_p += 891; }
 
     char d_padding;
 };
@@ -992,6 +988,24 @@ struct OCderiv {
     typedef const MyDerivedObject ObjectType;
 
     enum { DELETE_DELTA = 100 };
+};
+
+struct Ob1 {
+    typedef Base1 ObjectType;
+
+    enum { DELETE_DELTA = 10 };
+};
+
+struct Ob2 {
+    typedef Base2 ObjectType;
+
+    enum { DELETE_DELTA = 100 };
+};
+
+struct Ocomp {
+    typedef Composite ObjectType;
+
+    enum { DELETE_DELTA = 1000 };
 };
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2297,9 +2311,9 @@ void testConstructors(int callLine,
     bslma_TestAllocator* da = dynamic_cast<bslma_TestAllocator *>
                                            (bslma_Default::defaultAllocator());
 
-    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for(unsigned configI = 0; configI != TEST_ARRAY[i].configs(); ++configI) {
-            TestCtorArgs args = { configI, false };
+    for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for (unsigned config = 0; config != TEST_ARRAY[i].configs(); ++config) {
+            TestCtorArgs args = { false, config };
 
             bslma_TestAllocatorMonitor gam(ga);
             bslma_TestAllocatorMonitor dam(da);
@@ -2832,9 +2846,9 @@ void testConstructors(int callLine,
     bslma_TestAllocator* da = dynamic_cast<bslma_TestAllocator *>
                                            (bslma_Default::defaultAllocator());
 
-    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for(unsigned configI = 0; configI != TEST_ARRAY[i].configs(); ++configI) {
-            TestCtorArgs args = { configI, false };
+    for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for (unsigned config = 0; config != TEST_ARRAY[i].configs(); ++config) {
+            TestCtorArgs args = { false, config};
 
             bslma_TestAllocatorMonitor gam(ga);
             bslma_TestAllocatorMonitor dam(da);
@@ -4127,6 +4141,10 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCbase() ),
     //TestPolicy<void>( OCderiv() ),
 
+    TestPolicy<void>( Ob1() ),
+    TestPolicy<void>( Ob2() ),
+    TestPolicy<void>( Ocomp() ),
+
     // factory tests
     TestPolicy<void>( NullPolicy(), NullPolicy() ),
 
@@ -4138,6 +4156,27 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCbase(),  Fbsl() ),
     //TestPolicy<void>( OCderiv(), Ftst() ),
     //TestPolicy<void>( OCderiv(), Fbsl() ),
+
+
+    TestPolicy<void>( Ob1(),   Ftst() ),
+    TestPolicy<void>( Ob1(),   Fbsl() ),
+    TestPolicy<void>( Ob2(),   Ftst() ),
+    TestPolicy<void>( Ob2(),   Fbsl() ),
+    TestPolicy<void>( Ocomp(), Ftst() ),
+    TestPolicy<void>( Ocomp(), Fbsl() ),
+
+    TestPolicy<void>( Ocomp(), Ftst(), DVoidVoid< Ocomp, Ftst >() ),
+    TestPolicy<void>( Ocomp(), Fbsl(), DVoidVoid< Ocomp, Fbsl >() ),
+
+    TestPolicy<void>( Ocomp(), Ftst(), DVoidVoid< Ob1,   Fbsl >() ),
+    TestPolicy<void>( Ocomp(), Ftst(), DVoidVoid< Ob2,   Fbsl >() ),
+
+    TestPolicy<void>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
+    TestPolicy<void>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+
+    TestPolicy<void>( Ocomp(), Ftst(), DObjFac< Ob1,     Fbsl >() ),
+    TestPolicy<void>( Ocomp(), Ftst(), DObjFac< Ob2,     Fbsl >() ),
+
 
     // deleter tests
     TestPolicy<void>( NullPolicy(), NullPolicy(), NullPolicy() ),
@@ -4521,6 +4560,10 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCbase() ),
     TestPolicy<const void>( OCderiv() ),
 
+    TestPolicy<const void>( Ob1() ),
+    TestPolicy<const void>( Ob2() ),
+    TestPolicy<const void>( Ocomp() ),
+
     // factory tests
     TestPolicy<const void>( NullPolicy(), NullPolicy() ),
 
@@ -4532,6 +4575,25 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCbase(),  Fbsl() ),
     TestPolicy<const void>( OCderiv(), Ftst() ),
     TestPolicy<const void>( OCderiv(), Fbsl() ),
+
+    TestPolicy<const void>( Ob1(),     Ftst() ),
+    TestPolicy<const void>( Ob1(),     Fbsl() ),
+    TestPolicy<const void>( Ob2(),     Ftst() ),
+    TestPolicy<const void>( Ob2(),     Fbsl() ),
+    TestPolicy<const void>( Ocomp(),   Ftst() ),
+    TestPolicy<const void>( Ocomp(),   Fbsl() ),
+
+    TestPolicy<const void>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
+    TestPolicy<const void>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
+
+    TestPolicy<const void>( Ocomp(), Ftst(), DVoidVoid< Ob1,     Fbsl >() ),
+    TestPolicy<const void>( Ocomp(), Ftst(), DVoidVoid< Ob2,     Fbsl >() ),
+
+    TestPolicy<const void>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
+    TestPolicy<const void>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+
+    TestPolicy<const void>( Ocomp(), Ftst(), DObjFac< Ob1,     Fbsl >() ),
+    TestPolicy<const void>( Ocomp(), Ftst(), DObjFac< Ob2,     Fbsl >() ),
 
     // deleter tests
     TestPolicy<const void>( NullPolicy(), NullPolicy(), NullPolicy() ),
