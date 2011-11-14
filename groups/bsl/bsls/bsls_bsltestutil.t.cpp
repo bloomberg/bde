@@ -197,23 +197,23 @@ int main(int argc, char *argv[])
                      -1234 == ss &&
                       1234 == us);
         LOOP4_ASSERT(si, ui, sl, ul,
-                      -123456 == si &&
-                       123456 == ui &&
-                     -7654321 == sl &&
-                      7654321 == ul);
+                   -123456 == si &&
+                    123456 == ui &&
+                  -7654321 == sl &&
+                   7654321 == ul);
         LOOP5_ASSERT(si, ui, sl, ul, sll,
-                         -123456 == si &&
-                          123456 == ui &&
-                        -7654321 == sl &&
-                         7654321 == ul &&
-                     -5123467890 == sll);
+                         -123456   == si &&
+                          123456   == ui &&
+                        -7654321l  == sl &&
+                         7654321ul == ul &&
+                     -5123467890ll == sll);
         LOOP6_ASSERT(si, ui, sl, ul, sll, ull,
-                         -123456 == si  &&
-                          123456 == ui  &&
-                        -7654321 == sl  &&
-                         7654321 == ul  &&
-                     -5123467890 == sll &&
-                      9876543210 == ull);
+                        -123456    == si  &&
+                         123456    == ui  &&
+                       -7654321l   == sl  &&
+                        7654321ul  == ul  &&
+                    -5123467890ll  == sll &&
+                     9876543210ull == ull);
 
         if (verbose) {
             LOOP_ASSERT(verbose, !verbose);
