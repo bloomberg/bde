@@ -22,9 +22,10 @@ BDES_IDENT("$Id: $")
 // a "smart pointer", this object offers an interface similar to a native
 // pointer, supporting dereference operators (*, ->), (in)equality comparison
 // and testing as if it were a boolean value.  However, like 'bsl::auto_ptr' it
-// has unusual copy-semantics that transfer ownership of the managed object, so
-// it is not a valid type to store in a container or other data structure
-// storing objects by value.
+// has unusual "copy-semantics" that transfer ownership of the managed object,
+// rather than making a copy.  It should be noted that this signature does not
+// satisfy the requirements for an element-type stored in any of the standard
+// library containers.
 //
 ///Deleters
 ///--------
