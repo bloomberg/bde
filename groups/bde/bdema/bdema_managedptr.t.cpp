@@ -31,13 +31,11 @@ using bsl::endl;
 // We choose to test each class in turn, starting with the test machinery,
 // according to their internal levelization in the component implementation.
 //
-// [ 2] Test machinery
-// [ 3] imp. class bdema_ManagedPtr_Members
-// [ 4] imp. class bdema_ManagedPtr_Ref
-// [ 5] imp. class bdema_ManagedPtr_FactoryDeleter
-//      class bdema_ManagedPtr
-// [13] class bdema_ManagedPtrNilDeleter   [DEPRECATED]
-// [14] class bdema_ManagedPtrNoOpDeleter
+// [ 2]   Test machinery
+// [ 3]   imp. class bdema_ManagedPtr_Ref
+// [6-12] class bdema_ManagedPtr
+// [13]   class bdema_ManagedPtrNilDeleter   [DEPRECATED]
+// [14]   class bdema_ManagedPtrNoOpDeleter
 //
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -206,6 +204,14 @@ typedef bdema_ManagedPtr<void> VObj;
 //=============================================================================
 //                         HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
+// The 'bsls_IsPolymorphic' trait does not work correctly on the following two
+// platforms, which causes 'bslma_DeleterHelper' to dispatch to an 
+// implementation that cannot compile.
+#if defined(BSLS_PLATFORM__CMP_GCC) || defined(BSLS_PLATFORM__CMP_HP)
+#define BDEMA_TESTVIRTUALINHERITANCE virtual
+#else
+#define BDEMA_TESTVIRTUALINHERITANCE virtual
+#endif
 
 struct Base {
     explicit Base(int *deleteCount)
@@ -218,7 +224,7 @@ struct Base {
     int *d_count_p;
 };
 
-struct Base1 : virtual Base {
+struct Base1 : BDEMA_TESTVIRTUALINHERITANCE Base {
     explicit Base1(int *deleteCount = 0)
     : Base(deleteCount)
     , d_padding()
@@ -230,7 +236,7 @@ struct Base1 : virtual Base {
     char d_padding;
 };
 
-struct Base2 : virtual Base {
+struct Base2 : BDEMA_TESTVIRTUALINHERITANCE Base {
     explicit Base2(int *deleteCount = 0)
     : Base(deleteCount)
     , d_padding()
