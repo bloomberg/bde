@@ -207,12 +207,11 @@ typedef bdema_ManagedPtr<void> VObj;
 // The 'bsls_IsPolymorphic' trait does not work correctly on the following two
 // platforms, which causes 'bslma_DeleterHelper' to dispatch to an 
 // implementation that cannot compile.
-#if defined(BSLS_PLATFORM__CMP_GCC) || defined(BSLS_PLATFORM__CMP_HP)
-#define BDEMA_TESTVIRTUALINHERITANCE virtual
-#else
-#define BDEMA_TESTVIRTUALINHERITANCE virtual
+#if !defined(BSLS_PLATFORM__CMP_GNU) && !defined(BSLS_PLATFORM__CMP_HP)
+#define BDEMA_TESTVIRTUALINHERITANCE 
 #endif
 
+#if defined BDEMA_TESTVIRTUALINHERITANCE
 struct Base {
     explicit Base(int *deleteCount)
     : d_count_p(deleteCount)
@@ -224,7 +223,7 @@ struct Base {
     int *d_count_p;
 };
 
-struct Base1 : BDEMA_TESTVIRTUALINHERITANCE Base {
+struct Base1 : virtual Base {
     explicit Base1(int *deleteCount = 0)
     : Base(deleteCount)
     , d_padding()
@@ -236,7 +235,7 @@ struct Base1 : BDEMA_TESTVIRTUALINHERITANCE Base {
     char d_padding;
 };
 
-struct Base2 : BDEMA_TESTVIRTUALINHERITANCE Base {
+struct Base2 : virtual Base {
     explicit Base2(int *deleteCount = 0)
     : Base(deleteCount)
     , d_padding()
@@ -259,7 +258,57 @@ struct Composite : Base1, Base2 {
 
     char d_padding;
 };
+#else
+struct Base {
+    explicit Base(int *deleteCount)
+    : d_count_p(deleteCount)
+    {
+    }
 
+    ~Base() { ++*d_count_p; }
+
+    int *d_count_p;
+};
+
+struct Base1 : Base {
+    explicit Base1(int *deleteCount)
+    : Base(deleteCount)
+    , d_padding()
+    {
+    }
+
+    ~Base1() { *d_count_p += 9; }
+
+    char d_padding;
+};
+
+struct Base2 : Base {
+    explicit Base2(int *deleteCount)
+    : Base(deleteCount)
+    , d_padding()
+    {
+    }
+
+    ~Base2() { *d_count_p += 99; }
+
+    char d_padding;
+};
+
+struct Composite : Base1, Base2 {
+    explicit Composite(int *deleteCount)
+    : Base1(deleteCount)
+    , Base2(deleteCount)
+    , d_count_p(deleteCount)
+    {
+    }
+
+    ~Composite() { *d_count_p += 890; }
+
+    int *d_count_p;
+};
+#endif
+
+#if 0
 void testCompsite() {
     int deleteCount;
     Composite x(&deleteCount);
@@ -272,6 +321,7 @@ void testCompsite() {
     Base *b2 = p2;
     ASSERT(b1 == b2);
 }
+#endif
 
 class MyTestObject {
     // This test-class serves three purposes.  It provides a base class for the
@@ -5974,8 +6024,6 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-testCompsite();
-
     int test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
