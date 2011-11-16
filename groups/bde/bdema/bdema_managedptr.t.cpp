@@ -5369,154 +5369,6 @@ static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
 } // close anonymous namespace
 
 //=============================================================================
-//                                CASTING EXAMPLE
-//-----------------------------------------------------------------------------
-namespace TYPE_CASTING_TEST_NAMESPACE {
-
-    typedef MyTestObject A;
-    typedef MyDerivedObject B;
-
-///Example 4: Type Casting
-///- - - - - - - - - - - -
-// 'bdema_ManagedPtr' objects can be implicitly and explicitly cast to
-// different types in the same way that native pointers can.
-//
-///Implicit Casting
-///-  -  -  -  -  -
-// As with native pointers, a pointer of the type 'B' that is derived from the
-// type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
-//
-// First, consider the following code snippets:
-//..
-    void implicitCastingExample()
-    {
-//..
-// If the statements:
-//..
-        bslma_TestAllocator localDefaultTa;
-        bslma_TestAllocator localTa;
-
-        bslma_DefaultAllocatorGuard guard(&localDefaultTa);
-
-        int numdels = 0;
-
-        {
-            B *b_p = 0;
-            A *a_p = b_p;
-//..
-// are legal expressions, then the statements
-//..
-            bdema_ManagedPtr<A> a_mp1;
-            bdema_ManagedPtr<B> b_mp1;
-
-            ASSERT(!a_mp1 && !b_mp1);
-
-            a_mp1 = b_mp1;      // conversion assignment of nil ptr to nil
-            ASSERT(!a_mp1 && !b_mp1);
-
-            B *b_p2 = new (localDefaultTa) B(&numdels);
-            bdema_ManagedPtr<B> b_mp2(b_p2);    // default allocator
-            ASSERT(!a_mp1 && b_mp2);
-
-            a_mp1 = b_mp2;      // conversion assignment of nonnil ptr to nil
-            ASSERT(a_mp1 && !b_mp2);
-
-            B *b_p3 = new (localTa) B(&numdels);
-            bdema_ManagedPtr<B> b_mp3(b_p3, &localTa);
-            ASSERT(a_mp1 && b_mp3);
-
-            a_mp1 = b_mp3;      // conversion assignment of nonnil to nonnil
-            ASSERT(a_mp1 && !b_mp3);
-
-            a_mp1 = b_mp3;      // conversion assignment of nil to nonnil
-            ASSERT(!a_mp1 && !b_mp3);
-
-            // constructor conversion init with nil
-            bdema_ManagedPtr<A> a_mp4(b_mp3, b_mp3.ptr());
-            ASSERT(!a_mp4 && !b_mp3);
-
-            // constructor conversion init with nonnil
-            B *p_b5 = new (localTa) B(&numdels);
-            bdema_ManagedPtr<B> b_mp5(p_b5, &localTa);
-            bdema_ManagedPtr<A> a_mp5(b_mp5, b_mp5.ptr());
-            ASSERT(a_mp5 && !b_mp5);
-            ASSERT(a_mp5.ptr() == p_b5);
-
-            // constructor conversion init with nonnil
-            B *p_b6 = new (localTa) B(&numdels);
-            bdema_ManagedPtr<B> b_mp6(p_b6, &localTa);
-            bdema_ManagedPtr<A> a_mp6(b_mp6);
-            ASSERT(a_mp6 && !b_mp6);
-            ASSERT(a_mp6.ptr() == p_b6);
-
-            struct S {
-                int d_i[10];
-            };
-
-#if 0
-            S *pS = new (localTa) S;
-            bdema_ManagedPtr<S> s_mp1(pS, &localTa);
-
-            for (int i = 0; 10 > i; ++i) {
-                pS->d_i[i] = i;
-            }
-
-            bdema_ManagedPtr<int> i_mp1(s_mp1, s_mp1->d_i + 4);
-            ASSERT(4 == *i_mp1);
-#endif
-
-            ASSERT(200 == numdels);
-        }
-
-        ASSERT(400 == numdels);
-    } // implicitCastingExample()
-//..
-//
-///Explicit Casting
-///-  -  -  -  -  -
-// Through "aliasing", a managed pointer of any type can be explicitly cast
-// to a managed pointer of any other type using any legal cast expression.
-// For example, to static-cast a managed pointer of type A to a shared pointer
-// of type B, one can simply do the following:
-//..
-    void explicitCastingExample() {
-
-        bdema_ManagedPtr<A> a_mp;
-        bdema_ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp.ptr()));
-        //..
-        // or even use the less safe "C"-style casts:
-        //..
-        // bdema_ManagedPtr<A> a_mp;
-        bdema_ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp.ptr()));
-
-    } // explicitCastingExample()
-//..
-// Note that when using dynamic cast, if the cast fails, the target managed
-// pointer will be reset to an unset state, and the source will not be
-// modified.  Consider for example the following snippet of code:
-//..
-    void processPolymorphicObject(bdema_ManagedPtr<A> aPtr,
-                                  bool *castSucceeded)
-    {
-        bdema_ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.ptr()));
-        if (bPtr) {
-            ASSERT(!aPtr);
-            *castSucceeded = true;
-        }
-        else {
-            ASSERT(aPtr);
-            *castSucceeded = false;
-        }
-    }
-//..
-// If the value of 'aPtr' can be dynamically cast to 'B*' then ownership is
-// transferred to 'bPtr', otherwise 'aPtr' is to be modified.  As previously
-// stated, the managed object will be destroyed correctly regardless of how
-// it is cast.
-
-}  // close namespace TYPE_CASTING_TEST_NAMESPACE
-
-//=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 namespace USAGE_EXAMPLES {
@@ -5605,12 +5457,12 @@ namespace USAGE_EXAMPLES {
         bslma_Allocator *alloc = bslma_Default::defaultAllocator();
         bdema_ManagedPtr<Shape> result;
         switch (kind) {
-        case Shapes::SHAPE_CIRCLE : {
+            case Shapes::SHAPE_CIRCLE : {
                 Circle *circ = new(*alloc)Circle(dimension);
                 result.load(circ);
                 break;
             }
-        case Shapes::SHAPE_SQUARE : {
+            case Shapes::SHAPE_SQUARE : {
                 Square *sqr = new(*alloc)Square(dimension);
                 result.load(sqr);
                 break;
@@ -5942,6 +5794,154 @@ namespace USAGE_EXAMPLES {
     }
 //..
 }  // close namespace USAGE_EXAMPLES
+
+//=============================================================================
+//                                CASTING EXAMPLE
+//-----------------------------------------------------------------------------
+namespace TYPE_CASTING_TEST_NAMESPACE {
+
+    typedef MyTestObject A;
+    typedef MyDerivedObject B;
+
+///Example 4: Type Casting
+///- - - - - - - - - - - -
+// 'bdema_ManagedPtr' objects can be implicitly and explicitly cast to
+// different types in the same way that native pointers can.
+//
+///Implicit Casting
+///-  -  -  -  -  -
+// As with native pointers, a pointer of the type 'B' that is derived from the
+// type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
+//
+// First, consider the following code snippets:
+//..
+    void implicitCastingExample()
+    {
+//..
+// If the statements:
+//..
+        bslma_TestAllocator localDefaultTa;
+        bslma_TestAllocator localTa;
+
+        bslma_DefaultAllocatorGuard guard(&localDefaultTa);
+
+        int numdels = 0;
+
+        {
+            B *b_p = 0;
+            A *a_p = b_p;
+//..
+// are legal expressions, then the statements
+//..
+            bdema_ManagedPtr<A> a_mp1;
+            bdema_ManagedPtr<B> b_mp1;
+
+            ASSERT(!a_mp1 && !b_mp1);
+
+            a_mp1 = b_mp1;      // conversion assignment of nil ptr to nil
+            ASSERT(!a_mp1 && !b_mp1);
+
+            B *b_p2 = new (localDefaultTa) B(&numdels);
+            bdema_ManagedPtr<B> b_mp2(b_p2);    // default allocator
+            ASSERT(!a_mp1 && b_mp2);
+
+            a_mp1 = b_mp2;      // conversion assignment of nonnil ptr to nil
+            ASSERT(a_mp1 && !b_mp2);
+
+            B *b_p3 = new (localTa) B(&numdels);
+            bdema_ManagedPtr<B> b_mp3(b_p3, &localTa);
+            ASSERT(a_mp1 && b_mp3);
+
+            a_mp1 = b_mp3;      // conversion assignment of nonnil to nonnil
+            ASSERT(a_mp1 && !b_mp3);
+
+            a_mp1 = b_mp3;      // conversion assignment of nil to nonnil
+            ASSERT(!a_mp1 && !b_mp3);
+
+            // constructor conversion init with nil
+            bdema_ManagedPtr<A> a_mp4(b_mp3, b_mp3.ptr());
+            ASSERT(!a_mp4 && !b_mp3);
+
+            // constructor conversion init with nonnil
+            B *p_b5 = new (localTa) B(&numdels);
+            bdema_ManagedPtr<B> b_mp5(p_b5, &localTa);
+            bdema_ManagedPtr<A> a_mp5(b_mp5, b_mp5.ptr());
+            ASSERT(a_mp5 && !b_mp5);
+            ASSERT(a_mp5.ptr() == p_b5);
+
+            // constructor conversion init with nonnil
+            B *p_b6 = new (localTa) B(&numdels);
+            bdema_ManagedPtr<B> b_mp6(p_b6, &localTa);
+            bdema_ManagedPtr<A> a_mp6(b_mp6);
+            ASSERT(a_mp6 && !b_mp6);
+            ASSERT(a_mp6.ptr() == p_b6);
+
+            struct S {
+                int d_i[10];
+            };
+
+#if 0
+            S *pS = new (localTa) S;
+            bdema_ManagedPtr<S> s_mp1(pS, &localTa);
+
+            for (int i = 0; 10 > i; ++i) {
+                pS->d_i[i] = i;
+            }
+
+            bdema_ManagedPtr<int> i_mp1(s_mp1, s_mp1->d_i + 4);
+            ASSERT(4 == *i_mp1);
+#endif
+
+            ASSERT(200 == numdels);
+        }
+
+        ASSERT(400 == numdels);
+    } // implicitCastingExample()
+//..
+//
+///Explicit Casting
+///-  -  -  -  -  -
+// Through "aliasing", a managed pointer of any type can be explicitly cast
+// to a managed pointer of any other type using any legal cast expression.
+// For example, to static-cast a managed pointer of type A to a shared pointer
+// of type B, one can simply do the following:
+//..
+    void explicitCastingExample() {
+
+        bdema_ManagedPtr<A> a_mp;
+        bdema_ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp.ptr()));
+//..
+// or even use the less safe "C"-style casts:
+//..
+        // bdema_ManagedPtr<A> a_mp;
+        bdema_ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp.ptr()));
+
+    } // explicitCastingExample()
+//..
+// Note that when using dynamic cast, if the cast fails, the target managed
+// pointer will be reset to an unset state, and the source will not be
+// modified.  Consider for example the following snippet of code:
+//..
+    void processPolymorphicObject(bdema_ManagedPtr<A> aPtr,
+                                  bool *castSucceeded)
+    {
+        bdema_ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.ptr()));
+        if (bPtr) {
+            ASSERT(!aPtr);
+            *castSucceeded = true;
+        }
+        else {
+            ASSERT(aPtr);
+            *castSucceeded = false;
+        }
+    }
+//..
+// If the value of 'aPtr' can be dynamically cast to 'B*' then ownership is
+// transferred to 'bPtr', otherwise 'aPtr' is to be modified.  As previously
+// stated, the managed object will be destroyed correctly regardless of how
+// it is cast.
+
+}  // close namespace TYPE_CASTING_TEST_NAMESPACE
 
 //=============================================================================
 //                  TEST PROGRAM
