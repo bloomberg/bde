@@ -769,11 +769,19 @@ class bdema_ManagedPtr {
 
     // PRIVATE UTILITY FUNCTION
 
-    static void *stripPointerType(BDEMA_TYPE *ptr);
+    static void *stripBasePointerType(BDEMA_TYPE *ptr);
         // Return the value of the specified 'ptr' as a 'void *', after
         // stripping all 'const' and 'volatile' qualifiers from 'BDEMA_TYPE'.
         // This function avoids accidental type-safety errors when performing
         // the necessary sequence of casts.
+
+    template <typename BDEMA_OTHER_TYPE>
+    static void *stripCompletePointerType(BDEMA_OTHER_TYPE *ptr);
+        // Return the value of the specified 'ptr' as a 'void *', after
+        // stripping all 'const' and 'volatile' qualifiers from 'BDEMA_TYPE'.
+        // This function avoids accidental type-safety errors when performing
+        // the necessary sequence of casts.
+
 
   private:
     // NOT IMPLEMENTED
@@ -1339,6 +1347,22 @@ struct bdema_ManagedPtr_FactoryDeleterType {
                            // class bdema_ManagedPtr
                            // ----------------------
 
+template <class BDEMA_TYPE>
+inline
+void *bdema_ManagedPtr<BDEMA_TYPE>::stripBasePointerType(BDEMA_TYPE *ptr)
+{
+    return const_cast<void*>(static_cast<const void*>(ptr));
+}
+
+template <class BDEMA_TYPE>
+template <class BDEMA_OTHER_TYPE>
+inline
+void *bdema_ManagedPtr<BDEMA_TYPE>::stripCompletePointerType(
+                                                         BDEMA_OTHER_TYPE *ptr)
+{
+    return const_cast<void*>(static_cast<const void*>(ptr));
+}
+
 // CREATORS
 template <class BDEMA_TYPE>
 inline
@@ -1351,10 +1375,11 @@ template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr)
-: d_members(stripPointerType(ptr),
+: d_members(stripCompletePointerType(ptr),
             bslma_Default::allocator(),
             &bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
-                                                                     ::deleter)
+                                                                     ::deleter,
+            stripBasePointerType(ptr))
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::
                                                                        VALUE));
@@ -1386,7 +1411,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
 
     if(0 != ptr) {
         d_members.move(alias.d_members);
-        d_members.setAliasPtr(stripPointerType(ptr));
+        d_members.setAliasPtr(stripBasePointerType(ptr));
     }
 }
 
@@ -1395,10 +1420,11 @@ template <class BDEMA_TARGET_TYPE, class BDEMA_FACTORY>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
                                                BDEMA_FACTORY     *factory)
-: d_members(stripPointerType(ptr),
+: d_members(stripCompletePointerType(ptr),
             factory,
             &bdema_ManagedPtr_FactoryDeleterType<BDEMA_TARGET_TYPE,
-                                                 BDEMA_FACTORY>::Type::deleter)
+                                                 BDEMA_FACTORY>::Type::deleter,
+            stripBasePointerType(ptr))
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::
                                                                        VALUE));
@@ -1410,7 +1436,7 @@ inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
                                                void       *factory,
                                                DeleterFunc deleter)
-: d_members(stripPointerType(ptr), factory, deleter)
+: d_members(stripBasePointerType(ptr), factory, deleter)
 {
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 }
@@ -1421,7 +1447,10 @@ inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
                                                void              *factory,
                                                DeleterFunc        deleter)
-: d_members(stripPointerType(ptr), factory, deleter)
+: d_members(stripCompletePointerType(ptr),
+            factory,
+            deleter,
+            stripBasePointerType(ptr))
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                       BDEMA_TYPE *>::VALUE));
@@ -1435,9 +1464,10 @@ inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
                                     void * factory,
                                     void (*deleter)(BDEMA_TARGET_BASE*, void*))
-: d_members(stripPointerType(ptr),
+: d_members(stripCompletePointerType(ptr),
             0,
-            reinterpret_cast<DeleterFunc>(deleter))
+            reinterpret_cast<DeleterFunc>(deleter),
+            stripBasePointerType(ptr))
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                       BDEMA_TYPE *>::VALUE));
@@ -1459,9 +1489,10 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
                       BDEMA_TARGET_TYPE *ptr,
                       BDEMA_FACTORY     *factory,
                       void (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*))
-: d_members(stripPointerType(ptr),
+: d_members(stripCompletePointerType(ptr),
             factory,
-            reinterpret_cast<DeleterFunc>(deleter))
+            reinterpret_cast<DeleterFunc>(deleter),
+            stripBasePointerType(ptr))
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                       BDEMA_TYPE *>::VALUE));
@@ -1490,13 +1521,6 @@ bdema_ManagedPtr<BDEMA_TYPE>::~bdema_ManagedPtr()
 
 template <class BDEMA_TYPE>
 inline
-void *bdema_ManagedPtr<BDEMA_TYPE>::stripPointerType(BDEMA_TYPE *ptr)
-{
-    return const_cast<void*>(static_cast<const void*>(ptr));
-}
-
-template <class BDEMA_TYPE>
-inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(bsl::nullptr_t, bsl::nullptr_t)
 {
     this->clear();
@@ -1511,7 +1535,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE  *ptr,
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     d_members.runDeleter();
-    d_members.set(stripPointerType(ptr),
+    d_members.set(stripBasePointerType(ptr),
                   factory,
                   deleter);
 }
@@ -1525,9 +1549,13 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
 {
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TYPE *>::VALUE));
-    BSLS_ASSERT_SAFE(ptr || 0 != deleter);
+    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    this->load(static_cast<BDEMA_TYPE *>(ptr), factory, deleter);
+    d_members.runDeleter();
+    d_members.set(stripCompletePointerType(ptr),
+                  factory,
+                  deleter);
+    d_members.setAliasPtr(stripBasePointerType(ptr));
 }
 
 template <class BDEMA_TYPE>
@@ -1542,9 +1570,10 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     d_members.runDeleter();
-    d_members.set(stripPointerType(ptr),
+    d_members.set(stripCompletePointerType(ptr),
                   factory,
                   deleter);
+    d_members.setAliasPtr(stripBasePointerType(ptr));
 }
 
 template <class BDEMA_TYPE>
@@ -1557,7 +1586,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr)
     typedef
     bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
                                                                 DeleterFactory;
-    this->load(static_cast<BDEMA_TYPE *>(ptr),
+    this->load(ptr,
                static_cast<void *>(bslma_Default::allocator()),
                &DeleterFactory::deleter
               );
@@ -1577,7 +1606,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
     typename bdema_ManagedPtr_FactoryDeleterType<BDEMA_TARGET_TYPE,
                                                  BDEMA_FACTORY>::Type
                                                                 DeleterFactory;
-    this->load(static_cast<BDEMA_TYPE *>(ptr),
+    this->load(ptr,
                static_cast<void *>(factory),
                &DeleterFactory::deleter);
 }
@@ -1594,9 +1623,9 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
                                        BDEMA_TYPE *>::VALUE));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TARGET_BASE *>::VALUE ));
-    BSLS_ASSERT_SAFE(ptr || 0 != deleter);
+    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    this->load(static_cast<BDEMA_TYPE *>(ptr),
+    this->load(ptr,
                static_cast<void *>(0),
                reinterpret_cast<DeleterFunc>(deleter));
 }
@@ -1620,7 +1649,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(
                                        BDEMA_BASE_FACTORY *>::VALUE ));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    this->load(static_cast<BDEMA_TYPE *>(ptr),
+    this->load(ptr,
                static_cast<void *>(factory),
                reinterpret_cast<DeleterFunc>(deleter));
 }
@@ -1639,7 +1668,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::loadAlias(
             d_members.runDeleter();
             d_members.move(alias.d_members);
         }
-        d_members.setAliasPtr(stripPointerType(ptr));
+        d_members.setAliasPtr(stripBasePointerType(ptr));
     }
     else {
         d_members.runDeleter();

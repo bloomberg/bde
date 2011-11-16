@@ -92,6 +92,17 @@ class bdema_ManagedPtr_Members {
         // 'bdema_ManagedPtr_Members' object having the specified 'object',
         // 'factory' and 'deleter'.
 
+    bdema_ManagedPtr_Members(void        *object,
+                             void        *factory,
+                             DeleterFunc  deleter,
+                             void        *alias);
+        // If 'object' is null, create a 'bdema_ManagedPtr_Members' object that
+        // does not manage a pointer; otherwise create a
+        // 'bdema_ManagedPtr_Members' object having the specified 'object',
+        // 'factory' and 'deleter', but aliasing 'alias'.  Note that this
+        // constructor is important for managed pointers pointing to one of
+        // multiple base classes of a class using multiple inheritance.
+
     //! ~bdema_ManagedPtr_Members() = default;
         // Destroy this 'bdema_ManagedPtr_Members' object.  Note that this
         // trivial destructor's definition is compiler generated.
@@ -166,6 +177,18 @@ bdema_ManagedPtr_Members::bdema_ManagedPtr_Members(void *object,
 {
     BSLS_ASSERT_SAFE(0 != deleter || 0 == object);
 }
+
+inline
+bdema_ManagedPtr_Members::bdema_ManagedPtr_Members(void        *object,
+                                                   void        *factory,
+                                                   DeleterFunc  deleter,
+                                                   void        *alias)
+: d_obj_p(alias)
+, d_deleter(object, factory, deleter)
+{
+    BSLS_ASSERT_SAFE(0 != deleter || 0 == object);
+}
+
 
 // MANIPULATORS
 inline

@@ -1334,7 +1334,8 @@ void doConstructObject(int callLine, int testLine, int index,
                                           &da,
                                           &DeleterClass::deleter);
 
-        validateManagedState(L_, testObject, pO, del);
+        POINTER_TYPE *pTarget = pO;  // implicit cast-to-base etc.
+        validateManagedState(L_, testObject, pTarget, del);
     }
 
     LOOP5_ASSERT(callLine, testLine, index, expectedCount, deleteCount,
@@ -1392,7 +1393,8 @@ void doConstructObjectFactory(int callLine, int testLine, int,
         ObjectType  *pO = 0;
         bdema_ManagedPtr<POINTER_TYPE> testObject(pO, pF);
 
-        validateManagedState(L_, testObject, pO, del);
+        POINTER_TYPE *pTarget = pO;  // implicit cast-to-base etc.
+        validateManagedState(L_, testObject, pTarget, del);
     }
     else {
 #ifdef BDE_BUILD_TARGET_EXC
@@ -1564,7 +1566,8 @@ void doConstructObjectFactoryDeleter(int callLine, int testLine, int index,
                                           pF,
                   reinterpret_cast<bdema_ManagedPtrDeleter::Deleter>(deleter));
 
-        validateManagedState(L_, testObject, pO, del);
+        POINTER_TYPE *pTarget = pO;  // implicit cast-to-base etc.
+        validateManagedState(L_, testObject, pTarget, del);
     }
 
     LOOP5_ASSERT(callLine, testLine, index, expectedCount, deleteCount,
@@ -1636,7 +1639,8 @@ void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
                                           pF,
                                           deleter);
 
-        validateManagedState(L_, testObject, pO, del);
+        POINTER_TYPE *pTarget = pO;  // implicit cast-to-base etc.
+        validateManagedState(L_, testObject, pTarget, del);
     }
     else{
         bdema_ManagedPtr<POINTER_TYPE> testObject(pO, (void*)pF, deleter);
@@ -1645,7 +1649,8 @@ void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
                                           pF,
                                           deleter);
 
-        validateManagedState(L_, testObject, pO, del);
+        POINTER_TYPE *pTarget = pO;  // implicit cast-to-base etc.
+        validateManagedState(L_, testObject, pTarget, del);
     }
 
     LOOP5_ASSERT(callLine, testLine, index, expectedCount, deleteCount,
@@ -1689,7 +1694,8 @@ void doConstructObjectFnullDeleter(int callLine, int testLine, int index,
                                           0,
                   reinterpret_cast<bdema_ManagedPtrDeleter::Deleter>(deleter));
 
-        validateManagedState(L_, testObject, pO, del);
+        POINTER_TYPE *pTarget = pO;  // implicit cast-to-base etc.
+        validateManagedState(L_, testObject, pTarget, del);
     }
 
     LOOP5_ASSERT(callLine, testLine, index, expectedCount, deleteCount,
@@ -4174,15 +4180,8 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     TestPolicy<void>( Ocomp(), Ftst(), DVoidVoid< Ocomp, Ftst >() ),
     TestPolicy<void>( Ocomp(), Fbsl(), DVoidVoid< Ocomp, Fbsl >() ),
 
-    TestPolicy<void>( Ocomp(), Ftst(), DVoidVoid< Ob1,   Fbsl >() ),
-    TestPolicy<void>( Ocomp(), Ftst(), DVoidVoid< Ob2,   Fbsl >() ),
-
     TestPolicy<void>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     TestPolicy<void>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
-
-    TestPolicy<void>( Ocomp(), Ftst(), DObjFac< Ob1,     Fbsl >() ),
-    TestPolicy<void>( Ocomp(), Ftst(), DObjFac< Ob2,     Fbsl >() ),
-
 
     // deleter tests
     TestPolicy<void>( NullPolicy(), NullPolicy(), NullPolicy() ),
@@ -4591,15 +4590,15 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
 
     TestPolicy<const void>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
     TestPolicy<const void>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
-
-    TestPolicy<const void>( Ocomp(), Ftst(), DVoidVoid< Ob1,     Fbsl >() ),
-    TestPolicy<const void>( Ocomp(), Ftst(), DVoidVoid< Ob2,     Fbsl >() ),
-
     TestPolicy<const void>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     TestPolicy<const void>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
 
+#if 0
+    TestPolicy<const void>( Ocomp(), Ftst(), DVoidVoid< Ob1,     Fbsl >() ),
+    TestPolicy<const void>( Ocomp(), Ftst(), DVoidVoid< Ob2,     Fbsl >() ),
     TestPolicy<const void>( Ocomp(), Ftst(), DObjFac< Ob1,     Fbsl >() ),
     TestPolicy<const void>( Ocomp(), Ftst(), DObjFac< Ob2,     Fbsl >() ),
+#endif
 
     // deleter tests
     TestPolicy<const void>( NullPolicy(), NullPolicy(), NullPolicy() ),
@@ -4969,6 +4968,33 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCbase(),  Fbsl(), NullPolicy() ),
     TestPolicy<const void>( OCderiv(), Ftst(), NullPolicy() ),
     TestPolicy<const void>( OCderiv(), Fbsl(), NullPolicy() )
+};
+
+static const TestPolicy<Base2> TEST_POLICY_BASE2_ARRAY[] = {
+    // default test
+    TestPolicy<Base2>(),
+
+    // single object-pointer tests
+    TestPolicy<Base2>( NullPolicy() ),
+
+//    TestPolicy<Base2>( Ob1() ),
+    TestPolicy<Base2>( Ob2() ),
+    TestPolicy<Base2>( Ocomp() ),
+
+    // factory tests
+    TestPolicy<Base2>( NullPolicy(), NullPolicy() ),
+
+//    TestPolicy<const void>( Ob1(),     Ftst() ),
+//    TestPolicy<const void>( Ob1(),     Fbsl() ),
+    TestPolicy<Base2>( Ob2(),     Ftst() ),
+    TestPolicy<Base2>( Ob2(),     Fbsl() ),
+    TestPolicy<Base2>( Ocomp(),   Ftst() ),
+    TestPolicy<Base2>( Ocomp(),   Fbsl() ),
+
+    TestPolicy<Base2>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
+    TestPolicy<Base2>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
+    TestPolicy<Base2>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
+    TestPolicy<Base2>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
 };
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -6691,6 +6717,17 @@ testCompsite();
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#if 0
+        {
+            if (veryVerbose)
+                        cout << "Testing bdema_ManagedPtr<Base2>::loadAlias\n";
+
+            testLoadAliasOps1(L_, TEST_POLICY_BASE2_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_BASE2_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_BASE2_ARRAY);
+        }
+#endif
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         using namespace CREATORS_TEST_NAMESPACE;
 
@@ -7102,11 +7139,19 @@ testCompsite();
             testConstructors(L_, TEST_POLICY_CONST_VOID_ARRAY);
         }
 
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        {
+            if (veryVerbose) cout << "Testing bdema_ManagedPtr<Base2>::load\n";
+
+            testConstructors(L_, TEST_POLICY_BASE2_ARRAY);
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
         using namespace CREATORS_TEST_NAMESPACE;
 
         bslma_TestAllocator ta("object", veryVeryVeryVerbose);
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\tTest valid pointer passed to void*\n";
 
@@ -7736,6 +7781,17 @@ testCompsite();
             testLoadAliasOps3(L_, TEST_POLICY_CONST_VOID_ARRAY);
         }
 
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#if 0
+        {
+            if (veryVerbose)
+                        cout << "Testing bdema_ManagedPtr<Base2>::loadAlias\n";
+
+            testLoadAliasOps1(L_, TEST_POLICY_BASE2_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_BASE2_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_BASE2_ARRAY);
+        }
+#endif
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -7937,6 +7993,14 @@ testCompsite();
                         cout << "Testing bdema_ManagedPtr<const void>::load\n";
 
             testLoadOps(L_, TEST_POLICY_CONST_VOID_ARRAY);
+        }
+
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        {
+            if (veryVerbose) cout << "Testing bdema_ManagedPtr<Base2>::load\n";
+
+            testLoadOps(L_, TEST_POLICY_BASE2_ARRAY);
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
