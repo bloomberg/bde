@@ -664,6 +664,10 @@ BDES_IDENT("$Id: $")
 #include <bslalg_typetraits.h>
 #endif
 
+#ifndef INCLUDED_BSLMA_DEFAULT
+#include <bslma_default.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ADDREFERENCE
 #include <bslmf_addreference.h>
 #endif
@@ -784,6 +788,16 @@ class bdema_ManagedPtr {
         // This function avoids accidental type-safety errors when performing
         // the necessary sequence of casts.
 
+    template <class BDEMA_TARGET_TYPE>
+    void loadImp(BDEMA_TARGET_TYPE *ptr, void *cookie, DeleterFunc deleter);
+        // Destroy the current managed object (if any) and re-initialize this
+        // managed pointer to manage the specified 'ptr' using the specified
+        // 'deleter' with arguments 'ptr' and the specified 'factory' to
+        // destroy 'ptr' when this managed pointer is destroyed or re-assigned,
+        // unless 'release' is called before then.  If '0 == ptr', then this
+        // object will be re-initialized to an unset state.  The behavior is
+        // undefined if 'ptr' is already managed by another object, or if
+        // '0 == deleter && 0 != ptr'.
 
   private:
     // NOT IMPLEMENTED
@@ -1068,6 +1082,8 @@ class bdema_ManagedPtr {
         // in this case.  It should be removed when the deprecated overloads
         // are removed.
 
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+#else
     template <class BDEMA_TARGET_TYPE>
     void load(BDEMA_TARGET_TYPE *ptr, void *cookie, DeleterFunc deleter);
         // Destroy the current managed object (if any) and re-initialize this
@@ -1078,6 +1094,7 @@ class bdema_ManagedPtr {
         // object will be re-initialized to an unset state.  The behavior is
         // undefined if 'ptr' is already managed by another object, or if
         // '0 == deleter && 0 != ptr'.
+#endif
 
     template <class BDEMA_TARGET_TYPE, typename BDEMA_COOKIE>
     void load(BDEMA_TARGET_TYPE *ptr,
@@ -1531,12 +1548,33 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE  *ptr,
                   deleter);
 }
 
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+#else
 template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
                                         void              *cookie,
                                         DeleterFunc        deleter)
+{
+    BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+                                       BDEMA_TYPE *>::VALUE));
+    BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
+
+    d_members.runDeleter();
+    d_members.set(stripCompletePointerType(ptr),
+                  cookie,
+                  deleter);
+    d_members.setAliasPtr(stripBasePointerType(ptr));
+}
+#endif
+
+template <class BDEMA_TYPE>
+template <class BDEMA_TARGET_TYPE>
+inline
+void bdema_ManagedPtr<BDEMA_TYPE>::loadImp(BDEMA_TARGET_TYPE *ptr,
+                                           void              *cookie,
+                                           DeleterFunc        deleter)
 {
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TYPE *>::VALUE));
@@ -1559,12 +1597,18 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>
                                                                      ::VALUE));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-
+#if 0
     d_members.runDeleter();
     d_members.set(stripCompletePointerType(ptr),
                   cookie,
                   deleter);
     d_members.setAliasPtr(stripBasePointerType(ptr));
+#else
+    this->loadImp(ptr,
+                  static_cast<void *>(cookie),
+                  deleter
+                 );
+#endif    
 }
 
 template <class BDEMA_TYPE>
@@ -1577,10 +1621,10 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr)
     typedef
     bdema_ManagedPtr_FactoryDeleter<BDEMA_TARGET_TYPE,bslma_Allocator>
                                                                 DeleterFactory;
-    this->load(ptr,
-               static_cast<void *>(bslma_Default::allocator()),
-               &DeleterFactory::deleter
-              );
+    this->loadImp(ptr,
+                  static_cast<void *>(bslma_Default::allocator()),
+                  &DeleterFactory::deleter
+                 );
 }
 
 template <class BDEMA_TYPE>
@@ -1597,9 +1641,9 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
     typename bdema_ManagedPtr_FactoryDeleterType<BDEMA_TARGET_TYPE,
                                                  BDEMA_FACTORY>::Type
                                                                 DeleterFactory;
-    this->load(ptr,
-               static_cast<void *>(factory),
-               &DeleterFactory::deleter);
+    this->loadImp(ptr,
+                  static_cast<void *>(factory),
+                  &DeleterFactory::deleter);
 }
 
 template <class BDEMA_TYPE>
@@ -1609,17 +1653,20 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
                                    void                   *cookie,
                                    void (*deleter)(BDEMA_TARGET_BASE *, void*))
 {
+#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+#else
     BSLMF_ASSERT((!bslmf_IsVoid<BDEMA_TARGET_BASE>::VALUE ));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
-                                       BDEMA_TYPE *>::VALUE));
-    BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TARGET_BASE *>::VALUE ));
+#endif
+    BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+                                       BDEMA_TYPE *>::VALUE));
     BSLS_ASSERT_SAFE(0 == cookie);
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    this->load(ptr,
-               static_cast<void *>(0),
-               reinterpret_cast<DeleterFunc>(deleter));
+    this->loadImp(ptr,
+                  static_cast<void *>(0),
+                  reinterpret_cast<DeleterFunc>(deleter));
 }
 
 template <class BDEMA_TYPE>
@@ -1641,9 +1688,9 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(
                                        BDEMA_COOKIE_BASE *>::VALUE ));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    this->load(ptr,
-               static_cast<void *>(static_cast<BDEMA_COOKIE_BASE *>(cookie)),
-               reinterpret_cast<DeleterFunc>(deleter));
+    this->loadImp(ptr,
+                 static_cast<void *>(static_cast<BDEMA_COOKIE_BASE *>(cookie)),
+                 reinterpret_cast<DeleterFunc>(deleter));
 }
 
 template <class BDEMA_TYPE>
