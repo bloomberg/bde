@@ -308,21 +308,6 @@ struct Composite : Base1, Base2 {
 };
 #endif
 
-#if 0
-void testCompsite() {
-    int deleteCount;
-    Composite x(&deleteCount);
-    Base1 *p1 = &x;
-    Base2 *p2 = &x;
-    void *v1 = p1;
-    void *v2 = p2;
-    ASSERT(v1 != v2);
-    Base *b1 = p1;
-    Base *b2 = p2;
-    ASSERT(b1 == b2);
-}
-#endif
-
 class MyTestObject {
     // This test-class serves three purposes.  It provides a base class for the
     // test classes in this test driver, so that derived -> base conversions
@@ -2518,7 +2503,6 @@ struct AliasTestType2 {
     typedef MySecondDerivedObject type;
 };
 
-#if defined(BDEMA_TESTVIRTUALINHERITANCE)
 template <>
 struct AliasTestType1<Base> {
     typedef Base2 type;
@@ -2539,7 +2523,6 @@ struct AliasTestType2<Base2> {
     typedef Composite type;
 };
 
-#endif
 
 template <class T>
 struct AliasTestType2<const T> : AliasTestType2<T> {};
