@@ -2930,119 +2930,7 @@ void testConstructors(int callLine,
         }
     }
 }
-#if 0
-template<class TEST_TARGET,
-         class TEST_FUNCTION_TYPE,
-         std::size_t TEST_ARRAY_SIZE>
-void testLoadOps(int callLine,
-                 const TEST_FUNCTION_TYPE (&TEST_ARRAY)[TEST_ARRAY_SIZE])
-{
-    // This function iterates all viable variations of test functions composed
-    // of the policies above, to verify that all 'bcema_ManagedPtr::load'
-    // behave according to contract.  First, we call 'load' on an empty managed
-    // pointer using a test function from the passed array, confirming that
-    // the managed pointer takes up the correct state.  Then we allow that
-    // pointer to go out of scope, and confirm that any managed object is
-    // destroyed using the correct deleter.  Next we repeat the test, setting
-    // up the same, now well-known, state of the managed pointer, and replace
-    // it with a second call to load (by a second iterator over the array of
-    // test functions).  We confirm that the original state and managed object
-    // (if any) are destroyed correctly, and that the expected new state has
-    // been established correctly.  Finally, we allow this pointer to leave
-    // scope and confirm that all managed objects are destroyed correctly and
-    // all allocated memory has been reclaimed.  At each stage, we perform
-    // negative testing where appropriate, and check that no memory is being
-    // allocated other than by the object allocator, or the default allocator
-    // only for those test functions that return a state indicating that they
-    // used the default allocator.
-    typedef bdema_ManagedPtr<TEST_TARGET> TestPointer;
 
-    bslma_TestAllocator& ga = dynamic_cast<bslma_TestAllocator&>
-                                           (*bslma_Default::globalAllocator());
-
-    bslma_TestAllocator& da = dynamic_cast<bslma_TestAllocator&>
-                                          (*bslma_Default::defaultAllocator());
-
-    TestLoadArgs<TEST_TARGET> args = {};
-
-    for(unsigned configI = 0; configI != 4; ++configI) {
-        for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-            bslma_TestAllocatorMonitor gam(&ga);
-            bslma_TestAllocatorMonitor dam(&da);
-
-            args.d_useDefault = false;
-            args.d_config = configI;
-
-            {
-                bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
-                TestPointer p;
-                ASSERT(0 == p.ptr());
-
-                args.d_p  = &p;
-                args.d_ta = &ta;
-
-                args.d_deleteCount = 0;
-                args.d_deleteDelta = 0;
-                TEST_ARRAY[i](callLine, L_, i, &args);
-            }
-            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
-                         args.d_deleteCount == args.d_deleteDelta);
-
-            LOOP_ASSERT(i, gam.isInUseSame());
-            LOOP_ASSERT(i, gam.isMaxSame());
-
-            LOOP_ASSERT(i, dam.isInUseSame());
-            if(!args.d_useDefault) {
-                LOOP_ASSERT(i, dam.isMaxSame());
-            }
-
-            for(unsigned configJ = 0; configJ != 4; ++configJ) {
-                for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
-                    bslma_TestAllocatorMonitor dam2(&da);
-
-                    bslma_TestAllocator ta("TestLoad 2",
-                                           g_veryVeryVeryVerbose);
-
-                    TestPointer p;
-                    ASSERT(0 == p.ptr());
-
-                    args.d_p  = &p;
-                    args.d_ta = &ta;
-                    args.d_config = configI;
-
-                    args.d_deleteCount = 0;
-                    args.d_deleteDelta = 0;
-                    args.d_useDefault  = false;
-                    TEST_ARRAY[i](callLine, L_, i, &args);
-
-                    args.d_config = configJ;
-                    args.d_deleteCount = 0;
-                    TEST_ARRAY[j](callLine, L_, j, &args);
-
-                    // Clear 'deleteCount' before 'p' is destroyed.
-                    args.d_deleteCount = 0;
-
-                    LOOP_ASSERT(i, gam.isInUseSame());
-                    LOOP_ASSERT(i, gam.isMaxSame());
-
-                    if(!args.d_useDefault) {
-                        LOOP_ASSERT(i, dam2.isInUseSame());
-                        LOOP_ASSERT(i, dam2.isMaxSame());
-                    }
-                }
-            }
-
-            // Validate the final deleter run when 'p' is destroyed.
-            LOOP2_ASSERT(args.d_deleteCount,   args.d_deleteDelta,
-                         args.d_deleteCount == args.d_deleteDelta);
-
-            LOOP_ASSERT(i, dam.isInUseSame());
-            LOOP_ASSERT(i, gam.isInUseSame());
-            LOOP_ASSERT(i, gam.isMaxSame());
-        }
-    }
-}
-#endif
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 template<class TEST_TARGET,
@@ -6002,8 +5890,8 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
     } // implicitCastingExample()
 //..
 //
-///Explicit Casting
-///-  -  -  -  -  -
+///Explicit Conversion
+/// -  -  -  -  -  - -
 // Through "aliasing", a managed pointer of any type can be explicitly
 // converted to a managed pointer of any other type using any legal cast
 // expression.  For example, to static-cast a managed pointer of type A to a

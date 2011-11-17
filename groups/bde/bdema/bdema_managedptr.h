@@ -103,7 +103,8 @@ BDES_IDENT("$Id: $")
 // object implementing an abstract protocol.
 //
 // First we define our protocol, 'Shape', a type of object that knows how to
-// compute its 'area'.
+// compute its 'area'.  Note that for expository reasons only, we do *nor*
+// give 'Shape' a virtual destructor.
 //..
 //  struct Shape {
 //      virtual double area() const = 0;
@@ -143,7 +144,7 @@ BDES_IDENT("$Id: $")
 //          // Return the area of this Square, given by the forumula side*side
 //  };
 //..
-// Next we implement the methods for a 'Circle'.
+// Next we implement the methods for 'Circle' and 'Square'.
 //..
 //  Circle::Circle(double r)
 //  : d_radius(r)
@@ -153,9 +154,7 @@ BDES_IDENT("$Id: $")
 //  double Circle::area() const {
 //      return 3.141592653589793238462 * d_radius * d_radius;
 //  }
-//..
-// Then we implement the methods for a 'Square'..
-//..
+//
 //  Square::Square(double side)
 //  : d_sideLength(side)
 //  {
@@ -181,12 +180,12 @@ BDES_IDENT("$Id: $")
 //      bslma_Allocator *alloc = bslma_Default::defaultAllocator();
 //      bdema_ManagedPtr<Shape> result;
 //      switch (kind) {
-//      case Shapes::SHAPE_CIRCLE : {
+//          case Shapes::SHAPE_CIRCLE : {
 //              Circle *circ = new(*alloc)Circle(dimension);
 //              result.load(circ);
 //              break;
 //          }
-//      case Shapes::SHAPE_SQUARE : {
+//          case Shapes::SHAPE_SQUARE : {
 //              Square *sqr = new(*alloc)Square(dimension);
 //              result.load(sqr);
 //              break;
@@ -198,17 +197,21 @@ BDES_IDENT("$Id: $")
 // Then, we can use our function to create shapes of different kinds, and check
 // that they report the correct area.  Note that are using a radius of '1.0'
 // for the 'Circle' and integral side-length for the 'Square' to support an
-// accurate 'operator==' with floating-point quantities.
+// accurate 'operator==' with floating-point quantities.  Also note that,
+// despite the destructor for 'Shape' being non-virtual, the correct destructor
+// for the appropriate concrete 'Shape' type is called.  This is because the
+// destructor is captured when the 'bdema_ManagedPtr' constructor is called,
+// and has access to the complete type of each shape object.
 //..
 //  void testShapes()
 //  {
 //      bdema_ManagedPtr<Shape> shape = makeShape(Shapes::SHAPE_CIRCLE, 1.0);
-//      ASSERT(0 != shape);
-//      ASSERT(3.141592653589793238462 == shape->area());
+//      assert(0 != shape);
+//      assert(3.141592653589793238462 == shape->area());
 //
 //      shape = makeShape(Shapes::SHAPE_SQUARE, 2.0);
-//      ASSERT(0 != shape);
-//      ASSERT(4.0 == shape->area());
+//      assert(0 != shape);
+//      assert(4.0 == shape->area());
 //  }
 //..
 // Next, we observe that as we are creating objects dynamically, we should pass
@@ -245,12 +248,12 @@ BDES_IDENT("$Id: $")
 //
 //      bdema_ManagedPtr<Shape> shape =
 //                                   makeShape(Shapes::SHAPE_CIRCLE, 1.0, &ta);
-//      ASSERT(0 != shape);
-//      ASSERT(3.141592653589793238462 == shape->area());
+//      assert(0 != shape);
+//      assert(3.141592653589793238462 == shape->area());
 //
 //      shape = makeShape(Shapes::SHAPE_SQUARE, 3.0, &ta);
-//      ASSERT(0 != shape);
-//      ASSERT(9.0 == shape->area());
+//      assert(0 != shape);
+//      assert(9.0 == shape->area());
 //  }
 //..
 //
@@ -296,7 +299,7 @@ BDES_IDENT("$Id: $")
 //  bdema_ManagedPtr<double>
 //  getFirstQuoteLargerThan(double threshold, bslma_Allocator *allocator)
 //  {
-//      ASSERT( END_QUOTE < 0 && 0 <= threshold );
+//      assert( END_QUOTE < 0 && 0 <= threshold );
 //..
 // Next, we allocate our array with extra room to mark the beginning and end
 // with a special 'END_QUOTE' value:
@@ -335,8 +338,8 @@ BDES_IDENT("$Id: $")
 //  {
 //      bslma_TestAllocator ta;
 //      bdema_ManagedPtr<double> result = getFirstQuoteLargerThan(16.00, &ta);
-//      ASSERT(*result > 16.00);
-//      ASSERT(1 == ta.numBlocksInUse());
+//      assert(*result > 16.00);
+//      assert(1 == ta.numBlocksInUse());
 //      if (g_verbose) bsl::cout << "Found quote: " << *result << bsl::endl;
 //..
 // Next, We also print the preceding 5 quotes in last-to-first order:
@@ -348,7 +351,7 @@ BDES_IDENT("$Id: $")
 //          if (END_QUOTE == quote) {
 //              break;
 //          }
-//          ASSERT(quote < *result);
+//          assert(quote < *result);
 //          if (g_verbose) bsl::cout << ' ' << quote;
 //      }
 //      if (g_verbose) bsl::cout << bsl::endl;
@@ -366,46 +369,43 @@ BDES_IDENT("$Id: $")
 // Finally, if we reset the result pointer, the entire array is deallocated:
 //..
 //      result.clear();
-//      ASSERT(0 == ta.numBlocksInUse());
-//      ASSERT(0 == ta.numBytesInUse());
+//      assert(0 == ta.numBlocksInUse());
+//      assert(0 == ta.numBytesInUse());
 //
 //      return 0;
 //  }
 //..
 //
-///Example 3: Factories and Deleters
-///- - - - - - - - - - - - - - - - -
+///Example 3: Dynamic Objects and Factories
+/// - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to track the number of objects currently managed by
 // 'bdema_ManagedPtr' objects.
 //
 // First we define a factory type, that holds an allocator and a usage-counter.
+// Note that such a type cannot sensibly be copied, as the notion 'count'
+// becomes confused.
 //..
 //  class CountedFactory {
 //      // DATA
 //      int              d_count;
 //      bslma_Allocator *d_allocator;
-//..
-// Then we note that such a type cannot be sensibly copied, as the notion of
-// 'count' becomes confused.
-//..
+//
 //      // NOT IMPLEMENTED
 //      CountedFactory(const CountedFactory&);
 //      CountedFactory& operator=(const CountedFactory&);
-//..
-// Next we declare a public constructor that can be used to create objects of
-// this factory type, and a public destructor.
-//..
+//
 //    public:
 //      // CREATORS
 //      explicit CountedFactory(bslma_Allocator *alloc = 0);
 //          // Create a 'CountedFactory' object which uses the supplied
-//          // allocator 'alloc'
+//          // allocator 'alloc'.
 //
 //      ~CountedFactory();
 //          // Destroy this object.
 //..
-// Then we provide the ability for the factory to create objects of any type
-// requested by the user, using the allocator supplied at construction time.
+// Next, we provide the 'createObject' and 'deleteObject' functions that are
+// standard for factory objects.  Note that the 'deleteObject' function
+// signature has the form required by 'bdeam_ManagedPtr' for a factory.
 //..
 //      // MANIPULATORS
 //      template <class TYPE>
@@ -414,16 +414,13 @@ BDES_IDENT("$Id: $")
 //          // created using its default constructor.  Memory for the object
 //          // is supplied by the allocator supplied to this factory's
 //          // constructor, and the count of valid object is incremented.
-//..
-// Now we provide the 'deleteObject' function required of factory types to be
-// used with 'bdema_ManagedPtr'.
-//..
+//
 //      template <class TYPE>
 //      void deleteObject(const TYPE *target);
 //          // Destroy the object pointed to be 'target' and reclaim the
 //          // memory.  Decrement the count of currently valid objects.
 //..
-// Then we round out the class with the ability to query the 'count' of
+// Then, we round out the class with the ability to query the 'count' of
 // currently allocated objects.
 //..
 //      // ACCESSORS
@@ -432,7 +429,7 @@ BDES_IDENT("$Id: $")
 //          // factory.
 //  };
 //..
-// Next we define the operations declared by the class.
+// Next, we define the operations declared by the class.
 //..
 //  CountedFactory::CountedFactory(bslma_Allocator *alloc)
 //  : d_count(0)
@@ -442,7 +439,7 @@ BDES_IDENT("$Id: $")
 //
 //  CountedFactory::~CountedFactory()
 //  {
-//      ASSERT(0 == d_count);
+//      assert(0 == d_count);
 //  }
 //
 //  template <class TYPE>
@@ -466,66 +463,67 @@ BDES_IDENT("$Id: $")
 //      return d_count;
 //  }
 //..
-// Then we can create a test function to illustrate how such a factory would be
+// Then, we can create a test function to illustrate how such a factory would be
 // used with 'bdema_ManagedPtr'.
 //..
 //  void testCountedFactory()
 //  {
 //..
-// Next we declare a test allocator, and an object of our 'CountedFactory' type
+// Next, we declare a test allocator, and an object of our 'CountedFactory' type
 // using that allocator.
 //..
 //      bslma_TestAllocator ta;
 //      CountedFactory cf(&ta);
 //..
-// Then we open a new local scope and declare an array of managed pointers.  We
-// need a local scope in order to observe the behavior of the destructors at
+// Then, we open a new local scope and declare an array of managed pointers.
+// We need a local scope in order to observe the behavior of the destructors at
 // end of the scope, and use an array as an easy way to count more than one
 // object.
 //..
 //      {
 //          bdema_ManagedPtr<int> pData[4];
 //..
-// Next we load each managed pointer in the array with a new 'int' using our
+// Next, we load each managed pointer in the array with a new 'int' using our
 // factory 'cf' and assert that the factory 'count' is correct after each new
 // 'int' is created.
 //..
 //          int i = 0;
 //          while (i != 4) {
 //              pData[i++].load(cf.createObject<int>(), &cf);
-//              ASSERT(cf.count() == i);
+//              assert(cf.count() == i);
 //          }
 //..
-// Then we 'clear' the contents of a single managed pointer in the array, and
+// Then, we 'clear' the contents of a single managed pointer in the array, and
 // assert that the factory 'count' is appropriately reduced.
 //..
 //          pData[1].clear();
-//          ASSERT(3 == cf.count());
+//          assert(3 == cf.count());
 //..
-// Next we 'load' a managed pointer with another new 'int' value, again using
+// Next, we 'load' a managed pointer with another new 'int' value, again using
 // 'cf' as the factory, and assert that the 'count' of valid objects remains
 // the same (destroy one object and add another).
 //..
 //          pData[2].load(cf.createObject<int>(), &cf);
-//          ASSERT(3 == cf.count());
+//          assert(3 == cf.count());
 //      }
 //..
-// Finally, we allow the array of managed pointers to fall out of scope and
+// Finally, we allow the array of managed pointers to go out of scope and
 // confirm that when all managed objects are destroyed, the factory 'count'
 // falls to zero, and does not overshoot.
 //..
-//      ASSERT(0 == cf.count());
+//      assert(0 == cf.count());
 //  }
 //..
+//
 ///Example 4: Type Casting
 ///- - - - - - - - - - - -
 // 'bdema_ManagedPtr' objects can be implicitly and explicitly cast to
 // different types in the same way that native pointers can.
 //
-///Implicit Casting
-///-  -  -  -  -  -
-// As with native pointers, a pointer of the type 'B' that is derived from the
-// type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
+///Implicit Conversion
+/// -  -  -  -  -  - -
+// As with native pointers, a pointer of the type 'B' that is publicly derived
+// from the type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
 //
 // First, consider the following code snippets:
 //..
@@ -550,71 +548,71 @@ BDES_IDENT("$Id: $")
 //          bdema_ManagedPtr<A> a_mp1;
 //          bdema_ManagedPtr<B> b_mp1;
 //
-//          ASSERT(!a_mp1 && !b_mp1);
+//          assert(!a_mp1 && !b_mp1);
 //
 //          a_mp1 = b_mp1;      // conversion assignment of nil ptr to nil
-//          ASSERT(!a_mp1 && !b_mp1);
+//          assert(!a_mp1 && !b_mp1);
 //
 //          B *b_p2 = new (localDefaultTa) B(&numdels);
 //          bdema_ManagedPtr<B> b_mp2(b_p2);    // default allocator
-//          ASSERT(!a_mp1 && b_mp2);
+//          assert(!a_mp1 && b_mp2);
 //
 //          a_mp1 = b_mp2;      // conversion assignment of nonnil ptr to nil
-//          ASSERT(a_mp1 && !b_mp2);
+//          assert(a_mp1 && !b_mp2);
 //
 //          B *b_p3 = new (localTa) B(&numdels);
 //          bdema_ManagedPtr<B> b_mp3(b_p3, &localTa);
-//          ASSERT(a_mp1 && b_mp3);
+//          assert(a_mp1 && b_mp3);
 //
 //          a_mp1 = b_mp3;      // conversion assignment of nonnil to nonnil
-//          ASSERT(a_mp1 && !b_mp3);
+//          assert(a_mp1 && !b_mp3);
 //
 //          a_mp1 = b_mp3;      // conversion assignment of nil to nonnil
-//          ASSERT(!a_mp1 && !b_mp3);
+//          assert(!a_mp1 && !b_mp3);
 //
 //          // constructor conversion init with nil
 //          bdema_ManagedPtr<A> a_mp4(b_mp3, b_mp3.ptr());
-//          ASSERT(!a_mp4 && !b_mp3);
+//          assert(!a_mp4 && !b_mp3);
 //
 //          // constructor conversion init with nonnil
 //          B *p_b5 = new (localTa) B(&numdels);
 //          bdema_ManagedPtr<B> b_mp5(p_b5, &localTa);
 //          bdema_ManagedPtr<A> a_mp5(b_mp5, b_mp5.ptr());
-//          ASSERT(a_mp5 && !b_mp5);
-//          ASSERT(a_mp5.ptr() == p_b5);
+//          assert(a_mp5 && !b_mp5);
+//          assert(a_mp5.ptr() == p_b5);
 //
 //          // constructor conversion init with nonnil
 //          B *p_b6 = new (localTa) B(&numdels);
 //          bdema_ManagedPtr<B> b_mp6(p_b6, &localTa);
 //          bdema_ManagedPtr<A> a_mp6(b_mp6);
-//          ASSERT(a_mp6 && !b_mp6);
-//          ASSERT(a_mp6.ptr() == p_b6);
+//          assert(a_mp6 && !b_mp6);
+//          assert(a_mp6.ptr() == p_b6);
 //
 //          struct S {
 //              int d_i[10];
 //          };
 //
-//          ASSERT(200 == numdels);
+//          assert(200 == numdels);
 //      }
 //
-//      ASSERT(400 == numdels);
+//      assert(400 == numdels);
 //  } // implicitCastingExample()
 //..
 //
-///Explicit Casting
-///-  -  -  -  -  -
-// Through "aliasing", a managed pointer of any type can be explicitly cast
-// to a managed pointer of any other type using any legal cast expression.
-// For example, to static-cast a managed pointer of type A to a shared pointer
-// of type B, one can simply do the following:
+///Explicit Conversion
+/// -  -  -  -  -  - -
+// Through "aliasing", a managed pointer of any type can be explicitly
+// converted to a managed pointer of any other type using any legal cast
+// expression.  For example, to static-cast a managed pointer of type A to a
+// shared pointer of type B, one can simply do the following:
 //..
 //  void explicitCastingExample() {
 //
 //      bdema_ManagedPtr<A> a_mp;
 //      bdema_ManagedPtr<B> b_mp1(a_mp, static_cast<B*>(a_mp.ptr()));
-//      //..
-//      // or even use the less safe "C"-style casts:
-//      //..
+//..
+// or even use the less safe "C"-style casts:
+//..
 //      // bdema_ManagedPtr<A> a_mp;
 //      bdema_ManagedPtr<B> b_mp2(a_mp, (B*)(a_mp.ptr()));
 //
@@ -629,11 +627,11 @@ BDES_IDENT("$Id: $")
 //  {
 //      bdema_ManagedPtr<B> bPtr(aPtr, dynamic_cast<B*>(aPtr.ptr()));
 //      if (bPtr) {
-//          ASSERT(!aPtr);
+//          assert(!aPtr);
 //          *castSucceeded = true;
 //      }
 //      else {
-//          ASSERT(aPtr);
+//          assert(aPtr);
 //          *castSucceeded = false;
 //      }
 //  }
@@ -642,7 +640,6 @@ BDES_IDENT("$Id: $")
 // transferred to 'bPtr', otherwise 'aPtr' is to be modified.  As previously
 // stated, the managed object will be destroyed correctly regardless of how
 // it is cast.
-//..
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
@@ -1082,8 +1079,7 @@ class bdema_ManagedPtr {
         // in this case.  It should be removed when the deprecated overloads
         // are removed.
 
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
-#else
+#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR < 40000
     template <class BDEMA_TARGET_TYPE>
     void load(BDEMA_TARGET_TYPE *ptr, void *cookie, DeleterFunc deleter);
         // Destroy the current managed object (if any) and re-initialize this
@@ -1093,7 +1089,11 @@ class bdema_ManagedPtr {
         // unless 'release' is called before then.  If '0 == ptr', then this
         // object will be re-initialized to an unset state.  The behavior is
         // undefined if 'ptr' is already managed by another object, or if
-        // '0 == deleter && 0 != ptr'.
+        // '0 == deleter && 0 != ptr'.  Note that there GCC 3.4 and earlier
+        // have a bug in template type deduction/overload resolution that
+        // causes ambiguities if this signature is available.  This function
+        // will be restored on that platform once the deprecated signatures are
+        // finally removed.
 #endif
 
     template <class BDEMA_TARGET_TYPE, typename BDEMA_COOKIE>
@@ -1389,8 +1389,8 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr)
                                                                      ::deleter,
             stripBasePointerType(ptr))
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>::
-                                                                       VALUE));
+    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+                                      BDEMA_TYPE *>::VALUE));
 }
 
 template <class BDEMA_TYPE>
@@ -1410,6 +1410,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(bdema_ManagedPtr& other)
 
 template <class BDEMA_TYPE>
 template <class BDEMA_OTHER_TYPE>
+inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
                                      bdema_ManagedPtr<BDEMA_OTHER_TYPE>& alias,
                                      BDEMA_TYPE                         *ptr)
@@ -1479,9 +1480,8 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                       BDEMA_TYPE *>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<
-                        BDEMA_TARGET_TYPE *,
-                        const BDEMA_TARGET_BASE *>::VALUE));
+    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+                                      const BDEMA_TARGET_BASE *>::VALUE));
 
     BSLS_ASSERT_SAFE(0 == cookie);
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
@@ -1504,9 +1504,8 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                       BDEMA_TYPE *>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<
-                        BDEMA_TARGET_TYPE *,
-                        const BDEMA_TARGET_BASE *>::VALUE));
+    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
+                                      const BDEMA_TARGET_BASE *>::VALUE));
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_COOKIE *,
                                       BDEMA_COOKIE_BASE *>::VALUE));
 
@@ -1543,13 +1542,10 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE  *ptr,
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     d_members.runDeleter();
-    d_members.set(stripBasePointerType(ptr),
-                  cookie,
-                  deleter);
+    d_members.set(stripBasePointerType(ptr), cookie, deleter);
 }
 
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
-#else
+#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR < 40000
 template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE>
 inline
@@ -1562,9 +1558,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     d_members.runDeleter();
-    d_members.set(stripCompletePointerType(ptr),
-                  cookie,
-                  deleter);
+    d_members.set(stripCompletePointerType(ptr), cookie, deleter);
     d_members.setAliasPtr(stripBasePointerType(ptr));
 }
 #endif
@@ -1581,9 +1575,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::loadImp(BDEMA_TARGET_TYPE *ptr,
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     d_members.runDeleter();
-    d_members.set(stripCompletePointerType(ptr),
-                  cookie,
-                  deleter);
+    d_members.set(stripCompletePointerType(ptr), cookie, deleter);
     d_members.setAliasPtr(stripBasePointerType(ptr));
 }
 
@@ -1597,18 +1589,8 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>
                                                                      ::VALUE));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
-#if 0
-    d_members.runDeleter();
-    d_members.set(stripCompletePointerType(ptr),
-                  cookie,
-                  deleter);
-    d_members.setAliasPtr(stripBasePointerType(ptr));
-#else
-    this->loadImp(ptr,
-                  static_cast<void *>(cookie),
-                  deleter
-                 );
-#endif    
+
+    this->loadImp(ptr, static_cast<void *>(cookie), deleter);
 }
 
 template <class BDEMA_TYPE>
@@ -1623,8 +1605,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr)
                                                                 DeleterFactory;
     this->loadImp(ptr,
                   static_cast<void *>(bslma_Default::allocator()),
-                  &DeleterFactory::deleter
-                 );
+                  &DeleterFactory::deleter);
 }
 
 template <class BDEMA_TYPE>
@@ -1641,9 +1622,8 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
     typename bdema_ManagedPtr_FactoryDeleterType<BDEMA_TARGET_TYPE,
                                                  BDEMA_FACTORY>::Type
                                                                 DeleterFactory;
-    this->loadImp(ptr,
-                  static_cast<void *>(factory),
-                  &DeleterFactory::deleter);
+
+    this->loadImp(ptr, static_cast<void *>(factory), &DeleterFactory::deleter);
 }
 
 template <class BDEMA_TYPE>
@@ -1653,8 +1633,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
                                    void                   *cookie,
                                    void (*deleter)(BDEMA_TARGET_BASE *, void*))
 {
-#if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
-#else
+#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR < 40000
     BSLMF_ASSERT((!bslmf_IsVoid<BDEMA_TARGET_BASE>::VALUE ));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TARGET_BASE *>::VALUE ));
