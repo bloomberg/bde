@@ -229,6 +229,9 @@ using namespace BloombergLP;
 
 // ----------------------------------------------------------------------------
 // Registration time tests: test case -2 in bteso_defaulteventmanager_*.t.cpp
+// Note we don't show results for 'select' on unix platforms other than AIX --
+// though 'select' works on other Unix platforms, it cannot handle enough
+// sockets to be a contender.
 //
 //                         ----- Microseconds to Register all Sockets -----
 //                                            Event Manager
@@ -250,6 +253,7 @@ using namespace BloombergLP;
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i)

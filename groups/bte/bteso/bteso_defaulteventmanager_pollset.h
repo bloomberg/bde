@@ -1,6 +1,6 @@
-// bteso_defaulteventmanager_poll.h    -*-C++-*-
-#ifndef INCLUDED_BTESO_DEFAULTEVENTMANAGER_POLL
-#define INCLUDED_BTESO_DEFAULTEVENTMANAGER_POLL
+// bteso_defaulteventmanager_pollset.h                                -*-C++-*-
+#ifndef INCLUDED_BTESO_DEFAULTEVENTMANAGER_POLLSET
+#define INCLUDED_BTESO_DEFAULTEVENTMANAGER_POLLSET
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>

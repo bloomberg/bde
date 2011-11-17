@@ -21,11 +21,11 @@ BDES_IDENT("$Id: $")
 // bteso_defaulteventmanager component as shown on the following diagram:
 //..
 //                     bteso_defaulteventmanager
-//                    /        /      \        (
-//          /---------        /        \        ---------(
-//      _select            _poll    _devpoll            _wfmo
-//         \---------         \        /        ---------/
-//                   \         \      /        /
+//                    /   /     |      \        \
+//             /-----/   /      |       \        \
+//         _select    _poll  _devpoll  _pollset   _epoll
+//             \-----    \      |       /        /
+//                   \    \     |      /        /
 //                   bteso_defaulteventmanagerimpl
 //..
 

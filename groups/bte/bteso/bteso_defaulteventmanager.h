@@ -91,6 +91,10 @@ BDES_IDENT("$Id: $")
 #include <bteso_defaulteventmanager_poll.h>
 #endif
 
+#ifndef INCLUDED_BTESO_DEFAULTEVENTMANAGER_POLLSET
+#include <bteso_defaulteventmanager_pollset.h>
+#endif
+
 #ifndef INCLUDED_BTESO_DEFAULTEVENTMANAGER_SELECT
 #include <bteso_defaulteventmanager_select.h>
 #endif
