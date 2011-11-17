@@ -2510,7 +2510,6 @@ void testLoadOps(int callLine,
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 template <class T>
 struct AliasTestType1 {
-//    typedef MySecondDerivedObject type;
     typedef MyDerivedObject type;
 };
 
@@ -2519,10 +2518,28 @@ struct AliasTestType2 {
     typedef MySecondDerivedObject type;
 };
 
-//template <>
-//struct AliasTestType2<MyTestObject> {
-//    typedef MySecondDerivedObject<MyDerivedObject> type;
-//};
+#if defined(BDEMA_TESTVIRTUALINHERITANCE)
+template <>
+struct AliasTestType1<Base> {
+    typedef Base2 type;
+};
+
+template <>
+struct AliasTestType2<Base> {
+    typedef Composite type;
+};
+
+template <>
+struct AliasTestType1<Base2> {
+    typedef Base2 type;
+};
+
+template <>
+struct AliasTestType2<Base2> {
+    typedef Composite type;
+};
+
+#endif
 
 template <class T>
 struct AliasTestType2<const T> : AliasTestType2<T> {};
@@ -2547,7 +2564,8 @@ void testLoadAliasOps1(int callLine,
     typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
 
     for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for(unsigned configI = 0; configI != TEST_ARRAY[i].configs(); ++configI) {
+        for(unsigned configI = 0; configI != TEST_ARRAY[i].configs();
+                                                                   ++configI) {
             bslma_TestAllocatorMonitor gam(&ga);
             bslma_TestAllocatorMonitor dam(&da);
 
@@ -5020,6 +5038,35 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), Fbsl(), NullPolicy() )
 };
 
+#if defined(BDEMA_TESTVIRTUALINHERITANCE)
+static const TestPolicy<Base> TEST_POLICY_BASE0_ARRAY[] = {
+    // default test
+    TestPolicy<Base>(),
+
+    // single object-pointer tests
+    TestPolicy<Base>( NullPolicy() ),
+
+    TestPolicy<Base>( Ob1() ),
+    TestPolicy<Base>( Ob2() ),
+    TestPolicy<Base>( Ocomp() ),
+
+    // factory tests
+    TestPolicy<Base>( NullPolicy(), NullPolicy() ),
+
+    TestPolicy<Base>( Ob1(),     Ftst() ),
+    TestPolicy<Base>( Ob1(),     Fbsl() ),
+    TestPolicy<Base>( Ob2(),     Ftst() ),
+    TestPolicy<Base>( Ob2(),     Fbsl() ),
+    TestPolicy<Base>( Ocomp(),   Ftst() ),
+    TestPolicy<Base>( Ocomp(),   Fbsl() ),
+
+    TestPolicy<Base>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
+    TestPolicy<Base>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
+    TestPolicy<Base>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
+    TestPolicy<Base>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
+};
+#endif
+
 static const TestPolicy<Base2> TEST_POLICY_BASE2_ARRAY[] = {
     // default test
     TestPolicy<Base2>(),
@@ -5455,7 +5502,8 @@ namespace USAGE_EXAMPLES {
 // object implementing an abstract protocol.
 //
 // First we define our protocol, 'Shape', a type of object that knows how to
-// compute its 'area'.
+// compute its 'area'.  Note that for expository reasons only, we do *nor*
+// give 'Shape' a virtual destructor.
 //..
     struct Shape {
         virtual double area() const = 0;
@@ -5495,7 +5543,7 @@ namespace USAGE_EXAMPLES {
             // Return the area of this Square, given by the forumula side*side
     };
 //..
-// Next we implement the methods for a 'Circle'.
+// Next we implement the methods for 'Circle' and 'Square'.
 //..
     Circle::Circle(double r)
     : d_radius(r)
@@ -5505,9 +5553,7 @@ namespace USAGE_EXAMPLES {
     double Circle::area() const {
         return 3.141592653589793238462 * d_radius * d_radius;
     }
-//..
-// Then we implement the methods for a 'Square'..
-//..
+
     Square::Square(double side)
     : d_sideLength(side)
     {
@@ -5550,7 +5596,11 @@ namespace USAGE_EXAMPLES {
 // Then, we can use our function to create shapes of different kinds, and check
 // that they report the correct area.  Note that are using a radius of '1.0'
 // for the 'Circle' and integral side-length for the 'Square' to support an
-// accurate 'operator==' with floating-point quantities.
+// accurate 'operator==' with floating-point quantities.  Also note that,
+// despite the destructor for 'Shape' being non-virtual, the correct destructor
+// for the appropriate concrete 'Shape' type is called.  This is because the
+// destructor is captured when the 'bdema_ManagedPtr' constructor is called,
+// and has access to the complete type of each shape object.
 //..
     void testShapes()
     {
@@ -5725,39 +5775,36 @@ namespace USAGE_EXAMPLES {
     }
 //..
 //
-///Example 3: Factories and Deleters
-///- - - - - - - - - - - - - - - - -
+///Example 3: Dynamic Objects and Factories
+/// - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to track the number of objects currently managed by
 // 'bdema_ManagedPtr' objects.
 //
 // First we define a factory type, that holds an allocator and a usage-counter.
+// Note that such a type cannot sensibly be copied, as the notion 'count'
+// becomes confused.
 //..
     class CountedFactory {
         // DATA
         int              d_count;
         bslma_Allocator *d_allocator;
-//..
-// Then we note that such a type cannot be sensibly copied, as the notion of
-// 'count' becomes confused.
-//..
+
         // NOT IMPLEMENTED
         CountedFactory(const CountedFactory&);
         CountedFactory& operator=(const CountedFactory&);
-//..
-// Next we declare a public constructor that can be used to create objects of
-// this factory type, and a public destructor.
-//..
+
       public:
         // CREATORS
         explicit CountedFactory(bslma_Allocator *alloc = 0);
             // Create a 'CountedFactory' object which uses the supplied
-            // allocator 'alloc'
+            // allocator 'alloc'.
 
         ~CountedFactory();
             // Destroy this object.
 //..
-// Then we provide the ability for the factory to create objects of any type
-// requested by the user, using the allocator supplied at construction time.
+// Next, we provide the 'createObject' and 'deleteObject' functions that are
+// standard for factory objects.  Note that the 'deleteObject' function
+// signature has the form required by 'bdeam_ManagedPtr' for a factory.
 //..
         // MANIPULATORS
         template <class TYPE>
@@ -5766,16 +5813,13 @@ namespace USAGE_EXAMPLES {
             // created using its default constructor.  Memory for the object
             // is supplied by the allocator supplied to this factory's
             // constructor, and the count of valid object is incremented.
-//..
-// Now we provide the 'deleteObject' function required of factory types to be
-// used with 'bdema_ManagedPtr'.
-//..
+
         template <class TYPE>
         void deleteObject(const TYPE *target);
             // Destroy the object pointed to be 'target' and reclaim the
             // memory.  Decrement the count of currently valid objects.
 //..
-// Then we round out the class with the ability to query the 'count' of
+// Then, we round out the class with the ability to query the 'count' of
 // currently allocated objects.
 //..
         // ACCESSORS
@@ -5784,7 +5828,7 @@ namespace USAGE_EXAMPLES {
             // factory.
     };
 //..
-// Next we define the operations declared by the class.
+// Next, we define the operations declared by the class.
 //..
     CountedFactory::CountedFactory(bslma_Allocator *alloc)
     : d_count(0)
@@ -5818,27 +5862,27 @@ namespace USAGE_EXAMPLES {
         return d_count;
     }
 //..
-// Then we can create a test function to illustrate how such a factory would be
+// Then, we can create a test function to illustrate how such a factory would be
 // used with 'bdema_ManagedPtr'.
 //..
     void testCountedFactory()
     {
 //..
-// Next we declare a test allocator, and an object of our 'CountedFactory' type
+// Next, we declare a test allocator, and an object of our 'CountedFactory' type
 // using that allocator.
 //..
         bslma_TestAllocator ta;
         CountedFactory cf(&ta);
 //..
-// Then we open a new local scope and declare an array of managed pointers.  We
-// need a local scope in order to observe the behavior of the destructors at
+// Then, we open a new local scope and declare an array of managed pointers.
+// We need a local scope in order to observe the behavior of the destructors at
 // end of the scope, and use an array as an easy way to count more than one
 // object.
 //..
         {
             bdema_ManagedPtr<int> pData[4];
 //..
-// Next we load each managed pointer in the array with a new 'int' using our
+// Next, we load each managed pointer in the array with a new 'int' using our
 // factory 'cf' and assert that the factory 'count' is correct after each new
 // 'int' is created.
 //..
@@ -5848,13 +5892,13 @@ namespace USAGE_EXAMPLES {
                 ASSERT(cf.count() == i);
             }
 //..
-// Then we 'clear' the contents of a single managed pointer in the array, and
+// Then, we 'clear' the contents of a single managed pointer in the array, and
 // assert that the factory 'count' is appropriately reduced.
 //..
             pData[1].clear();
             ASSERT(3 == cf.count());
 //..
-// Next we 'load' a managed pointer with another new 'int' value, again using
+// Next, we 'load' a managed pointer with another new 'int' value, again using
 // 'cf' as the factory, and assert that the 'count' of valid objects remains
 // the same (destroy one object and add another).
 //..
@@ -5862,7 +5906,7 @@ namespace USAGE_EXAMPLES {
             ASSERT(3 == cf.count());
         }
 //..
-// Finally, we allow the array of managed pointers to fall out of scope and
+// Finally, we allow the array of managed pointers to go out of scope and
 // confirm that when all managed objects are destroyed, the factory 'count'
 // falls to zero, and does not overshoot.
 //..
@@ -5884,10 +5928,10 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 // 'bdema_ManagedPtr' objects can be implicitly and explicitly cast to
 // different types in the same way that native pointers can.
 //
-///Implicit Casting
-///-  -  -  -  -  -
-// As with native pointers, a pointer of the type 'B' that is derived from the
-// type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
+///Implicit Conversion
+/// -  -  -  -  -  - -
+// As with native pointers, a pointer of the type 'B' that is publicly derived
+// from the type 'A', can be directly assigned a 'bcema_SharedPtr' of 'A'.
 //
 // First, consider the following code snippets:
 //..
@@ -5977,10 +6021,10 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 //
 ///Explicit Casting
 ///-  -  -  -  -  -
-// Through "aliasing", a managed pointer of any type can be explicitly cast
-// to a managed pointer of any other type using any legal cast expression.
-// For example, to static-cast a managed pointer of type A to a shared pointer
-// of type B, one can simply do the following:
+// Through "aliasing", a managed pointer of any type can be explicitly
+// converted to a managed pointer of any other type using any legal cast
+// expression.  For example, to static-cast a managed pointer of type A to a
+// shared pointer of type B, one can simply do the following:
 //..
     void explicitCastingExample() {
 
@@ -6765,7 +6809,18 @@ int main(int argc, char *argv[])
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#if 0
+#if defined(BDEMA_TESTVIRTUALINHERITANCE)
+        {
+            if (veryVerbose)
+                        cout << "Testing bdema_ManagedPtr<Base>::loadAlias\n";
+
+            testLoadAliasOps1(L_, TEST_POLICY_BASE0_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_BASE0_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_BASE0_ARRAY);
+        }
+#endif
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
         {
             if (veryVerbose)
                         cout << "Testing bdema_ManagedPtr<Base2>::loadAlias\n";
@@ -6774,7 +6829,7 @@ int main(int argc, char *argv[])
             testLoadAliasOps2(L_, TEST_POLICY_BASE2_ARRAY);
             testLoadAliasOps3(L_, TEST_POLICY_BASE2_ARRAY);
         }
-#endif
+
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         using namespace CREATORS_TEST_NAMESPACE;
@@ -7187,6 +7242,14 @@ int main(int argc, char *argv[])
             testConstructors(L_, TEST_POLICY_CONST_VOID_ARRAY);
         }
 
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#if defined(BDEMA_TESTVIRTUALINHERITANCE)
+        {
+            if (veryVerbose) cout << "Testing bdema_ManagedPtr<Base>::load\n";
+
+            testConstructors(L_, TEST_POLICY_BASE0_ARRAY);
+        }
+#endif
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
@@ -7830,7 +7893,19 @@ int main(int argc, char *argv[])
         }
 
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#if 0
+#if defined(BDEMA_TESTVIRTUALINHERITANCE)
+        {
+            if (veryVerbose)
+                         cout << "Testing bdema_ManagedPtr<Base>::loadAlias\n";
+
+            testLoadAliasOps1(L_, TEST_POLICY_BASE0_ARRAY);
+            testLoadAliasOps2(L_, TEST_POLICY_BASE0_ARRAY);
+            testLoadAliasOps3(L_, TEST_POLICY_BASE0_ARRAY);
+        }
+#endif
+
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
         {
             if (veryVerbose)
                         cout << "Testing bdema_ManagedPtr<Base2>::loadAlias\n";
@@ -7839,7 +7914,7 @@ int main(int argc, char *argv[])
             testLoadAliasOps2(L_, TEST_POLICY_BASE2_ARRAY);
             testLoadAliasOps3(L_, TEST_POLICY_BASE2_ARRAY);
         }
-#endif
+
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -8043,6 +8118,14 @@ int main(int argc, char *argv[])
             testLoadOps(L_, TEST_POLICY_CONST_VOID_ARRAY);
         }
 
+        //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#if defined(BDEMA_TESTVIRTUALINHERITANCE)
+        {
+            if (veryVerbose) cout << "Testing bdema_ManagedPtr<Base>::load\n";
+
+            testLoadOps(L_, TEST_POLICY_BASE0_ARRAY);
+        }
+#endif
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         {
@@ -9062,7 +9145,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

@@ -31,17 +31,18 @@ BDES_IDENT("$Id: $")
 ///--------
 // When a managed pointer is destroyed, the managed object is destroyed using
 // the user supplied "deleter".  A deleter is simply a function that is invoked
-// with a pointer to the object to be destroyed, and an optional pointer to a
-// 'factory'.  The meaning of 'factory' depends on the deleter.  Typically the
+// with two arguments, a pointer to the object to be destroyed, and a pointer
+// to a 'cookie' that is supplied at the same time as the 'deleter' and managed
+// object.  The meaning of the 'cookie' depends on the deleter.  Typically a
 // deleter function will accept two 'void *' pointers and internally cast them
-// to the appropriate types for pointers to the factory and managed object.
+// to the appropriate types for pointers to the 'cookie' and managed object.
 // This component still supports (deprecated) legacy deleters that expect to be
-// passed pointers to the specific factory and managed object types in use.
-// This form of deleter is now deprecated as it relies on undefined behavior,
-// casting such function pointers to the correct form (taking two 'void *'
-// arguments) and invoking the function with two 'void *' pointer arguments.
-// While this is undefined behavior, it is known to have the desired effect on
-// all platforms currently in use.
+// passed pointers to the specific 'cookie' and managed object types in use.
+// This latter form of deleter is now deprecated as it relies on undefined
+// behavior, casting such function pointers to the correct form (taking two
+// 'void *' arguments) and invoking the function with two 'void *' pointer
+// arguments.  While this is undefined behavior, it is known to have the
+// desired effect on all platforms currently in use.
 //
 ///Factories
 ///---------
@@ -717,14 +718,15 @@ class bdema_ManagedPtr_Ref;
 template <class BDEMA_TYPE>
 class bdema_ManagedPtr {
     // This class is a "smart pointer" that supports sole ownership of an
-    // object of the specified parameter type, 'BDEMA_TYPE'. a managed pointer
+    // object of the specified parameter type, 'BDEMA_TYPE'.  A managed pointer
     // ensures that the object it manages is destroyed when the managed pointer
     // is destroyed, or re-assigned, using the appropriate deletion method.
-    // The object (of the parameterized 'BDEMA_TYPE') pointed to by a managed
-    // pointer instance may be accessed directly using the '->' operator, or
-    // the dereference operator (operator '*') can be used to get a reference
-    // to that object.  The specified 'BDEMA_TYPE' may be 'const'-qualified,
-    // but may not be 'volatile'-qualified, nor may it be a reference type.
+    // The object (of the specified parameter type 'BDEMA_TYPE') pointed to by
+    // a managed pointer instance may be accessed directly using the '->'
+    // operator, or the dereference operator (operator '*') can be used to get
+    // a reference to that object.  The specified 'BDEMA_TYPE' may be
+    // 'const'-qualified, but may not be 'volatile'-qualified, nor may it be a
+    // reference type.
     //
     // A managed pointer that does not own an object is in an *unset* state.
     // Such a state is the equivalent of a null pointer: the managed pointer
@@ -735,11 +737,11 @@ class bdema_ManagedPtr {
     // Note that the object managed by a managed pointer instance is usually
     // the same as the object pointed to by that instance (of the same
     // 'BDEMA_TYPE'), but this need not always be true in the presence of
-    // conversions or "aliasing": the object pointed-to, of the parameterized
-    // 'BDEMA_TYPE', may differ from the managed object of type 'OTHERTYPE'
-    // (see the section "Aliasing" in the component-level documentation).
-    // Nevertheless, both shall exist or else the managed pointer is in an
-    // *unset* state.
+    // conversions or "aliasing": the object pointed-to, of the specified
+    // parameter type 'BDEMA_TYPE', may differ from the managed object of type
+    // 'OTHERTYPE' (see the section "Aliasing" in the component-level
+    // documentation).  Nevertheless, both shall exist or else the managed
+    // pointer is in an *unset* state.
 
   public:
     // TRAITS
@@ -801,18 +803,18 @@ class bdema_ManagedPtr {
 
   private:
     // NOT IMPLEMENTED
-    template <class BDEMA_OTHER_TYPE, class BDEMA_FACTORY>
+    template <class BDEMA_OTHER_TYPE, class BDEMA_COOKIE>
     bdema_ManagedPtr(BDEMA_OTHER_TYPE *,
-                     BDEMA_FACTORY *,
+                     BDEMA_COOKIE *,
                      bsl::nullptr_t);
         // It is never defined behavior to pass a null literal as a deleter,
         // unless the 'object' pointer is also a null pointer literal.
 
   private:
     // NOT IMPLEMENTED
-    template <typename BDEMA_ANY_FACTORY>
+    template <typename BDEMA_ANY_COOKIE>
     void load(BDEMA_TYPE *,
-              BDEMA_ANY_FACTORY *,
+              BDEMA_ANY_COOKIE *,
               bsl::nullptr_t);
         // It is never defined behavior to pass a null literal as a deleter,
         // unless the 'object' pointer is also a null pointer literal.
@@ -846,27 +848,27 @@ class bdema_ManagedPtr {
   public:
     // CREATORS
     explicit bdema_ManagedPtr(bsl::nullptr_t = 0, bsl::nullptr_t = 0);
-        // Create a managed pointer that is in an unset state.  Note that
-        // this constructor is necessary to match null-pointer literal
-        // arguments, in order to break ambiguities and provide valid type
-        // deduction with the other constructor templates in this class.
+        // Create a managed pointer that is in an unset state.  Note that this
+        // constructor is necessary to match null-pointer literal arguments, in
+        // order to break ambiguities and provide valid type deduction with the
+        // other constructor templates in this class.
 
     template <class BDEMA_TARGET_TYPE>
     explicit bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr);
-        // Create a managed pointer that manages the specified 'ptr' using
-        // the current default allocator to destroy 'ptr' when this managed
-        // pointer is destroyed or re-assigned, unless 'release' is called
-        // before then.  The object will be initialized to an unset state if
-        // '0 == ptr'.  The deleter will invoke the destructor of
-        // 'BDEMA_TARGET_TYPE' and not the destructor of 'BDEMA_TYPE'.  This
-        // allows 'bdema_ManagedPtr' to be defined for 'void' pointers, and to
-        // call the correct destructor for 'ptr', even if the destructor for
-        // 'BDEMA_TYPE' is not declared as 'virtual'.  The behavior is
-        // undefined unless the object referred to by 'ptr' can by destroyed by
-        // the current default allocator (or '0 == ptr'), or if the the
-        // lifetime of object referred to by 'ptr' is already managed by
-        // another object.  Note that this constructor will not compile unless
-        // 'BDEMA_TARGET_TYPE *' is convertible to 'BDEMA_TYPE *'.
+        // Create a managed pointer that manages the specified 'ptr' using the
+        // current default allocator to destroy 'ptr' when this managed pointer
+        // is destroyed or re-assigned, unless 'release' is called before then.
+        // The object will be initialized to an unset state if '0 == ptr'.  The
+        // deleter will invoke the destructor of 'BDEMA_TARGET_TYPE' and not
+        // the destructor of 'BDEMA_TYPE'.  This allows 'bdema_ManagedPtr' to
+        // be defined for 'void' pointers, and to call the correct destructor
+        // for 'ptr', even if the destructor for 'BDEMA_TYPE' is not declared
+        // as 'virtual'.  The behavior is undefined unless the object referred
+        // to by 'ptr' can by destroyed by the current default allocator
+        // (or '0 == ptr'), or if the the lifetime of object referred to by
+        // 'ptr' is already managed by another object.  Note that this
+        // constructor will not compile unless 'BDEMA_TARGET_TYPE *' is
+        // convertible to 'BDEMA_TYPE *'.
 
     bdema_ManagedPtr(bdema_ManagedPtr& other);
         // Create a 'bdema_ManagedPtr' and transfer the ownership of the object
@@ -909,95 +911,88 @@ class bdema_ManagedPtr {
         // If '0 == ptr' then this object will be initialized to an unset
         // state.  The class 'BDEMA_FACTORY' can be any class that has a
         // 'deleteObject' method, which takes a single argument of type
-        // 'BDEMA_TYPE *'.  Note that 'bslma_Allocator' or any class derived
-        // from 'bslma_Allocator' meets the requirements for 'BDEMA_FACTORY'.
-        // The behavior is undefined unless '0 != factory', or if 'ptr' is
-        // already managed by another object.
+        // 'BDEMA_TYPE *'.  The behavior is undefined unless '0 != factory', or
+        // if 'ptr' is already managed by another object.  Note that
+        // 'bslma_Allocator' or any class derived from 'bslma_Allocator' meets
+        // the requirements for 'BDEMA_FACTORY'.
 
-    bdema_ManagedPtr(BDEMA_TYPE *ptr, void *factory, DeleterFunc deleter);
+    bdema_ManagedPtr(BDEMA_TYPE *ptr, void *cookie, DeleterFunc deleter);
         // Create a managed pointer to manage the specified 'ptr' using the
         // specified 'deleter' to destroy 'ptr' when this managed pointer is
         // destroyed or re-assigned (unless 'release' is called before then).
         // If '0 == ptr', then this object will be initialized to an unset
         // state.  The behavior is undefined if 'ptr' is already managed by
         // another object, or if 'deleter' is null and 'ptr' is not null, or
-        // if 'factory' is null, 'ptr' is not null, and 'deleter' has undefined
-        // behavior when passed a null factory.  Note that this declaration is
+        // if 'cookie' is null, 'ptr' is not null, and 'deleter' has undefined
+        // behavior when passed a null cookie.  Note that this declaration is
         // required only because the deprecated overloads create an ambiguity
         // in this case.  It should be removed when the deprecated overloads
         // are removed.
 
     template <class BDEMA_TARGET_TYPE>
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                     void              *factory,
+                     void              *cookie,
                      DeleterFunc        deleter);
-        // Create a managed pointer to manage the specified
-        // 'ptr' using the specified 'deleter' to destroy 'ptr' when this
-        // managed pointer is destroyed or re-assigned (unless 'release' is
-        // called before then).  If '0 == ptr', then this object will be
-        // initialized to an unset state.  The behavior is undefined if 'ptr'
-        // is already managed by another object, or if 'deleter' is null and
-        // 'ptr' is not null, or if 'factory' is null, 'ptr' is not null, and
-        // 'deleter' has undefined behavior when passed a null factory.  Note
-        // that this deprecated constructor is supplied only to break ambiguity
-        // in template deduction when calling other deprecated constructors.
+        // Create a managed pointer to manage the specified 'ptr' using the
+        // specified 'deleter' to destroy 'ptr' when this managed pointer is
+        // destroyed or re-assigned (unless 'release' is called before then).
+        // If '0 == ptr', then this object will be initialized to an unset
+        // state.  The behavior is undefined if 'ptr' is already managed by
+        // another object, or if 'deleter' is null and 'ptr' is not null, or if
+        // 'cookie' is null, 'ptr' is not null, and 'deleter' has undefined
+        // behavior when passed a null cookie.
 
     template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                     void *,
+                     void *cookie,
                      void (*deleter)(BDEMA_TARGET_BASE*, void*));
         // [!DEPRECATED!] Instead, use:
         //..
         //  template <class BDEMA_TARGET_TYPE>
         //  void bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-        //                        void              *factory,
+        //                        void              *cookie,
         //                        DeleterFunc        deleter);
         //..
         //
-        // Create a managed pointer to manage the specified
-        // 'ptr' using the specified 'deleter' to destroy 'ptr' when this
-        // managed pointer is destroyed or re-assigned (unless 'release' is
-        // called before then).  If '0 == ptr', then this object will be
-        // initialized to an unset state.  The behavior is undefined if 'ptr'
-        // is already managed by another object.  Note that behavior is
-        // undefined unless 'deleter' accepts null pointers in the second
-        // argument.  Note that this constructor is needed only to support
-        // passing a null pointer literal as the factory object when the user
-        // passes a deleter taking 'BDEMA_TYPE' rather than 'void *', and so
-        // behavior is undefined unless this pointer has a null value.  Note
-        // that this function is *deprecated* as it relies on undefined
-        // compiler behavior for its implementation (that happens to to perform
-        // as required on every known compiler).  The overload taking a
-        // 'DeleterFunc' with two 'void *' arguments should be preferred for
-        // new code.
+        // Create a managed pointer to manage the specified 'ptr' using the
+        // specified 'deleter' to destroy 'ptr' when this managed pointer is
+        // destroyed or re-assigned (unless 'release' is called before then).
+        // If '0 == ptr', then this object will be initialized to an unset
+        // state.  The behavior is undefined unless '0 == cookie' and 'deleter'
+        // accepts null pointers for its cookie.  The behavior is undefined if
+        // 'ptr' is already managed by another object.  Note that this
+        // constructor is needed only to avoid ambiguous type deductions when
+        // passing a null pointer literal as the 'cookie' when the user passes
+        // a deleter taking a type other than 'void *' for its object type.
+        // Note that this function is *deprecated* as it relies on undefined
+        // compiler behavior for its implementation (that happens to perform as
+        // required on every known compiler).
 
     template <class BDEMA_TARGET_TYPE,
               class BDEMA_TARGET_BASE,
-              class BDEMA_FACTORY,
-              class BDEMA_BASE_FACTORY>
+              class BDEMA_COOKIE,
+              class BDEMA_COOKIE_BASE>
     bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                     BDEMA_FACTORY     *factory,
-                     void (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*));
+                     BDEMA_COOKIE      *cookie,
+                     void (*deleter)(BDEMA_TARGET_BASE*, BDEMA_COOKIE_BASE *));
         // [!DEPRECATED!] Instead, use:
         //..
         //  template <class BDEMA_TARGET_TYPE>
         //  void bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-        //                        void              *factory,
+        //                        void              *cookie,
         //                        DeleterFunc        deleter);
         //..
         //
-        // Create a managed pointer to manage the specified
-        // 'ptr' using the specified 'deleter' and associated 'factory' to
-        // destroy 'ptr' when this managed pointer is destroyed or re-assigned
-        // (unless it is released before then).  If 0 == 'ptr', then this
-        // object will be initialized to an unset state.  The behavior is
-        // undefined if 'ptr' is already managed by another object.  Note that
-        // if '0 == factory' then behavior is undefined unless 'deleter' allows
-        // null pointers in the second argument.  Note that this function is
-        // *deprecated* as it relies on undefined compiler behavior for its
-        // implementation (that happens to to perform as required on every
-        // known compiler).  The overload taking a 'DeleterFunc' with two
-        // 'void *' arguments should be preferred for new code.
+        // Create a managed pointer to manage the specified 'ptr' using the
+        // specified 'deleter' and associated 'cookie' to destroy 'ptr' when
+        // this managed pointer is destroyed or re-assigned (unless it is
+        // released before then).  If 0 == 'ptr', then this object will be
+        // initialized to an unset state.  The behavior is undefined if 'ptr'
+        // is already managed by another object.  If '0 == cookie' then
+        // behavior is undefined unless 'deleter' has defined behavior for null
+        // cookies.  Note that this function is *deprecated* as it relies on
+        // undefined compiler behavior for its implementation (that happens to
+        // perform as required on every known compiler).
 
     ~bdema_ManagedPtr();
         // Destroy this managed pointer object.  Destroy the object managed by
@@ -1060,7 +1055,7 @@ class bdema_ManagedPtr {
         // The behavior is undefined if 'ptr' is already managed by another
         // object or if '0 == factory && 0 != ptr'
 
-    void load(BDEMA_TYPE *ptr, void *factory, DeleterFunc  deleter);
+    void load(BDEMA_TYPE *ptr, void *cookie, DeleterFunc  deleter);
         // Destroy the current managed object (if any) and re-initialize this
         // managed pointer to manage the specified 'ptr' using the specified
         // 'deleter' with arguments 'ptr' and the specified 'factory' to
@@ -1074,7 +1069,7 @@ class bdema_ManagedPtr {
         // are removed.
 
     template <class BDEMA_TARGET_TYPE>
-    void load(BDEMA_TARGET_TYPE *ptr, void *factory, DeleterFunc deleter);
+    void load(BDEMA_TARGET_TYPE *ptr, void *cookie, DeleterFunc deleter);
         // Destroy the current managed object (if any) and re-initialize this
         // managed pointer to manage the specified 'ptr' using the specified
         // 'deleter' with arguments 'ptr' and the specified 'factory' to
@@ -1084,15 +1079,15 @@ class bdema_ManagedPtr {
         // undefined if 'ptr' is already managed by another object, or if
         // '0 == deleter && 0 != ptr'.
 
-    template <class BDEMA_TARGET_TYPE, typename BDEMA_FACTORY>
+    template <class BDEMA_TARGET_TYPE, typename BDEMA_COOKIE>
     void load(BDEMA_TARGET_TYPE *ptr,
-              BDEMA_FACTORY     *factory,
+              BDEMA_COOKIE      *cookie,
               DeleterFunc        deleter);
         // [!DEPRECATED!] Instead, use:
         //..
         //  template <class BDEMA_TARGET_TYPE>
         //  void load(BDEMA_TARGET_TYPE *ptr,
-        //            void              *factory,
+        //            void              *cookie,
         //            DeleterFunc        deleter);
         //..
         //
@@ -1106,13 +1101,13 @@ class bdema_ManagedPtr {
 
     template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
     void load(BDEMA_TARGET_TYPE *ptr,
-              void              *,
+              void              *cookie,
               void             (*deleter)(BDEMA_TARGET_BASE *, void*));
         // [!DEPRECATED!] Instead, use:
         //..
         //  template <class BDEMA_TARGET_TYPE>
         //  void load(BDEMA_TARGET_TYPE *ptr,
-        //            void              *factory,
+        //            void              *cookie,
         //            DeleterFunc        deleter);
         //..
         //
@@ -1128,24 +1123,22 @@ class bdema_ManagedPtr {
         // factory object when the user passes a deleter taking 'BDEMA_TYPE'
         // rather than 'void *', and the factory type is not used.  Note that
         // this function is *deprecated* as it relies on undefined compiler
-        // behavior for its implementation, that happens to to perform as
-        // required on every known compiler.  The overload taking a
-        // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
-        // new code.
+        // behavior for its implementation, that happens to perform as required
+        // on every known compiler.
 
     template <class BDEMA_TARGET_TYPE,
               class BDEMA_TARGET_BASE,
-              class BDEMA_FACTORY,
-              class BDEMA_BASE_FACTORY>
+              class BDEMA_COOKIE,
+              class BDEMA_COOKIE_BASE>
     void
     load(BDEMA_TARGET_TYPE *ptr,
-         BDEMA_FACTORY     *factory,
-         void             (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*));
+         BDEMA_COOKIE      *factory,
+         void             (*deleter)(BDEMA_TARGET_BASE*, BDEMA_COOKIE_BASE *));
         // [!DEPRECATED!] Instead, use:
         //..
         //  template <class BDEMA_TARGET_TYPE>
         //  void load(BDEMA_TARGET_TYPE *ptr,
-        //            void              *factory,
+        //            void              *cookie,
         //            DeleterFunc        deleter);
         //..
         //
@@ -1158,9 +1151,7 @@ class bdema_ManagedPtr {
         // undefined if 'ptr' is already managed by another managed pointer.
         // Note that this function is *deprecated* as it relies on undefined
         // compiler behavior for its implementation, that happens to perform
-        // as required on every known compiler.  The overload taking a
-        // 'DeleterFunc' (with two 'void *' arguments) should be preferred for
-        // new code.
+        // as required on every known compiler.
 
     template <class BDEMA_OTHER_TYPE>
     void loadAlias(bdema_ManagedPtr<BDEMA_OTHER_TYPE>& alias, BDEMA_TYPE *ptr);
@@ -1434,9 +1425,9 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
 template <class BDEMA_TYPE>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TYPE *ptr,
-                                               void       *factory,
+                                               void       *cookie,
                                                DeleterFunc deleter)
-: d_members(stripBasePointerType(ptr), factory, deleter)
+: d_members(stripBasePointerType(ptr), cookie, deleter)
 {
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 }
@@ -1445,10 +1436,10 @@ template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                                               void              *factory,
+                                               void              *cookie,
                                                DeleterFunc        deleter)
 : d_members(stripCompletePointerType(ptr),
-            factory,
+            cookie,
             deleter,
             stripBasePointerType(ptr))
 {
@@ -1462,7 +1453,7 @@ template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
-                                    void * factory,
+                                    void                         *cookie,
                                     void (*deleter)(BDEMA_TARGET_BASE*, void*))
 : d_members(stripCompletePointerType(ptr),
             0,
@@ -1475,22 +1466,22 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(BDEMA_TARGET_TYPE *ptr,
                         BDEMA_TARGET_TYPE *,
                         const BDEMA_TARGET_BASE *>::VALUE));
 
-    BSLS_ASSERT_SAFE(0 == factory);
+    BSLS_ASSERT_SAFE(0 == cookie);
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 }
 
 template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE,
           class BDEMA_TARGET_BASE,
-          class BDEMA_FACTORY,
-          class BDEMA_BASE_FACTORY>
+          class BDEMA_COOKIE,
+          class BDEMA_COOKIE_BASE>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
                       BDEMA_TARGET_TYPE *ptr,
-                      BDEMA_FACTORY     *factory,
-                      void (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*))
+                      BDEMA_COOKIE      *cookie,
+                      void (*deleter)(BDEMA_TARGET_BASE*, BDEMA_COOKIE_BASE *))
 : d_members(stripCompletePointerType(ptr),
-            factory,
+            static_cast<BDEMA_COOKIE_BASE *>(cookie),
             reinterpret_cast<DeleterFunc>(deleter),
             stripBasePointerType(ptr))
 {
@@ -1499,8 +1490,8 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
     BSLMF_ASSERT((bslmf_IsConvertible<
                         BDEMA_TARGET_TYPE *,
                         const BDEMA_TARGET_BASE *>::VALUE));
-    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_FACTORY *,
-                                      BDEMA_BASE_FACTORY *>::VALUE));
+    BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_COOKIE *,
+                                      BDEMA_COOKIE_BASE *>::VALUE));
 
     // Note that the undefined behavior embodied in the 'reinterpret_cast'
     // above could be removed by inserting an additional forwarding function
@@ -1529,14 +1520,14 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(bsl::nullptr_t, bsl::nullptr_t)
 template <class BDEMA_TYPE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE  *ptr,
-                                        void        *factory,
+                                        void        *cookie,
                                         DeleterFunc  deleter)
 {
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     d_members.runDeleter();
     d_members.set(stripBasePointerType(ptr),
-                  factory,
+                  cookie,
                   deleter);
 }
 
@@ -1544,8 +1535,8 @@ template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
-                                   void  *factory,
-                                   DeleterFunc deleter)
+                                        void              *cookie,
+                                        DeleterFunc        deleter)
 {
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TYPE *>::VALUE));
@@ -1553,16 +1544,16 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
 
     d_members.runDeleter();
     d_members.set(stripCompletePointerType(ptr),
-                  factory,
+                  cookie,
                   deleter);
     d_members.setAliasPtr(stripBasePointerType(ptr));
 }
 
 template <class BDEMA_TYPE>
-template <class BDEMA_TARGET_TYPE, typename BDEMA_FACTORY>
+template <class BDEMA_TARGET_TYPE, typename BDEMA_COOKIE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
-                                        BDEMA_FACTORY     *factory,
+                                        BDEMA_COOKIE      *cookie,
                                         DeleterFunc        deleter)
 {
     BSLMF_ASSERT((bslmf_IsConvertible<BDEMA_TARGET_TYPE *, BDEMA_TYPE *>
@@ -1571,7 +1562,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
 
     d_members.runDeleter();
     d_members.set(stripCompletePointerType(ptr),
-                  factory,
+                  cookie,
                   deleter);
     d_members.setAliasPtr(stripBasePointerType(ptr));
 }
@@ -1615,7 +1606,7 @@ template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE, class BDEMA_TARGET_BASE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
-                                   void  *,
+                                   void                   *cookie,
                                    void (*deleter)(BDEMA_TARGET_BASE *, void*))
 {
     BSLMF_ASSERT((!bslmf_IsVoid<BDEMA_TARGET_BASE>::VALUE ));
@@ -1623,6 +1614,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
                                        BDEMA_TYPE *>::VALUE));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TARGET_BASE *>::VALUE ));
+    BSLS_ASSERT_SAFE(0 == cookie);
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     this->load(ptr,
@@ -1633,24 +1625,24 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
 template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE,
           class BDEMA_TARGET_BASE,
-          class BDEMA_FACTORY,
-          class BDEMA_BASE_FACTORY>
+          class BDEMA_COOKIE,
+          class BDEMA_COOKIE_BASE>
 inline
 void bdema_ManagedPtr<BDEMA_TYPE>::load(
           BDEMA_TARGET_TYPE *ptr,
-          BDEMA_FACTORY     *factory,
-          void             (*deleter)(BDEMA_TARGET_BASE*, BDEMA_BASE_FACTORY*))
+          BDEMA_COOKIE      *cookie,
+          void             (*deleter)(BDEMA_TARGET_BASE*, BDEMA_COOKIE_BASE *))
 {
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TYPE *>::VALUE));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TARGET_BASE *>::VALUE ));
-    BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_FACTORY *,
-                                       BDEMA_BASE_FACTORY *>::VALUE ));
+    BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_COOKIE *,
+                                       BDEMA_COOKIE_BASE *>::VALUE ));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
     this->load(ptr,
-               static_cast<void *>(factory),
+               static_cast<void *>(static_cast<BDEMA_COOKIE_BASE *>(cookie)),
                reinterpret_cast<DeleterFunc>(deleter));
 }
 
@@ -1833,7 +1825,7 @@ bdema_ManagedPtr_Members *bdema_ManagedPtr_Ref<BDEMA_TYPE>::base() const
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
