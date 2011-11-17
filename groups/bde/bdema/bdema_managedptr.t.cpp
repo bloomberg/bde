@@ -205,10 +205,10 @@ typedef bdema_ManagedPtr<void> VObj;
 //                         HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 // The 'bsls_IsPolymorphic' trait does not work correctly on the following two
-// platforms, which causes 'bslma_DeleterHelper' to dispatch to an 
+// platforms, which causes 'bslma_DeleterHelper' to dispatch to an
 // implementation that cannot compile.
 #if !defined(BSLS_PLATFORM__CMP_GNU) && !defined(BSLS_PLATFORM__CMP_HP)
-#define BDEMA_TESTVIRTUALINHERITANCE 
+#define BDEMA_TESTVIRTUALINHERITANCE
 #endif
 
 #if defined BDEMA_TESTVIRTUALINHERITANCE
@@ -2267,7 +2267,7 @@ struct TestPolicy {
 
     template<class ObjectPolicy, class FactoryPolicy, class DeleterPolicy>
     TestPolicy(ObjectPolicy, FactoryPolicy, DeleterPolicy)
-    : testLoad(&doLoadObjectFactoryDeleter     
+    : testLoad(&doLoadObjectFactoryDeleter
                           <TARGET, ObjectPolicy, FactoryPolicy, DeleterPolicy>)
     , testCtor(&doConstructObjectFactoryDeleter
                           <TARGET, ObjectPolicy, FactoryPolicy, DeleterPolicy>)
@@ -2284,7 +2284,7 @@ struct TestPolicy {
                         TARGET, ObjectPolicy, FactoryPolicy,
                         DVoidVoid<DeleterObjectPolicy, DeleterFactoryPolicy> >)
     , testCtor(&doConstructObjectFactoryDeleter2
-                       <TARGET, ObjectPolicy, FactoryPolicy, 
+                       <TARGET, ObjectPolicy, FactoryPolicy,
                         DVoidVoid<DeleterObjectPolicy, DeleterFactoryPolicy> >)
     , d_configs(8)
     {
@@ -6965,7 +6965,7 @@ int main(int argc, char *argv[])
                         ASSERT(px == r.base()->pointer());
                         ASSERT(px == r.base()->deleter().object());
                         ASSERT(0 == r.base()->deleter().factory());
-                        ASSERT(&countedNilDelete == 
+                        ASSERT(&countedNilDelete ==
                                                 r.base()->deleter().deleter());
                     }
                 };
