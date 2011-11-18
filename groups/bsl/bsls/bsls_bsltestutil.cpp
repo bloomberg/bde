@@ -253,7 +253,7 @@ void bsls_BslTestUtil::printString(const char *s)
     printf("%s", s);
 }
 
-void bsls_BslTestUtil::printTab()
+void bsls_BslTestUtil::printTabAndFlush()
 {
     putchar('\t');
     flush();

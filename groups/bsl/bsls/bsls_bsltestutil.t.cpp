@@ -47,39 +47,39 @@ using namespace BloombergLP;
 // Then, we can write a test driver for this component.  We start by providing
 // the standard BDE assert test macro.
 //..
-//=============================================================================
-//                       STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
+    //=========================================================================
+    //                       STANDARD BDE ASSERT TEST MACRO
+    //-------------------------------------------------------------------------
+    static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
-{
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    static void aSsErT(bool b, const char *s, int i)
+    {
+        if (b) {
+            printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
+            if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+        }
     }
-}
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+    # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //..
 // Next, we define the standard print and LOOP_ASSERT macros, as aliases to the
 // macros defined by this component.
 //..
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
-#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+    //=========================================================================
+    //                       STANDARD BDE TEST DRIVER MACROS
+    //-------------------------------------------------------------------------
+    #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+    #define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+    #define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+    #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+    #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+    #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+    #define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+    #define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+    #define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+    #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+    #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 //..
 // Finally, we write the test case for the 'value' function of this component,
 // using the (standard) abbreviated macro names we have just defined.
