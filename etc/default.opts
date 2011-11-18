@@ -873,7 +873,7 @@ windows         _   MT_LIBTYPE  = L
     -Wall -Wextra -Wformat-security -Wformat-y2k -Winit-self \
     -Wno-long-long -Wno-unknown-pragmas \
     -Wpacked -Wpointer-arith \
-    -Wwrite-strings -Wno-unused-value -Wno-char-subscripts -Dlint -Wsign-compare \
+    -Wwrite-strings -Wno-unused-value -Wno-char-subscripts -Wsign-compare \
     -Wparentheses
 
 *-*-*-*-gcc-4 _  GCCEXTRAWFLAGS  = -Wlogical-op -Wstrict-overflow -Wvla \
