@@ -491,6 +491,8 @@ static void templateNilDelete(TARGET_TYPE *, void*)
 template<class BDEMA_TYPE>
 class AllocatorDeleter
 {
+    // This class provides a 'bdema_ManagedPtr' deleter that does *not* derive
+    // from 'bslma_Allocator'.
   public:
       static void deleter(BDEMA_TYPE *ptr, bslma_Allocator *alloc) {
           BSLS_ASSERT_SAFE(0 != ptr);
@@ -762,27 +764,35 @@ void validateManagedState(unsigned int                        LINE,
     ASSERT(dam.isMaxSame());
 }
 //=============================================================================
-//                      'LOAD' and constructor TESTING SUPPORT
+//                      'load' and constructor TESTING SUPPORT
 //-----------------------------------------------------------------------------
 // The following functions load a 'bdema_ManagedPtr' into a defined final state
 // assuming that it is passed in with an initial state known to the calling
 // function.  None of the following functions have their own test case, as they
-// are vital implementation details of testing the 'load' function, which in
-// turn is later used to test the basic accessors.  However, these functions
-// are very thoroughly exercised in the basic 'load' test case, in particular
-// by taking an empty 'bdema_ManagedPtr' and taking it to the known state
-// expected of each of these functions.  Similarly, we will test each
-// transition from every possible initial state through each of these functions
-// to validate all 'load' state transitions.  Essentially, these are
-// implementation details of the 'load' test case that may be deemed validated
-// by that test case, and so safely relied on for all later test cases.
+// are vital implementation details of testing the constructors, and of testing
+// the 'load' functions which, in turn, are later used to test the basic
+// accessors.  However, these functions are very thoroughly exercised in the
+// various 'load' and constructor test cases, in particular by taking an empty
+// 'bdema_ManagedPtr' and taking it to the known state expected of each of
+// these functions.  Similarly, we will test each transition from every
+// possible initial state through each of these functions to validate all
+// 'load' state transitions.  Essentially, these are implementation details of
+// the 'load' test cases that may be deemed validated by that test case, and so
+// safely relied on for all later test cases.
+//
+// Note that we are generating a very large test-space of test cases to ensure
+// that all valid type-deductions and conversions are syntax-checked through
+// the various overload sets for 'load' and 'bdema_ManagedPtr' constructors.
+// Attempts to manually test the valid combinations demonstrated that the only
+// way to be truly confident with this complex set of constraints was to
+// exhaustively generate every testable combination.  These test tables are
+// generated in a way to support automated tested of functions with varying
+// signatures though a single, simple framework.
 //
 // Each function below has the same signature so that they can be used to
 // populate a test table supporting table-driven testing techniques.  This will
 // enable exhaustive testing of the state space and transitions of holding
-// various kinds of 'bdema_ManagedPtr' objects.  The "move" and "alias" related
-// functions are tested subsequently as those facilities are tested in later
-// test cases.
+// various kinds of 'bdema_ManagedPtr' objects.
 //
 // Each function performs the same set of operations in turn:
 //: 1 Copy the initial values stored in passed pointers to compute the side-
@@ -808,6 +818,13 @@ void validateManagedState(unsigned int                        LINE,
 //: o 'void'
 //: o 'const void'
 //
+// Additionally, there are a small number of corner cases where the base class
+// does not have a virtual destructor, especially when the most derived object
+// is using multiple inheritence.  These additional states are tested with
+// smaller test tables for the 'Base', 'Base1', 'Base2' and 'Composite'
+// hierarchy.  A basic set of these tests are also added to the test table for
+// 'bdema_ManagedPtr<const void>'.
+//
 // The first pointer argument should be tested with a pointer of each of the
 // following types:
 //: o '0' literal
@@ -824,7 +841,7 @@ void validateManagedState(unsigned int                        LINE,
 //: o '0' literal
 //: o 'bslma_Allocator *'
 //: o 'ta' to test the specific 'bslma_TestAllocator' derived factory type
-//: 0 SOME OTHER FACTORY TYPE NOT DERIVED FROM BSLMA_TESTALLOCATOR
+//: 0 SOME OTHER FACTORY TYPE NOT DERIVED FROM BSLMA_TESTALLOCATOR [NOT TESTED]
 //
 // The 'deleter' argument will be tested with each of:
 //: o '0' literal
@@ -969,12 +986,20 @@ struct TestLoadArgs {
     // This struct holds the set of arguments that will be passed into a
     // policy based test function.  It collects all information for the range
     // of tests and expectations to be set up on entry, and reported on exit.
-    int  d_deleteCount; // An integer to be passed to 'MyTestObject's
-    int  d_deleteDelta; // Expected change in delete counter when a new value is 'load'ed
-    bool d_useDefault;  // Set to true if the test uses the default allocator
-    bslma_TestAllocator *d_ta; // pointer to a test allocator whose lifetime will outlast the function call
-    unsigned int d_config; // Valid values are 0-3.  The low-bit represents whether to pass a null for 'object', the second bit whether to pass a null for 'factory'
-    bdema_ManagedPtr<POINTER_TYPE> *d_p; // pointer to the long-lived managed pointer on which to execute tests
+    int d_deleteCount;          // Delete counter, whose address will be passed
+                                // to test object constructors.
+    int d_deleteDelta;          // Expected change in delete counter when a new
+                                // value is 'load'ed or destructor run.
+    bool d_useDefault;          // Set to true if the test uses the default
+                                // allocator
+    bslma_TestAllocator *d_ta;  // pointer to a test allocator whose lifetime
+                                // will outlast the function call
+    unsigned int d_config;      // Valid values are 0-3.
+                                // The low-bit represents whether to pass a
+                                // null for 'object', the second bit whether to
+                                // pass a null for 'factory'
+    bdema_ManagedPtr<POINTER_TYPE> *d_p; // pointer to the long-lived managed
+                                         // pointer on which to execute tests
 };
 
 template<typename POINTER_TYPE>
@@ -2359,7 +2384,8 @@ void testConstructors(int callLine,
                                            (bslma_Default::defaultAllocator());
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for (unsigned config = 0; config != TEST_ARRAY[i].configs(); ++config) {
+        for (unsigned config = 0; config != TEST_ARRAY[i].configs(); ++config)
+        {
             TestCtorArgs args = { false, config };
 
             bslma_TestAllocatorMonitor gam(ga);
@@ -2414,8 +2440,9 @@ void testLoadOps(int callLine,
 
     TestLoadArgs<TEST_TARGET> args = {};
 
-    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for(unsigned configI = 0; configI != TEST_ARRAY[i].configs(); ++configI) {
+    for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
+                                                                   ++configI) {
             bslma_TestAllocatorMonitor gam(&ga);
             bslma_TestAllocatorMonitor dam(&da);
 
@@ -2445,8 +2472,9 @@ void testLoadOps(int callLine,
                 LOOP_ASSERT(i, dam.isMaxSame());
             }
 
-            for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
-                for(unsigned configJ = 0; configJ != TEST_ARRAY[j].configs(); ++configJ) {
+            for (int j = 0; j != TEST_ARRAY_SIZE; ++j) {
+                for (unsigned configJ = 0; configJ != TEST_ARRAY[j].configs();
+                                                                   ++configJ) {
                     bslma_TestAllocatorMonitor dam2(&da);
 
                     bslma_TestAllocator ta("TestLoad 2",
@@ -2546,8 +2574,8 @@ void testLoadAliasOps1(int callLine,
     int aliasDeleterCount = 0;
     typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
 
-    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for(unsigned configI = 0; configI != TEST_ARRAY[i].configs();
+    for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
                                                                    ++configI) {
             bslma_TestAllocatorMonitor gam(&ga);
             bslma_TestAllocatorMonitor dam(&da);
@@ -2671,8 +2699,9 @@ void testLoadAliasOps2(int callLine,
     typename AliasTestType1<TEST_TARGET>::type alias1(&aliasDeleterCount1);
     typename AliasTestType2<TEST_TARGET>::type alias2(&aliasDeleterCount2);
 
-    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for(unsigned configI = 0; configI != TEST_ARRAY[i].configs(); ++configI) {
+    for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
+                                                                   ++configI) {
             bslma_TestAllocatorMonitor gam(&ga);
             bslma_TestAllocatorMonitor dam(&da);
 
@@ -2795,8 +2824,8 @@ void testLoadAliasOps3(int callLine,
     int aliasDeleterCount = 0;
     typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
 
-    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
+    for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for (int j = 0; j != TEST_ARRAY_SIZE; ++j) {
             bslma_TestAllocatorMonitor gam(&ga);
             bslma_TestAllocatorMonitor dam(&da);
 
@@ -2910,7 +2939,8 @@ void testConstructors(int callLine,
                                            (bslma_Default::defaultAllocator());
 
     for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for (unsigned config = 0; config != TEST_ARRAY[i].configs(); ++config) {
+        for (unsigned config = 0; config != TEST_ARRAY[i].configs(); ++config)
+        {
             TestCtorArgs args = { false, config};
 
             bslma_TestAllocatorMonitor gam(ga);
@@ -2954,8 +2984,9 @@ void testLoadAliasOps1(int callLine,
     int aliasDeleterCount = 0;
     typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
 
-    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for(unsigned configI = 0; configI != TEST_ARRAY[i].configs(); ++configI) {
+    for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
+                                                                   ++configI) {
             bslma_TestAllocatorMonitor gam(&ga);
             bslma_TestAllocatorMonitor dam(&da);
 
@@ -3080,8 +3111,9 @@ void testLoadAliasOps2(int callLine,
     typename AliasTestType1<TEST_TARGET>::type alias1(&aliasDeleterCount1);
     typename AliasTestType2<TEST_TARGET>::type alias2(&aliasDeleterCount2);
 
-    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for(unsigned configI = 0; configI != TEST_ARRAY[i].configs(); ++configI) {
+    for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for (unsigned configI = 0; configI != TEST_ARRAY[i].configs();
+                                                                   ++configI) {
             bslma_TestAllocatorMonitor gam(&ga);
             bslma_TestAllocatorMonitor dam(&da);
 
@@ -3206,8 +3238,8 @@ void testLoadAliasOps3(int callLine,
     int aliasDeleterCount = 0;
     typename AliasTestType1<TEST_TARGET>::type aliasTarget(&aliasDeleterCount);
 
-    for(int i = 0; i != TEST_ARRAY_SIZE; ++i) {
-        for(int j = 0; j != TEST_ARRAY_SIZE; ++j) {
+    for (int i = 0; i != TEST_ARRAY_SIZE; ++i) {
+        for (int j = 0; j != TEST_ARRAY_SIZE; ++j) {
             bslma_TestAllocatorMonitor gam(&ga);
             bslma_TestAllocatorMonitor dam(&da);
 
@@ -3291,6 +3323,14 @@ void testLoadAliasOps3(int callLine,
 }
 
 //=============================================================================
+// This is the test table for iterating constructor and load functions for
+// 'bdema_ManagedPtr<MyTestObject>'.  The same test table is created for each
+// of the main 5 tested pointer types, and then the invalid functions are
+// commented out, to audit that they have intentionally been reviewed and
+// rejected.  This allows us to compare the different test tables if a
+// discrepency occurs in the future.
+// In particular, this case does not support construction from pointers to
+// 'const' objects.
 static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     // default test
     TestPolicy<MyTestObject>(),
@@ -3683,6 +3723,13 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
     //TestPolicy<MyTestObject>( OCderiv(), Fbsl(), NullPolicy() )
 };
 
+//-----------------------------------------------------------------------------
+// This is the test table for iterating constructor and load functions for
+// 'bdema_ManagedPtr<MyTestObject>'.  The same test table is created for each
+// of the main 5 tested pointer types, and then the invalid functions are
+// commented out, to audit that they have intentionally been reviewed and
+// rejected.  This allows us to compare the different test tables if a
+// discrepency occurs in the future.
 static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     // default test
     TestPolicy<const MyTestObject>(),
@@ -4077,8 +4124,417 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     TestPolicy<const MyTestObject>( OCderiv(), Fbsl(), NullPolicy() )
 };
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This is the test table for iterating constructor and load functions for
+// 'bdema_ManagedPtr<MyTestObject>'.  The same test table is created for each
+// of the main 5 tested pointer types, and then the invalid functions are
+// commented out, to audit that they have intentionally been reviewed and
+// rejected.  This allows us to compare the different test tables if a
+// discrepency occurs in the future.
+// In particular, this case does not support construction from pointers to
+// 'const' objects, or from pointers to base objects.
+static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
+    // default test
+    TestPolicy<MyDerivedObject>(),
+
+    // single object-pointer tests
+    TestPolicy<MyDerivedObject>( NullPolicy() ),
+    TestPolicy<MyDerivedObject>( NullPolicy(), NullPolicy(), NullPolicy() ),
+    TestPolicy<MyDerivedObject>( NullPolicy(), NullPolicy() ),
+
+    //TestPolicy<MyDerivedObject>( Obase() ),
+    TestPolicy<MyDerivedObject>( Oderiv() ),
+    //TestPolicy<MyDerivedObject>( OCbase() ),
+    //TestPolicy<MyDerivedObject>( OCderiv() ),
+
+    // factory tests
+
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl() ),
+    // deleter tests
+
+    // First test the non-deprecated interface, using the policy
+    // 'DVoidVoid'.
+
+    // MyDerivedObject
+    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCbase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
+
+    // MyDerivedObject
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
+
+
+    // Also test a deleter that does not use the 'factory'
+    // argument.  These tests must also validate passing a null
+    // pointer lvalue as the 'factory' argument.
+    //TestPolicy<MyDerivedObject>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
+
+    // Also, verify null pointer literal can be used for the
+    // factory argument in each case.
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
+
+
+    // Next we test the deprecated support for deleters other than
+    // 'void (*)(void *, void *)', starting with deleters that
+    // type-erase the 'object' type, but have a strongly typed
+    // 'factory' argument.  Such deleters are generated by the
+    // 'DVoidFac' policy..
+
+    // MyDerivedObject
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DVoidFac< Obase,   Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
+
+    // MyDerivedObject
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Obase,   Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< Obase,   Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Ftst >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
+
+
+    // Also test a deleter that does not use the 'factory'
+    // argument.  These tests must also validate passing a null
+    // pointer lvalue as the 'factory' argument.
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<Obase,   Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
+
+    // Also, verify null pointer literal can be used for the
+    // factory argument in each case.
+    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
+    //               DELETERS THAT TYPE-ERASE THE FACTORY.
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
+
+    // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
+    // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
+    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
+
+
+    // Now we test deleters that are strongly typed for the
+    // 'object' parameter, but type-erase the 'factory'.
+
+    // MyDerivedObject
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjVoid< Obase,   Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
+
+    // MyDerivedObject
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Obase,   Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< Obase,   Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Ftst >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
+
+
+    // Also test a deleter that does not use the 'factory'
+    // argument.  These tests must also validate passing a null
+    // pointer lvalue as the 'factory' argument.
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<Obase,   Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
+
+    // Also, verify null pointer literal can be used for the
+    // factory argument in each case.
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
+
+
+    // Finally we test the most generic combination of generic
+    // object type, a factory, and a deleter taking two arguments
+    // compatible with pointers to the invoking 'object' and
+    // 'factory' types.
+
+    // MyDerivedObject
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjFac< Obase,   Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjFac< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
+
+    // MyDerivedObject
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Obase,   Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< Obase,   Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Obase,   Fbsl >() ),
+
+    // ... plus safe const-conversions
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCderiv, Ftst >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
+
+    // const MyDerivedObject
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Ftst >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Ftst >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjFac< OCbase,  Fbsl >() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
+
+
+    // Also test a deleter that does not use the 'factory'
+    // argument.  These tests must also validate passing a null
+    // pointer lvalue as the 'factory' argument.
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<Oderiv,  Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<Obase,   Fdflt>() ),
+
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjFac<OCbase,  Fdflt>() ),
+
+    // Also, verify null pointer literal can be used for the
+    // factory argument in each case.
+    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
+    //               DELETERS THAT TYPE-ERASE THE FACTORY.
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<Oderiv,  Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
+
+
+    // negative tests for deleters look for a null pointer lvalue.
+    // Note that null pointer literal would be a compile-fail test
+    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), NullPolicy() ),
+    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), NullPolicy() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), NullPolicy() ),
+    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), NullPolicy() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), NullPolicy() ),
+    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), NullPolicy() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), NullPolicy() ),
+    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), NullPolicy() )
+};
 
 //=============================================================================
+// This is the test table for iterating constructor and load functions for
+// 'bdema_ManagedPtr<MyTestObject>'.  The same test table is created for each
+// of the main 5 tested pointer types, and then the invalid functions are
+// commented out, to audit that they have intentionally been reviewed and
+// rejected.  This allows us to compare the different test tables if a
+// discrepency occurs in the future.
+// In particular, this case does not support construction from pointers to
+// 'const' objects.
 static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     // default test
     TestPolicy<void>(),
@@ -4492,6 +4948,13 @@ static const TestPolicy<void> TEST_POLICY_VOID_ARRAY[] = {
     //TestPolicy<void>( OCderiv(), Fbsl(), NullPolicy() )
 };
 
+//-----------------------------------------------------------------------------
+// This is the test table for iterating constructor and load functions for
+// 'bdema_ManagedPtr<MyTestObject>'.  The same test table is created for each
+// of the main 5 tested pointer types, and then the invalid functions are
+// commented out, to audit that they have intentionally been reviewed and
+// rejected.  This allows us to compare the different test tables if a
+// discrepency occurs in the future.
 static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     // default test
     TestPolicy<const void>(),
@@ -4909,6 +5372,12 @@ static const TestPolicy<const void> TEST_POLICY_CONST_VOID_ARRAY[] = {
     TestPolicy<const void>( OCderiv(), Fbsl(), NullPolicy() )
 };
 
+//=============================================================================
+// Here we add additional test cases for the deliberately awkward 'composite'
+// case, which does not use a virtual destructor.  Note that we cannot test
+// this on the couple of platforms where we get the wrong answer from the
+// 'bslmf_IsPolymorphic' type trait, as the workaround makes the 'Base' class
+// ambigious.
 #if defined(BDEMA_TESTVIRTUALINHERITANCE)
 static const TestPolicy<Base> TEST_POLICY_BASE0_ARRAY[] = {
     // default test
@@ -4924,13 +5393,14 @@ static const TestPolicy<Base> TEST_POLICY_BASE0_ARRAY[] = {
     // factory tests
     TestPolicy<Base>( NullPolicy(), NullPolicy() ),
 
-    TestPolicy<Base>( Ob1(),     Ftst() ),
-    TestPolicy<Base>( Ob1(),     Fbsl() ),
-    TestPolicy<Base>( Ob2(),     Ftst() ),
-    TestPolicy<Base>( Ob2(),     Fbsl() ),
-    TestPolicy<Base>( Ocomp(),   Ftst() ),
-    TestPolicy<Base>( Ocomp(),   Fbsl() ),
+    TestPolicy<Base>( Ob1(),   Ftst() ),
+    TestPolicy<Base>( Ob1(),   Fbsl() ),
+    TestPolicy<Base>( Ob2(),   Ftst() ),
+    TestPolicy<Base>( Ob2(),   Fbsl() ),
+    TestPolicy<Base>( Ocomp(), Ftst() ),
+    TestPolicy<Base>( Ocomp(), Fbsl() ),
 
+    // deleter tests
     TestPolicy<Base>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
     TestPolicy<Base>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
     TestPolicy<Base>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
@@ -4938,6 +5408,11 @@ static const TestPolicy<Base> TEST_POLICY_BASE0_ARRAY[] = {
 };
 #endif
 
+// This is the important test case for compites, where 'Base2' is the *second*
+// base class from 'Composite', which uses multiple inheritance.  Note that
+// this test is equally important for platforms where 'blsmf_IsPolymorphic' is
+// giving the wrong answer - that is why we have a second workaround version
+// of 'Composite' available for this test.
 static const TestPolicy<Base2> TEST_POLICY_BASE2_ARRAY[] = {
     // default test
     TestPolicy<Base2>(),
@@ -4945,419 +5420,22 @@ static const TestPolicy<Base2> TEST_POLICY_BASE2_ARRAY[] = {
     // single object-pointer tests
     TestPolicy<Base2>( NullPolicy() ),
 
-//    TestPolicy<Base2>( Ob1() ),
     TestPolicy<Base2>( Ob2() ),
     TestPolicy<Base2>( Ocomp() ),
 
     // factory tests
     TestPolicy<Base2>( NullPolicy(), NullPolicy() ),
 
-//    TestPolicy<const void>( Ob1(),     Ftst() ),
-//    TestPolicy<const void>( Ob1(),     Fbsl() ),
-    TestPolicy<Base2>( Ob2(),     Ftst() ),
-    TestPolicy<Base2>( Ob2(),     Fbsl() ),
-    TestPolicy<Base2>( Ocomp(),   Ftst() ),
-    TestPolicy<Base2>( Ocomp(),   Fbsl() ),
+    TestPolicy<Base2>( Ob2(),   Ftst() ),
+    TestPolicy<Base2>( Ob2(),   Fbsl() ),
+    TestPolicy<Base2>( Ocomp(), Ftst() ),
+    TestPolicy<Base2>( Ocomp(), Fbsl() ),
 
+    // deleter tests
     TestPolicy<Base2>( Ocomp(), Ftst(), DVoidVoid< Ocomp,   Ftst >() ),
     TestPolicy<Base2>( Ocomp(), Fbsl(), DVoidVoid< Ocomp,   Fbsl >() ),
     TestPolicy<Base2>( Ocomp(), Ftst(), DObjFac< Ocomp,   Ftst >() ),
     TestPolicy<Base2>( Ocomp(), Fbsl(), DObjFac< Ocomp,   Fbsl >() ),
-};
-
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-static const TestPolicy<MyDerivedObject> TEST_POLICY_DERIVED_ARRAY[] = {
-    // default test
-    TestPolicy<MyDerivedObject>(),
-
-    // single object-pointer tests
-    TestPolicy<MyDerivedObject>( NullPolicy() ),
-    TestPolicy<MyDerivedObject>( NullPolicy(), NullPolicy(), NullPolicy() ),
-    TestPolicy<MyDerivedObject>( NullPolicy(), NullPolicy() ),
-
-    //TestPolicy<MyDerivedObject>( Obase() ),
-    TestPolicy<MyDerivedObject>( Oderiv() ),
-    //TestPolicy<MyDerivedObject>( OCbase() ),
-    //TestPolicy<MyDerivedObject>( OCderiv() ),
-
-    // factory tests
-
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl() ),
-    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst() ),
-    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl() ),
-    // deleter tests
-
-    // First test the non-deprecated interface, using the policy
-    // 'DVoidVoid'.
-
-    // MyDerivedObject
-    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
-    //TestPolicy<MyDerivedObject>( Obase(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
-
-    // ... plus safe const-conversions
-    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
-    //TestPolicy<MyDerivedObject>( Obase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( Obase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
-
-    // const MyDerivedObject
-    //TestPolicy<MyDerivedObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
-    //TestPolicy<MyDerivedObject>( OCbase(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
-
-    // MyDerivedObject
-    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Ftst >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Obase,   Ftst >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< Oderiv,  Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< Obase,   Fbsl >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Oderiv,  Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< Obase,   Fbsl >() ),
-
-    // ... plus safe const-conversions
-    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
-
-    // const MyDerivedObject
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Ftst >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Ftst >() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidVoid< OCderiv, Fbsl >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidVoid< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCderiv, Fbsl >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidVoid< OCbase,  Fbsl >() ),
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    //TestPolicy<MyDerivedObject>( Obase(),  Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Obase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<Oderiv,  Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<Obase,   Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidVoid<OCderiv, Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidVoid<OCbase,  Fdflt>() ),
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<Oderiv,  Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<Obase,   Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidVoid<OCderiv, Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidVoid<OCbase,  Fdflt>() ),
-
-
-    // Next we test the deprecated support for deleters other than
-    // 'void (*)(void *, void *)', starting with deleters that
-    // type-erase the 'object' type, but have a strongly typed
-    // 'factory' argument.  Such deleters are generated by the
-    // 'DVoidFac' policy..
-
-    // MyDerivedObject
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< Obase,   Ftst >() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DVoidFac< Obase,   Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< Obase,   Fbsl >() ),
-
-    // ... plus safe const-conversions
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< OCbase,  Ftst >() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DVoidFac< OCbase,  Fbsl >() ),
-
-    // const MyDerivedObject
-    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
-    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
-
-    // MyDerivedObject
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Ftst >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Obase,   Ftst >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< Oderiv,  Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< Obase,   Fbsl >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Oderiv,  Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< Obase,   Fbsl >() ),
-
-    // ... plus safe const-conversions
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Ftst >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Ftst >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCderiv, Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DVoidFac< OCbase,  Fbsl >() ),
-
-    // const MyDerivedObject
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Ftst >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Ftst >() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidFac< OCderiv, Fbsl >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DVoidFac< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCderiv, Fbsl >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DVoidFac< OCbase,  Fbsl >() ),
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DVoidFac<Obase,   Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<Oderiv,  Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<Obase,   Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidFac<OCderiv, Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DVoidFac<OCbase,  Fdflt>() ),
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<Oderiv,  Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<Obase,   Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
-
-    // HERE WE ARE DOUBLY-BROKEN AS CV-QUALIFIED TYPES ARE NOT
-    // SUPPORTED FOR TYPE-ERASURE THROUGH DELETER
-    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidFac<OCderiv, Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DVoidFac<OCbase,  Fdflt>() ),
-
-
-    // Now we test deleters that are strongly typed for the
-    // 'object' parameter, but type-erase the 'factory'.
-
-    // MyDerivedObject
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< Obase,   Ftst >() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjVoid< Obase,   Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< Obase,   Fbsl >() ),
-
-    // ... plus safe const-conversions
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< OCbase,  Ftst >() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjVoid< OCbase,  Fbsl >() ),
-
-    // const MyDerivedObject
-    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
-    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
-
-    // MyDerivedObject
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Ftst >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Obase,   Ftst >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< Oderiv,  Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< Obase,   Fbsl >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Oderiv,  Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< Obase,   Fbsl >() ),
-
-    // ... plus safe const-conversions
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Ftst >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Ftst >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCderiv, Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjVoid< OCbase,  Fbsl >() ),
-
-    // const MyDerivedObject
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Ftst >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Ftst >() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjVoid< OCderiv, Fbsl >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjVoid< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCderiv, Fbsl >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjVoid< OCbase,  Fbsl >() ),
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjVoid<Obase,   Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<Oderiv,  Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<Obase,   Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjVoid<OCderiv, Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjVoid<OCbase,  Fdflt>() ),
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<Oderiv,  Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<Obase,   Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjVoid<OCderiv, Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjVoid<OCbase,  Fdflt>() ),
-
-
-    // Finally we test the most generic combination of generic
-    // object type, a factory, and a deleter taking two arguments
-    // compatible with pointers to the invoking 'object' and
-    // 'factory' types.
-
-    // MyDerivedObject
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< Obase,   Ftst >() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjFac< Obase,   Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< Obase,   Fbsl >() ),
-
-    // ... plus safe const-conversions
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< OCbase,  Ftst >() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), DObjFac< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), DObjFac< OCbase,  Fbsl >() ),
-
-    // const MyDerivedObject
-    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
-    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
-
-    // MyDerivedObject
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Ftst >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Obase,   Ftst >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< Oderiv,  Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< Obase,   Fbsl >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Oderiv,  Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< Obase,   Fbsl >() ),
-
-    // ... plus safe const-conversions
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCderiv, Ftst >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCbase,  Ftst >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< OCderiv, Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), DObjFac< OCbase,  Fbsl >() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCderiv, Fbsl >() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), DObjFac< OCbase,  Fbsl >() ),
-
-    // const MyDerivedObject
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Ftst >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Ftst >() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjFac< OCderiv, Fbsl >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), DObjFac< OCbase,  Fbsl >() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCderiv, Fbsl >() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), DObjFac< OCbase,  Fbsl >() ),
-
-
-    // Also test a deleter that does not use the 'factory'
-    // argument.  These tests must also validate passing a null
-    // pointer lvalue as the 'factory' argument.
-    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjFac<Obase,   Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fdflt(), DObjFac<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<Oderiv,  Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<Obase,   Fdflt>() ),
-
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<OCderiv, Fdflt>() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fdflt(), DObjFac<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjFac<OCderiv, Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fdflt(), DObjFac<OCbase,  Fdflt>() ),
-
-    // Also, verify null pointer literal can be used for the
-    // factory argument in each case.
-    // DESIGN NOTE - NULL POINTER LITERALS CAN BE USED ONLY WITH
-    //               DELETERS THAT TYPE-ERASE THE FACTORY.
-    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Obase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCbase(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<Oderiv,  Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<Obase,   Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( Oderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
-
-    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjFac<OCderiv, Fdflt>() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), NullPolicy(), DObjFac<OCbase,  Fdflt>() ),
-
-
-    // negative tests for deleters look for a null pointer lvalue.
-    // Note that null pointer literal would be a compile-fail test
-    //TestPolicy<MyDerivedObject>( Obase(),   Ftst(), NullPolicy() ),
-    //TestPolicy<MyDerivedObject>( Obase(),   Fbsl(), NullPolicy() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Ftst(), NullPolicy() ),
-    TestPolicy<MyDerivedObject>( Oderiv(),  Fbsl(), NullPolicy() ),
-    //TestPolicy<MyDerivedObject>( OCbase(),  Ftst(), NullPolicy() ),
-    //TestPolicy<MyDerivedObject>( OCbase(),  Fbsl(), NullPolicy() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Ftst(), NullPolicy() ),
-    //TestPolicy<MyDerivedObject>( OCderiv(), Fbsl(), NullPolicy() )
 };
 
 } // close anonymous namespace
