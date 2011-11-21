@@ -173,6 +173,10 @@ struct NoPrintUtil {
     }
 };
 
+void testFunctionAddress(int x)
+{
+}
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -425,7 +429,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 1
+        // TESTING USAGE EXAMPLE
         //
         // Concerns: That it compiles
         //
@@ -437,6 +441,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << endl << "Usage Example 1" << endl
                                   << "===============" << endl;
+
+        // Tested above
 
       } break;
       case 18: {
@@ -771,9 +777,8 @@ int main(int argc, char *argv[])
         //:   level, and expected output of 'printOrNull' when called with a
         //:   null pointer.  For each set of values in the table, ensure that
         //:   the actual output of 'printOrNull' when called with a null
-        //:   pointer of type 'void *', 'const void *', 'volatile void *',
-        //:   'volatile const void *', 'const char *', 'int *' and 'HasPrint *'
-        //:   is the same as the expected output.
+        //:   pointer of type 'void *', 'const void *', 'const char *',
+        //:  'int *' and 'HasPrint *' is the same as the expected output.
         //
         // Testing:
         //   template<class TYPE>
@@ -811,10 +816,6 @@ int main(int argc, char *argv[])
                 Obj pV(&vOut, LEVEL, SPL); pV.printOrNull(data, 0);
                 Obj pCV(&cvOut, LEVEL, SPL);
                 pCV.printOrNull((const void *)data, 0);
-                Obj pVV(&vvOut, LEVEL, SPL);
-                pVV.printOrNull((volatile void *)data, 0);
-                Obj pVCV(&vcvOut, LEVEL, SPL);
-                pVCV.printOrNull((volatile const void *)data, 0);
                 Obj pC(&cOut, LEVEL, SPL);
                 pC.printOrNull((const char *)data, 0);
                 Obj pI(&iOut, LEVEL, SPL); pI.printOrNull((int *)data, 0);
@@ -834,24 +835,6 @@ int main(int argc, char *argv[])
                 // const void *
                 {
                     const bsl::string& ACTUAL = cvOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // volatile void *
-                {
-                    const bsl::string& ACTUAL = vvOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // volatile const void *
-                {
-                    const bsl::string& ACTUAL = vcvOut.str();
                     if (veryVeryVerbose) {
                         cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
                              << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
@@ -895,8 +878,7 @@ int main(int argc, char *argv[])
         // Concerns: That 'printOrNull'
         //: 1 prints the address held by the pointer in hexadecimal format, but
         //:   does not attempt to dereference the pointer if the pointer type
-        //:   is 'void *', 'const void *', 'volatile void *' or
-        //:   'volatile const void *'.
+        //:   is 'void *', or  'const void *'.
         //: 2 dereferences the pointer and prints a character if the
         //:   pointer type is 'const char *'.
         //: 3 dereferences the pointer and prints the held value if the
@@ -911,10 +893,9 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'printOrNull' when called with a
-        //:   'void *', 'const void *', 'volatile void *' or
-        //:   'volatile const void *'.  For each set of values in the table,
-        //:   ensure that the actual output of 'printOrNull' is the same as the
-        //:   expected output.
+        //:   'void *', or 'const void *'.  For each set of values in the
+        //:   table, ensure that the actual output of 'printOrNull' is the
+        //:   same as the expected output.
         //: 2 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'printOrNull' when called with a
         //:   'const char *'.  For each set of values in the table, ensure that
@@ -969,10 +950,6 @@ int main(int argc, char *argv[])
                 Obj p(&out, LEVEL, SPL); p.printOrNull(data, 0);
                 Obj pC(&cOut, LEVEL, SPL);
                 pC.printOrNull((const void *)data, 0);
-                Obj pV(&vOut, LEVEL, SPL);
-                pV.printOrNull((volatile void *)data, 0);
-                Obj pVC(&vcOut, LEVEL, SPL);
-                pVC.printOrNull((volatile const void *)data, 0);
 
                 ostringstream ptr;
                 ptr << hex << showbase
@@ -994,24 +971,6 @@ int main(int argc, char *argv[])
                 // const void *
                 {
                     const bsl::string& ACTUAL = cOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // volatile void *
-                {
-                    const bsl::string& ACTUAL = vOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // volatile const void *
-                {
-                    const bsl::string& ACTUAL = vcOut.str();
                     if (veryVeryVerbose) {
                         cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
                              << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
@@ -1287,9 +1246,8 @@ int main(int argc, char *argv[])
         //:   level, and expected output of 'print' when called with a null
         //:   pointer.  For each set of values in the table, ensure that the
         //:   actual output of 'print' when called with a null pointer of type
-        //:   'void *', 'const void *', 'volatile void *',
-        //:   'volatile const void *', 'const char *', 'int *' and 'HasPrint *'
-        //:   is the same as the expected output.
+        //:   'void *', 'const void *', 'const char *', 'int *' and
+        //:  'HasPrint *' is the same as the expected output.
         //
         // Testing:
         //   template<class TYPE>
@@ -1315,90 +1273,57 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA;  ++i) {
+
+                typedef void (*functionPtr)(int);
                 const int LINE  = DATA[i].d_lineNum;
                 int LEVEL = DATA[i].d_level;
                 int SPL   = DATA[i].d_spacesPerLevel;
 
                 if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
 
-                ostringstream vOut, cvOut, vvOut, vcvOut, cOut, iOut, uOut;
+                ostringstream vOut, cvOut, vvOut, vcvOut, cOut, iOut, uOut,
+                              fOut;
 
                 void *data = 0;
-                Obj pV(&vOut, LEVEL, SPL); pV.print(data, 0);
+                Obj pV(&vOut, LEVEL, SPL); pV.print((const void *)data, 0);
                 Obj pCV(&cvOut, LEVEL, SPL); pCV.print((const void *)data, 0);
-                Obj pVV(&vvOut, LEVEL, SPL);
-                pVV.print((volatile void *)data, 0);
-                Obj pVCV(&vcvOut, LEVEL, SPL);
-                pVCV.print((volatile const void *)data, 0);
                 Obj pC(&cOut, LEVEL, SPL); pC.print((const char *)data, 0);
                 Obj pI(&iOut, LEVEL, SPL); pI.print((int *)data, 0);
                 Obj pU(&uOut, LEVEL, SPL); pU.print((HasPrint *)data, 0);
-
+                Obj pF(&fOut, LEVEL, SPL); pF.print((functionPtr)data, 0);
                 const bsl::string& EXPECTED = DATA[i].d_expected;
 
                 // void *
                 {
                     const bsl::string& ACTUAL = vOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
                     LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
                 }
                 // const void *
                 {
                     const bsl::string& ACTUAL = cvOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // volatile void *
-                {
-                    const bsl::string& ACTUAL = vvOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // volatile const void *
-                {
-                    const bsl::string& ACTUAL = vcvOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
                     LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
                 }
                 // const char *
                 {
                     const bsl::string& ACTUAL = cOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
                     LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
                 }
                 // int *
                 {
                     const bsl::string& ACTUAL = iOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
                     LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
                 }
                 // HasPrint *
                 {
                     const bsl::string& ACTUAL = uOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
                     LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
                 }
+                // functionPtr *
+                {
+                    const bsl::string& ACTUAL = fOut.str();
+                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+                }
+
             }
         }
       } break;
@@ -1409,8 +1334,7 @@ int main(int argc, char *argv[])
         // Concerns: That 'print'
         //: 1 prints the address held by the pointer in hexadecimal format, but
         //:   does not attempt to dereference the pointer if the pointer type
-        //:   is 'void *', 'const void *', 'volatile void *' or
-        //:   'volatile const void *'.
+        //:   is 'void *' or 'const void *'.
         //: 2 prints the input as a null-terminated C-style string if the
         //:   pointer is of type 'const char *'.
         //: 3 prints the address held by the pointer type, and then
@@ -1427,8 +1351,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 Create a table having fields for line number, level, spaces per
         //:   level, and expected output of 'print' when called with a
-        //:   'void *', 'const void *', 'volatile void *' or
-        //:   'volatile const void *'.  For each set of values in the table,
+        //:   'void *', 'const void *'.  For each set of values in the table,
         //:   ensure that the actual output of 'print' is the same as the
         //:   expected output.
         //: 2 Create a table having fields for line number, level, spaces per
@@ -1481,9 +1404,6 @@ int main(int argc, char *argv[])
                 void *data = reinterpret_cast<void *> (0xdeadbeef);
                 Obj p(&out, LEVEL, SPL); p.print(data, 0);
                 Obj pC(&cOut, LEVEL, SPL); pC.print((const void *)data, 0);
-                Obj pV(&vOut, LEVEL, SPL); pV.print((volatile void *)data, 0);
-                Obj pVC(&vcOut, LEVEL, SPL);
-                pVC.print((volatile const void *)data, 0);
 
                 stringstream exp;
                 exp << hex << showbase
@@ -1507,26 +1427,6 @@ int main(int argc, char *argv[])
                 {
                     if (veryVerbose) cout << "\nconst void *\n";
                     const bsl::string& ACTUAL = cOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // volatile void *
-                {
-                    if (veryVerbose) cout << "\nvolatile void *\n";
-                    const bsl::string& ACTUAL = vOut.str();
-                    if (veryVeryVerbose) {
-                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
-                    }
-                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }
-                // volatile const void *
-                {
-                    if (veryVerbose) cout << "\nvolatile const void *\n";
-                    const bsl::string& ACTUAL = vcOut.str();
                     if (veryVeryVerbose) {
                         cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
                              << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
@@ -1558,20 +1458,34 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
 
-                ostringstream out;
+
                 const char *data = "testing char *";
-                Obj p(&out, LEVEL, SPL); p.print(data, 0);
 
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(), data);
                 const bsl::string EXPECTED(buf);
-                const bsl::string& ACTUAL = out.str();
 
-                if (veryVeryVerbose) {
-                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
-                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                {
+                    ostringstream out;
+                    Obj p(&out, LEVEL, SPL);
+                    p.print(data, 0);
+                    const bsl::string& ACTUAL = out.str();
+                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
                 }
-                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+                {
+                    ostringstream out;
+                    Obj p(&out, LEVEL, SPL);
+                    p.print(const_cast<char *>(data), 0);
+                    const bsl::string& ACTUAL = out.str();
+                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+                }
+                {
+                    ostringstream out;
+                    Obj p(&out, LEVEL, SPL);
+                    p.print("testing char *", 0);
+                    const bsl::string& ACTUAL = out.str();
+                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+                }
             }
         }
         {
@@ -1656,6 +1570,50 @@ int main(int argc, char *argv[])
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
                                                      ptr.str().c_str(), tData);
+                const bsl::string EXPECTED(buf);
+                const bsl::string& ACTUAL = out.str();
+
+                if (veryVeryVerbose) {
+                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
+                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                }
+                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+            }
+        }
+        {
+            if (verbose) cout << "function pointers" << endl
+                              << "-----------------" << endl;
+            static const struct {
+                int         d_lineNum;        // source line number
+                int         d_level;          // indentation level
+                int         d_spacesPerLevel; // spaces per indentation level
+                bsl::string d_expected;       // expected output format
+            } DATA[] = {
+                //LINE  LEVEL SPL EXPECTED OUTPUT
+                //----  ----- --- --------------
+                { L_,    2,    2, "      %s\n" },
+                { L_,    2,   -2, " %s"        },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA;  ++i) {
+                const int LINE  = DATA[i].d_lineNum;
+                int LEVEL = DATA[i].d_level;
+                int SPL   = DATA[i].d_spacesPerLevel;
+
+                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+
+                ostringstream out;
+                void (*functionPtr)(int) = testFunctionAddress;
+                Obj p(&out, LEVEL, SPL); p.print(functionPtr, 0);
+
+                ostringstream ptr;
+                ptr << hex << showbase
+                    << reinterpret_cast<bsls_Types::UintPtr>(functionPtr);
+                char buf[999];
+                snprintf(buf, 999, DATA[i].d_expected.c_str(),
+                                   ptr.str().c_str());
                 const bsl::string EXPECTED(buf);
                 const bsl::string& ACTUAL = out.str();
 
@@ -1984,8 +1942,8 @@ int main(int argc, char *argv[])
         //
         // Concerns: 'end' prints the correct indentation for different values
         // of 'level' and 'spacesPerLevel' and ']' if 'suppressBracket' is
-        // 'false', and does not print the indentation and ']' otherwise. 'end'
-        // should also print a newline if 'spacesPerLevel' >= 0.
+        // 'false', and does not print the indentation and ']' otherwise.
+        // 'end' should also print a newline if 'spacesPerLevel' >= 0.
         //
         // Plan:
         //: 1 Create a table having fields for line number, level, spaces per
