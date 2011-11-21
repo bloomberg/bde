@@ -833,7 +833,7 @@ inline
 void bdem_RowLayout::remove(int index)
 {
     BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(index < d_entries.size());
+    BSLS_ASSERT_SAFE(index < (int) d_entries.size());
 
     d_entries.erase(d_entries.begin() + index);
 }
@@ -843,7 +843,7 @@ void bdem_RowLayout::remove(int index, int numElements)
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(0 <= numElements);
-    BSLS_ASSERT_SAFE(index + numElements <= d_entries.size());
+    BSLS_ASSERT_SAFE(index + numElements <= (int) d_entries.size());
 
     d_entries.erase(d_entries.begin() + index,
                     d_entries.begin() + index + numElements);
@@ -876,9 +876,9 @@ inline
 void bdem_RowLayout::swap(int index1, int index2)
 {
     BSLS_ASSERT_SAFE(0 <= index1);
-    BSLS_ASSERT_SAFE(index1 < d_entries.size());
+    BSLS_ASSERT_SAFE(index1 < (int) d_entries.size());
     BSLS_ASSERT_SAFE(0 <= index2);
-    BSLS_ASSERT_SAFE(index2 < d_entries.size());
+    BSLS_ASSERT_SAFE(index2 < (int) d_entries.size());
 
     bsl::swap(d_entries[index1], d_entries[index2]);
 }
@@ -977,7 +977,7 @@ inline
 const bdem_RowLayoutEntry& bdem_RowLayout::operator[](int index) const
 {
     BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(index < d_entries.size());
+    BSLS_ASSERT_SAFE(index < (int) d_entries.size());
 
     return d_entries[index];
 }
