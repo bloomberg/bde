@@ -9,6 +9,7 @@
 *.tsk
 *.exe
 *.exp
+*.tmp
 # ignore vim swapfiles
 .*.sw?
 *~

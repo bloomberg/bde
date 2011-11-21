@@ -16,50 +16,50 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION:
-// The standard 'allocator_traits' class template is defined in the C++0x FDIS
-// as a uniform mechanism for accessing types of, and operations on, any
-// standard-conforming allocator.  A 'allocator_traits' specialization is
-// stateless and all of its member functions are static.  In most cases,
-// facilities of 'allocator_traits' is are straight pass-throughs for the same
-// facilities from the 'ALLOC' template parameter.  For example,
+//@DESCRIPTION: The standard 'allocator_traits' class template is defined in
+// the C++11 standard as a uniform mechanism for accessing types of, and
+// operations on, any standard-conforming allocator.  A 'allocator_traits'
+// specialization is stateless and all of its member functions are static.  In
+// most cases, facilities of 'allocator_traits' is are straight pass-throughs
+// for the same facilities from the 'ALLOC' template parameter.  For example,
 // 'allocator_traits<X>::pointer' is the same as 'X::pointer' and
 // 'allocator_traits<X>::allocate(x, n)' is the same as 'x.allocate(n)'.  The
 // advantage of using 'allocator_traits' instead of directly using the
 // allocator is that the 'allocator_traits' interface can supply parts of the
 // interface that are missing from 'ALLOC'.  In fact, the most important
-// purpose of 'allocator_traits' is to provide implementations of C++0x
+// purpose of 'allocator_traits' is to provide implementations of C++11
 // allocator features that were absent in C++03, thus allowing a C++03
-// allocator to work with C++0x containers.
+// allocator to work with C++11 containers.
 //
-// This component provides a full C++0x interface for 'allocator_traits', but
+// This component provides a full C++11 interface for 'allocator_traits', but
 // constrains the set of allocator types on which it may be instantiated.
 // Specifically, this implemention does not provide defaults for C++03 types
-// and functions and has hard-wired implementations of the new C++0x features.
+// and functions and has hard-wired implementations of the new C++11 features.
 // Thus, the 'allocator_traits' template cannot be instantiated on an
 // allocator type that does not provide a full compliment of C++03 types and
-// functions, and it will ignore any special C++0x features specified in
+// functions, and it will ignore any special C++11 features specified in
 // 'ALLOC'.  The reason for this limitation is that Bloomberg's compilers do
 // not implement all of the features needed for the metaprogramming that would
-// be required to fully implement the C++0x standard.  The use of this
-// interface is useful, however, as a way to future-proof containers against
-// the eventual implementation of the full feature set, and to take advantage
-// of the Bloomberg-specific features described below.
+// be required to fully implement the C++11 standard.  This interface is
+// useful, however, as a way to future-proof containers against the eventual
+// implementation of the full feature set, and to take advantage of the
+// Bloomberg-specific features described below.
 //
-// There are two important C++0x features provided by the 'allocator_traits'
-// interface: The 'construct' function with a variadic argument list (limited
-// to 5 constructor arguments on compilers that don't support variadic
-// templates), and the allocator-propagation traits.  The implementations of
-// these features within this component are tuned to Bloomberg's needs.  The
-// 'construct' member function will automatically forward the iterator to the
-// constructed object iff the 'ALLOC' parameter is convertible to from
-// 'bslma_Allocator*' and the object being constructed has the
-// 'bslalg_TypeTraitUsesBslmaAllocator' type trait, as per standard Bloomberg
-// practice.  The 'select_on_container_copy_construction' will return a
-// default-constructed allocator iff 'ALLOC' is convertible to from
-// 'bslma_Allocator*' because bslma allocators should not be copied when a
-// container is copy-constructed.  The other propagation traits all have a
-// 'false' value, so allocators are not propagated on assignment and swap.
+// There are two important (new) C++11 features provided by the
+// 'allocator_traits' interface: The 'construct' function with a variadic
+// argument list (limited to 5 constructor arguments on compilers that don't
+// support variadic templates), and the allocator-propagation traits.  The
+// implementations of these features within this component are tuned to
+// Bloomberg's needs.  The 'construct' member function will automatically
+// forward the iterator to the constructed object iff the 'ALLOC' parameter is
+// convertible from 'bslma_Allocator*' and the object being constructed has
+// the 'bslalg_TypeTraitUsesBslmaAllocator' type trait, as per standard
+// Bloomberg practice.  The 'select_on_container_copy_construction' static
+// member will return a default-constructed allocator iff 'ALLOC' is
+// convertible to from 'bslma_Allocator*' because bslma allocators should not
+// be copied when a container is copy-constructed.  The other propagation
+// traits all have a 'false' value, so allocators are not propagated on
+// assignment and swap.
 //
 ///Usage
 ///-----
@@ -119,8 +119,8 @@ BSLS_IDENT("$Id: $")
 //      AllocTraits::construct(d_allocator, d_valueptr, v);
 //  }
 //..
-// The copy constructor needs to conditinally copy the allocator from the
-// 'other' container.  It uses
+// The copy constructor for 'my_Container' needs to conditinally copy the
+// allocator from the 'other' container.  It uses
 // 'allocator_traits::select_on_container_copy_construction' to decide whether
 // to copy the 'other' allocator (for non-bslma allocators) or to
 // default-construct the allocator (for bslma allocators).

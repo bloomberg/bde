@@ -4,10 +4,13 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <climits>
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslstl_allocator.h>
 #include <bslalg_typetraitsgroupstlsequence.h>
+#include <bslmf_issame.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -16,8 +19,66 @@ using namespace std;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The class under test is a traits class having no state and only static
+// member functions.  The class is templated on an allocator class and most of
+// the public types and (static member) functions are pass-through's to the
+// underlying allocator class's public types and methods.  Therefore, most of
+// the testing is simply to ensure that the pass-through is correct.  The
+// 'construct' function is more complex than the rest -- it doesn't call the
+// underlying allocator's 'construct' method but instead uses placement new to
+// construct an object in one of two ways: If the allocator type follows the
+// 'bslma' allocator model, and if the object being constructed accepts a
+// 'bslma_Allocator*' argument, then the allocator itself is passed as an
+// extra argument to the object's constructor; otherwise, the arguments to
+// 'construct' are passed to object's constructors unchanged.  The test for
+// 'construct' must therefore test different combinations of both 'bslma' and
+// non-'bslma' allocator classes and both 'bslma'-compliant and
+// non-'bslma'-compliant object types.
 //
+// This test plan tests each public member of 'allocator_traits' in turn.  The
+// type members are needed by the function members, so they are tested first.
+// Other than that, there is no hierarchical relationship among the members,
+// so the order of test is arbitrary
 //
+// Abbreviations:
+// --------------
+// Throughout this test driver, we use
+//     A            ALLOC (template argument, default: bsl::allocator<T>)
+//     T            A type argument to a template function
+//     traits       bsl::allocator_traits<A>
+//     Args...      shorthand for a family of templates <A1>, <A1,A2>, etc.
+//
+// ----------------------------------------------------------------------------
+// 
+// NESTED TYPES:
+// [  ] allocator_type    
+// [  ] value_type        
+// [  ] pointer           
+// [  ] const_pointer     
+// [  ] void_pointer      
+// [  ] const_void_pointer
+// [  ] difference_type   
+// [  ] size_type
+// [  ] rebind_alloc<T1>
+// [  ] rebind_traits<T1>
+// [  ] propagate_on_container_copy_assignment
+// [  ] propagate_on_container_move_assignment;
+// [  ] propagate_on_container_swap
+//
+// STATIC MEMBER FUNCTIONS:
+// [  ] pointer allocate(ALLOC& a, size_type n);
+// [  ] pointer allocate(ALLOC& a, size_type n, const_void_pointer hint);
+// [  ] void deallocate(ALLOC& a, pointer p, size_type n);
+// [  ] void construct(ALLOC& a, T *p, Args&&... args);
+// [  ] void destroy(ALLOC& a, T* p);
+// [  ] size_type max_size(const ALLOC& a);
+// [  ] ALLOC select_on_container_copy_construction(const ALLOC& rhs);
+//
+//-----------------------------------------------------------------------------
+// [  ] BREATHING TEST
+// [  ] USAGE EXAMPLE
 
 //-----------------------------------------------------------------------------
 
@@ -78,6 +139,12 @@ void aSsErT(int c, const char *s, int i) {
                 printf("%s", #M ": "); dbg_print(M); printf("\n"); \
                 fflush(stdout); aSsErT(1, #X, __LINE__); } }
 
+// Short-cut assert macros
+#define ASSERT_ISSAME(t1,t2) ASSERT((bslmf_IsSame<t1,t2>::VALUE))
+
+#define LOOP_ASSERT_ISSAME(I,t1,t2) \
+    LOOP_ASSERT(I, bslmf_IsSame<t1,t2>::VALUE)
+
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -86,15 +153,6 @@ void aSsErT(int c, const char *s, int i) {
 #define P_(X) dbg_print(#X " = ", X, ", ") // P(X) without '\n'
 #define L_ __LINE__                        // current Line number
 #define T_ putchar('\t');                  // Print a tab (w/o newline)
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
-
-// typedef bsls_Types::Int64             Int64;
-// typedef bsls_Types::Uint64            Uint64;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -123,6 +181,347 @@ void dbg_print(const char* s, const T& val, const char* nl)
     printf("%s", s); dbg_print(val);
     printf("%s", nl);
     fflush(stdout);
+}
+
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
+
+// typedef bsls_Types::Int64             Int64;
+// typedef bsls_Types::Uint64            Uint64;
+
+// 'g_x' is a dummy object with a unique address
+int g_x;
+
+// The following are default values for the 5 attributes of our test classes.
+char        const default_a = ' ';
+int         const default_b = 99;
+double      const default_c = 1.0;
+const char *const default_d = "hello";
+void       *const default_e = &g_x;
+
+//=============================================================================
+//                  GLOBAL HELPER CLASSES FOR TESTING
+//-----------------------------------------------------------------------------
+
+class AttribClass5
+{
+    // This test class has up to 5 constructor arguments and does not use the
+    // 'bslma' allocator protocol.
+
+    char        d_a;
+    int         d_b;
+    double      d_c;
+    const char *d_d;
+    void       *d_e;
+
+public:
+    AttribClass5(char        a = default_a,
+                 int         b = default_b,
+                 double      c = default_c,
+                 const char *d = default_d,
+                 void       *e = default_e)
+        : d_a(a), d_b(b), d_c(c), d_d(d), d_e(e) { }
+
+    ~AttribClass5() { d_b = 0xdeadbeaf; }
+
+    char        a() const { return d_a; }
+    int         b() const { return d_b; }
+    double      c() const { return d_c; }
+    const char *d() const { return d_d; }
+    void       *e() const { return d_e; }
+};
+
+template <class ALLOC>
+class AttribClass5Alloc
+{
+    // This test class has up to 5 constructor arguments plus an (optional)
+    // allocator.  If the 'ALLOC' template argument is 'bsl::allocator', then
+    // this class conforms to the 'bslma' allocator model, otherwise it does
+    // not.
+
+    AttribClass5 d_attrib;
+    ALLOC        d_allocator;
+
+public:
+    AttribClass5Alloc(const ALLOC& alloc = ALLOC())
+        : d_attrib(), d_allocator(alloc) { }
+    AttribClass5Alloc(char a, const ALLOC& alloc = ALLOC())
+        : d_attrib(a), d_allocator(alloc) { }
+    AttribClass5Alloc(char a, int b, const ALLOC& alloc = ALLOC())
+        : d_attrib(a, b), d_allocator(alloc) { }
+    AttribClass5Alloc(char a, int b, double c, const ALLOC& alloc = ALLOC())
+        : d_attrib(a, b, c), d_allocator(alloc) { }
+    AttribClass5Alloc(char a, int b, double c, const char *d,
+                      const ALLOC& alloc = ALLOC())
+        : d_attrib(a, b, c, d), d_allocator(alloc) { }
+    AttribClass5Alloc(char a, int b, double c, const char *d, void *e,
+                      const ALLOC& alloc = ALLOC())
+        : d_attrib(a, b, c, d, e), d_allocator(alloc) { }
+
+    char        a() const { return d_attrib.a(); }
+    int         b() const { return d_attrib.b(); }
+    double      c() const { return d_attrib.c(); }
+    const char *d() const { return d_attrib.d(); }
+    void       *e() const { return d_attrib.e(); }
+
+    ALLOC allocator() const { return d_allocator; }
+};
+
+class AttribClass5bslma
+{
+    // This test class has up to 5 constructor arguments plus an (optional)
+    // address of a 'bslma_Allocator'.  This class conforms to the 'bslma'
+    // allocator model.
+
+    AttribClass5     d_attrib;
+    bslma_Allocator* d_allocator;
+
+public:
+    AttribClass5bslma(bslma_Allocator *alloc = 0)
+        : d_attrib(), d_allocator(bslma_Default::allocator(alloc)) { }
+    AttribClass5bslma(char a, bslma_Allocator *alloc = 0)
+        : d_attrib(a), d_allocator(bslma_Default::allocator(alloc)) { }
+    AttribClass5bslma(char a, int b, bslma_Allocator *alloc = 0)
+        : d_attrib(a, b), d_allocator(bslma_Default::allocator(alloc)) { }
+    AttribClass5bslma(char a, int b, double c, bslma_Allocator *alloc = 0)
+        : d_attrib(a, b, c), d_allocator(bslma_Default::allocator(alloc)) { }
+    AttribClass5bslma(char a, int b, double c, const char *d,
+                      bslma_Allocator *alloc = 0)
+        : d_attrib(a, b, c, d)
+        , d_allocator(bslma_Default::allocator(alloc)) { }
+    AttribClass5bslma(char a, int b, double c, const char *d, void *e,
+                      bslma_Allocator *alloc = 0)
+        : d_attrib(a, b, c, d, e)
+        , d_allocator(bslma_Default::allocator(alloc)) { }
+
+    char        a() const { return d_attrib.a(); }
+    int         b() const { return d_attrib.b(); }
+    double      c() const { return d_attrib.c(); }
+    const char *d() const { return d_attrib.d(); }
+    void       *e() const { return d_attrib.e(); }
+
+    bslma_Allocator *allocator() const { return d_allocator; }
+};
+
+template <class T>
+class NonBslmaAllocator
+{
+    // This class is a C++03-compliant allocator that does not conform to the
+    // 'bslma' allocator model.
+    bslma_Allocator *d_mechanism;
+
+public:
+    // PUBLIC TYPES
+    typedef std::size_t     size_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef T              *pointer;
+    typedef const T        *const_pointer;
+    typedef T&              reference;
+    typedef const T&        const_reference;
+    typedef T               value_type;
+
+    template <class U> struct rebind
+    {
+        typedef NonBslmaAllocator<U> other;
+    };
+
+    explicit NonBslmaAllocator(bslma_Allocator *basicAlloc = 0)
+        : d_mechanism(bslma_Default::allocator(basicAlloc)) { }
+
+    pointer allocate(size_type n, const void *hint = 0)
+        { return pointer(d_mechanism->allocate(n * sizeof(T))); }
+
+    void deallocate(pointer p, size_type n = 1)
+        { d_mechanism->deallocate(p); }
+
+    void construct(pointer p, const T& val) { ::new ((void*) &*p) T(val); }
+    void destroy(pointer p) { p->~T(); }
+
+    // ACCESSORS
+    pointer address(reference x) const { return &x; }
+    const_pointer address(const_reference x) const { return &x; }
+    size_type max_size() const { return INT_MAX / sizeof(T); }
+
+    bslma_Allocator *mechanism() const { return d_mechanism; }
+};
+
+template <class T, class U>
+inline
+bool operator==(const NonBslmaAllocator<T>& a, const NonBslmaAllocator<U>& b)
+{
+    return a.mechanism() == b.mechanism();
+}
+
+template <class T, class U>
+inline
+bool operator!=(const NonBslmaAllocator<T>& a, const NonBslmaAllocator<U>& b)
+{
+    return a.mechanism() != b.mechanism();
+}
+
+template <class T>
+class BslmaAllocator
+{
+    // This class is a C++03-compliant allocator that conforms to the
+    // 'bslma' allocator model (i.e., it is convertible from
+    // 'bslma_Allocator*'.
+    bslma_Allocator *d_mechanism;
+
+public:
+    // PUBLIC TYPES
+    typedef std::size_t     size_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef T              *pointer;
+    typedef const T        *const_pointer;
+    typedef T&              reference;
+    typedef const T&        const_reference;
+    typedef T               value_type;
+
+    template <class U> struct rebind
+    {
+        typedef BslmaAllocator<U> other;
+    };
+
+    BslmaAllocator(bslma_Allocator *basicAlloc = 0)
+        : d_mechanism(bslma_Default::allocator(basicAlloc)) { }
+
+    pointer allocate(size_type n, const void *hint = 0)
+        { return pointer(d_mechanism->allocate(n * sizeof(T))); }
+
+    void deallocate(pointer p, size_type n = 1)
+        { d_mechanism->deallocate(p); }
+
+    void construct(pointer p, const T& val) { ::new ((void*) &*p) T(val); }
+    void destroy(pointer p) { p->~T(); }
+
+    // ACCESSORS
+    pointer address(reference x) const { return &x; }
+    const_pointer address(const_reference x) const { return &x; }
+    size_type max_size() const { return INT_MAX / sizeof(T); }
+
+    bslma_Allocator *mechanism() const { return d_mechanism; }
+};
+
+template <class T, class U>
+inline
+bool operator==(const BslmaAllocator<T>& a, const BslmaAllocator<U>& b)
+{
+    return a.mechanism() == b.mechanism();
+}
+
+template <class T, class U>
+inline
+bool operator!=(const BslmaAllocator<T>& a, const BslmaAllocator<U>& b)
+{
+    return a.mechanism() != b.mechanism();
+}
+
+template <class T>
+class FunkyPointer
+{
+    // Pointer-like class for testing use of non-raw pointers in allocators.
+    T* d_imp;
+
+public:
+    FunkyPointer() : d_imp(0) { }
+    FunkyPointer(T* p, int) : d_imp(p) { }
+
+    // Construct from null pointer
+    FunkyPointer(int FunkyPointer::*) : d_imp(0) { }
+
+    T& operator*() const { return *d_imp; }
+    T* operator->() const { return d_imp; }
+};
+
+template <class T>
+inline
+bool operator==(FunkyPointer<T> a, FunkyPointer<T> b)
+{
+    return a.operator->() == b.operator->();
+}
+
+template <class T>
+inline
+bool operator!=(FunkyPointer<T> a, FunkyPointer<T> b)
+{
+    return a.operator->() != b.operator->();
+}
+
+template <class T>
+class FunkyAllocator
+{
+    // Allocator that uses 'FunkyPointer' as its pointer type.  Not all
+    // allocator-aware classes can work with such an allocator, but
+    // 'allocator_traits' should work fine.
+    // This class is a C++03-compliant allocator that conforms to the
+    // 'bslma' allocator model (i.e., it is convertible from
+    // 'bslma_Allocator*'.
+    bslma_Allocator *d_mechanism;
+
+public:
+    // PUBLIC TYPES
+    typedef std::size_t           size_type;
+    typedef std::ptrdiff_t        difference_type;
+    typedef FunkyPointer<T>       pointer;
+    typedef FunkyPointer<const T> const_pointer;
+    typedef T&                    reference;
+    typedef const T&              const_reference;
+    typedef T                     value_type;
+
+    template <class U> struct rebind
+    {
+        typedef FunkyAllocator<U> other;
+    };
+
+    explicit FunkyAllocator(bslma_Allocator *basicAlloc = 0)
+        : d_mechanism(bslma_Default::allocator(basicAlloc)) { }
+
+    pointer allocate(size_type n, const void *hint = 0)
+        { return pointer(d_mechanism->allocate(n * sizeof(T)), 0); }
+
+    void deallocate(pointer p, size_type n = 1)
+        { d_mechanism->deallocate(p); }
+
+    void construct(pointer p, const T& val) { ::new ((void*) &*p) T(val); }
+    void destroy(pointer p) { p->~T(); }
+
+    // ACCESSORS
+    pointer address(reference x) const { return pointer(&x, 0); }
+    const_pointer address(const_reference x) const
+        { return const_pointer(&x, 0); }
+    size_type max_size() const { return INT_MAX / sizeof(T); }
+
+    bslma_Allocator *mechanism() const { return d_mechanism; }
+};
+
+template <class T, class U>
+inline
+bool operator==(const FunkyAllocator<T>& a, const FunkyAllocator<U>& b)
+{
+    return a.mechanism() == b.mechanism();
+}
+
+template <class T, class U>
+inline
+bool operator!=(const FunkyAllocator<T>& a, const FunkyAllocator<U>& b)
+{
+    return a.mechanism() != b.mechanism();
+}
+
+template <class T>
+bool matchAttrib(const T& v, char a, int b, double c, const char *d, void *e)
+{
+    return v.a() == a && v.b() == b && v.c() == c && v.d() == d && v.e() == e;
+}
+
+template <class T, class Alloc>
+bool matchAttrib(const T& v, char a, int b, double c, const char *d, void *e,
+                 const Alloc& alloc)
+{
+    return matchAttrib(v, a, b, c, d, e) && v.allocator() == alloc;
 }
 
 //=============================================================================
@@ -295,16 +694,92 @@ int main(int argc, char *argv[])
         // BREATHING/USAGE TEST
         //
         // Concerns:
+        //   1 The allocator_traits template behaves as expected when
+        //     its members are exercised simply.
         //
         // Plan:
+        //   We instantiate the template with a variety allocator types.  For
+        //   each instantiation, we allocate memory, deallocate memory,
+        //   construct an element, and destroy the element.
 	//
         // Testing:
-        //
+        //   This "test" *exercises* basic functionality.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+        bslma_TestAllocator default_ta;
+        bslma_TestAllocator ta;
+
+        bslma_DefaultAllocatorGuard guard(&default_ta);
+
+        if (verbose) printf("Testing NonBslmaAllocator<AttribClass5>\n");
+        {
+            typedef AttribClass5                 Obj;
+            typedef BslmaAllocator<Obj>          Alloc;
+            typedef bsl::allocator_traits<Alloc> Traits;
+
+            ASSERT_ISSAME(Alloc, Traits::allocator_type);
+            ASSERT_ISSAME(Obj,  Traits::value_type);
+            ASSERT_ISSAME(Obj*, Traits::pointer);
+            ASSERT_ISSAME(const Obj*, Traits::const_pointer);
+
+            // Test 'allocate'
+            Alloc a1(&ta);
+            Obj *p = Traits::allocate(a1, 1);
+            ASSERT(1 == ta.numBlocksInUse());
+            ASSERT(sizeof(Obj) == ta.numBytesInUse());
+
+            // Test 'construct'
+            Traits::construct(a1, p, 'x', 88, 0.25);
+            ASSERT(matchAttrib(*p, 'x', 88, 0.25, default_d, default_e));
+
+            // Test 'destroy'
+            Traits::destroy(a1, p);
+            ASSERT(0xdeadbeaf == p->b());
+
+            // Test 'deallocate'
+            Traits::deallocate(a1, p, 1);
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(0 == ta.numBytesInUse());
+
+            ASSERT(0 == default_ta.numBlocksTotal());
+        }
+
+        if (verbose) printf("Testing BslmaAllocator<AttribClass5bslma>\n");
+        {
+            typedef AttribClass5bslma            Obj;
+            typedef BslmaAllocator<Obj>          Alloc;
+            typedef bsl::allocator_traits<Alloc> Traits;
+
+            ASSERT_ISSAME(Alloc, Traits::allocator_type);
+            ASSERT_ISSAME(Obj,  Traits::value_type);
+            ASSERT_ISSAME(Obj*, Traits::pointer);
+            ASSERT_ISSAME(const Obj*, Traits::const_pointer);
+
+            // Test 'allocate'
+            Alloc a1(&ta);
+            Obj *p = Traits::allocate(a1, 1);
+            ASSERT(1 == ta.numBlocksInUse());
+            ASSERT(sizeof(Obj) == ta.numBytesInUse());
+
+            // Test 'construct'
+            const char bye[] = "bye";
+            Traits::construct(a1, p, 'x', 88, 0.25, bye);
+            ASSERT(matchAttrib(*p, 'x', 88, 0.25, bye, default_e, &ta));
+
+            // Test 'destroy'
+            Traits::destroy(a1, p);
+            ASSERT(0xdeadbeaf == p->b());
+
+            // Test 'deallocate'
+            Traits::deallocate(a1, p, 1);
+            ASSERT(0 == ta.numBlocksInUse());
+            ASSERT(0 == ta.numBytesInUse());
+
+            ASSERT(0 == default_ta.numBlocksTotal());
+        }
       } break;
 
       default: {
