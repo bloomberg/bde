@@ -544,12 +544,13 @@ class Printer {
         //:   of 'data' in hexadecimal format if it is not 0, and print the
         //:   string "NULL" otherwise.
         //:
-        //: o If 'TYPE' is a pointer type (other than 'const char *' or
-        //:   'void *'), print the address value of 'data' in hexadecimal
-        //:   format, then format the object at that address if 'data' is not
-        //:   0, and print the string "NULL" otherwise.  There will be a
-        //:   compile-time error if 'data' is a pointer to a user-defined type
-        //:   that does not provide a standard 'print' method.
+        //: o If 'TYPE' is a pointer type (other than the, potentially
+        //:   const-qualified,  'char *' or 'void *'), print the address
+        //:   value of 'data' in hexadecimal format, then format the object at
+        //:   that address if 'data' is not 0, and print the string "NULL"
+        //:   otherwise.  There will be a compile-time error if 'data' is a
+        //:   pointer to a user-defined type that does not provide a standard
+        //:   'print' method.
         //:
         //: o If 'TYPE' is any other type, call the standard 'print' method on
         //:   'data', specifying one additional level of indentation than the
@@ -577,12 +578,13 @@ class Printer {
         //:   of 'data' in hexadecimal format if it is not 0, and print the
         //:   string "NULL" otherwise.
         //:
-        //: o If 'TYPE' is a pointer type (other than 'const char *' or
-        //:   'void *'), print the address value of 'data' in hexadecimal
-        //:   format, then format the object at that address if 'data' is not
-        //:   0, and print the string "NULL" otherwise.  There will be a
-        //:   compile-time error if 'data' is a pointer to a user-defined type
-        //:   that does not provide a standard 'print' method.
+        //: o If 'TYPE' is a pointer type (other than the, potentially
+        //:   const-qualified,  'char *' or 'void *'), print the address
+        //:   value of 'data' in hexadecimal format, then format the object at
+        //:   that address if 'data' is not 0, and print the string "NULL"
+        //:   otherwise.  There will be a compile-time error if 'data' is a
+        //:   pointer to a user-defined type that does not provide a standard
+        //:   'print' method.
         //:
         //: o If 'TYPE' is any other type, call the standard 'print' method on
         //:   'data', specifying one additional level of indentation than the
@@ -644,12 +646,13 @@ class Printer {
         //:   of 'data' in hexadecimal format if it is not 0, and print the
         //:   string "NULL" otherwise.
         //:
-        //: o If 'TYPE' is a pointer type (other than 'const char *' or
-        //:   'void *'), print the address value of 'data' in hexadecimal
-        //:   format, then format the object at that address if 'data' is not
-        //:   0, and print the string "NULL" otherwise.  There will be a
-        //:   compile-time error if 'data' is a pointer to a user-defined type
-        //:   that does not provide a standard 'print' method.
+        //: o If 'TYPE' is a pointer type (other than the, potentially
+        //:   const-qualified,  'char *' or 'void *'), print the address
+        //:   value of 'data' in hexadecimal format, then format the object at
+        //:   that address if 'data' is not 0, and print the string "NULL"
+        //:   otherwise.  There will be a compile-time error if 'data' is a
+        //:   pointer to a user-defined type that does not provide a standard
+        //:   'print' method.
         //:
         //: o If 'TYPE' is any other type, call the standard 'print' method on
         //:   'data', specifying one additional level of indentation than the
