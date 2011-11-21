@@ -777,7 +777,7 @@ int main(int argc, char *argv[])
         //:   level, and expected output of 'printOrNull' when called with a
         //:   null pointer.  For each set of values in the table, ensure that
         //:   the actual output of 'printOrNull' when called with a null
-        //:   pointer of type 'void *', 'const void *', 'const char *', 
+        //:   pointer of type 'void *', 'const void *', 'const char *',
         //:  'int *' and 'HasPrint *' is the same as the expected output.
         //
         // Testing:
@@ -1281,7 +1281,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
 
-                ostringstream vOut, cvOut, vvOut, vcvOut, cOut, iOut, uOut, 
+                ostringstream vOut, cvOut, vvOut, vcvOut, cOut, iOut, uOut,
                               fOut;
 
                 void *data = 0;
@@ -1467,25 +1467,25 @@ int main(int argc, char *argv[])
 
                 {
                     ostringstream out;
-                    Obj p(&out, LEVEL, SPL); 
+                    Obj p(&out, LEVEL, SPL);
                     p.print(data, 0);
                     const bsl::string& ACTUAL = out.str();
                     LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
                 }
                 {
                     ostringstream out;
-                    Obj p(&out, LEVEL, SPL); 
+                    Obj p(&out, LEVEL, SPL);
                     p.print(const_cast<char *>(data), 0);
                     const bsl::string& ACTUAL = out.str();
                     LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
                 }
                 {
                     ostringstream out;
-                    Obj p(&out, LEVEL, SPL); 
+                    Obj p(&out, LEVEL, SPL);
                     p.print("testing char *", 0);
                     const bsl::string& ACTUAL = out.str();
                     LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
-                }               
+                }
             }
         }
         {
@@ -1942,8 +1942,8 @@ int main(int argc, char *argv[])
         //
         // Concerns: 'end' prints the correct indentation for different values
         // of 'level' and 'spacesPerLevel' and ']' if 'suppressBracket' is
-        // 'false', and does not print the indentation and ']' otherwise. 'end'
-        // should also print a newline if 'spacesPerLevel' >= 0.
+        // 'false', and does not print the indentation and ']' otherwise.
+        // 'end' should also print a newline if 'spacesPerLevel' >= 0.
         //
         // Plan:
         //: 1 Create a table having fields for line number, level, spaces per
