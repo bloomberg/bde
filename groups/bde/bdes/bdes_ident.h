@@ -67,10 +67,17 @@
 #include <bsls_ident.h>
 #endif
 
-// Use the bsls_ident definitions for all macros.
-#define BDES_IDENT(str)           BSLS_IDENT(str)
-#define BDES_IDENT_RCSID(tag,str) BSLS_IDENT_RCSID(tag,str)
-#define BDES_IDENT_PRAGMA_ONCE    BSLS_IDENT_PRAGMA_ONCE
+#ifdef BDES_IDENT_OFF
+    #define BDES_IDENT(str)
+    #define BDES_IDENT_RCSID(tag,str)
+    #define BDES_IDENT_PRAGMA_ONCE
+#else /* !BDES_IDENT_OFF */
+    // Use the bsls_ident definitions for all macros.
+    #define BDES_IDENT(str)           BSLS_IDENT(str)
+    #define BDES_IDENT_RCSID(tag,str) BSLS_IDENT_RCSID(tag,str)
+    #define BDES_IDENT_PRAGMA_ONCE    BSLS_IDENT_PRAGMA_ONCE
+#endif /* !BDES_IDENT_OFF */
+
 BDES_IDENT_PRAGMA_ONCE
 
 #endif /* INCLUDED_BDES_IDENT */
