@@ -465,6 +465,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cctype.h>
 #endif
 
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
+#endif
+
 namespace BloombergLP {
 namespace bslim {
 
@@ -540,7 +544,7 @@ class Printer {
         //:   stream as a null-terminated C-style string enclosed in quotes if
         //:   'data' is not 0, and print the string "NULL" otherwise.
         //:
-        //: o If 'TYPE' is 'void * or 'const void *'', print the address value
+        //: o If 'TYPE' is 'void * or 'const void *', print the address value
         //:   of 'data' in hexadecimal format if it is not 0, and print the
         //:   string "NULL" otherwise.
         //:
@@ -574,7 +578,10 @@ class Printer {
         //:   stream as a null-terminated C-style string enclosed in quotes if
         //:   'data' is not 0, and print the string "NULL" otherwise.
         //:
-        //: o If 'TYPE' is 'void * or 'const void *'', print the address value
+        //: o If 'TYPE' is 'bsl::string', print 'data' to the stream as a
+        //:   null-terminated C-style string enclosed in quotes.
+        //:
+        //: o If 'TYPE' is 'void * or 'const void *', print the address value
         //:   of 'data' in hexadecimal format if it is not 0, and print the
         //:   string "NULL" otherwise.
         //:
@@ -585,6 +592,12 @@ class Printer {
         //:   otherwise.  There will be a compile-time error if 'data' is a
         //:   pointer to a user-defined type that does not provide a standard
         //:   'print' method.
+        //: 
+        //: o If 'TYPE' is 'bsl::vector<ELEMENT>', then print the value of each
+        //:   element (of type 'ELEMENT') as described for the other 'TYPE's,
+        //:   with initial and closing brackets.  There will be a compile-time
+        //:   error if 'ELEMENT' is a user-defined type that does not provide a
+        //:   standard 'print' method.
         //:
         //: o If 'TYPE' is any other type, call the standard 'print' method on
         //:   'data', specifying one additional level of indentation than the
@@ -642,7 +655,10 @@ class Printer {
         //:   stream as a null-terminated C-style string enclosed in quotes if
         //:   'data' is not 0, and print the string "NULL" otherwise.
         //:
-        //: o If 'TYPE' is 'void * or 'const void *'', print the address value
+        //: o If 'TYPE' is 'bsl::string', print 'data' to the stream as a
+        //:   null-terminated C-style string enclosed in quotes.
+        //:
+        //: o If 'TYPE' is 'void * or 'const void *', print the address value
         //:   of 'data' in hexadecimal format if it is not 0, and print the
         //:   string "NULL" otherwise.
         //:
@@ -653,6 +669,12 @@ class Printer {
         //:   otherwise.  There will be a compile-time error if 'data' is a
         //:   pointer to a user-defined type that does not provide a standard
         //:   'print' method.
+        //:
+        //: o If 'TYPE' is 'bsl::vector<ELEMENT>', then print the value of each
+        //:   element (of type 'ELEMENT') as described for the other 'TYPE's,
+        //:   with initial and closing brackets.  There will be a compile-time
+        //:   error if 'ELEMENT' is a user-defined type that does not provide a
+        //:   standard 'print' method.
         //:
         //: o If 'TYPE' is any other type, call the standard 'print' method on
         //:   'data', specifying one additional level of indentation than the
@@ -813,6 +835,28 @@ struct Printer_Helper {
         // additional meta-int classifying the type of 'data' is needed, in
         // addition to standard compiler overload resolution, to ensure
         // compilation across compiler.
+
+    template <class ELEMENT>
+    static void printRaw(
+                        bsl::ostream&               stream,
+                        const bsl::vector<ELEMENT>& data,
+                        int                         level,
+                        int                         spacesPerLevel,
+                        bslmf_MetaInt<Printer_Selector::BSLIM_USER_DEFINED> *);
+        // |DEPRECATED|: This interface is supports printing of
+        // 'bsl::vector<ELEMENT>' and will be removed when a standard 'print'
+        // method is added to 'bsl::vector'.
+        //
+        // Format the specified 'data' to the specified output `stream' at the
+        // (absolute value of) the specified indentation `level', using the
+        // specified 'spacesPerLevel', the number of spaces per indentation
+        // level for this and all of its nested objects.  Note that there are
+        // 4 overload sets each distinguished by the 'Printer_Selector' value
+        // that describes 'data', and within each overload set specific
+        // overloads for certain types are provided.  Also note that the
+        // additional meta-int classifying the type of 'data' is needed, in
+        // addition to standard compiler overload resolution, to ensure
+        // compilation across compiler.
 };
 
 // ============================================================================
@@ -931,7 +975,11 @@ void Printer_Helper::print(bsl::ostream& stream,
                            int           level,
                            int           spacesPerLevel)
 {
-    Printer_Helper::printRaw(stream, data, level, spacesPerLevel,
+    Printer_Helper::printRaw(
+                          stream,
+                          data,
+                          level,
+                          spacesPerLevel,
                           (bslmf_MetaInt<Printer_DetectType<TYPE>::VALUE>*)0);
 }
 
@@ -1005,6 +1053,42 @@ void Printer_Helper::printRaw(
                          bslmf_MetaInt<Printer_Selector::BSLIM_USER_DEFINED> *)
 {
     data.print(stream, level, spacesPerLevel);
+}
+
+template <>
+inline
+void Printer_Helper::printRaw(
+                         bsl::ostream&      stream,
+                         const bsl::string& data,
+                         int                level,
+                         int                spacesPerLevel,
+                         bslmf_MetaInt<Printer_Selector::BSLIM_USER_DEFINED> *)
+{
+    printRaw(stream,
+             data.c_str(),
+             level,
+             spacesPerLevel,
+             (bslmf_MetaInt<Printer_Selector::BSLIM_POINTER> *)0);
+}
+
+template <class ELEMENT>
+inline
+void Printer_Helper::printRaw(
+                         bsl::ostream&               stream,
+                         const bsl::vector<ELEMENT>& data,
+                         int                         level,
+                         int                         spacesPerLevel,
+                         bslmf_MetaInt<Printer_Selector::BSLIM_USER_DEFINED> *)
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    for (typename bsl::vector<ELEMENT>::const_iterator cur  = data.begin(),
+                                                       end  = data.end();
+                                                       end != cur;
+                                                       ++cur) {
+        printer.printValue(*cur);
+    }
+    printer.end();
 }
 
 }  // close namespace bslim
