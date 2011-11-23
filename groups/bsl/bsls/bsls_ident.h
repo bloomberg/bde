@@ -271,7 +271,7 @@ BSLS_IDENT_PRAGMA_ONCE
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
