@@ -2262,7 +2262,8 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
         ASSERT(0 != ta.numBytesInUse());
-        LOOP_ASSERT(da.numBytesInUse(), 0 == da.numBytesInUse());
+        const int NUM_BYTES = da.numBytesInUse();
+        LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
       } break;
 
       case 2: {

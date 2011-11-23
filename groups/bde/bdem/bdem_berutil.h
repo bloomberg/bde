@@ -24,7 +24,8 @@ BDES_IDENT("$Id: $")
 // These utility functions operate on 'bsl::streambuf' for buffer management.
 //
 // More information about BER constructs can be found in the BER specification
-// (X.690).
+// (X.690).  A copy of the specification can be found at the URL:
+//: o  http://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf
 //
 // Note that this is a low-level component that only encodes and decodes
 // primitive constructs.  Clients should use the 'bdem_berencoder' and
@@ -215,7 +216,7 @@ struct bdem_BerUtil {
         // non-zero value otherwise.  Note that the value consists of the
         // contents bytes only (no length prefix).  Also note that only
         // fundamental C++ types, 'bsl::string', and BDE date/time types are
-        // implemented.
+        // supported.
 
     template <typename TYPE>
     static int getValue(bsl::streambuf *streamBuf,
@@ -226,7 +227,7 @@ struct bdem_BerUtil {
         // 'accumNumBytesConsumed'.  Return 0 on success, and a non-zero value
         // otherwise.  Note that the value consists of the length and contents
         // primitives.  Also note that only fundamental C++ types,
-        // 'bsl::string', and BDE date/time types are implemented.
+        // 'bsl::string', and BDE date/time types are supported.
 
     static int putEndOfContentOctets(bsl::streambuf *streamBuf);
         // Encode the "end-of-content" octets (two consecutive zero-octets) to
@@ -258,8 +259,8 @@ struct bdem_BerUtil {
         // Encode the specified 'value' to the specified 'streamBuf'.  Return 0
         // on success, and a non-zero value otherwise.  Note that the value
         // consists of the length and contents primitives.  Also note that only
-        // fundamental C++ types, 'bsl::string', and BDE date/time types are
-        // implemented.
+        // fundamental C++ types, 'bsl::string', 'bslstl_StringRef' and BDE
+        // date/time types are supported.
 };
 
 // ---  Anything below this line is implementation specific.  Do not use.  ----
@@ -322,6 +323,9 @@ struct bdem_BerUtil_Imp {
     static int getValue(bsl::streambuf *streamBuf,
                         bsl::string    *value,
                         int             length);
+    static int getValue(bsl::streambuf   *streamBuf,
+                        bslstl_StringRef *value,
+                        int               length);
     static int getValue(bsl::streambuf *streamBuf,
                         bdet_Date      *value,
                         int             length);
@@ -371,6 +375,8 @@ struct bdem_BerUtil_Imp {
     static int putValue(bsl::streambuf *streamBuf, float value);
     static int putValue(bsl::streambuf *streamBuf, double value);
     static int putValue(bsl::streambuf *streamBuf, const bsl::string& value);
+    static int putValue(bsl::streambuf          *streamBuf,
+                        const bslstl_StringRef&  value);
     static int putValue(bsl::streambuf *streamBuf, const bdet_Date& value);
     static int putValue(bsl::streambuf *streamBuf, const bdet_Datetime& value);
     static int putValue(bsl::streambuf         *streamBuf,
@@ -806,6 +812,15 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, double value)
 inline
 int bdem_BerUtil_Imp::putValue(bsl::streambuf     *streamBuf,
                                const bsl::string&  value)
+{
+    return putStringValue(streamBuf,
+                          value.data(),
+                          static_cast<int>(value.length()));
+}
+
+inline
+int bdem_BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
+                               const bslstl_StringRef&  value)
 {
     return putStringValue(streamBuf,
                           value.data(),

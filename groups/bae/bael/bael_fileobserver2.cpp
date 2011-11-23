@@ -293,7 +293,7 @@ void computeNextRotationTime(bdet_Datetime                *result,
     // to be generated if 'rotateOnTimeInterval' is called after
     // 'enableFileLogging'.
 
-    if (*result == referenceStartTime - localTimeOffset) {
+    if (referenceStartTime == *result + localTimeOffset) {
         *result += interval;
     }
 }
