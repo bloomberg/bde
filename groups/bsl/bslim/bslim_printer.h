@@ -592,7 +592,7 @@ class Printer {
         //:   otherwise.  There will be a compile-time error if 'data' is a
         //:   pointer to a user-defined type that does not provide a standard
         //:   'print' method.
-        //: 
+        //:
         //: o If 'TYPE' is 'bsl::vector<ELEMENT>', then print the value of each
         //:   element (of type 'ELEMENT') as described for the other 'TYPE's,
         //:   with initial and closing brackets.  There will be a compile-time

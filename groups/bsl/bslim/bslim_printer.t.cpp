@@ -1686,30 +1686,30 @@ int main(int argc, char *argv[])
                 { L_,    2,   -2, "  HasPrint:data = %d"               },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-    
+
             for (int i = 0; i < NUM_DATA;  ++i) {
                 const int LINE  = DATA[i].d_lineNum;
                 int LEVEL = DATA[i].d_level;
                 int SPL   = DATA[i].d_spacesPerLevel;
-    
+
                 if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-    
+
                 ostringstream out;
                 int tData = 54321; HasPrint data(tData);
                 Obj p(&out, LEVEL, SPL); p.print(data, 0);
-    
+
                 int LEVEL_EXP = -(p.absLevel() + 1);
                 int LEVEL_ACT = data.d_level;
                 int SPL_EXP = SPL; int SPL_ACT = data.d_spacesPerLevel;
-    
+
                 LOOP2_ASSERT(LEVEL_EXP, LEVEL_ACT, LEVEL_EXP == LEVEL_ACT);
                 LOOP2_ASSERT(SPL_EXP, SPL_ACT, SPL_EXP == SPL_ACT);
-    
+
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(), tData);
                 const bsl::string EXPECTED(buf);
                 const bsl::string& ACTUAL = out.str();
-    
+
                 if (veryVeryVerbose) {
                     cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
                          << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
@@ -1735,23 +1735,23 @@ int main(int argc, char *argv[])
                 { L_,    2,   -2, " \"%s\""        },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-    
+
             for (int i = 0; i < NUM_DATA;  ++i) {
                 const int LINE  = DATA[i].d_lineNum;
                 int LEVEL = DATA[i].d_level;
                 int SPL   = DATA[i].d_spacesPerLevel;
-    
+
                 if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-    
+
                 ostringstream  out;
                 const char    *tData = "hello"; bsl::string data(tData);
                 Obj p(&out, LEVEL, SPL); p.print(data, 0);
-    
+
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(), tData);
                 const bsl::string EXPECTED(buf);
                 const bsl::string& ACTUAL = out.str();
-    
+
                 if (veryVeryVerbose) {
                     cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
                          << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
@@ -1786,25 +1786,25 @@ int main(int argc, char *argv[])
                                                           " ]"        },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-    
+
             for (int i = 0; i < NUM_DATA;  ++i) {
                 const int LINE  = DATA[i].d_lineNum;
                 int LEVEL = DATA[i].d_level;
                 int SPL   = DATA[i].d_spacesPerLevel;
-    
+
                 if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-    
+
                 ostringstream out;
                 bsl::vector<bsl::string> data;
                 data.push_back(bsl::string("Hello"));
                 data.push_back(bsl::string("world!"));
                 Obj p(&out, LEVEL, SPL); p.print(data, 0);
-    
+
                 char buf[999], *ptr = &buf[0];
-                int  len, size = sizeof(buf); 
+                int  len, size = sizeof(buf);
                 len = strlen(DATA[i].d_expPrologue.c_str());
                 ASSERT(len + 1 < size);
-                strncpy(ptr, 
+                strncpy(ptr,
                         DATA[i].d_expPrologue.c_str(),
                         len);
                 ptr += len; size -= len;
@@ -1817,7 +1817,7 @@ int main(int argc, char *argv[])
                 }
                 len = strlen(DATA[i].d_expEpilogue.c_str());
                 ASSERT(len + 1 < size);
-                strncpy(ptr, 
+                strncpy(ptr,
                         DATA[i].d_expEpilogue.c_str(),
                         len);
                 ptr += len; size -= len;
@@ -1825,7 +1825,7 @@ int main(int argc, char *argv[])
                 *ptr = '\0';
                 const bsl::string EXPECTED(buf);
                 const bsl::string& ACTUAL = out.str();
-    
+
                 if (veryVeryVerbose) {
                     cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
                          << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
@@ -1859,26 +1859,26 @@ int main(int argc, char *argv[])
                                                           " ]"        },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
-    
+
             for (int i = 0; i < NUM_DATA;  ++i) {
                 const int LINE  = DATA[i].d_lineNum;
                 int LEVEL = DATA[i].d_level;
                 int SPL   = DATA[i].d_spacesPerLevel;
-    
+
                 if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
-    
+
                 ostringstream out;
                 bsl::vector<int> data;
                 data.push_back(0);
                 data.push_back(1);
                 data.push_back(3);
                 Obj p(&out, LEVEL, SPL); p.print(data, 0);
-    
+
                 char buf[999], *ptr = &buf[0];
-                int  len, size = sizeof(buf); 
+                int  len, size = sizeof(buf);
                 len = strlen(DATA[i].d_expPrologue.c_str());
                 ASSERT(len + 1 < size);
-                strncpy(ptr, 
+                strncpy(ptr,
                         DATA[i].d_expPrologue.c_str(),
                         len);
                 ptr += len; size -= len;
@@ -1891,7 +1891,7 @@ int main(int argc, char *argv[])
                 }
                 len = strlen(DATA[i].d_expEpilogue.c_str());
                 ASSERT(len + 1 < size);
-                strncpy(ptr, 
+                strncpy(ptr,
                         DATA[i].d_expEpilogue.c_str(),
                         len);
                 ptr += len; size -= len;
@@ -1899,7 +1899,7 @@ int main(int argc, char *argv[])
                 *ptr = '\0';
                 const bsl::string EXPECTED(buf);
                 const bsl::string& ACTUAL = out.str();
-    
+
                 if (veryVeryVerbose) {
                     cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
                          << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
