@@ -363,12 +363,12 @@ int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t size)
     //   :         :          :          :         :           :
     //..
 
-    int alignment = size | BSLS_MAX_ALIGNMENT;
+    std::size_t alignment = size | BSLS_MAX_ALIGNMENT;
     alignment = alignment & -alignment;
 
     BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
 
-    return alignment;
+    return static_cast<int>(alignment);
 }
 
 inline
