@@ -334,8 +334,9 @@ struct bcemt_ThreadUtil {
         // 'handle' an identifier that may be used to refer to this thread in
         // calls to other 'bcemt_ThreadUtil' methods.  Return 0 on success, and
         // a non-zero value otherwise.  The behavior is undefined unless
-        // 'handle != 0'.  Note that unless explicitly "detached" (by invoking
-        // the 'detach' class method with 'handle') or the
+        // 'handle != 0' and unless 'attributes.stackSize' is either greater
+        // than 0 or unset.  Note that unless explicitly "detached" (by
+        // invoking the 'detach' class method with 'handle') or the
         // 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
         // must be made once the thread terminates to reclaim any system
         // resources associated with the newly-created thread.
@@ -363,7 +364,8 @@ struct bcemt_ThreadUtil {
         // into the specified 'handle' an identifier that may be used to refer
         // to this thread in calls to other 'bcemt_ThreadUtil' methods.  Return
         // 0 on success and a non-zero value otherwise.  The behavior is
-        // undefined unless 'handle != 0'.  Note that unless explicitly
+        // undefined unless 'handle != 0' and unless 'attributes.stackSize' is
+        // either greater than 0 or unset.  Note that unless explicitly
         // "detached" (by invoking 'detach(*handle)') or the
         // 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
         // must be made once the thread terminates to reclaim any system

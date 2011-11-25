@@ -1,4 +1,4 @@
-// btemt_tcptimereventmanager.h -*-C++-*-
+// btemt_tcptimereventmanager.h                                       -*-C++-*-
 #ifndef INCLUDED_BTEMT_TCPTIMEREVENTMANAGER
 #define INCLUDED_BTEMT_TCPTIMEREVENTMANAGER
 
