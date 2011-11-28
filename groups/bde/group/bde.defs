@@ -4,9 +4,9 @@
 
 #==============================================================================
 # extra directory for install: uc(package name less '+' prefix)_INCLUDE
-*			_	STL_CXXFLAGS	= 
+*			_	STL_CXXFLAGS	=
 *			_	STL_LDFLAGS	=
-*			_	STL_DEFINES	= 
+*			_	STL_DEFINES	=
 
 # BDE_ROOT is defined by bde_build.pl; it is the source root where bde was
 # found, and is the same as ROOT_LOCN in a non-multirooting scenario
@@ -42,9 +42,9 @@ windows                 _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP
 # unix-dgux		_	STL_NATIVELIB   = -L/usr/local/como/libcomo -lcomo
 # !! unix-SunOS-*-*-gcc	_	STL_CXXFLAGS	=
 # windows			_	STL_DEFINES	= /D_STLP_DONT_FORCE_MSVC_LIB_NAME
-# 
+#
 # #===
-# 
+#
 # *			_	BDE_CXXFLAGS	= $(STL_DEFINES) $(STL_CXXFLAGS)
 # *			_	BDE_CFLAGS	= $(STL_DEFINES) $(STL_CFLAGS)
 # *			_	BDE_CXXINCLUDE  = $(STL_INCLUDE)
@@ -54,9 +54,9 @@ windows                 _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP
 # # but is constructed automatically by the build tool to have -I options for
 # # all needed package dependencies (including BDE_INCLUDE (no S) above)
 # unix-AIX-*-*-*  	_	BDE_LDFLAGS	= $(BDE_INCLUDES)
-# 
+#
 # # on Sun and Forte6 we need sunmath
-# 
+#
 # unix-SunOS-*-*-cc-5.2 	_ 	BDE_EXTRALIBS = -lsunmath
 # !! unix-SunOS-*-*-cc-5.5  _	BDE_EXTRALIBS =
 #
