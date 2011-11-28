@@ -1,4 +1,4 @@
-// bsls_ident.h                 -*-C++-*-
+// bsls_ident.h                                                       -*-C++-*-
 #ifndef INCLUDED_BSLS_IDENT
 #define INCLUDED_BSLS_IDENT
 
@@ -9,31 +9,67 @@
 //@AUTHOR: Anthony Comerico (acomeric), Glenn Strauss (gstrauss)
 //
 //@DESCRIPTION: The purpose of this component is to provide macros for
-// inserting SCM Ids into source files.
+// inserting SCM (Source Control Management) Ids into source files.
 //
-// SCM Ids are useful for identifying source revisions in binaries.
+// SCM Ids are useful for identifying source revisions in binaries.  Additional
+// information about SCM Ids may be obtained from the following man pages:
 //   'man ident'
-//   'man strings'  ('strings -a' produces more/noisier information)
+//   'man strings'  ('strings -a' produces more verbose output)
 //   'man mcs'      (Solaris-only)
 //
-// 'BSLS_IDENT_PRAGMA_ONCE' can optionally be used in headers and encapsulates
-//   #pragma once
-// a non-standard pragma supported on a number of platforms and which
-// indicates that a header should only be included and parsed once.
-// This can help reduce compile times by eliminating extraneous I/O
-// when headers are included more than once in the same file.
+// SCM systems may replace Ids with their expanded forms.  We'll replace the
+// key '$' symbol in the following example with '(DOLLAR)' to avoid that
+// expansion.
 //
+// SCM Ids usually take the form "(DOLLAR)Id: (DOLLAR)" which is expanded by
+// the source control system into an identifier which maps to specific source
+// revisions:
+//   '(DOLLAR)Id: bsls_ident.h 141104 2010-09-17 00:30:47Z mgiroux (DOLLAR)'
+// This specifies that the file was checked in on 2010-09-17 at the specified
+// time by user 'mgiroux', and can be retrieved from the SCM system using
+// revision '141104'.
+//
+// 'BSLS_IDENT_PRAGMA_ONCE' can optionally be used in headers and encapsulates
+// a non-standard pragma (_Pragma("once")) supported on a number of platforms
+// and which indicates that a header should only be included and parsed once.
+// Use of this macro can help reduce compile times by eliminating extraneous
+// I/O when headers are included more than once in the same file.  Note that
+// this macro should NOT be used for any header which cannot use include
+// guards: this is an unusual category, but can happen for certain low-level
+// headers.
+//
+///Macro Summary
+///-------------
+// The following are the macros provided by this component.
+//..
+//  BSLS_IDENT(str)
+//      This macro inserts the specified 'str' into the object's .comment
+//      section, if supported on the current platform.
+//
+//  BSLS_IDENT_RCSID(tag, str)
+//      This macro inserts the specified 'str' into the object, using
+//      BSLS_IDENT if possible on the current platform.  If BSLS_IDENT is not
+//      available, the specified 'tag' may be used to declare a static char
+//      array containing the 'tag'.
+//
+//  BSLS_IDENT_PRAGMA_ONCE
+//      This macro encapsulates the '_Pragma("once")' functionality if
+//      available on the current platform.  If available, this functions in the
+//      same way as redundant include guards, avoiding re-opening
+//      already-included header files.
+//..
 ///Usage
 ///-----
 // Include 'bsls_ident.h' and use the BSLS_IDENT macro.  For header files this
 // should be done directly after the include guards, e.g., bsls_somefile.h:
 //..
-//  // bsls_somefile.h            -*-C++-*-
+//  // bsls_somefile.h                                                -*-C++-*-
 //  #ifndef INCLUDED_BSLS_SOMEFILE
 //  #define INCLUDED_BSLS_SOMEFILE
 //
 //  #include <bsls_ident.h>
-//  BSLS_IDENT("$Id: $")
+//  BSLS_IDENT("(DOLLAR)Id: (DOLLAR)") // In real usage, replace '(DOLLAR)'
+//                                     // with '$'
 //
 //  // ...
 //
@@ -42,16 +78,17 @@
 // For cpp files it should be done directly after the comment for the file name
 // and the language, e.g., bsls_somefile.cpp:
 //..
-//  // bsls_ident.t.cpp           -*-C++-*-
+//  // bsls_ident.t.cpp                                               -*-C++-*-
 //
 //  #include <bsls_ident.h>
-//  BSLS_IDENT("$Id: $")
+//  BSLS_IDENT("(DOLLAR)Id: (DOLLAR)") // In real usage, replace '(DOLLAR)'
+//                                     // with '$'
 //..
 
-/* ident string intentionally omitted for this header (do not add to binaries)*/
-/* Its use is expected to be so extensive that the cost outweighs benefit
- * of including an ident string for every file that includes this header */
-/* (present here so that programs like update_rcsid do not accidentally add) */
+/* ident string intentionally omitted for this header (do not add to binaries)
+ * Its use is expected to be so extensive that the cost outweighs benefit
+ * of including an ident string for every file that includes this header
+ * (present here so that programs like update_rcsid do not accidentally add) */
 #if 0
 #define BSLS_IDENT_RCSID(tag,str)
 BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
@@ -111,10 +148,12 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
   #if !defined(_AIX)
     #define BSLS_IDENT_RCSID(tag,str) BSLS_IDENT(str)
   #else /* _AIX */
-    /* (XXX: look into further if we ever use gcc to build prod tasks on AIX) */
+    /* (XXX: look into further if we ever use gcc to build prod tasks on AIX)
+     */
     #ifndef lint
-    #define BSLS_IDENT_RCSID(tag,str) \
-      static char BSLS_IDENT_JOIN(ident_,tag)[] __attribute__((__unused__)) = str;
+    #define BSLS_IDENT_RCSID(tag,str)                                       \
+      static char BSLS_IDENT_JOIN(ident_,tag)[] __attribute__((__unused__)) \
+                                = str;
     #endif
   #endif
 #elif defined(__SUNPRO_C) || defined(__SUNPRO_CC)
@@ -131,12 +170,13 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
     || (defined(__IBMCPP__) && __IBMCPP__ >= 1010))
     #define BSLS_IDENT_RCSID(tag,str) BSLS_IDENT(str)
   #else
-    /* Early versions of IBM xlc did not preserve .comment in binary executables
-     * or pre-linked libraries.  Fixed by IBM in following releases:
+    /* Early versions of IBM xlc did not preserve .comment in binary
+     * executables or pre-linked libraries.  Fixed by IBM in following
+     * releases:
      * xlC v8.0 in May 2008 PTF (8.0.0.19) with -qxflag=new_pragma_comment_user
      * xlC v9.0 in July 2008 PTF (9.0.0.5)
      * xlC v10.1 GA
-     * Enabled above only for xlC 10.1 or later (which can be detected reliably)
+     * Enabled above only for xlC 10.1 or later, which can be detected reliably
      * (Use C compiler and printf("%s\n", __xlc__) to see x.x.x.x version,
      *  but strings are not comparable in macros)
      * Note that using updated linker (bind64) (circa late 2010) is also needed
@@ -220,9 +260,9 @@ BSLS_IDENT_PRAGMA_ONCE
  *
  * bsls_ident.h encapsulates ident mechanisms so that includers of this
  * header need not be concerned with the mechanism applied.  The mechanism may
- * be changed as better methods become available and the includer can obtain the
- * changes simply by recompiling (without needing to modify all other source
- * code).
+ * be changed as better methods become available and the includer can obtain
+ * the changes simply by recompiling (without needing to modify all other
+ * source code).
  *
  * 'ident' shows only ident-style strings.  'man ident' for more info.
  * The tokens passed to the pragmas are not necessarily ident-style.
@@ -245,7 +285,8 @@ BSLS_IDENT_PRAGMA_ONCE
  * concatentation)  (MS Visual Studio will do string concatenation)
  *
  * C99 _Pragma() can expanded in macros and can be used in place of #pragma.
- * GCC does not implement a #pragma version of gcc #ident preprocessor directive
+ * GCC does not implement a #pragma version of gcc #ident preprocessor
+ * directive
  *
  * AIX 'strip' removes strings inserted by #pragma comment
  * Solaris mcs -d removes strings inserted by #ident and #pragma ident
@@ -277,4 +318,3 @@ BSLS_IDENT_PRAGMA_ONCE
 //      This software is made available solely pursuant to the
 //      terms of a BLP license agreement which governs its use.
 // ----------------------------- END-OF-FILE ---------------------------------
-
