@@ -9,22 +9,23 @@
 //@AUTHOR: Anthony Comerico (acomeric), Glenn Strauss (gstrauss)
 //
 //@DESCRIPTION: The purpose of this component is to provide macros for
-// inserting SCM (Source Control Management) Ids into source files.
-//
-// SCM Ids are useful for identifying source revisions in binaries.  Additional
+// inserting SCM (Source Control Management) Ids into source files.  SCM Ids
+// are useful for identifying source revisions in binaries.  Additional
 // information about SCM Ids may be obtained from the following man pages:
 //   'man ident'
 //   'man strings'  ('strings -a' produces more verbose output)
 //   'man mcs'      (Solaris-only)
 //
-// SCM systems may replace Ids with their expanded forms.  We'll replace the
-// key '$' symbol in the following example with '(DOLLAR)' to avoid that
-// expansion.
+// SCM systems may replace Ids with their expanded forms.  Note that we will
+// replace the key symbol '$' with '(DOLLAR)' to avoid any expansion within
+// this header file's documentation.
 //
-// SCM Ids usually take the form "(DOLLAR)Id: (DOLLAR)" which is expanded by
-// the source control system into an identifier which maps to specific source
-// revisions:
-//   '(DOLLAR)Id: bsls_ident.h 141104 2010-09-17 00:30:47Z mgiroux (DOLLAR)'
+// SCM Ids usually take the form "(DOLLAR)Id: (DOLLAR)" which is expanded,
+// automatically, by the source control system into an identifier which maps
+// to specific source revision:
+//..
+//  '(DOLLAR)Id: bsls_ident.h 141104 2010-09-17 00:30:47Z mgiroux (DOLLAR)'
+//..
 // This specifies that the file was checked in on 2010-09-17 at the specified
 // time by user 'mgiroux', and can be retrieved from the SCM system using
 // revision '141104'.
@@ -33,22 +34,22 @@
 // a non-standard pragma (_Pragma("once")) supported on a number of platforms
 // and which indicates that a header should only be included and parsed once.
 // Use of this macro can help reduce compile times by eliminating extraneous
-// I/O when headers are included more than once in the same file.  Note that
-// this macro should NOT be used for any header which cannot use include
-// guards: this is an unusual category, but can happen for certain low-level
+// I/O when headers are included more than once in the same translation unit.
+// Note that this macro should *not* be used for any header that cannot use
+// include guards: this is unusual, but can happen for certain low-level
 // headers.
 //
 ///Macro Summary
 ///-------------
 // The following are the macros provided by this component.
 //..
-//  BSLS_IDENT(str)
-//      This macro inserts the specified 'str' into the object's .comment
-//      section, if supported on the current platform.
+//  BSLS_IDENT(identifier)
+//      This macro inserts the specified 'identifier' into the object's
+//      .comment section, if supported on the current platform.
 //
-//  BSLS_IDENT_RCSID(tag, str)
-//      This macro inserts the specified 'str' into the object, using
-//      BSLS_IDENT if possible on the current platform.  If BSLS_IDENT is not
+//  BSLS_IDENT_RCSID(tag, identifier)
+//      This macro inserts the specified 'identifier' into the object, using
+//      BSLS_IDENT, if possible on the current platform.  If BSLS_IDENT is not
 //      available, the specified 'tag' may be used to declare a static char
 //      array containing the 'tag'.
 //
