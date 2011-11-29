@@ -1188,8 +1188,9 @@ int main(int argc, char *argv[])
                 }
                 getModElemRef(&destOrig, row, 2).theModifiableString() =
                                                                      stringVal;
-                char constString[] = { 'a' + row, 0 };
-                stringVal += constString;
+                char tmpChar = (char) ('a' + row);
+                unsigned char constString[] = { tmpChar, 0 };
+                stringVal.append((const char *) constString);
                 if (stringVal.length() >= 8) {
                     stringVal = stringVal.substr(4, 3);
                 }
@@ -1356,8 +1357,9 @@ int main(int argc, char *argv[])
                 }
                 getModElemRef(&destOrig, row, 2).theModifiableString() =
                                                                      stringVal;
-                char constString[] = { 'a' + row, 0 };
-                stringVal += constString;
+                char tmpChar = (char) ('a' + row);
+                unsigned char constString[] = { tmpChar, 0 };
+                stringVal.append((const char *) constString);
                 if (stringVal.length() >= 8) {
                     stringVal = stringVal.substr(4, 3);
                 }
