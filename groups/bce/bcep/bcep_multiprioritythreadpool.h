@@ -68,9 +68,19 @@ BDES_IDENT("$Id: $")
 // class.)  Note that the field pertaining to whether the worker threads should
 // be detached or joinable is ignored.
 //
-// This thread pool is thread-safe.  However, where noted, certain methods such
-// as 'stopThreads()' and 'drainJobs()' should not be called from threads
-// created by the thread pool.
+///Thread Safety
+///-------------
+// The 'bcep_MultipriorityThreadPool' class is both *fully thread-safe* (i.e.,
+// all non-creator methods can correctly execute concurrently), and is
+// *thread-enabled* (i.e., the classes does not function correctly in a
+// non-multi-threading environment).  See 'bsldoc_glossary' for complete
+// definitions of *fully thread-safe* and *thread-enabled*.
+//
+// Note that calling any of the following manipulators from one of the threads
+// in the thread pool has the potential for deadlock.
+//: o 'stopThreads'
+//: o 'suspendProcessing'
+//: o 'drainJobs'
 //
 ///Usage
 ///-----

@@ -49,6 +49,14 @@ BDES_IDENT("$Id: $")
 // to be used in a variety of situations that require partitioning thread
 // resources.
 //
+///Thread Safety
+///-------------
+// The 'bcep_ThreadMultiplexor' class is both *fully thread-safe* (i.e., all
+// non-creator methods can correctly execute concurrently), and is
+// *thread-enabled* (i.e., the class does not function correctly in a
+// non-multi-threading environment).  See 'bsldoc_glossary' for complete
+// definitions of *fully thread-safe* and *thread-enabled*.
+//
 ///Usage Examples
 ///--------------
 // The following usage example illustrates how the 'bcep_ThreadMultiplexor' can
