@@ -67,6 +67,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_stdexceptutil.h>
 #endif
 
+#ifndef INCLUDED_BSLSTL_STRINGREFDATA
+#include <bslstl_stringrefdata.h>
+#endif
+
 #ifndef INCLUDED_BSLSTL_UTIL
 #include <bslstl_util.h>
 #endif
@@ -209,7 +213,6 @@ class String_Traits {
     static const char_type *find(const char_type  *s,
                                  size_type         n,
                                  const char_type&  a);
-
 };
 
 template <>
@@ -806,6 +809,14 @@ class basic_string
         // 'original'.  Optionally specify an 'allocator' used to supply
         // memory.  If 'allocator' is not specified, then a default-constructed
         // allocator is used.
+
+    basic_string(const BloombergLP::bslstl_StringRefData<CHAR_TYPE>& strRef,
+                 const ALLOCATOR& allocator = ALLOCATOR());
+        // Create a string that has the same value as the specified 'strRef'
+        // string.  The resulting string will contain the same sequence of
+        // characters as 'strRef'.  Optionally specify an 'allocator' used to
+        // supply memory.  If 'allocator' is not specified, then a
+        // default-constructed allocator is used.
 
     ~basic_string();
         // Destroy this string object.
@@ -1867,9 +1878,9 @@ String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp(SIZE_TYPE length,
                                              SIZE_TYPE capacity)
 : d_start_p(0)
 , d_length(length)
-, d_capacity(capacity < static_cast<SIZE_TYPE>(SHORT_BUFFER_CAPACITY)
-                      ? static_cast<SIZE_TYPE>(SHORT_BUFFER_CAPACITY)
-                      : capacity)
+, d_capacity(capacity <= static_cast<SIZE_TYPE>(SHORT_BUFFER_CAPACITY)
+                      ?  static_cast<SIZE_TYPE>(SHORT_BUFFER_CAPACITY)
+                      :  capacity)
 {
 }
 
@@ -1966,7 +1977,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCopy(
         this->d_start_p = privateAllocate(this->d_capacity);
     }
 
-    CHAR_TRAITS::copy(begin(), original.data(), this->d_length + 1);
+    CHAR_TRAITS::copy(this->dataPtr(), original.data(), this->d_length + 1);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -1996,7 +2007,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
         BloombergLP::bslstl_StdExceptUtil::throwLengthError(
                             "string<...>::append<Iter>(i,j): string too long");
     }
-    return privateAppendRaw(begin, numChars);
+    return privateAppendRaw(&*begin, numChars);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -2041,8 +2052,10 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendRaw(
         this->d_capacity = newStorage;
     }
     else {
-        CHAR_TRAITS::move(end(), characterString, numChars);
-        CHAR_TRAITS::assign(*(begin() + newLength), CHAR_TYPE());
+        CHAR_TRAITS::move(this->dataPtr() + length(),
+                          characterString,
+                          numChars);
+        CHAR_TRAITS::assign(*(this->dataPtr() + newLength), CHAR_TYPE());
     }
 
     this->d_length = newLength;
@@ -2059,9 +2072,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendRaw(
 
     size_type newLength = this->d_length + numChars;
     privateReserveRaw(newLength);
-    CHAR_TRAITS::assign(begin() + this->d_length, numChars, character);
+    CHAR_TRAITS::assign(this->dataPtr() + this->d_length, numChars, character);
     this->d_length = newLength;
-    CHAR_TRAITS::assign(*(begin() + newLength), CHAR_TYPE());
+    CHAR_TRAITS::assign(*(this->dataPtr() + newLength), CHAR_TYPE());
     return *this;
 }
 
@@ -2114,7 +2127,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInitDispatch(
         BloombergLP::bslstl_StdExceptUtil::throwLengthError(
                                           "string<...>(i,j): string too long");
     }
-    privateAppendRaw(begin, numChars);
+    privateAppendRaw(&*begin, numChars);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -2167,7 +2180,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
         BloombergLP::bslstl_StdExceptUtil::throwLengthError(
                         "string<...>::insert<Iter>(pos,i,j): string too long");
     }
-    privateInsertRaw(pos, first, numChars);
+    privateInsertRaw(pos, &*first, numChars);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -2233,7 +2246,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertRaw(
 
         CHAR_TRAITS::move(tail + numChars, tail, tailLen);
         CHAR_TRAITS::move(tail, shifted, numChars);
-        CHAR_TRAITS::assign(*(begin() + newLength), CHAR_TYPE());
+        CHAR_TRAITS::assign(*(this->dataPtr() + newLength), CHAR_TYPE());
     }
 
     this->d_length = newLength;
@@ -2331,7 +2344,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
             CHAR_TRAITS::move(dest + numChars, tail, tailLen);
         }
     }
-    CHAR_TRAITS::assign(*(begin() + newLength), CHAR_TYPE());
+    CHAR_TRAITS::assign(*(this->dataPtr() + newLength), CHAR_TYPE());
     this->d_length = newLength;
     return *this;
 }
@@ -2375,7 +2388,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRaw(
 
         CHAR_TRAITS::move(dest + numChars, tail, tailLen);
         CHAR_TRAITS::assign(dest, numChars, character);
-        CHAR_TRAITS::assign(*(begin() + newLength), CHAR_TYPE());
+        CHAR_TRAITS::assign(*(this->dataPtr() + newLength), CHAR_TYPE());
     }
 
     this->d_length = newLength;
@@ -2509,11 +2522,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                      "string<...>::replace<Iter>(pos,n,i,j): string too long");
     }
 
-    // Using the fact that iterators are just pointers.
-    BSLMF_ASSERT((BloombergLP::bslmf_IsSame<const_iterator,
-                                            const CHAR_TYPE *>::VALUE));
-
-    return privateReplaceRaw(outPosition, outNumChars, first, numChars);
+    return privateReplaceRaw(outPosition, outNumChars, &*first, numChars);
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -2546,7 +2555,7 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReserveRaw(
                                                   max_size());
         CHAR_TYPE *newBuffer = privateAllocate(newStorage);
 
-        CHAR_TRAITS::copy(newBuffer, begin(), this->d_length + 1);
+        CHAR_TRAITS::copy(newBuffer, this->dataPtr(), this->d_length + 1);
 
         privateDeallocate();
 
@@ -2576,7 +2585,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReserveRaw(
 
     CHAR_TYPE *newBuffer = privateAllocate(*storage);
 
-    CHAR_TRAITS::copy(newBuffer, begin(), numChars);
+    CHAR_TRAITS::copy(newBuffer, this->dataPtr(), numChars);
     return newBuffer;
 }
 
@@ -2591,12 +2600,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateResizeRaw(
     privateReserveRaw(newLength);
 
     if (newLength > this->d_length) {
-        CHAR_TRAITS::assign(begin() + this->d_length,
+        CHAR_TRAITS::assign(this->dataPtr() + this->d_length,
                             newLength - this->d_length,
                             character);
     }
     this->d_length = newLength;
-    CHAR_TRAITS::assign(*(begin() + this->d_length), CHAR_TYPE());
+    CHAR_TRAITS::assign(*(this->dataPtr() + this->d_length), CHAR_TYPE());
     return *this;
 }
 
@@ -2615,7 +2624,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCompareRaw(
 
     size_type numChars = lhsNumChars < otherNumChars ? lhsNumChars
                                                      : otherNumChars;
-    int cmpResult = CHAR_TRAITS::compare(begin() + lhsPosition,
+    int cmpResult = CHAR_TRAITS::compare(this->dataPtr() + lhsPosition,
                                          other,
                                          numChars);
     if (cmpResult) {
@@ -2739,6 +2748,17 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 , BloombergLP::bslstl_ContainerBase<allocator_type>(allocator)
 {
     this->assign(original.data(), original.length());
+}
+
+template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
+    const BloombergLP::bslstl_StringRefData<CHAR_TYPE>& strRef,
+    const ALLOCATOR&                                    allocator)
+: Imp()
+, BloombergLP::bslstl_ContainerBase<allocator_type>(allocator)
+{
+    assign(strRef.begin(), strRef.end());
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3293,8 +3313,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(size_type position,
     }
     if (numChars) {
         this->d_length -= numChars;
-        CHAR_TRAITS::move(begin() + position,
-                          begin() + position + numChars,
+        CHAR_TRAITS::move(this->dataPtr() + position,
+                          this->dataPtr() + position + numChars,
                           this->d_length - position);
         CHAR_TRAITS::assign(*(begin() + length()), CHAR_TYPE());
     }
@@ -3312,14 +3332,11 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(const_iterator position)
     iterator dstPosition = begin() + (position - cbegin());
 
     ++postPosition;
+    CHAR_TRAITS::move(&*dstPosition, &*postPosition, cend() - postPosition);
+
     --this->d_length;
+    CHAR_TRAITS::assign(*(this->dataPtr() + length()), CHAR_TYPE());
 
-    // Note that 'move' below is 'cend() - position' instead of
-    // 'cend() - postPosition' because 'cend()' already incorporated the change
-    // in 'd_length'.
-
-    CHAR_TRAITS::move(dstPosition, postPosition, cend() - position);
-    CHAR_TRAITS::assign(*(begin() + length()), CHAR_TYPE());
     return dstPosition;
 }
 
@@ -3337,14 +3354,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::erase(const_iterator first,
     iterator dstFirst = begin() + (first - cbegin());
 
     if (first != last) {
+        CHAR_TRAITS::move(&*dstFirst, &*last, cend() - last);
+
         this->d_length -= last - first;
-
-        // Note that 'move' below is 'end() - first' instead of 'end() - last'
-        // because 'end()' already incorporated the change in 'd_length'.
-
-        CHAR_TRAITS::move(dstFirst, last, cend() - first);
-        CHAR_TRAITS::assign(*(begin() + length()), CHAR_TYPE());
+        CHAR_TRAITS::assign(*(this->dataPtr() + length()), CHAR_TYPE());
     }
+
     return dstFirst;
 }
 
@@ -3812,7 +3827,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::copy(CHAR_TYPE *characterString,
     if (numChars > length() - position) {
         numChars = length() - position;
     }
-    CHAR_TRAITS::move(characterString, begin() + position, numChars);
+    CHAR_TRAITS::move(characterString, this->dataPtr() + position, numChars);
     return numChars;
 }
 
@@ -3876,7 +3891,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
          remChars -= ++nextString - thisString, thisString = nextString)
     {
         if (0 == CHAR_TRAITS::compare(nextString, string, numChars)) {
-            return nextString - begin();                              // RETURN
+            return nextString - this->dataPtr();                      // RETURN
         }
     }
     return npos;
@@ -3905,7 +3920,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(CHAR_TYPE character,
         BSLSTL_CHAR_TRAITS::find(this->dataPtr() + position,
                                  length() - position,
                                  character);
-    return result ? result - begin() : npos;
+    return result ? result - this->dataPtr() : npos;
 }
 
 template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
@@ -3986,12 +4001,12 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
 
     if (0 < numChars && position < length()) {
         for (const CHAR_TYPE *current = this->dataPtr() + position;
-             current != end();
+             current != this->dataPtr() + length();
              ++current)
         {
             if (BSLSTL_CHAR_TRAITS::find(characterString, numChars, *current)
                 != 0) {
-                return current - begin();                             // RETURN
+                return current - this->dataPtr();                     // RETURN
             }
         }
     }
@@ -4046,9 +4061,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
         {
             if (BSLSTL_CHAR_TRAITS::find(
                                         characterString, numChars, *current)) {
-                return current - begin();                             // RETURN
+                return current - this->dataPtr();                     // RETURN
             }
-            if (current == begin()) {
+            if (current == this->dataPtr()) {
                 break;
             }
         }
@@ -4104,7 +4119,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
         {
             if (!BSLSTL_CHAR_TRAITS::find(
                                         characterString, numChars, *current)) {
-                return current - begin();                             // RETURN
+                return current - this->dataPtr();                     // RETURN
             }
         }
     }
@@ -4159,7 +4174,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of (
         {
             if (!BSLSTL_CHAR_TRAITS::find(
                                         characterString, numChars, *current)) {
-                return current - begin();                             // RETURN
+                return current - this->dataPtr();                     // RETURN
             }
         }
     }
@@ -4252,7 +4267,7 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
     }
     return privateCompareRaw(lhsPosition,
                              lhsNumChars,
-                             other.begin() + otherPosition,
+                             other.dataPtr() + otherPosition,
                              otherNumChars);
 }
 
@@ -4260,6 +4275,8 @@ template <typename CHAR_TYPE, typename CHAR_TRAITS, typename ALLOCATOR>
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
                                                   const CHAR_TYPE *other) const
 {
+    BSLS_ASSERT_SAFE(other);
+
     return privateCompareRaw(size_type(0),
                              length(),
                              other,
@@ -4420,7 +4437,7 @@ bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>& lhs,
 {
     const std::size_t minLen = lhs.length() < rhs.length()
                              ? lhs.length() : rhs.length();
-    int ret = CHAR_TRAITS::compare(lhs.begin(), rhs.begin(), minLen);
+    int ret = CHAR_TRAITS::compare(lhs.data(), rhs.data(), minLen);
     if (0 == ret) {
         return lhs.length() < rhs.length();                           // RETURN
     }
@@ -4434,7 +4451,7 @@ operator<(const native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>& lhs,
 {
     const std::size_t minLen = lhs.length() < rhs.length()
                              ? lhs.length() : rhs.length();
-    int ret = CHAR_TRAITS::compare(lhs.c_str(), rhs.begin(), minLen);
+    int ret = CHAR_TRAITS::compare(lhs.data(), rhs.data(), minLen);
     if (0 == ret) {
         return lhs.length() < rhs.length();                           // RETURN
     }
@@ -4448,7 +4465,7 @@ operator<(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC1>&        lhs,
 {
     const std::size_t minLen = lhs.length() < rhs.length()
                              ? lhs.length() : rhs.length();
-    int ret = CHAR_TRAITS::compare(lhs.begin(), rhs.c_str(), minLen);
+    int ret = CHAR_TRAITS::compare(lhs.data(), rhs.data(), minLen);
     if (0 == ret) {
         return lhs.length() < rhs.length();                           // RETURN
     }
@@ -4463,7 +4480,7 @@ bool operator<(const CHAR_TYPE                                  *lhs,
 
     const std::size_t lhsLen = CHAR_TRAITS::length(lhs);
     const std::size_t minLen = lhsLen < rhs.length() ? lhsLen : rhs.length();
-    int ret = CHAR_TRAITS::compare(lhs, rhs.begin(), minLen);
+    int ret = CHAR_TRAITS::compare(lhs, rhs.data(), minLen);
     if (0 == ret) {
         return lhsLen < rhs.length();                                 // RETURN
     }
@@ -4478,7 +4495,7 @@ bool operator<(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
 
     const std::size_t rhsLen = CHAR_TRAITS::length(rhs);
     const std::size_t minLen = rhsLen < lhs.length() ? rhsLen : lhs.length();
-    int ret = CHAR_TRAITS::compare(lhs.begin(), rhs, minLen);
+    int ret = CHAR_TRAITS::compare(lhs.data(), rhs, minLen);
     if (0 == ret) {
         return lhs.length() < rhsLen;                                 // RETURN
     }
@@ -4911,7 +4928,7 @@ extern template class bsl::basic_string<wchar_t>;
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2008
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

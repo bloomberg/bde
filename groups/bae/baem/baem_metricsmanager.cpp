@@ -609,7 +609,7 @@ void baem_MetricsManager_PublicationHelper::publish(
 
         // Append the collected records to the buffer of records.
         recordBuffer.push_back(records);
-        baem_MetricSampleGroup sampleGroup(&records->front(),
+        baem_MetricSampleGroup sampleGroup(records->data(),
                                            records->size(),
                                            elapsedTime);
 
@@ -1012,7 +1012,7 @@ void baem_MetricsManager::collectSample(
     d_metricRegistry.getAllCategories(&allCategories);
     collectSample(sample,
                   records,
-                  &allCategories.front(),
+                  allCategories.data(),
                   allCategories.size(),
                   resetFlag);
 }
@@ -1102,7 +1102,7 @@ void baem_MetricsManager::publishAll(bool resetFlag)
 {
     bsl::vector<const baem_Category *> allCategories;
     d_metricRegistry.getAllCategories(&allCategories);
-    publish(&allCategories.front(), allCategories.size(), resetFlag);
+    publish(allCategories.data(), allCategories.size(), resetFlag);
 }
 
 void baem_MetricsManager::publishAll(
@@ -1129,7 +1129,7 @@ void baem_MetricsManager::publishAll(
     }
 
     if (includedCategories.size() > 0) {
-        publish(&includedCategories.front(),
+        publish(includedCategories.data(),
                 includedCategories.size(),
                 resetFlag);
     }

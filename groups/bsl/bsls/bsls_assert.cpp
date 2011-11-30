@@ -4,11 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_asserttestexception.h>
 #include <bsls_platform.h>
 
 #include <exception>
-#include <stdexcept>
-#include <string>
 
 #include <cstdio>
 #include <cstdlib>
@@ -193,20 +192,12 @@ void bsls_Assert::failThrow(const char *text, const char *file, int line)
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (!std::uncaught_exception()) {
-
-        std::string msg(file);
-
-        char buf[100];
-        std::sprintf(buf, ":%d: ", line);
-        msg += buf;
-
-        msg += text;
-        throw std::logic_error(msg);
+        throw bsls_AssertTestException(text, file, line);
     }
     else {
         std::fprintf(stderr,
                 "BSLS_ASSERTION ERROR: An uncaught exception is pending;"
-                                        " cannot throw 'std::logic_error'.\n");
+                " cannot throw 'bsls_AssertTestException'.\n");
     }
 #endif
 

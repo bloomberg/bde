@@ -456,9 +456,6 @@ void TesterFactory::allocate(btemt_AsyncChannel                    *channel,
     }
 
     d_barrier_p->wait();
-
-    MTCOUT << channel->peerAddress() << MTENDL;
-    MTCOUT << channel->localAddress() << MTENDL;
 }
 
 void TesterFactory::deallocate(btemt_Session *session)
@@ -1920,7 +1917,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 24968477
         //  Ensure that the bug where d_numSessions is decremented in stop and
-        //  then again when the session handle is destroyed.
+        //  then again when the session handle is destroyed has been fixed.
         //
         // Concerns:
         //: 1 d_numSessions is not decremented twice after a call to 'stop'.
@@ -2047,8 +2044,6 @@ int main(int argc, char *argv[])
         socket->shutdown(bteso_Flag::BTESO_SHUTDOWN_BOTH);
 
         socketFactory.deallocate(socket);
-
-        MTCOUT << "Disconnecting" << MTENDL;
 
         barrier.wait();
       } break;
@@ -2250,7 +2245,7 @@ int main(int argc, char *argv[])
 
         my_EchoServer echoServer(&coutMutex, 0, BACKLOG, REUSE, &ta);
         {
-            bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+            bteso_InetStreamSocketFactory<bteso_IPv4Address> factory(&ta);
             bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
 
             const char STRING[] = "Hello World!";
@@ -2267,7 +2262,8 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
         ASSERT(0 != ta.numBytesInUse());
-        LOOP_ASSERT(da.numBytesInUse(), 0 == da.numBytesInUse());
+        const int NUM_BYTES = da.numBytesInUse();
+        LOOP_ASSERT(NUM_BYTES, 0 == NUM_BYTES);
       } break;
 
       case 2: {

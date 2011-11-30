@@ -565,18 +565,23 @@ int main(int argc, char *argv[]) {
                        break;
                    }
                    else {
-                       ASSERT(resp ==
-                                     bteso_SocketHandle::BTESO_ERROR_TIMEDOUT);
+                       LOOP_ASSERT(resp,
+                             resp == bteso_SocketHandle::BTESO_ERROR_TIMEDOUT);
                    }
                }
 
-               resp = clientSocket->waitForConnect(negtwoseconds);
-               ASSERT(resp == 0);
+               resp   = clientSocket->waitForConnect(negtwoseconds);
+               status = clientSocket->connectionStatus();
 
-               ASSERT(status != 0);
+#ifdef BSLS_PLATFORM__OS_SOLARIS
+               LOOP_ASSERT(resp,
+                           bteso_SocketHandle::BTESO_ERROR_TIMEDOUT == resp);
+#else
+               LOOP_ASSERT(resp, 0 == resp);
+#endif
+               LOOP_ASSERT(status, status != 0);
 
                testFactory.deallocate(clientSocket);
-
            }
            {
                bteso_InetStreamSocketFactory<bteso_IPv4Address> testFactory;
@@ -2185,8 +2190,16 @@ int main(int argc, char *argv[]) {
                    //     socket has gone.  ERROR_EOF or ERROR_CONNDEAD
                    //
                    if (resp != 0) {
-                       ASSERT(bteso_SocketHandle::BTESO_ERROR_CONNDEAD == resp
+#ifdef BSLS_PLATFORM__OS_HPUX
+                       LOOP_ASSERT(resp,
+                         bteso_SocketHandle::BTESO_ERROR_CONNDEAD == resp
+                      || bteso_SocketHandle::BTESO_ERROR_INTERRUPTED == resp
+                      || bteso_SocketHandle::BTESO_ERROR_UNCLASSIFIED == resp);
+#else
+                       LOOP_ASSERT(resp,
+                          bteso_SocketHandle::BTESO_ERROR_CONNDEAD == resp
                        || bteso_SocketHandle::BTESO_ERROR_INTERRUPTED == resp);
+#endif
                        testFactory.deallocate(streamSocketB);
                    }
                    else {

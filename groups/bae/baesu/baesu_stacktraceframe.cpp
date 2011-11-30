@@ -24,13 +24,13 @@ bsl::ostream& baesu_StackTraceFrame::print(bsl::ostream& stream,
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.print(d_address,                   "address");
-    printer.print(d_libraryFileName.c_str(),   "library file name");
-    printer.print(d_lineNumber,                "line number");
-    printer.print(d_mangledSymbolName.c_str(), "mangled symbol name");
-    printer.print(d_offsetFromSymbol,          "offset from symbol");
-    printer.print(d_sourceFileName.c_str(),    "source file name");
-    printer.print(d_symbolName.c_str(),        "symbol name");
+    printer.printAttribute("address",             d_address);
+    printer.printAttribute("library file name",   d_libraryFileName.c_str());
+    printer.printAttribute("line number",         d_lineNumber);
+    printer.printAttribute("mangled symbol name", d_mangledSymbolName.c_str());
+    printer.printAttribute("offset from symbol",  d_offsetFromSymbol);
+    printer.printAttribute("source file name",    d_sourceFileName.c_str());
+    printer.printAttribute("symbol name",         d_symbolName.c_str());
     printer.end();
 
     return stream;
@@ -46,13 +46,13 @@ bsl::ostream& operator<<(bsl::ostream&                stream,
 
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
-    printer.print(object.address(),                   0);
-    printer.print(object.libraryFileName().c_str(),   0);
-    printer.print(object.lineNumber(),                0);
-    printer.print(object.mangledSymbolName().c_str(), 0);
-    printer.print(object.offsetFromSymbol(),          0);
-    printer.print(object.sourceFileName().c_str(),    0);
-    printer.print(object.symbolName().c_str(),        0);
+    printer.printValue(object.address());
+    printer.printValue(object.libraryFileName().c_str());
+    printer.printValue(object.lineNumber());
+    printer.printValue(object.mangledSymbolName().c_str());
+    printer.printValue(object.offsetFromSymbol());
+    printer.printValue(object.sourceFileName().c_str());
+    printer.printValue(object.symbolName().c_str());
     printer.end();
 
     return stream;

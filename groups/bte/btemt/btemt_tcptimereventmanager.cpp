@@ -75,7 +75,6 @@ class btemt_TcpTimerEventManager_Request {
     BSLALG_DECLARE_NESTED_TRAITS(btemt_TcpTimerEventManager_Request,
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
-    // DATA
     enum OpCode {
         NO_OP,                         // no operation
         TERMINATE,                     // exit signal
@@ -89,19 +88,18 @@ class btemt_TcpTimerEventManager_Request {
         REGISTER_TIMER,                // invoke 'registerTimer'
         RESCHEDULE_TIMER,              // invoke 'rescheduleTimer'
         IS_REGISTERED,                 // invoke 'isRegistered'.
-        NUM_SOCKET_EVENTS,             // invoke 'numSocketEvents'.
-        CAN_REGISTER_SOCKETS           // invoke 'canRegisterSockets'.
+        NUM_SOCKET_EVENTS              // invoke 'numSocketEvents'.
     };
 
   private:
-    // INSTANCE DATA
+    // DATA
     OpCode                        d_opCode;       // request type
     bcemt_Mutex                  *d_mutex_p;      // result notification
     bcemt_Condition              *d_condition_p;  //
 
     // The following two fields are used in socket related requests.
     bteso_SocketHandle::Handle    d_handle;       // socket handle associated
-                                                  // with this request  (in)
+                                                  // with this request (in)
     bteso_EventType::Type         d_eventType;    // event code (in)
 
     // The following two fields are used in timer related requests.
@@ -493,8 +491,7 @@ void btemt_TcpTimerEventManager_Request::waitForResult()
     switch (d_opCode) {
       case NO_OP:
       case IS_REGISTERED:
-      case NUM_SOCKET_EVENTS:
-      case CAN_REGISTER_SOCKETS: {
+      case NUM_SOCKET_EVENTS: {
         while (-1 == d_result) {
             d_condition_p->wait(d_mutex_p);
         }
@@ -613,10 +610,22 @@ btemt_TcpTimerEventManager_ControlChannel::
 , d_numServerReads(0)
 , d_numServerBytesRead(0)
 {
+    
+#ifdef BTESO_PLATFORM__BSD_SOCKETS
+    // Use UNIX domain sockets, if possible, rather than a standard socket
+    // pair, to avoid using ephemeral ports for the control channel.  AIX and
+    // Sun platforms have a more restrictive number of epheremal ports, and
+    // several production machines have come close to that limit ({DRQS
+    // 28135201<GO>}).  Note that the posix standard 'AF_LOCAL', is not
+    // supported by a number of platforms -- use the legacy identifier,
+    // 'AF_UNIX', instead.
+
+    int rc = ::socketpair(AF_UNIX, SOCK_STREAM, 0, d_fds);
+#else
     int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
                                      d_fds,
                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-
+#endif
     if (rc) {
         bsl::printf("%s(%d): Failed to create control channel"
                     " (errno = %d, rc = %d).\n",
@@ -809,14 +818,6 @@ void btemt_TcpTimerEventManager::controlCb()
             case btemt_TcpTimerEventManager_Request::NUM_SOCKET_EVENTS: {
                 int result = d_manager_p->numSocketEvents(req->socketHandle());
                 req->setResult(result);
-                req->signal();
-            } break;
-            case btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKETS: {
-                BSLS_ASSERT(d_manager_p->hasLimitedSocketCapacity());
-
-                bool result = d_manager_p->canRegisterSockets();
-
-                req->setResult((int) result);
                 req->signal();
             } break;
             case btemt_TcpTimerEventManager_Request::IS_REGISTERED: {
@@ -1568,65 +1569,6 @@ void btemt_TcpTimerEventManager::deregisterAll()
 }
 
 // ACCESSORS
-bool btemt_TcpTimerEventManager::canRegisterSockets() const
-{
-    if (!d_manager_p->hasLimitedSocketCapacity()) {
-        return true;                                                  // RETURN
-    }
-
-    if (bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(), d_dispatcher)) {
-        return d_manager_p->canRegisterSockets();                     // RETURN
-    }
-
-    bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_stateLock);
-
-    if (BTEMT_DISABLED == d_state) {
-        d_stateLock.unlock();
-        d_stateLock.lockWrite();
-    }
-
-    bool result;
-
-    switch (d_state) {
-      case BTEMT_ENABLED: {
-        // Processing thread is enabled -- enqueue the request.
-
-        bcemt_Mutex     mutex;
-        bcemt_Condition condition;
-
-        btemt_TcpTimerEventManager_Request *req =
-            new (d_requestPool) btemt_TcpTimerEventManager_Request(
-                      btemt_TcpTimerEventManager_Request::CAN_REGISTER_SOCKETS,
-                      &condition,
-                      &mutex,
-                      d_allocator_p);
-        d_requestQueue.pushBack(req);
-        BSLS_ASSERT(-1 == req->result());
-
-        bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
-        int ret = d_controlChannel.clientWrite();
-        if (0 > ret) {
-            d_requestQueue.popBack();
-            d_requestPool.deleteObjectRaw(req);
-            result = false;
-        }
-        else {
-            req->waitForResult();
-            result = (bool) req->result();
-            d_requestPool.deleteObjectRaw(req);
-        }
-      } break;
-      case BTEMT_DISABLED: {
-        // Processing thread is disabled -- upgrade to write lock
-        // and process request in this thread.
-
-        result = d_manager_p->canRegisterSockets();
-      }
-    }
-
-    return result;
-}
-
 int btemt_TcpTimerEventManager::isRegistered(
         const bteso_SocketHandle::Handle& handle,
         bteso_EventType::Type             event) const

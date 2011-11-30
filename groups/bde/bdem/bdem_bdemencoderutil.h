@@ -1081,7 +1081,9 @@ int bdem_BdemEncoderUtil_EncodeAttributesWithMask<STREAM>::execute(
 
     enum { BITMAP_FREQUENCY = 32 };
 
-    int bitmapIndex = d_attributeIndex / BITMAP_FREQUENCY;
+    BSLS_ASSERT_SAFE(d_attributeIndex >= 0);
+
+    unsigned bitmapIndex = d_attributeIndex / BITMAP_FREQUENCY;
 
     BSLS_ASSERT_SAFE(bitmapIndex < d_bitmaps_p->size());
 
