@@ -170,6 +170,8 @@ using bsl::flush;
 // [11] int baexml_Decoder::decode(sbuf*, TYPE, ostrm&, ostrm&, b_A*);
 // [11] int baexml_Decoder::decode(istrm&, TYPE, b_A*);
 // [11] int baexml_Decoder::decode(istrm&, TYPE, ostrm&, ostrm&, b_A*);
+// [16] void setNumUnknownElementsSkipped(int value);
+// [16] int numUnknownElementsSkipped() const;
 // [ 3] baexml_Decoder_SelectContext
 // [ 2] baexml_Decoder_ParserUtil
 // [ 5] baexml_Decoder_Base64Context
@@ -181,7 +183,7 @@ using bsl::flush;
 // [ 7] baexml_Decoder_PrepareSubContext
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [16] USAGE EXAMPLES
+// [17] USAGE EXAMPLES
 // [15] XML SCHEMA PARSING AND BDEM BINDING ADAPTOR DECODING
 //-----------------------------------------------------------------------------
 
@@ -567,6 +569,8 @@ void printValue(bsl::ostream& out, const bdeut_StringRef& value)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+#define XSI "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
 
 int verbose;
 int veryVerbose;
@@ -12703,7 +12707,6 @@ const char *Topchoice::selectionName() const
 
 }
 
-
 namespace baexml_Decoder_TestNamespace {
 
                             // ====================
@@ -12963,6 +12966,7 @@ const bdeat_SelectionInfo TestChoice2::SELECTION_INFO_ARRAY[] = {
     { 1, "S1", 2, "Selection 1" },
     { 2, "S2", 2, "Selection 2" },
 };
+
 
                           // ========================
                           // class TestVectorElemType
@@ -21785,7 +21789,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES
         //
@@ -21834,7 +21838,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << outStream.str() << bsl::endl;
 
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // EXHAUSTIVE XML DECODING TEST
         //
@@ -29898,18 +29902,407 @@ int main(int argc, char *argv[])
                      << " with rc: " << rc << endl;
                 cout << decoder.loggedMessages() << "," << e << endl;
             }
+        }
+      } break;
 
-//             baexml_EncoderOptions eo;
-//             eo.setEncodingStyle(baexml_EncodingStyle::BAEXML_PRETTY);
-//             eo.setInitialIndentLevel(0);
-//             eo.setSpacesPerLevel(2);
-//             eo.setObjectNamespace("TestNamespace");
-//             baexml_Encoder encoder(&eo);
-//             bsl::ostringstream os;
-//             rc = encoder.encodeToStream(os, object);
-//             ASSERT(!rc);
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING functions related to skipped elements
+        //   This test exercises functions that apply to skipped elements.
+        //
+        // Concerns:
+        //   a. The setNumUnknownElementsSkipped sets the number of skipped
+        //      elements correctly.
+        //   b. The numUnknownElementsSkipped returns the number of skipped
+        //      elements correctly.
+        //   c. Decoding of various functions correctly increments the number
+        //      of unknown elements that are skipped.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   void setNumUnknownElementsSKipped(int value);
+        //   int numUnknownElementsSkipped() const;
+        // --------------------------------------------------------------------
 
-//             LOOP3_ASSERT(i, STR, os.str(), compareEqual(STR, os.str()));
+        if (verbose) cout << "\nFUNCTIONS related to skipped elements"
+                          << "\n=====================================" << endl;
+
+        if (verbose) cout << "\nTesting setting and getting num skipped elems."
+                          << endl;
+        {
+            baexml_MiniReader reader;
+            baexml_ErrorInfo  errInfo;
+            baexml_DecoderOptions    options;
+
+            baexml_Decoder mX(&options, &reader, &errInfo,
+                              &bsl::cerr, &bsl::cerr);
+            const baexml_Decoder& X = mX;
+            ASSERT(0 == X.numUnknownElementsSkipped());
+
+            const int DATA[] = { 0, 1, 5, 100, 2000 };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int NUM_SKIPPED_ELEMS = DATA[i];
+                mX.setNumUnknownElementsSkipped(NUM_SKIPPED_ELEMS);
+                LOOP3_ASSERT(i, NUM_SKIPPED_ELEMS,
+                           X.numUnknownElementsSkipped(),
+                           NUM_SKIPPED_ELEMS == X.numUnknownElementsSkipped());
+            }
+        }
+
+        // TestSequence2
+        {
+            bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<TestSequence2 "XSI">\n"
+                                "    <E3>abc</E3>\n"
+                                "    <E1>123</E1>\n"
+                                "</TestSequence2>\n";
+            bsl::stringstream ss(INPUT);
+
+            if (veryVerbose) {
+                T_ P(INPUT)
+            }
+
+            TestSequence2 ts;
+
+            baexml_MiniReader reader;
+            baexml_ErrorInfo  errInfo;
+            baexml_DecoderOptions    options;
+
+            baexml_Decoder mX(&options, &reader, &errInfo,
+                              &bsl::cerr, &bsl::cerr);
+            const baexml_Decoder& X = mX;
+            ASSERT(0 == X.numUnknownElementsSkipped());
+
+            mX.decode(ss, &ts);
+
+            LOOP_ASSERT(ss.fail(), !ss.fail());
+            LOOP_ASSERT(ts,
+                    ts == TestSequence2(123, TestSequence2::DEFAULT_ELEMENT2));
+            LOOP_ASSERT(X.numUnknownElementsSkipped(),
+                        1 == X.numUnknownElementsSkipped());
+        }
+
+        // TestChoice2
+        {
+            bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                                "<TestChoice2 "XSI">\n"
+                                "    <S3>123</S3>\n"
+                                "</TestChoice2>\n";
+            bsl::stringstream ss(INPUT);
+
+            if (veryVerbose) {
+                T_ P(INPUT)
+            }
+
+            TestChoice2 tc;
+
+            baexml_MiniReader reader;
+            baexml_ErrorInfo  errInfo;
+            baexml_DecoderOptions    options;
+
+            baexml_Decoder mX(&options, &reader, &errInfo,
+                              &bsl::cerr, &bsl::cerr);
+            const baexml_Decoder& X = mX;
+            ASSERT(0 == X.numUnknownElementsSkipped());
+
+            mX.decode(ss, &tc);
+
+            LOOP_ASSERT(ss.fail(), !ss.fail());
+            LOOP_ASSERT(tc, TestChoice2() == tc);
+            LOOP_ASSERT(X.numUnknownElementsSkipped(),
+                        1 == X.numUnknownElementsSkipped());
+        }
+
+        // MySequence
+        {
+            typedef test::MySequence Type;
+
+            const struct {
+                int         d_line;
+                bsl::string d_xml;
+                int         d_numSkipped;
+
+                // Type Data members
+                int         d_attribute1;
+                bsl::string d_attribute2;
+            } DATA[] = {
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequence "XSI">\n"
+                    "    <Element3>45</Element3>\n"
+                    "</MySequence>\n",
+                    1,
+                    0,
+                    "",
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequence "XSI">\n"
+                    "    <Attribute1>45</Attribute1>\n"
+                    "    <Attribute2>Hello</Attribute2>\n"
+                    "    <Attribute3>World</Attribute3>\n"
+                    "</MySequence>\n",
+                    1,
+                    45,
+                    "Hello",
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequence "XSI">\n"
+                    "    <Attribute1>45</Attribute1>\n"
+                    "    <Attribute3>World</Attribute3>\n"
+                    "    <Attribute2>Hello</Attribute2>\n"
+                    "</MySequence>\n",
+                    1,
+                    45,
+                    "Hello",
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequence "XSI">\n"
+                    "    <Attribute3>Hello</Attribute3>\n"
+                    "    <Attribute4>World</Attribute4>\n"
+                    "</MySequence>\n",
+                    2,
+                    0,
+                    "",
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequence "XSI">\n"
+                    "    <Attribute1>45</Attribute1>\n"
+                    "    <Attribute3>Hello</Attribute3>\n"
+                    "    <Attribute4>World</Attribute4>\n"
+                    "</MySequence>\n",
+                    2,
+                    45,
+                    "",
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequence "XSI">\n"
+                    "    <Attribute1>45</Attribute1>\n"
+                    "    <Attribute3>Hello</Attribute3>\n"
+                    "    <Attribute2>Hello</Attribute2>\n"
+                    "    <Attribute4>World</Attribute4>\n"
+                    "</MySequence>\n",
+                    2,
+                    45,
+                    "Hello",
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequence "XSI">\n"
+                    "    <Attribute1>45</Attribute1>\n"
+                    "    <Attribute3>Hello</Attribute3>\n"
+                    "    <Attribute2>Hello</Attribute2>\n"
+                    "    <Attribute4>World</Attribute4>\n"
+                    "    <Attribute5>World</Attribute5>\n"
+                    "</MySequence>\n",
+                    3,
+                    45,
+                    "Hello",
+                },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const bsl::string XML         = DATA[i].d_xml;
+                const int         NUM_SKIPPED = DATA[i].d_numSkipped;
+
+                Type exp; const Type& EXP = exp;
+                exp.attribute1()              = DATA[i].d_attribute1;
+                exp.attribute2()              = DATA[i].d_attribute2;
+
+                if (veryVerbose) {
+                    T_ P_(i) P(XML) P(EXP)
+                }
+
+                bsl::stringstream input(XML);
+
+                baexml_MiniReader     reader;
+                baexml_ErrorInfo      errInfo;
+                baexml_DecoderOptions options;
+
+                baexml_Decoder decoder(&options, &reader, &errInfo,
+                                       &bsl::cerr, &bsl::cerr);
+                ASSERT(0 == decoder.numUnknownElementsSkipped());
+
+                Type obj; const Type& OBJ = obj;
+                decoder.decode(input, &obj);
+
+                LOOP_ASSERT(input.fail(), !input.fail());
+                LOOP3_ASSERT(i, EXP, OBJ, EXP == OBJ);
+                LOOP2_ASSERT(decoder.numUnknownElementsSkipped(),
+                             NUM_SKIPPED,
+                           NUM_SKIPPED == decoder.numUnknownElementsSkipped());
+            }
+        }
+
+        // MySequenceWithAnonymousChoice
+        {
+            typedef test::MySequenceWithAnonymousChoice Type;
+
+            const struct {
+                int         d_line;
+                bsl::string d_xml;
+                int         d_numSkipped;
+
+                // Type Data members
+                bool        d_attr1Specified;
+                int         d_attr1;
+
+                int         d_choiceSelectionId;
+                int         d_choiceAttr1;
+                bsl::string d_choiceAttr2;
+
+                bool        d_attr2Specified;
+                bsl::string d_attr2;
+            } DATA[] = {
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequenceWithAnonymousChoice "XSI">\n"
+                    "    <Attribute3>45</Attribute3>\n"
+                    "</MySequenceWithAnonymousChoice>\n",
+                    1,
+
+                    false, 0,        // Attribute 1
+                    -1, 0, "",       // Anonymous Choice
+                    false, ""        // Attribute 2
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequenceWithAnonymousChoice "XSI">\n"
+                    "    <Attribute1>35</Attribute1>\n"
+                    "    <Attribute3>45</Attribute3>\n"
+                    "</MySequenceWithAnonymousChoice>\n",
+                    1,
+
+                    true, 35,        // Attribute 1
+                    -1, 0, "",       // Anonymous Choice
+                    false, ""        // Attribute 2
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequenceWithAnonymousChoice "XSI">\n"
+                    "    <Attribute3>45</Attribute3>\n"
+                    "    <Attribute2>Hello</Attribute2>\n"
+                    "</MySequenceWithAnonymousChoice>\n",
+                    1,
+
+                    false, 0,        // Attribute 1
+                    -1, 0, "",       // Anonymous Choice
+                    true, "Hello"    // Attribute 2
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequenceWithAnonymousChoice "XSI">\n"
+                    "    <MyChoice1>35</MyChoice1>\n"
+                    "    <Attribute3>45</Attribute3>\n"
+                    "</MySequenceWithAnonymousChoice>\n",
+                    1,
+
+                    false, 0,        // Attribute 1
+                    0, 35, "",       // Anonymous Choice
+                    false, ""        // Attribute 2
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequenceWithAnonymousChoice "XSI">\n"
+                    "    <MyChoice2>Hello</MyChoice2>\n"
+                    "    <Attribute3>45</Attribute3>\n"
+                    "</MySequenceWithAnonymousChoice>\n",
+                    1,
+
+                    false, 0,        // Attribute 1
+                    1, 0, "Hello",   // Anonymous Choice
+                    false, ""        // Attribute 2
+                },
+                {
+                    L_,
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                    "<MySequenceWithAnonymousChoice "XSI">\n"
+                    "    <Attribute1>35</Attribute1>\n"
+                    "    <Attribute3>45</Attribute3>\n"
+                    "    <MyChoice2>Hello</MyChoice2>\n"
+                    "    <Attribute2>World</Attribute2>\n"
+                    "    <Attribute4>World</Attribute4>\n"
+                    "</MySequenceWithAnonymousChoice>\n",
+                    2,
+
+                    true, 35,        // Attribute 1
+                    1, 0, "Hello",   // Anonymous Choice
+                    true, "World"    // Attribute 2
+                },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE        = DATA[i].d_line;
+                const bsl::string XML         = DATA[i].d_xml;
+                const int         NUM_SKIPPED = DATA[i].d_numSkipped;
+
+                const bool        ATTR1_SPECIFIED = DATA[i].d_attr1Specified;
+                const bool        ATTR2_SPECIFIED = DATA[i].d_attr2Specified;
+
+                const int         SELECTION_ID   = DATA[i].d_choiceSelectionId;
+
+                Type exp; const Type& EXP = exp;
+                if (ATTR1_SPECIFIED) {
+                    exp.attribute1() = DATA[i].d_attr1;
+                }
+
+                if (ATTR2_SPECIFIED) {
+                    exp.attribute2() = DATA[i].d_attr2;
+                }
+
+                if (0 == SELECTION_ID) {
+                    exp.mySequenceWithAnonymousChoiceChoice().makeMyChoice1() =
+                                                         DATA[i].d_choiceAttr1;
+                }
+                else  if (1 == SELECTION_ID) {
+                    exp.mySequenceWithAnonymousChoiceChoice().makeMyChoice2() =
+                                                         DATA[i].d_choiceAttr2;
+                }
+
+                if (veryVerbose) {
+                    T_ P_(i) P(XML) P(EXP)
+                }
+
+                bsl::stringstream input(XML);
+
+                baexml_MiniReader     reader;
+                baexml_ErrorInfo      errInfo;
+                baexml_DecoderOptions options;
+
+                baexml_Decoder decoder(&options, &reader, &errInfo,
+                                       &bsl::cerr, &bsl::cerr);
+                ASSERT(0 == decoder.numUnknownElementsSkipped());
+
+                Type obj; const Type& OBJ = obj;
+                decoder.decode(input, &obj);
+
+                LOOP_ASSERT(input.fail(), !input.fail());
+                LOOP3_ASSERT(i, EXP, OBJ, EXP == OBJ);
+                LOOP2_ASSERT(decoder.numUnknownElementsSkipped(),
+                             NUM_SKIPPED,
+                           NUM_SKIPPED == decoder.numUnknownElementsSkipped());
+            }
         }
       } break;
 
@@ -29973,7 +30366,7 @@ int main(int argc, char *argv[])
 
         const char DATA[] =
          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-         "<Response xmlns=\"http://bloomberg.com/schemas/fxc\">\n"
+         "<Response xmlns=\"http://bloomberg.com/schemas/fxc\" "XSI">\n"
          "<DocumentListResponse>\n"
          "<TotalCount>4</TotalCount>\n"
          "<Name>Economie Internationale</Name>\n"
@@ -30065,36 +30458,36 @@ int main(int argc, char *argv[])
             ///line  input                  retCode  result
             ///----  -----                  -------  ------
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<TestSequence2>\n"
+                    "<TestSequence2 "XSI">\n"
                     "</TestSequence2>\n",  0,       TS()                     },
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<TestSequence2>\n"
+                    "<TestSequence2 "XSI">\n"
                     "  <E1>123</E1>\n"
                     "</TestSequence2>\n",  0,       TS(123,
                                                        TS::DEFAULT_ELEMENT2) },
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<TestSequence2>\n"
+                    "<TestSequence2 "XSI">\n"
                     "  <E2>abc</E2>\n"
                     "</TestSequence2>\n",  0,       TS(TS::DEFAULT_ELEMENT1,
                                                        "abc")                },
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<TestSequence2>\n"
+                    "<TestSequence2 "XSI">\n"
                     "  <E1>123</E1>\n"
                     "  <E2>abc</E2>\n"
                     "</TestSequence2>\n",  0,       TS(123, "abc")           },
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<TestSequence2>\n"
+                    "<TestSequence2 "XSI">\n"
                     "  <E1>123</E1>\n"
                     "  <E2_Wrong>123</E2_Wrong>\n"
                     "</TestSequence2>\n",  1,       TS(123,
                                                        TS::DEFAULT_ELEMENT2) },
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<TestSequence2>\n"
+                    "<TestSequence2 "XSI">\n"
                     "  <E2>abc</E2>\n"
                     "  <E1>blah</E1>\n"
                     "</TestSequence2>\n",  1,       TS(TS::DEFAULT_ELEMENT1,
@@ -30320,19 +30713,19 @@ int main(int argc, char *argv[])
             const char *INPUT[3]
                             = {
                               "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleContent Attribute1=\"true\" "
+                              "<MySimpleContent "XSI" Attribute1=\"true\" "
                               "Attribute2=\"Hello World!\">"
                               ""
                               "</MySimpleContent>\n",
 
                               "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleContent Attribute1=\"false\" "
+                              "<MySimpleContent "XSI" Attribute1=\"false\" "
                               "Attribute2=\"Hello World!\">"
                               "Some Stuff"
                               "</MySimpleContent>\n",
 
                               "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleContent Attribute1=\"true\" "
+                              "<MySimpleContent "XSI" Attribute1=\"true\" "
                               "Attribute2=\"Hello World!\">"
                               "  Some Stuff "
                               "</MySimpleContent>\n",
@@ -30383,13 +30776,13 @@ int main(int argc, char *argv[])
             const char *INPUT[2]
                             = {
                               "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleIntContent Attribute1=\"true\" "
+                              "<MySimpleIntContent "XSI" Attribute1=\"true\" "
                               "Attribute2=\"Hello World!\">"
                               "34"
                               "</MySimpleIntContent>\n",
 
                               "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySimpleIntContent Attribute1=\"false\" "
+                              "<MySimpleIntContent "XSI" Attribute1=\"false\" "
                               "Attribute2=\"Hello World!\">"
                               "  34 "
                               "</MySimpleIntContent>\n",
@@ -30469,37 +30862,37 @@ int main(int argc, char *argv[])
 
             const char *INPUT[6]
                             = {
-                              "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySequenceWithAttributes Attribute1=\"34\">\n"
-                              "    <Element1>45</Element1>\n"
-                              "    <Element2>Hello</Element2>\n"
-                              "</MySequenceWithAttributes>\n",
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                        "<MySequenceWithAttributes "XSI" Attribute1=\"34\">\n"
+                        "    <Element1>45</Element1>\n"
+                        "    <Element2>Hello</Element2>\n"
+                        "</MySequenceWithAttributes>\n",
 
-                              "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySequenceWithAttributes Attribute1=\"34\" "
-                              "Attribute2=\"World!\">\n"
-                              "    <Element1>45</Element1>\n"
-                              "    <Element2>Hello</Element2>\n"
-                              "</MySequenceWithAttributes>\n",
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                        "<MySequenceWithAttributes "XSI" Attribute1=\"34\" "
+                        "Attribute2=\"World!\">\n"
+                        "    <Element1>45</Element1>\n"
+                        "    <Element2>Hello</Element2>\n"
+                        "</MySequenceWithAttributes>\n",
 
-                              "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySequenceWithAttributes Attribute1=\"34\" "
-                              "Attribute2=\"  World ! \">\n"
-                              "    <Element1>45</Element1>\n"
-                              "    <Element2>Hello</Element2>\n"
-                              "</MySequenceWithAttributes>\n",
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                        "<MySequenceWithAttributes "XSI" Attribute1=\"34\" "
+                        "Attribute2=\"  World ! \">\n"
+                        "    <Element1>45</Element1>\n"
+                        "    <Element2>Hello</Element2>\n"
+                        "</MySequenceWithAttributes>\n",
 
-                              "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySequenceWithAttributes Attribute1=\"34\" "
-                              "Attribute2=\"  World ! \">\n"
-                              "</MySequenceWithAttributes>\n",
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                        "<MySequenceWithAttributes "XSI" Attribute1=\"34\" "
+                        "Attribute2=\"  World ! \">\n"
+                        "</MySequenceWithAttributes>\n",
 
-                              "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySequenceWithAttributes Attribute1=\"34\">\n"
-                              "</MySequenceWithAttributes>\n",
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                        "<MySequenceWithAttributes "XSI" Attribute1=\"34\">\n"
+                        "</MySequenceWithAttributes>\n",
 
-                              "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                              "<MySequenceWithAttributes Attribute1=\"34\"/>\n"
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                        "<MySequenceWithAttributes "XSI" Attribute1=\"34\"/>\n"
                               };
             const int NUM_INPUT = sizeof INPUT / sizeof *INPUT;
 
@@ -30577,28 +30970,28 @@ int main(int argc, char *argv[])
             const char *INPUT[4]
                             = {
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice>\n"
+                                "<MySequenceWithAnonymousChoice "XSI">\n"
                                 "    <Attribute1>34</Attribute1>\n"
                                 "    <MyChoice1>67</MyChoice1>\n"
                                 "    <Attribute2>Hello</Attribute2>\n"
                                 "</MySequenceWithAnonymousChoice>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice>\n"
+                                "<MySequenceWithAnonymousChoice "XSI">\n"
                                 "    <Attribute1>34</Attribute1>\n"
                                 "    <MyChoice1>  67 </MyChoice1>\n"
                                 "    <Attribute2>Hello</Attribute2>\n"
                                 "</MySequenceWithAnonymousChoice>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice>\n"
+                                "<MySequenceWithAnonymousChoice "XSI">\n"
                                 "    <Attribute1>34</Attribute1>\n"
                                 "    <MyChoice2>World!</MyChoice2>\n"
                                 "    <Attribute2>Hello</Attribute2>\n"
                                 "</MySequenceWithAnonymousChoice>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice>\n"
+                                "<MySequenceWithAnonymousChoice "XSI">\n"
                                 "    <Attribute1>34</Attribute1>\n"
                                 "    <MyChoice2>  World! </MyChoice2>\n"
                                 "    <Attribute2>Hello</Attribute2>\n"
@@ -30684,17 +31077,17 @@ int main(int argc, char *argv[])
             //----  -----                                 ----
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>YWJjZA==</Value>\n",          DEFAULT,  },
+                    "<Value "XSI">YWJjZA==</Value>\n",          DEFAULT,  },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>YWJjZA==</Value>\n",          BASE64,   },
+                    "<Value "XSI">YWJjZA==</Value>\n",          BASE64,   },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>61626364</Value>\n",          HEX,      },
+                    "<Value "XSI">61626364</Value>\n",          HEX,      },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>97 98 99 100</Value>\n",      IS_LIST,     },
+                    "<Value "XSI">97 98 99 100</Value>\n",      IS_LIST,     },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>abcd</Value>\n",              TEXT,     },
+                    "<Value "XSI">abcd</Value>\n",              TEXT,     },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>97 98 99 100</Value>\n",      LIST_OR_DEC, },
+                    "<Value "XSI">97 98 99 100</Value>\n",      LIST_OR_DEC, },
         };
         const int NUM_DATA  = sizeof DATA / sizeof *DATA;
         const int MAX_DEPTH = 5;
@@ -30798,13 +31191,13 @@ int main(int argc, char *argv[])
             //----  -----                                 ----
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>abcd</Value>\n",              DEFAULT,  },
+                    "<Value "XSI">abcd</Value>\n",              DEFAULT,  },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>abcd</Value>\n",              TEXT,     },
+                    "<Value "XSI">abcd</Value>\n",              TEXT,     },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>YWJjZA==</Value>\n",          BASE64,   },
+                    "<Value "XSI">YWJjZA==</Value>\n",          BASE64,   },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>61626364</Value>\n",          HEX,      },
+                    "<Value "XSI">61626364</Value>\n",          HEX,      },
         };
         const int NUM_DATA  = sizeof DATA / sizeof *DATA;
         const int MAX_DEPTH = 5;
@@ -30918,16 +31311,16 @@ int main(int argc, char *argv[])
                 //line  input                                           retCode
                 //----  -----                                           -------
                 { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                        "<RE>\n"
+                        "<RE "XSI">\n"
                         "</RE>\n",                                        2  },
 
                 { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                        "<RE>\n"
+                        "<RE "XSI">\n"
                         "    blah"
                         "</RE>\n",                                        4  },
 
                 { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                        "<RE>\n"
+                        "<RE "XSI">\n"
                         "    <S1>\n"
                         "    </S1>\n"
                         "</RE>\n",                                        3  },
@@ -31013,44 +31406,44 @@ int main(int argc, char *argv[])
                 //line   input         retCode   result
                 //----   -----         -------   ------
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "</RE>\n",    2                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1>123</S1>\n"
                          "</RE>\n",    0,        TC(123)                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1/>\n"
                          "</RE>\n",    0,        TC(0)                       },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1>123</S1>\n"
                          "  <S1>456</S1>\n"
                          "</RE>\n",    0,        TC(456)                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1>123</S1>\n"
                          "  <S1>456</S1>\n"
                          "  <S1>789</S1>\n"
                          "</RE>\n",    0,        TC(789)                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1_Wrong>123</S1_Wrong>\n"
                          "</RE>\n",    3                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1>blah</S1>\n"
                          "</RE>\n",    4                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  blah\n"
                          "</RE>\n",    4                                     },
             };
@@ -31150,92 +31543,92 @@ int main(int argc, char *argv[])
                 //line   input         retCode   result
                 //----   -----         -------   ------
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "</RE>\n",    2                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1>123</S1>\n"
                          "</RE>\n",    0,        TC(123)                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S2>abc</S2>\n"
                          "</RE>\n",    0,        TC("abc")                   },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1/>\n"
                          "</RE>\n",    0,        TC(0)                       },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S2/>\n"
                          "</RE>\n",    0,        TC("")                      },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1>123</S1>\n"
                          "  <S1>456</S1>\n"
                          "</RE>\n",    0,        TC(456)                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1>123</S1>\n"
                          "  <S2>abc</S2>\n"
                          "</RE>\n",    3                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S2>abc</S2>\n"
                          "  <S1>123</S1>\n"
                          "</RE>\n",    3                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1>123</S1>\n"
                          "  <S1>456</S1>\n"
                          "  <S1>789</S1>\n"
                          "</RE>\n",    0,        TC(789)                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S2>abc</S2>\n"
                          "  <S2>def</S2>\n"
                          "  <S2>ghi</S2>\n"
                          "</RE>\n",    0,        TC("ghi")                   },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1>123</S1>\n"
                          "  <S2>abc</S2>\n"
                          "  <S1>456</S1>\n"
                          "</RE>\n",    3                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S2>abc</S2>\n"
                          "  <S1>123</S1>\n"
                          "  <S2>def</S2>\n"
                          "</RE>\n",    3                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1_Wrong>123</S1_Wrong>\n"
                          "</RE>\n",    3                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S2_Wrong>abc</S2_Wrong>\n"
                          "</RE>\n",    3                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <S1>blah</S1>\n"
                          "</RE>\n",    4                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  blah\n"
                          "</RE>\n",    4                                     },
             };
@@ -31375,16 +31768,16 @@ int main(int argc, char *argv[])
                 //line  input                                           retCode
                 //----  -----                                           -------
                 { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                        "<RE>\n"
+                        "<RE "XSI">\n"
                         "</RE>\n",                                        1  },
 
                 { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                        "<RE>\n"
+                        "<RE "XSI">\n"
                         "    blah"
                         "</RE>\n",                                        3  },
 
                 { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                        "<RE>\n"
+                        "<RE "XSI">\n"
                         "    <E1>\n"
                         "    </E1>\n"
                         "</RE>\n",                                        3  },
@@ -31478,42 +31871,42 @@ int main(int argc, char *argv[])
                 //       min1   max1   retCode   result
                 //       ----   ----   -------   ------
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "</RE>\n",
                          0,     0,     0,        TS(INIT1)                   },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1>123</E1>\n"
                          "</RE>\n",
                          0,     1,     0,        TS(123)                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1/>\n"
                          "</RE>\n",
                          0,     1,     0,        TS(9876)                    },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1>123</E1>\n"
                          "</RE>\n",
                          1,     1,     0,        TS(123)                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1_Wrong>123</E1_Wrong>\n"
                          "</RE>\n",
                          0,     1,     2                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1>blah</E1>\n"
                          "</RE>\n",
                          0,     1,     4                                     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  blah\n"
                          "</RE>\n",
                          0,     0,     2                                     },
@@ -31629,109 +32022,109 @@ int main(int argc, char *argv[])
                 /////////min1  max1  min2  max2  retCode  result
                 /////////----  ----  ----  ----  -------  ------
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "</RE>\n",
                          0,    0,    0,    0,    0,       TS(INIT1, INIT2)   },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1>123</E1>\n"
                          "</RE>\n",
                          0,    1,    0,    0,    0,       TS(123, INIT2)     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E2>abc</E2>\n"
                          "</RE>\n",
                          0,    0,    0,    1,    0,       TS(INIT1, "abc")   },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1>123</E1>\n"
                          "</RE>\n",
                          1,    1,    0,    0,    0,       TS(123, INIT2)     },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E2>abc</E2>\n"
                          "</RE>\n",
                          0,    0,    1,    1,    0,       TS(INIT1, "abc")   },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "</RE>\n",
                          1,    1,    0,    0,    0,      TS(INIT1, INIT2)    },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "</RE>\n",
                          0,    0,    1,    1,    0,      TS(INIT1, INIT2)    },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E2>abc</E2>\n"
                          "</RE>\n",
                          1,    1,    0,    1,    0,      TS(INIT1, "abc")    },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1>123</E1>\n"
                          "</RE>\n",
                          0,    1,    1,    1,    0,      TS(123, INIT2)      },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1>123</E1>\n"
                          "</RE>\n",
                          0,    0,    0,    0,    0,      TS(123, INIT2)      },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E2>abc</E2>\n"
                          "</RE>\n",
                          0,    0,    0,    0,    0,      TS(INIT1, "abc")    },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1>123</E1>\n"
                          "  <E2>abc</E2>\n"
                          "</RE>\n",
                          0,    0,    0,    0,    0,      TS(123, "abc")      },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1/>\n"
                          "  <E2>abc</E2>\n"
                          "</RE>\n",
                          0,    0,    0,    0,    0,      TS(INIT1, "abc")    },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1>123</E1>\n"
                          "  <E2/>\n"
                          "</RE>\n",
                          0,    0,    0,    0,    0,      TS(123, INIT2)      },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1_Wrong>123</E1_Wrong>\n"
                          "</RE>\n",
                          0,    1,    0,    0,    2                           },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E2_Wrong>abc</E2_Wrong>\n"
                          "</RE>\n",
                          0,    0,    0,    1,    2                           },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  <E1>blah</E1>\n"
                          "</RE>\n",
                          0,    1,    0,    0,    4                           },
 
                 { L_,    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                         "<RE>\n"
+                         "<RE "XSI">\n"
                          "  blah\n"
                          "</RE>\n",
                          0,    0,    0,    0,    2                           },
@@ -31819,7 +32212,7 @@ int main(int argc, char *argv[])
             const char *INPUT[3]
                             = {
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables>\n"
+                                "<MySequenceWithNullables "XSI">\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "    <Attribute3>\n"
                                 "        <Attribute1>987</Attribute1>\n"
@@ -31828,7 +32221,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables>\n"
+                                "<MySequenceWithNullables "XSI">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute3>\n"
                                 "        <Attribute1>987</Attribute1>\n"
@@ -31837,7 +32230,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables>\n"
+                                "<MySequenceWithNullables "XSI">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequenceWithNullables>\n",
@@ -31898,7 +32291,7 @@ int main(int argc, char *argv[])
             const char *INPUT[3]
                             = {
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNillables>\n"
+                                "<MySequenceWithNillables "XSI">\n"
                                 "    <Attribute1 xsi:nil='true'/>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "    <Attribute3>\n"
@@ -31908,7 +32301,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNillables>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNillables>\n"
+                                "<MySequenceWithNillables "XSI">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute2/>\n"
                                 "    <Attribute3>\n"
@@ -31918,7 +32311,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNillables>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNillables>\n"
+                                "<MySequenceWithNillables "XSI">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "    <Attribute3 xsi:nil='true'/>\n"
@@ -31927,8 +32320,7 @@ int main(int argc, char *argv[])
             const int NUM_INPUT = sizeof INPUT / sizeof *INPUT;
 
             for (int i = 0; i < Type::NUM_ATTRIBUTES; ++i) {
-                Type mX;  const Type& X = mX;
-
+                Type mX; const Type& X = mX;
                 for (int j = 0; j < Type::NUM_ATTRIBUTES; ++j) {
                     if (j != i) {
                         if (0 == j) {
@@ -32150,35 +32542,35 @@ int main(int argc, char *argv[])
 
             // INT_MIN, -1, 0, 1, INT_MAX
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>-2147483648</Value>\n",    0,      -2147483647-1 },
+                    "<Value "XSI">-2147483648</Value>\n", 0,  -2147483647-1 },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>-1</Value>\n",             0,        -1          },
+                    "<Value "XSI">-1</Value>\n",       0,        -1          },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>0</Value>\n",              0,        0           },
+                    "<Value "XSI">0</Value>\n",        0,        0           },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>1</Value>\n",              0,        1           },
+                    "<Value "XSI">1</Value>\n",        0,        1           },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>2147483647</Value>\n",     0,        2147483647  },
+                    "<Value "XSI">2147483647</Value>\n", 0,     2147483647  },
 
             // arbitrary values
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>123</Value>\n",            0,        123         },
+                    "<Value "XSI">123</Value>\n",      0,        123         },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>-4567</Value>\n",          0,        -4567       },
+                    "<Value "XSI">-4567</Value>\n",    0,        -4567       },
 
             // arbitrary values with surrounding whitespace
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value> \n 123  </Value>\n",      0,        123         },
+                    "<Value "XSI"> \n 123  </Value>\n",0,        123         },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value> -4567 \n\t </Value>\n",   0,        -4567       },
+                    "<Value "XSI"> -4567 \n\t </Value>\n", 0,    -4567       },
 
             // invalid input
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>123<Bad></Bad></Value>\n", 3                     },
+                    "<Value "XSI">123<Bad></Bad></Value>\n", 3               },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>123 567</Value>\n",        2                     },
+                    "<Value "XSI">123 567</Value>\n",        2               },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>blah</Value>\n",           2                     },
+                    "<Value "XSI">blah</Value>\n",           2               },
         };
         const int NUM_DATA  = sizeof DATA / sizeof *DATA;
         const int MAX_DEPTH = 5;
@@ -32281,38 +32673,38 @@ int main(int argc, char *argv[])
             //line  input                                retCode     result
             //----  -----                                -------     ------
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value></Value>\n",                 0,          ""      },
+                    "<Value "XSI"></Value>\n",           0,          ""      },
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value> </Value>\n",                0,          " "     },
+                    "<Value "XSI"> </Value>\n",          0,          " "     },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>\n</Value>\n",               0,          "\n"    },
+                    "<Value "XSI">\n</Value>\n",         0,          "\n"    },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>  </Value>\n",               0,          "  "    },
+                    "<Value "XSI">  </Value>\n",         0,          "  "    },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value></Value>\n",                 0,          ""      },
+                    "<Value "XSI"></Value>\n",           0,          ""      },
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>abc</Value>\n",              0,          "abc"   },
+                    "<Value "XSI">abc</Value>\n",        0,          "abc"   },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>ab cd</Value>\n",            0,          "ab cd" },
+                    "<Value "XSI">ab cd</Value>\n",      0,          "ab cd" },
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>A&amp;B</Value>\n",          0,          "A&B"   },
+                    "<Value "XSI">A&amp;B</Value>\n",    0,          "A&B"   },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>A&lt;B</Value>\n",           0,          "A<B"   },
+                    "<Value "XSI">A&lt;B</Value>\n",     0,          "A<B"   },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>A&gt;B</Value>\n",           0,          "A>B"   },
+                    "<Value "XSI">A&gt;B</Value>\n",     0,          "A>B"   },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>A&apos;B</Value>\n",         0,          "A\'B"  },
+                    "<Value "XSI">A&apos;B</Value>\n",   0,          "A\'B"  },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>A&quot;B</Value>\n",         0,          "A\"B"  },
+                    "<Value "XSI">A&quot;B</Value>\n",   0,          "A\"B"  },
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>A" "\xC3\xA4" "B</Value>\n", 0,
+                    "<Value "XSI">A" "\xC3\xA4" "B</Value>\n", 0,
                                                          "A" "\xC3\xA4" "B"  },
 
             { L_,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<Value>abc<Bad></Bad></Value>\n",   3                   },
+                    "<Value "XSI">abc<Bad></Bad></Value>\n",   3             },
         };
         const int NUM_DATA  = sizeof DATA / sizeof *DATA;
         const int MAX_DEPTH = 5;
@@ -32995,7 +33387,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting int." << endl;
         {
             bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<Value>\n"
+                                "<Value "XSI">\n"
                                 "    123\n"
                                 "</Value>\n";
             bsl::stringstream ss(INPUT);
@@ -33022,7 +33414,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting bsl::string." << endl;
         {
             bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<Value>\n"
+                                "<Value "XSI">\n"
                                 "    abc\n"
                                 "</Value>\n";
             bsl::stringstream ss(INPUT);
@@ -33049,7 +33441,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting TestSequence2." << endl;
         {
             bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<TestSequence2>\n"
+                                "<TestSequence2 "XSI">\n"
                                 "    <E1>123</E1>\n"
                                 "    <E2>abc</E2>\n"
                                 "</TestSequence2>\n";
@@ -33077,7 +33469,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting TestChoice2." << endl;
         {
             bsl::string INPUT = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<TestChoice2>\n"
+                                "<TestChoice2 "XSI">\n"
                                 "    <S1>123</S1>\n"
                                 "</TestChoice2>\n";
             bsl::stringstream ss(INPUT);
@@ -33175,7 +33567,7 @@ int main(int argc, char *argv[])
         {
             const char INPUT[] =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<Player>\n"
+                "<Player "XSI">\n"
                 "    <health>97.32</health>\n"
                 "    <figure>\n"
                 "        <Circle>\n"
@@ -33216,7 +33608,7 @@ int main(int argc, char *argv[])
         {
             const char INPUT[] =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<ComplexPlayer>\n"
+                "<ComplexPlayer "XSI">\n"
                 "    <name>Shezan</name>\n"
                 "    <health>3.45</health>\n"
                 "    <figures>\n"
@@ -33266,7 +33658,7 @@ int main(int argc, char *argv[])
         {
             const char INPUT[] =
                     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<TopLevelChoice>\n"
+                    "<TopLevelChoice "XSI">\n"
                     "    <player>\n"
                     "        <health>97.32</health>\n"
                     "        <figure>\n"
@@ -33309,7 +33701,7 @@ int main(int argc, char *argv[])
         {
             const char INPUT[] =
                     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                    "<TopLevelChoice>\n"
+                    "<TopLevelChoice "XSI">\n"
                     "    <arrayOfPlayers>\n"
                     "        <player>\n"
                     "            <health>97.32</health>\n"
