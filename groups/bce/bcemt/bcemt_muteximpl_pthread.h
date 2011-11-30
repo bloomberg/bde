@@ -138,7 +138,8 @@ bcemt_MutexImpl<bces_Platform::PosixThreads>::bcemt_MutexImpl()
 inline
 void bcemt_MutexImpl<bces_Platform::PosixThreads>::lock()
 {
-    BSLS_ASSERT_SAFE(0xdeadbeef != *reinterpret_cast<const int *>(&d_lock));
+    BSLS_ASSERT_SAFE(0xdeadbeef !=
+                                 *reinterpret_cast<const unsigned *>(&d_lock));
 
     const int status = pthread_mutex_lock(&d_lock);
     (void) status;
@@ -148,7 +149,8 @@ void bcemt_MutexImpl<bces_Platform::PosixThreads>::lock()
 inline
 int bcemt_MutexImpl<bces_Platform::PosixThreads>::tryLock()
 {
-    BSLS_ASSERT_SAFE(0xdeadbeef != *reinterpret_cast<const int *>(&d_lock));
+    BSLS_ASSERT_SAFE(0xdeadbeef !=
+                                 *reinterpret_cast<const unsigned *>(&d_lock));
 
     return pthread_mutex_trylock(&d_lock);
 }
@@ -156,7 +158,8 @@ int bcemt_MutexImpl<bces_Platform::PosixThreads>::tryLock()
 inline
 void bcemt_MutexImpl<bces_Platform::PosixThreads>::unlock()
 {
-    BSLS_ASSERT_SAFE(0xdeadbeef != *reinterpret_cast<const int *>(&d_lock));
+    BSLS_ASSERT_SAFE(0xdeadbeef !=
+                                 *reinterpret_cast<const unsigned *>(&d_lock));
 
     const int status = pthread_mutex_unlock(&d_lock);
     (void) status;

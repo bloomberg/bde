@@ -610,10 +610,22 @@ btemt_TcpTimerEventManager_ControlChannel::
 , d_numServerReads(0)
 , d_numServerBytesRead(0)
 {
+    
+#ifdef BTESO_PLATFORM__BSD_SOCKETS
+    // Use UNIX domain sockets, if possible, rather than a standard socket
+    // pair, to avoid using ephemeral ports for the control channel.  AIX and
+    // Sun platforms have a more restrictive number of epheremal ports, and
+    // several production machines have come close to that limit ({DRQS
+    // 28135201<GO>}).  Note that the posix standard 'AF_LOCAL', is not
+    // supported by a number of platforms -- use the legacy identifier,
+    // 'AF_UNIX', instead.
+
+    int rc = ::socketpair(AF_UNIX, SOCK_STREAM, 0, d_fds);
+#else
     int rc = bteso_SocketImpUtil::socketPair<bteso_IPv4Address>(
                                      d_fds,
                                      bteso_SocketImpUtil::BTESO_SOCKET_STREAM);
-
+#endif
     if (rc) {
         bsl::printf("%s(%d): Failed to create control channel"
                     " (errno = %d, rc = %d).\n",

@@ -788,8 +788,8 @@ int main(int argc, char *argv[])
                   << std::endl;
         {
             static const struct {
-                int   d_lineNum;  // source line number
-                short d_value;
+                int            d_lineNum;  // source line number
+                unsigned short d_value;
             } DATA[] = {
                 //LINE  VALUE
                 //----  --------
@@ -805,8 +805,8 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE  = DATA[ti].d_lineNum;
-                const short VALUE = DATA[ti].d_value;
+                const int            LINE  = DATA[ti].d_lineNum;
+                const unsigned short VALUE = DATA[ti].d_value;
 
                 if (veryVerbose) { T_ P_(LINE) P(VALUE) }
                 {

@@ -161,7 +161,8 @@ int main(int argc, char *argv[])
                 bsl::cout << bsl::endl;
             }
 
-            static const char expectedOut[5] = {0xe6, 0x12, 0x34, 0x56, 0x78};
+            static const unsigned char expectedOut[5] =
+                                                {0xe6, 0x12, 0x34, 0x56, 0x78};
 
             ASSERT(strm.length() == sizeof(expectedOut));
             ASSERT(0 == bsl::memcmp(strm.data(),
