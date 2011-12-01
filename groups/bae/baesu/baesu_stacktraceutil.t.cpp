@@ -5,9 +5,13 @@
 #include <baesu_stackaddressutil.h>
 #include <baesu_stacktrace.h>
 
+#include <bcemt_threadutil.h>
+
 #include <bdef_function.h>
 #include <bdema_sequentialallocator.h>
 #include <bdesu_fileutil.h>
+#include <bdet_timeinterval.h>
+#include <bdetu_systemtime.h>
 #include <bdeu_string.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -321,6 +325,51 @@ void testStackTrace(const baesu_StackTrace& st)
 //#endif
     }
 }
+
+                                // -------
+                                // case 10
+                                // -------
+
+// We want long, ccmplicated to demangle names
+
+namespace BAESU_STACKTRACEUTIL_TEST_CASE_10 {
+namespace NS_10_2 {
+namespace NS_10_3 {
+namespace NS_10_4 {
+
+void topOfTheStack(void *, void *, void *, void *)
+{
+    ST st;
+
+    int rc = Util::loadStackTraceFromStack(&st, 2000, true);
+    LOOP_ASSERT(rc, 0 == rc);
+}
+
+void recurseABunchOfTimes(int depth, int, void *, int, void *)
+{
+    if (++depth >= 20) {
+        topOfTheStack(&depth, &depth, &depth, &depth);
+    }
+    else {
+        recurseABunchOfTimes(depth, 0, &depth, 0, &depth);
+    }
+}
+
+void loopForFourSeconds()
+{
+    bdet_TimeInterval start = bdetu_SystemTime::now();
+
+    do {
+        for (int i = 0; i < 100; ++i) {
+            recurseABunchOfTimes(0, 0, &i, 0, &i);
+        }
+    } while ((bdetu_SystemTime::now() - start).totalSecondsAsDouble() < 4);
+}
+
+} // namespace NS_10_4
+} // namespace NS_10_3
+} // namespace NS_10_2
+} // namespace BAESU_STACKTRACEUTIL_TEST_CASE_10
 
                                 // ------
                                 // case 8
@@ -1213,7 +1262,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TWO
         //
@@ -1235,7 +1284,7 @@ int main(int argc, char *argv[])
         recurseExample2(&depth);
         ASSERT(5 == depth);
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE ONE
         //
@@ -1255,6 +1304,37 @@ int main(int argc, char *argv[])
         int depth = 5;
         recurseExample1(&depth);
         ASSERT(5 == depth);
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING MULTITHREADEDNESS
+        //
+        // Concern:
+        //   Some parts of getting a stack trace, particularly pieces like
+        //   demangling that aren't BDE code, might not be thread-safe.
+        //
+        // Plan:
+        //   Repeatedly do stack traces in 2 threads simultanously.  Don't
+        //   bother streaming them -- the streaming code is entirely ours and
+        //   we know it's safe.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Multithreaded Test\n"
+                             "==================\n";
+
+        namespace TC1 = BAESU_STACKTRACEUTIL_TEST_CASE_10;
+        namespace TC = TC1::NS_10_2::NS_10_3::NS_10_4;
+
+        bdef_Function<void (*)()> func = &TC::loopForFourSeconds;
+        bcemt_ThreadUtil::Handle handles[2];
+        for (int i = 0; i < 2; ++i) {
+            int rc = bcemt_ThreadUtil::create(&handles[i], func);
+            ASSERT(0 == rc);
+        }
+        for (int i = 0; i < 2; ++i) {
+            int rc = bcemt_ThreadUtil::join(handles[i]);
+            ASSERT(0 == rc);
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
