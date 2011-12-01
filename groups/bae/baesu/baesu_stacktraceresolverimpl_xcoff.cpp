@@ -10,6 +10,9 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 
 #include <baesu_stacktraceresolver_filehelper.h>
 
+#include <bcemt_lockguard.h>
+#include <bcemt_mutex.h>
+
 #include <bdesu_fileutil.h>
 #include <bdesu_processutil.h>
 #include <bdeu_string.h>
@@ -1504,6 +1507,11 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
 
             Name *name = 0;
             if (d_demangle) {
+                // Note that 'Demangle' is not thread safe.
+
+                static bcemt_Mutex mutex;
+                bcemt_LockGuard<bcemt_Mutex> guard(&mutex);
+
                 // Note that 'Demangle' allocates with 'malloc', and that
                 // 'rest' is is passed as a reference to a modifiable.  Note
                 // that whoever wrote 'Demangle' didn't know how to use
