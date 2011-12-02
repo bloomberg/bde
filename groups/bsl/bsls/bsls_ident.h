@@ -124,7 +124,10 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #elif defined(__IBMC__) || defined(__IBMCPP__)
   #define _BSLS_IDENT(str) _Pragma(#str)
   #define BSLS_IDENT(str) _BSLS_IDENT(comment (user, str))
-#elif defined(_MSC_VER) /* Microsoft Visual Studio Compiler */
+#elif (0 && defined(_MSC_VER))
+  /* XXX: Microsoft Visual Studio Compiler, disabled for now - this
+   * formulation is incorrect.
+   */
   #define _BSLS_IDENT(str) _Pragma(#str)
   #define BSLS_IDENT(str) _BSLS_IDENT(comment (user, str))
 #elif defined(__HP_cc) || defined(__HP_aCC)
@@ -234,14 +237,17 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
   #define BSLS_IDENT_PRAGMA_ONCE
 #elif defined(__IBMC__) || defined(__IBMCPP__)
   #define BSLS_IDENT_PRAGMA_ONCE _Pragma("once")
-#elif defined(_MSC_VER)
+#elif (0 && defined(_MSC_VER))
+  /* XXX: It's unclear what level of support Microsoft's compiler has for
+   * _Pragma("once") - leave disabled for now.
+   */
   #define BSLS_IDENT_PRAGMA_ONCE _Pragma("once")
 #elif (defined(__HP_cc)  && __HP_cc-0  >= 62500) \
    || (defined(__HP_aCC) && __HP_aCC-0 >= 62500)
   /* supported in aCC A.06.25 (had not been fully supported in aCC A.06.20) */
   #define BSLS_IDENT_PRAGMA_ONCE _Pragma("once")
 #else
-  #define BSLS_IDENT_PRAGMA_ONCE _Pragma("once")
+  #define BSLS_IDENT_PRAGMA_ONCE
 #endif
 BSLS_IDENT_PRAGMA_ONCE
 
