@@ -150,8 +150,10 @@ enum {
 //==========================================================================
 //                      HELPER CLASS
 //--------------------------------------------------------------------------
+
 class SocketPair {
     // This helper class manages a client-server pair of connected sockets.
+
   private:
     bteso_SocketHandle::Handle d_fds[2];
   public:
@@ -162,6 +164,7 @@ class SocketPair {
     // ACCESSORS
     bteso_SocketHandle::Handle& clientFd();
         // Return a handle to the client socket.
+
     bteso_SocketHandle::Handle& serverFd();
         // Return a handle to the server socket.
 };

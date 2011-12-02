@@ -228,7 +228,7 @@ BDES_IDENT("$Id: $")
 //        } break;
 //        // ...
 //        default: {
-//             ASSERT("Invalid event code" && 0);
+//             assert("Invalid event code" && 0);
 //        } break;
 //      }
 //  }

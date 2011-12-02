@@ -60,14 +60,18 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 # define ASSERT_SAFE_IS_ACTIVE(exp)
 #endif
 
+namespace {
+    typedef BloombergLP::bteso_DefaultEventManager<
+                                BloombergLP::bteso_Platform::POLLSET> TheClass;
+}  // close unnamed namespace
+
 namespace BloombergLP {
 
                              // ---------------
                              // PRIVATE METHODS
                              // ---------------
 
-int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatchCallbacks(
-                                                         int numSignaled) const
+int TheClass::dispatchCallbacks(int numSignaled) const
     // using bitwise '|'s between bools rather than '||' for speed
 {
     int numCallbacks = 0;
@@ -128,9 +132,8 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatchCallbacks(
                              // CREATORS
                              // --------
 
-bteso_DefaultEventManager<bteso_Platform::POLLSET>::bteso_DefaultEventManager(
-                                             bteso_TimeMetrics *timeMetric,
-                                             bslma_Allocator   *basicAllocator)
+TheClass::bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric,
+                                    bslma_Allocator   *basicAllocator)
 : d_ps(::pollset_create(-1))
 , d_fdCount(0)
 , d_callbacks(basicAllocator)
@@ -139,7 +142,7 @@ bteso_DefaultEventManager<bteso_Platform::POLLSET>::bteso_DefaultEventManager(
 {
 }
 
-bteso_DefaultEventManager<bteso_Platform::POLLSET>::~bteso_DefaultEventManager()
+TheClass::~bteso_DefaultEventManager()
 {
 }
 
@@ -147,15 +150,14 @@ bteso_DefaultEventManager<bteso_Platform::POLLSET>::~bteso_DefaultEventManager()
                              // MANIPULATORS
                              // ------------
 
-int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(
-                                              const bdet_TimeInterval& timeout,
-                                              int                      flags)
+int TheClass::dispatch(const bdet_TimeInterval& timeout,
+                       int                      flags)
 {
     bdet_TimeInterval now(bdetu_SystemTime::now());
 
     if (!numEvents()) {
         if (timeout <= now) {
-            return 0;
+            return 0;                                                 // RETURN
         }
         while (timeout > now) {
             bdet_TimeInterval currTimeout(timeout - now);
@@ -164,6 +166,7 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(
             ts.tv_nsec = currTimeout.nanoseconds();
 
             // Sleep till it's time.
+
             if (d_timeMetric_p) {
                 d_timeMetric_p->switchTo(bteso_TimeMetrics::BTESO_IO_BOUND);
                 bcemt_ThreadUtil::microSleep(ts.tv_nsec / 1000, ts.tv_sec);
@@ -175,7 +178,7 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(
 
             now = bdetu_SystemTime::now();
         }
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     int numCallbacks = 0;                    // number of callbacks dispatched
@@ -187,9 +190,11 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(
         do {
             if (timeout > now) {
                 // Calculate the time remaining for the poll() call.
+
                 bdet_TimeInterval currTimeout(timeout - now);
 
                 // Convert this timeout to a 32 bit value in milliseconds.
+
                 relativeTimeout = currTimeout.seconds() * 1000
                           + currTimeout.nanoseconds() / 1000000 + 1;
                 BSLS_ASSERT(relativeTimeout >= 0);
@@ -200,16 +205,18 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(
 
             if (d_timeMetric_p) {
                 d_timeMetric_p->switchTo(bteso_TimeMetrics::BTESO_IO_BOUND);
-//              rfds = ::poll(&d_pollFds.front(), d_pollFds.size(),
-//                            relativeTimeout);
+                // rfds = ::poll(&d_pollFds.front(), d_pollFds.size(),
+                //               relativeTimeout);
+
                 rfds = ::pollset_poll(d_ps, &d_signaled[0], d_fdCount,
                                       relativeTimeout);
                 savedErrno = errno;
                 d_timeMetric_p->switchTo(bteso_TimeMetrics::BTESO_CPU_BOUND);
             }
             else {
-//              rfds = ::poll(&d_pollFds.front(), d_pollFds.size(),
-//                            relativeTimeout);
+                // rfds = ::poll(&d_pollFds.front(), d_pollFds.size(),
+                //               relativeTimeout);
+
                 rfds = ::pollset_poll(d_ps, &d_signaled[0], d_fdCount,
                                       relativeTimeout);
                 savedErrno = errno;
@@ -222,12 +229,13 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(
 
         if (0 >= rfds) {
             if (0 == rfds) {
-                return 0;
+                return 0;                                             // RETURN
             }
 
             BSLMF_ASSERT(1 == EPERM);
             BSLS_ASSERT(EPERM != savedErrno);
             return -1 == rfds && EINTR == savedErrno ? -1 : -savedErrno;
+                                                                      // RETURN
         }
 
         numCallbacks += dispatchCallbacks(rfds);
@@ -238,10 +246,10 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(
     return numCallbacks;
 }
 
-int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(int flags)
+int TheClass::dispatch(int flags)
 {
     if (!numEvents()) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     int numCallbacks = 0;                    // number of callbacks dispatched
@@ -269,10 +277,11 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(int flags)
 
         if (0 >= rfds) {
             if (0 == rfds) {
-                return 0;
+                return 0;                                             // RETURN
             }
 
             return -1 == rfds && EINTR == savedErrno ? -1 : -savedErrno;
+                                                                      // RETURN
         }
 
         numCallbacks += dispatchCallbacks(rfds);
@@ -281,19 +290,20 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(int flags)
     return numCallbacks;
 }
 
-int bteso_DefaultEventManager<bteso_Platform::POLLSET>::registerSocketEvent(
-    const bteso_SocketHandle::Handle&              socketHandle,
-    const bteso_EventType::Type                    eventType,
-    const bteso_EventManager::Callback&            callback)
+int TheClass::registerSocketEvent(
+                              const bteso_SocketHandle::Handle&   socketHandle,
+                              const bteso_EventType::Type         eventType,
+                              const bteso_EventManager::Callback& callback)
 {
     int rc;
 
     // Determine from 'd_callbacks' if the event has already been registered.
+
     bteso_Event event(socketHandle, eventType);
     CallbackMap::iterator cbIt = d_callbacks.find(event);
     if (d_callbacks.end() != cbIt) {
         cbIt->second = callback;
-        return 0;
+        return 0;                                                     // RETURN
     }
     else {
         // Register the handle/eventType with d_callbacks.
@@ -356,16 +366,18 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::registerSocketEvent(
         BSLS_ASSERT_SAFE(!eventMask || !d_callbacks.count(
                     bteso_Event(socketHandle, bteso_EventType::BTESO_ACCEPT)));
         eventMask |= POLLOUT;
-//#ifdef BDES_PLATFORM__OS_FREEBSD
-//        bteso_SocketOptUtil::setOption(socketHandle,
-//                                      bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
-//                                      bteso_SocketOptUtil::BTESO_SENDLOWATER,
-//                                      1);
-//#endif
+
+        //#ifdef BDES_PLATFORM__OS_FREEBSD
+        //bteso_SocketOptUtil::setOption(socketHandle,
+        //                            bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
+        //                            bteso_SocketOptUtil::BTESO_SENDLOWATER,
+        //                            1);
+        //#endif
+
       } break;
       default: {
         BSLS_ASSERT("Invalid event type (must be unreachable by design)" && 0);
-        return -1;
+        return -1;                                                    // RETURN
       } break;
     }
 
@@ -376,9 +388,9 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::registerSocketEvent(
     return 0;
 }
 
-void bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterSocketEvent(
-    const bteso_SocketHandle::Handle& socketHandle,
-    bteso_EventType::Type             eventType)
+void TheClass::deregisterSocketEvent(
+                                const bteso_SocketHandle::Handle& socketHandle,
+                                bteso_EventType::Type             eventType)
 {
     int rc;
 
@@ -405,9 +417,10 @@ void bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterSocketEvent(
       case bteso_EventType::BTESO_WRITE: {
         queryPollfd.events &= ~POLLOUT;
       } break;
-      default:
+      default: {
         BSLS_ASSERT("Invalid eventType (must be unreachable)" && 0);
-        return;
+        return;                                                       // RETURN
+      }
     }
 
     // no way to clear bits in an entry with 'pollset_ctl', we have to delete
@@ -438,8 +451,7 @@ void bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterSocketEvent(
     }
 }
 
-int bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterSocket(
-    const bteso_SocketHandle::Handle& socketHandle)
+int TheClass::deregisterSocket(const bteso_SocketHandle::Handle& socketHandle)
 {
     int rc;
 
@@ -455,7 +467,7 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterSocket(
     if (0 == rc) {
         BSLS_ASSERT_SAFE(!acceptFlag && !connectFlag);
 
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     int numCallbacks = 0;
@@ -509,7 +521,7 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterSocket(
     return numCallbacks;
 }
 
-void bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterAll()
+void TheClass::deregisterAll()
 {
     d_callbacks.clear();
     int rc = ::pollset_destroy(d_ps);
@@ -521,40 +533,36 @@ void bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterAll()
                              // ACCESSORS
                              // ---------
 
-bool bteso_DefaultEventManager<bteso_Platform::POLLSET>::
-                                                     canRegisterSockets() const
+bool TheClass::canRegisterSockets() const
 {
     return true;
 }
 
-bool bteso_DefaultEventManager<bteso_Platform::POLLSET>::
-                                               hasLimitedSocketCapacity() const
+bool TheClass::hasLimitedSocketCapacity() const
 {
     return false;
 }
 
-
-int bteso_DefaultEventManager<bteso_Platform::POLLSET>::numSocketEvents(
-    const bteso_SocketHandle::Handle& socketHandle) const
+int TheClass::numSocketEvents(
+                          const bteso_SocketHandle::Handle& socketHandle) const
 {
     ::pollfd queryPollfd;
     queryPollfd.fd = socketHandle;
     int rc = ::pollset_query(d_ps, &queryPollfd);
     if (0 == rc) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     return !!(queryPollfd.events & POLLIN) + !!(queryPollfd.events & POLLOUT);
 }
 
-int bteso_DefaultEventManager<bteso_Platform::POLLSET>::numEvents() const
+int TheClass::numEvents() const
 {
     return d_callbacks.size();
 }
 
-int bteso_DefaultEventManager<bteso_Platform::POLLSET>::isRegistered(
-    const bteso_SocketHandle::Handle& handle,
-    const bteso_EventType::Type       eventType) const
+int TheClass::isRegistered(const bteso_SocketHandle::Handle& handle,
+                           const bteso_EventType::Type       eventType) const
 {
     return 1 == d_callbacks.count(bteso_Event(handle, eventType));
 }
