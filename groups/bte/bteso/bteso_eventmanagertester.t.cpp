@@ -70,6 +70,10 @@ using namespace BloombergLP;
 // does not seem to significantly degrade performance (in the case of AIX it
 // resulted in a slight speedup, but that may just be spurious).
 //
+// R|N: R: signifies that callback actually read data from sockets (1 byte
+//         per socket)
+//      N: signifies that callbacks are just a nop function
+//
 // Linux: ---------------------------------------------------------------------
 //   SocketPairs FracBusy TimeOut R|N Platform microSeconds EventManager
 //      5000        0        0     R    Linux        20        epoll
@@ -152,6 +156,25 @@ using namespace BloombergLP;
 //
 //=============================================================================
 
+//=============================================================================
+//                              2nd pass results
+//                              ================
+//
+//
+// SocketsTotal: # of sockets being listened to
+//
+// # Busy: of the sockets being listened to, the # with data (1 byte each)
+//         ready for reading
+//
+// R|N: R: signifies that callback actually read data from sockets (1 byte
+//         per socket)
+//      N: signifies that callbacks are just a nop function
+//
+// Microseconds: time to call the 'dispatch' function, in microseconds.
+//
+// Benchmark of Windows is not done here, since only 'select' works there,
+// there is no decision of a default event manager to be made.
+//
 // ----------------------------------------------------------------------------
 // Table of AIX Dispatcher Results, 2nd Pass:
 //
@@ -235,10 +258,6 @@ using namespace BloombergLP;
 // descriptors is polled, there is an addition 33-120 ms lag when using 'poll',
 // and 22-93 ms lag when using '/dev/poll', depending how many ports are being
 // listed to.  This is a one time event.
-// ----------------------------------------------------------------------------
-//
-// Benchmark of Windows is not done here, since only 'select' works there,
-// there is no decision of a default event manager to be made.
 // ----------------------------------------------------------------------------
 
 
