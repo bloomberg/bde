@@ -1277,6 +1277,9 @@ int main(int argc, char *argv[])
         int numPublished       = 0;
         int numBufferedRecords = 0;
         bael_LoggerManagerConfiguration lmc;
+        lmc.setTriggerMarkers(
+                             bael_LoggerManagerConfiguration::BAEL_NO_MARKERS);
+
         bael_LoggerManager::initSingleton(TO, lmc, &ta);
         bael_LoggerManager& manager = bael_LoggerManager::singleton();
         for (int i = 0; i < (int) thresholds.size(); ++i) {
@@ -1368,7 +1371,7 @@ int main(int argc, char *argv[])
                         numPublished += numBufferedRecords;
                         numBufferedRecords = 0;
                     }
-                    LOOP3_ASSERT(i,j,k,
+                    LOOP3_ASSERT(i, j, k,
                                  numPublished == TO->numPublishedRecords());
                 }
             }
@@ -3086,6 +3089,8 @@ int main(int argc, char *argv[])
                BloombergLP::bael_Severity::BAEL_ERROR,  // trigger level
                BloombergLP::bael_Severity::BAEL_FATAL); // triggerAll level
         configuration.setDefaultRecordBufferSizeIfValid(REC_BUF_LIMIT);
+        configuration.setTriggerMarkers(
+               BloombergLP::bael_LoggerManagerConfiguration::BAEL_NO_MARKERS);
         BloombergLP::bcema_TestAllocator ta(veryVeryVerbose);
 
         BloombergLP::bael_LoggerManagerScopedGuard guard(&observer,
