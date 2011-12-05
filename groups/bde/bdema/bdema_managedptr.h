@@ -1079,7 +1079,7 @@ class bdema_ManagedPtr {
         // in this case.  It should be removed when the deprecated overloads
         // are removed.
 
-#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
     template <class BDEMA_TARGET_TYPE>
     void load(BDEMA_TARGET_TYPE *ptr, void *cookie, DeleterFunc deleter);
         // Destroy the current managed object (if any) and re-initialize this
@@ -1545,7 +1545,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TYPE  *ptr,
     d_members.set(stripBasePointerType(ptr), cookie, deleter);
 }
 
-#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
 template <class BDEMA_TYPE>
 template <class BDEMA_TARGET_TYPE>
 inline
@@ -1633,7 +1633,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
                                    void                   *cookie,
                                    void (*deleter)(BDEMA_TARGET_BASE *, void*))
 {
-#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR < 40000
+#if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
     BSLMF_ASSERT((!bslmf_IsVoid<BDEMA_TARGET_BASE>::VALUE ));
     BSLMF_ASSERT(( bslmf_IsConvertible<BDEMA_TARGET_TYPE *,
                                        BDEMA_TARGET_BASE *>::VALUE ));
