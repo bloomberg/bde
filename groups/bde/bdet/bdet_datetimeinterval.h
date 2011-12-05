@@ -223,9 +223,9 @@ class bdet_DatetimeInterval {
         // value is valid (i.e., the expressed interval must not overflow a
         // 32-bit integer number of days), and (2) every time argument
         // separately can be represented as a *62-bit* integer number of
-        // milliseconds.  Note that latter restriction ensures that an
+        // milliseconds.  Note that the latter restriction ensures that an
         // overflow cannot occur in an intermediate sum when computing an
-        // otherwise valid result, as may occur for example, given a very
+        // otherwise valid result, as may occur, for example, given a very
         // large positive number of hours and a large very negative number of
         // minutes.
 
