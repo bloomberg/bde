@@ -63,7 +63,7 @@ bael_LoggerManagerConfiguration::bael_LoggerManagerConfiguration(
 , d_categoryNameFilter()
 , d_defaultThresholdsCb()
 , d_logOrder(BAEL_LIFO)
-, d_triggerMarkers(BAEL_NO_MARKERS)
+, d_triggerMarkers(BAEL_BEGIN_END_MARKERS)
 , d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
 }
@@ -240,7 +240,7 @@ bael_LoggerManagerConfiguration::print(bsl::ostream& stream,
                                        int           spacesPerLevel) const
 {
     if (stream.bad()) {
-        return stream;
+        return stream;                                                // RETURN
     }
 
     const char NL = spacesPerLevel >= 0 ? '\n'
