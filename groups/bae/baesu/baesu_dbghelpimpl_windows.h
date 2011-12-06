@@ -154,7 +154,7 @@ bcemt_QLock& baesu_Dbghelp::qLock()
 {
     static bcemt_QLock qLockInstance = BCEMT_QLOCK_INITIALIZER;
 
-    return s_qLockInstance;
+    return qLockInstance;
 }
 
 }  // close namespace BloombergLP

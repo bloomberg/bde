@@ -144,8 +144,11 @@ int Dbghelp_Util::load()
     BSLS_ASSERT(NULL == d_symSetOptions);
     BSLS_ASSERT(NULL == d_symInitialize);
     BSLS_ASSERT(NULL == d_symFromAddr);
+#ifdef BSLS_PLATFORM__CPU_32_BIT
     BSLS_ASSERT(NULL == d_symGetSymFromAddr64);
+#else
     BSLS_ASSERT(NULL == d_symGetLineFromAddr64);
+#endif
     BSLS_ASSERT(NULL == d_stackWalk64);
     BSLS_ASSERT(NULL == d_symCleanup);
     BSLS_ASSERT(NULL == d_symFunctionTableAccess64);
@@ -211,7 +214,7 @@ int Dbghelp_Util::load()
 // CREATORS
 Dbghelp_Util::~Dbghelp_Util()
 {
-    BSLS_ASSERT_OPT(!baesu_Dbghelp::qLock().isLocked());
+    BSLS_ASSERT_OPT(!BloombergLP::baesu_Dbghelp::qLock().isLocked());
 
     if (ok()) {
         (*d_symCleanup)(d_hProcess);
@@ -223,7 +226,7 @@ Dbghelp_Util::~Dbghelp_Util()
 inline
 int Dbghelp_Util::init()
 {
-    BSLS_ASSERT(baesu_Dbghelp::qLock().isLocked());
+    BSLS_ASSERT(BloombergLP::baesu_Dbghelp::qLock().isLocked());
 
     return NULL == d_moduleHandle ? load() : 0;
 }
