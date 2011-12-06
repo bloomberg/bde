@@ -337,6 +337,11 @@ namespace NS_10_2 {
 namespace NS_10_3 {
 namespace NS_10_4 {
 
+#undef  BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
+#if defined(BDE_BUILD_TARGET_DBG) || !defined(BSLS_PLATFORM__OS_WINDOWS)
+#define BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
+#endif
+
 void topOfTheStack(void *, void *, void *, void *)
 {
     ST st;
@@ -344,7 +349,7 @@ void topOfTheStack(void *, void *, void *, void *)
     int rc = Util::loadStackTraceFromStack(&st, 2000, true);
     LOOP_ASSERT(rc, 0 == rc);
 
-#ifdef BDE_BUILD_TARGET_DBG
+#if defined(BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS)
     const int len = st.length();
 
     bool tots = false;
@@ -1367,7 +1372,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Multithreaded Test\n"
                              "==================\n";
 
-#ifndef BDE_BUILD_TARGET_DBG
+#ifndef BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
         cout << "Not built with symbols -- no symbols checked\n";
 #endif
 
