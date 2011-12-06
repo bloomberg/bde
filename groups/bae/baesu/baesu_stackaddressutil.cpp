@@ -429,9 +429,9 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
     stackFrame.AddrFrame.Mode = AddrModeFlat;
     stackFrame.AddrStack.Mode = AddrModeFlat;
     int stackFrameIndex;
-    HANDLE currentThread = GetCurrentThread(),
+    HANDLE currentThread = GetCurrentThread();
     for (stackFrameIndex = 0; stackFrameIndex < maxFrames; ++stackFrameIndex) {
-        bool rc = baesu_DbgHelp::stackWalk64(machine,
+        bool rc = baesu_Dbghelp::stackWalk64(machine,
                                              baesu_Dbghelp::NullArg(),
                                              currentThread,
                                              &stackFrame,
