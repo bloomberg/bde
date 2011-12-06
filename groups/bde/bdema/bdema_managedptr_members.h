@@ -113,11 +113,18 @@ class bdema_ManagedPtr_Members {
         // Reset this object to an unset state.  Note that any previously
         // managed object will not be destroyed.
 
-    void move(bdema_ManagedPtr_Members& other);
+    void move(bdema_ManagedPtr_Members *other);
         // Re-initialize this object, having the same 'd_obj_p' and, if that
         // 'd_obj_p' is not null, 'd_deleter' values as the specified 'other',
         // and then put 'other' into an unset set.  Note that any previously
         // managed object will not be destroyed.
+
+    void moveAssign(bdema_ManagedPtr_Members *other);
+        // Destroy the currently managed object (if any) unless the specified
+        // 'other' refers to this object, then re-initialize this object,
+        // having the same 'd_obj_p' and, if that 'd_obj_p' is not null,
+        // 'd_deleter' values as the specified 'other', and then put 'other'
+        // into an unset set.
 
     void set(void *object, void *factory, DeleterFunc deleter);
         // Re-initialize this object with the specified 'object' pointer

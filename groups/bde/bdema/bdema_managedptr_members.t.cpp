@@ -20,7 +20,25 @@ using bsl::endl;
 //=============================================================================
 //                             TEST PLAN
 //                             ---------
-// [ 4] imp. class bdema_ManagedPtr_Members
+// [ 3] bdema_ManagedPtr_Members();
+// [ 4] bdema_ManagedPtr_Members(bdema_ManagedPtr_Members& other);
+// [ 4] bdema_ManagedPtr_Members(void *object,
+//                               void *factory,
+//                               DeleterFunc deleter);
+// [ 4] bdema_ManagedPtr_Members(void        *object,
+//                               void        *factory,
+//                               DeleterFunc  deleter,
+//                               void        *alias);
+// [ 3] ~bdema_ManagedPtr_Members() = default;
+// [ 4] void clear();
+// [ 4] void move(bdema_ManagedPtr_Members *other);
+// [  ] void moveAssign(bdema_ManagedPtr_Members *other);
+// [ 4] void set(void *object, void *factory, DeleterFunc deleter);
+// [ 4] void setAliasPtr(void *ptr);
+// [ 4] void swap(bdema_ManagedPtr_Members& other);
+// [ 4] void runDeleter() const;
+// [ 4] void *pointer() const;
+// [ 4] const bdema_ManagedPtrDeleter& deleter() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] Test machinery
@@ -316,7 +334,7 @@ int main(int argc, char *argv[])
         //    bdema_ManagedPtr_Members(void *, void *, DeleterFunc);
         //    bdema_ManagedPtr_Members(bdema_ManagedPtr_Members&);
         //    ~bdema_ManagedPtr_Members();
-        //    void move(bdema_ManagedPtr_Members& other);
+        //    void move(bdema_ManagedPtr_Members *other);
         //    void set(void *object, void *factory, DeleterFunc deleter);
         //    void setAliasPtr(void *ptr);
         //    void swap(bdema_ManagedPtr_Members& other);
@@ -544,7 +562,7 @@ int main(int argc, char *argv[])
                 ASSERT(&del2 == b.deleter().factory());
                 ASSERT(&doNothingDeleter == b.deleter().deleter());
 
-                a.move(b);
+                a.move(&b);
                 ASSERT(&y == a.pointer());
                 ASSERT(&y == a.deleter().object());
                 ASSERT(&del2 == a.deleter().factory());
@@ -555,7 +573,7 @@ int main(int argc, char *argv[])
                 b.set(0, 0, 0);
                 a.setAliasPtr(&x);
 
-                b.move(a);
+                b.move(&a);
                 ASSERT(&x == b.pointer());
                 ASSERT(&y == b.deleter().object());
                 ASSERT(&del2 == b.deleter().factory());
@@ -568,7 +586,7 @@ int main(int argc, char *argv[])
 
                 {
                     bsls_AssertTestHandlerGuard guard;
-                    ASSERT_SAFE_FAIL(b.move(b));
+                    ASSERT_SAFE_FAIL(b.move(&b));
                 }
 #else
                 if (verbose) cout << "\tNegative testing disabled due to lack"

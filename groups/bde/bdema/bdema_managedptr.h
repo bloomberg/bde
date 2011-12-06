@@ -1419,7 +1419,7 @@ bdema_ManagedPtr<BDEMA_TYPE>::bdema_ManagedPtr(
     BSLS_ASSERT_SAFE( 0 != alias.ptr() || 0 == ptr );
 
     if(0 != ptr) {
-        d_members.move(alias.d_members);
+        d_members.move(&alias.d_members);
         d_members.setAliasPtr(stripBasePointerType(ptr));
     }
 }
@@ -1557,9 +1557,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::load(BDEMA_TARGET_TYPE *ptr,
                                        BDEMA_TYPE *>::VALUE));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    d_members.runDeleter();
-    d_members.set(stripCompletePointerType(ptr), cookie, deleter);
-    d_members.setAliasPtr(stripBasePointerType(ptr));
+    this->loadImp(ptr, cookie, deleter); 
 }
 #endif
 
@@ -1682,10 +1680,7 @@ void bdema_ManagedPtr<BDEMA_TYPE>::loadAlias(
                     || (0 != ptr && 0 != alias.ptr()) );
 
     if (ptr && alias.d_members.pointer()) {
-        if (&d_members != &alias.d_members) {
-            d_members.runDeleter();
-            d_members.move(alias.d_members);
-        }
+        d_members.moveAssign(&alias.d_members);
         d_members.setAliasPtr(stripBasePointerType(ptr));
     }
     else {
@@ -1724,14 +1719,11 @@ void bdema_ManagedPtr<BDEMA_TYPE>::swap(bdema_ManagedPtr& other)
 }
 
 template <class BDEMA_TYPE>
+inline
 bdema_ManagedPtr<BDEMA_TYPE>&
 bdema_ManagedPtr<BDEMA_TYPE>::operator=(bdema_ManagedPtr& rhs)
-{   // Must protect against self-assignment due to destructive move
-    if (&d_members != &rhs.d_members) {
-        d_members.runDeleter();
-        d_members.move(rhs.d_members);
-    }
-
+{
+    d_members.moveAssign(&rhs.d_members);
     return *this;
 }
 
@@ -1739,12 +1731,8 @@ template <class BDEMA_TYPE>
 inline
 bdema_ManagedPtr<BDEMA_TYPE>&
 bdema_ManagedPtr<BDEMA_TYPE>::operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref)
-{   // Must protect against self-assignment due to destructive move
-    if (&d_members != ref.base()) {
-        d_members.runDeleter();
-        d_members.move(*ref.base());
-    }
-
+{
+    d_members.moveAssign(ref.base());
     return *this;
 }
 

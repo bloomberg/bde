@@ -40,20 +40,32 @@ void bdema_ManagedPtr_Members::clear()
     d_obj_p = 0;
 }
 
-void bdema_ManagedPtr_Members::move(bdema_ManagedPtr_Members& other)
+void bdema_ManagedPtr_Members::move(bdema_ManagedPtr_Members *other)
 {
     // if 'other.d_obj_p' is null then 'other.d_deleter' may not be initialized
     // but 'set' takes care of that concern.  deleter passed by ref, so no read
     // of uninitialized memory occurs
 
-    BSLS_ASSERT(this != &other);
+    BSLS_ASSERT(other);
+    BSLS_ASSERT(this != other);
 
-    d_obj_p = other.d_obj_p;
-    if (other.d_obj_p) {
-        d_deleter = other.d_deleter;
+    d_obj_p = other->d_obj_p;
+    if (other->d_obj_p) {
+        d_deleter = other->d_deleter;
     }
 
-    other.clear();
+    other->clear();
+}
+
+void bdema_ManagedPtr_Members::moveAssign(bdema_ManagedPtr_Members *other)
+{
+    BSLS_ASSERT(other);
+
+    // Must protect against self-assignment due to destructive move
+    if (this != other) {
+        runDeleter();
+        move(other);
+    }
 }
 
 void bdema_ManagedPtr_Members::set(void        *object,
