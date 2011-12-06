@@ -405,10 +405,10 @@ void loopForFourSeconds()
     } while ((bdetu_SystemTime::now() - start).totalSecondsAsDouble() < 4);
 }
 
-} // namespace NS_10_4
-} // namespace NS_10_3
-} // namespace NS_10_2
-} // namespace BAESU_STACKTRACEUTIL_TEST_CASE_10
+}  // close namespace NS_10_4
+}  // close namespace NS_10_3
+}  // close namespace NS_10_2
+}  // close namespace BAESU_STACKTRACEUTIL_TEST_CASE_10
 
                                 // ------
                                 // case 8
