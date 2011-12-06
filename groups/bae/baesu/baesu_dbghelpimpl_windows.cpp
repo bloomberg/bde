@@ -143,12 +143,12 @@ int Dbghelp_Util::load()
     BSLS_ASSERT(NULL == d_moduleHandle);
     BSLS_ASSERT(NULL == d_symSetOptions);
     BSLS_ASSERT(NULL == d_symInitialize);
-    BSLS_ASSERT(NULL == d_symFromAddr);
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-    BSLS_ASSERT(NULL == d_symGetSymFromAddr64);
+    BSLS_ASSERT(NULL == d_symFromAddr);
 #else
-    BSLS_ASSERT(NULL == d_symGetLineFromAddr64);
+    BSLS_ASSERT(NULL == d_symGetSymFromAddr64);
 #endif
+    BSLS_ASSERT(NULL == d_symGetLineFromAddr64);
     BSLS_ASSERT(NULL == d_stackWalk64);
     BSLS_ASSERT(NULL == d_symCleanup);
     BSLS_ASSERT(NULL == d_symFunctionTableAccess64);
