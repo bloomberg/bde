@@ -344,6 +344,7 @@ void topOfTheStack(void *, void *, void *, void *)
     int rc = Util::loadStackTraceFromStack(&st, 2000, true);
     LOOP_ASSERT(rc, 0 == rc);
 
+#ifdef BDE_BUILD_TARGET_DBG
     const int len = st.length();
 
     bool tots = false;
@@ -382,16 +383,19 @@ void topOfTheStack(void *, void *, void *, void *)
     }
 
     ASSERT(tots && rabo && lffs && tc10 && ns2 && ns3 && ns4);
+#endif
 }
 
-void recurseABunchOfTimes(int depth, int, void *, int, void *)
+void recurseABunchOfTimes(int *depth, int, void *, int, void *)
 {
-    if (++depth >= 20) {
-        topOfTheStack(&depth, &depth, &depth, &depth);
+    if (--*depth <= 0) {
+        topOfTheStack(depth, depth, depth, depth);
     }
     else {
-        recurseABunchOfTimes(depth, 0, &depth, 0, &depth);
+        recurseABunchOfTimes(depth, 0, depth, 0, depth);
     }
+
+    ++*depth;
 }
 
 void loopForFourSeconds()
@@ -399,8 +403,10 @@ void loopForFourSeconds()
     bdet_TimeInterval start = bdetu_SystemTime::now();
 
     do {
+        int depth = 20;
         for (int i = 0; i < 100; ++i) {
-            recurseABunchOfTimes(0, 0, &i, 0, &i);
+            recurseABunchOfTimes(&depth, 0, &i, 0, &i);
+            ASSERT(20 == depth);
         }
     } while ((bdetu_SystemTime::now() - start).totalSecondsAsDouble() < 4);
 }
@@ -1360,6 +1366,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Multithreaded Test\n"
                              "==================\n";
+
+#ifndef BDE_BUILD_TARGET_DBG
+        cout << "Not built with symbols -- no symbols checked\n";
+#endif
 
         namespace TC1 = BAESU_STACKTRACEUTIL_TEST_CASE_10;
         namespace TC = TC1::NS_10_2::NS_10_3::NS_10_4;
