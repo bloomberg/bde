@@ -343,6 +343,45 @@ void topOfTheStack(void *, void *, void *, void *)
 
     int rc = Util::loadStackTraceFromStack(&st, 2000, true);
     LOOP_ASSERT(rc, 0 == rc);
+
+    const int len = st.length();
+
+    bool tots = false;
+    bool rabo = false;
+    bool lffs = false;
+    bool tc10 = false;
+    bool ns2  = false;
+    bool ns3  = false;
+    bool ns4  = false;
+
+    for (int i = 0; i < len; ++i) {
+        const bsl::string& s = st[i].symbolName();
+        const bsl::size_t npos = bsl::string::npos;
+
+        if (!tots && npos != s.find("topOfTheStack")) {
+            tots = true;
+        }
+        if (!rabo && npos != s.find("recurseABunchOfTimes")) {
+            rabo = true;
+        }
+        if (!lffs && npos != s.find("loopForFourSeconds")) {
+            lffs = true;
+        }
+        if (!tc10 && npos != s.find("BAESU_STACKTRACEUTIL_TEST_CASE_10")) {
+            tc10 = true;
+        }
+        if (!ns2  && npos != s.find("NS_10_2")) {
+            ns2  = true;
+        }
+        if (!ns3  && npos != s.find("NS_10_3")) {
+            ns3  = true;
+        }
+        if (!ns4  && npos != s.find("NS_10_4")) {
+            ns4  = true;
+        }
+    }
+
+    ASSERT(tots && rabo && lffs && tc10 && ns2 && ns3 && ns4);
 }
 
 void recurseABunchOfTimes(int depth, int, void *, int, void *)
