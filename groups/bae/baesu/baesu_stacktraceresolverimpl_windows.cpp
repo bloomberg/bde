@@ -40,137 +40,8 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
                            // voluminous if this is turned on
 #endif
 
-namespace BloombergLP {
-
-namespace {
-
-                        // ======================
-                        // struct Resolver_DllApi
-                        // ======================
-
-struct Resolver_DllApi {
-    // This struct contains the handle of the DLL and a collection of function
-    // ptrs that will point to functions loaded at run time from it.
-
-    // TYPES
-    typedef DWORD __stdcall SymSetOptionsProc(DWORD);
-    typedef BOOL  __stdcall SymInitializeProc(HANDLE, PCSTR, BOOL);
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-    // For some reason, 'symFromAddr' doesn't work right on 64 bit, so we
-    // #ifdef everything and use 'SymGetSymFromAddr64'.
-
-    typedef BOOL  __stdcall SymFromAddrProc(HANDLE,
-                                            DWORD64,
-                                            PDWORD64,
-                                            PSYMBOL_INFO);
-#else
-    typedef BOOL  __stdcall SymGetSymFromAddr64Proc(HANDLE,
-                                                    DWORD64,
-                                                    PDWORD64,
-                                                    PIMAGEHLP_SYMBOL64);
-#endif
-    typedef BOOL  __stdcall SymGetLineFromAddr64Proc(HANDLE,
-                                                     DWORD64,
-                                                     PDWORD,
-                                                     PIMAGEHLP_LINE64);
-    typedef BOOL  __stdcall SymCleanupProc(HANDLE);
-
-    // DATA
-    HMODULE                           d_moduleHandle;  // handle of the DLL
-                                                       // that we will load the
-                                                       // functions from
-
-    SymSetOptionsProc                *d_symSetOptions; // 'SymSetOptions' func
-
-    SymInitializeProc                *d_symInitialize; // 'SymInitialize' func
-
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-    SymFromAddrProc                  *d_symFromAddr;   // 'SymFromAddr' func
-#else
-    SymGetSymFromAddr64Proc          *d_symGetSymFromAddr64;
-                                                       // 'SymGetSymFromAddr64'
-                                                       // func
-#endif
-    SymGetLineFromAddr64Proc         *d_symGetLineFromAddr64;
-                                                 // 'SymGetLineFromAddr64' func
-
-    SymCleanupProc                   *d_symCleanup;    // 'SymCleanup' func
-
-    // CREATORS
-    Resolver_DllApi();
-        // Open the dll and get the function pointers.  After construction,
-        // 'loaded' will return 'true' if construction succeeded and 'false'
-        // otherwise.
-
-    ~Resolver_DllApi();
-        // Close the dll.
-
-    // ACCESSOR
-    bool loaded();
-        // Return 'true' if the c'tor successfully loaded the function pointers
-        // and 'false' otherwise.
-};
-
-// MANIPULATORS
-Resolver_DllApi::Resolver_DllApi()
-{
-    // 'LoadLibraryA' increments the reference count for the number of entities
-    // referring to the dll.  Since we never unload it, the dll will never be
-    // unloaded.
-
-    d_moduleHandle = LoadLibraryA("dbghelp.dll");
-    if (!d_moduleHandle) {
-        return;                                                       // RETURN
-    }
-
-    d_symSetOptions = (SymSetOptionsProc *)
-                               GetProcAddress(d_moduleHandle, "SymSetOptions");
-    d_symInitialize = (SymInitializeProc *)
-                               GetProcAddress(d_moduleHandle, "SymInitialize");
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-    d_symFromAddr = (SymFromAddrProc *)
-                                 GetProcAddress(d_moduleHandle, "SymFromAddr");
-#else
-    d_symGetSymFromAddr64 = (SymGetSymFromAddr64Proc *)
-                         GetProcAddress(d_moduleHandle, "SymGetSymFromAddr64");
-#endif
-    d_symGetLineFromAddr64 = (SymGetLineFromAddr64Proc *)
-                        GetProcAddress(d_moduleHandle, "SymGetLineFromAddr64");
-    d_symCleanup = (SymCleanupProc *)
-                                  GetProcAddress(d_moduleHandle, "SymCleanup");
-
-    if   (NULL == d_symSetOptions
-       || NULL == d_symInitialize
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-       || NULL == d_symFromAddr
-#else
-       || NULL == d_symGetSymFromAddr64
-#endif
-       || NULL == d_symGetLineFromAddr64
-       || NULL == d_symCleanup) {
-        FreeLibrary(d_moduleHandle);
-        d_moduleHandle = NULL;
-        return;                                                       // RETURN
-    }
-}
-
-Resolver_DllApi::~Resolver_DllApi()
-{
-    // Since we might want to call this dll again, don't unload it.
-
-    //    if (d_moduleHandle) {
-    //        FreeLibrary(d_moduleHandle);
-    //    }
-}
-
-bool Resolver_DllApi::loaded()
-{
-    return NULL != d_moduleHandle;
-}
-
-}  // close unnamed namespace
-
-static void reportError(const char *string)
+static
+void reportError(const char *string)
     // If an environment variable is set, report the result of 'GetLastError'
     // to 'cerr', but only do it a limited number of times (test case 2 causes
     // a huge number of these errors).
@@ -196,6 +67,8 @@ static void reportError(const char *string)
     }
 }
 
+namespace BloombergLP {
+
        // =============================================================
        // baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>
        // =============================================================
@@ -213,27 +86,13 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
 
     bdema_HeapBypassAllocator hbpAlloc;
 
-    Resolver_DllApi api;
-    if (!api.loaded()) {
-        return -291;                                                  // RETURN
-    }
+    bcemt_QLockGuard guard(&baesu_Dbghelp::qLock());
 
-    (*api.d_symSetOptions)(SYMOPT_NO_PROMPTS | SYMOPT_LOAD_LINES
-                                       | SYMOPT_DEFERRED_LOADS);
+    baesu_Dbghelp::symSetOptions(SYMOPT_NO_PROMPTS
+                                 | SYMOPT_LOAD_LINES
+                                 | SYMOPT_DEFERRED_LOADS);
 
-    //                                 | SYMOPT_DEFERRED_LOADS | SYMOPT_DEBUG);
-
-    HANDLE hProcess = GetCurrentProcess();
-
-    // Thanks to SYMOPT_DEFERRED_LOADS no manual enumeration of libraries is
-    // necessary, 'api' will only load what is actually required
-
-    BOOL rc = (*api.d_symInitialize)(hProcess, NULL, TRUE);
-    if (!rc) {
-        eprintf("Could not init symbols for %p (%08x)\n",
-                                                     hProcess, GetLastError());
-        return -301;                                                  // RETURN
-    }
+    //                           | SYMOPT_DEBUG);
 
     int numFrames = stackTrace->length();
     LibNameMap libNameMap(&hbpAlloc);
@@ -260,10 +119,10 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
 
         line.SizeOfStruct = sizeof(line);
         DWORD offsetFromLine;
-        rc = (*api.d_symGetLineFromAddr64)(hProcess,
-                                           address,
-                                           &offsetFromLine,
-                                           &line);
+        rc = baesu_Dbghelp::symGetLineFromAddr64(baesu_Dbghelp::NullArg(),
+                                                 address,
+                                                 &offsetFromLine,
+                                                 &line);
         if (rc) {
             frame->setSourceFileName(line.FileName);
             frame->setLineNumber(line.LineNumber);
@@ -277,17 +136,17 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
         sym->SizeOfStruct = sizeof(*sym);
 #ifdef BSLS_PLATFORM__CPU_32_BIT
         sym->MaxNameLen = MAX_SYMBOL_BUF_NAME_LENGTH;
-        rc = (*api.d_symFromAddr)(hProcess,
-                                  address,
-                                  &offsetFromSymbol,
-                                  sym);
+        rc = baesu_Dbghelp::symFromAddr(baesu_Dbghelp::NullArg(),
+                                        address,
+                                        &offsetFromSymbol,
+                                        sym);
 #else
         BSLS_ASSERT(sizeof(void *) == 8);
         sym->MaxNameLength = MAX_SYMBOL_BUF_NAME_LENGTH;
-        rc = (*api.d_symGetSymFromAddr64)(hProcess,
-                                          address,
-                                          &offsetFromSymbol,
-                                          sym);
+        rc = baesu_Dbghelp::symGetSymFromAddr64(baesu_Dbghelp::NullArg(),
+                                                address,
+                                                &offsetFromSymbol,
+                                                sym);
 #endif
         if (rc) {
             // windows is always demangled
@@ -339,8 +198,6 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
             }
         }
     }
-
-    (*api.d_symCleanup)(hProcess);
 
     return 0;
 }

@@ -47,6 +47,8 @@ BDES_IDENT_RCSID(baesu_stackaddressutil_cpp,"$Id$ $CSID$")
 
 #elif defined(BSLS_PLATFORM__OS_WINDOWS)
 
+#include <baesu_dbghelpimpl_windows.h>
+
 #include <windows.h>
 #include <intrin.h>
 #include <dbghelp.h>
@@ -73,110 +75,6 @@ BDES_IDENT_RCSID(baesu_stackaddressutil_cpp,"$Id$ $CSID$")
 
 # define TRACE_PRINTF (void)
 
-#endif
-
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
-
-namespace {
-
-namespace U {
-
-                        // ===========================
-                        // struct WinDbgHelpFuncHandle
-                        // ===========================
-
-struct WinDbgHelpFuncHandle {
-    // This struct contains the handle of the DLL and a collection of function
-    // ptrs that will point to functions loaded at run time from it.  It is
-    // necessary on Withows ot load the library 'dbghelp.dll' and find function
-    // pointers within that shared library, thus enabling us to call these
-    // functions.  This class provides a repository for the DLL library handle
-    // and the function pointers we need within it.
-
-    // TYPES
-    typedef DWORD __stdcall SymSetOptionsProc(DWORD);
-    typedef BOOL  __stdcall SymInitializeProc(HANDLE, PCSTR, BOOL);
-    typedef BOOL  __stdcall StackWalk64Proc(DWORD,
-                                            HANDLE,
-                                            HANDLE,
-                                            LPSTACKFRAME64,
-                                            PVOID,
-                                            PREAD_PROCESS_MEMORY_ROUTINE64,
-                                            PFUNCTION_TABLE_ACCESS_ROUTINE64,
-                                            PGET_MODULE_BASE_ROUTINE64,
-                                            PTRANSLATE_ADDRESS_ROUTINE64);
-    typedef BOOL  __stdcall SymCleanupProc(HANDLE);
-
-    // DATA
-    HMODULE                 d_moduleHandle;  // handle of the DLL that we will
-                                             // load the functions from
-
-    SymSetOptionsProc      *d_symSetOptions; // 'SymSetOptions' func
-
-    SymInitializeProc      *d_symInitialize; // 'SymInitialize' func
-
-    StackWalk64Proc        *d_stackWalk64;   // 'StackWalk64' func
-
-    SymCleanupProc         *d_symCleanup;    // 'SymCleanup' func
-
-    PFUNCTION_TABLE_ACCESS_ROUTINE64
-                            d_symFunctionTableAccess64;
-                                             // 'SymFunctionTableAccess64' func
-
-    PGET_MODULE_BASE_ROUTINE64
-                            d_symGetModuleBase64;
-                                             // 'SymGetModuleBase64' func
-};
-
-}  // close namespace U
-
-}  // close unnamed namespace
-
-
-static
-int loadDll(U::WinDbgHelpFuncHandle *funcHandle)
-    // Open 'dbghelp.dll' and initialize all the function pointers in this
-    // object to refer to functions in the dll.  Return 0 on success, and a
-    // non-zero value otherwise.
-{
-    typedef U::WinDbgHelpFuncHandle FH;
-
-    funcHandle->d_moduleHandle = LoadLibraryA("dbghelp.dll");
-    if (0 == funcHandle->d_moduleHandle) {
-        return -1;                                                    // RETURN
-    }
-
-    HMODULE moduleHandle = funcHandle->d_moduleHandle;
-
-    funcHandle->d_symSetOptions = (FH::SymSetOptionsProc *)
-                               GetProcAddress(moduleHandle, "SymSetOptions");
-    funcHandle->d_symInitialize = (FH::SymInitializeProc *)
-                               GetProcAddress(moduleHandle, "SymInitialize");
-    funcHandle->d_stackWalk64 = (FH::StackWalk64Proc *)
-                                 GetProcAddress(moduleHandle, "StackWalk64");
-    funcHandle->d_symCleanup = (FH::SymCleanupProc *)
-                                  GetProcAddress(moduleHandle, "SymCleanup");
-
-    funcHandle->d_symFunctionTableAccess64 = (PFUNCTION_TABLE_ACCESS_ROUTINE64)
-                    GetProcAddress(moduleHandle, "SymFunctionTableAccess64");
-    funcHandle->d_symGetModuleBase64 = (PGET_MODULE_BASE_ROUTINE64)
-                          GetProcAddress(moduleHandle, "SymGetModuleBase64");
-
-    if   (NULL == funcHandle->d_symSetOptions
-       || NULL == funcHandle->d_symInitialize
-       || NULL == funcHandle->d_stackWalk64
-       || NULL == funcHandle->d_symCleanup
-       || NULL == funcHandle->d_symFunctionTableAccess64
-       || NULL == funcHandle->d_symGetModuleBase64) {
-        FreeLibrary(funcHandle->d_moduleHandle);
-        funcHandle->d_moduleHandle = NULL;
-        return -1;                                                    // RETURN
-    }
-
-    return 0;
-}
-
-// Windows
 #endif
 
 namespace BloombergLP {
@@ -453,28 +351,13 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
 {
     BSLS_ASSERT(0 <= maxFrames);
 
-    U::WinDbgHelpFuncHandle api;
-    if (0 != loadDll(&api)) {
-        return 0;                                                     // RETURN
-    }
+    bcemt_QLockGuard guard(&baesu_Dbghelp::qLock());
 
-    (*api.d_symSetOptions)(SYMOPT_NO_PROMPTS
-                         | SYMOPT_LOAD_LINES
-                         | SYMOPT_DEFERRED_LOADS);
+    baesu_Dbghelp::symSetOptions(SYMOPT_NO_PROMPTS
+                                 | SYMOPT_LOAD_LINES
+                                 | SYMOPT_DEFERRED_LOADS);
 
-    //                   | SYMOPT_DEBUG);
-
-    HANDLE hProcess = GetCurrentProcess();
-
-    // Thanks to SYMOPT_DEFERRED_LOADS no manual enumeration of libraries is
-    // necessary, 'api' will only load what is actually required
-
-    BOOL rc = (*api.d_symInitialize)(hProcess, NULL, TRUE);
-    if (!rc) {
-        TRACE_PRINTF("Could not init symbols for %p (%08x)\n",
-                                                     hProcess, GetLastError());
-        return -131;                                                  // RETURN
-    }
+    //                           | SYMOPT_DEBUG);
 
     // See 'http://msdn.microsoft.com/en-us/library/ms680313(VS.85).aspx' for
     // details.
@@ -546,23 +429,22 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
     stackFrame.AddrFrame.Mode = AddrModeFlat;
     stackFrame.AddrStack.Mode = AddrModeFlat;
     int stackFrameIndex;
+    HANDLE currentThread = GetCurrentThread(),
     for (stackFrameIndex = 0; stackFrameIndex < maxFrames; ++stackFrameIndex) {
-        int rc = api.d_stackWalk64(machine,
-                                   hProcess,
-                                   GetCurrentThread(),
-                                   &stackFrame,
-                                   &winContext,
-                                   NULL,
-                                   api.d_symFunctionTableAccess64,
-                                   api.d_symGetModuleBase64,
-                                   NULL);
+        bool rc = baesu_DbgHelp::stackWalk64(machine,
+                                             baesu_Dbghelp::NullArg(),
+                                             currentThread,
+                                             &stackFrame,
+                                             &winContext,
+                                             baesu_Dbghelp::NullArg(),
+                                             baesu_Dbghelp::NullArg(),
+                                             baesu_Dbghelp::NullArg(),
+                                             baesu_Dbghelp::NullArg());
         if (!rc) {
             break;
         }
         buffer[stackFrameIndex] = (void *) stackFrame.AddrPC.Offset;
     }
-
-    (*api.d_symCleanup)(hProcess);
 
     return stackFrameIndex;
 }
