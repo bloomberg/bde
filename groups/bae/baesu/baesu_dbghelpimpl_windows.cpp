@@ -34,9 +34,9 @@ BDES_IDENT_RCSID(baesu_dbghelpimpl_windows_cpp,"$Id$ $CSID$")
 
 namespace {
 
-                        // ======================
-                        // struct Dbghelp_Util
-                        // ======================
+                            // ===================
+                            // struct Dbghelp_Util
+                            // ===================
 
 static
 struct Dbghelp_Util {
@@ -78,121 +78,112 @@ struct Dbghelp_Util {
     typedef BOOL  __stdcall SymCleanupProc(HANDLE);
 
     // DATA
-    static HMODULE                    s_moduleHandle;  // handle of the DLL
-                                                       // that we will load the
-                                                       // functions from
+    HMODULE                          d_moduleHandle;  // handle of the DLL
+                                                      // that we will load the
+                                                      // functions from
 
-    static SymSetOptionsProc         *s_symSetOptions; // 'SymSetOptions' func
+    SymSetOptionsProc               *d_symSetOptions; // 'SymSetOptions' func
 
-    static SymInitializeProc         *s_symInitialize; // 'SymInitialize' func
+    SymInitializeProc               *d_symInitialize; // 'SymInitialize' func
 
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-    static SymFromAddrProc           *s_symFromAddr;   // 'SymFromAddr' func
+    SymFromAddrProc                 *d_symFromAddr;   // 'SymFromAddr' func
 #else
-    static SymGetSymFromAddr64Proc   *s_symGetSymFromAddr64;
-                                                       // 'SymGetSymFromAddr64'
-                                                       // func
+    SymGetSymFromAddr64Proc         *d_symGetSymFromAddr64;
+                                                      // 'SymGetSymFromAddr64'
+                                                      // func
 #endif
-    static SymGetLineFromAddr64Proc  *s_symGetLineFromAddr64;
+    SymGetLineFromAddr64Proc        *d_symGetLineFromAddr64;
                                                  // 'SymGetLineFromAddr64' func
 
-    StackWalk64Proc                  *s_stackWalk64;   // 'StackWalk64' func
+    StackWalk64Proc                 *d_stackWalk64;   // 'StackWalk64' func
 
-    static SymCleanupProc            *s_symCleanup;    // 'SymCleanup' func
+    SymCleanupProc                  *d_symCleanup;    // 'SymCleanup' func
 
-    static PFUNCTION_TABLE_ACCESS_ROUTINE64
-                                      s_symFunctionTableAccess64;
-        // Return a pointer to the Windows 'SymFunctionTableAccess64' function.
+    PFUNCTION_TABLE_ACCESS_ROUTINE64 d_symFunctionTableAccess64;
+                 // Pointer to the Windows 'SymFunctionTableAccess64' function.
 
-    static PGET_MODULE_BASE_ROUTINE64 s_symGetModuleBase64;
+    PGET_MODULE_BASE_ROUTINE64       d_symGetModuleBase64;
+                 // Pointer to the Windows 'SymGetModuleBase64' function.
 
-    static HANDLE                     s_hProcess;
+    HANDLE                           d_hProcess;
 
   private:
-    // PRIVATE CLASS METHODS
+    // PRIVATE MANIPULATORS
     int load();
         // Open the dll and get the function pointers, return 0 on success and
         // a non-zero value otherwise.
 
-  public:
-    // CLASS METHODS
-    int init();
-        // Ensure the dll is loaded.  Return 0 on success and a non-zero value
-        // otherwise.  'init' is separated from 'load' to make it very small,
-        // to make sure it is inlined, and to keep the code size smaller.
+    void wipeClean();
+        // Null out all the pointers owned by this class.
 
+  public:
     // CREATORS
-    ~DbghelpUtil();
+    ~Dbghelp_Util();
         // Destroy this object.  Exactly one object of this type will be
         // created, and that object is static, so that resources can be cleaned
         // up upon process termination.
 
     // MANIPULATORS
-    void wipeClean();
-        // Null out all the pointers owned by this class.
+    int init();
+        // Ensure the dll is loaded.  Return 0 on success and a non-zero value
+        // otherwise.  'init' is separated from 'load' to make it very small,
+        // to make sure it is inlined, and to keep the code size smaller.
 
     // ACCESSORS
     bool ok();
         // Everything is fully loaded.
-} s_dbghelp_util_instance;
+} dbghelp_util = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 }  // close unnamed namespace
 
-HMODULE                        Dbghelp_Util::s_moduleHandle         = NULL;
-SymSetOptionsProc             *Dbghelp_Util::s_symSetOptions        = NULL;
-SymInitializeProc             *Dbghelp_Util::s_symInitialize        = NULL;
-#ifdef BSLS_PLATFORM__CPU_32_BIT
-SymFromAddrProc               *Dbghelp_Util::s_symFromAddr          = NULL;
-#else
-SymGetSymFromAddr64Proc       *Dbghelp_Util::s_symGetSymFromAddr64  = NULL;
-#endif
-SymGetLineFromAddr64Proc      *Dbghelp_Util::s_symGetLineFromAddr64 = NULL;
-StackWalk64Proc               *Dbghelp_Util::s_stackWalk64          = NULL;
-static SymCleanupProc         *Dbghelp_Util::s_symCleanup           = NULL;
-static PFUNCTION_TABLE_ACCESS_ROUTINE64
-                               Dbghelp_Util::s_symFunctionTableAccess64 = NULL;
-static PGET_MODULE_BASE_ROUTINE64
-                               Dbghelp_Util::s_symGetModuleBase64   = NULL;
-static Dbghelp_Util::CleanupHelper
-                               Dbghelp_Util::s_cleanupHelper;
-
-// PRIVATE CLASS METHODS
+// PRIVATE MANIPULATORS
 int Dbghelp_Util::load()
 {
-    BSLS_ASSERT(NULL == s_moduleHandle);
+    BSLS_ASSERT(NULL == d_moduleHandle);
+    BSLS_ASSERT(NULL == d_symSetOptions);
+    BSLS_ASSERT(NULL == d_symInitialize);
+    BSLS_ASSERT(NULL == d_symFromAddr);
+    BSLS_ASSERT(NULL == d_symGetSymFromAddr64);
+    BSLS_ASSERT(NULL == d_symGetLineFromAddr64);
+    BSLS_ASSERT(NULL == d_stackWalk64);
+    BSLS_ASSERT(NULL == d_symCleanup);
+    BSLS_ASSERT(NULL == d_symFunctionTableAccess64);
+    BSLS_ASSERT(NULL == d_symGetModuleBase64);
+    BSLS_ASSERT(NULL == d_hProcess);
 
-    s_moduleHandle = LoadLibraryA("dbghelp.dll");
-    if (NULL == s_moduleHandle) {
+    d_moduleHandle = LoadLibraryA("dbghelp.dll");
+    if (NULL == d_moduleHandle) {
         eprintf("baesu_Dbghelp: 'LoadLibraryA' failed\n");
 
         return -1;                                                    // RETURN
     }
 
-    s_symSetOptions = (SymSetOptionsProc *)
-                    GetProcAddress(s_moduleHandle, "SymSetOptions");
-    s_symInitialize = (SymInitializeProc *)
-                    GetProcAddress(s_moduleHandle, "SymInitialize");
+    d_symSetOptions = (SymSetOptionsProc *)
+                    GetProcAddress(d_moduleHandle, "SymSetOptions");
+    d_symInitialize = (SymInitializeProc *)
+                    GetProcAddress(d_moduleHandle, "SymInitialize");
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-    s_symFromAddr = (SymFromAddrProc *)
-                    GetProcAddress(s_moduleHandle, "SymFromAddr");
+    d_symFromAddr = (SymFromAddrProc *)
+                    GetProcAddress(d_moduleHandle, "SymFromAddr");
 #else
-    s_symGetSymFromAddr64 = (SymGetSymFromAddr64Proc *)
-                    GetProcAddress(s_moduleHandle, "SymGetSymFromAddr64");
+    d_symGetSymFromAddr64 = (SymGetSymFromAddr64Proc *)
+                    GetProcAddress(d_moduleHandle, "SymGetSymFromAddr64");
 #endif
-    s_symGetLineFromAddr64 = (SymGetLineFromAddr64Proc *)
-                    GetProcAddress(s_moduleHandle, "SymGetLineFromAddr64");
-    s_stackWalk64 = (StackWalk64Proc *)
-                    GetProcAddress(s_moduleHandle, "StackWalk64");
-    s_symCleanup = (SymCleanupProc *)
-                    GetProcAddress(s_moduleHandle, "SymCleanup");
-    s_symFunctionTableAccess64 = (PFUNCTION_TABLE_ACCESS_ROUTINE64)
-                    GetProcAddress(s_moduleHandle, "SymFunctionTableAccess64");
-    s_symGetModuleBase64 = (PGET_MODULE_BASE_ROUTINE64)
-                    GetProcAddress(s_moduleHandle, "SymGetModuleBase64");
-    s_hProcess = GetCurrentProcess();
+    d_symGetLineFromAddr64 = (SymGetLineFromAddr64Proc *)
+                    GetProcAddress(d_moduleHandle, "SymGetLineFromAddr64");
+    d_stackWalk64 = (StackWalk64Proc *)
+                    GetProcAddress(d_moduleHandle, "StackWalk64");
+    d_symCleanup = (SymCleanupProc *)
+                    GetProcAddress(d_moduleHandle, "SymCleanup");
+    d_symFunctionTableAccess64 = (PFUNCTION_TABLE_ACCESS_ROUTINE64)
+                    GetProcAddress(d_moduleHandle, "SymFunctionTableAccess64");
+    d_symGetModuleBase64 = (PGET_MODULE_BASE_ROUTINE64)
+                    GetProcAddress(d_moduleHandle, "SymGetModuleBase64");
+    d_hProcess = GetCurrentProcess();
 
     if (!ok()) {
-        if (NULL == s_hProcess) {
+        if (NULL == d_hProcess) {
             eprintf("baesu_Dbghelp: 'GetCurrentProcess' failed\n");
         }
         else {
@@ -206,7 +197,7 @@ int Dbghelp_Util::load()
     // Thanks to SYMOPT_DEFERRED_LOADS no manual enumeration of libraries is
     // necessary, this method will only load what is actually required
 
-    BOOL rc = (*s_symInitialize)(s_hProcess, NULL, TRUE);
+    BOOL rc = (*d_symInitialize)(d_hProcess, NULL, TRUE);
     if (!rc) {
         eprintf("baesu_Dbghelp: 'SymInitialize' failed\n");
         wipeClean();
@@ -217,64 +208,66 @@ int Dbghelp_Util::load()
 }
 
 // CLASS METHODS
+// CREATORS
+Dbghelp_Util::~Dbghelp_Util()
+{
+    BSLS_ASSERT_OPT(!baesu_Dbghelp::qLock().isLocked());
+
+    if (ok()) {
+        (*d_symCleanup)(d_hProcess);
+        FreeLibrary(d_moduleHandle);
+    }
+}
+
+// MANIPULATORS
 inline
 int Dbghelp_Util::init()
 {
     BSLS_ASSERT(baesu_Dbghelp::qLock().isLocked());
 
-    return NULL == s_moduleHandle ? load() : 0;
+    return NULL == d_moduleHandle ? load() : 0;
 }
 
-// CREATORS
-DbghelpUtil::~DbghelpUtil()
-{
-    BSLS_ASSERT_OPT(!baesu_Dbghelp::qLock().isLocked());
 
-    if (ok()) {
-        (*s_symCleanup)(s_hProcess);
-    }
-}
-
-// MANIPULATORS
-void DbghelpUtil::wipeClean()
+void Dbghelp_Util::wipeClean()
 {
-    if (NULL != s_moduleHandle) {
-        FreeLibrary(s_moduleHandle);
+    if (NULL != d_moduleHandle) {
+        FreeLibrary(d_moduleHandle);
     }
 
-    s_moduleHandle = NULL;
-    s_symSetOptions = NULL;
-    s_symInitialize = NULL;
+    d_moduleHandle             = NULL;
+    d_symSetOptions            = NULL;
+    d_symInitialize            = NULL;
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-    s_symFromAddr = NULL;
+    d_symFromAddr              = NULL;
 #else
-    s_symGetSymFromAddr64 = NULL;
+    d_symGetSymFromAddr64      = NULL;
 #endif
-    s_symGetLineFromAddr64 = NULL;
-    s_stackWalk64 = NULL;
-    s_symCleanup = NULL;
-    s_symFunctionTableAccess64 = NULL;
-    s_symGetModuleBase64 = NULL;
-    s_hProcess = NULL;
+    d_symGetLineFromAddr64     = NULL;
+    d_stackWalk64              = NULL;
+    d_symCleanup               = NULL;
+    d_symFunctionTableAccess64 = NULL;
+    d_symGetModuleBase64       = NULL;
+    d_hProcess                 = NULL;
 }
 
 // ACCESSORS
-bool DbghelpUtil::ok()
+bool Dbghelp_Util::ok()
 {
-    return  NULL != s_moduleHandle
-         && NULL != s_symSetOptions
-         && NULL != s_symInitialize
+    return  NULL != d_moduleHandle
+         && NULL != d_symSetOptions
+         && NULL != d_symInitialize
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-         && NULL != s_symFromAddr
+         && NULL != d_symFromAddr
 #else
-         && NULL != s_symGetSymFromAddr64
+         && NULL != d_symGetSymFromAddr64
 #endif
-         && NULL != s_symGetLineFromAddr64
-         && NULL != s_stackWalk64
-         && NULL != s_symCleanup
-         && NULL != s_symFunctionTableAccess64
-         && NULL != s_symGetModuleBase64
-         && NULL != s_hProcess;
+         && NULL != d_symGetLineFromAddr64
+         && NULL != d_stackWalk64
+         && NULL != d_symCleanup
+         && NULL != d_symFunctionTableAccess64
+         && NULL != d_symGetModuleBase64
+         && NULL != d_hProcess;
 }
 
                               // -------------
@@ -285,9 +278,9 @@ namespace BloombergLP {
 
 DWORD baesu_Dbghelp::symSetOptions(DWORD arg1)
 {
-    BSLS_ASSERT_OPT(0 == Dbghelp_Util::init());
+    BSLS_ASSERT_OPT(0 == dbghelp_util.init());
 
-    return (*Dbghelp_Util::s_symSetOptions)(arg1);
+    return (*dbghelp_util.d_symSetOptions)(arg1);
 }
 
 #ifdef BSLS_PLATFORM__CPU_32_BIT
@@ -297,15 +290,15 @@ BOOL baesu_Dbghelp::symFromAddr(NullArg,
                                 PDWORD64     arg3,
                                 PSYMBOL_INFO arg4)
 {
-    int rc = Dbghelp_Util::init();
+    int rc = dbghelp_util.init();
     if (0 != rc) {
         return false;                                                 // RETURN
     }
 
-    return (*Dbghelp_Util::s_symFromAddr)(Dbghelp_Util::s_hProcess,
-                                          arg2,
-                                          arg3,
-                                          arg4);
+    return (*dbghelp_util.d_symFromAddr)(dbghelp_util.d_hProcess,
+                                         arg2,
+                                         arg3,
+                                         arg4);
 }
 
 #else
@@ -315,15 +308,15 @@ BOOL baesu_Dbghelp::symGetSymFromAddr64(NullArg,
                                         PDWORD64           arg3,
                                         PIMAGEHLP_SYMBOL64 arg4)
 {
-    int rc = Dbghelp_Util::init();
+    int rc = dbghelp_util.init();
     if (0 != rc) {
         return false;                                                 // RETURN
     }
 
-    return (*Dbghelp_Util::s_symGetSymFromAddr64)(Dbghelp_Util::s_hProcess,
-                                                  arg2,
-                                                  arg3,
-                                                  arg4);
+    return (*dbghelp_util.d_symGetSymFromAddr64)(dbghelp_util.d_hProcess,
+                                                 arg2,
+                                                 arg3,
+                                                 arg4);
 }
 
 #endif
@@ -333,15 +326,15 @@ BOOL baesu_Dbghelp::symGetLineFromAddr64(NullArg,
                                          PDWORD           arg3,
                                          PIMAGEHLP_LINE64 arg4)
 {
-    int rc = Dbghelp_Util::init();
+    int rc = dbghelp_util.init();
     if (0 != rc) {
         return false;                                                 // RETURN
     }
 
-    return (*Dbghelp_Util::s_symGetLineFromAddr64)(Dbghelp_Util::s_hProcess,
-                                                   arg2,
-                                                   arg3,
-                                                   arg4);
+    return (*dbghelp_util.d_symGetLineFromAddr64)(dbghelp_util.d_hProcess,
+                                                  arg2,
+                                                  arg3,
+                                                  arg4);
 }
 
 BOOL baesu_Dbghelp::stackWalk64(DWORD          arg1,
@@ -354,26 +347,26 @@ BOOL baesu_Dbghelp::stackWalk64(DWORD          arg1,
                                 NullArg,
                                 NullArg)
 {
-    int rc = Dbghelp_Util::init();
+    int rc = dbghelp_util.init();
     if (0 != rc) {
         return false;                                                 // RETURN
     }
 
-    return (*Dbghelp_Util::s_stackWalk64)(
-                                      arg1,
-                                      Dbghelp_Util::s_hProcess,
-                                      arg3,
-                                      arg4,
-                                      arg5,
-                                      0,
-                                      Dbghelp_Util::s_symFunctionTableAccess64,
-                                      Dbghelp_Util::s_symGetModuleBase64,
-                                      0);
+    return (*dbghelp_util.d_stackWalk64)(
+                                     arg1,
+                                     dbghelp_util.d_hProcess,
+                                     arg3,
+                                     arg4,
+                                     arg5,
+                                     0,
+                                     dbghelp_util.d_symFunctionTableAccess64,
+                                     dbghelp_util.d_symGetModuleBase64,
+                                     0);
 }
 
 bool baesu_Dbghelp::loadedOK()
 {
-    return s_dbghelp_util_instance.ok();
+    return dbghelp_util.ok();
 }
 
 }  // close namespace BloombergLP
