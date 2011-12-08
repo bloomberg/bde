@@ -77,7 +77,7 @@ BDES_IDENT("$Id: $")
 //                                 const char      *timeZoneId)
 //  {
 //..
-// Then, we check the 'timeZoneId' equals to "America/New_York' as this
+// Then, we check the 'timeZoneId' equals to "America/New_York" as this
 // implementation is designed to demonstrate only one time zone:
 //..
 //      if (0 != strcmp("America/New_York", timeZoneId)) {

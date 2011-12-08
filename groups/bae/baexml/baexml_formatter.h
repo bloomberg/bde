@@ -361,12 +361,12 @@ class baexml_Formatter {
     void doAddData(const bdeut_StringRef& value, bool addSpace);
         // Add the specified 'value' in the current element.  If the 'value'
         // is not the first data on a line, prefix the 'value' with a
-        // space(0x20) if 'addSpace' is true.  In case adding the data makes
+        // space('0x20') if 'addSpace' is true.  In case adding the data makes
         // the line too long, line may be wrapped only if 'addSpace' is true
         // and the current element is not opened with
-        // BAEXML_PRESERVE_WHITESPACE.  Indent after the wrapping only if the
-        // current element is opened with BAEXML_WORDWRAP_INDENT or
-        // BAEXML_NEWLINE_INDENT.
+        // 'BAEXML_PRESERVE_WHITESPACE'.  Indent after the wrapping only if the
+        // current element is opened with 'BAEXML_WORDWRAP_INDENT' or
+        // 'BAEXML_NEWLINE_INDENT'.
 
     void closeTagIfOpen();
         // Write '>' to stream to complete a just opened tag.  If the opening
@@ -419,25 +419,25 @@ class baexml_Formatter {
         // behavior is undefined unless the last manipulator was 'openElement'
         // or 'addAttribute'.  If 'value' is of type 'bsl::string', it is
         // truncated at any invalid UTF-8 byte-sequence or any control
-        // character [0x00, 0x20) except 0x9 0xA, and 0x0D, and escaped for
-        // five special characters: apostrophe ('), double quote ("),
-        // ampersand (&), less than (<), and greater than (>).  If 'value' is
-        // of type 'char', it is cast to a signed byte value with a range of
-        // [-128, 127].
+        // character '[0x00, 0x20)' except '0x9', '0xA', and '0x0D', and
+        // escaped for five special characters: apostrophe ('\''), double quote
+        // ('"'), ampersand ('&'), less than ('<'), and greater than ('>').  If
+        // 'value' is of type 'char', it is cast to a signed byte value with a
+        // range '[ -128 .. 127 ]'.
 
     void addBlankLine();
         // Insert one or two newline characters into the output stream such
         // that a blank line results.  If the last output was a newline, then
         // only one newline is added, otherwise two newlines are added.  If
-        // following a call to openElement, or addAttribute, add a closing '>'
-        // to the opened tag.
+        // following a call to 'openElement', or 'addAttribute', add a closing
+        // '>' to the opened tag.
 
     void addComment(const bdeut_StringRef& comment, bool forceNewline = true);
         // Write the specified 'comment' into the stream.  The specified
         // 'forceNewLine', if true, forces to start a new line solely
         // for the comment if it's not on a new line already.  Otherwise,
         // comments continue on current line.  If an element-opening tag is
-        // not completed with a '>', addComment will add '>'.
+        // not completed with a '>', 'addComment' will add '>'.
 
     template <typename TYPE>
     void addData(const TYPE& value, int formattingMode = 0);
@@ -445,25 +445,26 @@ class baexml_Formatter {
     template <typename TYPE>
     void addListData(const TYPE& value, int formattingMode = 0);
         // Add the 'value' as the data content, where 'value' can be of the
-        // following types: char, short, int, bsls_PlatformUtil::Int64, float,
-        // double, bsl::string, bdet_Datetime, bdet_Date, and bdet_Time.
-        // 'addListData' prefixes the 'value' with a space(0x20) unless the
-        // data being added is the first data on a line.  In the case of
-        // 'addData', perform no line-wrapping or indentation as if the
-        // whitespace constraint were always BAEXML_PRESERVE_WHITESPACE in
-        // openElement, with the only exception that an initial newline and an
-        // initial indent is added when openElement specifies
-        // BAEXML_NEWLINE_INDENT option.  In the case of 'addListData', when
-        // adding the data makes the line too long, perform line-wrapping and
-        // indentation as determined by the whitespace constraint used when the
-        // current element is opened with 'openElement'.  Behavior is undefined
-        // if the call is made when there are no opened elements.  If 'value'
-        // is of type 'bsl::string', it is truncated at invalid UTF-8
-        // byte-sequence or any control character[0x00, 0x20) except 0x9, 0xA
-        // and 0xD, and escaped for five special characters: apostrophe ('),
-        // double quote ("), ampersand (&), less than (<), and greater than
-        // (>).  If 'value' is of type 'char', it is cast to a signed byte
-        // value with a range of '[ -128 .. 127 ]'.
+        // following types: 'char', 'short', 'int', 'bsls_PlatformUtil::Int64',
+        // 'float', 'double', 'bsl::string', 'bdet_Datetime', 'bdet_Date', and
+        // 'bdet_Tim'e.  'addListData' prefixes the 'value' with a
+        // space('0x20') unless the data being added is the first data on a
+        // line.  In the case of 'addData', perform no line-wrapping or
+        // indentation as if the whitespace constraint were always
+        // 'BAEXML_PRESERVE_WHITESPACE' in 'openElement', with the only
+        // exception that an initial newline and an initial indent is added
+        // when 'openElement' specifies 'BAEXML_NEWLINE_INDENT' option.  In the
+        // case of 'addListData', when adding the data makes the line too long,
+        // perform line-wrapping and indentation as determined by the
+        // whitespace constraint used when the current element is opened with
+        // 'openElement'.  Behavior is undefined if the call is made when there
+        // are no opened elements.  If 'value' is of type 'bsl::string', it is
+        // truncated at invalid UTF-8 byte-sequence or any control character
+        // '[0x00, 0x20)' except '0x9', '0xA', and '0xD', and escaped for five
+        // special characters: apostrophe ('\''), double quote ('"'), ampersand
+        // ('&'), less than ('<'), and greater than ('>').  If 'value' is of
+        // type 'char', it is cast to a signed byte value with a range of
+        // '[ -128 .. 127 ]'.
 
     template <typename TYPE>
     void addElementAndData(const bdeut_StringRef& name,
@@ -471,7 +472,7 @@ class baexml_Formatter {
                            int                    formattingMode = 0);
         // Add element of the specified 'name' and the specified 'value' as the
         // data content.  This has the same effect as calling the following
-        // sequence: openElement(name); addData(value), closeElement(name);
+        // sequence: 'openElement(name); addData(value), closeElement(name);'.
 
     void addHeader(const bdeut_StringRef& encoding = "UTF-8");
         // Add XML header with specified 'encoding'.  Version is always "1.0".
@@ -481,7 +482,7 @@ class baexml_Formatter {
 
     void addNewline();
         // Insert a literal newline into the XML output.  If following a call
-        // to openElement, or addAttribute, add a closing '>' to the opened
+        // to 'openElement', or 'addAttribute', add a closing '>' to the opened
         // tag.
 
     void closeElement(const bdeut_StringRef& name);
