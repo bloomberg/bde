@@ -682,30 +682,31 @@ inline bool isMutable(const T& /* x */) { return false; }
 //                  IMPLEMENTATION OF TEST CASES
 //-----------------------------------------------------------------------------
 
-template <class ALLOC, class ALLOC_FLOAT>
+template <template <class T> class ALLOC_TMPLT>
 void testAllocatorConformance(const char* allocName)
-    // Test the specified 'ALLOC' allocator class as part of testing the test
-    // harness.  The 'value_type' for 'ALLOC' must be 'AttribClass5'.  Check
-    // that each nested typedef required for C++03 allocators exists and has
-    // the correct qualities (e.g., integral, pointer-like, etc..  Check that
-    // 'ALLOC::rebind<float>::other' is the same as the specified 'ALLOC_FLOAT'
-    // type (which must have a 'value_type' of 'float').  Invoke each member
-    // function and verify the expected behavior.
+    // Test the specified 'ALLOC_TMPLT' allocator class template as part of
+    // testing the test harness.  Instantiating 'ALLOC_TMPLT<AttribClass5>',
+    // check that each nested typedef required for C++03 allocators exists and
+    // has the correct qualities (e.g., integral, pointer-like, etc..  Check
+    // that 'rebind<float>::other' is the same as 'ALLOC_TMPLT<float>'.
+    // Invoke each member function and verify the expected behavior.
 {
-    if (verbose) printf("Testing allocator class %s\n", allocName);
+    if (verbose) printf("Testing allocator class temlate %s\n", allocName);
+
+    typedef ALLOC_TMPLT<AttribClass5> Alloc;
 
     bslma_TestAllocator default_ta, ta;
     bslma_DefaultAllocatorGuard guard(&default_ta);
     
     if (veryVerbose) printf("  Testing nested typedefs\n");
     
-    typedef typename ALLOC::value_type      value_type;
-    typedef typename ALLOC::pointer         pointer;
-    typedef typename ALLOC::const_pointer   const_pointer;
-    typedef typename ALLOC::reference       reference;
-    typedef typename ALLOC::const_reference const_reference;
-    typedef typename ALLOC::size_type       size_type;
-    typedef typename ALLOC::difference_type difference_type;
+    typedef typename Alloc::value_type      value_type;
+    typedef typename Alloc::pointer         pointer;
+    typedef typename Alloc::const_pointer   const_pointer;
+    typedef typename Alloc::reference       reference;
+    typedef typename Alloc::const_reference const_reference;
+    typedef typename Alloc::size_type       size_type;
+    typedef typename Alloc::difference_type difference_type;
 
     LOOP_ASSERT_ISSAME(allocName, value_type, AttribClass5);
 
@@ -728,18 +729,18 @@ void testAllocatorConformance(const char* allocName)
     }
 
     if (veryVerbose) printf("  Testing rebind\n");
-    LOOP_ASSERT_ISSAME(allocName, ALLOC_FLOAT,
-                       typename ALLOC::template rebind<float>::other);
+    LOOP_ASSERT_ISSAME(allocName, ALLOC_TMPLT<float>,
+                       typename Alloc::template rebind<float>::other);
     
     if (veryVerbose) printf("  Testing constructon\n");
     {
-        ALLOC a1;
+        Alloc a1;
         LOOP_ASSERT(allocName, &default_ta == a1.mechanism());
 
-        ALLOC a2(&ta);
+        Alloc a2(&ta);
         LOOP_ASSERT(allocName, &ta == a2.mechanism());
 
-        ALLOC a3(a2);
+        Alloc a3(a2);
         LOOP_ASSERT(allocName, &ta == a3.mechanism());
 
         if (veryVerbose) printf("  Testing operator== and operator!=\n");
@@ -750,7 +751,7 @@ void testAllocatorConformance(const char* allocName)
     }
 
     if (veryVerbose) printf("  Testing member functions\n");
-    ALLOC a(&ta);
+    Alloc a(&ta);
 
     p = a.allocate(1);
     LOOP_ASSERT(allocName, ta.numBytesInUse() == sizeof(value_type));
@@ -1125,22 +1126,23 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TEST HARNESS"
                             "\n====================\n");
 
-        testAllocatorConformance<NonBslmaAllocator<AttribClass5>,
-                               NonBslmaAllocator<float> >("NonBslmaAllocator");
-        testAllocatorConformance<BslmaAllocator<AttribClass5>,
-                                 BslmaAllocator<float> >("BslmaAllocator");
-        testAllocatorConformance<FunkyAllocator<AttribClass5>,
-                                 FunkyAllocator<float> >("FunkyAllocator");
+        testAllocatorConformance<NonBslmaAllocator>("NonBslmaAllocator");
+        testAllocatorConformance<BslmaAllocator>("BslmaAllocator");
+        testAllocatorConformance<FunkyAllocator>("FunkyAllocator");
 
         if (verbose)
             printf("Testing convertibility from 'bslma_Allocator*'\n");
 
         ASSERT(  (bslmf_IsConvertible<bslma_Allocator*,
                                       BslmaAllocator<int> >::VALUE));
+        ASSERT(  (bslmf_IsConvertible<bslma_Allocator*,
+                                      BslmaAllocator<AttribClass5> >::VALUE));
         ASSERT(! (bslmf_IsConvertible<bslma_Allocator*,
-                                      NonBslmaAllocator<int> >::VALUE));
+                                    NonBslmaAllocator<AttribClass5> >::VALUE));
         ASSERT(! (bslmf_IsConvertible<bslma_Allocator*,
                                       FunkyAllocator<int> >::VALUE));
+        ASSERT(! (bslmf_IsConvertible<bslma_Allocator*,
+                                      FunkyAllocator<AttribClass5> >::VALUE));
 
         testAttribClass<AttribClass5>("AttribClass5");
         testAttribClass<AttribClass5Alloc<NonBslmaAllocator<int> > >(
