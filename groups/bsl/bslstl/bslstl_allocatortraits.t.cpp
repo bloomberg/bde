@@ -930,6 +930,50 @@ void testAttribClass<AttribClass5>(const char* className)
 template <class ALLOC>
 void testNestedTypedefs(const char* allocName)
 {
+    if (verbose)
+        printf("Testing nested typedefs for allocator %s\n", allocName);
+
+    typedef allocator_traits<ALLOC> Traits;
+
+    LOOP_ASSERT_ISSAME(allocName, ALLOC, typename Traits::allocator_type);
+    LOOP_ASSERT_ISSAME(allocName,
+                       typename ALLOC::value_type,
+                       typename Traits::value_type);
+    LOOP_ASSERT_ISSAME(allocName,
+                       typename ALLOC::pointer,
+                       typename Traits::pointer);
+    LOOP_ASSERT_ISSAME(allocName,
+                       typename ALLOC::const_pointer,
+                       typename Traits::const_pointer);
+    LOOP_ASSERT_ISSAME(allocName,
+                       typename ALLOC::difference_type,
+                       typename Traits::difference_type);
+    LOOP_ASSERT_ISSAME(allocName,
+                       typename ALLOC::size_type,
+                       typename Traits::size_type);
+
+    LOOP_ASSERT_ISSAME(allocName, void*, typename Traits::void_pointer);
+    LOOP_ASSERT_ISSAME(allocName,
+                       const void*, typename Traits::const_void_pointer);
+
+    // We check whether the propagate traits are derived from false_type by
+    // checking if a pointer to the trait class is convertible to a pointer to
+    // false_type.  We use pointer convertibility because it avoids
+    // user-defined conversions.  Convertibility from A* to B* implies either
+    // that cv-A is the same as B or cv-A is derived from B, which what we are
+    // looking for.
+    LOOP_ASSERT(allocName,
+                (bslmf_IsConvertible<
+                 typename Traits::propagate_on_container_copy_assignment*,
+                 bslmf_MetaInt<0>* >::VALUE));
+    LOOP_ASSERT(allocName,
+                (bslmf_IsConvertible<
+                 typename Traits::propagate_on_container_move_assignment*,
+                 bslmf_MetaInt<0>* >::VALUE));
+    LOOP_ASSERT(allocName, 
+                (bslmf_IsConvertible<
+                 typename Traits::propagate_on_container_swap*,
+                 bslmf_MetaInt<0>* >::VALUE));
 }
 
 //=============================================================================
