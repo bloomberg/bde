@@ -372,7 +372,7 @@ struct allocator_traits {
         allocator_traits<rebind_alloc<T> >;
 #else // !BDE_CXX0X_TEMPLATE_ALIASES
     template <class T>
-    struct rebind_alloc : ALLOC::template rebind<T> { };
+    struct rebind_alloc : ALLOC::template rebind<T>::other { };
 
     template <class T>
     struct rebind_traits :

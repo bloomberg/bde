@@ -54,19 +54,19 @@ using namespace std;
 // ----------------------------------------------------------------------------
 // 
 // NESTED TYPES:
-// [  ] allocator_type    
-// [  ] value_type        
-// [  ] pointer           
-// [  ] const_pointer     
-// [  ] void_pointer      
-// [  ] const_void_pointer
-// [  ] difference_type   
-// [  ] size_type
-// [  ] rebind_alloc<T1>
-// [  ] rebind_traits<T1>
-// [  ] propagate_on_container_copy_assignment
-// [  ] propagate_on_container_move_assignment
-// [  ] propagate_on_container_swap
+// [ 3] allocator_type    
+// [ 3] value_type        
+// [ 3] pointer           
+// [ 3] const_pointer     
+// [ 3] void_pointer      
+// [ 3] const_void_pointer
+// [ 3] difference_type   
+// [ 3] size_type
+// [ 4] rebind_alloc<T1>
+// [ 4] rebind_traits<T1>
+// [ 3] propagate_on_container_copy_assignment
+// [ 3] propagate_on_container_move_assignment
+// [ 3] propagate_on_container_swap
 //
 // STATIC MEMBER FUNCTIONS:
 // [  ] pointer allocate(ALLOC& a, size_type n);
@@ -976,6 +976,76 @@ void testNestedTypedefs(const char* allocName)
                  bslmf_MetaInt<0>* >::VALUE));
 }
 
+template <template <class X> class ALLOC_TMPL, class T, class U>
+void testRebind(const char* testName)
+{
+    typedef ALLOC_TMPL<T>            AllocT;
+    typedef allocator_traits<AllocT> TraitsT;
+    typedef typename TraitsT::template rebind_alloc<U>  AllocTReboundU;
+    typedef typename TraitsT::template rebind_traits<U> TraitsTReboundU;
+
+    typedef ALLOC_TMPL<U>            AllocU;
+    typedef allocator_traits<AllocU> TraitsU;
+    typedef typename TraitsU::template rebind_alloc<T>  AllocUReboundT;
+    typedef typename TraitsU::template rebind_traits<T> TraitsUReboundT;
+
+    // Rebind to self
+    typedef typename TraitsT::template rebind_alloc<T>  AllocTReboundT;
+    typedef typename TraitsT::template rebind_traits<T> TraitsTReboundT;
+
+    // rebind to float
+    typedef typename TraitsU::template rebind_alloc<float>  AllocUReboundF;
+    typedef typename TraitsU::template rebind_traits<float> TraitsUReboundF;
+    typedef typename TraitsT::template rebind_alloc<float>  AllocTReboundF;
+    typedef typename TraitsT::template rebind_traits<float> TraitsTReboundF;
+
+    // Rebind from 'T' to 'U'
+    LOOP_ASSERT(testName, (bslmf_IsConvertible<
+                           AllocTReboundU*, AllocU*>::VALUE));
+    LOOP_ASSERT(testName, (bslmf_IsConvertible<
+                           TraitsTReboundU*, TraitsU*>::VALUE));
+    LOOP_ASSERT_ISSAME(testName,
+                       typename TraitsTReboundU::allocator_type, AllocU);
+
+    // Rebind from 'U' to 'T'
+    LOOP_ASSERT(testName,
+                (bslmf_IsConvertible<AllocUReboundT*, AllocT*>::VALUE));
+    LOOP_ASSERT(testName,
+                (bslmf_IsConvertible<TraitsUReboundT*, TraitsT*>::VALUE));
+    LOOP_ASSERT_ISSAME(testName,
+                       typename TraitsUReboundT::allocator_type, AllocT);
+
+    // Rebind from 'T' to 'T'
+    LOOP_ASSERT(testName,
+                (bslmf_IsConvertible<AllocTReboundT*, AllocT*>::VALUE));
+    LOOP_ASSERT(testName,
+                (bslmf_IsConvertible<TraitsTReboundT*, TraitsT*>::VALUE));
+    LOOP_ASSERT_ISSAME(testName,
+                       typename TraitsTReboundT::allocator_type, AllocT);
+
+    // Multiple rebind
+    LOOP_ASSERT(testName,
+                (bslmf_IsConvertible<
+                   typename allocator_traits<AllocUReboundT>::
+                                             template rebind_alloc<T>*, 
+                 AllocT*>::VALUE));
+    LOOP_ASSERT(testName,
+                (bslmf_IsConvertible<
+                   typename allocator_traits<AllocUReboundT>::
+                                             template rebind_traits<T>*, 
+                 TraitsT*>::VALUE));
+    LOOP_ASSERT(testName,
+                (bslmf_IsConvertible<
+                   typename allocator_traits<AllocUReboundT>::
+                                             template rebind_alloc<U>*, 
+                 AllocU*>::VALUE));
+    LOOP_ASSERT(testName,
+                (bslmf_IsConvertible<
+                   typename allocator_traits<AllocUReboundT>::
+                                             template rebind_traits<U>*,
+                 TraitsU*>::VALUE));
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -992,7 +1062,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 30: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1012,6 +1082,81 @@ int main(int argc, char *argv[])
 
         usageExample();
 
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING REBIND
+        //
+        // Concerns:
+        //: 1 For allocator template 'ALLOC_TMPL' and types 'T' and 'U',
+        //:   'allocator_traits<ALLOC_TMPL<T> >::rebind_alloc<U> is the same
+        //:   as, or derived from 'ALLOC_TMPL<U>'.
+        //: 2 For allocator template 'ALLOC_TMPL' and types 'T' and 'U',
+        //:   'allocator_traits<ALLOC_TMPL<T> >::rebind_traits<U> is the same
+        //:   as, or derived from 'allocator_traits<ALLOC_TMPL<U> >'.
+        //: 3 A rebind operation can be applied twice to a rebound type.
+        //: 4 Concerns 1 through 3 apply if 'T' is the same as 'U'.
+        //
+        // Plan
+        //: o Create a function template, 'testRebind' that applies
+        //:   'rebind_alloc' and 'rebind_traits' and tests the resulting
+        //:   types. (C1-C2)
+        //: o 'testRebind' also applies 'rebind_alloc' and 'rebind_traits' to
+        //:   the results of the previous rebinds. (C3)
+        //: o 'testRebind' also applies 'rebind_alloc<T>' and
+        //:   'rebind_traits<T>' to 'ALLOC_TMPL<T>'. (C4)
+        //: o Call 'testRebind' with each combination of test allocators and
+        //:   test value types, as well as with value type 'int'. (C1-C4)
+        //
+        // Testing
+        //   rebind_alloc<U>
+        //   rebind_traits<U>
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING NESTED TYPEDEFS"
+                            "\n=======================\n");
+
+        typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
+        typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
+        typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
+
+#define TEST_REBIND(ALLOC_TMP, T, U) \
+        testRebind<ALLOC_TMP, T, U>(#ALLOC_TMP ", " #T ", " #U)
+
+        // 'testRebind' applies rebind operations in both directions.  Hence,
+        // after invoking 'testRebind<A, A, B>()' it is not necessary to
+        // invoke 'testRebind<A, B, A>()'.
+        TEST_REBIND(NonBslmaAllocator, int               , AttribClass5     );
+        TEST_REBIND(NonBslmaAllocator, int               , AC5AllocNonBslma );
+        TEST_REBIND(NonBslmaAllocator, int               , AC5AllocBslma    );
+        TEST_REBIND(NonBslmaAllocator, int               , AC5AllocFunky    );
+        TEST_REBIND(NonBslmaAllocator, int               , AttribClass5bslma);
+        TEST_REBIND(NonBslmaAllocator, AttribClass5      , AC5AllocNonBslma );
+        TEST_REBIND(NonBslmaAllocator, AC5AllocNonBslma  , AC5AllocBslma    );
+        TEST_REBIND(NonBslmaAllocator, AC5AllocBslma     , AC5AllocFunky    );
+        TEST_REBIND(NonBslmaAllocator, AC5AllocFunky     , AttribClass5bslma);
+
+        TEST_REBIND(BslmaAllocator, int               , AttribClass5     );
+        TEST_REBIND(BslmaAllocator, int               , AC5AllocNonBslma );
+        TEST_REBIND(BslmaAllocator, int               , AC5AllocBslma    );
+        TEST_REBIND(BslmaAllocator, int               , AC5AllocFunky    );
+        TEST_REBIND(BslmaAllocator, int               , AttribClass5bslma);
+        TEST_REBIND(BslmaAllocator, AttribClass5      , AC5AllocNonBslma );
+        TEST_REBIND(BslmaAllocator, AC5AllocNonBslma  , AC5AllocBslma    );
+        TEST_REBIND(BslmaAllocator, AC5AllocBslma     , AC5AllocFunky    );
+        TEST_REBIND(BslmaAllocator, AC5AllocFunky     , AttribClass5bslma);
+
+        TEST_REBIND(FunkyAllocator, int               , AttribClass5     );
+        TEST_REBIND(FunkyAllocator, int               , AC5AllocNonBslma );
+        TEST_REBIND(FunkyAllocator, int               , AC5AllocBslma    );
+        TEST_REBIND(FunkyAllocator, int               , AC5AllocFunky    );
+        TEST_REBIND(FunkyAllocator, int               , AttribClass5bslma);
+        TEST_REBIND(FunkyAllocator, AttribClass5      , AC5AllocNonBslma );
+        TEST_REBIND(FunkyAllocator, AC5AllocNonBslma  , AC5AllocBslma    );
+        TEST_REBIND(FunkyAllocator, AC5AllocBslma     , AC5AllocFunky    );
+        TEST_REBIND(FunkyAllocator, AC5AllocFunky     , AttribClass5bslma);
+
+#undef TEST_REBIND
       } break;
       case 3: {
         // --------------------------------------------------------------------
