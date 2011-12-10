@@ -76,11 +76,13 @@ BDES_IDENT("$Id: $")
 // non-multi-threading environment).  See 'bsldoc_glossary' for complete
 // definitions of *fully thread-safe* and *thread-enabled*.
 //
-// Note that calling any of the following manipulators from one of the threads
-// in the thread pool has the potential for deadlock.
+// Be aware that the behavior is undefined if any of the following methods are
+// called on a threadpool from any of the threads belonging to that thread
+// pool.
 //: o 'stopThreads'
 //: o 'suspendProcessing'
 //: o 'drainJobs'
+// Note that, in these cases, such undefined behavior may include deadlock.
 //
 ///Usage
 ///-----
@@ -166,7 +168,7 @@ BDES_IDENT("$Id: $")
 // it is not really any faster than doing it with a single thread.
 //
 // For every prime number 'P', we have to mark all multiples of it in two
-// ranges, ' [ P .. P ** 2 ]' and '[ P ** 2 .. TOP_NUMBER ]', as non-prime,
+// ranges, '[ P .. P ** 2 ]' and '[ P ** 2 .. TOP_NUMBER ]', as non-prime,
 // where we use 2000 for 'TOP_NUMBER' in this example.  For any 'P ** 2', if we
 // can determine that all primes below 'P' have marked all their multiples up
 // to 'P ** 2', then we can scan that range and any unmarked values in it will
@@ -614,10 +616,10 @@ class bcep_MultipriorityThreadPool {
         // the "enabled"/"disabled" state of this thread pool.  If this thread
         // pool is enabled and jobs are enqueued during draining, this method
         // may return before all enqueued jobs are executed.  The behavior is
-        // undefined if this thread pool is stopped or suspended.  Note that
-        // calling this method from one of the threads belonging to this thread
-        // pool, or calling 'removeJobs()' while blocking on this call, will
-        // cause a deadlock.
+        // undefined if this method is called while this thread pool is stopped
+        // or suspended or if this method is called from one of the threads
+        // belonging to this thread pool.  Note that, in the latter case, such
+        // undefined behavior may include deadlock.
 
     void removeJobs();
         // Remove all pending (i.e., not yet active) jobs from the queue of
