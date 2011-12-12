@@ -45,8 +45,8 @@ BDES_IDENT("$Id: $")
 // finish.
 //
 // 'bcep_MultipriorityThreadPool' provides two interfaces for specifying jobs:
-// the traditional "void function/void pointer" interface and the more
-// versatile functor-based interface.  The "void function/void pointer"
+// the traditional 'void function'/'void pointer' interface and the more
+// versatile functor-based interface.  The 'void function'/'void pointer'
 // interface allows callers to use a C-style function to be executed as a job.
 // The application need specify only the address of the function, and a single
 // 'void *' argument to be passed to the function.  The specified function will
@@ -89,7 +89,7 @@ BDES_IDENT("$Id: $")
 // The following two examples illustrate use of the multi-priority thread pool
 // provided in this component.
 //
-///Usage Example 1: The "void function/void pointer" Interface
+///Usage Example 1: The 'void function'/'void pointer' Interface
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // It is possible to enqueue a job to a multi-priority thread pool as a pointer
 // to a function that takes a single 'void *' argument.  This first usage
@@ -541,7 +541,7 @@ class bcep_MultipriorityThreadPool {
         // Add the specified 'job' to the queue of this multi-priority thread
         // pool, assigning it the specified 'priority'.  Return 0 if the job
         // was enqueued successfully, and a non-zero value otherwise (implying
-        // that the queue was in the "disabled" state).  The behavior is
+        // that the queue was in the disabled state).  The behavior is
         // undefined unless '0 <= priority < numPriorities()'.
 
     int enqueueJob(bcemt_ThreadFunction  jobFunction,
@@ -551,7 +551,7 @@ class bcep_MultipriorityThreadPool {
         // by the specified 'jobFunction' and associated 'jobData', assigning
         // it the specified 'priority'.  Return 0 if the job was enqueued
         // successfully, and a non-zero value otherwise (implying that the
-        // queue was in the "disabled" state).  When invoked, 'jobFunction' is
+        // queue was in the disabled state).  When invoked, 'jobFunction' is
         // passed the 'void *' address 'jobData' as its only argument.  The
         // behavior is undefined unless 'jobFunction' is non-null and
         // '0 <= priority < numPriorities()'.  Note that 'jobData' may be 0
@@ -562,22 +562,22 @@ class bcep_MultipriorityThreadPool {
         // When this thread pool is enabled, the status returned when calling
         // either overloaded 'enqueueJob' method will be 0, indicating that the
         // job was successfully enqueued.  Note that calling this method when
-        // the queue is already in the "enabled" state has no effect.
+        // the queue is already in the enabled state has no effect.
 
     void disableQueue();
         // Disable the enqueuing of jobs to this multi-priority thread pool.
         // When this thread pool is disabled, the status returned when calling
         // either overloaded 'enqueueJob' method will be non-zero, indicating
         // that the job was *not* enqueued.  Note that calling this method when
-        // the queue is already in the "disabled" state has no effect.
+        // the queue is already in the disabled state has no effect.
 
     int startThreads();
         // Create and start 'numThreads()' worker threads in this
         // multi-priority thread pool.  Return 0 on success, and a non-zero
         // value with no worker threads and no jobs processed otherwise.  This
-        // method has no impact on the "enabled"/"disabled" or
-        // "suspended"/"resumed" states of this thread pool.  Note that calling
-        // this method when this thread pool is already in the "started" state
+        // method has no impact on the enabled/disabled or
+        // suspended/resumed states of this thread pool.  Note that calling
+        // this method when this thread pool is already in the started state
         // has no effect.  Also note that until this method is called, the
         // thread pool will not process any jobs.
 
@@ -585,9 +585,9 @@ class bcep_MultipriorityThreadPool {
         // Destroy all worker threads of this multi-priority thread pool after
         // waiting for any active (i.e., already-running) jobs to complete; no
         // new jobs will be allowed to become active.  This method has no
-        // impact on the "enabled"/"disabled" or "suspended"/"resumed" states
+        // impact on the enabled/disabled or suspended/resumed states
         // of this thread pool.  Note that calling this function when this
-        // thread pool is not in the "started" state has no effect.  Also not
+        // thread pool is not in the started state has no effect.  Also not
         // that calling this method from one of the threads belonging to this
         // thread pool will cause a deadlock.
 
@@ -613,19 +613,31 @@ class bcep_MultipriorityThreadPool {
     void drainJobs();
         // Block until all executing jobs and pending jobs enqueued to this
         // multi-priority thread pool complete.  This method does not affect
-        // the "enabled"/"disabled" state of this thread pool.  If this thread
+        // the enabled/disabled state of this thread pool.  If this thread
         // pool is enabled and jobs are enqueued during draining, this method
         // may return before all enqueued jobs are executed.  The behavior is
-        // undefined if this method is called while this thread pool is stopped
-        // or suspended or if this method is called from one of the threads
-        // belonging to this thread pool.  Note that, in the latter case, such
-        // undefined behavior may include deadlock.
+        // undefined if:
+        //
+        //: o this method is called while this thread pool is stopped or
+        //:   suspended, or
+        //:
+        //: o this method is called concurrently with a call to the
+        //:   'removeJobs' method, or
+        //:
+        //: o this method is called by one of the threads belonging to this
+        //:   thread pool.
+        //
+        // Note that, in these cases, such undefined behavior may include
+        // deadlock.
 
     void removeJobs();
         // Remove all pending (i.e., not yet active) jobs from the queue of
         // this multi-priority thread pool.  This method does not affect the
-        // "enabled" status of the queue, nor does it affect the "started"
-        // status or any active jobs in this thread pool.
+        // enabled status of the queue, nor does it affect the started status
+        // or any active jobs in this thread pool.  The behavior is undefined
+        // if this method is called concurrently with the 'drainJobs' method.
+        // Note that, in this case, such undefined behavior may include
+        // deadlock.
 
     void shutdown();
         // Disable the enqueuing of new jobs to this multi-priority thread
