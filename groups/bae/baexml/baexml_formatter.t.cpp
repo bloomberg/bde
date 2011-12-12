@@ -116,28 +116,28 @@ const char M[] = "A234567890 234567890 234567890D234567890"
                  " 234567890F234567890 234567890 234567890";
 
 // escapable characters
-const char R1[] = "&'<>\"";
-const char R2[] = "&amp;&apos;&lt;&gt;&quot;";
-const char S1[] = "Aa&Bb'Cc<Dd>Ee\"";
-const char S2[] = "Aa&amp;Bb&apos;Cc&lt;Dd&gt;Ee&quot;";
+const unsigned char R1[] = "&'<>\"";
+const unsigned char R2[] = "&amp;&apos;&lt;&gt;&quot;";
+const unsigned char S1[] = "Aa&Bb'Cc<Dd>Ee\"";
+const unsigned char S2[] = "Aa&amp;Bb&apos;Cc&lt;Dd&gt;Ee&quot;";
 
 // truncatable control characters
-const char T1[] = { 'h', 'e', 'l', 'l', 'o', 0x1F, ' ', 0x01,
-                    'w', 'o', 'r', 'l', 'd', 0 };
-const char T2[] = { 'h', 'e', 'l', 'l', 'o', 0 };
+const unsigned char T1[] = { 'h', 'e', 'l', 'l', 'o', 0x1F, ' ', 0x01,
+                             'w', 'o', 'r', 'l', 'd', 0 };
+const unsigned char T2[] = { 'h', 'e', 'l', 'l', 'o', 0 };
 
-const char U1[] = { 'h', 'e', 'l', 'l', 'o', 0x01, ' ', 0x1F,
-                    'w', 'o', 'r', 'l', 'd', 0 };
-const char U2[] = { 'h', 'e', 'l', 'l', 'o', 0 };
+const unsigned char U1[] = { 'h', 'e', 'l', 'l', 'o', 0x01, ' ', 0x1F,
+                             'w', 'o', 'r', 'l', 'd', 0 };
+const unsigned char U2[] = { 'h', 'e', 'l', 'l', 'o', 0 };
 
-const char V1[] = { 'h', 'e', 0x0A, 'l', 'o', 0x09,
-                    'w', 'o', 'r', 'l', 'd', 0 };
-const char V2[] = { 'h', 'e', 0x0A, 'l', 'o', 0x09,
-                    'w', 'o', 'r', 'l', 'd', 0 };
+const unsigned char V1[] = { 'h', 'e', 0x0A, 'l', 'o', 0x09,
+                             'w', 'o', 'r', 'l', 'd', 0 };
+const unsigned char V2[] = { 'h', 'e', 0x0A, 'l', 'o', 0x09,
+                             'w', 'o', 'r', 'l', 'd', 0 };
 
-const char X[] = { 0xC2, 0xA9, 0 }; // Unicode U+00A9
-const char Y[] = { 0xE2, 0x89, 0xA0, 0 }; // Unicode U+2260
-const char Z[] = { 0xC2, 0xA9, 0xE2, 0x89, 0xA0, 0 }; // U+00A9 U+2260
+const unsigned char X[] = { 0xC2, 0xA9, 0 }; // Unicode U+00A9
+const unsigned char Y[] = { 0xE2, 0x89, 0xA0, 0 }; // Unicode U+2260
+const unsigned char Z[] = { 0xC2, 0xA9, 0xE2, 0x89, 0xA0, 0 }; // U+00A9 U+2260
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
@@ -1102,10 +1102,10 @@ int main(int argc, char *argv[])
                         << bsl::endl;
           }
           static struct {
-              int         d_line;
-              const char *d_name;
-              const char *d_originalValue;
-              const char *d_displayedValue;
+              int                  d_line;
+              const char          *d_name;
+              const unsigned char *d_originalValue;
+              const unsigned char *d_displayedValue;
           } DATA[] = {
               { L_, "EscapableStringR", R1, R2 },
               { L_, "EscapableStringS", S1, S2 },
@@ -1123,18 +1123,17 @@ int main(int argc, char *argv[])
           formatter.openElement("root");
 
           for (int i = 0; i < DATA_SIZE; ++i) {
-              const int LINE = DATA[i].d_line;
-              const char *NAME = DATA[i].d_name;
-              const char *ORIGINAL = DATA[i].d_originalValue;
-              const char *DISPLAYED = DATA[i].d_displayedValue;
+              const int   LINE      = DATA[i].d_line;
+              const char *NAME      = DATA[i].d_name;
+              const char *ORIGINAL  = (const char *) DATA[i].d_originalValue;
+              const char *DISPLAYED = (const char *) DATA[i].d_displayedValue;
               formatter.openElement(NAME);
               ss.str(bsl::string());
 
               formatter.addAttribute(NAME, ORIGINAL);
 
               LOOP_ASSERT(LINE, ss.str() ==
-                          bsl::string(" ") + NAME + "=\"" + DISPLAYED +
-                          "\"");
+                          bsl::string(" ") + NAME + "=\"" + DISPLAYED + "\"");
               formatter.flush(); // add a '>' to close the opening tag
               ss.str(bsl::string());
 
@@ -2605,7 +2604,8 @@ int main(int argc, char *argv[])
               formatter.closeElement("root");
 
               if (verbose && 0 == i) {
-                  bdeut_StringRef outputStr(output.data(), output.length());
+                  bdeut_StringRef outputStr((const char *) output.data(),
+                                            output.length());
                   P(outputStr);
               }
           }

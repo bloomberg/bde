@@ -616,15 +616,13 @@ int baexml_Decoder_NillableContext::parseAttribute(const char     *name,
 {
     BSLS_ASSERT(d_elementContext_p);
 
-// TBD
-#if 0
     enum { BAEXML_SUCCESS = 0 };
 
     if (!bsl::strcmp("nil", name) && !bsl::strcmp("true", value)) {
         // xsi:nil=true attribute means the object is nil.  Do nothing.
+
         return BAEXML_SUCCESS;                                        // RETURN
     }
-#endif
 
     if (d_isNil) {
         d_elementContext_p->startElement(decoder);

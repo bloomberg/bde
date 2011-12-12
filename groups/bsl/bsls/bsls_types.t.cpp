@@ -8,6 +8,7 @@
 #include <cstdlib>     // atoi()
 #include <cstring>     // memset(), memcmp(), strlen()
 #include <iostream>
+#include <limits>
 #include <stdio.h>     // sprintf(), snprintf() [NOT <cstdio>, which does not
                        // include 'snprintf']
 
@@ -152,12 +153,12 @@ int main(int argc, char *argv[])
 //..
     bsls_Types::Uint64 nationalDebt = 1000000000000ULL;
     nationalDebt += stimulus;
-  
+
     unsigned int deficitReduction = 1000000000;
     nationalDebt -= deficitReduction;
-  
-if (veryVerbose)
-    std::cout << "National Debt Level: " << nationalDebt << std::endl;
+
+    if (veryVerbose)
+        std::cout << "National Debt Level: " << nationalDebt << std::endl;
 //..
 // 'bsls_Types::size_type' identifies the preferred integral type
 // denoting the number of elements in a container, and the number of bytes in a
@@ -165,14 +166,25 @@ if (veryVerbose)
 // is as a 'typedef' in an STL container:
 //..
     class vector {
-  
+
         // ...
-  
+
       public:
         typedef bsls_Types::size_type size_type;
-  
+
         // ...
     };
+//..
+// Since 'bsls_Types' are integers, the Standard Library facilities that work
+// with numeric types can be used with 'bsls_Types' as well.  For example, the
+// following code finds out some facts about 'bsls_Types::Int64' in a
+// platform-independent way:
+//..
+    if (veryVerbose)
+       std::cout << "Min Int64 value: "
+                 << std::numeric_limits<bsls_Types::Int64>::min() << std::endl
+                 << "Max Int64 value: "
+                 << std::numeric_limits<bsls_Types::Int64>::max() << std::endl;
 //..
 
       } break;

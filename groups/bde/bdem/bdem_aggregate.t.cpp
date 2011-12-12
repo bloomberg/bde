@@ -13690,11 +13690,11 @@ DEFINE_TEST_CASE(14) {
         if (verbose) cout
             << "\tVerify binary data is identical across platforms." << endl;
         static const struct {
-            int         d_lineNum;      // source line number
-            int         d_version;      // version to stream
-            const char *d_spec;         // the spec
-            int         d_length;       // length of binary
-            char        d_binary[128];  // binary representation
+            int            d_lineNum;      // source line number
+            int            d_version;      // version to stream
+            const char    *d_spec;         // the spec
+            int            d_length;       // length of binary
+            unsigned char  d_binary[128];  // binary representation
         } DATA[] = {
             // version 2
             { L_, 2, "", 3,
@@ -13795,13 +13795,13 @@ DEFINE_TEST_CASE(14) {
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   VERSION = DATA[ti].d_version;
-            const char *SPEC    = DATA[ti].d_spec;
-            const char *BINARY  = DATA[ti].d_binary;
-            int         LENGTH  = DATA[ti].d_length;
+            const int            VERSION = DATA[ti].d_version;
+            const char          *SPEC    = DATA[ti].d_spec;
+            const unsigned char *BINARY  = DATA[ti].d_binary;
+            int                  LENGTH  = DATA[ti].d_length;
 
             Table mX(&testAllocator); hh(&mX, SPEC); const Table& X = mX;
-            bdex_ByteInStream testInStream(BINARY, LENGTH);
+            bdex_ByteInStream testInStream((char *) BINARY, LENGTH);
 
             Table U;
             int version;
