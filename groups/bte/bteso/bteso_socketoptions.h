@@ -40,7 +40,8 @@ BDES_IDENT("$Id: $")
 //                                                   whether connections should
 //                                                   be kept alive by enabling
 //                                                   periodic transmission of
-//                                                   messages.
+//                                                   messages.  Not support for
+//                                                   stream sockets on windows.
 //
 //  bypassNormalRouting        BTESO_DONTROUTE       This option indicates
 //                                                   whether out-going messages
