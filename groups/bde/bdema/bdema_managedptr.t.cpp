@@ -1374,7 +1374,7 @@ void doConstructObject(int callLine, int testLine, int index,
                             : ObjectPolicy::DELETE_DELTA;
     int deleteCount = 0;
     ObjectType *pO = 0;
-    if(nullObject) {
+    if (nullObject) {
         bdema_ManagedPtr<POINTER_TYPE> testObject(pO);
 
         const bdema_ManagedPtrDeleter del;
@@ -1410,7 +1410,7 @@ template<class POINTER_TYPE, class ObjectPolicy, class FactoryPolicy>
 void doConstructObjectFactory(int callLine, int testLine, int,
                          TestCtorArgs *args)
 {
-    BSLMF_ASSERT( FactoryPolicy::DELETER_USES_FACTORY );
+    BSLMF_ASSERT(FactoryPolicy::DELETER_USES_FACTORY);
 
     LOOP3_ASSERT(callLine, testLine, args->d_config, 4  > args->d_config);
 
@@ -1443,7 +1443,7 @@ void doConstructObjectFactory(int callLine, int testLine, int,
 
     // Load the 'bdema_ManagedPtr' and check that the previous state is
     // correctly cleared.
-    if(!negativeTesting) {
+    if (!negativeTesting) {
         typedef typename
         bdema_ManagedPtr_FactoryDeleterType<ObjectType,FactoryType>::Type
                                                                   DeleterClass;
@@ -1578,7 +1578,7 @@ void doConstructObjectFactoryDeleter(int callLine, int testLine, int index,
     bool nullObject  = args->d_config & 1;
     bool nullFactory = args->d_config & 2;
 
-    if(nullFactory && FactoryPolicy::DELETER_USES_FACTORY) {
+    if (nullFactory && FactoryPolicy::DELETER_USES_FACTORY) {
         // It is perfectly well defined to pass a null pointer as the factory
         // if it is not going to be used by the deleter.  We cannot assert
         // this condition in the 'bdema_ManagedPtr' component, so simply exit
@@ -1650,7 +1650,7 @@ void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
     bool nullFactory = args->d_config & 2;
     bool voidFactory = args->d_config & 4;
 
-    if(nullFactory && FactoryPolicy::DELETER_USES_FACTORY) {
+    if (nullFactory && FactoryPolicy::DELETER_USES_FACTORY) {
         // It is perfectly well defined to pass a null pointer as the factory
         // if it is not going to be used by the deleter.  We cannot assert
         // this condition in the 'bdema_ManagedPtr' component, so simply exit
@@ -1691,7 +1691,7 @@ void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
         }
     }
 
-    if(!voidFactory)
+    if (!voidFactory)
     {
         bdema_ManagedPtr<POINTER_TYPE> testObject(pO, pF, deleter);
 
@@ -1866,7 +1866,7 @@ void doLoadObject(int callLine, int testLine, int index,
     typedef typename ObjectPolicy::ObjectType ObjectType;
 
     ObjectType *pO = 0;
-    if(nullObject) {
+    if (nullObject) {
         args->d_p->load(pO);
         args->d_deleteDelta = 0;
     }
@@ -1897,7 +1897,7 @@ template<class POINTER_TYPE, class ObjectPolicy, class FactoryPolicy>
 void doLoadObjectFactory(int callLine, int testLine, int index,
                          TestLoadArgs<POINTER_TYPE> *args)
 {
-    BSLMF_ASSERT( FactoryPolicy::DELETER_USES_FACTORY );
+    BSLMF_ASSERT(FactoryPolicy::DELETER_USES_FACTORY);
 
     validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
 
@@ -1942,7 +1942,7 @@ void doLoadObjectFactory(int callLine, int testLine, int index,
 
     // Load the 'bdema_ManagedPtr' and check that the previous state is
     // correctly cleared.
-    if(!negativeTesting) {
+    if (!negativeTesting) {
         args->d_p->load(pO, pF);
         args->d_deleteDelta = nullObject ? 0 : ObjectPolicy::DELETE_DELTA;
 
@@ -2022,7 +2022,7 @@ void doLoadObjectFactoryDzero(int callLine, int testLine, int index,
                     : pAlloc;
 
     ObjectType *pO = 0;
-    if(!nullObject) {
+    if (!nullObject) {
         pO = new(*pAlloc)ObjectType(&deleteCount);
         if (FactoryPolicy::USE_DEFAULT) {
             args->d_useDefault = true;
@@ -2077,7 +2077,7 @@ void doLoadObjectFactoryDeleter(int callLine, int testLine, int index,
     bool nullObject  = args->d_config & 1;
     bool nullFactory = args->d_config & 2;
 
-    if(nullFactory && FactoryPolicy::DELETER_USES_FACTORY) {
+    if (nullFactory && FactoryPolicy::DELETER_USES_FACTORY) {
         // It is perfectly well defined to pass a null pointer as the factory
         // if it is not going to be used by the deleter.  We cannot assert
         // this condition in the 'bdema_ManagedPtr' component, so simply exit
@@ -2139,7 +2139,7 @@ void doLoadObjectFactoryDeleter2(int callLine, int testLine, int index,
     bool nullFactory = args->d_config & 2;
     bool voidFactory = args->d_config & 4;
 
-    if(nullFactory && FactoryPolicy::DELETER_USES_FACTORY) {
+    if (nullFactory && FactoryPolicy::DELETER_USES_FACTORY) {
         // It is perfectly well defined to pass a null pointer as the factory
         // if it is not going to be used by the deleter.  We cannot assert
         // this condition in the 'bdema_ManagedPtr' component, so simply exit
@@ -2175,11 +2175,11 @@ void doLoadObjectFactoryDeleter2(int callLine, int testLine, int index,
     }
 
     DeleterType *deleter = DeleterPolicy::deleter();
-    if(!voidFactory) {
+    if (!voidFactory) {
         args->d_p->load(pO, pF, deleter);
     }
     else {
-        args->d_p->load( pO, (void*)pF, deleter);
+        args->d_p->load(pO, (void*)pF, deleter);
     }
 
     LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
@@ -2399,7 +2399,7 @@ void testConstructors(int callLine,
             LOOP2_ASSERT(L_, i, gam.isMaxSame());
 
             LOOP2_ASSERT(L_, i, dam.isInUseSame());
-            if(!args.d_useDefault) {
+            if (!args.d_useDefault) {
                 LOOP2_ASSERT(L_, i, dam.isMaxSame());
             }
         }
@@ -2468,7 +2468,7 @@ void testLoadOps(int callLine,
             LOOP_ASSERT(i, gam.isMaxSame());
 
             LOOP_ASSERT(i, dam.isInUseSame());
-            if(!args.d_useDefault) {
+            if (!args.d_useDefault) {
                 LOOP_ASSERT(i, dam.isMaxSame());
             }
 
@@ -2502,7 +2502,7 @@ void testLoadOps(int callLine,
                     LOOP_ASSERT(i, gam.isInUseSame());
                     LOOP_ASSERT(i, gam.isMaxSame());
 
-                    if(!args.d_useDefault) {
+                    if (!args.d_useDefault) {
                         LOOP_ASSERT(i, dam2.isInUseSame());
                         LOOP_ASSERT(i, dam2.isMaxSame());
                     }
@@ -2610,8 +2610,8 @@ void testLoadAliasOps1(int callLine,
                 if (0 == p.ptr()) {
                     bsls_AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL( pAlias.loadAlias(p, &aliasTarget) );
-                    ASSERT_SAFE_PASS( pAlias.loadAlias(p, 0) );
+                    ASSERT_SAFE_FAIL(pAlias.loadAlias(p, &aliasTarget));
+                    ASSERT_SAFE_PASS(pAlias.loadAlias(p, 0));
 
                     LOOP_ASSERT(p.ptr(),      0 == p.ptr());
                     LOOP_ASSERT(pAlias.ptr(), 0 == pAlias.ptr());
@@ -2619,8 +2619,8 @@ void testLoadAliasOps1(int callLine,
                 else {
                     bsls_AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL( pAlias.loadAlias(p, 0) );
-                    ASSERT_SAFE_PASS( pAlias.loadAlias(p, &aliasTarget) );
+                    ASSERT_SAFE_FAIL(pAlias.loadAlias(p, 0));
+                    ASSERT_SAFE_PASS(pAlias.loadAlias(p, &aliasTarget));
 
                     LOOP_ASSERT(p.ptr(),      0 == p.ptr());
                     LOOP_ASSERT(pAlias.ptr(), &aliasTarget == pAlias.ptr());
@@ -2654,7 +2654,7 @@ void testLoadAliasOps1(int callLine,
             LOOP_ASSERT(i, gam.isMaxSame());
 
             LOOP_ASSERT(i, dam.isInUseSame());
-            if(!args.d_useDefault) {
+            if (!args.d_useDefault) {
                 LOOP_ASSERT(i, dam.isMaxSame());
             }
         }
@@ -2739,8 +2739,8 @@ void testLoadAliasOps2(int callLine,
                 if (0 == p.ptr()) {
                     bsls_AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL( pAlias1.loadAlias(p, &alias1) );
-                    ASSERT_SAFE_PASS( pAlias1.loadAlias(p, 0) );
+                    ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, &alias1));
+                    ASSERT_SAFE_PASS(pAlias1.loadAlias(p, 0));
 
                     LOOP_ASSERT(p.ptr(),       0 == p.ptr());
                     LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
@@ -2748,15 +2748,15 @@ void testLoadAliasOps2(int callLine,
                 else {
                     bsls_AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL( pAlias1.loadAlias(p, 0) );
-                    ASSERT_SAFE_PASS( pAlias1.loadAlias(p, &alias1) );
+                    ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, 0));
+                    ASSERT_SAFE_PASS(pAlias1.loadAlias(p, &alias1));
 
                     LOOP_ASSERT(p.ptr(), 0 == p.ptr());
                     LOOP2_ASSERT(&alias1,   pAlias1.ptr(),
                                  &alias1 == pAlias1.ptr());
 
-                    ASSERT_SAFE_FAIL( pAlias2.loadAlias(pAlias1, 0) );
-                    ASSERT_SAFE_PASS( pAlias2.loadAlias(pAlias1, &alias2) );
+                    ASSERT_SAFE_FAIL(pAlias2.loadAlias(pAlias1, 0));
+                    ASSERT_SAFE_PASS(pAlias2.loadAlias(pAlias1, &alias2));
 
                     LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
                     LOOP2_ASSERT(&alias2,   pAlias2.ptr(),
@@ -2791,7 +2791,7 @@ void testLoadAliasOps2(int callLine,
             LOOP_ASSERT(i, gam.isMaxSame());
 
             LOOP_ASSERT(i, dam.isInUseSame());
-            if(!args.d_useDefault) {
+            if (!args.d_useDefault) {
                 LOOP_ASSERT(i, dam.isMaxSame());
             }
         }
@@ -2883,7 +2883,7 @@ void testLoadAliasOps3(int callLine,
                 LOOP_ASSERT(i, gam.isInUseSame());
                 LOOP_ASSERT(i, gam.isMaxSame());
 
-                if(!args.d_useDefault) {
+                if (!args.d_useDefault) {
                     LOOP_ASSERT(i, dam.isInUseSame());
                     LOOP_ASSERT(i, dam.isMaxSame());
                 }
@@ -2901,7 +2901,7 @@ void testLoadAliasOps3(int callLine,
             LOOP_ASSERT(i, gam.isMaxSame());
 
             LOOP_ASSERT(i, dam.isInUseSame());
-            if(!args.d_useDefault) {
+            if (!args.d_useDefault) {
                 LOOP_ASSERT(i, dam.isMaxSame());
             }
         }
@@ -2954,7 +2954,7 @@ void testConstructors(int callLine,
             LOOP2_ASSERT(L_, i, gam.isMaxSame());
 
             LOOP2_ASSERT(L_, i, dam.isInUseSame());
-            if(!args.d_useDefault) {
+            if (!args.d_useDefault) {
                 LOOP2_ASSERT(L_, i, dam.isMaxSame());
             }
         }
@@ -3020,8 +3020,8 @@ void testLoadAliasOps1(int callLine,
                 if (0 == p.ptr()) {
                     bsls_AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL( pAlias.loadAlias(p, &aliasTarget) );
-                    ASSERT_SAFE_PASS( pAlias.loadAlias(p, 0) );
+                    ASSERT_SAFE_FAIL(pAlias.loadAlias(p, &aliasTarget));
+                    ASSERT_SAFE_PASS(pAlias.loadAlias(p, 0));
 
                     LOOP_ASSERT(p.ptr(),      0 == p.ptr());
                     LOOP_ASSERT(pAlias.ptr(), 0 == pAlias.ptr());
@@ -3029,8 +3029,8 @@ void testLoadAliasOps1(int callLine,
                 else {
                     bsls_AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL( pAlias.loadAlias(p, 0) );
-                    ASSERT_SAFE_PASS( pAlias.loadAlias(p, &aliasTarget) );
+                    ASSERT_SAFE_FAIL(pAlias.loadAlias(p, 0));
+                    ASSERT_SAFE_PASS(pAlias.loadAlias(p, &aliasTarget));
 
                     LOOP_ASSERT(p.ptr(),      0 == p.ptr());
                     LOOP_ASSERT(pAlias.ptr(), &aliasTarget == pAlias.ptr());
@@ -3064,7 +3064,7 @@ void testLoadAliasOps1(int callLine,
             LOOP_ASSERT(i, gam.isMaxSame());
 
             LOOP_ASSERT(i, dam.isInUseSame());
-            if(!args.d_useDefault) {
+            if (!args.d_useDefault) {
                 LOOP_ASSERT(i, dam.isMaxSame());
             }
         }
@@ -3151,8 +3151,8 @@ void testLoadAliasOps2(int callLine,
                 if (0 == p.ptr()) {
                     bsls_AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL( pAlias1.loadAlias(p, &alias1) );
-                    ASSERT_SAFE_PASS( pAlias1.loadAlias(p, 0) );
+                    ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, &alias1));
+                    ASSERT_SAFE_PASS(pAlias1.loadAlias(p, 0));
 
                     LOOP_ASSERT(p.ptr(),       0 == p.ptr());
                     LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
@@ -3160,15 +3160,15 @@ void testLoadAliasOps2(int callLine,
                 else {
                     bsls_AssertTestHandlerGuard guard;
 
-                    ASSERT_SAFE_FAIL( pAlias1.loadAlias(p, 0) );
-                    ASSERT_SAFE_PASS( pAlias1.loadAlias(p, &alias1) );
+                    ASSERT_SAFE_FAIL(pAlias1.loadAlias(p, 0));
+                    ASSERT_SAFE_PASS(pAlias1.loadAlias(p, &alias1));
 
                     LOOP_ASSERT(p.ptr(), 0 == p.ptr());
                     LOOP2_ASSERT(&alias1,   pAlias1.ptr(),
                                  &alias1 == pAlias1.ptr());
 
-                    ASSERT_SAFE_FAIL( pAlias2.loadAlias(pAlias1, 0) );
-                    ASSERT_SAFE_PASS( pAlias2.loadAlias(pAlias1, &alias2) );
+                    ASSERT_SAFE_FAIL(pAlias2.loadAlias(pAlias1, 0));
+                    ASSERT_SAFE_PASS(pAlias2.loadAlias(pAlias1, &alias2));
 
                     LOOP_ASSERT(pAlias1.ptr(), 0 == pAlias1.ptr());
                     LOOP2_ASSERT(&alias2,   pAlias2.ptr(),
@@ -3203,7 +3203,7 @@ void testLoadAliasOps2(int callLine,
             LOOP_ASSERT(i, gam.isMaxSame());
 
             LOOP_ASSERT(i, dam.isInUseSame());
-            if(!args.d_useDefault) {
+            if (!args.d_useDefault) {
                 LOOP_ASSERT(i, dam.isMaxSame());
             }
         }
@@ -3297,7 +3297,7 @@ void testLoadAliasOps3(int callLine,
                 LOOP_ASSERT(i, gam.isInUseSame());
                 LOOP_ASSERT(i, gam.isMaxSame());
 
-                if(!args.d_useDefault) {
+                if (!args.d_useDefault) {
                     LOOP_ASSERT(i, dam.isInUseSame());
                     LOOP_ASSERT(i, dam.isMaxSame());
                 }
@@ -3315,7 +3315,7 @@ void testLoadAliasOps3(int callLine,
             LOOP_ASSERT(i, gam.isMaxSame());
 
             LOOP_ASSERT(i, dam.isInUseSame());
-            if(!args.d_useDefault) {
+            if (!args.d_useDefault) {
                 LOOP_ASSERT(i, dam.isMaxSame());
             }
         }
@@ -6210,7 +6210,7 @@ int main(int argc, char *argv[])
 
         int deleteCount = 0;
         MyTestObject t(&deleteCount);
-        bdema_ManagedPtrNoOpDeleter::deleter(&t, 0);
+        bdema_ManagedPtrUtil::noOpDeleter(&t, 0);
         LOOP_ASSERT(deleteCount, 0 == deleteCount);
 
         if (verbose) cout << "\tConfirm the deleter can be registered with "
@@ -6222,12 +6222,11 @@ int main(int argc, char *argv[])
         int x;
         int y;
         {
-            bdema_ManagedPtr<int> p(&x, 0,
-                                    &bdema_ManagedPtrNoOpDeleter::deleter);
+            bdema_ManagedPtr<int> p(&x, 0, &bdema_ManagedPtrUtil::noOpDeleter);
             ASSERT(dam.isInUseSame());
             ASSERT(gam.isInUseSame());
 
-            p.load(&y, 0, &bdema_ManagedPtrNoOpDeleter::deleter);
+            p.load(&y, 0, bdema_ManagedPtrUtil::noOpDeleter);
             ASSERT(dam.isInUseSame());
             ASSERT(gam.isInUseSame());
         }
@@ -8945,7 +8944,7 @@ int main(int argc, char *argv[])
         {
             TObj x(&numDeletes);
             {
-                Obj p(&x, 0, &bdema_ManagedPtrNoOpDeleter::deleter);
+                Obj p(&x, 0, &bdema_ManagedPtrUtil::noOpDeleter);
             }
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }

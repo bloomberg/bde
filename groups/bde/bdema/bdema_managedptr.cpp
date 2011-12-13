@@ -29,7 +29,7 @@ namespace BloombergLP {
                     // struct bdema_ManagedPtrNoOpDeleter
                     // ----------------------------------
 
-void bdema_ManagedPtrNoOpDeleter::deleter(void *, void *)
+void bdema_ManagedPtrUtil::noOpDeleter(void *, void *)
 {
 }
 
