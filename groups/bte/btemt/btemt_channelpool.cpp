@@ -3713,13 +3713,20 @@ int btemt_ChannelPool::disableRead(int channelId)
     }
     btemt_Channel *channel = channelHandle.ptr();
 
-    bdef_Function<void (*)()> disableReadCommand(bdef_BindUtil::bindA(
+    if (bcemt_ThreadUtil::isEqual(
+                          bcemt_ThreadUtil::self(),
+                          channel->eventManager()->dispatcherThreadHandle())) {
+        channel->disableRead(channelHandle);
+    }
+    else {
+        bdef_Function<void (*)()> disableReadCommand(bdef_BindUtil::bindA(
                 d_allocator_p
               , &btemt_Channel::disableRead
               , channel
               , channelHandle));
 
-    channel->eventManager()->execute(disableReadCommand);
+        channel->eventManager()->execute(disableReadCommand);
+    }
     return 0;
 }
 

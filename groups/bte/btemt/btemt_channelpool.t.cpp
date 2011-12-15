@@ -827,6 +827,76 @@ extern "C" void* threadFunctionCase36(void *data)
 }
 
 //-----------------------------------------------------------------------------
+// CASE 38
+//-----------------------------------------------------------------------------
+
+namespace CASE38 {
+
+
+btemt_ChannelPool *d_pool_p = 0;
+int                numRead = 0;
+
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            *arg,
+                    int             *id,
+                    bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << serverId
+                  << " State: " << state << bsl::endl;
+    }
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+//         barrier->wait();
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg,
+                     int             *numTimesCbCalled,
+                     string          *data,
+                     bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+
+    d_pool_p->disableRead(channelId);
+
+    *needed = 1;
+    numRead += msg->length();
+//     ostringstream os;
+//     bcema_BlobUtil::asciiDump(os, *msg);
+//     data->append(os.str());
+
+    msg->removeAll();
+//     barrier->wait();
+}
+
+}  // namespace TEST_CASE_38_NAMESPACE
+
+//-----------------------------------------------------------------------------
 // CASE 36
 //-----------------------------------------------------------------------------
 
@@ -7776,6 +7846,89 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 38: {
+        // --------------------------------------------------------------------
+        // REPRODUCING DRQS 28934644
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   int disableRead(int channelId);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nREPRODUCING DRQS 28934644"
+                          << "\n========================="
+                          << endl;
+
+        using namespace CASE38;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(1);
+        config.setReadTimeout(0);        // in seconds
+        if (verbose) {
+            P(config);
+        }
+
+        bcemt_Barrier   channelCbBarrier(2);
+        int             channelId;
+        btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                       bdef_BindUtil::bind(&channelStateCb,
+                                                           _1, _2, _3, _4,
+                                                           &channelId,
+                                                           &channelCbBarrier));
+
+        btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        bcemt_Barrier   dataCbBarrier(2);
+        int             numTimesDataCbCalled = 0;
+        string          data;
+        btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                     bdef_BindUtil::bind(&blobBasedReadCb,
+                                                         _1, _2, _3, _4,
+                                                         &numTimesDataCbCalled,
+                                                         &data,
+                                                         &dataCbBarrier));
+
+        btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
+
+        ASSERT(0 == pool.start());
+
+        const int SERVER_ID = 100;
+
+        bteso_IPv4Address serverAddr;
+        int rc = pool.listen(serverAddr, 5, SERVER_ID);
+        ASSERT(!rc);
+
+        ASSERT(0 == pool.getServerAddress(&serverAddr, SERVER_ID));
+
+        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+        bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+
+        ASSERT(0 == socket->connect(serverAddr));
+
+//         channelCbBarrier.wait();
+
+        d_pool_p = &pool;
+
+        const char *TEXT = "Hello World";
+        const int   LEN  = strlen(TEXT);
+        const int   NUM_TIMES = 100;
+
+        for (int i = 0; i < NUM_TIMES; ++i) {
+            rc = socket->write(TEXT, LEN);
+            LOOP2_ASSERT(LEN, rc, LEN == rc);
+        }
+
+        // Wait for the dispatcher thread to process the deregister the READ
+        // event.
+
+        bcemt_ThreadUtil::microSleep(0, 10);
+
+        P(numRead)
+      } break;
+#if 0
       case 37: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
@@ -15005,7 +15158,7 @@ int main(int argc, char *argv[])
             factory.deallocate(channels[i].first);
         }
       } break;
-
+#endif
       default: {
         cerr << "WARNING: CASE " << test << " NOT FOUND." << endl;
         testStatus = -1;
