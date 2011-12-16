@@ -185,7 +185,7 @@ int Dbghelp_Util::load()
     if (!isLoaded()) {
         eprintf("baesu_DbghelpDllImpl_Windows: %s failed\n",
                                      NULL == d_hProcess ? "'GetCurrentProcess'"
-                                                        : "'GetProcAddress'";
+                                                        : "'GetProcAddress'");
 
         wipeClean();
         return -1;                                                    // RETURN
@@ -279,8 +279,7 @@ static Dbghelp_Util dbghelp_util = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 namespace BloombergLP {
 
 // DATA
-static bcemt_QLock baesu_DbghelpDllImpl_Windows::s_qLock =
-                                                       BCEMT_QLOCK_INITIALIZER;
+bcemt_QLock baesu_DbghelpDllImpl_Windows::s_qLock = BCEMT_QLOCK_INITIALIZER;
 
 // CLASS METHODS
 bool baesu_DbghelpDllImpl_Windows::isLoaded()

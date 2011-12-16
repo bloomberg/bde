@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
-        bcemt_QLockGuard guard(&baesu_Dbghelp::qLock());
+        bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
 
         baesu_DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
 #if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
         // This test is meaningless unless on Windows with debug enabled
 
-        bcemt_QLockGuard guard(&baesu_Dbghelp::qLock());
+        bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
 
         baesu_DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES
@@ -229,10 +229,10 @@ int main(int argc, char *argv[])
         ASSERT(rc);
 
         const char *pc = line.FileName + bsl::strlen(line.FileName);
-        while (pc > line.FileName && '\\' != pc[1]) {
+        while (pc > line.FileName && '\\' != pc[-1]) {
             --pc;
         }
-        ASSERT(!bsl::strcmp(pc, "baesu_dbghelpdllimpl_windows.t.cpp"));
+        LOOP_ASSERT(pc, !bsl::strcmp(pc, "baesu_dbghelpdllimpl_windows.t.cpp"));
         ASSERT(line.LineNumber > FIRST_LINE);
         ASSERT(line.LineNumber < SECOND_LINE);
 #endif
@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TEST LOADING OF DLL\n"
                              "===================\n";
 
-        bcemt_QLockGuard guard(&baesu_Dbghelp::qLock());
+        bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
 
         baesu_DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                                     | SYMOPT_LOAD_LINES
