@@ -16,6 +16,7 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 
 #include <bdema_heapbypassallocator.h>
 
+#include <bslmf_assert.h>
 #include <bsls_platform.h>
 #include <bsls_platformutil.h>
 
@@ -34,8 +35,8 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 #if TRACES == 1
 # include <stdio.h>
 
-#define eprintf printf
-#define zprintf printf
+# define eprintf printf
+# define zprintf printf
 
 #else
 
@@ -90,9 +91,9 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
 
     bdema_HeapBypassAllocator hbpAlloc;
 
-    bcemt_QLockGuard guard(&baesu_Dbghelp::qLock());
+    bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
 
-    baesu_Dbghelp::symSetOptions(SYMOPT_NO_PROMPTS
+    baesu_DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
                                  | SYMOPT_LOAD_LINES
                                  | SYMOPT_DEFERRED_LOADS);
 
@@ -123,10 +124,10 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
 
         line.SizeOfStruct = sizeof(line);
         DWORD offsetFromLine;
-        int rc = baesu_Dbghelp::symGetLineFromAddr64(baesu_Dbghelp::NullArg(),
-                                                     address,
-                                                     &offsetFromLine,
-                                                     &line);
+        int rc = baesu_DbghelpDllImpl_Windows::symGetLineFromAddr64(
+							       address,
+							       &offsetFromLine,
+							       &line);
         if (rc) {
             frame->setSourceFileName(line.FileName);
             frame->setLineNumber(line.LineNumber);
@@ -140,17 +141,16 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
         sym->SizeOfStruct = sizeof(*sym);
 #ifdef BSLS_PLATFORM__CPU_32_BIT
         sym->MaxNameLen = MAX_SYMBOL_BUF_NAME_LENGTH;
-        rc = baesu_Dbghelp::symFromAddr(baesu_Dbghelp::NullArg(),
-                                        address,
-                                        &offsetFromSymbol,
-                                        sym);
+        rc = baesu_DbghelpDllImpl_Windows::symFromAddr(address,
+                                                       &offsetFromSymbol,
+                                                       sym);
 #else
-        BSLS_ASSERT(sizeof(void *) == 8);
+        BSLMF_ASSERT(sizeof(void *) == 8);
         sym->MaxNameLength = MAX_SYMBOL_BUF_NAME_LENGTH;
-        rc = baesu_Dbghelp::symGetSymFromAddr64(baesu_Dbghelp::NullArg(),
-                                                address,
-                                                &offsetFromSymbol,
-                                                sym);
+        rc = baesu_DbghelpDllImpl_Windows::symGetSymFromAddr64(
+                                                             address,
+                                                             &offsetFromSymbol,
+                                                             sym);
 #endif
         if (rc) {
             // windows is always demangled

@@ -1,8 +1,8 @@
-// baesu_dbghelpimpl_windows.cpp                                      -*-C++-*-
-#include <baesu_dbghelpimpl_windows.h>
+// baesu_dbghelpdllimpl_windows.cpp                                   -*-C++-*-
+#include <baesu_dbghelpdllimpl_windows.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(baesu_dbghelpimpl_windows_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(baesu_dbghelpdllimpl_windows_cpp,"$Id$ $CSID$")
 
 #include <bsls_platform.h>
 
@@ -34,11 +34,10 @@ BDES_IDENT_RCSID(baesu_dbghelpimpl_windows_cpp,"$Id$ $CSID$")
 
 namespace {
 
-                            // ===================
-                            // struct Dbghelp_Util
-                            // ===================
+                         // =========================
+                         // local struct Dbghelp_Util
+                         // =========================
 
-static
 struct Dbghelp_Util {
     // This struct contains the handle of the DLL and a collection of function
     // ptrs that will point to functions loaded at run time from it.  Only
@@ -131,11 +130,9 @@ struct Dbghelp_Util {
         // to make sure it is inlined, and to keep the code size smaller.
 
     // ACCESSORS
-    bool ok();
+    bool isLoaded();
         // Everything is fully loaded.
-} dbghelp_util = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-}  // close unnamed namespace
+};
 
 // PRIVATE MANIPULATORS
 int Dbghelp_Util::load()
@@ -157,7 +154,7 @@ int Dbghelp_Util::load()
 
     d_moduleHandle = LoadLibraryA("dbghelp.dll");
     if (NULL == d_moduleHandle) {
-        eprintf("baesu_Dbghelp: 'LoadLibraryA' failed\n");
+        eprintf("baesu_DbghelpDllImpl_Windows: 'LoadLibraryA' failed\n");
 
         return -1;                                                    // RETURN
     }
@@ -185,13 +182,10 @@ int Dbghelp_Util::load()
                     GetProcAddress(d_moduleHandle, "SymGetModuleBase64");
     d_hProcess = GetCurrentProcess();
 
-    if (!ok()) {
-        if (NULL == d_hProcess) {
-            eprintf("baesu_Dbghelp: 'GetCurrentProcess' failed\n");
-        }
-        else {
-            eprintf("baesu_Dbghelp: 'GetProcAddress' failed\n");
-        }
+    if (!isLoaded()) {
+        eprintf("baesu_DbghelpDllImpl_Windows: %s failed\n",
+                                     NULL == d_hProcess ? "'GetCurrentProcess'"
+                                                        : "'GetProcAddress'";
 
         wipeClean();
         return -1;                                                    // RETURN
@@ -202,7 +196,7 @@ int Dbghelp_Util::load()
 
     BOOL rc = (*d_symInitialize)(d_hProcess, NULL, TRUE);
     if (!rc) {
-        eprintf("baesu_Dbghelp: 'SymInitialize' failed\n");
+        eprintf("baesu_DbghelpDllImpl_Windows: 'SymInitialize' failed\n");
         wipeClean();
         return -1;                                                    // RETURN
     }
@@ -210,13 +204,13 @@ int Dbghelp_Util::load()
     return 0;
 }
 
-// CLASS METHODS
 // CREATORS
 Dbghelp_Util::~Dbghelp_Util()
 {
-    BSLS_ASSERT_OPT(!BloombergLP::baesu_Dbghelp::qLock().isLocked());
+    BSLS_ASSERT_OPT(
+               !BloombergLP::baesu_DbghelpDllImpl_Windows::qLock().isLocked());
 
-    if (ok()) {
+    if (isLoaded()) {
         (*d_symCleanup)(d_hProcess);
         FreeLibrary(d_moduleHandle);
     }
@@ -226,7 +220,7 @@ Dbghelp_Util::~Dbghelp_Util()
 inline
 int Dbghelp_Util::init()
 {
-    BSLS_ASSERT(BloombergLP::baesu_Dbghelp::qLock().isLocked());
+    BSLS_ASSERT(BloombergLP::baesu_DbghelpDllImpl_Windows::qLock().isLocked());
 
     return NULL == d_moduleHandle ? load() : 0;
 }
@@ -255,7 +249,7 @@ void Dbghelp_Util::wipeClean()
 }
 
 // ACCESSORS
-bool Dbghelp_Util::ok()
+bool Dbghelp_Util::isLoaded()
 {
     return  NULL != d_moduleHandle
          && NULL != d_symSetOptions
@@ -273,25 +267,39 @@ bool Dbghelp_Util::ok()
          && NULL != d_hProcess;
 }
 
+}  // close unnamed namespace
+
+// DATA
+static Dbghelp_Util dbghelp_util = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
                               // -------------
-                              // baesu_Dbghelp
+                              // baesu_DbghelpDllImpl_Windows
                               // -------------
 
 namespace BloombergLP {
 
-DWORD baesu_Dbghelp::symSetOptions(DWORD arg1)
+// DATA
+static bcemt_QLock baesu_DbghelpDllImpl_Windows::s_qLock =
+                                                       BCEMT_QLOCK_INITIALIZER;
+
+// CLASS METHODS
+bool baesu_DbghelpDllImpl_Windows::isLoaded()
+{
+    return dbghelp_util.isLoaded();
+}
+
+DWORD baesu_DbghelpDllImpl_Windows::symSetOptions(DWORD symOptions)
 {
     BSLS_ASSERT_OPT(0 == dbghelp_util.init());
 
-    return (*dbghelp_util.d_symSetOptions)(arg1);
+    return (*dbghelp_util.d_symSetOptions)(symOptions);
 }
 
 #ifdef BSLS_PLATFORM__CPU_32_BIT
 
-BOOL baesu_Dbghelp::symFromAddr(NullArg,
-                                DWORD64      arg2,
-                                PDWORD64     arg3,
-                                PSYMBOL_INFO arg4)
+BOOL baesu_DbghelpDllImpl_Windows::symFromAddr(DWORD64      address,
+                                               PDWORD64     displacement,
+                                               PSYMBOL_INFO symbol)
 {
     int rc = dbghelp_util.init();
     if (0 != rc) {
@@ -299,17 +307,17 @@ BOOL baesu_Dbghelp::symFromAddr(NullArg,
     }
 
     return (*dbghelp_util.d_symFromAddr)(dbghelp_util.d_hProcess,
-                                         arg2,
-                                         arg3,
-                                         arg4);
+                                         address,
+                                         displacement,
+                                         symbol);
 }
 
 #else
 
-BOOL baesu_Dbghelp::symGetSymFromAddr64(NullArg,
-                                        DWORD64            arg2,
-                                        PDWORD64           arg3,
-                                        PIMAGEHLP_SYMBOL64 arg4)
+BOOL baesu_DbghelpDllImpl_Windows::symGetSymFromAddr64(
+                                               DWORD64            address,
+                                               PDWORD64           displacement,
+                                               PIMAGEHLP_SYMBOL64 symbol)
 {
     int rc = dbghelp_util.init();
     if (0 != rc) {
@@ -317,17 +325,17 @@ BOOL baesu_Dbghelp::symGetSymFromAddr64(NullArg,
     }
 
     return (*dbghelp_util.d_symGetSymFromAddr64)(dbghelp_util.d_hProcess,
-                                                 arg2,
-                                                 arg3,
-                                                 arg4);
+                                                 address,
+                                                 displacement,
+                                                 symbol);
 }
 
 #endif
 
-BOOL baesu_Dbghelp::symGetLineFromAddr64(NullArg,
-                                         DWORD64          arg2,
-                                         PDWORD           arg3,
-                                         PIMAGEHLP_LINE64 arg4)
+BOOL baesu_DbghelpDllImpl_Windows::symGetLineFromAddr64(
+                                              DWORD64          dwAddr,
+                                              PDWORD           pdwDisplacement,
+                                              PIMAGEHLP_LINE64 line)
 {
     int rc = dbghelp_util.init();
     if (0 != rc) {
@@ -335,20 +343,15 @@ BOOL baesu_Dbghelp::symGetLineFromAddr64(NullArg,
     }
 
     return (*dbghelp_util.d_symGetLineFromAddr64)(dbghelp_util.d_hProcess,
-                                                  arg2,
-                                                  arg3,
-                                                  arg4);
+                                                  dwAddr,
+                                                  pdwDisplacement,
+                                                  line);
 }
 
-BOOL baesu_Dbghelp::stackWalk64(DWORD          arg1,
-                                NullArg,
-                                HANDLE         arg3,
-                                LPSTACKFRAME64 arg4,
-                                PVOID          arg5,
-                                NullArg,
-                                NullArg,
-                                NullArg,
-                                NullArg)
+BOOL baesu_DbghelpDllImpl_Windows::stackWalk64(DWORD          machineType,
+                                               HANDLE         hThread,
+                                               LPSTACKFRAME64 stackFrame,
+                                               PVOID          contextRecord)
 {
     int rc = dbghelp_util.init();
     if (0 != rc) {
@@ -356,20 +359,15 @@ BOOL baesu_Dbghelp::stackWalk64(DWORD          arg1,
     }
 
     return (*dbghelp_util.d_stackWalk64)(
-                                     arg1,
-                                     dbghelp_util.d_hProcess,
-                                     arg3,
-                                     arg4,
-                                     arg5,
-                                     0,
-                                     dbghelp_util.d_symFunctionTableAccess64,
-                                     dbghelp_util.d_symGetModuleBase64,
-                                     0);
-}
-
-bool baesu_Dbghelp::loadedOK()
-{
-    return dbghelp_util.ok();
+                                       machineType,
+                                       dbghelp_util.d_hProcess,
+                                       hThread,
+                                       stackFrame,
+                                       contextRecord,
+                                       0,
+                                       dbghelp_util.d_symFunctionTableAccess64,
+                                       dbghelp_util.d_symGetModuleBase64,
+                                       0);
 }
 
 }  // close namespace BloombergLP

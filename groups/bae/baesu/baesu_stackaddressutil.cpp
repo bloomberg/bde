@@ -351,13 +351,13 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
 {
     BSLS_ASSERT(0 <= maxFrames);
 
-    bcemt_QLockGuard guard(&baesu_Dbghelp::qLock());
+    bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
 
-    baesu_Dbghelp::symSetOptions(SYMOPT_NO_PROMPTS
-                                 | SYMOPT_LOAD_LINES
-                                 | SYMOPT_DEFERRED_LOADS);
+    baesu_DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+                                                | SYMOPT_LOAD_LINES
+                                                | SYMOPT_DEFERRED_LOADS);
 
-    //                           | SYMOPT_DEBUG);
+    //                                          | SYMOPT_DEBUG);
 
     // See 'http://msdn.microsoft.com/en-us/library/ms680313(VS.85).aspx' for
     // details.
@@ -367,11 +367,11 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
 #elif defined(BSLS_PLATFORM__CPU_64_BIT)
     // x86 compatible cpu, 64 bit executable
 
-    const int machine = IMAGE_FILE_MACHINE_AMD64;
+    enum { MACHINE = IMAGE_FILE_MACHINE_AMD64 };
 #elif defined(BSLS_PLATFORM__CPU_32_BIT)
     // x86 compatible cpu, 32 bit executable
 
-    const int machine = IMAGE_FILE_MACHINE_I386;
+    enum { MACHINE = IMAGE_FILE_MACHINE_I386 };
 #else
 #   error unrecognized architecture
 #endif
@@ -431,15 +431,10 @@ int baesu_StackAddressUtil::getStackAddresses(void    **buffer,
     int stackFrameIndex;
     HANDLE currentThread = GetCurrentThread();
     for (stackFrameIndex = 0; stackFrameIndex < maxFrames; ++stackFrameIndex) {
-        bool rc = baesu_Dbghelp::stackWalk64(machine,
-                                             baesu_Dbghelp::NullArg(),
-                                             currentThread,
-                                             &stackFrame,
-                                             &winContext,
-                                             baesu_Dbghelp::NullArg(),
-                                             baesu_Dbghelp::NullArg(),
-                                             baesu_Dbghelp::NullArg(),
-                                             baesu_Dbghelp::NullArg());
+        bool rc = baesu_DbghelpDllImpl_Windows::stackWalk64(MACHINE,
+                                                            currentThread,
+                                                            &stackFrame,
+                                                            &winContext);
         if (!rc) {
             break;
         }
