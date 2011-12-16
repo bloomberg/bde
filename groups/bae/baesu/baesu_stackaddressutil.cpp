@@ -47,7 +47,7 @@ BDES_IDENT_RCSID(baesu_stackaddressutil_cpp,"$Id$ $CSID$")
 
 #elif defined(BSLS_PLATFORM__OS_WINDOWS)
 
-#include <baesu_dbghelpimpl_windows.h>
+#include <baesu_dbghelpdllimpl_windows.h>
 
 #include <windows.h>
 #include <intrin.h>

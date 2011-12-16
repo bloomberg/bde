@@ -10,7 +10,7 @@ BDES_IDENT_RCSID(baesu_stacktraceresolverimpl_windows_cpp,"$Id$ $CSID$")
 
 #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 
-#include <baesu_dbghelpimpl_windows.h>
+#include <baesu_dbghelpdllimpl_windows.h>
 
 #include <bcemt_qlock.h>
 
@@ -125,9 +125,9 @@ int baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Windows>::resolve(
         line.SizeOfStruct = sizeof(line);
         DWORD offsetFromLine;
         int rc = baesu_DbghelpDllImpl_Windows::symGetLineFromAddr64(
-							       address,
-							       &offsetFromLine,
-							       &line);
+                                                               address,
+                                                               &offsetFromLine,
+                                                               &line);
         if (rc) {
             frame->setSourceFileName(line.FileName);
             frame->setLineNumber(line.LineNumber);
