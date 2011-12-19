@@ -480,11 +480,14 @@ void executeInParallel(int                               numThreads,
                                       new bcemt_ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
+    int rc;
     for (int i = 0; i < numThreads; ++i) {
-        bcemt_ThreadUtil::create(&threads[i], func, threadArgs);
+        rc = bcemt_ThreadUtil::create(&threads[i], func, threadArgs);
+        LOOP_ASSERT(i, !rc);
     }
     for (int i = 0; i < numThreads; ++i) {
-        bcemt_ThreadUtil::join(threads[i]);
+        rc = bcemt_ThreadUtil::join(threads[i]);
+        LOOP_ASSERT(i, !rc);
     }
 
     delete [] threads;
@@ -936,7 +939,11 @@ int main(int argc, char *argv[])
         bcema_TestAllocator testAllocator;
 
         enum {
+#ifdef BSLS_PLATFORM__OS_LINUX
+            NUM_THREADS = 8    // linux can't do a lot of threads
+#else
             NUM_THREADS = 50
+#endif
         };
 
         bcemt_Barrier barrier(NUM_THREADS);

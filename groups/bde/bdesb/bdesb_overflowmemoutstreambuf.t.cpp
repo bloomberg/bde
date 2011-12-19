@@ -1575,10 +1575,10 @@ int main(int argc, char *argv[])
                   { L_,    's',            "s"     },
                   // Add non-printing character
                   { L_,    10,             "\xA"   },
-                  // Add <= 127
+                  // 0 <= Add <= 127
                   { L_,    127,            "\x7F"  },
-                  // Add >= 128
-                  { L_,    0x80,           "\x80"  }
+                  // -128 <= Add <= -1
+                  { L_,   -128,            "\x80"  }
             };   // end table DATA
 
             const int DATA_LEN = sizeof DATA / sizeof *DATA;
