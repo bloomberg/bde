@@ -497,14 +497,8 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
 
 void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
 {
-    // We're accessing 'd_blobPendingData' before acquiring the lock because
-    // only this method accesses it *and* only the manager thread calls this
-    // method.
-
-    bcema_Blob *currentBlob = msg;
-
     *numNeeded            = 1;
-    int numBytesAvailable = currentBlob->length();
+    int numBytesAvailable = msg->length();
 
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
     d_callbackInProgress = true;
@@ -531,12 +525,12 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
                                            BTEMT_BLOB_BASED == callbackType)) {
             BlobBasedReadCallback callback =
                                    entry.d_readCallback.d_blobBasedCb.object();
-            numBytesAvailable = currentBlob->length();
+            numBytesAvailable = msg->length();
 
             {
                 bcemt_LockGuardUnlock<bcemt_Mutex> guard(&d_mutex);
-                callback(BTEMT_SUCCESS, &nNeeded, currentBlob, d_channelId);
-                numConsumed = numBytesAvailable - currentBlob->length();
+                callback(BTEMT_SUCCESS, &nNeeded, msg, d_channelId);
+                numConsumed = numBytesAvailable - msg->length();
             }
         }
         else {
@@ -553,8 +547,8 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
 
             btemt_DataMsg dataMsg;
             btemt_MessageUtil::assignData(&dataMsg,
-                                          *currentBlob,
-                                          currentBlob->length(),
+                                          *msg,
+                                          msg->length(),
                                           d_bufferChainFactory_p,
                                           d_spAllocator_p);
             dataMsg.setChannelId(d_channelId);
@@ -563,7 +557,7 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
                 callback(BTEMT_SUCCESS, &numConsumed, &nNeeded, dataMsg);
             }
             dataMsg.sharedData().clear();
-            bcema_BlobUtil::erase(currentBlob, 0, numConsumed);
+            bcema_BlobUtil::erase(msg, 0, numConsumed);
         }
 
         BSLS_ASSERT(0 <= nNeeded);

@@ -129,6 +129,430 @@ static bcemt_Mutex coutMutex;
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
 
+namespace BTEMT_SESSION_POOL_DRQS_29067989 {
+
+static bslma_TestAllocator testAllocator;
+static int callbackCount = 0;
+
+static int maxLength = 0;
+static int maxSize = 0;
+static int maxExtra = 0;
+static int maxNumBuffers = 0;
+static int maxNumDataBuffers = 0;
+
+enum {
+    PAYLOAD_SIZE = 320,
+    HALF_PAYLOAD_SIZE = 160
+};
+
+void poolStateCallback(int reason, int source, void *userData)
+{
+    if (veryVerbose) {
+        MTCOUT << "Pool state changed: (" << reason << ", " << source
+               << ") " << MTENDL;
+    }
+}
+
+void sessionStateCallback(int            state,
+                          int            handle,
+                          btemt_Session *session,
+                          void          *userData,
+                          bcemt_Barrier *barrier)
+{
+    switch(state) {
+      case btemt_SessionPool::SESSION_DOWN: {
+          if (veryVerbose) {
+              MTCOUT << "Client from "
+                     << session->channel()->peerAddress()
+                     << " has disconnected."
+                     << MTENDL;
+          }
+      } break;
+      case btemt_SessionPool::SESSION_UP: {
+          if (veryVerbose) {
+              MTCOUT << "Client connected from "
+                     << session->channel()->peerAddress()
+                     << MTENDL;
+          }
+          barrier->wait();
+      } break;
+    }
+}
+
+                            // ===================
+                            // class TesterSession
+                            // ===================
+
+class TesterSession : public btemt_Session {
+    // This class is a concrete implementation of the 'btemt_Session' protocol
+    // to use along with 'Tester' objects.
+
+    // DATA
+    btemt_AsyncChannel *d_channel_p; // underlying channel (held, not owned)
+
+  private:
+    // NOT IMPLEMENTED
+    TesterSession(const TesterSession&);
+    TesterSession& operator=(const TesterSession&);
+
+    // PRIVATE MANIPULATORS
+    void readCb(int         result,
+                int        *numNeeded,
+                bcema_Blob *blob,
+                int         channelId);
+        // Read callback for session pool.
+
+  public:
+    // CREATORS
+    TesterSession(btemt_AsyncChannel *channel);
+        // Create a new 'TesterSession' object for the specified 'channel'.
+
+    ~TesterSession();
+        // Destroy this object.
+
+        // MANIPULATORS
+    virtual int start();
+        // Begin the asynchronous operation of this session.
+
+    virtual int stop();
+        // Stop the operation of this session.
+
+    // ACCESSORS
+    virtual btemt_AsyncChannel *channel() const;
+        // Return the channel associate with this session.
+};
+
+                      // ========================
+                      // class TestSessionFactory
+                      // ========================
+
+class TestSessionFactory : public btemt_SessionFactory {
+    // This class is a concrete implementation of the
+    // 'btemt_SessionFactory' that simply allocates 'TestSession'
+    // objects.  No specific allocation strategy (such as pooling) is
+    // implemented.
+
+    bslma_Allocator *d_allocator_p; // memory allocator (held, not owned)
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(TestSessionFactory,
+                                 bslalg_TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    TestSessionFactory(bslma_Allocator *basicAllocator = 0);
+        // Create a new 'TestSessionFactory' object.  Optionally specify
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.
+
+    virtual ~TestSessionFactory();
+        // Destroy this factory.
+
+    // MANIPULATORS
+    virtual void allocate(btemt_AsyncChannel                    *channel,
+                          const btemt_SessionFactory::Callback&  callback);
+       // Asynchronously allocate a 'btemt_Session' object for the
+       // specified 'channel', and invoke the specified 'callback' with
+       // this session.
+
+    virtual void deallocate(btemt_Session *session);
+        // Deallocate the specified 'session'.
+};
+
+                      // ================
+                      // class TestServer
+                      // ================
+
+class TestServer {
+    // This class implements a multi-user multi-threaded echo server.
+
+    // DATA
+    btemt_ChannelPoolConfiguration d_config;          // pool
+                                                      // configuration
+
+    btemt_SessionPool             *d_sessionPool_p;   // managed pool
+                                                      // (owned)
+
+    TestSessionFactory             d_sessionFactory;  // TestSession
+                                                      // factory
+
+    int                            d_portNumber;      // port on which this
+                                                      // server is
+                                                      // listening
+
+    bslma_Allocator               *d_allocator_p;     // memory allocator
+                                                      // (held)
+
+    bcemt_Mutex                   *d_coutMutex;       // Mutex for cout
+                                                      // operations
+
+    // PRIVATE MANIPULATORS
+    void poolStateCb(int reason, int source, void *userData);
+        // Indicates the status of the whole pool.
+
+    void sessionStateCb(int            state,
+                        int            handle,
+                        btemt_Session *session,
+                        void          *userData);
+        // Per-session state.
+
+    private:
+    // NOT IMPLEMENTED
+    TestServer(const TestServer& original);
+    TestServer& operator=(const TestServer& rhs);
+
+  public:
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(TestServer,
+                                 bslalg_TypeTraitUsesBslmaAllocator);
+
+    // CREATORS
+    TestServer(bcemt_Mutex     *coutMutex,
+               int              portNumber,
+               int              numConnections);
+        // Create an echo server that listens for incoming connections on
+        // the specified 'portNumber' managing up to the specified
+        // 'numConnections' simultaneous connections.  Pass the specified
+        // 'reuseAddressFlag' to the set the 'REUSE_ADDRESS' socket option
+        // to the listening socket.  The echo server will use the
+        // specified 'coutLock' to synchronize access to the standard
+        // output.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The behavior is undefined if
+        // 'coutLock' is 0.
+
+    ~TestServer();
+        // Destroy this server.
+
+    // MANIPULATORS
+    const btemt_SessionPool& pool() const;
+        // Return a non-modifiable reference to the session pool used by
+        // this echo server.
+
+    int portNumber() const;
+        // Return the port number on which this server is listening.
+};
+
+                            // -------------------
+                            // class TesterSession
+                            // -------------------
+
+// CREATORS
+TesterSession::TesterSession(btemt_AsyncChannel *channel)
+: d_channel_p(channel)
+{
+}
+
+TesterSession::~TesterSession()
+{
+}
+
+// MANIPULATORS
+int TesterSession::start()
+{
+    if (veryVerbose) {
+        MTCOUT << "Session started" << MTENDL;
+    }
+
+    btemt_AsyncChannel::BlobBasedReadCallback callback =
+                           bdef_MemFnUtil::memFn(&TesterSession::readCb, this);
+    return d_channel_p->read(PAYLOAD_SIZE, callback);
+}
+
+int TesterSession::stop()
+{
+    if (veryVerbose) {
+        MTCOUT << "Session stopped" << MTENDL;
+    }
+
+    d_channel_p->close();
+    return 0;
+}
+
+void TesterSession::readCb(int         result,
+                           int        *numNeeded,
+                           bcema_Blob *blob,
+                           int         channelId)
+{
+    if (result) {
+        // Session is going down.
+
+        d_channel_p->close();
+        return;
+    }
+
+    ++callbackCount;
+
+    ASSERT(numNeeded);
+    ASSERT(blob);
+    ASSERT(0 < blob->length());
+
+    int consume = blob->length();
+    if (0 == callbackCount % 2) {
+        // Every second time leave a bit of data in the input buffer.
+        consume -= sizeof(int);
+    }
+
+    if (maxLength < blob->length()) {
+        maxLength = blob->length();
+    }
+
+    if (maxSize < blob->totalSize()) {
+        maxSize = blob->totalSize();
+    }
+
+    if (maxExtra < (blob->totalSize() - blob->length())) {
+        maxExtra = (blob->totalSize() - blob->length());
+    }
+
+    if (maxNumDataBuffers < blob->numDataBuffers()) {
+        maxNumDataBuffers = blob->numDataBuffers();
+    }
+
+    if (maxNumBuffers < blob->numBuffers()) {
+        maxNumBuffers = blob->numBuffers();
+    }
+
+    bcema_BlobUtil::erase(blob, 0, consume);
+
+    *numNeeded = PAYLOAD_SIZE;
+}
+
+// ACCESSORS
+btemt_AsyncChannel *TesterSession::channel() const
+{
+    return d_channel_p;
+}
+
+                      // ------------------------
+                      // class TestSessionFactory
+                      // ------------------------
+
+// CREATORS
+TestSessionFactory::TestSessionFactory(bslma_Allocator *basicAllocator)
+: d_allocator_p(bslma_Default::allocator(basicAllocator))
+{
+}
+
+TestSessionFactory::~TestSessionFactory()
+{
+}
+
+// MANIPULATORS
+void
+TestSessionFactory::allocate(btemt_AsyncChannel                    *channel,
+                             const btemt_SessionFactory::Callback&  callback)
+{
+    TesterSession *session = new (*d_allocator_p) TesterSession(channel);
+    callback(0, session);
+}
+
+void
+TestSessionFactory::deallocate(btemt_Session *session)
+{
+    d_allocator_p->deleteObject(session);
+}
+
+                          // -------------------
+                          // class TestServer
+                          // -------------------
+
+// PRIVATE MANIPULATORS
+void TestServer::poolStateCb(int reason, int source, void *userData)
+{
+    if (veryVerbose) {
+        d_coutMutex->lock();
+        bsl::cout << "Pool state changed: (" << reason << ", " << source
+                  << ") " << bsl::endl;
+        d_coutMutex->unlock();
+    }
+}
+
+void TestServer::sessionStateCb(int            state,
+                                int            handle,
+                                btemt_Session *session,
+                                void          *userData)
+{
+    switch(state) {
+      case btemt_SessionPool::SESSION_DOWN: {
+        if (veryVerbose) {
+            d_coutMutex->lock();
+            bsl::cout << "Client from "
+                      << session->channel()->peerAddress()
+                      << " has disconnected."
+                      << bsl::endl;
+            d_coutMutex->unlock();
+        }
+      } break;
+      case btemt_SessionPool::SESSION_UP: {
+        if (veryVerbose) {
+            d_coutMutex->lock();
+            bsl::cout << "Client connected from "
+                      << session->channel()->peerAddress()
+                      << bsl::endl;
+            d_coutMutex->unlock();
+        }
+      } break;
+    }
+}
+
+// CREATORS
+TestServer::TestServer(bcemt_Mutex     *coutMutex,
+                       int              portNumber,
+                       int              numConnections)
+: d_sessionFactory(bslma_Default::defaultAllocator())
+, d_allocator_p(bslma_Default::defaultAllocator())
+, d_coutMutex(coutMutex)
+{
+    d_config.setMaxThreads(4);                  // 4 I/O threads
+    d_config.setMaxConnections(numConnections);
+    d_config.setMetricsInterval(10.0);          // seconds
+    d_config.setMaxWriteCache(1<<10);           // 1Mb
+    d_config.setIncomingMessageSizes(1, 100, 1024);
+
+    typedef btemt_SessionPool::SessionPoolStateCallback SessionPoolStateCb;
+    SessionPoolStateCb poolStateCb = bdef_MemFnUtil::memFn(
+                                        &TestServer::poolStateCb, this);
+
+    d_sessionPool_p = new (*d_allocator_p)
+                           btemt_SessionPool(d_config,
+                                             poolStateCb,
+                                             true,
+                                             &testAllocator);
+
+    btemt_SessionPool::SessionStateCallback sessionStateCb =
+                     bdef_MemFnUtil::memFn(&TestServer::sessionStateCb,
+                                           this);
+
+    BSLS_ASSERT(0 == d_sessionPool_p->start());
+    int handle;
+    BSLS_ASSERT(0 == d_sessionPool_p->listen(&handle, sessionStateCb,
+                                             portNumber,
+                                             numConnections,
+                                             &d_sessionFactory));
+
+    d_portNumber = d_sessionPool_p->portNumber(handle);
+}
+
+TestServer::~TestServer()
+{
+    d_sessionPool_p->stop();
+    d_allocator_p->deleteObject(d_sessionPool_p);
+}
+
+// ACCESSORS
+const btemt_SessionPool& TestServer::pool() const
+{
+    return *d_sessionPool_p;
+}
+
+int TestServer::portNumber() const
+{
+    return d_portNumber;
+}
+
+}
+
 namespace BTEMT_SESSION_POOL_DRQS_24968477 {
 
 void poolStateCallback(int reason, int source, void *userData)
@@ -1913,6 +2337,55 @@ int main(int argc, char *argv[])
     bcema_TestAllocator ta("ta", veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 10: {
+        // --------------------------------------------------------------------
+        // REPRODUCING DRQS 29067989
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //  DRQS 29067989
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "DRQS 29067989" << bsl::endl
+                               << "=============" << bsl::endl;
+
+        using namespace BTEMT_SESSION_POOL_DRQS_29067989;
+
+        TestServer testServer(&coutMutex, 0, 5);
+
+        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+        bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+
+        const bteso_IPv4Address ADDRESS("127.0.0.1", testServer.portNumber());
+        BSLS_ASSERT(0 == socket->connect(ADDRESS));
+
+        char payload[PAYLOAD_SIZE];
+        const int NT = 1000000;
+        for (int i = 0; i < NT; ++i) {
+            int sendSize = PAYLOAD_SIZE;
+            ASSERT(sendSize == socket->write(payload, sendSize));
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 5);
+
+        factory.deallocate(socket);
+
+        if (veryVerbose) {
+            MTCOUT << "TA In Use: " << testAllocator.numBytesInUse() << MTENDL;
+            MTCOUT << "TA In Use Blocks: " << testAllocator.numBlocksInUse()
+                   << MTENDL;
+            MTCOUT << "TA In Max: " << testAllocator.numBytesMax() << MTENDL;
+
+            MTCOUT << "maxLength: " << maxLength << MTENDL;
+            MTCOUT << "maxSize: " << maxSize << MTENDL;
+            MTCOUT << "maxExtra: " << maxExtra << MTENDL;
+            MTCOUT << "maxNumBuffers: " << maxNumBuffers << MTENDL;
+            MTCOUT << "maxNumDataBuffers: " << maxNumDataBuffers << MTENDL;
+        }
+      } break;
       case 9: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 24968477
