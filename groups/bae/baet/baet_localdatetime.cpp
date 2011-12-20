@@ -27,8 +27,8 @@ bsl::ostream& baet_LocalDatetime::print(bsl::ostream& stream,
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.print(d_datetimeTz,         "datetimeTz");
-    printer.print(d_timeZoneId.c_str(), "timeZoneId");
+    printer.printAttribute("datetimeTz", d_datetimeTz);
+    printer.printAttribute("timeZoneId", d_timeZoneId.c_str());
     printer.end();
 
     return stream;
@@ -44,8 +44,8 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
 
     bslim::Printer printer(&stream, 0, -1);
     printer.start();
-    printer.print(localDatetime.datetimeTz(),         0);
-    printer.print(localDatetime.timeZoneId().c_str(), 0);
+    printer.printValue(localDatetime.datetimeTz());
+    printer.printValue(localDatetime.timeZoneId().c_str());
     printer.end();
 
     return stream;

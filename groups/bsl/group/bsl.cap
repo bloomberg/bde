@@ -1,16 +1,16 @@
-# BDE capabilities
+# BSL capabilities
 
 *                       _    OPTS_FILE = bsl.cap
 *                       _    ASSET_OBJECT_NAME = libbsl
 *                       _    ASSET_OBJECT_DESC = Core Bloomberg standard library
 *                       _    ASSET_DEPT_GROUP      = 101  # BDE
-*                       _    ASSET_CONTACT_PROG_1  = Clay Wilson
-*                       _    ASSET_CONTACT_PROG_2  = Herve Bronnimann
+*                       _    ASSET_CONTACT_PROG_1  = Henry (Mike) Verschell
+*                       _    ASSET_CONTACT_PROG_2  = Mike Giroux
 *                       _    ASSET_PRODUCTION_LOCN = /bbsrc/bsl
 
 #==============================================================================
 
-# bde builds on everything, in every way
+# bsl builds on everything, in every way
 *			_	CAPABILITY	= ALWAYS
 
 #==============================================================================

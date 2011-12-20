@@ -1061,6 +1061,9 @@ int main(int argc, char *argv[])
         bael_TestObserver               to(bsl::cout, &ta);
         const bael_TestObserver        *TO = &to;
         bael_LoggerManagerConfiguration lmc;
+        lmc.setTriggerMarkers(
+               BloombergLP::bael_LoggerManagerConfiguration::BAEL_NO_MARKERS);
+
         bael_LoggerManager::initSingleton(&to, lmc, &ta);
         bael_LoggerManager& manager = bael_LoggerManager::singleton();
         for (int i = 0; i < (int) thresholds.size(); ++i) {
@@ -1156,7 +1159,7 @@ int main(int argc, char *argv[])
                         numPublished += numBufferedRecords;
                         numBufferedRecords = 0;
                     }
-                    LOOP3_ASSERT(i,j,k,
+                    LOOP3_ASSERT(i, j, k,
                                  numPublished == TO->numPublishedRecords());
                 }
             }
@@ -1868,6 +1871,9 @@ int main(int argc, char *argv[])
 
         my_publishCountingObserver      observer;
         bael_LoggerManagerConfiguration configuration;
+        configuration.setTriggerMarkers(
+               BloombergLP::bael_LoggerManagerConfiguration::BAEL_NO_MARKERS);
+
         static bcema_TestAllocator      ta(veryVeryVerbose);
         bael_LoggerManagerScopedGuard guard(&observer, configuration, &ta);
         Obj& localManager = Obj::singleton();
@@ -2217,7 +2223,7 @@ int main(int argc, char *argv[])
         };
 
         static const lmc::TriggerMarkers TRIGGERMARKERS[3] = {
-            lmc::BAEL_NO_MARKERS,         // default
+            lmc::BAEL_BEGIN_END_MARKERS,         // default
             lmc::BAEL_BEGIN_END_MARKERS,
             lmc::BAEL_NO_MARKERS
         };
@@ -2430,6 +2436,9 @@ int main(int argc, char *argv[])
             bael_Logger::UserPopulatorCallback populator(&myPopulator);
 
             bael_LoggerManagerConfiguration mLMC;
+            mLMC.setTriggerMarkers(
+               BloombergLP::bael_LoggerManagerConfiguration::BAEL_NO_MARKERS);
+        
             const int MAX_LIMIT = 1000000;
             mLMC.setDefaultRecordBufferSizeIfValid(MAX_LIMIT);
 

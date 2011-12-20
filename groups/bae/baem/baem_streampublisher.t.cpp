@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
 //
     sample.setTimeStamp(
                    bdet_DatetimeTz(bdetu_SystemTime::nowAsDatetimeGMT(), 0));
-    sample.appendGroup(&records.front(),
+    sample.appendGroup(records.data(),
                        records.size(),
                        bdet_TimeInterval(5, 0));
 

@@ -59,6 +59,15 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //  };
 //..
+// Note that Standard Library facilities that work with numeric types can
+// be used with 'bsls_Types' as well.  For example, the following code finds
+// out some facts about 'bsls_Types::Int64' in a platform-independent way:
+//..
+//  std::cout << "Min Int64 value: "
+//            << std::numeric_limits<bsls_Types::Int64>::min() << std::endl
+//            << "Max Int64 value: "
+//            << std::numeric_limits<bsls_Types::Int64>::max() << std::endl;
+//..
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>

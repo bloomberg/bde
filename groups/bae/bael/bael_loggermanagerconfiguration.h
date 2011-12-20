@@ -91,7 +91,7 @@ BDES_IDENT("$Id: $")
 //                                  will be written before and after each
 //                                  sequence of records logged due to a Trigger
 //                                  or Trigger-All event; default is
-//                                  'BAEL_NO_MARKERS'
+//                                  'BAEL_BEGIN_END_MARKERS'.
 //..
 // The constraints are as follows:
 //..
@@ -150,7 +150,7 @@ BDES_IDENT("$Id: $")
 //  assert(   32 == config.defaultTriggerAllLevel());
 //
 //  assert(bael_LoggerManagerConfiguration::BAEL_LIFO == config.logOrder());
-//  assert(bael_LoggerManagerConfiguration::BAEL_NO_MARKERS
+//  assert(bael_LoggerManagerConfiguration::BAEL_BEGIN_END_MARKERS
 //                                                 == config.triggerMarkers());
 //..
 // Next, set each attribute.  Note that the user schema and the corresponding
@@ -194,15 +194,14 @@ BDES_IDENT("$Id: $")
 //  config.setCategoryNameFilterCallback(nameFilter);
 //  config.setDefaultThresholdLevelsCallback(defaultThresholds);
 //  config.setLogOrder(bael_LoggerManagerConfiguration::BAEL_FIFO);
-//  config.setTriggerMarkers(
-//                    bael_LoggerManagerConfiguration::BAEL_BEGIN_END_MARKERS);
+//  config.setTriggerMarkers(bael_LoggerManagerConfiguration::BAEL_NO_MARKERS);
 //
 //  assert(           schema == config.userSchema());
 //  assert(        populator == config.userPopulatorCallback());
 //  assert(       nameFilter == config.categoryNameFilterCallback());
 //  assert(defaultThresholds == config.defaultThresholdLevelsCallback());
 //  assert(bael_LoggerManagerConfiguration::BAEL_FIFO == config.logOrder());
-//  assert(bael_LoggerManagerConfiguration::BAEL_BEGIN_END_MARKERS
+//  assert(bael_LoggerManagerConfiguration::BAEL_NO_MARKERS
 //                                                 == config.triggerMarkers());
 //..
 // The configuration object is now validly configured with our choice of
@@ -399,7 +398,8 @@ class bael_LoggerManagerConfiguration {
         // threshold levels are in the range '[0 .. 255]'.
 
     // CREATORS
-    bael_LoggerManagerConfiguration(bslma_Allocator *basicAllocator = 0);
+    explicit bael_LoggerManagerConfiguration(
+                                          bslma_Allocator *basicAllocator = 0);
         // Create a logger manager configuration constrained-attribute object
         // having valid default values for all attributes.  Optionally specify
         // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,

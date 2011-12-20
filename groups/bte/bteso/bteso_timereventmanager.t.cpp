@@ -57,7 +57,6 @@ static void aSsErT(int c, const char *s, int i)
 // [ 1] void deregisterTimer(const void *handle);
 // [ 1] void deregisterAllTimers();
 // [ 1] void deregisterAll();
-// [ 1] bool canRegisterSockets() const;
 // [ 1] bool hasLimitedSocketCapacity() const;
 // [ 1] int  isRegistered(const Handle& handle, const Type event);
 // [ 1] void numTimers();
@@ -409,8 +408,7 @@ class my_TimerEventManager : public bteso_TimerEventManager {
                 // 13: numEvents
                 // 14: isRegistered
                 // 15: rescheduleTimer
-                // 16: canRegisterSockets
-                // 17: hasLimitedSocketCapacity
+                // 16: hasLimitedSocketCapacity
 
   public:
     my_TimerEventManager(int *fun) : d_fun(fun) { }
@@ -466,11 +464,8 @@ class my_TimerEventManager : public bteso_TimerEventManager {
                         const bdet_TimeInterval&  expiryTime)
         { *d_fun = 15; return 0; }
 
-    bool canRegisterSockets() const
-        { *d_fun = 16; return true; }
-
     bool hasLimitedSocketCapacity() const
-        { *d_fun = 17; return true; }
+        { *d_fun = 16; return true; }
 };
 
 //==========================================================================
@@ -525,7 +520,6 @@ int main(int argc, char *argv[]) {
         //   int deregisterTimer(const void *handle);
         //   int deregisterAllTimers();
         //   void deregisterAll();
-        //   bool canRegisterSockets() const;
         //   bool hasLimitedSocketCapacity() const;
         //   bool isRegistered() const;
         //   int numTimers();
@@ -588,11 +582,8 @@ int main(int argc, char *argv[]) {
         t.rescheduleTimer(tmr, ti);
         ASSERT(15 == i);
 
-        t.canRegisterSockets();
-        ASSERT(16 == i);
-
         t.hasLimitedSocketCapacity();
-        ASSERT(17 == i);
+        ASSERT(16 == i);
 
         delete m;
         ASSERT(1 == i);

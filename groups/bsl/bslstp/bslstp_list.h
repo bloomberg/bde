@@ -97,16 +97,16 @@
 #include <bslmf_metaint.h>
 #endif
 
-#ifndef INCLUDED_BSLS_ADDRESSOF
-#include <bsls_addressof.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
 
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
+#endif
+
+#ifndef INCLUDED_BSLS_UTIL
+#include <bsls_util.h>
 #endif
 
 #ifndef INCLUDED_BSLSTL_ITERATOR
@@ -335,7 +335,7 @@ protected:
     BSLS_TRY {
 
       BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-          BSLS_ADDRESSOF(__p->_M_data), __x,
+          BSLS_UTIL_ADDRESSOF(__p->_M_data), __x,
           this->_M_node.bslmaAllocator());
 
     }
@@ -445,7 +445,7 @@ public:
     __prev_node->_M_next = __next_node;
     __next_node->_M_prev = __prev_node;
     BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
-                                                 BSLS_ADDRESSOF(__n->_M_data));
+                                            BSLS_UTIL_ADDRESSOF(__n->_M_data));
     this->_M_node.deallocate(__n, 1);
     return iterator((_Node*)__next_node);
     }
@@ -767,7 +767,7 @@ _List_base<_Tp,_Alloc>::clear()
     _List_node<_Tp>* __tmp = __cur;
     __cur = (_List_node<_Tp>*) __cur->_M_next;
     BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
-                                               BSLS_ADDRESSOF(__tmp->_M_data));
+                                          BSLS_UTIL_ADDRESSOF(__tmp->_M_data));
     this->_M_node.deallocate(__tmp, 1);
   }
   this->_M_node._M_data->_M_next = this->_M_node._M_data;
