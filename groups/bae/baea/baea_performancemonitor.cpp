@@ -300,19 +300,61 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
         return -1;
     }
 
-    // TBD: system start time - procStats.d_starttime
+    static bsls_Types::Int64 procStartTime = -1;    // seconds since 1970 UTC
+    if (procStartTime < 0) {
+        bsls_Types::Int64 bootTime = -1;
 
-    stats->d_startTime = bdet_TimeInterval(0, 0);
+        bsl::ifstream bootFile("/proc/stat");
 
+        char iBuf[1000];
+        for (;;) {
+            if (bootFile.bad() || bootFile.eof()) {
+                // Boot time not found
+
+                return -1;
+            }
+            bootFile.getline(iBuf, 1000);
+            int len = bsl::strlen(iBuf);
+            if (len > 0 && len <= 1000-1) {
+                bsl::stringstream ss(iBuf);
+                bsl::string s;
+                ss >> s;
+                if ("btime" == s) {
+                    ss >> bootTime;
+                    break;
+                }
+            }
+        }
+        if (bootTime < 60 * 60 * 24 * 365.25 * 30) {
+            // System booted before Jan 2000.  Unreasonable.  Fail.
+
+            return -1;
+        }
+
+        const int jiffiesPerSec = sysconf(_SC_CLK_TCK);
+
+        procStartTime = bootTime + procStats.d_starttime / jiffiesPerSec;
+
+        bdet_TimeInterval now = bdetu_SystemTime::now();
+        const double tenYears = 60 * 60 * 24 * 365.25 * 10;
+        if (procStartTime > now + 2 || procStartTime < now - tenYears) {
+            // Process start time is more than 2 seconds into the future, or
+            // more than ten years in thee past -- that's not reasonable,
+            // there's been an error.
+
+            return -1;
+        }
+    }
+
+    stats->d_startTime = bdet_TimeInterval(procStartTime, 0);
     stats->d_startTimeUtc.setYearMonthDay(1970, 1, 1);
-    stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
+    stats->d_startTimeUtc.addSeconds(procStartTime);
 
     BAEL_LOG_DEBUG << "PID " << stats->d_pid << " started approximately "
                    << stats->d_startTimeUtc << " (UTC)"
                    << BAEL_LOG_END;
 
     return 0;
-
 }
 
 int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
@@ -349,7 +391,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
     }
     bsl::free(entry);
 
-    stats->d_lstData[BAEA_NUM_THREADS]   = numThreads;
+    stats->d_lstData[BAEA_NUM_THREADS] = numThreads;
 
     static const int pageSize = sysconf(_SC_PAGESIZE);
 
@@ -368,26 +410,16 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
     double deltaCpuTimeU = cpuTimeU - stats->d_lstData[BAEA_CPU_TIME_USER];
     double deltaCpuTimeS = cpuTimeS - stats->d_lstData[BAEA_CPU_TIME_SYSTEM];
 
-    // Inaccurate for the first sample but this doesn't affect our results,
-    // as the CPU utilization is not calculated until the second sample is
-    // taken.
-    double elapsedTime = bdetu_SystemTime::now().totalSecondsAsDouble();
+    double elapsedTime = (bdetu_SystemTime::now() - stats->d_startTime).
+                                                        totalSecondsAsDouble();
 
     double dt = elapsedTime - stats->d_elapsedTime;
 
-    if ((stats->d_numSamples != 0) && (dt > 0)) {
-        stats->d_lstData[BAEA_CPU_UTIL] = (deltaCpuTimeU + deltaCpuTimeS)
-                                   / dt
-                                   * 100.0;
+    double deltaCpuTimeT = deltaCpuTimeU + deltaCpuTimeS;
 
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
-    }
-    else {
-        stats->d_lstData[BAEA_CPU_UTIL]        = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = 0.0;
-    }
+    stats->d_lstData[BAEA_CPU_UTIL]        = deltaCpuTimeT / dt * 100.0;
+    stats->d_lstData[BAEA_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
+    stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
 
     stats->d_lstData[BAEA_CPU_TIME_USER]   = cpuTimeU;
     stats->d_lstData[BAEA_CPU_TIME_SYSTEM] = cpuTimeS;
@@ -573,8 +605,10 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::initialize(
         return -1;
     }
 
-    bdet_TimeInterval startTime(procStats.d_processStartSecs,
-                                procStats.d_processStartMSecs * 1000);
+    //  bdet_TimeInterval startTime(procStats.d_processStartSecs,
+    //                              procStats.d_processStartMSecs * 1000);
+
+    stats->d_startTime = bdet_TimeInterval(procStats.d_processStartSecs, 0);
     stats->d_startTimeUtc.setYearMonthDay(1970, 1, 1);
     stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
 

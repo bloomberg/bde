@@ -24,6 +24,7 @@
 
 #if defined(BSLS_PLATFORM__OS_UNIX)
 #include <sys/mman.h>
+#include <sys/times.h>
 #endif
 
 using namespace BloombergLP;
@@ -278,6 +279,31 @@ void report(int               bufferSize,
 }
 #endif
 
+double wasteCpuTime()
+    // Just take up a measurable amount of cpu time.  Try 100 clock ticks (1.0
+    // seconds or less).
+{
+#ifdef BSLS_PLATFORM__OS_UNIX
+    struct tms tmsBuffer;
+    int rc = times(&tmsBuffer);
+    BSLS_ASSERT(-1 != rc);
+    int startTime = tmsBuffer.tms_utime + tmsBuffer.tms_stime;
+
+    double x = 1.0;
+    do {
+        x /= 0.999999;
+        x -= 0.000001;
+        rc = times(&tmsBuffer);
+        BSLS_ASSERT(-1 != rc);
+    } while (tmsBuffer.tms_utime + tmsBuffer.tms_stime - startTime < 50);
+
+    return x;
+#else
+    bcemt_ThreadUtil::microSleep(0, 1);
+    return 1.0;
+#endif
+}
+
 int main(int argc, char *argv[])
 {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
@@ -285,8 +311,8 @@ int main(int argc, char *argv[])
     veryVerbose = (argc > 3);
     veryVeryVerbose = (argc > 4);
     veryVeryVeryVerbose = (argc > 5);
-    int verbosity = 1 + verbose + veryVerbose
-                  + veryVeryVerbose + veryVeryVeryVerbose;
+
+    bdet_TimeInterval startTime = bdetu_SystemTime::now();
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -394,7 +420,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == rc);
 
                 for (int i = 0; i < 6; ++i) {
-                    bcemt_ThreadUtil::microSleep(0, 1);
+                    wasteCpuTime();
 
                     perfmon.collect();
 
@@ -473,13 +499,11 @@ int main(int argc, char *argv[])
             INITIALIZE_LOGGER();
 
             baea_PerformanceMonitor perfmon(&ta);
-            int                     rc;
 
             int                     bufferSize        = 0;
 
             double                  virtualSize       = 0;
             double                  residentSize      = 0;
-            double                  size              = 0;
 
             bsls_Types::Int64       currentBytesInUse = 0;
             bsls_Types::Int64       peakBytesInUse    = 0;
