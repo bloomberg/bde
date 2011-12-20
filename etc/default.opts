@@ -94,6 +94,7 @@
 !! unix-AIX             _       BDE_COMPILER_FLAG        = xlc
 !! unix-HP_UX           _       BDE_COMPILER_FLAG        = acc
 !! unix-Linux           _       BDE_COMPILER_FLAG        = gcc
+!! unix-Darwin          _       BDE_COMPILER_FLAG        = gcc
 !! unix-FreeBSD         _       BDE_COMPILER_FLAG        = gcc
 !! unix-Cygwin          _       BDE_COMPILER_FLAG        = gcc
 !! unix-NONSUCH         _       BDE_COMPILER_FLAG        = <Uncollapsed!>
@@ -123,6 +124,7 @@
 #!! unix-SunOS-*-*-gcc-4.1.1   _       BDE_COMPILERVERSION_FLAG = 4.1.1
 #!! unix-SunOS-*-*-gcc-4.3.0   _       BDE_COMPILERVERSION_FLAG = 4.3.0
 #!! unix-SunOS-*-*-gcc-4.3.2   _       BDE_COMPILERVERSION_FLAG = 4.3.2
+!! unix-Darwin                 _       BDE_COMPILERVERSION_FLAG = 4.2.1
 
 # The default command line option separator.  It's '-' on most platforms,
 # and '/' on Windows
@@ -918,7 +920,7 @@ unix-                   _   CC      = $(RETRY_ON_SIGNAL) cc -DUSE_REAL_MALLOC $(
 !! unix-Linux-*-*-def   _   CC      = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS)
 !! unix-FreeBSD-*-*-def _   CC      = $(RETRY_ON_SIGNAL) gcc $(GCCEXTRAWFLAGS) $(CC64FLAGS)
 !! unix-Cygwin-*-*-def  _   CC      = $(RETRY_ON_SIGNAL) gcc -DUSE_REAL_MALLOC -D__cygwin -D__linux $(CC64FLAGS)
-!! unix-Darwin-*-*-def  _   CC      = $(RETRY_ON_SIGNAL) gcc -DUSE_REAL_MALLOC -D__cygwin -D__linux -D__unix -Wno-long-double $(CC64FLAGS)
+!! unix-Darwin-*-*-def  _   CC      = $(RETRY_ON_SIGNAL) gcc -DUSE_REAL_MALLOC -D__unix $(CC64FLAGS)
 !! unix-AIX-*-*-*       _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlc $(CC64FLAGS) -qxflag=NoKeepDebugMetaTemplateType
 !! unix-AIX-*-*-*       mt  CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlc_r $(CC64FLAGS) -qxflag=NoKeepDebugMetaTemplateType
 !! unix-HP_UX-*-*-*     _   CC      = $(RETRY_ON_SIGNAL) $(ACC_BIN)/cc $(CC64FLAGS)
@@ -988,7 +990,7 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 
 !! unix-Cygwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__cygwin -D__linux $(CXX64FLAGS)
 
-!! unix-Darwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__darwin -D__linux -D__unix -Wno-long-double $(CXX64FLAGS)
+!! unix-Darwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__unix $(CXX64FLAGS)
 
 !! unix-AIX-*-*-*   _   CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlC $(CXX64FLAGS)
 !! unix-AIX-*-*-*   mt  CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlC_r $(CXX64FLAGS)

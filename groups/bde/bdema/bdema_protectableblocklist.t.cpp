@@ -182,6 +182,7 @@ int testProtectedSet(Obj *testAlloc, char *data, char val)
     g_testingAlloc = testAlloc;
 
     signal(SIGSEGV, segfaultHandler);
+    signal(SIGBUS, segfaultHandler);
 
     // protect the memory
     g_testingAlloc->protect();
@@ -195,6 +196,7 @@ int testProtectedSet(Obj *testAlloc, char *data, char val)
     g_testingAlloc = NULL;
     g_inTest       = false;
     signal(SIGSEGV, SIG_DFL);
+    signal(SIGBUS, SIG_DFL);
     return (g_fault) ? 0 : 1;
 }
 
