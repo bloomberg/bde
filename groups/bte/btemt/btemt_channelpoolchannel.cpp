@@ -163,7 +163,6 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
                                  bcema_PoolAllocator            *spAllocator,
                                  bslma_Allocator                *allocator)
 : d_pooledBufferChainPendingData()
-, d_blobPendingData(allocator)
 , d_useBlobForDataReads(false)
 , d_mutex()
 , d_callbackInProgress(false)
@@ -193,7 +192,6 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
                              bcema_PoolAllocator            *spAllocator,
                              bslma_Allocator                *allocator)
 : d_pooledBufferChainPendingData()
-, d_blobPendingData(blobBufferFactory, allocator)
 , d_useBlobForDataReads(true)
 , d_mutex()
 , d_callbackInProgress(false)
@@ -503,16 +501,7 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
     // only this method accesses it *and* only the manager thread calls this
     // method.
 
-    bcema_Blob *currentBlob;
-    if (0 == d_blobPendingData.length()) {
-        // If there is no pending data just call the user callbacks with 'msg'.
-        currentBlob = msg;
-    }
-    else {
-        d_blobPendingData.moveAndAppendDataBuffers(msg);
-
-        currentBlob = &d_blobPendingData;
-    }
+    bcema_Blob *currentBlob = msg;
 
     *numNeeded            = 1;
     int numBytesAvailable = currentBlob->length();
@@ -586,9 +575,6 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
             entry.d_numBytesNeeded = nNeeded;
             if (nNeeded <= numBytesAvailable) {
                 continue;
-            }
-            else if (currentBlob == msg) {
-                d_blobPendingData.moveAndAppendDataBuffers(msg);
             }
 
             *numNeeded = nNeeded - numBytesAvailable;
