@@ -614,7 +614,7 @@ extern "C" void *workerThread(void *arg)
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
 
-class bslma_TestAllocatorMonitor {
+class TestAllocatorMonitor {
     // TBD
 
     // DATA
@@ -625,10 +625,10 @@ class bslma_TestAllocatorMonitor {
 
   public:
     // CREATORS
-    bslma_TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
+    TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
         // TBD
 
-    ~bslma_TestAllocatorMonitor();
+    ~TestAllocatorMonitor();
         // TBD
 
     // ACCESSORS
@@ -653,7 +653,7 @@ class bslma_TestAllocatorMonitor {
 
 // CREATORS
 inline
-bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
+TestAllocatorMonitor::TestAllocatorMonitor(
                                      const bslma_TestAllocator& basicAllocator)
 : d_lastInUse(basicAllocator.numBlocksInUse())
 , d_lastMax(basicAllocator.numBlocksMax())
@@ -663,13 +663,13 @@ bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
 }
 
 inline
-bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
+TestAllocatorMonitor::~TestAllocatorMonitor()
 {
 }
 
 // ACCESSORS
 inline
-bool bslma_TestAllocatorMonitor::isInUseSame() const
+bool TestAllocatorMonitor::isInUseSame() const
 {
     BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
 
@@ -677,7 +677,7 @@ bool bslma_TestAllocatorMonitor::isInUseSame() const
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isInUseUp() const
+bool TestAllocatorMonitor::isInUseUp() const
 {
     BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
 
@@ -685,25 +685,25 @@ bool bslma_TestAllocatorMonitor::isInUseUp() const
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isMaxSame() const
+bool TestAllocatorMonitor::isMaxSame() const
 {
     return d_allocator_p->numBlocksMax() == d_lastMax;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isMaxUp() const
+bool TestAllocatorMonitor::isMaxUp() const
 {
     return d_allocator_p->numBlocksMax() != d_lastMax;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isTotalSame() const
+bool TestAllocatorMonitor::isTotalSame() const
 {
     return d_allocator_p->numBlocksTotal() == d_lastTotal;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isTotalUp() const
+bool TestAllocatorMonitor::isTotalUp() const
 {
     return d_allocator_p->numBlocksTotal() != d_lastTotal;
 }
@@ -1254,7 +1254,7 @@ int main(int argc, char *argv[])
 
             mX.setTimeToLive(A2);
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const T1& resolverCallback = X.resolverCallback();
             LOOP2_ASSERT(A1, resolverCallback, A1 == resolverCallback);
@@ -1483,7 +1483,7 @@ int main(int argc, char *argv[])
 
             // 'timeToLive'
             {
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 mX.setTimeToLive(A2);
                 LOOP_ASSERT(CONFIG, D1 == X.resolverCallback());
