@@ -2363,10 +2363,10 @@ int main(int argc, char *argv[])
         BSLS_ASSERT(0 == socket->connect(ADDRESS));
 
         char payload[PAYLOAD_SIZE];
-        const int NT = 1000000;
+        bsl::memset(payload, 'X', PAYLOAD_SIZE);
+        const int NT = 10000;
         for (int i = 0; i < NT; ++i) {
-            int sendSize = PAYLOAD_SIZE;
-            ASSERT(sendSize == socket->write(payload, sendSize));
+            ASSERT(PAYLOAD_SIZE == socket->write(payload, PAYLOAD_SIZE));
         }
 
         bcemt_ThreadUtil::microSleep(0, 5);
