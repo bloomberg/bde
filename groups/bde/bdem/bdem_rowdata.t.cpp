@@ -374,9 +374,9 @@ class ChoiceArray : public Base {
         // Empty Dummy descriptors for list, table, choice and choiceArray
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-                          // ==========================
+                          // =====================
                           // struct List_AttrFuncs
-                          // ==========================
+                          // =====================
 
 struct List_AttrFuncs
 {
@@ -472,9 +472,9 @@ const bdem_Descriptor listAttr = {
     &List_AttrFuncs::print
 };
 
-                          // ===========================
+                          // ======================
                           // struct Table_AttrFuncs
-                          // ===========================
+                          // ======================
 
 struct Table_AttrFuncs {
     // Namespace for static functions to store in a bdem_Descriptor structure.
@@ -569,9 +569,9 @@ const bdem_Descriptor tableAttr = {
     &Table_AttrFuncs::print
 };
 
-                          // ============================
+                          // =======================
                           // struct Choice_AttrFuncs
-                          // ============================
+                          // =======================
 
 struct Choice_AttrFuncs
 {
@@ -667,9 +667,9 @@ const bdem_Descriptor choiceAttr = {
     &Choice_AttrFuncs::print
 };
 
-                          // =================================
+                          // ============================
                           // struct ChoiceArray_AttrFuncs
-                          // =================================
+                          // ============================
 
 struct ChoiceArray_AttrFuncs {
     // Namespace for static functions to store in a bdem_Descriptor structure.
