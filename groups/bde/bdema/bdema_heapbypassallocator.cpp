@@ -56,7 +56,11 @@ char *bdema_HeapBypassAllocator::map(size_type size)
                                         // to map the memory
                                  size,
                                  PROT_READ | PROT_WRITE,
+#ifdef BSLS_PLATFORM__OS_DARWIN
+                                 MAP_ANON | MAP_PRIVATE,
+#else
                                  MAP_ANONYMOUS | MAP_PRIVATE,
+#endif
                                  -1,    // null file descriptor
                                  0);
     return (MAP_FAILED == address ? 0 : address);

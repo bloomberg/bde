@@ -343,7 +343,8 @@ struct S1 { char d_buff[8]; S1(char); };
 struct S2 { char d_buff[8]; int d_int; S2(); private: S2(const S2&); };
 struct S3 { S1 d_s1; double d_double; short d_short; };
 struct S4 { short d_shorts[5]; char d_c;  S4(int); private: S4(const S4&); };
-#if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
+#if (defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)) \
+ && defined(BSLS_PLATFORM__CPU_X86)
 struct S5 { long long d_longLong __attribute__((__aligned__(8))); };
 #endif
 union  U1 { char d_c; int *d_pointer; };
@@ -480,7 +481,8 @@ int main(int argc, char *argv[])
             S2_ALIGNMENT          = bsls_AlignmentFromType<S2>::VALUE,
             S3_ALIGNMENT          = bsls_AlignmentFromType<S3>::VALUE,
             S4_ALIGNMENT          = bsls_AlignmentFromType<S4>::VALUE,
-#if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
+#if (defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)) \
+ && defined(BSLS_PLATFORM__CPU_X86)
             S5_ALIGNMENT          = bsls_AlignmentFromType<S5>::VALUE,
 #endif
             U1_ALIGNMENT          = bsls_AlignmentFromType<U1>::VALUE
@@ -508,10 +510,15 @@ int main(int argc, char *argv[])
             int EXP_U1_ALIGNMENT          = 4;
 
 // Specializations for different architectures
-#if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
+#if (defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)) \
+ && defined(BSLS_PLATFORM__CPU_X86)
             EXP_INT64_ALIGNMENT           = 4;
             EXP_DOUBLE_ALIGNMENT          = 4;
+#ifdef BSLS_PLATFORM__OS_LINUX
             EXP_LONG_DOUBLE_ALIGNMENT     = 4;
+#else
+            EXP_LONG_DOUBLE_ALIGNMENT     = 16;
+#endif
             EXP_S3_ALIGNMENT              = 4;
             LOOP2_ASSERT(S5_ALIGNMENT, EXP_S5_ALIGNMENT,
                          EXP_S5_ALIGNMENT == S5_ALIGNMENT);
@@ -600,7 +607,7 @@ int main(int argc, char *argv[])
             ASSERT(sameType(bsls_AlignmentFromType<wchar_t>::Type(), int()));
 #endif
 
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)
     #if defined(BSLS_PLATFORM__CPU_64_BIT)
             ASSERT(sameType(bsls_AlignmentFromType<long long>::Type(),
                             long()));
@@ -611,9 +618,15 @@ int main(int argc, char *argv[])
                             int()));
             ASSERT(sameType(bsls_AlignmentFromType<double>::Type(),
                             int()));
+            #ifdef BSLS_PLATFORM__OS_LINUX
             ASSERT(
                   sameType(bsls_AlignmentFromType<long double>::Type(),
                            int()));
+            #else
+            ASSERT(
+                  sameType(bsls_AlignmentFromType<long double>::Type(),
+                           LD));
+            #endif
     #endif
 #elif defined(BSLS_PLATFORM__OS_AIX)
     #if defined(BSLS_PLATFORM__CPU_64_BIT)
