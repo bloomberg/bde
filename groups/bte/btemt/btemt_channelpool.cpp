@@ -535,8 +535,10 @@ class btemt_Channel {
         // Destroy this channel.
 
     // MANIPULATORS
-    void disableRead(ChannelHandle self);
-        // Disable automatic reading of data from this channel.
+    void disableRead(ChannelHandle self, bool enqueueStateChangeCb);
+        // Disable automatic reading of data from this channel enqueuing the
+        // change state callback if the specified 'enqueueStateChangeCb' is
+        // 'true', and invoking it inline otherwise.
 
     int initiateReadSequence(ChannelHandle self);
         // Schedule an asynchronous timed reading from this channel and also
@@ -1916,7 +1918,7 @@ btemt_Channel::~btemt_Channel()
 }
 
 // MANIPULATORS
-void btemt_Channel::disableRead(ChannelHandle self)
+void btemt_Channel::disableRead(ChannelHandle self, bool enqueueStateChangeCb)
 {
     BSLS_ASSERT(bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(),
                                   d_eventManager_p->dispatcherThreadHandle()));
@@ -1929,10 +1931,24 @@ void btemt_Channel::disableRead(ChannelHandle self)
     }
     d_enableReadFlag = false;
 
-    d_channelStateCb(d_channelId,
-                     d_sourceId,
-                     btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
-                     d_userData);
+    if (enqueueStateChangeCb) {
+        bdef_Function<void (*)()> stateCbFunctor(
+                    bdef_BindUtil::bindA(
+                                   d_allocator_p,
+                                   d_channelStateCb,
+                                   d_channelId,
+                                   d_sourceId,
+                                   btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
+                                   d_userData));
+
+        d_eventManager_p->execute(stateCbFunctor);
+    }
+    else {
+        d_channelStateCb(d_channelId,
+                         d_sourceId,
+                         btemt_ChannelPool::BTEMT_AUTO_READ_DISABLED,
+                         d_userData);
+    }
 }
 
 int btemt_Channel::initiateReadSequence(ChannelHandle self)
@@ -3711,19 +3727,22 @@ int btemt_ChannelPool::disableRead(int channelId)
     if (0 != findChannelHandle(&channelHandle, channelId)) {
         return NOT_FOUND;
     }
+
     btemt_Channel *channel = channelHandle.ptr();
 
     if (bcemt_ThreadUtil::isEqual(
                           bcemt_ThreadUtil::self(),
                           channel->eventManager()->dispatcherThreadHandle())) {
-        channel->disableRead(channelHandle);
+
+        channel->disableRead(channelHandle, false);
     }
     else {
         bdef_Function<void (*)()> disableReadCommand(bdef_BindUtil::bindA(
-                d_allocator_p
-              , &btemt_Channel::disableRead
-              , channel
-              , channelHandle));
+                                                   d_allocator_p,
+                                                   &btemt_Channel::disableRead,
+                                                   channel,
+                                                   channelHandle,
+                                                   true));
 
         channel->eventManager()->execute(disableReadCommand);
     }
