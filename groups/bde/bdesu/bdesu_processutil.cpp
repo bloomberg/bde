@@ -28,6 +28,8 @@ BDES_IDENT_RCSID(bdesu_processutil_cpp,"$Id$ $CSID$")
 #include <fcntl.h>
 #elif defined(BSLS_PLATFORM__OS_HPUX)
 #include <sys/pstat.h>
+#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#include <libproc.h>
 #endif
 
 namespace BloombergLP {
@@ -97,6 +99,12 @@ int bdesu_ProcessUtil::getProcessName(bsl::string *result)
     if (bsl::string::npos != pos) {
         result->resize(pos);
     }
+# elif defined BSLS_PLATFORM__OS_DARWIN
+    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+    if (proc_pidpath (getpid(), pathbuf, sizeof(pathbuf)) <= 0) {
+        return -1;
+    }
+    result->assign(pathbuf);
 # else
 #  if defined BSLS_PLATFORM__OS_AIX
     enum { NUM_ELEMENTS = 14 + 16 };  // "/proc/<pid>/psinfo"
