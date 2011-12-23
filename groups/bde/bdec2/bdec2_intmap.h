@@ -683,8 +683,8 @@ bdec2_IntMap<VALUE>::~bdec2_IntMap()
 
 template <class VALUE>
 inline
-bdec2_IntMap<VALUE>& bdec2_IntMap<VALUE>::
-                                      operator=(const bdec2_IntMap<VALUE>& rhs)
+bdec2_IntMap<VALUE>&
+bdec2_IntMap<VALUE>::operator=(const bdec2_IntMap<VALUE>& rhs)
 {
     d_hashtable = rhs.d_hashtable;
     return *this;

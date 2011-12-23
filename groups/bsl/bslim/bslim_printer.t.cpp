@@ -182,7 +182,7 @@ void testFunctionAddress(int)
 //-----------------------------------------------------------------------------
 
 // EXAMPLE 1
-class bdet_Datetime {
+class Datetime {
   public:
     bsl::ostream& print(bsl::ostream& stream,
                         int           = 0,
@@ -194,7 +194,7 @@ class RecordAttributes {
     // This class provides a container for a fixed set of attributes.
 
     // DATA
-    bdet_Datetime    d_timestamp;    // creation date and time
+    Datetime         d_timestamp;    // creation date and time
     int              d_processID;    // process id of creator
 
   public:
