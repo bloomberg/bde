@@ -20,7 +20,7 @@ BDES_IDENT("$Id: $")
 // of a bi-directional (full-duplex) non-blocking stream-based communication
 // channel with timeout capability.  The protocol supports efficient "buffered"
 // transport and the syntax to enable efficient vector I/O operations (i.e.,
-// Unix-style scatter/gather "readv" and "writev").  Various forms of "partial
+// Unix-style scatter/gather 'readv' and 'writev').  Various forms of "partial
 // transmission" authorizations (i.e., "raw" OS-level atomic operations and
 // interruptions due to a user-specified "timeout" and "asynchronous events")
 // are also supported for each method as appropriate.
