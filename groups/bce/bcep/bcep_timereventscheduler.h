@@ -60,6 +60,14 @@ BDES_IDENT("$Id: $")
 // thread to run the callbacks).  In that case, the user-supplied functor will
 // still be run in the dispatcher thread, different from the scheduler thread.
 //
+///Thread Safety
+///-------------
+// The 'bcep_TimerEventScheduler' class is both *fully thread-safe* (i.e., all
+// non-creator methods can correctly execute concurrently), and is
+// *thread-enabled* (i.e., the classes does not function correctly in a
+// non-multi-threading environment).  See 'bsldoc_glossary' for complete
+// definitions of *fully thread-safe* and *thread-enabled*.
+//
 ///Usage
 ///-----
 // The following example shows how to use a 'bcep_TimerEventScheduler' to
