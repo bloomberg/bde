@@ -447,7 +447,7 @@ class baexml_Formatter {
         // Add the 'value' as the data content, where 'value' can be of the
         // following types: 'char', 'short', 'int', 'bsls_PlatformUtil::Int64',
         // 'float', 'double', 'bsl::string', 'bdet_Datetime', 'bdet_Date', and
-        // 'bdet_Tim'e.  'addListData' prefixes the 'value' with a
+        // 'bdet_Time'.  'addListData' prefixes the 'value' with a
         // space('0x20') unless the data being added is the first data on a
         // line.  In the case of 'addData', perform no line-wrapping or
         // indentation as if the whitespace constraint were always
