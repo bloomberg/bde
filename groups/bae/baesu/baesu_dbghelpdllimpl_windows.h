@@ -140,12 +140,12 @@ class baesu_DbghelpDllImpl_Windows {
     // Windows platforms) which call call functions from the 'dbghelp.dll'
     // shared library.  The dynamic library is lazily loaded and initialized
     // when needed, the implementation arranges for automatic unloading of that
-    // library at process termination.  (TBD: Say something about exactly
-    // when.)  Typically, the methods of this class that call '.dll' functions
-    // implicitly provide some of the needed arguments (e.g., a handle to the
-    // current process); otherwise, the specified parameters of these methods
-    // match in order and type those of the '.dll' functions.  See
-    // '@DESCRIPTION' for further details.
+    // library at process termination (it is done by the destructor of a static
+    // struct).  Typically, the methods of this class that call '.dll'
+    // functions implicitly provide some of the needed arguments (e.g., a
+    // handle to the current process); otherwise, the specified parameters of
+    // these methods match in order and type those of the '.dll' functions.
+    // See '@DESCRIPTION' for further details.
     //
     // The methods of this class are *not* thread-safe.  In a multi-threaded
     // environment acquire the (static) mutex (see the 'qLock' method) before
@@ -190,7 +190,7 @@ class baesu_DbghelpDllImpl_Windows {
         // (internally generated) handle for the current Windows process, and
         // return the result.  The behavior is undefined if the mutex provided
         // by the 'qLock' method is not held or if 'symbol->MaxNameLen' has not
-        // been set to the maximum length.  (TBD: How is that known?)
+        // been set to the maximum length (a value of '2000' is recommended).
         //
         // Note that 'symbol' is loaded with a pointer to the symbol
         // information for the symbol at 'address' and 'displacement' is loaded
@@ -209,7 +209,7 @@ class baesu_DbghelpDllImpl_Windows {
         // (internally generated) handle for the current Windows process, and
         // return the result.  The behavior is undefined if the mutex provided
         // by the 'qLock' method is not held or if 'symbol->MaxNameLen' has not
-        // been set to the maximum length.  (TBD: How is that known?)
+        // been set to the maximum length (a value of '2000' is recommended).
         //
         // Note that 'symbol' is loaded with a pointer to the symbol
         // information for the symbol at 'address' and 'displacement' is loaded
