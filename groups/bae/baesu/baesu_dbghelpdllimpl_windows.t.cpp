@@ -148,6 +148,44 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:
+      case 5: {
+        // --------------------------------------------------------------------
+        // Usage Example
+        //
+        // Concern:
+        //   Demonstrate usage of this class.
+        //
+        // Plan:
+        //   Resolve line number of some code.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "USAGE EXAMPLE\n"
+                             "=============\n";
+
+#if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
+        // This test is meaningless unless on Windows with debug enabled
+
+        bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
+
+        baesu_DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+                                                    | SYMOPT_LOAD_LINES
+                                                    | SYMOPT_DEFERRED_LOADS);
+
+        IMAGEHLP_LINE64 line;
+        ZeroMemory(&line, sizeof(IMAGEHLP_LINE64));
+        line.SizeOfStruct = sizeof(line);
+        DWORD offsetFromLine;
+
+        int rc = baesu_DbghelpDllImpl_Windows::symGetLineFromAddr64(
+                                                               (DWORD64) &main,
+                                                               &offsetFromLine,
+                                                               &line);
+        ASSERT(rc);
+
+        bsl::cout << "Source file: " << line.FileName << bsl::endl;
+        bsl::cout << "Line #: " << line.LineNumber << bsl::endl;
+#endif
+      }  break;
       case 4: {
         // --------------------------------------------------------------------
         // TEST RESOLVING FUNCTION NAME
@@ -232,7 +270,7 @@ int main(int argc, char *argv[])
         while (pc > line.FileName && '\\' != pc[-1]) {
             --pc;
         }
-        LOOP_ASSERT(pc, !bsl::strcmp(pc, "baesu_dbghelpdllimpl_windows.t.cpp"));
+        LOOP_ASSERT(pc, !bsl::strcmp(pc,"baesu_dbghelpdllimpl_windows.t.cpp"));
         ASSERT(line.LineNumber > FIRST_LINE);
         ASSERT(line.LineNumber < SECOND_LINE);
 #endif

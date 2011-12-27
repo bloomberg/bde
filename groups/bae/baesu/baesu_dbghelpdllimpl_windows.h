@@ -48,21 +48,57 @@ BDES_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// Since the functions in 'dbghelp.dll' are *not* thread-safe, so this class
+// Since the functions in 'dbghelp.dll' are *not* thread-safe, this class
 // provides a static mutex (of type 'bcemt_QLock') which must be acquired
 // before any of the '.dll'-invoking methods of this function are called.
-//
-// !TBD: Needed in a single threaded process?!
-// !TBD: Is this library shared system wide?
-//       If so, don't we need a IPC lock?!
-// !TBD: Once acquired, how long is it held?
-//       Released after each static method call?
-//       Released after the results have been copied?
-//       After a series of method calls?!
+// The mutex lock is checked in asserts, so it must be locked even in a
+// single threaded process.  The library is loaded on a per-process basis.
+// The client must ensure that the mutex is locked during any call to any
+// function in this class, but it is not necessary for it to be locked any
+// longer than that.
 //
 ///Usage
 ///-----
-// TBD
+// We will demonstrate by using 'dbghelp.dll' to find the line number and
+// source file name where 'main' is.  This code will only work on Windows,
+// and only when compiled debug:
+//..
+//  #if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
+//..
+//  First, we lock the mutex:
+//..
+//  bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
+//..
+//  Next, we set the options for the 'dbghelp.dll' library.  Note that any call
+//  to any of the functtions in 'baesu_DbghelpDllImpl_Windows' other than
+//  'qlock' will load the 'dbghelp.dll' library if necessary.
+//..
+//  baesu_DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
+//                                              | SYMOPT_LOAD_LINES
+//                                              | SYMOPT_DEFERRED_LOADS);
+//..
+//  Then, we declare and initialize some variables to hold our results:
+//..
+//  IMAGEHLP_LINE64 line;
+//  ZeroMemory(&line, sizeof(IMAGEHLP_LINE64));
+//  line.SizeOfStruct = sizeof(line);
+//  DWORD offsetFromLine;
+//..
+//  Next, we do the call that finds the line number and source file name:
+//..
+//  int rc = baesu_DbghelpDllImpl_Windows::symGetLineFromAddr64(
+//                                                             (DWORD64) &main,
+//                                                             &offsetFromLine,
+//                                                             &line);
+//  ASSERT(rc);
+//..
+//  Finally, we print out our results:
+//..
+//  bsl::cout << "Source file name: " << line.FileName << bsl::endl;
+//  bsl::cout << "Line #: " << line.LineNumber << bsl::endl;
+//
+//  #endif
+//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
