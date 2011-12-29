@@ -283,7 +283,11 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatch(int flags)
           && !(flags & bteso_Flag::BTESO_ASYNC_INTERRUPT));
 
     if (ret < 0) {
-        return EINTR == savedErrno ? -1 : ret;
+        return ret < 0 && savedErrno == EINTR
+               ? -1
+               : -1 != ret
+                 ? ret
+                 : -10000;
     }
 
     BSLS_ASSERT(0 < ret);
@@ -373,7 +377,11 @@ int bteso_DefaultEventManager<bteso_Platform::SELECT>::dispatch(
              );
 
     if (ret <= 0) {
-        return savedErrno == EINTR ? -1 : ret;
+        return ret < 0 && savedErrno == EINTR
+               ? -1
+               : -1 != ret
+                 ? ret
+                 : -10000;
     }
 #endif
     BSLS_ASSERT(ret > 0);

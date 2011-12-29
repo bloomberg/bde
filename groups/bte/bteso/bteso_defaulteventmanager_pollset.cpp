@@ -229,14 +229,13 @@ int TheClass::dispatch(const bdet_TimeInterval& timeout,
                 && now < timeout);
 
         if (0 >= rfds) {
-            if (0 == rfds) {
-                return 0;                                             // RETURN
-            }
-
-            BSLMF_ASSERT(1 == EPERM);
-            BSLS_ASSERT(EPERM != savedErrno);
-            return -1 == rfds && EINTR == savedErrno ? -1 : -savedErrno;
-                                                                      // RETURN
+            return 0 == rfds
+                   ? 0
+                   : -1 == rfds && EINTR == savedErrno
+                     ? -1
+                     : savedErrno < 2
+                       ? -10000
+                       : -savedErrno;                                 // RETURN
         }
 
         numCallbacks += dispatchCallbacks(rfds);
@@ -278,12 +277,13 @@ int TheClass::dispatch(int flags)
                  && !(bteso_Flag::BTESO_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
-            if (0 == rfds) {
-                return 0;                                             // RETURN
-            }
-
-            return -1 == rfds && EINTR == savedErrno ? -1 : -savedErrno;
-                                                                      // RETURN
+            return 0 == rfds
+                   ? 0
+                   : -1 == rfds && EINTR == savedErrno
+                     ? -1
+                     : savedErrno < 2
+                       ? -10000
+                       : -savedErrno;                                 // RETURN
         }
 
         numCallbacks += dispatchCallbacks(rfds);
