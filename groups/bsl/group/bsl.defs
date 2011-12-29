@@ -6,12 +6,12 @@
 # STL (bsl+stlport)
 
 # extra directory for install: uc(package name less '+' prefix)_INCLUDE
-*			_	BSL_STLPORT_DIR	= 
+*			_	BSL_STLPORT_DIR	=
 *			_	BSL_STDHDRS_DIR	= sys
 
-*			_	STL_CXXFLAGS	= 
+*			_	STL_CXXFLAGS	=
 *			_	STL_LDFLAGS	=
-*			_	STL_DEFINES	= 
+*			_	STL_DEFINES	=
 #*			_	STL_INCLUDE	= -I$(BSL_LOCN)/include/$(UPLID)/$(LINK_UFID)/$(BSL_STLPORT_DIR)
 #*                       _       STL_INCLUDE     = -I$(BSL_ROOTLOCN)/include/bsl/$(UPLID)/$(LINK_UFID)
 # BSL_ROOT is defined by bsl_build.pl; it is the source root where bsl was

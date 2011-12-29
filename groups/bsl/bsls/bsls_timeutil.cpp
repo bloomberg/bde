@@ -336,6 +336,8 @@ bsls_TimeUtil::convertRawTime(bsls_TimeUtil::OpaqueNativeTime rawTime)
 
 #elif defined BSLS_PLATFORM__OS_UNIX
 
+    const bsls_Types::Int64 K = 1000;
+    const bsls_Types::Int64 M = 1000000;
     return ((bsls_Types::Int64) rawTime.tv_sec * M
               + rawTime.tv_usec) * K;
 
@@ -441,7 +443,9 @@ bsls_Types::Int64 bsls_TimeUtil::getTimer()
 
     timeval tv;
     gettimeofday(&tv, 0);
-    return = ((bsls_Types::Int64) tv.tv_sec * M + tv.tv_usec) * K;
+    const bsls_Types::Int64 K = 1000;
+    const bsls_Types::Int64 M = 1000000;
+    return ((bsls_Types::Int64) tv.tv_sec * M + tv.tv_usec) * K;
 
     // The below imp would cause bsls_stopwatch to profile at ~1.45 usec on AIX
     // when compiled with /bb/util/version10-062009/usr/vacpp/bin/xlC_r

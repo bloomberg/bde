@@ -1296,6 +1296,12 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
 #define INCLUDED_BSLS_ASSERT_TESTDRIVER_GUARD
 
+#ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
+#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER  BSLS_ASSERT_NORETURN
+#else
+#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER
+#endif
+
 namespace BloombergLP {
 
 // FORWARD DECLARATIONS
@@ -1361,9 +1367,7 @@ class bsls_Assert {
 
                       // Dispatcher Method (called from within macros)
 
-#ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
-    BSLS_ASSERT_NORETURN
-#endif
+    BSLS_ASSERT_NORETURN_INVOKE_HANDLER
     static void invokeHandler(const char *text, const char *file, int line);
         // Invoke the currently installed assertion-failure handler function
         // with the specified expression 'text', 'file' name, and 'line' number

@@ -1878,9 +1878,9 @@ String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp(SIZE_TYPE length,
                                              SIZE_TYPE capacity)
 : d_start_p(0)
 , d_length(length)
-, d_capacity(capacity < static_cast<SIZE_TYPE>(SHORT_BUFFER_CAPACITY)
-                      ? static_cast<SIZE_TYPE>(SHORT_BUFFER_CAPACITY)
-                      : capacity)
+, d_capacity(capacity <= static_cast<SIZE_TYPE>(SHORT_BUFFER_CAPACITY)
+                      ?  static_cast<SIZE_TYPE>(SHORT_BUFFER_CAPACITY)
+                      :  capacity)
 {
 }
 

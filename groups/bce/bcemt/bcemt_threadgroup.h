@@ -110,8 +110,9 @@ BDES_IDENT("$Id: $")
 #endif
 
 
-namespace BloombergLP { class bslma_Allocator; }
 namespace BloombergLP {
+
+class bslma_Allocator;
 
                            // ======================
                            // class bcep_ThreadGroup

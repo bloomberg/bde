@@ -2596,8 +2596,8 @@ void bslalg_ArrayPrimitives_Imp::rotate(TARGET_TYPE               *begin,
 }
 
 template <class FORWARD_ITERATOR>
-bool bslalg_ArrayPrimitives_Imp::isInvalidRange(FORWARD_ITERATOR begin,
-                                                FORWARD_ITERATOR end)
+bool bslalg_ArrayPrimitives_Imp::isInvalidRange(FORWARD_ITERATOR,
+                                                FORWARD_ITERATOR)
 {
     // Ideally would dispatch on random_access_iterator_tag to support
     // generalized random access iterators, but we are constrained by 'bsl'

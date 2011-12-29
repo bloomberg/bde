@@ -136,10 +136,13 @@ class bdem_AllocatorManager {
     void reserveMemory(int numBytes);
         // Reserve sufficient memory to satisfy allocation requests for at
         // least the specified 'numBytes' without replenishment (i.e., without
-        // internal allocation).  This method has no effect unless the
-        // allocation strategy supplied at construction was either
-        // 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.  The behavior is undefined
-        // unless '0 < numBytes'.
+        // internal allocation) if 'allocationStrategy' is 'BDEM_WRITE_ONCE',
+        // or 'BDEM_WRITE_MANY.  If 'allocationStrategy' is 'BDEM_WRITE_MANY'
+        // then the reserved memory is supplied only for allocation requests
+        // of 8 bytes or less (i.e., larger requests will issue new
+        // allocations).  This method has no effect unless 'allocationStrategy'
+        // is either 'BDEM_WRITE_ONCE' or 'BDEM_WRITE_MANY'.  The behavior is
+        // undefined unless '0 < numBytes'.
 
     // ACCESSORS
     bdem_AggregateOption::AllocationStrategy allocationStrategy() const;

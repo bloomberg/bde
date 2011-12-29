@@ -148,7 +148,8 @@ int main(int argc, char *argv[])
             cout << bsl::endl;
         }
 
-        static const char expected[] = { 0xe6, 0x12, 0x34, 0x56, 0x78 };
+        static const unsigned char expected[] =
+                                              { 0xe6, 0x12, 0x34, 0x56, 0x78 };
         ASSERT(strm.length() == sizeof(expected));
         ASSERT(0 == memcmp(strm.data(),
                            expected,

@@ -604,47 +604,62 @@ int main(int argc, char *argv[])
                 const struct {
                     int         d_line;
                     const char *d_spec_p;
-                    int         d_exp;
+                    int         d_exp0;    // EXP when k == 0
+                    int         d_exp1;    // EXP when k == 1
                 } DATA[] = {
                   // Line   Spec  Exp
                   // ----   ----  ---
-                  {   L_,   "GN",         0 },
+                  {   L_,   "GN",         0, 0 },
 
 #ifdef BSLS_PLATFORM__OS_LINUX
-                  {   L_,   "GY",        -1 },
+                  {   L_,   "GY",        -1, -1 },
 #else
-                  {   L_,   "GY",         0 },
+                  {   L_,   "GY",         0,  0 },
 #endif
 
-                  {   L_,   "HN",         0 },
-                  {   L_,   "HY",         0 },
-                  {   L_,   "IN",         0 },
-                  {   L_,   "IY",         0 },
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                  {   L_,   "HN",        -1, 0 },
+                  {   L_,   "HY",        -1, 0 },
+#else
+                  {   L_,   "HN",         0, 0 },
+                  {   L_,   "HY",         0, 0 },
+#endif
+                  {   L_,   "IN",         0, 0 },
+                  {   L_,   "IY",         0, 0 },
 
 #ifndef BSLS_PLATFORM__OS_AIX
 // TBD on AIX setting this option succeeds for BTESO_SOCKET_DATAGRAM
-//                   {   L_,   "JN",        -1 },
-//                   {   L_,   "JY",        -1 },
+//                   {   L_,   "JN",        -1 }, //*
+//                   {   L_,   "JY",        -1 }, //*
 // #else
-                  {   L_,   "JN",         0 },
-                  {   L_,   "JY",         0 },
+# ifdef BSLS_PLATFORM__OS_WINDOWS
+                  {   L_,   "JN",         0, -1 },
+                  {   L_,   "JY",         0, -1 },
+# else
+                  {   L_,   "JN",         0, 0 },
+                  {   L_,   "JY",         0, 0 },
+# endif
+#endif
+                  {   L_,   "KN",         0, 0 },
+                  {   L_,   "KY",         0, 0 },
+
+#if defined(BSLS_PLATFORM__OS_WINDOWS) || defined(BSLS_PLATFORM__OS_HPUX)
+                  {   L_,   "LN",         0, -1 },
+                  {   L_,   "LY",         0, -1 },
+#else
+                  {   L_,   "LN",         0, 0 },
+                  {   L_,   "LY",         0, 0 },
 #endif
 
-                  {   L_,   "KN",         0 },
-                  {   L_,   "KY",         0 },
-
-#ifndef BSLS_PLATFORM__OS_HPUX
-// TBD on HPUX setting this option succeeds for BTESO_SOCKET_DATAGRAM
-//                   {   L_,   "LN",        -1 },
-//                   {   L_,   "LY",        -1 },
-// #else
-                  {   L_,   "LN",         0 },
-                  {   L_,   "LY",         0 },
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+                  {   L_,   "GNHN",      -1, 0 },
+                  {   L_,   "GNHYIN",    -1, 0 },
+                  {   L_,   "GNHYIYKY",  -1, 0 },
+#else
+                  {   L_,   "GNHN",       0, 0 },
+                  {   L_,   "GNHYIN",     0, 0 },
+                  {   L_,   "GNHYIYKY",   0, 0 },
 #endif
-
-                  {   L_,   "GNHN",       0 },
-                  {   L_,   "GNHYIN",     0 },
-                  {   L_,   "GNHYIYKY",   0 },
                 };
 
                 const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -653,17 +668,18 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const int   LINE = DATA[i].d_line;
                     const char *SPEC = DATA[i].d_spec_p;
-                    const int   EXP  = DATA[i].d_exp;
 
                     SocketOptions mX = g(SPEC); const SocketOptions& X = mX;
                     for (int k = 0; k < 2; ++k) {
+                        const int EXP = k ? DATA[i].d_exp1 : DATA[i].d_exp0;
+
                         bteso_SocketImpUtil::Type type =
                             k
                             ? bteso_SocketImpUtil::BTESO_SOCKET_DATAGRAM
                             : bteso_SocketImpUtil::BTESO_SOCKET_STREAM;
 
                         if (veryVerbose) {
-                            P_(LINE) P_(SPEC) P_(type) P(X)
+                            P_(LINE) P_(k) P_(SPEC) P(EXP)
                         }
 
                         int err = 0;
@@ -688,71 +704,86 @@ int main(int argc, char *argv[])
                 const struct {
                     int         d_line;
                     const char *d_spec_p;
-                    int         d_exp;
+                    int         d_exp0;
+                    int         d_exp1;
                 } DATA[] = {
               // Line   Spec
               // ----   ----
-              {   L_,   "A0",         0 },
-              {   L_,   "A1",         0 },
-              {   L_,   "A2",         0 },
+              {   L_,   "A0",         0, 0 },
+              {   L_,   "A1",         0, 0 },
+              {   L_,   "A2",         0, 0 },
 
-              {   L_,   "B0",         0 },
-              {   L_,   "B1",         0 },
-              {   L_,   "B2",         0 },
+              {   L_,   "B0",         0, 0 },
+              {   L_,   "B1",         0, 0 },
+              {   L_,   "B2",         0, 0 },
 
-#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX)
+#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_LINUX) &&\
+    !defined(BSLS_PLATFORM__OS_WINDOWS)
               // Cannot be changed on Linux and not specified on Sun
 
-              {   L_,   "C0",         0 },
-              {   L_,   "C1",         0 },
-              {   L_,   "C2",         0 },
+              {   L_,   "C0",         0, 0 },
+              {   L_,   "C1",         0, 0 },
+              {   L_,   "C2",         0, 0 },
 #else
-              {   L_,   "C0",        -1 },
-              {   L_,   "C1",        -1 },
-              {   L_,   "C2",        -1 },
+              {   L_,   "C0",        -1, -1 },
+              {   L_,   "C1",        -1, -1 },
+              {   L_,   "C2",        -1, -1 },
 #endif
 
-#ifdef BSLS_PLATFORM__OS_SOLARIS
-              {   L_,   "D0",        -1 },
-              {   L_,   "D1",        -1 },
-              {   L_,   "D2",        -1 },
+#if !defined(BSLS_PLATFORM__OS_SOLARIS) && !defined(BSLS_PLATFORM__OS_WINDOWS)
+              {   L_,   "D0",         0, 0 },
+              {   L_,   "D1",         0, 0 },
+              {   L_,   "D2",         0, 0 },
 #else
-              {   L_,   "D0",         0 },
-              {   L_,   "D1",         0 },
-              {   L_,   "D2",         0 },
+              {   L_,   "D0",        -1, -1 },
+              {   L_,   "D1",        -1, -1 },
+              {   L_,   "D2",        -1, -1 },
 #endif
 
 #ifndef BSLS_PLATFORM__OS_HPUX
 // TBD on HPUX setting this option succeeds but the timeout value is not what
 // was specified.
-//               {   L_,   "E0",         0 },
-//               {   L_,   "E1",         0 },
-//               {   L_,   "E2",         0 },
+//               {   L_,   "E0",         0, 0 },
+//               {   L_,   "E1",         0, 0 },
+//               {   L_,   "E2",         0, 0 },
 
-//               {   L_,   "F0",         0 },
-//               {   L_,   "F1",         0 },
-//               {   L_,   "F2",         0 },
+//               {   L_,   "F0",         0, 0 },
+//               {   L_,   "F1",         0, 0 },
+//               {   L_,   "F2",         0, 0 },
 // #else
-              {   L_,   "E0",        -1 },
-              {   L_,   "E1",        -1 },
-              {   L_,   "E2",        -1 },
+# ifdef BSLS_PLATFORM__OS_WINDOWS
+              {   L_,   "E0",        0, 0 },
+              {   L_,   "E1",        0, 0 },
+              {   L_,   "E2",        0, 0 },
 
-              {   L_,   "F0",        -1 },
-              {   L_,   "F1",        -1 },
-              {   L_,   "F2",        -1 },
+              {   L_,   "F0",        0, 0 },
+              {   L_,   "F1",        0, 0 },
+              {   L_,   "F2",        0, 0 },
+# else
+              {   L_,   "E0",        -1, -1 },
+              {   L_,   "E1",        -1, -1 },
+              {   L_,   "E2",        -1, -1 },
+
+              {   L_,   "F0",        -1, -1 },
+              {   L_,   "F1",        -1, -1 },
+              {   L_,   "F2",        -1, -1 },
+# endif
 #endif
 
 #if defined(BSLS_PLATFORM__OS_AIX)
               // Works only on IBM.  On other platforms although the return
               // code is 0, the timeout is not set correctly.
 
-              {   L_,   "MN1",       0 },
+              {   L_,   "MN1",       0, 0 },
 #endif
 
-              {   L_,   "MY2",       0 },
-
-              {   L_,   "A1B2MY2",   0 },
-
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+              {   L_,   "MY2",       0, -1 },
+              {   L_,   "A1B2MY2",   0, -1 },
+#else
+              {   L_,   "MY2",       0, 0 },
+              {   L_,   "A1B2MY2",   0, 0 },
+#endif
                 };
                 const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -760,17 +791,18 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const int   LINE = DATA[i].d_line;
                     const char *SPEC = DATA[i].d_spec_p;
-                    const int   EXP  = DATA[i].d_exp;
 
                     SocketOptions mX = g(SPEC); const SocketOptions& X = mX;
                     for (int k = 0; k < 2; ++k) {
+                        const int EXP = k ? DATA[i].d_exp1 : DATA[i].d_exp0;
+
                         bteso_SocketImpUtil::Type type =
                             k
                             ? bteso_SocketImpUtil::BTESO_SOCKET_DATAGRAM
                             : bteso_SocketImpUtil::BTESO_SOCKET_STREAM;
 
                         if (veryVerbose) {
-                            P_(LINE) P_(SPEC) P_(type) P(X)
+                            P_(LINE) P_(k) P_(SPEC) P_(type) P(EXP)
                         }
 
                         int err = 0;
@@ -782,9 +814,9 @@ int main(int argc, char *argv[])
                         int rc = bteso_SocketOptUtil::setSocketOptions(
                                                                     handles[i],
                                                                     X);
-                        LOOP4_ASSERT(LINE, k, EXP, rc, EXP == rc);
-                        if (!EXP) {
-                            LOOP3_ASSERT(LINE, k, X, !verify(handles[i], X));
+                        LOOP5_ASSERT(LINE, k, SPEC, EXP, rc, EXP == rc);
+                        if (!rc) {
+                            LOOP3_ASSERT(LINE, k, SPEC, !verify(handles[i], X));
                         }
                     }
                 }
