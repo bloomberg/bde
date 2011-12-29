@@ -209,13 +209,15 @@ btesos_TcpTimedCbConnector_Reg::~btesos_TcpTimedCbConnector_Reg()
         bdef_Function<void (*)(btesc_TimedCbChannel*, int)> *cb =
             (bdef_Function<void (*)(btesc_TimedCbChannel*, int)> *)
                                                   (void *)d_cb.d_callbackArena;
-        cb->~bdef_Function<void (*)(btesc_TimedCbChannel*, int)>();
+
+        bslalg_ScalarDestructionPrimitives::destroy(cb);
     }
     else {
         bdef_Function<void (*)(btesc_TimedCbChannel*, int)> *cb =
              (bdef_Function<void (*)(btesc_TimedCbChannel*, int)>*)
                 (void *)d_cb.d_callbackArena;
-        cb->~bdef_Function<void (*)(btesc_TimedCbChannel*, int)>();
+
+        bslalg_ScalarDestructionPrimitives::destroy(cb);
     }
 }
 

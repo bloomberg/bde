@@ -1034,13 +1034,10 @@ int baexml_Encoder::encode(baexml_Formatter& formatter, const TYPE& object)
                                  + d_options->schemaLocation());
         }
     }
-// TBD
-#if 0
     else {
         context.addAttribute("xmlns:xsi",
                              "http://www.w3.org/2001/XMLSchema-instance");
     }
-#endif
 
     baexml_Encoder_EncodeValue encodeValue(&context);
 

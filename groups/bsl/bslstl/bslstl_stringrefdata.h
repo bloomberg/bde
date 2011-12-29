@@ -139,7 +139,7 @@ BSLS_IDENT("$Id: $")
 // reference to 'bslstl_StringRefData', which enables the conversion from
 // 'StringRef' to 'String'.
 //
-// Finally, we verify that the conversions between 'String' and "StringRef'
+// Finally, we verify that the conversions between 'String' and 'StringRef'
 // work:
 //..
 //  using Usage::String;

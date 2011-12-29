@@ -123,10 +123,6 @@ typedef btemt_TcpTimerEventManager Obj;
 //           TEST: 'collectTimeMetrics' configuration flag
 //-----------------------------------------------------------------------------
 
-void noopFunction()
-{
-}
-
 namespace TEST_CASE_COLLECT_TIME_METRICS {
 
 void waitForASec()

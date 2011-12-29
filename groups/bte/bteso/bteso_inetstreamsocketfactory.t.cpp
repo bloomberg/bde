@@ -102,6 +102,11 @@ static void aSsErT(int c, const char *s, int i)
    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
               << J << "\n"; aSsErT(1, #X, __LINE__); } }
 
+#define LOOP3_ASSERT(I,J,K,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
+                  << J << "\t" << #K << ": " << K << "\n"; \
+                  aSsErT(1, #X, __LINE__); } }
+
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -550,8 +555,13 @@ int main(int argc, char *argv[]) {
                ASSERT(resp == 0
                    || resp == bteso_SocketHandle::BTESO_ERROR_TIMEDOUT);
 
-               for (int x = 0; x < 100; ++x) {
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_SOLARIS)
+               enum { WAITS = 200 };
+#else
+               enum { WAITS = 100 };
+#endif
 
+               for (int x = 0; x < WAITS; ++x) {
                    bdet_TimeInterval twoseconds = bdetu_SystemTime::now() + 2;
 
                    if (veryVerbose) { cout << "waitForConnect "; P(resp); }
@@ -565,23 +575,18 @@ int main(int argc, char *argv[]) {
                        break;
                    }
                    else {
-                       LOOP_ASSERT(resp,
-                             resp == bteso_SocketHandle::BTESO_ERROR_TIMEDOUT);
+                       ASSERT(resp ==
+                                     bteso_SocketHandle::BTESO_ERROR_TIMEDOUT);
                    }
                }
 
-               resp   = clientSocket->waitForConnect(negtwoseconds);
-               status = clientSocket->connectionStatus();
+               resp = clientSocket->waitForConnect(negtwoseconds);
+               ASSERT(resp == 0);
 
-#ifdef BSLS_PLATFORM__OS_SOLARIS
-               LOOP_ASSERT(resp,
-                           bteso_SocketHandle::BTESO_ERROR_TIMEDOUT == resp);
-#else
-               LOOP_ASSERT(resp, 0 == resp);
-#endif
-               LOOP_ASSERT(status, status != 0);
+               ASSERT(status != 0);
 
                testFactory.deallocate(clientSocket);
+
            }
            {
                bteso_InetStreamSocketFactory<bteso_IPv4Address> testFactory;
@@ -1679,11 +1684,15 @@ int main(int argc, char *argv[]) {
                bcemt_ThreadUtil::microSleep(DATA[ti].d_delay * 1000);
            }
 
-#if defined(BSLS_PLATFORM__OS_HPUX)  // TBD
-// Some TCP driver implementations require some delay between write and
-// read (on the loopback service) in order to recognize I/O events correctly.
-           bcemt_ThreadUtil::microSleep(20 * 1000);
+           // some platforms require latency between writes and reads
+#if   defined(BSLS_PLATFORM__OS_HPUX)
+           const int sleepTime = 20 * 1000;
+#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+           const int sleepTime = 1000;
+#else
+           const int sleepTime = 0;
 #endif
+           if (sleepTime) bcemt_ThreadUtil::microSleep(sleepTime);
 
            bdet_TimeInterval timeBefore = bdetu_SystemTime::now();
 
@@ -1714,7 +1723,8 @@ int main(int argc, char *argv[]) {
                P_(timeBefore); P_(timeAfter); P(timeout);
            }
 
-           LOOP2_ASSERT(ti, DATA[ti].d_lineNum, resp == DATA[ti].d_expected);
+           LOOP3_ASSERT(ti, resp, DATA[ti].d_lineNum,
+                                                   resp == DATA[ti].d_expected);
 
 #ifndef BSLS_PLATFORM__OS_CYGWIN
            testFactory.deallocate(streamSocketA);
@@ -2189,32 +2199,30 @@ int main(int argc, char *argv[]) {
                    //  3) accept returns the socket but a read confirms the
                    //     socket has gone.  ERROR_EOF or ERROR_CONNDEAD
                    //
+                   typedef bteso_SocketHandle SH;
+
                    if (resp != 0) {
-#ifdef BSLS_PLATFORM__OS_HPUX
-                       LOOP_ASSERT(resp,
-                         bteso_SocketHandle::BTESO_ERROR_CONNDEAD == resp
-                      || bteso_SocketHandle::BTESO_ERROR_INTERRUPTED == resp
-                      || bteso_SocketHandle::BTESO_ERROR_UNCLASSIFIED == resp);
+#if defined(BSLS_PLATFORM__OS_HPUX)
+                       LOOP_ASSERT(resp,SH::BTESO_ERROR_UNCLASSIFIED == resp ||
+                                        SH::BTESO_ERROR_CONNDEAD     == resp ||
+                                        SH::BTESO_ERROR_INTERRUPTED  == resp);
 #else
-                       LOOP_ASSERT(resp,
-                          bteso_SocketHandle::BTESO_ERROR_CONNDEAD == resp
-                       || bteso_SocketHandle::BTESO_ERROR_INTERRUPTED == resp);
+                       LOOP_ASSERT(resp,SH::BTESO_ERROR_CONNDEAD     == resp ||
+                                        SH::BTESO_ERROR_INTERRUPTED  == resp);
 #endif
-                       testFactory.deallocate(streamSocketB);
                    }
                    else {
                        char buf[1];
                        resp = streamSocketB->read(buf,1 );
-                       ASSERT(bteso_SocketHandle::BTESO_ERROR_CONNDEAD == resp
-                           || bteso_SocketHandle::BTESO_ERROR_EOF == resp);
-                       testFactory.deallocate(streamSocketB);
+                       ASSERT(SH::BTESO_ERROR_CONNDEAD == resp ||
+                              SH::BTESO_ERROR_EOF      == resp);
                    }
+                   testFactory.deallocate(streamSocketB);
                } else {
                    testFactory.deallocate(serverSocket);
                }
           }
       } break;
-
       case 3: {
         // --------------------------------------------------------------------
         // TESTING FACTORY ALLOCATE WITH HANDLE

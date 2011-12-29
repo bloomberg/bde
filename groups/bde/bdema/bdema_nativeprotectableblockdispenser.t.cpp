@@ -137,6 +137,9 @@ bool causesFault(void *data, char val)
 
     // set the signal handler to the test handler.
     signal(SIGSEGV, segfaultHandler);
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+    signal(SIGBUS, segfaultHandler);
+#endif
 
     // set the global test flag (used by the signal handler).
     g_inTest = true;
@@ -166,6 +169,9 @@ bool causesFault(void *data, char val)
 
     // Replace the signal handler with the default handler.
     signal(SIGSEGV, SIG_DFL);
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+    signal(SIGBUS, SIG_DFL);
+#endif
 
     // set the global test flag (used by the signal handler)
     g_inTest = false;
