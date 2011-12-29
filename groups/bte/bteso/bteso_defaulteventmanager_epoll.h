@@ -404,7 +404,7 @@ class bteso_DefaultEventManager<bteso_Platform::EPOLL>
         // Note that all callbacks are invoked in the same thread that invokes
         // 'dispatch', and the order of invocation, relative to the order of
         // registration, is unspecified.  Also note that -1 is never returned
-        // if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
+        // unless 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
@@ -421,7 +421,7 @@ class bteso_DefaultEventManager<bteso_Platform::EPOLL>
         // identical system call).  Note that all callbacks are invoked in the
         // same thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
-        // that -1 is never returned if 'option' is set to
+        // that -1 is never returned unless 'option' is set to
         // 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
     int registerSocketEvent(const bteso_SocketHandle::Handle&   handle,
