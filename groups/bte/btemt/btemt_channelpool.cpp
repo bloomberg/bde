@@ -2926,13 +2926,13 @@ void btemt_ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         // At this point, the serverAddress and socket are set and valid, and
         // socket is in non-blocking mode.
 
-        // If a client address is specified bind to that address.
-
-        if (!cs.d_localAddress.isNull()) {
-            const int rc = socket->bind(cs.d_localAddress.value());
+        if (!cs.d_socketOptions.isNull()) {
+            const int rc = bteso_SocketOptUtil::setSocketOptions(
+                                                   socket->handle(),
+                                                   cs.d_socketOptions.value());
 
             if (rc) {
-                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_BINDING_CLIENT_ADDR,
+                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_SETTING_OPTIONS,
                               clientId,
                               BTEMT_ALERT);
                 bcemt_LockGuard<bcemt_Mutex> cGuard(&d_connectorsLock);
@@ -2941,13 +2941,13 @@ void btemt_ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
             }
         }
 
-        if (!cs.d_socketOptions.isNull()) {
-            const int rc = bteso_SocketOptUtil::setSocketOptions(
-                                                   socket->handle(),
-                                                   cs.d_socketOptions.value());
+        // If a client address is specified bind to that address.
+
+        if (!cs.d_localAddress.isNull()) {
+            const int rc = socket->bind(cs.d_localAddress.value());
 
             if (rc) {
-                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_SETTING_OPTIONS,
+                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_BINDING_CLIENT_ADDR,
                               clientId,
                               BTEMT_ALERT);
                 bcemt_LockGuard<bcemt_Mutex> cGuard(&d_connectorsLock);
