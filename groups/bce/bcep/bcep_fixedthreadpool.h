@@ -60,6 +60,14 @@ BDES_IDENT("$Id: $")
 // pool, enqueue a series of jobs to be executed, and wait until all the jobs
 // have executed.
 //
+///Thread Safety
+///-------------
+// The 'bcep_FixedThreadPool' class is both *fully thread-safe* (i.e., all
+// non-creator methods can correctly execute concurrently), and is
+// *thread-enabled* (i.e., the classes does not function correctly in a
+// non-multi-threading environment).  See 'bsldoc_glossary' for complete
+// definitions of *fully thread-safe* and *thread-enabled*.
+//
 ///Synchronous signals on unix
 ///---------------------------
 // A thread pool ensures that, on unix platforms, all the threads in the pool

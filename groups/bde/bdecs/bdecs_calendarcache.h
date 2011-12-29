@@ -386,7 +386,14 @@ struct bdecs_CalendarCache_Pair {
         // Destroy this object.
 };
 
+// FREE OPERATORS
+inline
+bool operator==(const bdecs_CalendarCache_Pair& lhs,
+                const bdecs_CalendarCache_Pair& rhs);
 
+inline
+bool operator!=(const bdecs_CalendarCache_Pair& lhs,
+                const bdecs_CalendarCache_Pair& rhs);
 
                      // =======================================
                      // class bdecs_CalendarCacheIter_PairProxy

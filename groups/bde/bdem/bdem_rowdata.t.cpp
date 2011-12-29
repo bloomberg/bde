@@ -289,83 +289,83 @@ bool Base::isUnset() const
     return d_isNull;
 }
 
-class bdem_List : public Base {
+class List : public Base {
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(bdem_List,
+    BSLALG_DECLARE_NESTED_TRAITS(List,
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     explicit
-    bdem_List(bslma_Allocator *a = 0) : Base(a) {}
+    List(bslma_Allocator *a = 0) : Base(a) {}
     explicit
-    bdem_List(char v, bslma_Allocator *a = 0) : Base(v, a) {}
+    List(char v, bslma_Allocator *a = 0) : Base(v, a) {}
     explicit
-    bdem_List(const Base& original, bslma_Allocator *a = 0)
+    List(const Base& original, bslma_Allocator *a = 0)
     : Base(* (const Base *) &original, a) {}
-    const bdem_List& operator=(const bdem_List& rhs) {
+    const List& operator=(const List& rhs) {
         d_value = rhs.d_value;
         d_isNull = rhs.d_isNull;
         return *this;
     }
-    ~bdem_List() {}
+    ~List() {}
 };
 
-class bdem_Table : public Base {
+class Table : public Base {
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(bdem_Table,
+    BSLALG_DECLARE_NESTED_TRAITS(Table,
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     explicit
-    bdem_Table(bslma_Allocator *a = 0) : Base(a) {}
+    Table(bslma_Allocator *a = 0) : Base(a) {}
     explicit
-    bdem_Table(char v, bslma_Allocator *a = 0) : Base(v, a) {}
-    bdem_Table(const Base& original, bslma_Allocator *a = 0)
+    Table(char v, bslma_Allocator *a = 0) : Base(v, a) {}
+    Table(const Base& original, bslma_Allocator *a = 0)
     : Base(* (const Base *) &original, a) {}
-    const bdem_Table& operator=(const bdem_Table& rhs) {
+    const Table& operator=(const Table& rhs) {
         d_value = rhs.d_value;
         d_isNull = rhs.d_isNull;
         return *this;
     }
-    ~bdem_Table() {}
+    ~Table() {}
 };
 
-class bdem_Choice : public Base {
+class Choice : public Base {
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(bdem_Choice,
+    BSLALG_DECLARE_NESTED_TRAITS(Choice,
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     explicit
-    bdem_Choice(bslma_Allocator *a = 0) : Base(a) {}
+    Choice(bslma_Allocator *a = 0) : Base(a) {}
     explicit
-    bdem_Choice(char v, bslma_Allocator *a = 0) : Base(v, a) {}
+    Choice(char v, bslma_Allocator *a = 0) : Base(v, a) {}
     explicit
-    bdem_Choice(const Base& original, bslma_Allocator *a = 0)
+    Choice(const Base& original, bslma_Allocator *a = 0)
     : Base(* (const Base *) &original, a) {}
-    const bdem_Choice& operator=(const bdem_Choice& rhs) {
+    const Choice& operator=(const Choice& rhs) {
         d_value = rhs.d_value;
         d_isNull = rhs.d_isNull;
         return *this;
     }
-    ~bdem_Choice() {}
+    ~Choice() {}
 };
 
-class bdem_ChoiceArray : public Base {
+class ChoiceArray : public Base {
   public:
-    BSLALG_DECLARE_NESTED_TRAITS(bdem_ChoiceArray,
+    BSLALG_DECLARE_NESTED_TRAITS(ChoiceArray,
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     explicit
-    bdem_ChoiceArray(bslma_Allocator *a = 0) : Base(a) {}
+    ChoiceArray(bslma_Allocator *a = 0) : Base(a) {}
     explicit
-    bdem_ChoiceArray(char v, bslma_Allocator *a = 0) : Base(v, a) {}
+    ChoiceArray(char v, bslma_Allocator *a = 0) : Base(v, a) {}
     explicit
-    bdem_ChoiceArray(const Base& original, bslma_Allocator *a = 0)
+    ChoiceArray(const Base& original, bslma_Allocator *a = 0)
     : Base(* (const Base *) &original, a) {}
-    const bdem_ChoiceArray& operator=(const bdem_ChoiceArray& rhs) {
+    const ChoiceArray& operator=(const ChoiceArray& rhs) {
         d_value = rhs.d_value;
         d_isNull = rhs.d_isNull;
         return *this;
     }
-    ~bdem_ChoiceArray() {}
+    ~ChoiceArray() {}
 };
 
 }
@@ -374,11 +374,11 @@ class bdem_ChoiceArray : public Base {
         // Empty Dummy descriptors for list, table, choice and choiceArray
         // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-                          // ==========================
-                          // struct bdem_List_AttrFuncs
-                          // ==========================
+                          // =====================
+                          // struct List_AttrFuncs
+                          // =====================
 
-struct bdem_List_AttrFuncs
+struct List_AttrFuncs
 {
     // Namespace for static functions to store in a bdem_Descriptor structure.
 
@@ -413,43 +413,43 @@ struct bdem_List_AttrFuncs
 };
 
                           // --------------------------
-                          // struct bdem_List_AttrFuncs
+                          // struct List_AttrFuncs
                           // --------------------------
 
-void bdem_List_AttrFuncs::defaultConstruct(
+void List_AttrFuncs::defaultConstruct(
                            void                                     *obj,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
                            bslma_Allocator                          *alloc)
 {
-    new (obj) bdem_List(alloc);
+    new (obj) List(alloc);
 }
 
-void bdem_List_AttrFuncs::copyConstruct(
+void List_AttrFuncs::copyConstruct(
                            void                                     *obj,
                            const void                               *rhs,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
                            bslma_Allocator                          *alloc)
 {
-    const bdem_List& rhsList = *static_cast<const bdem_List *>(rhs);
-    new (obj) bdem_List(rhsList);
+    const List& rhsList = *static_cast<const List *>(rhs);
+    new (obj) List(rhsList);
 }
 
-void bdem_List_AttrFuncs::makeNull(void *obj)
+void List_AttrFuncs::makeNull(void *obj)
 {
-    static_cast<bdem_List *>(obj)->makeNull();
+    static_cast<List *>(obj)->makeNull();
 }
 
-bool bdem_List_AttrFuncs::isUnset(const void *obj)
+bool List_AttrFuncs::isUnset(const void *obj)
 {
-    return static_cast<const bdem_List *>(obj)->isUnset();
+    return static_cast<const List *>(obj)->isUnset();
 }
 
-bool bdem_List_AttrFuncs::areEqual(const void *lhs, const void *rhs)
+bool List_AttrFuncs::areEqual(const void *lhs, const void *rhs)
 {
     return * (const Base *) lhs == * (const Base *) rhs;
 }
 
-bsl::ostream& bdem_List_AttrFuncs::print(const void    *obj,
+bsl::ostream& List_AttrFuncs::print(const void    *obj,
                                          bsl::ostream&  stream,
                                          int            level,
                                          int            spacesPerLevel)
@@ -459,24 +459,24 @@ bsl::ostream& bdem_List_AttrFuncs::print(const void    *obj,
 
 const bdem_Descriptor listAttr = {
     bdem_ElemType::BDEM_LIST,
-    sizeof(bdem_List),
-    bsls_AlignmentFromType<bdem_List>::VALUE,
-    &bdem_List_AttrFuncs::defaultConstruct,
-    &bdem_List_AttrFuncs::copyConstruct,
-    &bdem_FunctionTemplates::destroy<bdem_List>,
-    &bdem_FunctionTemplates::assign<bdem_List>,
-    &bdem_FunctionTemplates::bitwiseMove<bdem_List>,
-    &bdem_List_AttrFuncs::makeNull,
-    &bdem_List_AttrFuncs::isUnset,
-    &bdem_List_AttrFuncs::areEqual,
-    &bdem_List_AttrFuncs::print
+    sizeof(List),
+    bsls_AlignmentFromType<List>::VALUE,
+    &List_AttrFuncs::defaultConstruct,
+    &List_AttrFuncs::copyConstruct,
+    &bdem_FunctionTemplates::destroy<List>,
+    &bdem_FunctionTemplates::assign<List>,
+    &bdem_FunctionTemplates::bitwiseMove<List>,
+    &List_AttrFuncs::makeNull,
+    &List_AttrFuncs::isUnset,
+    &List_AttrFuncs::areEqual,
+    &List_AttrFuncs::print
 };
 
-                          // ===========================
-                          // struct bdem_Table_AttrFuncs
-                          // ===========================
+                          // ======================
+                          // struct Table_AttrFuncs
+                          // ======================
 
-struct bdem_Table_AttrFuncs {
+struct Table_AttrFuncs {
     // Namespace for static functions to store in a bdem_Descriptor structure.
 
     static
@@ -510,43 +510,43 @@ struct bdem_Table_AttrFuncs {
 };
 
                           // ---------------------------
-                          // struct bdem_Table_AttrFuncs
+                          // struct Table_AttrFuncs
                           // ---------------------------
 
-void bdem_Table_AttrFuncs::defaultConstruct(
+void Table_AttrFuncs::defaultConstruct(
                            void                                     *obj,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
                            bslma_Allocator                          *alloc)
 {
-    new (obj) bdem_Table(alloc);;
+    new (obj) Table(alloc);;
 }
 
-void bdem_Table_AttrFuncs::copyConstruct(
+void Table_AttrFuncs::copyConstruct(
                           void                                     *obj,
                           const void                               *rhs,
                           bdem_AggregateOption::AllocationStrategy  allocMode,
                           bslma_Allocator                          *alloc)
 {
-    const bdem_Table& rhsTable = *static_cast<const bdem_Table*>(rhs);
-    new (obj) bdem_Table(rhsTable);
+    const Table& rhsTable = *static_cast<const Table*>(rhs);
+    new (obj) Table(rhsTable);
 }
 
-void bdem_Table_AttrFuncs::makeNull(void *obj)
+void Table_AttrFuncs::makeNull(void *obj)
 {
-    static_cast<bdem_Table *>(obj)->makeNull();
+    static_cast<Table *>(obj)->makeNull();
 }
 
-bool bdem_Table_AttrFuncs::isUnset(const void *obj)
+bool Table_AttrFuncs::isUnset(const void *obj)
 {
-    return static_cast<const bdem_Table *>(obj)->isUnset();
+    return static_cast<const Table *>(obj)->isUnset();
 }
 
-bool bdem_Table_AttrFuncs::areEqual(const void *lhs, const void *rhs)
+bool Table_AttrFuncs::areEqual(const void *lhs, const void *rhs)
 {
     return * (const Base *) lhs == * (const Base *) rhs;
 }
 
-bsl::ostream& bdem_Table_AttrFuncs::print(const void    *obj,
+bsl::ostream& Table_AttrFuncs::print(const void    *obj,
                                           bsl::ostream&  stream,
                                           int            level,
                                           int            spacesPerLevel)
@@ -556,24 +556,24 @@ bsl::ostream& bdem_Table_AttrFuncs::print(const void    *obj,
 
 const bdem_Descriptor tableAttr = {
     bdem_ElemType::BDEM_TABLE,
-    sizeof(bdem_Table),
-    bsls_AlignmentFromType<bdem_Table>::VALUE,
-    &bdem_Table_AttrFuncs::defaultConstruct,
-    &bdem_Table_AttrFuncs::copyConstruct,
-    &bdem_FunctionTemplates::destroy<bdem_Table>,
-    &bdem_FunctionTemplates::assign<bdem_Table>,
-    &bdem_FunctionTemplates::bitwiseMove<bdem_Table>,
-    &bdem_Table_AttrFuncs::makeNull,
-    &bdem_Table_AttrFuncs::isUnset,
-    &bdem_Table_AttrFuncs::areEqual,
-    &bdem_Table_AttrFuncs::print
+    sizeof(Table),
+    bsls_AlignmentFromType<Table>::VALUE,
+    &Table_AttrFuncs::defaultConstruct,
+    &Table_AttrFuncs::copyConstruct,
+    &bdem_FunctionTemplates::destroy<Table>,
+    &bdem_FunctionTemplates::assign<Table>,
+    &bdem_FunctionTemplates::bitwiseMove<Table>,
+    &Table_AttrFuncs::makeNull,
+    &Table_AttrFuncs::isUnset,
+    &Table_AttrFuncs::areEqual,
+    &Table_AttrFuncs::print
 };
 
-                          // ============================
-                          // struct bdem_Choice_AttrFuncs
-                          // ============================
+                          // =======================
+                          // struct Choice_AttrFuncs
+                          // =======================
 
-struct bdem_Choice_AttrFuncs
+struct Choice_AttrFuncs
 {
     // Namespace for static functions to store in a bdem_Descriptor structure.
 
@@ -608,43 +608,43 @@ struct bdem_Choice_AttrFuncs
 };
 
                           // ----------------------------
-                          // struct bdem_Choice_AttrFuncs
+                          // struct Choice_AttrFuncs
                           // ----------------------------
 
-void bdem_Choice_AttrFuncs::defaultConstruct(
+void Choice_AttrFuncs::defaultConstruct(
                            void                                     *obj,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
                            bslma_Allocator                          *alloc)
 {
-    new (obj) bdem_Choice(alloc);;
+    new (obj) Choice(alloc);;
 }
 
-void bdem_Choice_AttrFuncs::copyConstruct(
+void Choice_AttrFuncs::copyConstruct(
                            void                                     *obj,
                            const void                               *rhs,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
                            bslma_Allocator                          *alloc)
 {
-    const bdem_Choice& rhsChoice = *static_cast<const bdem_Choice *>(rhs);
-    new (obj) bdem_Choice(rhsChoice);
+    const Choice& rhsChoice = *static_cast<const Choice *>(rhs);
+    new (obj) Choice(rhsChoice);
 }
 
-void bdem_Choice_AttrFuncs::makeNull(void *obj)
+void Choice_AttrFuncs::makeNull(void *obj)
 {
-    static_cast<bdem_Choice *>(obj)->makeNull();
+    static_cast<Choice *>(obj)->makeNull();
 }
 
-bool bdem_Choice_AttrFuncs::isUnset(const void *obj)
+bool Choice_AttrFuncs::isUnset(const void *obj)
 {
-    return static_cast<const bdem_Choice *>(obj)->isUnset();
+    return static_cast<const Choice *>(obj)->isUnset();
 }
 
-bool bdem_Choice_AttrFuncs::areEqual(const void *lhs, const void *rhs)
+bool Choice_AttrFuncs::areEqual(const void *lhs, const void *rhs)
 {
     return * (const Base *) lhs == * (const Base *) rhs;
 }
 
-bsl::ostream& bdem_Choice_AttrFuncs::print(const void    *obj,
+bsl::ostream& Choice_AttrFuncs::print(const void    *obj,
                                          bsl::ostream&  stream,
                                          int            level,
                                          int            spacesPerLevel)
@@ -654,24 +654,24 @@ bsl::ostream& bdem_Choice_AttrFuncs::print(const void    *obj,
 
 const bdem_Descriptor choiceAttr = {
     bdem_ElemType::BDEM_CHOICE,
-    sizeof(bdem_Choice),
-    bsls_AlignmentFromType<bdem_Choice>::VALUE,
-    &bdem_Choice_AttrFuncs::defaultConstruct,
-    &bdem_Choice_AttrFuncs::copyConstruct,
-    &bdem_FunctionTemplates::destroy<bdem_Choice>,
-    &bdem_FunctionTemplates::assign<bdem_Choice>,
-    &bdem_FunctionTemplates::bitwiseMove<bdem_Choice>,
-    &bdem_Choice_AttrFuncs::makeNull,
-    &bdem_Choice_AttrFuncs::isUnset,
-    &bdem_Choice_AttrFuncs::areEqual,
-    &bdem_Choice_AttrFuncs::print
+    sizeof(Choice),
+    bsls_AlignmentFromType<Choice>::VALUE,
+    &Choice_AttrFuncs::defaultConstruct,
+    &Choice_AttrFuncs::copyConstruct,
+    &bdem_FunctionTemplates::destroy<Choice>,
+    &bdem_FunctionTemplates::assign<Choice>,
+    &bdem_FunctionTemplates::bitwiseMove<Choice>,
+    &Choice_AttrFuncs::makeNull,
+    &Choice_AttrFuncs::isUnset,
+    &Choice_AttrFuncs::areEqual,
+    &Choice_AttrFuncs::print
 };
 
-                          // =================================
-                          // struct bdem_ChoiceArray_AttrFuncs
-                          // =================================
+                          // ============================
+                          // struct ChoiceArray_AttrFuncs
+                          // ============================
 
-struct bdem_ChoiceArray_AttrFuncs {
+struct ChoiceArray_AttrFuncs {
     // Namespace for static functions to store in a bdem_Descriptor structure.
 
     static
@@ -705,44 +705,44 @@ struct bdem_ChoiceArray_AttrFuncs {
 };
 
                           // ---------------------------------
-                          // struct bdem_ChoiceArray_AttrFuncs
+                          // struct ChoiceArray_AttrFuncs
                           // ---------------------------------
 
-void bdem_ChoiceArray_AttrFuncs::defaultConstruct(
+void ChoiceArray_AttrFuncs::defaultConstruct(
                            void                                     *obj,
                            bdem_AggregateOption::AllocationStrategy  allocMode,
                            bslma_Allocator                          *alloc)
 {
-    new (obj) bdem_ChoiceArray(alloc);;
+    new (obj) ChoiceArray(alloc);;
 }
 
-void bdem_ChoiceArray_AttrFuncs::copyConstruct(
+void ChoiceArray_AttrFuncs::copyConstruct(
                           void                                     *obj,
                           const void                               *rhs,
                           bdem_AggregateOption::AllocationStrategy  allocMode,
                           bslma_Allocator                          *alloc)
 {
-    const bdem_ChoiceArray& rhsChoiceArray =
-                                    *static_cast<const bdem_ChoiceArray*>(rhs);
-    new (obj) bdem_ChoiceArray(rhsChoiceArray);
+    const ChoiceArray& rhsChoiceArray =
+                                    *static_cast<const ChoiceArray*>(rhs);
+    new (obj) ChoiceArray(rhsChoiceArray);
 }
 
-void bdem_ChoiceArray_AttrFuncs::makeNull(void *obj)
+void ChoiceArray_AttrFuncs::makeNull(void *obj)
 {
-    static_cast<bdem_ChoiceArray *>(obj)->makeNull();
+    static_cast<ChoiceArray *>(obj)->makeNull();
 }
 
-bool bdem_ChoiceArray_AttrFuncs::isUnset(const void *obj)
+bool ChoiceArray_AttrFuncs::isUnset(const void *obj)
 {
-    return static_cast<const bdem_ChoiceArray *>(obj)->isUnset();
+    return static_cast<const ChoiceArray *>(obj)->isUnset();
 }
 
-bool bdem_ChoiceArray_AttrFuncs::areEqual(const void *lhs, const void *rhs)
+bool ChoiceArray_AttrFuncs::areEqual(const void *lhs, const void *rhs)
 {
     return * (const Base *) lhs == * (const Base *) rhs;
 }
 
-bsl::ostream& bdem_ChoiceArray_AttrFuncs::print(const void    *obj,
+bsl::ostream& ChoiceArray_AttrFuncs::print(const void    *obj,
                                           bsl::ostream&  stream,
                                           int            level,
                                           int            spacesPerLevel)
@@ -752,17 +752,17 @@ bsl::ostream& bdem_ChoiceArray_AttrFuncs::print(const void    *obj,
 
 const bdem_Descriptor choiceArrayAttr = {
     bdem_ElemType::BDEM_CHOICE_ARRAY,
-    sizeof(bdem_ChoiceArray),
-    bsls_AlignmentFromType<bdem_ChoiceArray>::VALUE,
-    &bdem_ChoiceArray_AttrFuncs::defaultConstruct,
-    &bdem_ChoiceArray_AttrFuncs::copyConstruct,
-    &bdem_FunctionTemplates::destroy<bdem_ChoiceArray>,
-    &bdem_FunctionTemplates::assign<bdem_ChoiceArray>,
-    &bdem_FunctionTemplates::bitwiseMove<bdem_ChoiceArray>,
-    &bdem_ChoiceArray_AttrFuncs::makeNull,
-    &bdem_ChoiceArray_AttrFuncs::isUnset,
-    &bdem_ChoiceArray_AttrFuncs::areEqual,
-    &bdem_ChoiceArray_AttrFuncs::print
+    sizeof(ChoiceArray),
+    bsls_AlignmentFromType<ChoiceArray>::VALUE,
+    &ChoiceArray_AttrFuncs::defaultConstruct,
+    &ChoiceArray_AttrFuncs::copyConstruct,
+    &bdem_FunctionTemplates::destroy<ChoiceArray>,
+    &bdem_FunctionTemplates::assign<ChoiceArray>,
+    &bdem_FunctionTemplates::bitwiseMove<ChoiceArray>,
+    &ChoiceArray_AttrFuncs::makeNull,
+    &ChoiceArray_AttrFuncs::isUnset,
+    &ChoiceArray_AttrFuncs::areEqual,
+    &ChoiceArray_AttrFuncs::print
 };
 
 //=============================================================================
@@ -948,10 +948,10 @@ const  bsl::vector<bdet_TimeTz>                    A29 = fA29();
 const  bsl::vector<bdet_TimeTz>                    B29 = fB29();
 const  bsl::vector<bdet_TimeTz>                    N29;
 
-static bdem_List        A20(1), B20(2), N20;
-static bdem_Table       A21(3), B21(4), N21;
-static bdem_Choice      A30(4), B30(5), N30;
-static bdem_ChoiceArray A31(5), B31(6), N31;
+static List        A20(1), B20(2), N20;
+static Table       A21(3), B21(4), N21;
+static Choice      A30(4), B30(5), N30;
+static ChoiceArray A31(5), B31(6), N31;
 
 static char SPECIFICATIONS[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef";
     // This string stores the valid specification values representing the row.
@@ -1081,7 +1081,7 @@ streamOutAttrLookup<STREAM>::lookupTable()
         { &bdem_FunctionTemplates::streamOutArray<bdet_DateTz, STREAM> },
         { &bdem_FunctionTemplates::streamOutArray<bdet_TimeTz, STREAM> },
 
-        // TBD uncomment when bdem_Choice, bdem_ChoiceArray is ready
+        // TBD uncomment when Choice, ChoiceArray is ready
         { 0 },
         { 0 },
     };
@@ -1658,8 +1658,8 @@ static int compare(const void *p, const void *q, char spec)
                                             == *(bsl::vector<Datetime> *) q;
       case 'S': return *(bsl::vector<Date> *) p == *(bsl::vector<Date> *) q;
       case 'T': return *(bsl::vector<Time> *) p == *(bsl::vector<Time> *) q;
-      case 'U': return 1; // Comparing bdem_List
-      case 'V': return 1; // Comparing bdem_Table
+      case 'U': return 1; // Comparing List
+      case 'V': return 1; // Comparing Table
       case 'W': return *(bool *) p == *(bool *) q;
       case 'X': return *(DatetimeTz *) p == *(DatetimeTz *) q;
       case 'Y': return *(DateTz *) p == *(DateTz *) q;

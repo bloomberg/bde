@@ -364,10 +364,6 @@ int veryVeryVeryVerbose = 0;
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
-class bcem_Aggregate;
-
 namespace test { class Person; }
 namespace test { class Company; }
 namespace test { class Entity; }

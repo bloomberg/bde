@@ -824,7 +824,7 @@ struct bdepu_TypesParserImpUtil {
                                  bsl::string  *result,
                                  const char   *inputString);
         // Parse the specified 'inputString' for a sequence of characters
-        // matching the production rule <QUOTED STRING> and place into the
+        // matching the production rule '<QUOTED STRING>' and place into the
         // specified 'result' the corresponding value.  Store in the specified
         // '*endPos' the address of the non-modifiable character in
         // 'inputString' immediately following the successfully parsed text,
@@ -835,7 +835,7 @@ struct bdepu_TypesParserImpUtil {
         //
         // A parse failure can occur for the following reasons:
         //..
-        //   1. If the opening or closing double-quote (\") character is
+        //   1. If the opening or closing double-quote ('\"') character is
         //      missing.
         //   2. If one of the characters in the string is invalid as
         //      defined in 'parseCharRaw'.
@@ -891,7 +891,7 @@ struct bdepu_TypesParserImpUtil {
                                    bsl::string  *result,
                                    const char   *inputString);
         // Parse the specified 'inputString' for a sequence of characters
-        // matching the production rule <UNQUOTED STRING> and place into the
+        // matching the production rule '<UNQUOTED STRING>' and place into the
         // specified 'result' the corresponding value.  Store in the specified
         // '*endPos' the address of the first whitespace character or <EOS>
         // located after non-whitespace characters have been found, or the
@@ -1104,8 +1104,8 @@ struct bdepu_TypesParserImpUtil {
                                const bsl::string&  value);
         // Format the specified 'value' and append the result to the specified
         // 'buffer'.  The empty string, strings with embedded whitespace, and
-        // string that start with ']', "//",  and "/*" are emitted surrounded
-        // by double quotes ("); the internal characters are emitted in the
+        // string that start with ']', '//',  and '/*' are emitted surrounded
+        // by double quotes ('"'); the internal characters are emitted in the
         // format defined by 'parseCharRaw'.
 
     static void generateTime(bsl::vector<char> *buffer,
