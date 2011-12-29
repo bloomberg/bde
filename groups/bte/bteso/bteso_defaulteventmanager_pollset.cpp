@@ -154,6 +154,7 @@ int TheClass::dispatch(const bdet_TimeInterval& timeout,
                        int                      flags)
 {
     bdet_TimeInterval now(bdetu_SystemTime::now());
+    errno = 0;             // note that on all Unix, 'errno' is thread-specific
 
     if (!numEvents()) {
         if (timeout <= now) {
@@ -253,6 +254,7 @@ int TheClass::dispatch(int flags)
     }
 
     int numCallbacks = 0;                    // number of callbacks dispatched
+    errno = 0;             // note that on all Unix, 'errno' is thread-specific
 
     while  (0 == numCallbacks) {
         int rfds;                    // number of returned fds

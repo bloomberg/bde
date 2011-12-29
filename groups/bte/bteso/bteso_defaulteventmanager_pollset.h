@@ -19,9 +19,8 @@ BDES_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides an implementation of an event manager
-// that uses the 'pollset' system call to monitor for socket events and
-// adheres to
-// the 'bteso_EventManager' protocol.  In particular, this protocol supports
+// that uses the 'pollset' system call to monitor for socket events and adheres
+// to the 'bteso_EventManager' protocol.  In particular, this protocol supports
 // the registration of socket events, along with an associated 'bdef_Function'
 // callback functor, which is invoked when the corresponding socket event
 // occurs.
@@ -36,8 +35,10 @@ BDES_IDENT("$Id: $")
 ///Availability
 ///------------
 // The 'pollset' system call (and consequently this specialized component) is
-// currently supported only by the AIX platforms.  Direct use of this library
-// component on *any* platform may result in non-portable software.
+// currently supported only by the AIX platform.  Direct use of this library
+// component on *any* platform may result in non-portable software; it is
+// recommended your choice of default event manager be communicated via the
+// 'Default', 'FrequentReg', or 'InfrequentReg' typedefs in 'bteso_Platform'.
 //
 ///Component Diagram
 ///-----------------
@@ -74,7 +75,7 @@ BDES_IDENT("$Id: $")
 //  +=======================================================================+
 //  |        FUNCTION          | EXPECTED COMPLEXITY | WORST CASE COMPLEXITY|
 //  +-----------------------------------------------------------------------+
-//  | dispatch                 |        O(S)         |       O(S^2)         |
+//  | dispatch                 |        O(S)*        |       O(S^2)         |
 //  +-----------------------------------------------------------------------+
 //  | registerSocketEvent      |        O(1)         |        O(S)          |
 //  +-----------------------------------------------------------------------+
@@ -90,6 +91,11 @@ BDES_IDENT("$Id: $")
 //  +-----------------------------------------------------------------------+
 //  | isRegistered             |        O(1)         |        O(S)          |
 //  +=======================================================================+
+//
+// *: Note that we observe that if very few of the sockets being listened to
+// have events, the time taken by 'dispatch' remains roughly constant
+// regardless of the number of sockets.  See tables at the beginning of
+// 'bteso_eventmanagertester.t.cpp' for actual test results.
 //..
 ///Metrics
 ///-------
@@ -150,7 +156,7 @@ BDES_IDENT("$Id: $")
 //..
 // Next, we try to execute the requests by calling the 'dispatch' function with
 // a timeout (5 seconds from now) requirement and verify the result.  The two
-// write requests should be executed since both ends are writable If we don't
+// write requests should be executed since both ends are writable.  If we don't
 // have a timeout requirement, a different version of 'dispatch' (in which no
 // timeout is specified) can also be called.
 //..
@@ -345,7 +351,7 @@ class bteso_DefaultEventManager<bteso_Platform::POLLSET>
     explicit
     bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric     = 0,
                               bslma_Allocator   *basicAllocator = 0);
-        // Create a 'poll'-based event manager.  Optionally specify a
+        // Create a 'pollset'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics
         // are not reported.  Optionally specify a 'basicAllocator' used to
@@ -375,7 +381,7 @@ class bteso_DefaultEventManager<bteso_Platform::POLLSET>
         // Note that all callbacks are invoked in the same thread that invokes
         // 'dispatch', and the order of invocation, relative to the order of
         // registration, is unspecified.  Also note that -1 is never returned
-        // if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
+        // unless 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
     virtual
     int dispatch(int flags);
@@ -393,7 +399,7 @@ class bteso_DefaultEventManager<bteso_Platform::POLLSET>
         // identical system call).  Note that all callbacks are invoked in the
         // same thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
-        // that -1 is never returned if 'flags' contains
+        // that -1 is never returned unless 'flags' contains
         // 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
     virtual
