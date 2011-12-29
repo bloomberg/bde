@@ -154,6 +154,7 @@ int bteso_DefaultEventManager<bteso_Platform::DEVPOLL>::dispatch(
                                int                      flags)
 {
     bdet_TimeInterval now(bdetu_SystemTime::now());
+    errno = 0;             // note that on all Unix, 'errno' is thread-specific
 
     if (!numEvents()) {
         if (timeout <= now) {
@@ -267,6 +268,7 @@ int bteso_DefaultEventManager<bteso_Platform::DEVPOLL>::dispatch(int flags)
     if (!numEvents()) {
         return 0;
     }
+    errno = 0;             // note that on all Unix, 'errno' is thread-specific
 
     int ncbs = 0;                    // number of callbacks dispatched
     while  (0 == ncbs) {

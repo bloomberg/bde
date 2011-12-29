@@ -224,11 +224,13 @@ int bteso_DefaultEventManager<bteso_Platform::POLL>::dispatch(
             && now < timeout);
 
         if (0 >= rfds) {
-            return rfds
-                   ? -1 == rfds && EINTR == savedErrno
+            return 0 == rfds
+                   ? 0
+                   : -1 == rfds && EINTR == savedErrno
                      ? -1
-                     : -savedErrno
-                   : 0;
+                     : savedErrno < 2
+                       ? -10000
+                       : -savedErrno;                                 // RETURN
         }
 
         numCallbacks += dispatchCallbacks(&d_signaled,
@@ -270,11 +272,13 @@ int bteso_DefaultEventManager<bteso_Platform::POLL>::dispatch(int flags)
                  && !(bteso_Flag::BTESO_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
-            return rfds
-                   ? -1 == rfds && EINTR == savedErrno
+            return 0 == rfds
+                   ? 0
+                   : -1 == rfds && EINTR == savedErrno
                      ? -1
-                     : -savedErrno
-                   : 0;
+                     : savedErrno < 2
+                       ? -10000
+                       : -savedErrno;                                 // RETURN
         }
 
         numCallbacks += dispatchCallbacks(&d_signaled,
