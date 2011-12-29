@@ -1631,6 +1631,47 @@ int main(int argc, char *argv[])
         Obj mX(&timeMetric, &testAllocator);
         bteso_EventManagerTester::testRegisterPerformance(&mX, controlFlag);
       } break;
+      case -3: {
+        // -----------------------------------------------------------------
+        // Running 'gg' interactively
+        //
+        // Concern:
+        //   Need to be able to run the 'gg' function interactively to
+        //   analyze test failures.
+        //
+        // Plan:
+        //   Iterate, inputting a line from the console, and feeding that
+        //   to the 'gg' function.
+        // -----------------------------------------------------------------
+
+        while (true) {
+            Obj mX(&timeMetric, &testAllocator);
+        
+            char script[1000];
+            cout << "Script: " << bsl::flush;
+            cin.getline(script, sizeof(script));
+
+            if (!bsl::strcmp("quit", script)) {
+                break;
+            }
+            if (!script[0]) {
+                continue;
+            }
+
+            enum { NUM_PAIR = 10 };
+            bteso_EventManagerTestPair socketPairs[NUM_PAIR];
+        
+            for (int j = 0; j < NUM_PAIR; j++) {
+                socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
+                socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
+            }
+        
+            int fails = bteso_EventManagerTester::gg(&mX, socketPairs,
+                                                     script,
+                                                     controlFlag);
+            P(fails);
+        }
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
