@@ -3,10 +3,14 @@
 
 #include <bsl_iostream.h>
 
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslmf_assert.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
+
+#include <bsl_cstring.h>
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 #include <bcemt_qlock.h>
