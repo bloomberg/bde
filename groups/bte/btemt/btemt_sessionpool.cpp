@@ -212,11 +212,13 @@ void btemt_SessionPool::channelStateCb(int   channelId,
 
           if (d_useBlobForDataReads) {
               handle->d_channel_p = new (*d_allocator_p)
-                                 btemt_ChannelPoolChannel(channelId,
-                                                          d_channelPool_p,
-                                                          &d_blobBufferFactory,
-                                                          &d_spAllocator,
-                                                          d_allocator_p);
+                                 btemt_ChannelPoolChannel(
+                                                        channelId,
+                                                        d_channelPool_p,
+                                                        &d_blobBufferFactory,
+                                                        &d_spAllocator,
+                                                        d_allocator_p,
+                                                        &d_bufferChainFactory);
           }
           else {
               handle->d_channel_p = new (*d_allocator_p)
@@ -224,7 +226,8 @@ void btemt_SessionPool::channelStateCb(int   channelId,
                                                          d_channelPool_p,
                                                          &d_bufferChainFactory,
                                                          &d_spAllocator,
-                                                         d_allocator_p);
+                                                         d_allocator_p,
+                                                         &d_blobBufferFactory);
           }
 
           lock.release()->unlock();
