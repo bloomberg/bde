@@ -267,7 +267,7 @@ bool Dbghelp_Util::isLoaded()
 }  // close unnamed namespace
 
 // DATA
-static Dbghelp_Util dbghelp_util = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static Dbghelp_Util dbghelp_util = {};    // all zeroes
 
                               // -------------
                               // baesu_DbghelpDllImpl_Windows
@@ -286,7 +286,8 @@ bool baesu_DbghelpDllImpl_Windows::isLoaded()
 
 DWORD baesu_DbghelpDllImpl_Windows::symSetOptions(DWORD symOptions)
 {
-    BSLS_ASSERT_OPT(0 == dbghelp_util.init());
+    int rc = dbghelp_util.init();
+    BSLS_ASSERT_OPT(0 == rc);
 
     return (*dbghelp_util.d_symSetOptions)(symOptions);
 }
@@ -299,7 +300,7 @@ BOOL baesu_DbghelpDllImpl_Windows::symFromAddr(DWORD64      address,
 {
     int rc = dbghelp_util.init();
     if (0 != rc) {
-        return false;                                                 // RETURN
+        return FALSE;                                                 // RETURN
     }
 
     return (*dbghelp_util.d_symFromAddr)(dbghelp_util.d_hProcess,
@@ -317,7 +318,7 @@ BOOL baesu_DbghelpDllImpl_Windows::symGetSymFromAddr64(
 {
     int rc = dbghelp_util.init();
     if (0 != rc) {
-        return false;                                                 // RETURN
+        return FALSE;                                                 // RETURN
     }
 
     return (*dbghelp_util.d_symGetSymFromAddr64)(dbghelp_util.d_hProcess,
@@ -335,7 +336,7 @@ BOOL baesu_DbghelpDllImpl_Windows::symGetLineFromAddr64(
 {
     int rc = dbghelp_util.init();
     if (0 != rc) {
-        return false;                                                 // RETURN
+        return FALSE;                                                 // RETURN
     }
 
     return (*dbghelp_util.d_symGetLineFromAddr64)(dbghelp_util.d_hProcess,
@@ -351,7 +352,7 @@ BOOL baesu_DbghelpDllImpl_Windows::stackWalk64(DWORD          machineType,
 {
     int rc = dbghelp_util.init();
     if (0 != rc) {
-        return false;                                                 // RETURN
+        return FALSE;                                                 // RETURN
     }
 
     return (*dbghelp_util.d_stackWalk64)(
