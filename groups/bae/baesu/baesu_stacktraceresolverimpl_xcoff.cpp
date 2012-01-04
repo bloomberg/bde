@@ -590,6 +590,9 @@ Local::UintPtr parseNumber(const TYPE& text)
  //               == struct Local::StackTraceResolver::AuxInfo
  // ===========================================================================
 
+bcemt_QLock Local::StackTraceResolver::s_demangleQLock =
+                                                       BCEMT_QLOCK_INITIALIZER;
+
 struct Local::StackTraceResolver::AuxInfo {
     // Objects of this type exist in the array 'd_auxInfo' in class
     // Local::StackTraceResolver in a 1-1 correspondence with the elements of
@@ -1509,12 +1512,11 @@ int Local::StackTraceResolver::resolveSegment(void       *segmentPtr,
             if (d_demangle) {
                 // Note that 'Demangle' is not thread safe.
 
-                static bcemt_Mutex mutex;
-                bcemt_LockGuard<bcemt_Mutex> guard(&mutex);
+                bcemt_QLockGuard guard(&s_demangleQLock);
 
                 // Note that 'Demangle' allocates with 'malloc', and that
-                // 'rest' is is passed as a reference to a modifiable.  Note
-                // that whoever wrote 'Demangle' didn't know how to use
+                // 'rest' is is passed as a reference to a modifiable.  Also
+                // note that whoever wrote 'Demangle' didn't know how to use
                 // 'const'.
 
                 char *rest = 0;
