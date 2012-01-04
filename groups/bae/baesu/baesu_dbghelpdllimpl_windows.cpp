@@ -16,20 +16,18 @@ BDES_IDENT_RCSID(baesu_dbghelpdllimpl_windows_cpp,"$Id$ $CSID$")
 
 #pragma optimize("", off)
 
+// Optional debug traces, turned off in production, are done with 'debugPrintf
 #undef  TRACES
 #define TRACES 0    // debugging traces off
 
 #if TRACES == 1
 # include <stdio.h>
 
-#define eprintf printf
-#define zprintf printf
+#define debugPrintf printf
 
 #else
 
-# define eprintf (void)    // only called on errors
-# define zprintf (void)    // called on debug output - output is very
-                           // voluminous if this is turned on
+#define debugPrintf (void)
 #endif
 
 namespace {
@@ -40,22 +38,22 @@ namespace {
 
 struct Dbghelp_Util {
     // This struct contains the handle of the DLL and a collection of function
-    // ptrs that will point to functions loaded at run time from it.  Only
-    // one instance of this type is to exist, a static instance whose d'tor
-    // will call 'SymCleanup' if the object has been initialized.
+    // pointers that will point to functions loaded at run time from it.  Only
+    // one instance of this type is to exist, a static instance whose
+    // destructor will call 'SymCleanup' if the object has been initialized.
 
     // TYPES
     typedef DWORD __stdcall SymSetOptionsProc(DWORD);
     typedef BOOL  __stdcall SymInitializeProc(HANDLE, PCSTR, BOOL);
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-    // For some reason, 'symFromAddr' doesn't work right on 64 bit, so we
-    // #ifdef everything and use 'SymGetSymFromAddr64'.
-
     typedef BOOL  __stdcall SymFromAddrProc(HANDLE,
                                             DWORD64,
                                             PDWORD64,
                                             PSYMBOL_INFO);
 #else
+    // 'symFromAddr' doesn't work on 64 bit, so we conditionally compile to use
+    // 'SymGetSymFromAddr64'.
+
     typedef BOOL  __stdcall SymGetSymFromAddr64Proc(HANDLE,
                                                     DWORD64,
                                                     PDWORD64,
@@ -110,8 +108,8 @@ struct Dbghelp_Util {
   private:
     // PRIVATE MANIPULATORS
     int load();
-        // Open the dll and get the function pointers, return 0 on success and
-        // a non-zero value otherwise.
+        // Load the dll and set all the function pointers in this class to
+        // point into it.  Return 0 on success and a non-zero value otherwise.
 
     void wipeClean();
         // Null out all the pointers owned by this class.
@@ -126,8 +124,9 @@ struct Dbghelp_Util {
     // MANIPULATORS
     int init();
         // Ensure the dll is loaded.  Return 0 on success and a non-zero value
-        // otherwise.  'init' is separated from 'load' to make it very small,
-        // to make sure it is inlined, and to keep the code size smaller.
+        // otherwise.  Note that the initialization is broken up into 'init'
+        // and 'load' so that 'init' is a small, fast inline function that, if
+        // necessary, calls the large, out-of-line 'load' function.
 
     // ACCESSORS
     bool isLoaded();
@@ -137,24 +136,24 @@ struct Dbghelp_Util {
 // PRIVATE MANIPULATORS
 int Dbghelp_Util::load()
 {
-    BSLS_ASSERT(NULL == d_moduleHandle);
-    BSLS_ASSERT(NULL == d_symSetOptions);
-    BSLS_ASSERT(NULL == d_symInitialize);
+    BSLS_ASSERT(0 == d_moduleHandle);
+    BSLS_ASSERT(0 == d_symSetOptions);
+    BSLS_ASSERT(0 == d_symInitialize);
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-    BSLS_ASSERT(NULL == d_symFromAddr);
+    BSLS_ASSERT(0 == d_symFromAddr);
 #else
-    BSLS_ASSERT(NULL == d_symGetSymFromAddr64);
+    BSLS_ASSERT(0 == d_symGetSymFromAddr64);
 #endif
-    BSLS_ASSERT(NULL == d_symGetLineFromAddr64);
-    BSLS_ASSERT(NULL == d_stackWalk64);
-    BSLS_ASSERT(NULL == d_symCleanup);
-    BSLS_ASSERT(NULL == d_symFunctionTableAccess64);
-    BSLS_ASSERT(NULL == d_symGetModuleBase64);
-    BSLS_ASSERT(NULL == d_hProcess);
+    BSLS_ASSERT(0 == d_symGetLineFromAddr64);
+    BSLS_ASSERT(0 == d_stackWalk64);
+    BSLS_ASSERT(0 == d_symCleanup);
+    BSLS_ASSERT(0 == d_symFunctionTableAccess64);
+    BSLS_ASSERT(0 == d_symGetModuleBase64);
+    BSLS_ASSERT(0 == d_hProcess);
 
     d_moduleHandle = LoadLibraryA("dbghelp.dll");
-    if (NULL == d_moduleHandle) {
-        eprintf("baesu_DbghelpDllImpl_Windows: 'LoadLibraryA' failed\n");
+    if (0 == d_moduleHandle) {
+        debugPrintf("baesu_DbghelpDllImpl_Windows: 'LoadLibraryA' failed\n");
 
         return -1;                                                    // RETURN
     }
@@ -183,8 +182,8 @@ int Dbghelp_Util::load()
     d_hProcess = GetCurrentProcess();
 
     if (!isLoaded()) {
-        eprintf("baesu_DbghelpDllImpl_Windows: %s failed\n",
-                                     NULL == d_hProcess ? "'GetCurrentProcess'"
+        debugPrintf("baesu_DbghelpDllImpl_Windows: %s failed\n",
+                                        0 == d_hProcess ? "'GetCurrentProcess'"
                                                         : "'GetProcAddress'");
 
         wipeClean();
@@ -194,9 +193,9 @@ int Dbghelp_Util::load()
     // Thanks to SYMOPT_DEFERRED_LOADS no manual enumeration of libraries is
     // necessary, this method will only load what is actually required
 
-    BOOL rc = (*d_symInitialize)(d_hProcess, NULL, TRUE);
+    BOOL rc = (*d_symInitialize)(d_hProcess, 0, TRUE);
     if (!rc) {
-        eprintf("baesu_DbghelpDllImpl_Windows: 'SymInitialize' failed\n");
+        debugPrintf("baesu_DbghelpDllImpl_Windows: 'SymInitialize' failed\n");
         wipeClean();
         return -1;                                                    // RETURN
     }
@@ -220,51 +219,49 @@ Dbghelp_Util::~Dbghelp_Util()
 inline
 int Dbghelp_Util::init()
 {
-    BSLS_ASSERT(BloombergLP::baesu_DbghelpDllImpl_Windows::qLock().isLocked());
-
-    return NULL == d_moduleHandle ? load() : 0;
+    return 0 == d_moduleHandle ? load() : 0;
 }
 
 
 void Dbghelp_Util::wipeClean()
 {
-    if (NULL != d_moduleHandle) {
+    if (0 != d_moduleHandle) {
         FreeLibrary(d_moduleHandle);
     }
 
-    d_moduleHandle             = NULL;
-    d_symSetOptions            = NULL;
-    d_symInitialize            = NULL;
+    d_moduleHandle             = 0;
+    d_symSetOptions            = 0;
+    d_symInitialize            = 0;
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-    d_symFromAddr              = NULL;
+    d_symFromAddr              = 0;
 #else
-    d_symGetSymFromAddr64      = NULL;
+    d_symGetSymFromAddr64      = 0;
 #endif
-    d_symGetLineFromAddr64     = NULL;
-    d_stackWalk64              = NULL;
-    d_symCleanup               = NULL;
-    d_symFunctionTableAccess64 = NULL;
-    d_symGetModuleBase64       = NULL;
-    d_hProcess                 = NULL;
+    d_symGetLineFromAddr64     = 0;
+    d_stackWalk64              = 0;
+    d_symCleanup               = 0;
+    d_symFunctionTableAccess64 = 0;
+    d_symGetModuleBase64       = 0;
+    d_hProcess                 = 0;
 }
 
 // ACCESSORS
 bool Dbghelp_Util::isLoaded()
 {
-    return  NULL != d_moduleHandle
-         && NULL != d_symSetOptions
-         && NULL != d_symInitialize
+    return  0 != d_moduleHandle
+         && 0 != d_symSetOptions
+         && 0 != d_symInitialize
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-         && NULL != d_symFromAddr
+         && 0 != d_symFromAddr
 #else
-         && NULL != d_symGetSymFromAddr64
+         && 0 != d_symGetSymFromAddr64
 #endif
-         && NULL != d_symGetLineFromAddr64
-         && NULL != d_stackWalk64
-         && NULL != d_symCleanup
-         && NULL != d_symFunctionTableAccess64
-         && NULL != d_symGetModuleBase64
-         && NULL != d_hProcess;
+         && 0 != d_symGetLineFromAddr64
+         && 0 != d_stackWalk64
+         && 0 != d_symCleanup
+         && 0 != d_symFunctionTableAccess64
+         && 0 != d_symGetModuleBase64
+         && 0 != d_hProcess;
 }
 
 }  // close unnamed namespace
@@ -376,7 +373,7 @@ BOOL baesu_DbghelpDllImpl_Windows::stackWalk64(DWORD          machineType,
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

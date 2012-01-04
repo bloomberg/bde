@@ -14,10 +14,10 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Bill Chapman (bchapman2), Steven Breitstein (sbreitstein)
 //
-// This component provides a single class, 'baesu_DbghelpDllImpl_Windows',
-// which provides Windows platform-specific facilities in support of the
-// 'baesu' stack trace facility.  This component is *not* intended for public
-// use.
+//@DESCRIPTION: This component provides a single class,
+// 'baesu_DbghelpDllImpl_Windows', that provides Windows platform-specific
+// facilities in support of the 'baesu' stack trace facility.  This component
+// is *not* intended for public use.
 //
 // The 'baesu_DbghelpDllImpl_Windows' class:
 //
@@ -50,12 +50,12 @@ BDES_IDENT("$Id: $")
 ///-------------
 // Since the functions in 'dbghelp.dll' are *not* thread-safe, this class
 // provides a static mutex (of type 'bcemt_QLock') which must be acquired
-// before any of the '.dll'-invoking methods of this function are called.
-// The mutex lock is checked in asserts, so it must be locked even in a
-// single threaded process.  The library is loaded on a per-process basis.
-// The client must ensure that the mutex is locked during any call to any
-// function in this class, but it is not necessary for it to be locked any
-// longer than that.
+// before any of the '.dll'-invoking methods of this function are called.  In
+// multithreaded code, the mutex lock must be locked before any of the methods
+// other than 'isLoaded' or 'qLock' are called.  The library is loaded on a
+// per-process basis.  The client must ensure that the mutex is locked during
+// any call to any function in this class, but it is not necessary for it to be
+// locked any longer than that.
 //
 ///Usage
 ///-----
@@ -90,14 +90,12 @@ BDES_IDENT("$Id: $")
 //                                                             (DWORD64) &main,
 //                                                             &offsetFromLine,
 //                                                             &line);
-//  ASSERT(rc);
+//  assert(rc);
 //..
 //  Finally, we print out our results:
 //..
 //  bsl::cout << "Source file name: " << line.FileName << bsl::endl;
 //  bsl::cout << "Line #: " << line.LineNumber << bsl::endl;
-//
-//  #endif
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -137,9 +135,9 @@ namespace BloombergLP {
 
 class baesu_DbghelpDllImpl_Windows {
     // This class provides a namespace for static methods (defined only on
-    // Windows platforms) which call call functions from the 'dbghelp.dll'
-    // shared library.  The dynamic library is lazily loaded and initialized
-    // when needed, the implementation arranges for automatic unloading of that
+    // Windows platforms) which call functions from the 'dbghelp.dll' shared
+    // library.  The dynamic library is lazily loaded and initialized when
+    // needed, the implementation arranges for automatic unloading of that
     // library at process termination (it is done by the destructor of a static
     // struct).  Typically, the methods of this class that call '.dll'
     // functions implicitly provide some of the needed arguments (e.g., a
@@ -166,7 +164,7 @@ class baesu_DbghelpDllImpl_Windows {
         // provided for synchronizing access to the 'dbghelp.dll' shared
         // library.
 
-        // *** Methods corresponding to Windows 'dbghelp.dll' functions ***
+    // *** Methods corresponding to Windows 'dbghelp.dll' functions ***
 
     static DWORD symSetOptions(DWORD symOptions);
         // Invoke the 'SymSetOptions' function of 'dbghelp.dll' with the
@@ -193,10 +191,10 @@ class baesu_DbghelpDllImpl_Windows {
         // been set to the maximum length (a value of '2000' is recommended).
         //
         // Note that 'symbol' is loaded with a pointer to the symbol
-        // information for the symbol at 'address' and 'displacement' is loaded
-        // with the difference between 'address' and the address of the symbol
-        // described at 'symbol'.  Also note that 'true' is returned if a
-        // symbol is found for 'address', and 'false' is returned otherwise.
+        // information for the symbol at 'address', and 'displacement' is
+        // loaded with the difference between 'address' and the address of the
+        // symbol described at 'symbol'.  Also note that 'true' is returned if
+        // a symbol is found for 'address', and 'false' is returned otherwise.
         // Finally, note that further details of 'SymFromAddr' are available at
         // 'http://msdn.com'.
 
@@ -212,10 +210,10 @@ class baesu_DbghelpDllImpl_Windows {
         // been set to the maximum length (a value of '2000' is recommended).
         //
         // Note that 'symbol' is loaded with a pointer to the symbol
-        // information for the symbol at 'address' and 'displacement' is loaded
-        // with the difference between 'address' and the address of the symbol
-        // described at 'symbol'.  Also note that 'true' is returned if a
-        // symbol is found for 'address', and 'false' is returned otherwise.
+        // information for the symbol at 'address', and 'displacement' is
+        // loaded with the difference between 'address' and the address of the
+        // symbol described at 'symbol'.  Also note that 'true' is returned if
+        // a symbol is found for 'address', and 'false' is returned otherwise.
         // Finally, note that further details of 'SymFromAddr64' are available
         // at 'http://msdn.com'.
 
