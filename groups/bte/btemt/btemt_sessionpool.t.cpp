@@ -2354,16 +2354,15 @@ int main(int argc, char *argv[])
         //: 1 Create a session pool object, mX, and listen on a port on the
         //:   local machine.
         //:
-        //: 2 Define NUM_SESSIONS with a value of 2 as the number of sessions
-        //:   to be created.
+        //: 2 Create a socket and 'connect' to the port number on which the
+        //:   session pool is listening.
         //:
-        //: 3 Open NUM_SESSIONS sockets and 'connect' to the port number on
-        //:   which the session pool is listening.
+        //: 3 Write data on the socket in multiple attempts and monitor the
+        //:   size and length of the blob returned by session pool in the data
+        //:   callback.
         //:
-        //: 4 Confirm that numSessions on mX returns NUM_SESSIONS.
-        //:
-        //: 5 Call 'stop' on the session pool and confirm that numSessions
-        //:   returns 0.
+        //: 4 Verify that the blob provided in the data callback does not
+        //:   unnecessarily hoard memory.
         //
         // Testing:
         //  DRQS 29067989
