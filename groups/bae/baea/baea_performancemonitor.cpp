@@ -417,9 +417,16 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
 
     double deltaCpuTimeT = deltaCpuTimeU + deltaCpuTimeS;
 
-    stats->d_lstData[BAEA_CPU_UTIL]        = deltaCpuTimeT / dt * 100.0;
-    stats->d_lstData[BAEA_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
-    stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
+    if (0 != dt) {
+        stats->d_lstData[BAEA_CPU_UTIL]        = deltaCpuTimeT / dt * 100.0;
+        stats->d_lstData[BAEA_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
+        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
+    }
+    else {
+        stats->d_lstData[BAEA_CPU_UTIL]        = 0;
+        stats->d_lstData[BAEA_CPU_UTIL_USER]   = 0;
+        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = 0;
+    }
 
     stats->d_lstData[BAEA_CPU_TIME_USER]   = cpuTimeU;
     stats->d_lstData[BAEA_CPU_TIME_SYSTEM] = cpuTimeS;
