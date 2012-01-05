@@ -138,7 +138,7 @@ enum {
     HALF_PAYLOAD_SIZE = 160
 };
 
-static bcema_Blob s_blob;
+bcema_Blob *s_blob_p;
 
 void poolStateCallback(int reason, int source, void *userData)
 {
@@ -369,8 +369,6 @@ void TesterSession::readCb(int         result,
                            bcema_Blob *blob,
                            int         channelId)
 {
-    bsl::cout << "In read cb" << bsl::endl;
-
     if (result) {
         // Session is going down.
 
@@ -382,9 +380,7 @@ void TesterSession::readCb(int         result,
     ASSERT(blob);
     ASSERT(0 < blob->length());
 
-    s_blob.moveAndAppendDataBuffers(blob);
-
-    bcema_BlobUtil::asciiDump(bsl::cout, s_blob);
+    s_blob_p->moveAndAppendDataBuffers(blob);
 
     *numNeeded = 1;
 }
@@ -489,7 +485,7 @@ TestServer::TestServer(bcemt_Mutex     *coutMutex,
     d_sessionPool_p = new (*d_allocator_p)
                            btemt_SessionPool(d_config,
                                              poolStateCb,
-                                             true,
+                                             false,
                                              &testAllocator);
 
     btemt_SessionPool::SessionStateCallback sessionStateCb =
@@ -2345,6 +2341,8 @@ int main(int argc, char *argv[])
 
         using namespace BTEMT_SESSION_POOL_DRQS_28731692;
 
+        bcema_Blob s_blob;
+        s_blob_p = &s_blob;
         {
             TestServer testServer(&coutMutex, 0, 5);
 
@@ -2358,7 +2356,7 @@ int main(int argc, char *argv[])
 
             char payload[PAYLOAD_SIZE];
             bsl::memset(payload, 'A', PAYLOAD_SIZE);
-            const int NT = 2;
+            const int NT = 1;
 
             for (int i = 0; i < NT; ++i) {
                 socket->write(payload, PAYLOAD_SIZE);
@@ -2369,12 +2367,9 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
 
-        bcemt_ThreadUtil::microSleep(0, 3);
-
-//         const int LEN = s_blob.length();
-//         for (int i = 0; i < LEN; ++i) {
-        bcema_BlobUtil::asciiDump(bsl::cout, s_blob);
-//         }
+        if (veryVerbose) {
+            bcema_BlobUtil::asciiDump(bsl::cout, s_blob);
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
