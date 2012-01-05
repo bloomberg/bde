@@ -2343,10 +2343,27 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 29067989
+        //  Ensure that session pool does not allocate and hold on to
+        //  additional memory buffers when clients read all the data.
         //
-        // Concerns:
+        // Concerns
+        //: 1 Session pool does not allocate and hold on to memory buffers
+        //:   indefinitely even if the client is reading all the data.
         //
         // Plan:
+        //: 1 Create a session pool object, mX, and listen on a port on the
+        //:   local machine.
+        //:
+        //: 2 Define NUM_SESSIONS with a value of 2 as the number of sessions
+        //:   to be created.
+        //:
+        //: 3 Open NUM_SESSIONS sockets and 'connect' to the port number on
+        //:   which the session pool is listening.
+        //:
+        //: 4 Confirm that numSessions on mX returns NUM_SESSIONS.
+        //:
+        //: 5 Call 'stop' on the session pool and confirm that numSessions
+        //:   returns 0.
         //
         // Testing:
         //  DRQS 29067989
@@ -2402,7 +2419,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a session pool object, mX, and listen on a port on the
-        //:   local machine. 
+        //:   local machine.
         //:
         //: 2 Define NUM_SESSIONS with a value of 2 as the number of sessions
         //:   to be created.
