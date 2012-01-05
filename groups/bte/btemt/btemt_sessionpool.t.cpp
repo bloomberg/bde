@@ -524,12 +524,15 @@ TestServer::TestServer(bcemt_Mutex     *coutMutex,
                      bdef_MemFnUtil::memFn(&TestServer::sessionStateCb,
                                            this);
 
-    BSLS_ASSERT(0 == d_sessionPool_p->start());
+    int rc = d_sessionPool_p->start();
+    ASSERT(!rc);
     int handle;
-    BSLS_ASSERT(0 == d_sessionPool_p->listen(&handle, sessionStateCb,
-                                             portNumber,
-                                             numConnections,
-                                             &d_sessionFactory));
+    rc = d_sessionPool_p->listen(&handle,
+                                 sessionStateCb,
+                                 portNumber,
+                                 numConnections,
+                                 &d_sessionFactory);
+    ASSERT(!rc);
 
     d_portNumber = d_sessionPool_p->portNumber(handle);
 }
@@ -2360,16 +2363,18 @@ int main(int argc, char *argv[])
         bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
 
         const bteso_IPv4Address ADDRESS("127.0.0.1", testServer.portNumber());
-        BSLS_ASSERT(0 == socket->connect(ADDRESS));
+        int rc = socket->connect(ADDRESS);
+        ASSERT(!rc);
 
         char payload[PAYLOAD_SIZE];
         bsl::memset(payload, 'X', PAYLOAD_SIZE);
         const int NT = 10000;
+
         for (int i = 0; i < NT; ++i) {
-            ASSERT(PAYLOAD_SIZE == socket->write(payload, PAYLOAD_SIZE));
+            socket->write(payload, PAYLOAD_SIZE);
         }
 
-        bcemt_ThreadUtil::microSleep(0, 5);
+        bcemt_ThreadUtil::microSleep(0, 3);
 
         factory.deallocate(socket);
 
