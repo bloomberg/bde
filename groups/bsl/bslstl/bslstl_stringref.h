@@ -1276,7 +1276,14 @@ std::basic_ostream<CHAR_TYPE>&
     operator<<(std::basic_ostream<CHAR_TYPE>&        stream,
                const bslstl_StringRefImp<CHAR_TYPE>& stringRef)
 {
-    return stream.write(stringRef.data(), stringRef.length());
+    if (stringRef.data()) {
+        // Sun RW Standard Library implementation of streams does not work
+        // correctly if 'data' and 'length' are both 0.
+        return stream.write(stringRef.data(), stringRef.length());
+    }
+    else {
+        BSLS_ASSERT_SAFE(stringRef.length() == 0);
+    }
 }
 
 }  // close namespace BloombergLP
