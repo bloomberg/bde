@@ -131,8 +131,6 @@ static bcemt_Mutex coutMutex;
 
 namespace BTEMT_SESSION_POOL_DRQS_28731692 {
 
-static bslma_TestAllocator testAllocator;
-
 enum {
     PAYLOAD_SIZE = 320,
     HALF_PAYLOAD_SIZE = 160
@@ -276,7 +274,7 @@ class TestServer {
                                                       // listening
 
     bslma_Allocator               *d_allocator_p;     // memory allocator
-                                                      // (held)
+                                                      // (held, not owned)
 
     bcemt_Mutex                   *d_coutMutex;       // Mutex for cout
                                                       // operations
@@ -304,7 +302,8 @@ class TestServer {
     // CREATORS
     TestServer(bcemt_Mutex     *coutMutex,
                int              portNumber,
-               int              numConnections);
+               int              numConnections,
+               bslma_Allocator *basicAllocator = 0);
         // Create an echo server that listens for incoming connections on
         // the specified 'portNumber' managing up to the specified
         // 'numConnections' simultaneous connections.  Pass the specified
@@ -466,9 +465,10 @@ void TestServer::sessionStateCb(int            state,
 // CREATORS
 TestServer::TestServer(bcemt_Mutex     *coutMutex,
                        int              portNumber,
-                       int              numConnections)
-: d_sessionFactory(bslma_Default::defaultAllocator())
-, d_allocator_p(bslma_Default::defaultAllocator())
+                       int              numConnections,
+                       bslma_Allocator *basicAllocator)
+: d_sessionFactory(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 , d_coutMutex(coutMutex)
 {
     d_config.setMaxThreads(4);                  // 4 I/O threads
@@ -486,7 +486,7 @@ TestServer::TestServer(bcemt_Mutex     *coutMutex,
                            btemt_SessionPool(d_config,
                                              poolStateCb,
                                              false,
-                                             &testAllocator);
+                                             d_allocator_p);
 
     btemt_SessionPool::SessionStateCallback sessionStateCb =
                      bdef_MemFnUtil::memFn(&TestServer::sessionStateCb,
@@ -2311,26 +2311,28 @@ int main(int argc, char *argv[])
       case 11: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 28731692
-        //  Ensure that session pool does not allocate and hold on to
-        //  additional memory buffers when clients read all the data.
+        //  Ensure that when session pool owns factories used for allocating
+        //  read buffers.
         //
         // Concerns
-        //: 1 Session pool does not allocate and hold on to memory buffers
-        //:   indefinitely even if the client is reading all the data.
+        //: 1 Session pool owns the factories that are used to allocate the
+        //:   buffers provided to clients in the data callback.
         //
         // Plan:
-        //: 1 Create a session pool object, mX, and listen on a port on the
-        //:   local machine.
-        //:
-        //: 2 Create a socket and 'connect' to the port number on which the
-        //:   session pool is listening.
-        //:
-        //: 3 Write data on the socket in multiple attempts and monitor the
-        //:   size and length of the blob returned by session pool in the data
+        //: 1 Create a bcema_Blob that stores the data returned in the data
         //:   callback.
         //:
-        //: 4 Verify that the blob provided in the data callback does not
-        //:   unnecessarily hoard memory.
+        //: 2 Create a session pool object, mX, designed to use pooled buffer
+        //:   chains and listen on a port on the local machine.
+        //:
+        //: 3 Create a socket and 'connect' to the port number on which the
+        //:   session pool is listening.
+        //:
+        //: 4 Write data on the socket.
+        //:
+        //: 5 Destroy the session pool.
+        //:
+        //: 6 Destroy the blob.
         //
         // Testing:
         //  DRQS 28731692
@@ -2340,35 +2342,34 @@ int main(int argc, char *argv[])
                                << "=============" << bsl::endl;
 
         using namespace BTEMT_SESSION_POOL_DRQS_28731692;
-
-        bcema_Blob s_blob;
-        s_blob_p = &s_blob;
         {
-            TestServer testServer(&coutMutex, 0, 5);
+            bcema_Blob s_blob;
+            s_blob_p = &s_blob;
+            {
+                bslma_TestAllocator testAllocator;
+                TestServer testServer(&coutMutex, 0, 5, &testAllocator);
 
-            bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-            bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+                bteso_StreamSocket<bteso_IPv4Address> *socket =
+                                                            factory.allocate();
 
-            const bteso_IPv4Address ADDRESS("127.0.0.1",
-                                            testServer.portNumber());
-            int rc = socket->connect(ADDRESS);
-            ASSERT(!rc);
+                const bteso_IPv4Address ADDRESS("127.0.0.1",
+                                                testServer.portNumber());
+                int rc = socket->connect(ADDRESS);
+                ASSERT(!rc);
 
-            char payload[PAYLOAD_SIZE];
-            bsl::memset(payload, 'A', PAYLOAD_SIZE);
-            const int NT = 1;
+                char payload[PAYLOAD_SIZE];
+                bsl::memset(payload, 'Z', PAYLOAD_SIZE);
+                const int NT = 1;
 
-            for (int i = 0; i < NT; ++i) {
-                socket->write(payload, PAYLOAD_SIZE);
+                for (int i = 0; i < NT; ++i) {
+                    socket->write(payload, PAYLOAD_SIZE);
+                }
+
+                bcemt_ThreadUtil::microSleep(0, 3);
+
+                factory.deallocate(socket);
             }
-
-            bcemt_ThreadUtil::microSleep(0, 3);
-
-            factory.deallocate(socket);
-        }
-
-        if (veryVerbose) {
-            bcema_BlobUtil::asciiDump(bsl::cout, s_blob);
         }
       } break;
       case 9: {
@@ -2382,7 +2383,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Create a session pool object, mX, and listen on a port on the
-        //:   local machine. 
+        //:   local machine.
         //:
         //: 2 Define NUM_SESSIONS with a value of 2 as the number of sessions
         //:   to be created.
