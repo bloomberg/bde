@@ -72,7 +72,7 @@ BEGIN
             VALUE "Comments", "See BP BDED for information"
             VALUE "CompanyName", "Bloomberg LP"
             VALUE "FileDescription", ""
-            VALUE "FileVersion", "BLP_LIB_BDE_BBE_2.11.0"
+            VALUE "FileVersion", "BLP_LIB_BDE_BBE_2.12.0"
             VALUE "InternalName", "bbe"
             VALUE "LegalCopyright", "Copyright (C) 2004 Bloomberg LP"
             VALUE "LegalTrademarks", ""
