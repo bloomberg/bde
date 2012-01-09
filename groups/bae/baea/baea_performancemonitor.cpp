@@ -309,13 +309,12 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
 
         while (getline(bootFile, line)) {
             if (line.length() > 0) {
-                bsl::size_t space = line.find(' ');
-                if (bsl::string::npos != space) {
-                    if (line.substr(0, space) == "btime") {
-                        bsl::stringstream ss(line.substr(space + 1));
-                        ss >> bootTime;
-                        break;
-                    }
+                bsl::stringstream ss(line);
+                bsl::string s;
+                ss >> s;
+                if ("btime" == s) {
+                    ss >> bootTime;
+                    break;
                 }
             }
         }
