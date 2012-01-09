@@ -3629,7 +3629,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadNullables(&agg));
 
             bcem_Aggregate                      AGG = agg.clone();
-            bdeut_NullableValue<unsigned short> VAL(NLUC::min());
+            bdeut_NullableValue<unsigned short> VAL(NLUS::min());
             bdeut_NullableValue<unsigned short> val(VAL);
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.isNull());
@@ -3660,7 +3660,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadNullables(&agg));
 
             bcem_Aggregate                      AGG = agg.clone();
-            bdeut_NullableValue<unsigned int>   VAL(NLUC::min());
+            bdeut_NullableValue<unsigned int>   VAL(NLUI::min());
             bdeut_NullableValue<unsigned int>   val(VAL);
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.isNull());
@@ -5679,7 +5679,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadNullables(&agg));
 
             bcem_Aggregate                      AGG = agg.clone();
-            bdeut_NullableValue<unsigned short> VAL(NLUC::min());
+            bdeut_NullableValue<unsigned short> VAL(NLUS::min());
             bdeut_NullableValue<unsigned short> val(VAL);
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.isNull());
@@ -5710,7 +5710,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == loadNullables(&agg));
 
             bcem_Aggregate                      AGG = agg.clone();
-            bdeut_NullableValue<unsigned int>   VAL(NLUC::min());
+            bdeut_NullableValue<unsigned int>   VAL(NLUI::min());
             bdeut_NullableValue<unsigned int>   val(VAL);
             ASSERT(true == bcem_Aggregate::areEquivalent(AGG, agg));
             ASSERT(true != VAL.isNull());
