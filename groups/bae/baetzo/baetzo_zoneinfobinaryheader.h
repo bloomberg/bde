@@ -55,7 +55,7 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Creating a 'baetzo_ZoneinfoBinaryHeader' from User Input
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
