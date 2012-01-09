@@ -953,6 +953,7 @@ int btemt_SessionPool::listen(
                                       reuseAddress,
                                       false,
                                       socketOptions);
+
     if (ret) {
         d_handles.remove(handle->d_handleId);
         return ret;
