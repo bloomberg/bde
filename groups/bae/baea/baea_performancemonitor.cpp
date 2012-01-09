@@ -303,44 +303,49 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
     static bsls_Types::Int64 procStartTime = -1;    // seconds since 1970 UTC
     if (procStartTime < 0) {
         bsls_Types::Int64 bootTime = -1;
+        bsl::string line;
 
         bsl::ifstream bootFile("/proc/stat");
 
-        char iBuf[1000];
-        for (;;) {
-            if (bootFile.bad() || bootFile.eof()) {
-                // Boot time not found
-
-                return -1;
-            }
-            bootFile.getline(iBuf, 1000);
-            int len = bsl::strlen(iBuf);
-            if (len > 0 && len <= 1000-1) {
-                bsl::stringstream ss(iBuf);
-                bsl::string s;
-                ss >> s;
-                if ("btime" == s) {
-                    ss >> bootTime;
-                    break;
+        while (getline(bootFile, line)) {
+            if (line.length() > 0) {
+                bsl::size_t space = line.find(' ');
+                if (bsl::string::npos != space) {
+                    if (line.substr(0, space) == "btime") {
+                        bsl::stringstream ss(line.substr(space + 1));
+                        ss >> bootTime;
+                        break;
+                    }
                 }
             }
         }
-        if (bootTime < 60 * 60 * 24 * 365.25 * 30) {
-            // System booted before Jan 2000.  Unreasonable.  Fail.
+
+        if (-1 == bootTime) {
+            // 'btime' not found
 
             return -1;
         }
 
-        const int jiffiesPerSec = sysconf(_SC_CLK_TCK);
+        // A lot of this code is depending upon things that vary considerably
+        // by Linux distro.  It is quite possible that when this code is ported
+        // to another distro it will give ridiculous results.  Detect that and
+        // fail.
 
+        const double tenYears = 60 * 60 * 24 * 365.25 * 10;
+        const int jiffiesPerSec = sysconf(_SC_CLK_TCK);
         procStartTime = bootTime + procStats.d_starttime / jiffiesPerSec;
 
         bdet_TimeInterval now = bdetu_SystemTime::now();
-        const double tenYears = 60 * 60 * 24 * 365.25 * 10;
-        if (procStartTime > now + 2 || procStartTime < now - tenYears) {
-            // Process start time is more than 2 seconds into the future, or
-            // more than ten years in thee past -- that's not reasonable,
-            // there's been an error.
+
+        if (bootTime      < now - tenYears || bootTime      > now + 2) {
+            // boot time was over ten years in the past or 2 seconds into the
+            // future
+
+            return -1;
+        }
+        if (procStartTime < now - tenYears || procStartTime > now + 2) {
+            // process start time was over ten years in the past or 2 seconds
+            // into the future
 
             return -1;
         }
