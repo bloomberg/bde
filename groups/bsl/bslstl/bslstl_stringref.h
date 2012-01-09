@@ -1283,6 +1283,7 @@ std::basic_ostream<CHAR_TYPE>&
     }
     else {
         BSLS_ASSERT_SAFE(stringRef.length() == 0);
+        return stream;
     }
 }
 
