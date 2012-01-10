@@ -21,7 +21,7 @@ BDES_IDENT("$Id: $")
 //
 // The 'baesu_DbghelpDllImpl_Windows' class:
 //
-//: 1 Provides a suite of static methods which wrap calls to several functions
+//: 1 Provides a suite of static methods that wrap calls to several functions
 //:   of 'dbghelp.dll', a Windows shared library.
 //:
 //: 2 Loads (once) the '.dll' on the first call of any of its methods that call
@@ -59,32 +59,36 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// We will demonstrate by using 'dbghelp.dll' to find the line number and
-// source file name where 'main' is.  This code will only work on Windows,
-// and only when compiled debug:
+// In this section we show the intended usage of this component.
+//
+///Example: Determining line number and source file name
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// We will demonstrate using 'dbghelp.dll' to find the line number and source
+// file name where 'main' is.  This code will only work on Windows, and only
+// when compiled in debug mode:
 //..
 //  #if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
 //..
-//  First, we lock the mutex:
+// First, we lock the mutex:
 //..
 //  bcemt_QLockGuard guard(&baesu_DbghelpDllImpl_Windows::qLock());
 //..
-//  Next, we set the options for the 'dbghelp.dll' library.  Note that any call
-//  to any of the functtions in 'baesu_DbghelpDllImpl_Windows' other than
-//  'qlock' will load the 'dbghelp.dll' library if necessary.
+// Next, we set the options for the 'dbghelp.dll' library.  Note that any call
+// to any of the functions in 'baesu_DbghelpDllImpl_Windows' other than 'qlock'
+// will load the 'dbghelp.dll' library if necessary.
 //..
 //  baesu_DbghelpDllImpl_Windows::symSetOptions(SYMOPT_NO_PROMPTS
 //                                              | SYMOPT_LOAD_LINES
 //                                              | SYMOPT_DEFERRED_LOADS);
 //..
-//  Then, we declare and initialize some variables to hold our results:
+// Then, we declare and initialize some variables to hold our results:
 //..
 //  IMAGEHLP_LINE64 line;
 //  ZeroMemory(&line, sizeof(IMAGEHLP_LINE64));
 //  line.SizeOfStruct = sizeof(line);
 //  DWORD offsetFromLine;
 //..
-//  Next, we do the call that finds the line number and source file name:
+// Next, we do the call that finds the line number and source file name:
 //..
 //  int rc = baesu_DbghelpDllImpl_Windows::symGetLineFromAddr64(
 //                                                             (DWORD64) &main,
@@ -92,7 +96,7 @@ BDES_IDENT("$Id: $")
 //                                                             &line);
 //  assert(rc);
 //..
-//  Finally, we print out our results:
+// Finally, we print out our results:
 //..
 //  bsl::cout << "Source file name: " << line.FileName << bsl::endl;
 //  bsl::cout << "Line #: " << line.LineNumber << bsl::endl;
@@ -177,8 +181,8 @@ class baesu_DbghelpDllImpl_Windows {
         // are available at 'http://msdn.com'.
 
 #ifdef BSLS_PLATFORM__CPU_32_BIT
-    // For some reason, 'symFromAddr' doesn't work right on 64-bit, so we
-    // '#ifdef' everything and use 'SymGetSymFromAddr64'.
+    // 'symFromAddr' doesn't work on 64-bit, so we conditionally compile and
+    // use 'SymFromAddr' on 32-bit and 'SymGetSymFromAddr64' on 64-bit.
 
     static BOOL symFromAddr(DWORD64      address,
                             PDWORD64     displacement,
@@ -186,9 +190,9 @@ class baesu_DbghelpDllImpl_Windows {
         // Invoke the 'SymFromAddr' function of 'dbghelp.dll' with the
         // specified 'address', 'displacement', and 'symbol', and with an
         // (internally generated) handle for the current Windows process, and
-        // return the result.  The behavior is undefined if the mutex provided
-        // by the 'qLock' method is not held or if 'symbol->MaxNameLen' has not
-        // been set to the maximum length (a value of '2000' is recommended).
+        // return the result.  The behavior is undefined unless the mutex
+        // provided by the 'qLock' method is held and 'symbol->MaxNameLen' is
+        // set to the maximum length (a value of '2000' is recommended).
         //
         // Note that 'symbol' is loaded with a pointer to the symbol
         // information for the symbol at 'address', and 'displacement' is
@@ -205,9 +209,9 @@ class baesu_DbghelpDllImpl_Windows {
         // Invoke the 'SymFromAddr64' function of 'dbghelp.dll' with the
         // specified 'address', 'displacement', and 'symbol', and with an
         // (internally generated) handle for the current Windows process, and
-        // return the result.  The behavior is undefined if the mutex provided
-        // by the 'qLock' method is not held or if 'symbol->MaxNameLen' has not
-        // been set to the maximum length (a value of '2000' is recommended).
+        // return the result.  The behavior is undefined unless the mutex
+        // provided by the 'qLock' method is held and 'symbol->MaxNameLen' is
+        // set to the maximum length (a value of '2000' is recommended).
         //
         // Note that 'symbol' is loaded with a pointer to the symbol
         // information for the symbol at 'address', and 'displacement' is
@@ -251,11 +255,12 @@ class baesu_DbghelpDllImpl_Windows {
         // interest, 'stackFrame' has the address of a properly initialized
         // structure (including a field to receive the program counter), and
         // 'contextRecord' has the address of an initialized Windows 'CONTEXT'
-        // structure.  The call to this method provides information on
-        // consecutive stack frame.  Also note that 'true' is returned
-        // if there are remaining stack frames on the stack, and 'false' is
-        // returned otherwise.  Finally, note that further details of
-        // 'StackWalk64' are available at 'http://msdn.com'.
+        // structure.  The call to this method provides information on a single
+        // stack frame, each repeated call sets '*stackFrame' to the next stack
+        // frame.  As long as there remain stack frames to be found, 'TRUE' is
+        // returned; 'FALSE' is returned when there were no more stack frames
+        // to be found.  Finally, note that further details of 'StackWalk64'
+        // are available at 'http://msdn.com'.
 };
 
 // ============================================================================
