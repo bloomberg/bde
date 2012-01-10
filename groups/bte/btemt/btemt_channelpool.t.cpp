@@ -14,6 +14,7 @@
 
 #include <btesos_tcptimedacceptor.h>
 #include <btesos_tcpchannel.h>
+#include <btesos_tcptimedchannel.h>
 #include <bcemt_lockguard.h>
 #include <bcemt_thread.h>
 #include <btes_iovecutil.h>
@@ -832,9 +833,9 @@ extern "C" void* threadFunctionCase36(void *data)
 
 namespace CASE38 {
 
-
 btemt_ChannelPool *d_pool_p = 0;
 int                numRead = 0;
+bcemt_Mutex        dataMutex;
 
 void poolStateCb(int state, int source, int severity)
 {
@@ -851,8 +852,7 @@ void channelStateCb(int              channelId,
                     int              serverId,
                     int              state,
                     void            *arg,
-                    int             *id,
-                    bcemt_Barrier   *barrier)
+                    int             *id)
 {
     if (veryVerbose) {
         bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
@@ -863,7 +863,6 @@ void channelStateCb(int              channelId,
     }
     if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
         *id = channelId;
-//         barrier->wait();
     }
 }
 
@@ -871,9 +870,7 @@ void blobBasedReadCb(int             *needed,
                      bcema_Blob      *msg,
                      int              channelId,
                      void            *arg,
-                     int             *numTimesCbCalled,
-                     string          *data,
-                     bcemt_Barrier   *barrier)
+                     int             *numTimesCbCalled)
 {
     if (veryVerbose) {
         bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
@@ -885,13 +882,9 @@ void blobBasedReadCb(int             *needed,
     d_pool_p->disableRead(channelId);
 
     *needed = 1;
-    numRead += msg->length();
-//     ostringstream os;
-//     bcema_BlobUtil::asciiDump(os, *msg);
-//     data->append(os.str());
+    ++*numTimesCbCalled;
 
     msg->removeAll();
-//     barrier->wait();
 }
 
 }  // namespace TEST_CASE_38_NAMESPACE
@@ -7871,25 +7864,20 @@ int main(int argc, char *argv[])
             P(config);
         }
 
-        bcemt_Barrier   channelCbBarrier(2);
-        int             channelId;
+        int channelId;
         btemt_ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdef_BindUtil::bind(&channelStateCb,
                                                            _1, _2, _3, _4,
-                                                           &channelId,
-                                                           &channelCbBarrier));
+                                                           &channelId));
 
         btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
 
-        bcemt_Barrier   dataCbBarrier(2);
         int             numTimesDataCbCalled = 0;
-        string          data;
         btemt_ChannelPool::BlobBasedReadCallback dataCb(
-                                     bdef_BindUtil::bind(&blobBasedReadCb,
-                                                         _1, _2, _3, _4,
-                                                         &numTimesDataCbCalled,
-                                                         &data,
-                                                         &dataCbBarrier));
+                                     bdef_BindUtil::bind(
+                                                       &blobBasedReadCb,
+                                                       _1, _2, _3, _4,
+                                                       &numTimesDataCbCalled));
 
         btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
 
@@ -7908,25 +7896,31 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == socket->connect(serverAddr));
 
-//         channelCbBarrier.wait();
-
         d_pool_p = &pool;
+
+        btesos_TcpTimedChannel channel(socket);
 
         const char *TEXT = "Hello World";
         const int   LEN  = strlen(TEXT);
         const int   NUM_TIMES = 100;
+        const int   TIMEOUT = 3;
 
         for (int i = 0; i < NUM_TIMES; ++i) {
-            rc = socket->write(TEXT, LEN);
-            LOOP2_ASSERT(LEN, rc, LEN == rc);
+            int augStatus;
+            const bdet_TimeInterval interval(
+                                           bdetu_SystemTime::now() + TIMEOUT);
+            rc = channel.timedWrite(&augStatus, TEXT, LEN, interval);
+            if (LEN != rc && 0 == augStatus) {
+                break;
+            }
         }
 
         // Wait for the dispatcher thread to process the deregister the READ
         // event.
 
-        bcemt_ThreadUtil::microSleep(0, 10);
+        bcemt_ThreadUtil::microSleep(0, 3);
 
-        P(numRead)
+        LOOP_ASSERT(numTimesDataCbCalled, 1 == numTimesDataCbCalled);
       } break;
 #if 0
       case 37: {
