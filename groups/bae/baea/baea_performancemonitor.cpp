@@ -335,19 +335,6 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
         procStartTime = bootTime + procStats.d_starttime / jiffiesPerSec;
 
         bdet_TimeInterval now = bdetu_SystemTime::now();
-
-        if (bootTime      < now - tenYears || bootTime      > now + 2) {
-            // boot time was over ten years in the past or 2 seconds into the
-            // future
-
-            return -1;
-        }
-        if (procStartTime < now - tenYears || procStartTime > now + 2) {
-            // process start time was over ten years in the past or 2 seconds
-            // into the future
-
-            return -1;
-        }
     }
 
     stats->d_startTime = bdet_TimeInterval(procStartTime, 0);
