@@ -315,6 +315,37 @@ int main(int argc, char *argv[])
     bdet_TimeInterval startTime = bdetu_SystemTime::now();
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING PROCESS START TIME SANITY
+        //
+        // Concerns:
+        //   it appears that for some versions of Linux, either different
+        //   kernels or different distros, our estimation of process start
+        //   time will be wildly inaccurate.  Determine whether this is the
+        //   case.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "PROCESS START TIME SANITY\n"
+                             "=========================\n";
+
+        bslma_TestAllocator ta(veryVeryVeryVerbose);
+
+        baea_PerformanceMonitor perfmon(&ta);
+
+        int rc = perfmon.registerPid(0, "perfmon");
+        ASSERT(0 == rc);
+
+        bdet_Datetime st = perfmon.begin()->startupTime();// process start time
+
+        bdet_Datetime nowDt(1970, 1, 1);
+        nowDt.addSeconds(bdetu_SystemTime::now().totalSecondsAsDouble());
+
+        bdet_DatetimeInterval diff = nowDt - st;
+
+        ASSERT(diff.totalSeconds() > -10);
+        ASSERT(diff.totalSeconds() <  10);
+      }  break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
