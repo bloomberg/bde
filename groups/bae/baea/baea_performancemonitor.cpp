@@ -300,9 +300,9 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
         return -1;
     }
 
-    static bsls_Types::Int64 procStartTime = -1;    // seconds since 1970 UTC
-    if (procStartTime < 0) {
-        bsls_Types::Int64 bootTime = -1;
+    static bsls_Types::Int64 bootTime = -1;
+    static int jiffiesPerSec;
+    if (bootTime < 0) {
         bsl::string line;
 
         bsl::ifstream bootFile("/proc/stat");
@@ -325,17 +325,12 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
             return -1;
         }
 
-        // A lot of this code is depending upon things that vary considerably
-        // by Linux distro.  It is quite possible that when this code is ported
-        // to another distro it will give ridiculous results.  Detect that and
-        // fail.
-
-        const double tenYears = 60 * 60 * 24 * 365.25 * 10;
-        const int jiffiesPerSec = sysconf(_SC_CLK_TCK);
-        procStartTime = bootTime + procStats.d_starttime / jiffiesPerSec;
-
-        bdet_TimeInterval now = bdetu_SystemTime::now();
+        jiffiesPerSec = sysconf(_SC_CLK_TCK);
     }
+
+    bsls_Types::Int64 procStartTime =
+                              bootTime + procStats.d_starttime / jiffiesPerSec;
+                                                      // seconds since 1970 UTC
 
     stats->d_startTime = bdet_TimeInterval(procStartTime, 0);
     stats->d_startTimeUtc.setYearMonthDay(1970, 1, 1);
