@@ -882,7 +882,7 @@ void blobBasedReadCb(int             *needed,
     d_pool_p->disableRead(channelId);
 
     *needed = 1;
-    ++*numTimesCbCalled;
+    *numTimesCbCalled = *numTimesCbCalled + 1;
 
     msg->removeAll();
 }
@@ -7898,7 +7898,7 @@ int main(int argc, char *argv[])
 
         d_pool_p = &pool;
 
-        btesos_TcpTimedChannel channel(socket);
+//         btesos_TcpTimedChannel channel(socket);
 
         const char *TEXT = "Hello World";
         const int   LEN  = strlen(TEXT);
@@ -7906,13 +7906,11 @@ int main(int argc, char *argv[])
         const int   TIMEOUT = 3;
 
         for (int i = 0; i < NUM_TIMES; ++i) {
-            int augStatus;
-            const bdet_TimeInterval interval(
-                                           bdetu_SystemTime::now() + TIMEOUT);
-            rc = channel.timedWrite(&augStatus, TEXT, LEN, interval);
-            if (LEN != rc && 0 == augStatus) {
-                break;
-            }
+            P(i)
+            socket->write(TEXT, LEN);
+//             if (LEN != rc) {
+//                 break;
+//             }
         }
 
         // Wait for the dispatcher thread to process the deregister the READ
