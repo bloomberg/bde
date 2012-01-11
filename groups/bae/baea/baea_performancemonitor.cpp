@@ -301,7 +301,6 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
     }
 
     static bsls_Types::Int64 bootTime = -1;
-    static int jiffiesPerSec;
     if (bootTime < 0) {
         bsl::string line;
 
@@ -324,10 +323,9 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
 
             return -1;
         }
-
-        jiffiesPerSec = sysconf(_SC_CLK_TCK);
     }
 
+    int jiffiesPerSec = sysconf(_SC_CLK_TCK);
     bsls_Types::Int64 procStartTime =
                               bootTime + procStats.d_starttime / jiffiesPerSec;
                                                       // seconds since 1970 UTC
