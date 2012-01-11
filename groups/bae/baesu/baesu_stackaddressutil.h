@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a utility for obtaining return addresses from the stack
+//@PURPOSE: Provide a utility for obtaining return addresses from the stack.
 //
 //@CLASSES:
 //   baesu_StackAddressUtil: utilities for obtaining addresses from the stack

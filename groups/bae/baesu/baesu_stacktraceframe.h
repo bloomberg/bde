@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an attribute class describing an execution stack frame
+//@PURPOSE: Provide an attribute class describing an execution stack frame.
 //
 //@CLASSES:
 //   baesu_StackTraceFrame: a description of one frame of an execution stack
