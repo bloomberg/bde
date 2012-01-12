@@ -99,7 +99,7 @@ MeasureData s_measureData[PM::BAEA_NUM_MEASURES] = {
   { PM::BAEA_RESIDENT_SIZE,
             "RESIDENT_SIZE",   "Resident Size",   "Mb", true  },
   { PM::BAEA_NUM_THREADS,
-            "NUM_THREADS",     "Thread Count",    "  ", true  }, 
+            "NUM_THREADS",     "Thread Count",    "  ", true  },
   { PM::BAEA_NUM_PAGEFAULTS,
             "NUM_PAGEFAULTS",  "Page Faults",     "  ", false },
   { PM::BAEA_VIRTUAL_SIZE,
@@ -112,9 +112,15 @@ bool nearlyEqual(double lhs, double rhs)
 }
 
 #if defined(BSLS_PLATFORM__OS_UNIX)
-int currentProcessPid() { return (int) getpid(); }
+int currentProcessPid()
+{
+    return (int) getpid();
+}
 #elif defined(BSLS_PLATFORM__OS_WINDOWS)
-int currentProcessPid() { return (int) GetCurrentProcessId(); }
+int currentProcessPid()
+{
+    return (int) GetCurrentProcessId();
+}
 #endif
 
 }  // close unnamed namespace
@@ -239,7 +245,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::readProcStat(
     if (!ifs) {
         BAEL_LOG_DEBUG << "Failed to open '" << filename.str() << "'"
                        << BAEL_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     bsl::string str((bsl::istreambuf_iterator<char>(ifs)),
@@ -297,7 +303,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
                        << stats->d_pid
                        << " (" << stats->d_description << "), rc = " << rc
                        << BAEL_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     static bsls_Types::Int64 bootTime = -1;
@@ -312,8 +318,12 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
                 bsl::string s;
                 ss >> s;
                 if ("btime" == s) {
-                    ss >> bootTime;
-                    break;
+                    if (ss >> bootTime) {
+                        break;
+                    }
+                    else {
+                        return -1;                                    // RETURN
+                    }
                 }
             }
         }
@@ -321,7 +331,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
         if (-1 == bootTime) {
             // 'btime' not found
 
-            return -1;
+            return -1;                                                // RETURN
         }
     }
 
@@ -354,14 +364,16 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
                        << stats->d_pid
                        << " (" << stats->d_description << ")"
                        << BAEL_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     // Discover the duration of a jiffy.
+
     static const int clockTicksPerSec = sysconf(_SC_CLK_TCK);
 
     // Discover the number of threads by enumerating the directories in the
     // /proc/<pid>/task directory.
+
     bsl::stringstream taskFilename;
     taskFilename << "/proc/" << stats->d_pid << "/task";
     dirent **entry = 0;
@@ -902,40 +914,40 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
                                            / (1024 * 1024);
 
 #if defined(BAEA_PERFORMANCE_MONITOR_DEBUG)
-    BAEL_LOG_TRACE<< "\nreal data                  = " 
+    BAEL_LOG_TRACE<< "\nreal data                  = "
                   << (double) (status.pst_dsize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nreal text                  = " 
+                  << "\nreal text                  = "
                   << (double) (status.pst_tsize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nreal stack                 = " 
+                  << "\nreal stack                 = "
                   << (double)(status.pst_ssize     * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nreal shared memory         = " 
+                  << "\nreal shared memory         = "
                   << (double)(status.pst_shmsize   * pstatic.page_size)
                                                         / (1024 * 1024)
                   << "\nreal memory mapped files   = "
                   << (double)(status.pst_mmsize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nreal U-area                = " 
+                  << "\nreal U-area                = "
                   << (double)(status.pst_usize     * pstatic.page_size)
                                                         / (1024 * 1024)
                   << "\nreal device mapping        = "
                   << (double)(status.pst_iosize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nvirt data                  = " 
+                  << "\nvirt data                  = "
                   << (double)(status.pst_vdsize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nvirt text                  = " 
+                  << "\nvirt text                  = "
                   << (double)(status.pst_vtsize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nvirt stack                 = " 
+                  << "\nvirt stack                 = "
                   << (double)(status.pst_vssize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nvirt shared memory         = " 
+                  << "\nvirt shared memory         = "
                   << (double)(status.pst_vshmsize  * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nvirt memory mapped files   = " 
+                  << "\nvirt memory mapped files   = "
                   << (double)(status.pst_vmmsize   * pstatic.page_size)
                                                         / (1024 * 1024)
                   << "\nvirt U-area                = "
@@ -1550,7 +1562,7 @@ void baea_PerformanceMonitor::Statistics::print(
     for (int measure = 0; measure < BAEA_NUM_MEASURES; ++measure) {
         if (0 == bsl::strcmp(measureIdentifier, s_measureData[measure].tag)) {
             print(os, (Measure)measure);
-            return;
+            return;                                                   // RETURN
         }
     }
 
@@ -1647,7 +1659,7 @@ int baea_PerformanceMonitor::registerPid(int                pid,
     collector.createInplace(d_allocator_p, d_allocator_p);
 
     if (0 != collector->initialize(stats.ptr(), pid, description)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_mapGuard);
