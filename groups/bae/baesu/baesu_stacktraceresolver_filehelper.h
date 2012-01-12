@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide platform-independent file input for stack trace resolvers
+//@PURPOSE: Provide platform-independent file input for stack trace resolvers.
 //
 //@CLASSES:
 //   baesu_StackTraceResolver_FileHelper: file input for stack trace resolvers

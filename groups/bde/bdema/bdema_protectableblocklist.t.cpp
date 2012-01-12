@@ -182,6 +182,9 @@ int testProtectedSet(Obj *testAlloc, char *data, char val)
     g_testingAlloc = testAlloc;
 
     signal(SIGSEGV, segfaultHandler);
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+    signal(SIGBUS, segfaultHandler);
+#endif
 
     // protect the memory
     g_testingAlloc->protect();
@@ -195,6 +198,9 @@ int testProtectedSet(Obj *testAlloc, char *data, char val)
     g_testingAlloc = NULL;
     g_inTest       = false;
     signal(SIGSEGV, SIG_DFL);
+#ifndef BSLS_PLATFORM__OS_WINDOWS
+    signal(SIGBUS, SIG_DFL);
+#endif
     return (g_fault) ? 0 : 1;
 }
 

@@ -173,14 +173,17 @@
 
 # ifndef INCLUDED_BSLSTL_FORWARDITERATOR
 #   include <bslstl_forwarditerator.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 
 # ifndef INCLUDED_BSLSTL_BIDIRECTIONALITERATOR
 #   include <bslstl_bidirectionaliterator.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 #  endif
 
 # ifndef INCLUDED_BSLSTL_RANDOMACCESSITERATOR
 #   include <bslstl_randomaccessiterator.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
 

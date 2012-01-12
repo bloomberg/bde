@@ -211,13 +211,14 @@ btesos_TcpCbChannel_RReg::~btesos_TcpCbChannel_RReg() {
                     (bdef_Function<void (*)(const char *, int, int)> *)
                         (void *)d_cb.d_arena;
 
-        cb->~bdef_Function<void (*)(const char *, int, int)>();
+        bslalg_ScalarDestructionPrimitives::destroy(cb);
     }
     else {
         BSLS_ASSERT(d_callbackType == VFUNC2);
         bdef_Function<void (*)(int, int)> *cb =
             (bdef_Function<void (*)(int, int)> *) (void *) d_cb.d_arena;
-        cb->~bdef_Function<void (*)(int, int)>();
+
+        bslalg_ScalarDestructionPrimitives::destroy(cb);
     }
 }
 

@@ -121,11 +121,6 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
                                                   // channelPool but not yet
                                                   // consumed by any reader
 
-    bcema_Blob            d_blobPendingData;      // blob data that has been
-                                                  // read from channelPool but
-                                                  // not yet consumed by any
-                                                  // reader
-
     const bool            d_useBlobForDataReads;  // use blob for data reads
 
     bcemt_Mutex           d_mutex;                // mutex used to control

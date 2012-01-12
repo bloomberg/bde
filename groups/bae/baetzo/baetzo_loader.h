@@ -24,7 +24,7 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Implementing 'baetzo_Loader'
 ///- - - - - - - - - - - - - - - - - - - -
@@ -77,7 +77,7 @@ BDES_IDENT("$Id: $")
 //                                 const char      *timeZoneId)
 //  {
 //..
-// Then, we check the 'timeZoneId' equals to "America/New_York' as this
+// Then, we check the 'timeZoneId' equals to "America/New_York" as this
 // implementation is designed to demonstrate only one time zone:
 //..
 //      if (0 != strcmp("America/New_York", timeZoneId)) {

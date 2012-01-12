@@ -176,10 +176,12 @@ struct baea_Ordinal {
         // Create an ordinal for the specified position 'n' (starting at 0).
 };
 
-bsl::ostream& operator<<(bsl::ostream& stream, baea_Ordinal position)
+bsl::ostream& operator<<(bsl::ostream& stream, baea_Ordinal position);
     // Output the specified 'position' (starting at 0) to the specified
     // 'stream' as an ordinal, mapping 0 to "1st", 1 to "2nd", 3 to "3rd", 4
     // to "4th", etc. following correct English usage.
+
+bsl::ostream& operator<<(bsl::ostream& stream, baea_Ordinal position)
 {
     int n = position.d_rank + 1;  // ranks start at 0, but are displayed as
                                   // 1st, 2nd, etc.
