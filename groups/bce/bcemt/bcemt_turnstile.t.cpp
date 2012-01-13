@@ -672,15 +672,29 @@ int main(int argc, char *argv[])
 
         // Turns are taken more slowly than the specified rate
 
-        // Wait twice the maximum wait time, and take one turn.  After the next
-        // turn is taken, the "next" turn time will be '1 * WT' seconds prior
-        // to the current time, and the "last turn taken" will be the current
-        // time, so 'lagTime' should report a negative value.
-        int sleepTime = (int) (2 * USPS * WT);
+        // 'X.lagTime()' does not report negative values, but suppose it did.
+        // Call 'epsA' the amount of time we've spent doing stuff since the
+        // the last 'waitTurn'.  Then 'X.lagTime() == - USPS * WT + epsA' at
+        // this point.
+
+        // Wait 2.25 times the period time
+
+        int sleepTime = (int) (2.5 * USPS * WT);
         bcemt_ThreadUtil::microSleep(sleepTime);
+
+        // At this point.  'X.lagTime() == 1.5 * USPS * WT + epsA'.  Take one
+        // turn.
+
         ASSERT(0 == mX.waitTurn());
-        if (verbose) { P_(sleepTime) P(X.lagTime()); }
-        LOOP_ASSERT(X.lagTime(), 0 < X.lagTime());
+
+        // Now, 'X.lagTime() == 0.5 * USPS * WT + epsA'.  Note that we can't
+        // rely on system clocks having a small enough resolution to notice
+        // 'epsA'.  Verify that lagTime is positive.
+
+        int lagTime = X.lagTime();
+        LOOP_ASSERT(lagTime, 0 < lagTime);
+
+        if (verbose) { P_(sleepTime) P(lagTime); }
       }  break;
       case 1: {
         // --------------------------------------------------------------------
