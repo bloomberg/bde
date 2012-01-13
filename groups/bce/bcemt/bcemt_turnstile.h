@@ -1,4 +1,4 @@
-// bcemt_turnstile.h   -*-C++-*-
+// bcemt_turnstile.h                                                  -*-C++-*-
 #ifndef INCLUDED_BCEMT_TURNSTILE
 #define INCLUDED_BCEMT_TURNSTILE
 
@@ -100,24 +100,16 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
-#ifndef INCLUDED_BCEMT_THREAD
-#include <bcemt_thread.h>
-#endif
-
 #ifndef INCLUDED_BCES_ATOMICTYPES
 #include <bces_atomictypes.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
 #endif
 
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
 #endif
 
-#ifndef INCLUDED_BDETU_SYSTEMTIME
-#include <bdetu_systemtime.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 namespace BloombergLP {
@@ -127,7 +119,15 @@ namespace BloombergLP {
                            // =====================
 
 class bcemt_Turnstile {
-    // TBD doc
+    // This class provides a mechanism to meter time.  Using either the
+    // constructor or the 'reset' method, the client specifies 'rate', the
+    // frequency per second that events are to occur.  The client calls
+    // 'waitTurn', which will sleep until the next event is to occur.  If
+    // 'waitTurn' is not called until after the next event is due, the
+    // turnstile is said to be 'lagging' behind, and calls to 'waitTurn' will
+    // not sleep until the events have caught up with the schedule.  The amount
+    // of lagging can be determined via the 'lagTime' method, which returns 0
+    // if no lagging is occurring, or a positive lag time in micro seconds.
 
     // DATA
     bces_AtomicInt64         d_nextTurn;   // absolute time of next turn in
@@ -138,6 +138,10 @@ class bcemt_Turnstile {
     mutable bces_AtomicInt64 d_timestamp;  // time of last call to 'now' in
                                            // microseconds
 
+    // PRIVATE TYPES
+    typedef bsls_Types::Int64        Int64;
+
+  private:
     // NOT IMPLEMENTED
     bcemt_Turnstile(const bcemt_Turnstile&);
     bcemt_Turnstile& operator=(const bcemt_Turnstile&);
@@ -158,11 +162,6 @@ class bcemt_Turnstile {
         // by the compiler.
 
     // MANIPULATORS
-    bsls_PlatformUtil::Int64 waitTurn();
-        // Sleep until the next turn may be taken, and set the time of the
-        // subsequent turn.  Return the non-negative number of microseconds
-        // spent waiting.
-
     void reset(double                   rate,
                const bdet_TimeInterval& startTime = bdet_TimeInterval(0));
         // Reset the rate of this turnstile to the specified 'rate', expressed
@@ -170,6 +169,11 @@ class bcemt_Turnstile {
         // (relative) 'startTime' of the first turn.  If 'startTime' is not
         // specified, the first turn may be taken immediately.  Note that
         // threads blocked on 'waitTurn' are not interrupted.
+
+    bsls_Types::Int64 waitTurn();
+        // Sleep until the next turn may be taken, and set the time of the
+        // subsequent turn.  Return the non-negative number of microseconds
+        // spent waiting.
 
     // ACCESSORS
     bsls_PlatformUtil::Int64 lagTime() const;
