@@ -1,11 +1,15 @@
 // bcemt_turnstile.cpp   -*-C++-*-
 #include <bcemt_turnstile.h>
 
+#include <bcemt_barrier.h>        // testing only
+#include <bcemt_mutex.h>          // testing only
+#include <bcemt_threadutil.h>
+
+#include <bdetu_systemtime.h>
+
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcemt_turnstile_cpp,"$Id$ $CSID$")
 
-
-#include <bcemt_barrier.h>    // for testing only
 
 namespace BloombergLP {
 
@@ -20,39 +24,43 @@ enum { MICROSECS_PER_SECOND = 1000 * 1000 };
                            // ---------------------
 
 // CREATORS
-
 bcemt_Turnstile::bcemt_Turnstile(double                   rate,
                                  const bdet_TimeInterval& startTime)
 {
-    d_interval = (bsls_PlatformUtil::Int64) (MICROSECS_PER_SECOND / rate);
-
-    bdet_TimeInterval now = bdetu_SystemTime::now();
-    d_timestamp = now.totalMicroseconds();
-    d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
+    reset(rate, startTime);
 }
 
 // MANIPULATORS
-
-bsls_PlatformUtil::Int64 bcemt_Turnstile::waitTurn()
+bsls_Types::Int64 bcemt_Turnstile::waitTurn()
 {
-    typedef bsls_PlatformUtil::Int64 Int64;
-
-    enum { MAX_TIMER_RESOLUTION = 10 * 1000 };
-        // Assume that maximum timer resolution applicable to "sleep" on all
+    enum { MIN_TIMER_RESOLUTION = 10 * 1000 };
+        // Assume that minimum timer resolution applicable to "sleep" on all
         // supported platforms is 10 milliseconds.
 
     Int64 timestamp = d_timestamp;
-    Int64 nextTurn  = d_nextTurn.swap(d_nextTurn + d_interval);
+    Int64 nextTurn  = d_nextTurn.add(d_interval) - d_interval;
     Int64 waitTime  = 0;
 
     if (nextTurn > timestamp) {
-        bdet_TimeInterval now = bdetu_SystemTime::now();
-        d_timestamp.swap(now.totalMicroseconds());
+        Int64 nowUSec = bdetu_SystemTime::now().totalMicroseconds();
+        d_timestamp = nowUSec;
 
-        waitTime = nextTurn - now.totalMicroseconds();
+        waitTime = nextTurn - nowUSec;
 
-        if (waitTime >= MAX_TIMER_RESOLUTION) {
-            bcemt_ThreadUtil::microSleep(waitTime);
+        if (waitTime >= MIN_TIMER_RESOLUTION) {
+            int waitInt = (int) waitTime;
+            if (waitInt == waitTime) {
+                // This will stop working if 'waitTime > ~35 minutes'
+
+                bcemt_ThreadUtil::microSleep(waitInt);
+            }
+            else {
+                // This will work so long as 'waitTime < ~68 years'
+
+                int waitSecs  = (int) (waitTime / MICROSECS_PER_SECOND);
+                int waitUSecs = (int) (waitTime % MICROSECS_PER_SECOND);
+                bcemt_ThreadUtil::microSleep(waitUSecs, waitSecs);
+            }
         }
         else {
             waitTime = 0;
@@ -65,21 +73,18 @@ bsls_PlatformUtil::Int64 bcemt_Turnstile::waitTurn()
 void bcemt_Turnstile::reset(double                   rate,
                             const bdet_TimeInterval& startTime)
 {
-    d_interval.swap((bsls_PlatformUtil::Int64) (MICROSECS_PER_SECOND / rate));
-
-    bdet_TimeInterval now = bdetu_SystemTime::now();
-    d_timestamp.swap(now.totalMicroseconds());
-    d_nextTurn.swap(d_timestamp + startTime.totalMicroseconds());
+    d_interval  = (Int64) (MICROSECS_PER_SECOND / rate);
+    d_timestamp = bdetu_SystemTime::now().totalMicroseconds();
+    d_nextTurn  = d_timestamp + startTime.totalMicroseconds();
 }
 
 // ACCESSORS
-
-bsls_PlatformUtil::Int64 bcemt_Turnstile::lagTime() const
+bsls_Types::Int64 bcemt_Turnstile::lagTime() const
 {
-    bdet_TimeInterval now = bdetu_SystemTime::now();
-    d_timestamp.swap(now.totalMicroseconds());
+    Int64 nowUSecs = bdetu_SystemTime::now().totalMicroseconds();
+    d_timestamp = nowUSecs;
 
-    bsls_PlatformUtil::Int64 delta = now.totalMicroseconds() - d_nextTurn;
+    Int64 delta = nowUSecs - d_nextTurn;
     return delta > 0 ? delta : 0;
 }
 
