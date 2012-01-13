@@ -108,7 +108,7 @@ BDES_IDENT("$Id: $")
 // standard output:
 //..
 //  <?xml version="1.0" encoding="UTF-8" ?>
-//  <Employee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+//  <Employee>
 //      <name>Bob</name>
 //      <homeAddress>
 //          <street>Some Street</street>
@@ -1034,10 +1034,10 @@ int baexml_Encoder::encode(baexml_Formatter& formatter, const TYPE& object)
                                  + d_options->schemaLocation());
         }
     }
-    else {
-        context.addAttribute("xmlns:xsi",
-                             "http://www.w3.org/2001/XMLSchema-instance");
-    }
+//     else {
+//         context.addAttribute("xmlns:xsi",
+//                              "http://www.w3.org/2001/XMLSchema-instance");
+//     }
 
     baexml_Encoder_EncodeValue encodeValue(&context);
 
