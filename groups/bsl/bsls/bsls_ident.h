@@ -124,12 +124,13 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #elif defined(__IBMC__) || defined(__IBMCPP__)
   #define _BSLS_IDENT(str) _Pragma(#str)
   #define BSLS_IDENT(str) _BSLS_IDENT(comment (user, str))
-#elif (0 && defined(_MSC_VER))
-  /* XXX: Microsoft Visual Studio Compiler, disabled for now - this
-   * formulation is incorrect.
-   */
-  #define _BSLS_IDENT(str) _Pragma(#str)
-  #define BSLS_IDENT(str) _BSLS_IDENT(comment (user, str))
+#elif defined(_MSC_VER) /* Microsoft Visual Studio Compiler */
+  /* Microsoft linker ignores __pragma(comment (user, "str"))
+   * http://msdn.microsoft.com/en-us/library/7f0aews7.aspx */
+ #if 0 /* disable SYSUTIL_IDENT() with Microsoft compiler */
+  #define _BSLS_IDENT(str) __pragma(comment (user, #str))
+  #define BSLS_IDENT(str) _BSLS_IDENT(str)
+ #endif
 #elif defined(__HP_cc) || defined(__HP_aCC)
   #define _BSLS_IDENT(str) _Pragma(#str)
   #define BSLS_IDENT(str) _BSLS_IDENT(versionid str)
