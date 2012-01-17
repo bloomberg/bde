@@ -436,7 +436,8 @@ typedef baexml_EncodingStyle  EncodingStyle;
 typedef baexml_Decoder           Decoder;
 typedef baexml_DecoderOptions    DecoderOptions;
 
-#define XSI "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+// #define XSI "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+#define XSI ""
 
 int verbose;
 int veryVerbose;
@@ -10453,7 +10454,7 @@ int main(int argc, char *argv[])
 
         const char expectedXML[] =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-            "<root xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+            "<root>\n"
             "    <bool2>false</bool2>\n"
             "</root>\n";
 
@@ -10526,7 +10527,7 @@ int main(int argc, char *argv[])
             // be replaced by empty strings.
             static const char *PRETTY_RESULT[3] = {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<MySequenceWithNillables%s\n    " XSI ">\n"
+                "<MySequenceWithNillables%s%s>\n"
                 "    <Attribute1%s/>\n"
                 "    <Attribute2>test string</Attribute2>\n"
                 "    <Attribute3>\n"
@@ -10536,7 +10537,7 @@ int main(int argc, char *argv[])
                 "</MySequenceWithNillables>\n",
 
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<MySequenceWithNillables%s\n    " XSI ">\n"
+                "<MySequenceWithNillables%s%s>\n"
                 "    <Attribute1>123</Attribute1>\n"
                 "    <Attribute2%s/>\n"
                 "    <Attribute3>\n"
@@ -10546,7 +10547,7 @@ int main(int argc, char *argv[])
                 "</MySequenceWithNillables>\n",
 
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                "<MySequenceWithNillables%s\n    " XSI ">\n"
+                "<MySequenceWithNillables%s%s>\n"
                 "    <Attribute1>123</Attribute1>\n"
                 "    <Attribute2>test string</Attribute2>\n"
                 "    <Attribute3%s/>\n"
@@ -10573,7 +10574,7 @@ int main(int argc, char *argv[])
 
             // Format expected result without object namespace and,
             // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
-            bsl::sprintf(expectedResult, PRETTY_RESULT[i], "", "");
+            bsl::sprintf(expectedResult, PRETTY_RESULT[i], "", "", "");
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -10594,7 +10595,7 @@ int main(int argc, char *argv[])
             // Format expected result with object namespace and,
             // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expectedResult, PRETTY_RESULT[i],
-                         PRETTY_NS_ATTR, NIL_ATTR);
+                         PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -10611,7 +10612,7 @@ int main(int argc, char *argv[])
 
             static const char *COMPACT_RESULT[3] = {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                "<MySequenceWithNillables%s " XSI ">"
+                "<MySequenceWithNillables%s%s>"
                     "<Attribute1%s/>"
                     "<Attribute2>test string</Attribute2>"
                     "<Attribute3>"
@@ -10621,7 +10622,7 @@ int main(int argc, char *argv[])
                 "</MySequenceWithNillables>",
 
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                "<MySequenceWithNillables%s " XSI ">"
+                "<MySequenceWithNillables%s%s>"
                     "<Attribute1>123</Attribute1>"
                     "<Attribute2%s/>"
                     "<Attribute3>"
@@ -10631,7 +10632,7 @@ int main(int argc, char *argv[])
                 "</MySequenceWithNillables>",
 
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                "<MySequenceWithNillables%s " XSI ">"
+                "<MySequenceWithNillables%s%s>"
                     "<Attribute1>123</Attribute1>"
                     "<Attribute2>test string</Attribute2>"
                     "<Attribute3%s/>"
@@ -10642,7 +10643,7 @@ int main(int argc, char *argv[])
 
             // Format expected result without object namespace and,
             // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
-            bsl::sprintf(expectedResult, COMPACT_RESULT[i], "", "");
+            bsl::sprintf(expectedResult, COMPACT_RESULT[i], "", "", "");
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -10662,7 +10663,7 @@ int main(int argc, char *argv[])
             // Format expected result with object namespace and,
             // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
             bsl::sprintf(expectedResult, COMPACT_RESULT[i],
-                         COMPACT_NS_ATTR, NIL_ATTR);
+                         COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
 
             if (veryVerbose) { T_ P_(i) P_(X) P(EXPECTED_RESULT) }
 
@@ -10709,8 +10710,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<MySimpleContent "XSI"\n"
-                               "    Attribute1=\"true\" "
+                               "<MySimpleContent"XSI" Attribute1=\"true\" "
                                "Attribute2=\"Hello World!\">"
                                "  Some Stuff "
                                "</MySimpleContent>\n";
@@ -10744,7 +10744,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                               "<MySimpleContent "XSI" "
+                               "<MySimpleContent"XSI" "
                                "Attribute1=\"true\" "
                                "Attribute2=\"Hello World!\">"
                                "  Some Stuff "
@@ -10779,8 +10779,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<MySimpleIntContent "XSI"\n    "
-                               "Attribute1=\"false\" "
+                               "<MySimpleIntContent"XSI" Attribute1=\"false\" "
                                "Attribute2=\"Hello World!\">"
                                "837"
                                "</MySimpleIntContent>\n";
@@ -10815,7 +10814,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                               "<MySimpleIntContent "XSI" "
+                               "<MySimpleIntContent"XSI" "
                                "Attribute1=\"false\" "
                                "Attribute2=\"Hello World!\">"
                                "837"
@@ -10868,7 +10867,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<MySequenceWithAttributes\n    "XSI" "
+                               "<MySequenceWithAttributes"XSI" "
                                "Attribute1=\"34\">\n"
                                "    <Element1>45</Element1>\n"
                                "    <Element2>Hello</Element2>\n"
@@ -10905,9 +10904,8 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                              = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<MySequenceWithAttributes\n    "XSI" "
-                               "Attribute1=\"34\"\n"
-                               "    Attribute2=\"World!\">\n"
+                               "<MySequenceWithAttributes"XSI" "
+                               "Attribute1=\"34\" Attribute2=\"World!\">\n"
                                "    <Element1>45</Element1>\n"
                                "    <Element2>Hello</Element2>\n"
                                "</MySequenceWithAttributes>\n";
@@ -10943,7 +10941,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                               "<MySequenceWithAttributes "XSI" "
+                               "<MySequenceWithAttributes"XSI" "
                                "Attribute1=\"34\" "
                                "Attribute2=\"World!\">"
                                "<Element1>45</Element1>"
@@ -10997,7 +10995,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice\n    "XSI">\n"
+                                "<MySequenceWithAnonymousChoice"XSI">\n"
                                 "    <Attribute1>34</Attribute1>\n"
                                 "    <MyChoice1>67</MyChoice1>\n"
                                 "    <Attribute2>Hello</Attribute2>\n"
@@ -11033,7 +11031,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithAnonymousChoice\n    "XSI">\n"
+                                "<MySequenceWithAnonymousChoice"XSI">\n"
                                 "    <Attribute1>34</Attribute1>\n"
                                 "    <MyChoice2>World!</MyChoice2>\n"
                                 "    <Attribute2>Hello</Attribute2>\n"
@@ -11069,7 +11067,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[] =
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithAnonymousChoice "XSI">"
+                                "<MySequenceWithAnonymousChoice"XSI">"
                                 "<Attribute1>34</Attribute1>"
                                 "<MyChoice2>World!</MyChoice2>"
                                 "<Attribute2>Hello</Attribute2>"
@@ -11123,7 +11121,7 @@ int main(int argc, char *argv[])
             const char *EXPECTED_RESULT[3]
                             = {
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables\n    "XSI">\n"
+                                "<MySequenceWithNullables"XSI">\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "    <Attribute3>\n"
                                 "        <Attribute1>987</Attribute1>\n"
@@ -11132,7 +11130,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables\n    "XSI">\n"
+                                "<MySequenceWithNullables"XSI">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute3>\n"
                                 "        <Attribute1>987</Attribute1>\n"
@@ -11141,7 +11139,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>\n",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithNullables\n    "XSI">\n"
+                                "<MySequenceWithNullables"XSI">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequenceWithNullables>\n",
@@ -11197,7 +11195,7 @@ int main(int argc, char *argv[])
             const char *EXPECTED_RESULT[3]
                             = {
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithNullables "XSI">"
+                                "<MySequenceWithNullables"XSI">"
                                 "<Attribute2>test string</Attribute2>"
                                 "<Attribute3>"
                                 "<Attribute1>987</Attribute1>"
@@ -11206,7 +11204,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithNullables "XSI">"
+                                "<MySequenceWithNullables"XSI">"
                                 "<Attribute1>123</Attribute1>"
                                 "<Attribute3>"
                                 "<Attribute1>987</Attribute1>"
@@ -11215,7 +11213,7 @@ int main(int argc, char *argv[])
                                 "</MySequenceWithNullables>",
 
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithNullables "XSI">"
+                                "<MySequenceWithNullables"XSI">"
                                 "<Attribute1>123</Attribute1>"
                                 "<Attribute2>test string</Attribute2>"
                                 "</MySequenceWithNullables>",
@@ -11314,7 +11312,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequenceWithArrays "XSI">\n"
+                                "<MySequenceWithArrays"XSI">\n"
                                 "    <Attribute1>123</Attribute1>\n"
                                 "    <Attribute1>456</Attribute1>\n"
                                 "    <Attribute1>927</Attribute1>\n"
@@ -11393,7 +11391,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]=
                                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequenceWithArrays "XSI">"
+                                "<MySequenceWithArrays"XSI">"
                                 "<Attribute1>123</Attribute1>"
                                 "<Attribute1>456</Attribute1>"
                                 "<Attribute1>927</Attribute1>"
@@ -11458,7 +11456,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MyChoice "XSI">\n"
+                                "<MyChoice"XSI">\n"
                                 "    <Selection1>434</Selection1>\n"
                                 "</MyChoice>\n";
 
@@ -11495,7 +11493,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MyChoice "XSI">\n"
+                                "<MyChoice"XSI">\n"
                                 "    <Selection2>test string</Selection2>\n"
                                 "</MyChoice>\n";
 
@@ -11549,7 +11547,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                                "<MySequence "XSI">\n"
+                                "<MySequence"XSI">\n"
                                 "    <Attribute1>434</Attribute1>\n"
                                 "    <Attribute2>test string</Attribute2>\n"
                                 "</MySequence>\n";
@@ -11587,7 +11585,7 @@ int main(int argc, char *argv[])
 
             const char EXPECTED_RESULT[]
                               = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
-                                "<MySequence "XSI">"
+                                "<MySequence"XSI">"
                                 "<Attribute1>434</Attribute1>"
                                 "<Attribute2>test string</Attribute2>"
                                 "</MySequence>";
@@ -11641,11 +11639,11 @@ int main(int argc, char *argv[])
                 //line  value  result
                 //----  -----  ------
                 { L_,   0,     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<int "XSI">0</int>\n"                        },
+                               "<int"XSI">0</int>\n"                        },
                 { L_,   1,     "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<int "XSI">1</int>\n"                        },
+                               "<int"XSI">1</int>\n"                        },
                 { L_,   123,   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<int "XSI">123</int>\n"                      },
+                               "<int"XSI">123</int>\n"                      },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -11683,17 +11681,17 @@ int main(int argc, char *argv[])
                 //line  value  result
                 //----  -----  ------
                 { L_,   "",    "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string "XSI"></string>\n"                   },
+                               "<string"XSI"></string>\n"                   },
                 { L_,   "a",   "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string "XSI">a</string>\n"                  },
+                               "<string"XSI">a</string>\n"                  },
                 { L_,   "abc", "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string "XSI">abc</string>\n"                },
+                               "<string"XSI">abc</string>\n"                },
                 { L_,   "\xc3\xb6" "abc",
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string "XSI">\xc3\xb6" "abc</string>\n"     },
+                               "<string"XSI">\xc3\xb6" "abc</string>\n"     },
                 { L_,   "abc\xc3\xb6" "def",
                                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-                               "<string "XSI">abc\xc3\xb6" "def</string>\n"  },
+                               "<string"XSI">abc\xc3\xb6" "def</string>\n"  },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -11752,20 +11750,20 @@ int main(int argc, char *argv[])
 //                                    "<byte>100</byte>\n" },
                 { L_,   BASE64,    "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                             "<base64Binary "XSI">YWJjZA==</base64Binary>\n" },
+                             "<base64Binary"XSI">YWJjZA==</base64Binary>\n" },
                 { L_,   HEX,       "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<hexBinary "XSI">61626364</hexBinary>\n" },
+                                   "<hexBinary"XSI">61626364</hexBinary>\n" },
                 { L_,   TEXT,      "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<string "XSI">abcd</string>\n"           },
+                                   "<string"XSI">abcd</string>\n"           },
                 { L_,   IS_LIST,   "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<list "XSI">97 98 99 100</list>\n"       },
+                                   "<list"XSI">97 98 99 100</list>\n"       },
                 { L_,   LIST_OR_DEC,
                                    "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-                                   "<list "XSI">97 98 99 100</list>\n"       },
+                                   "<list"XSI">97 98 99 100</list>\n"       },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -11827,7 +11825,7 @@ int main(int argc, char *argv[])
                 //----  ----       ------
                 { L_,   HEX,       "<?xml version=\"1.0\" "
                                    "encoding=\"UTF-8\" ?>\n"
-              "<hexBinary "XSI">04152726FFFFB554C023DFA4AD2BDCE9</hexBinary>\n"
+              "<hexBinary"XSI">04152726FFFFB554C023DFA4AD2BDCE9</hexBinary>\n"
                 },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
