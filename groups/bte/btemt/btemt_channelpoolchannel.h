@@ -134,27 +134,17 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
     ReadQueue             d_readQueue;            // queue of pending read
                                                   // requests.
 
-    bcema_PooledBufferChainFactory
-                         *d_bufferChainFactory_p; // buffer chain factory used
+    bdema_ManagedPtr<bcema_PooledBufferChainFactory>
+                          d_bufferChainFactory_p; // buffer chain factory used
                                                   // to allocate
                                                   // 'btemt_DataMsg' objects
                                                   // returned in data callback
 
-    bool                  d_isBufferChainFactoryOwnedFlag;
-                                                  // flag specifying if the
-                                                  // buffer chain factory is
-                                                  // owned by this channel
-
-    bcema_PooledBlobBufferFactory
-                         *d_blobBufferFactory_p;  // blob buffer factory used
+    bdema_ManagedPtr<bcema_PooledBlobBufferFactory>
+                          d_blobBufferFactory_p;  // blob buffer factory used
                                                   // to allocate
                                                   // 'bcema_Blob' objects
                                                   // returned in data callback
-
-    bool                  d_isBlobBufferFactoryOwnedFlag;
-                                                  // flag specifying if the
-                                                  // blob buffer factory is
-                                                  // owned by this channel
 
     bcema_PoolAllocator  *d_spAllocator_p;        // shared ptr pool
 
@@ -230,32 +220,25 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
   public:
     // CREATORS
     btemt_ChannelPoolChannel(
-                        int                             channelId,
-                        btemt_ChannelPool              *channelPool,
-                        bcema_PooledBufferChainFactory *bufferFactory,
-                        bcema_PoolAllocator            *spAllocator,
-                        bslma_Allocator                *allocator,
-                        bcema_PooledBlobBufferFactory  *blobBufferFactory = 0);
+                  int                             channelId,
+                  btemt_ChannelPool              *channelPool,
+                  bcema_PooledBufferChainFactory *bufferFactory,
+                  bcema_PoolAllocator            *spAllocator,
+                  bslma_Allocator                *allocator,
+                  bcema_PooledBlobBufferFactory  *blobBufferFactory,
+                  bool                            useBlobForDataReads = false);
+
         // Create a 'btemt_AsyncChannel' concrete implementation reading from
         // and writing to the channel referenced by the specified 'channelId'
-        // in the specified 'channelPool', using the specified 'bufferFactory'
+        // in the specified 'channelPool'.  If the specified 
+        // 'useBlobForDataReads is 'false', use the specified 'bufferFactory'
         // and 'spAllocator' to supply memory to the data messages, and the
         // specified 'allocator' to supply memory.  Note that the constructed
         // channel will use 'bcema_PooledBufferChain' to read data from the
         // 'channelPool'.  Optionally specify 'blobBufferFactory' used to
         // supply memory for 'bcema_Blob' objects returned in the data callback
-        // when a read is registered using a 'BlobBasedReadCallback'.
-
-    btemt_ChannelPoolChannel(
-                            int                             channelId,
-                            btemt_ChannelPool              *channelPool,
-                            bcema_PooledBlobBufferFactory  *blobBufferFactory,
-                            bcema_PoolAllocator            *spAllocator,
-                            bslma_Allocator                *allocator,
-                            bcema_PooledBufferChainFactory *bufferFactory = 0);
-        // Create a 'btemt_AsyncChannel' concrete implementation reading from
-        // and writing to the channel referenced by the specified 'channelId'
-        // in the specified 'channelPool', using the specified
+        // when a read is registered using a 'BlobBasedReadCallback'.  If the 
+        // specified 'useBlobForDataReads' is 'true', use the specified
         // 'blobBufferFactory' and 'spAllocator' to supply memory to the data
         // messages, and the specified 'allocator' to supply memory.  Note
         // that the constructed channel will use 'bcema_Blob' to read data
