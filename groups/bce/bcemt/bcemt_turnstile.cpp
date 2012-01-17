@@ -38,7 +38,8 @@ bsls_Types::Int64 bcemt_Turnstile::waitTurn()
         // supported platforms is 10 milliseconds.
 
     Int64 timestamp = d_timestamp;
-    Int64 nextTurn  = d_nextTurn.add(d_interval) - d_interval;
+    Int64 interval  = d_interval;
+    Int64 nextTurn  = d_nextTurn.add(interval) - interval;
     Int64 waitTime  = 0;
 
     if (nextTurn > timestamp) {
@@ -50,7 +51,7 @@ bsls_Types::Int64 bcemt_Turnstile::waitTurn()
         if (waitTime >= MIN_TIMER_RESOLUTION) {
             int waitInt = (int) waitTime;
             if (waitInt == waitTime) {
-                // This will stop working if 'waitTime > ~35 minutes'
+                // This is only good up to 'waitTime == ~35 minutes'
 
                 bcemt_ThreadUtil::microSleep(waitInt);
             }
