@@ -102,7 +102,7 @@ struct bslmf_IsEnum
          && bslmf_IsConvertible<TYPE, bslmf_IsEnum_AnyArithmeticType>::VALUE> {
     // This struct provides a meta-function that computes, at compile time,
     // whether 'TYPE' is of enumeration type.  It derives from
-    // 'bslmf_MetaInt<1>' if 'TYPE' is an 'enum' type, or from
+    // 'bslmf_MetaInt<1>' if 'TYPE' is an enumeration type, or from
     // 'bslmf_MetaInt<0>' otherwise.
     //
     // Enumeration types are the only user-defined types that have the
