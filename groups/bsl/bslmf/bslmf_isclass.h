@@ -65,10 +65,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
 #ifndef INCLUDED_CSTDLIB
 #include <cstdlib>  // TBD Robo transitively needs this for 'bsl::atoi', etc.
 #define INCLUDED_CSTDLIB
