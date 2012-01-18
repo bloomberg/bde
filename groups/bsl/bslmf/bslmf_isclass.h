@@ -51,8 +51,8 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
@@ -64,6 +64,10 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
 
 #ifndef INCLUDED_CSTDLIB
 #include <cstdlib>  // TBD Robo transitively needs this for 'bsl::atoi', etc.
@@ -92,17 +96,24 @@ ISNOTCLASS_TYPE bslmf_IsClass_Tester(...);
 
 template <typename TYPE>
 struct bslmf_IsClass_Imp
+: bslmf_MetaInt<sizeof(bslmf_IsClass_Tester<TYPE>(0)) == sizeof(ISCLASS_TYPE)>
 {
-    enum { VALUE =
-               sizeof(bslmf_IsClass_Tester<TYPE>(0)) == sizeof(ISCLASS_TYPE) };
 };
 
 template <typename TYPE>
-struct bslmf_IsClass {
+struct bslmf_IsClass_StripQualifiers {
+    // This class is a metafunction that removes all reference and
+    // cv-qualification from a type.  Note that reference-qualification must
+    // be removed before cv-qualification.
     typedef typename bslmf_RemoveReference<TYPE>::Type NONREF_TYPE;
-    typedef typename bslmf_RemoveCvq<NONREF_TYPE>::Type NONCV_TYPE;
+    typedef typename bslmf_RemoveCvq<NONREF_TYPE>::Type Type;
+};
 
-    enum { VALUE = bslmf_IsClass_Imp<NONCV_TYPE>::VALUE };
+template <typename TYPE>
+struct bslmf_IsClass
+: bslmf_IsClass_Imp<typename bslmf_IsClass_StripQualifiers<TYPE>::Type>::Type {
+    // This metafunction derives from 'bslmf_MetaInt<1>' if the specified
+    // 'TYPE' is a class type, or from 'bslmf_MetaInt<0>' otherwise.
 };
 
 }  // close namespace BloombergLP
