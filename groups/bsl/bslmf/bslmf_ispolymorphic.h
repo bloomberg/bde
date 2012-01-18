@@ -97,8 +97,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecvq.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
+#endif
+
 #endif
 
 #ifdef BDE_BUILD_TARGET_EXC
@@ -109,9 +113,10 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                         // ==========================
-                         // struct bslmf_IsPolymorphic
-                         // ==========================
+                       // ==============================
+                       // struct bslmf_IsPolymorphic_Imp
+                       // ==============================
+
 template <typename TYPE, int IS_CLASS = bslmf_IsClass<TYPE>::VALUE>
 struct bslmf_IsPolymorphic_Imp {
     typedef bslmf_MetaInt<0> Type;
@@ -119,8 +124,7 @@ struct bslmf_IsPolymorphic_Imp {
 
 template <typename TYPE>
 struct bslmf_IsPolymorphic_Imp<TYPE, 1> {
-    typedef typename bslmf_RemoveReference<TYPE>::Type NONREF_TYPE;
-    typedef typename bslmf_RemoveCvq<NONREF_TYPE>::Type NONCV_TYPE;
+    typedef typename bslmf_RemoveCvq<TYPE>::Type NONCV_TYPE;
 
     struct IsPoly : public NONCV_TYPE {
         IsPoly();
@@ -136,12 +140,22 @@ struct bslmf_IsPolymorphic_Imp<TYPE, 1> {
     typedef bslmf_MetaInt<sizeof(IsPoly) == sizeof(MaybePoly)> Type;
 };
 
+                         // ==========================
+                         // struct bslmf_IsPolymorphic
+                         // ==========================
 
 template <typename TYPE>
 struct bslmf_IsPolymorphic : bslmf_IsPolymorphic_Imp<TYPE>::Type {
-    // This metafunction class derives from 'bslmf_MetaInt<1' if the specified
-    // 'TYPE' is a class type with a v-table, or from 'bslmf_MetaInt<0>'
-    // otherwise.
+    // This metafunction class derives from 'bslmf_MetaInt<1>' if the specified
+    // 'TYPE' is a class type (or a reference to a class type) with a v-table,
+    // or from 'bslmf_MetaInt<0>' otherwise.
+};
+
+template <typename TYPE>
+struct bslmf_IsPolymorphic<TYPE&> : bslmf_IsPolymorphic_Imp<TYPE>::Type {
+    // This metafunction class derives from 'bslmf_MetaInt<1>' if the specified
+    // 'TYPE' is a class type (or a reference to a class type) with a v-table,
+    // or from 'bslmf_MetaInt<0>' otherwise.
 };
 
 }  // close namespace BloombergLP

@@ -59,11 +59,11 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecvq.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
 #endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_CSTDLIB
 #include <cstdlib>  // TBD Robo transitively needs this for 'bsl::atoi', etc.
@@ -74,9 +74,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                         // ====================
-                         // struct bslmf_IsClass
-                         // ====================
+                       // ========================
+                       // struct bslmf_IsClass_Imp
+                       // ========================
 
 typedef char ISCLASS_TYPE;
 
@@ -96,20 +96,23 @@ struct bslmf_IsClass_Imp
 {
 };
 
-template <typename TYPE>
-struct bslmf_IsClass_StripQualifiers {
-    // This class is a metafunction that removes all reference and
-    // cv-qualification from a type.  Note that reference-qualification must
-    // be removed before cv-qualification.
-    typedef typename bslmf_RemoveReference<TYPE>::Type NONREF_TYPE;
-    typedef typename bslmf_RemoveCvq<NONREF_TYPE>::Type Type;
-};
+                         // ====================
+                         // struct bslmf_IsClass
+                         // ====================
 
 template <typename TYPE>
 struct bslmf_IsClass
-: bslmf_IsClass_Imp<typename bslmf_IsClass_StripQualifiers<TYPE>::Type>::Type {
+: bslmf_IsClass_Imp<typename bslmf_RemoveCvq<TYPE>::Type>::Type {
     // This metafunction derives from 'bslmf_MetaInt<1>' if the specified
-    // 'TYPE' is a class type, or from 'bslmf_MetaInt<0>' otherwise.
+    // 'TYPE' is a class type, or is a reference to a class type, and from
+    // 'bslmf_MetaInt<0>' otherwise.
+};
+
+template <typename TYPE>
+struct bslmf_IsClass<TYPE &> : bslmf_IsClass<TYPE>::Type {
+    // This metafunction derives from 'bslmf_MetaInt<1>' if the specified
+    // 'TYPE' is a class type, or is a reference to a class type, and from
+    // 'bslmf_MetaInt<0>' otherwise.
 };
 
 }  // close namespace BloombergLP
