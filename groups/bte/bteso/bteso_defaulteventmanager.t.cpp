@@ -94,6 +94,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   Create an object of this event manager under test.
         // -----------------------------------------------------------------
+
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
@@ -108,11 +109,30 @@ int main(int argc, char *argv[]) {
             bteso_EventMgr::TYPE mX(&metrics, &testAllocator);
         }
 
+        if (veryVerbose) cout << "\tCreating another dflt instance." << endl;
+        {
+            bteso_TimeMetrics metrics(
+                                   bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
+                                   bteso_TimeMetrics::BTESO_CPU_BOUND,
+                                   &testAllocator);
+            bteso_DefaultEventManager<> mX(&metrics, &testAllocator);
+        }
+
+        if (veryVerbose) cout << "\tYet another dflt instance." << endl;
+        {
+            bteso_TimeMetrics metrics(
+                                   bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
+                                   bteso_TimeMetrics::BTESO_CPU_BOUND,
+                                   &testAllocator);
+	    typedef bteso_Platform::DEFAULT_POLLING_MECHANISM PollMech;
+            bteso_DefaultEventManager<PollMech> mX(&metrics, &testAllocator);
+        }
+
         if (veryVerbose) cout << "\tCreating an instance explicitly."
                               << endl;
         {
             bteso_DefaultEventManager<bteso_Platform::SELECT>
-                 mX((bteso_TimeMetrics*)0, &testAllocator);
+                                     mX((bteso_TimeMetrics*)0, &testAllocator);
         }
       } break;
 

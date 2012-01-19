@@ -20,17 +20,21 @@ BDES_IDENT("$Id: $")
 // by various implementations.  This component is used to implement
 // bteso_defaulteventmanager component as shown on the following diagram:
 //..
-//                     bteso_defaulteventmanager
-//                    /   /     |      \        \
-//             /-----/   /      |       \        \
-//         _select    _poll  _devpoll  _pollset   _epoll
-//             \-----    \      |       /        /
-//                   \    \     |      /        /
-//                   bteso_defaulteventmanagerimpl
+//     |                bteso_defaulteventmanager            |
+//     |               /   /     |      \        \           |
+//     |        /-----/   /      |       \        \          |
+//     |    _select    _poll  _devpoll  _pollset   _epoll    |
+//     |        \-----    \      |       /        /          |
+//     |              \    \     |      /        /           |
+//     |              bteso_defaulteventmanagerimpl          |
 //..
 
 #ifndef INCLUDED_BTESCM_VERSION
 #include <btescm_version.h>
+#endif
+
+#ifndef INCLUDED_BTESO_PLATFORM
+#include <bteso_platform.h>
 #endif
 
 #ifndef INCLUDED_BTESO_SOCKETHANDLE
@@ -58,7 +62,8 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <class POLLING_MECHANISM>      // forward declaration
+// forward declaration
+template <class POLLING_MECHANISM = bteso_Platform::DEFAULT_POLLING_MECHANISM>
 class bteso_DefaultEventManager;
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
