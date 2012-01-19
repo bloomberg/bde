@@ -506,6 +506,10 @@ unix-AIX-*-*-*      _   ENABLE_TLS      =
 !! unix-SunOS       _   F77_HASFLAG = -xhasi=yes
 !! unix-SunOS       _   DEF_F77FLAGS    = -u -vax=bslash -vax=param -Nq2000 -Qoption f77pass1 $(F77_HASFLAG)
 
+# DRQS 29544311 - some .so's linking against BCE and BAE fail unless the sources are built
+# with -xthreadvar=dynamic
+unix-SunOS-*-*-cc   mt  DEF_CXXFLAGS    = -xthreadvar=dynamic
+
 # For MSVC compiler, disable warning 4661 which warns of functions with no
 # bodies (e.g. private copy constructors) in explicitly instantiated class
 # templates.
