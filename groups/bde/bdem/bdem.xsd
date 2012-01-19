@@ -91,6 +91,14 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='EncodeEmptyVectors' type='xs:boolean' default='true'>
+        <xs:annotation>
+          <xs:documentation>
+            This option allows users to control if empty vectors are encoded or
+            not.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
