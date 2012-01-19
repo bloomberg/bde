@@ -84,7 +84,7 @@ const char SYMB_THROW = '!';
 
 // used to exercise
 // operator>> (istream&, string&)
-static const StringTestCase 
+static const StringTestCase
 extractor_test_cases [] = {
 
 #undef TEST
@@ -101,13 +101,13 @@ extractor_test_cases [] = {
     // whitespace characters or is empty
 
     //    +----------------------------------------------- initial string
-    //    |    +------------------------------------------ sequence in stream 
-    //    |    |           +------------------------------ stream width       
-    //    |    |           |   +-------------------------- stream flags       
-    //    |    |           |   |       +------------------ stream state       
+    //    |    +------------------------------------------ sequence in stream
+    //    |    |           +------------------------------ stream width
+    //    |    |           |   +-------------------------- stream flags
+    //    |    |           |   |       +------------------ stream state
     //    |    |           |   |       |                     or exceptions
-    //    |    |           |   |       |        +--------- expected result    
-    //    |    |           |   |       |        | +------- expected width     
+    //    |    |           |   |       |        +--------- expected result
+    //    |    |           |   |       |        | +------- expected width
     //    |    |           |   |       |        | |   +--- expected state
     //    |    |           |   |       |        | |   | +- exception info:
     //    |    |           |   |       |        | |   | |  0 - no exception
@@ -119,7 +119,7 @@ extractor_test_cases [] = {
     //    |    |           |   |       |        | +--+   |           |
     //    |    |           |   |       |        |    |   |           |
     //    V    V           V   V       V        V    V   V           V
-#undef TEST1                                
+#undef TEST1
 #define TEST1(str)                                                       \
     TEST (str, "",         0,  0,      Eof,     str, 0,  Eof,        0), \
     TEST (str, "",         1,  0,      Fail,    str, 1,  Fail,       0), \
@@ -165,13 +165,13 @@ extractor_test_cases [] = {
     // failbit set
 
     //    +----------------------------------------------- initial string
-    //    |    +------------------------------------------ sequence in stream 
-    //    |    |                      +------------------- stream width       
-    //    |    |                      |   +--------------- stream flags       
-    //    |    |                      |   |  +------------ stream state       
+    //    |    +------------------------------------------ sequence in stream
+    //    |    |                      +------------------- stream width
+    //    |    |                      |   +--------------- stream flags
+    //    |    |                      |   |  +------------ stream state
     //    |    |                      |   |  |               or exceptions
-    //    |    |                      |   |  |   +-------- expected result    
-    //    |    |                      |   |  |   |  +----- expected width     
+    //    |    |                      |   |  |   +-------- expected result
+    //    |    |                      |   |  |   |  +----- expected width
     //    |    |                      |   |  |   |  | +--- expected state
     //    |    |                      |   |  |   |  | | +- exception info:
     //    |    |                      |   |  |   |  | | |  0 - no exception
@@ -180,14 +180,14 @@ extractor_test_cases [] = {
     //    |    |                      |   |  |   |  | | |
     //    |    |                      |   |  |   |  | | +-----------------+
     //    |    |                      |   |  |   |  | +-------+           |
-    //    |    |                      |   |  |   |  +-----+   |           |     
-    //    |    |                      |   |  |   +----+   |   |           |     
-    //    |    |                      |   |  |        |   |   |           |     
-    //    V    V                      V   V  V        V   V   V           V     
+    //    |    |                      |   |  |   |  +-----+   |           |
+    //    |    |                      |   |  |   +----+   |   |           |
+    //    |    |                      |   |  |        |   |   |           |
+    //    V    V                      V   V  V        V   V   V           V
 
 #if DRQS  // streams not respecting ios state when initializing streaming
 
-#undef TEST2                                       
+#undef TEST2
 #define TEST2(str)                                                            \
     TEST (str, "",                    0,  0, Good,    "", 0 , Eof | Fail, 0), \
     TEST (str, "",                    10, 0, Good,    "", 0 , Eof | Fail, 0), \
@@ -220,7 +220,7 @@ extractor_test_cases [] = {
 
 #else
 
-#undef TEST2                                       
+#undef TEST2
 #define TEST2(str)                                                            \
     TEST (str, "",                    0,  0, Good,    "", 0 , Eof | Fail, 0), \
     TEST (str, "",                    10, 0, Good,    "", 0 , Eof | Fail, 0), \
@@ -265,13 +265,13 @@ extractor_test_cases [] = {
     // width should be reset to 0
 
     //    +----------------------------------------------- initial string
-    //    |                +------------------------------ sequence in stream 
-    //    |                |    +------------------------- stream width       
-    //    |                |    |      +------------------ stream flags       
-    //    |                |    |      |      +----------- stream state       
+    //    |                +------------------------------ sequence in stream
+    //    |                |    +------------------------- stream width
+    //    |                |    |      +------------------ stream flags
+    //    |                |    |      |      +----------- stream state
     //    |                |    |      |      |              or exceptions
-    //    |                |    |      |      |  +-------- expected result    
-    //    |                |    |      |      |  |  +----- expected width     
+    //    |                |    |      |      |  +-------- expected result
+    //    |                |    |      |      |  |  +----- expected width
     //    |                |    |      |      |  |  | +--- expected state
     //    |                |    |      |      |  |  | | +- exception info:
     //    |                |    |      |      |  |  | | |  0 - no exception
@@ -287,7 +287,7 @@ extractor_test_cases [] = {
 
 #if DRQS  // streams not respecting ios state when initializing streaming
 
-#undef TEST3                                    
+#undef TEST3
 #define TEST3(arg, width, flags, res)                                  \
     TEST ("",              arg, width, flags, Good,    res, 0, -1, 0), \
     TEST ("ab",            arg, width, flags, Good,    res, 0, -1, 0), \
@@ -312,7 +312,7 @@ extractor_test_cases [] = {
 
 #else
 
-#undef TEST3                                    
+#undef TEST3
 #define TEST3(arg, width, flags, res)                                  \
     TEST ("",              arg, width, flags, Good,    res, 0, -1, 0), \
     TEST ("ab",            arg, width, flags, Good,    res, 0, -1, 0), \
@@ -330,7 +330,7 @@ extractor_test_cases [] = {
     //     +------------------------------------------------- sequence in stream
     //     |                            +-------------------- stream width
     //     |                            |   +---------------- stream flags
-    //     |                            |   |       +-------- expected result 
+    //     |                            |   |       +-------- expected result
     //     |                            |   |       |
     //     |                            |   |       |
     //     V                            V   V       V
@@ -381,7 +381,7 @@ extractor_test_cases [] = {
 
 // used to exercise
 // getline (istream&, string&)
-static const StringTestCase 
+static const StringTestCase
 getline_test_cases [] = {
 
 #undef TEST
@@ -395,12 +395,12 @@ getline_test_cases [] = {
     // string and width should be unchanged when initial iostate is not good
 
     //    +---------------------------------------------- controlled sequence
-    //    |    +----------------------------------------- sequence in stream 
-    //    |    |              +-------------------------- stream width       
-    //    |    |              |   +---------------------- stream flags       
-    //    |    |              |   |       +-------------- stream state       
+    //    |    +----------------------------------------- sequence in stream
+    //    |    |              +-------------------------- stream width
+    //    |    |              |   +---------------------- stream flags
+    //    |    |              |   |       +-------------- stream state
     //    |    |              |   |       |                 or exceptions
-    //    |    |              |   |       |     +-------- expected result    
+    //    |    |              |   |       |     +-------- expected result
     //    |    |              |   |       |     |  +----- unused
     //    |    |              |   |       |     |  | +--- expected state
     //    |    |              |   |       |     |  | | +- exception info:
@@ -415,7 +415,7 @@ getline_test_cases [] = {
     //    |    |              |   |       |        |   |   |     |
     //    V    V              V   V       V        V   V   V     V
 
-#undef TEST1                                
+#undef TEST1
 #define TEST1(str)                                                   \
     TEST (str, "",            0,  0,      Eof,     str, 0, Eof,  0), \
     TEST (str, "",            1,  0,      Fail,    str, 0, Fail, 0), \
@@ -459,12 +459,12 @@ getline_test_cases [] = {
     // width should be unchanged, iostate should have failbit setted
 
     //    +--------------------------------------------- controlled sequence
-    //    |    +---------------------------------------- sequence in stream 
-    //    |    |             +-------------------------- stream width       
-    //    |    |             |   +---------------------- stream flags       
-    //    |    |             |   |       +-------------- stream state       
+    //    |    +---------------------------------------- sequence in stream
+    //    |    |             +-------------------------- stream width
+    //    |    |             |   +---------------------- stream flags
+    //    |    |             |   |       +-------------- stream state
     //    |    |             |   |       |                 or exceptions
-    //    |    |             |   |       |     +-------- expected result    
+    //    |    |             |   |       |     +-------- expected result
     //    |    |             |   |       |     |  +----- unused
     //    |    |             |   |       |     |  | +--- expected state
     //    |    |             |   |       |     |  | | +- exception info:
@@ -481,7 +481,7 @@ getline_test_cases [] = {
 
 #if DRQS  // streams not respecting ios state when initializing streaming
 
-#undef TEST2                                       
+#undef TEST2
 #define TEST2(str)                                                       \
     TEST (str, "",           0,  Skipws, Good,    "", 0, Eof | Fail, 0), \
     TEST (str, "",           10, 0,      Good,    "", 0, Eof | Fail, 0), \
@@ -506,7 +506,7 @@ getline_test_cases [] = {
 
 #else
 
-#undef TEST2                                       
+#undef TEST2
 #define TEST2(str)                                                       \
     TEST (str, "",           0,  Skipws, Good,    "", 0, Eof | Fail, 0), \
     TEST (str, "",           10, 0,      Good,    "", 0, Eof | Fail, 0), \
@@ -543,12 +543,12 @@ getline_test_cases [] = {
     // width should be unchanged
 
     //    +----------------------------------------------- controlled sequence
-    //    |                +------------------------------ sequence in stream 
-    //    |                |    +------------------------- stream width       
-    //    |                |    |   +--------------------- stream flags       
-    //    |                |    |   |       +------------- stream state       
+    //    |                +------------------------------ sequence in stream
+    //    |                |    +------------------------- stream width
+    //    |                |    |   +--------------------- stream flags
+    //    |                |    |   |       +------------- stream state
     //    |                |    |   |       |                or exceptions
-    //    |                |    |   |       |    +-------- expected result    
+    //    |                |    |   |       |    +-------- expected result
     //    |                |    |   |       |    |  +----- unused
     //    |                |    |   |       |    |  | +--- expected state
     //    |                |    |   |       |    |  | | +- exception info:
@@ -606,7 +606,7 @@ getline_test_cases [] = {
 #endif
 
     //     +------------------------------------------------- sequence in stream
-    //     |                         +----------------------- expected result 
+    //     |                         +----------------------- expected result
     //     |                         |
     //     |                         |
     //     V                         V
@@ -638,7 +638,7 @@ getline_test_cases [] = {
 
 // used to exercise
 // getline (istream&, string&, char)
-static const StringTestCase 
+static const StringTestCase
 getline_val_test_cases [] = {
 
 #undef TEST
@@ -652,12 +652,12 @@ getline_val_test_cases [] = {
     // string and width should be unchanged when initial iostate is not good
 
     //    +---------------------------------------------- controlled sequence
-    //    |    +----------------------------------------- sequence in stream 
-    //    |    |              +-------------------------- stream width       
-    //    |    |              |   +---------------------- stream flags       
-    //    |    |              |   |       +-------------- stream state       
+    //    |    +----------------------------------------- sequence in stream
+    //    |    |              +-------------------------- stream width
+    //    |    |              |   +---------------------- stream flags
+    //    |    |              |   |       +-------------- stream state
     //    |    |              |   |       |                 or exceptions
-    //    |    |              |   |       |     +-------- expected result    
+    //    |    |              |   |       |     +-------- expected result
     //    |    |              |   |       |     |  +----- delim
     //    |    |              |   |       |     |  | +--- expected state
     //    |    |              |   |       |     |  | | +- exception info:
@@ -671,8 +671,8 @@ getline_val_test_cases [] = {
     //    |    |              |   |       |     +--+    |     |     |
     //    |    |              |   |       |        |    |     |     |
     //    V    V              V   V       V        V    V     V     V
-                        
-#undef TEST1                                   
+
+#undef TEST1
 #define TEST1(str)                                                      \
     TEST (str, "",            0,  0,      Eof,     str, '\n', Eof,  0), \
     TEST (str, "",            1,  0,      Fail,    str, '\0', Fail, 0), \
@@ -716,12 +716,12 @@ getline_val_test_cases [] = {
     // width should be unchanged, iostate should have failbit setted
 
     //    +--------------------------------------------- controlled sequence
-    //    |    +---------------------------------------- sequence in stream 
-    //    |    |             +-------------------------- stream width       
-    //    |    |             |   +---------------------- stream flags       
-    //    |    |             |   |       +-------------- stream state       
+    //    |    +---------------------------------------- sequence in stream
+    //    |    |             +-------------------------- stream width
+    //    |    |             |   +---------------------- stream flags
+    //    |    |             |   |       +-------------- stream state
     //    |    |             |   |       |                 or exceptions
-    //    |    |             |   |       |     +-------- expected result    
+    //    |    |             |   |       |     +-------- expected result
     //    |    |             |   |       |     |  +----- delim
     //    |    |             |   |       |     |  | +--- expected state
     //    |    |             |   |       |     |  | | +- exception info:
@@ -738,7 +738,7 @@ getline_val_test_cases [] = {
 
 #if DRQS  // streams not respecting ios state when initializing streaming
 
-#undef TEST2                                       
+#undef TEST2
 #define TEST2(str)                                                          \
     TEST (str, "",           0,  Skipws, Good,    "", '\a', Eof | Fail, 0), \
     TEST (str, "",           10, 0,      Good,    "", '\0', Eof | Fail, 0), \
@@ -763,7 +763,7 @@ getline_val_test_cases [] = {
 
 #else
 
-#undef TEST2                                       
+#undef TEST2
 #define TEST2(str)                                                          \
     TEST (str, "<U0>",       0,  Skipws, Good,    "", '\0', Good,       0), \
     TEST (str, "\n",         2,  0,      Good,    "", '\n', Good,       0), \
@@ -798,12 +798,12 @@ getline_val_test_cases [] = {
     // width should be unchanged
 
     //    +----------------------------------------------- controlled sequence
-    //    |                +------------------------------ sequence in stream 
-    //    |                |    +------------------------- stream width       
-    //    |                |    |   +--------------------- stream flags       
-    //    |                |    |   |       +------------- stream state       
+    //    |                +------------------------------ sequence in stream
+    //    |                |    +------------------------- stream width
+    //    |                |    |   +--------------------- stream flags
+    //    |                |    |   |       +------------- stream state
     //    |                |    |   |       |                or exceptions
-    //    |                |    |   |       |    +-------- expected result    
+    //    |                |    |   |       |    +-------- expected result
     //    |                |    |   |       |    |  +----- delim
     //    |                |    |   |       |    |  | +--- expected state
     //    |                |    |   |       |    |  | | +- exception info:
@@ -862,7 +862,7 @@ getline_val_test_cases [] = {
 
     //     +------------------------------------------------- sequence in stream
     //     |                         +----------------------- delim
-    //     |                         |     +----------------- expected result 
+    //     |                         |     +----------------- expected result
     //     |                         |     |
     //     |                         |     |
     //     V                         V     V
@@ -894,7 +894,7 @@ getline_val_test_cases [] = {
 
 // used to exercise
 // operator<< (ostream&, const string&)
-static const StringTestCase 
+static const StringTestCase
 inserter_test_cases [] = {
 
 #undef TEST
@@ -908,11 +908,11 @@ inserter_test_cases [] = {
 
     //    +----------------------------------------- controlled sequence
     //    |    +------------------------------------ size of streambuf
-    //    |    |          +------------------------- stream width       
-    //    |    |          |   +--------------------- stream flags       
-    //    |    |          |   |       +------------- stream state       
+    //    |    |          +------------------------- stream width
+    //    |    |          |   +--------------------- stream flags
+    //    |    |          |   |       +------------- stream state
     //    |    |          |   |       |                 or exceptions
-    //    |    |          |   |       |     +------- expected result    
+    //    |    |          |   |       |     +------- expected result
     //    |    |          |   |       |     | +----- expected width
     //    |    |          |   |       |     | | +--- expected state
     //    |    |          |   |       |     | | | +- exception info:
@@ -961,7 +961,7 @@ inserter_test_cases [] = {
     //    |    |    |      +----------------------- stream flags
     //    |    |    |      |      +---------------- stream state
     //    |    |    |      |      |                   or exceptions
-    //    |    |    |      |      |        +------- expected result    
+    //    |    |    |      |      |        +------- expected result
     //    |    |    |      |      |        | +----- expected width
     //    |    |    |      |      |        | | +--- expected state
     //    |    |    |      |      |        | | | +- exception info:
@@ -996,43 +996,43 @@ inserter_test_cases [] = {
     TEST2 ("",              0,    0,    0,     "",                 0,    Good),
     TEST2 ("",              0,    0,    Right, "",                 0,    Good),
     TEST2 ("",              0,    0,    Left,  "",                 0,    Good),
-                                                                  
+
     TEST2 ("",              20,   10,   0,     " @10",             0,    Good),
     TEST2 ("",              20,   10,   Right, " @10",             0,    Good),
     TEST2 ("",              20,   10,   Left,  " @10",             0,    Good),
-                                                             
+
     TEST2 ("",              5,    10,   0,     " @5",              0,    Bad ),
     TEST2 ("",              5,    10,   Right, " @5",              0,    Bad ),
     TEST2 ("",              5,    10,   Left,  " @5",              0,    Bad ),
-                                                             
+
     TEST2 (" @10",          20,   10,   0,     " @10",             0,    Good),
     TEST2 (" @10",          20,   10,   Right, " @10",             0,    Good),
     TEST2 (" @10",          20,   10,   Left,  " @10",             0,    Good),
-                                                                     
+
     TEST2 ("abc def",       20,   0,    0,     "abc def",          0,    Good),
     TEST2 ("abc def",       20,   0,    Right, "abc def",          0,    Good),
     TEST2 ("abc def",       20,   0,    Left,  "abc def",          0,    Good),
-                                                             
+
     TEST2 ("abc def",       5,    0,    0,     "abc d",            0,    Bad ),
     TEST2 ("abc def",       5,    0,    Right, "abc d",            0,    Bad ),
     TEST2 ("abc def",       5,    0,    Left,  "abc d",            0,    Bad ),
-                                                             
+
     TEST2 ("abc def",       20,   5,    0,     "abc def",          0,    Good),
     TEST2 ("abc def",       20,   5,    Right, "abc def",          0,    Good),
     TEST2 ("abc def",       20,   5,    Left,  "abc def",          0,    Good),
-                                                            
+
     TEST2 ("abc def",       20,   10,   0,     "   abc def",       0,    Good),
     TEST2 ("abc def",       20,   10,   Right, "   abc def",       0,    Good),
     TEST2 ("abc def",       20,   10,   Left,  "abc def   ",       0,    Good),
-                                                                
+
     TEST2 ("<U0>",          20,   10,   0,     " @9<U0>",          0,    Good),
     TEST2 ("<U0>",          20,   10,   Right, " @9<U0>",          0,    Good),
     TEST2 ("<U0>",          20,   10,   Left,  "<U0> @9",          0,    Good),
-                                                                
+
     TEST2 ("<U0>ab<U0>@2c", 20,   10,   0,     " @4<U0>ab<U0>@2c", 0,    Good),
     TEST2 ("<U0>ab<U0>@2c", 20,   10,   Right, " @4<U0>ab<U0>@2c", 0,    Good),
     TEST2 ("<U0>ab<U0>@2c", 20,   10,   Left,  "<U0>ab<U0>@2c @4", 0,    Good),
-                                                            
+
     TEST2 ("x@4096",        4096, 10,   0,     "x@4096",           0,    Good),
     TEST2 ("x@4096",        4096, 10,   Right, "x@4096",           0,    Good),
     TEST2 ("x@4096",        4096, 10,   Left,  "x@4096",           0,    Good),
@@ -1077,7 +1077,7 @@ void test_io (charT*, Traits*, Allocator*,
 
     // prepare arrays of indexes on which force the exception throwing
     const charT* arg_throw = test_inserter ? tdata.str_ : tdata.arg_;
-    const std::size_t arg_throw_len = 
+    const std::size_t arg_throw_len =
         test_inserter ? tdata.strlen_ : tdata.arglen_;
 
     std::size_t* throw_on = new std::size_t [arg_throw_len + 1];
@@ -1113,13 +1113,13 @@ void test_io (charT*, Traits*, Allocator*,
     while (1) {
 
         std::string s;
-	s.insert(0, arg, arg_len);
+    s.insert(0, arg, arg_len);
         std::cout << "arg_len: " << arg_len << std::endl;
-	std::cout << s << std::endl;
+    std::cout << s << std::endl;
 
         Streambuf inbuf (arg, arg_len, Throw | Underflow | Sync | Xsgetn, -1);
 
-        Streambuf outbuf (std::streamsize (tcase.arg_len), 
+        Streambuf outbuf (std::streamsize (tcase.arg_len),
                           Throw | Overflow | Sync | Xsputn, -1);
 
         Streambuf& sbuf = test_inserter ? outbuf : inbuf;
@@ -1138,11 +1138,11 @@ void test_io (charT*, Traits*, Allocator*,
             sbuf.throw_when_ [sbuf.memfun_inx (
                 test_inserter ? Overflow : Underflow) ] = throw_on [throw_inx];
 
-            sbuf.throw_when_ [sbuf.memfun_inx (Xsgetn)] = 
+            sbuf.throw_when_ [sbuf.memfun_inx (Xsgetn)] =
                 throw_count [0];
-            sbuf.throw_when_ [sbuf.memfun_inx (Sync)] = 
+            sbuf.throw_when_ [sbuf.memfun_inx (Sync)] =
                 throw_count [1];
-            sbuf.throw_when_ [sbuf.memfun_inx (Xsputn)] = 
+            sbuf.throw_when_ [sbuf.memfun_inx (Xsputn)] =
                 throw_count [2];
         }
         else {
@@ -1306,7 +1306,7 @@ void test_io (charT*, Traits*, Allocator*,
             if (0 <= tcase.size2) {
 
                 // verify the iostate
-                const Iostate res_state = 
+                const Iostate res_state =
                     streambuf_threw ? Bad : Iostate (tcase.size2);
 
                 success = res_state ?
@@ -1331,7 +1331,7 @@ void test_io (charT*, Traits*, Allocator*,
                 rw_assert (success, 0, tcase.line,
                            "line %d. %{$FUNCALL}: expected %{/*.*Gs} with "
                            "length %zu, got %{/*.*Gs} with length %zu",
-                           __LINE__, 
+                           __LINE__,
                            cwidth, int (res_sz), tdata.res_, res_sz,
                            cwidth, int (ret_sz), ret_str, ret_sz);
 

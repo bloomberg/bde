@@ -10,24 +10,24 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide primitive algorithms that operate on arrays.
 //
 //@CLASSES:
-//      bslalg_ArrayPrimitives: namespace for array algorithms
+//  bslalg::ArrayPrimitives: namespace for array algorithms
 //
 //@SEE_ALSO: bslalg_scalarprimitives, bslalg_typetraits
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
-//@DESCRIPTION: This component provides utilies to initialize, move,
-// and otherwise perform various primitive manipulations on arrays with a
-// uniform interface, but selecting a different implementation according to the
-// various traits possessed by the underlying type.  Such primitives are
-// exceptionally useful for implementing generic components such as containers.
+//@DESCRIPTION: This component provides utilies to initialize, move, and
+// otherwise perform various primitive manipulations on arrays with a uniform
+// interface, but selecting a different implementation according to the various
+// traits possessed by the underlying type.  Such primitives are exceptionally
+// useful for implementing generic components such as containers.
 //
 // Several algorithms are provided, with the following short synopsis
 // describing the observable behavior and mentioning the relevant traits.  See
 // the full function-level contract for detailed description, including
 // exception-safety guarantees.  In the description below, 'Sc' stands for
-// 'bslalg_ScalarPrimitives' and 'ADP' stands for
-// 'bslalg_ArrayDestructionPrimitives' (for brevity).  Note that some
+// 'bslalg::ScalarPrimitives' and 'ADP' stands for
+// 'bslalg::ArrayDestructionPrimitives' (for brevity).  Note that some
 // algorithms (e.g., 'insert') are explained in terms of previous algorithms
 // (e.g., 'destructiveMove').
 //..
@@ -88,24 +88,24 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 //  Trait                                         English description
 //  --------------------------------------------  -----------------------------
-//  bslalg_TypeTraitPair                          "TYPE has the pair trait", or
+//  bslalg::TypeTraitPair                         "TYPE has the pair trait", or
 //                                                "TYPE is a pair type"
 //
-//  bslalg_TypeTraitUsesBslmaAllocator            "the 'TYPE' constructor takes
+//  bslalg::TypeTraitUsesBslmaAllocator           "the 'TYPE' constructor takes
 //                                                an allocator argument", or
 //                                                "'TYPE' supports 'bslma'
 //                                                allocators"
 //
-//  bslalg_TypeTraitHasTrivialDefaultConstructor  "TYPE has the trivial default
+//  bslalg::TypeTraitHasTrivialDefaultConstructor "TYPE has the trivial default
 //                                                constructor trait", or
 //                                                "TYPE has a trivial default
 //                                                constructor"
 //
-//  bslalg_TypeTraitBitwiseCopyable               "TYPE has the bit-wise
+//  bslalg::TypeTraitBitwiseCopyable              "TYPE has the bit-wise
 //                                                copyable trait", or
 //                                                "TYPE is bit-wise copyable"
 //
-//  bslalg_TypeTraitBitwiseMoveable               "TYPE has the bit-wise
+//  bslalg::TypeTraitBitwiseMoveable              "TYPE has the bit-wise
 //                                                moveable trait", or
 //                                                "TYPE is bit-wise moveable"
 //..
@@ -230,13 +230,15 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-struct bslalg_ArrayPrimitives_Imp;
+namespace bslalg {
 
-                        // =============================
-                        // struct bslalg_ArrayPrimitives
-                        // =============================
+struct ArrayPrimitives_Imp;
 
-struct bslalg_ArrayPrimitives {
+                        // ======================
+                        // struct ArrayPrimitives
+                        // ======================
+
+struct ArrayPrimitives {
     // This 'struct' provides a namespace for a suite of independent utility
     // functions that operate on arrays of elements of parameterized type
     // 'TARGET_TYPE'.  Depending on the traits of 'TARGET_TYPE', the default
@@ -244,7 +246,7 @@ struct bslalg_ArrayPrimitives {
     // invoked, optimized away by no-op or bit-wise move or copy.
 
     // TYPES
-    typedef bslalg_ArrayPrimitives_Imp  Imp;
+    typedef ArrayPrimitives_Imp         Imp;
     typedef std::size_t                 size_type;
     typedef std::ptrdiff_t              difference_type;
 
@@ -256,8 +258,8 @@ struct bslalg_ArrayPrimitives {
         // Call the default constructor on each of the elements of an array of
         // the specified 'numElements' of the parameterized 'TARGET_TYPE'
         // starting at the 'toBegin' address.  If the parameterized 'ALLOCATOR'
-        // is derived from 'bslma_Allocator' and 'TARGET_TYPE' supports 'bslma'
-        // allocators, then the specified 'allocator' is passed to each
+        // is derived from 'bslma::Allocator' and 'TARGET_TYPE' supports
+        // 'bslma' allocators, then the specified 'allocator' is passed to each
         // 'TARGET_TYPE' default constructor call.  The behavior is undefined
         // unless 'begin <= end'.  If a 'TARGET_TYPE' constructor throws an
         // exception during the operation, then the destructor is called on any
@@ -272,7 +274,7 @@ struct bslalg_ArrayPrimitives {
         // Construct copies of the specified 'value' of the parameterized type
         // 'TARGET_TYPE' into the uninitialized array containing the specified
         // 'numElements' starting at the specified 'begin' address.  If the
-        // parameterized 'ALLOCATOR' is derived from 'bslma_Allocator' and
+        // parameterized 'ALLOCATOR' is derived from 'bslma::Allocator' and
         // 'TARGET_TYPE' supports 'bslma' allocators, then the specified
         // 'allocator' is passed to each invocation of the 'TARGET_TYPE' copy
         // constructor.  If a 'TARGET_TYPE' constructor throws an exception
@@ -290,7 +292,7 @@ struct bslalg_ArrayPrimitives {
         // beginning at the specified 'toBegin' address, the elements in the
         // array of 'TARGET_TYPE' starting at the specified 'fromBegin' address
         // and ending immediately before the specified 'fromEnd' address.  If
-        // the parameterized 'ALLOCATOR' is derived from 'bslma_Allocator' and
+        // the parameterized 'ALLOCATOR' is derived from 'bslma::Allocator' and
         // 'TARGET_TYPE' supports 'bslma' allocators, then the specified
         // 'allocator' is passed to each invocation of the 'TARGET_TYPE' copy
         // constructor.  If a 'TARGET_TYPE' constructor throws an exception
@@ -309,8 +311,8 @@ struct bslalg_ArrayPrimitives {
         // of 'TARGET_TYPE' beginning at the specified 'toBegin' address.  On
         // return, the elements in the input range are invalid, i.e., their
         // destructors must not be called after this operation returns.  If the
-        // parameterized 'ALLOCATOR' type is derived from 'bslma_Allocator' and
-        // 'TARGET_TYPE' supports 'bslma' allocators, then the specified
+        // parameterized 'ALLOCATOR' type is derived from 'bslma::Allocator'
+        // and 'TARGET_TYPE' supports 'bslma' allocators, then the specified
         // 'allocator' is used by the objects in their new location.  If an
         // exception is thrown by a 'TARGET_TYPE' constructor during the
         // operation, then the output array is left in an uninitialized state
@@ -387,24 +389,24 @@ struct bslalg_ArrayPrimitives {
         // Move the elements of the parameterized 'TARGET_TYPE' in the array
         // starting at the 'fromBegin' address and ending immediately before
         // the 'fromEnd' address into an uninitialized array of 'TARGET_TYPE'
-        // at the specified 'toBegin' address, moving into the
-        // specified 'position' (after translating from 'fromBegin' to
-        // 'toBegin') the specified 'numElements' of the 'TARGET_TYPE' from the
-        // array starting at the specified 'first' address and ending
-        // immediately before the specified 'last' address.  Keep the pointer
-        // at the specified 'fromEndptr' address pointing to the first
-        // uninitialized element in '[fromBegin, fromEnd)', and the pointer at
-        // the specified 'lastPtr' address pointing to the end of the moved
-        // range as the elements from the range '[ first, last)' are moved from
-        // source to destination.  The behavior is undefined unless
-        // 'fromBegin <= position <= fromEnd', the destination array contains
-        // at least '(fromEnd - fromBegin) + numElements' uninitialized
-        // elements after 'toBegin', and 'numElements' is the distance from
-        // 'first' to 'last'.  If a copy constructor or assignment operator for
-        // 'TARGET_TYPE' throws an exception, then any elements in
-        // '[ *lastPtr, last )' as well as in '[ toBegin, ... )' are destroyed,
-        // and the elements in the ranges '[ first, *lastPtr )' and
-        // '[ fromBegin, *fromEndPtr )' will have unspecified but valid values.
+        // at the specified 'toBegin' address, moving into the specified
+        // 'position' (after translating from 'fromBegin' to 'toBegin') the
+        // specified 'numElements' of the 'TARGET_TYPE' from the array starting
+        // at the specified 'first' address and ending immediately before the
+        // specified 'last' address.  Keep the pointer at the specified
+        // 'fromEndptr' address pointing to the first uninitialized element in
+        // '[fromBegin, fromEnd)', and the pointer at the specified 'lastPtr'
+        // address pointing to the end of the moved range as the elements from
+        // the range '[ first, last)' are moved from source to destination.
+        // The behavior is undefined unless 'fromBegin <= position <= fromEnd',
+        // the destination array contains at least
+        // '(fromEnd - fromBegin) + numElements' uninitialized elements after
+        // 'toBegin', and 'numElements' is the distance from 'first' to 'last'.
+        // If a copy constructor or assignment operator for 'TARGET_TYPE'
+        // throws an exception, then any elements in '[ *lastPtr, last )' as
+        // well as in '[ toBegin, ... )' are destroyed, and the elements in the
+        // ranges '[ first, *lastPtr )' and '[ fromBegin, *fromEndPtr )' will
+        // have unspecified but valid values.
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void insert(TARGET_TYPE        *toBegin,
@@ -503,25 +505,25 @@ struct bslalg_ArrayPrimitives {
         // behavior is undefined unless 'first <= middle <= last'.
 };
 
-                     // =================================
-                     // struct bslalg_ArrayPrimitives_Imp
-                     // =================================
+                     // ==========================
+                     // struct ArrayPrimitives_Imp
+                     // ==========================
 
-struct bslalg_ArrayPrimitives_Imp {
+struct ArrayPrimitives_Imp {
     // This 'struct' provides a namespace for a suite of independent utility
     // functions that operate on arrays of elements of a parameterized
     // 'TARGET_TYPE'.  These utility functions are only for the purpose of
-    // implementing those in the 'bslalg_ArrayPrimitives' utility.  For
-    // brevity, we do not repeat the main contracts here, but instead refer to
-    // the corresponding contract in the 'bslalg_ArrayPrimitive' utility.
+    // implementing those in the 'ArrayPrimitives' utility.  For brevity, we do
+    // not repeat the main contracts here, but instead refer to the
+    // corresponding contract in the 'ArrayPrimitive' utility.
 
     // TYPES
-    typedef bslalg_ArrayPrimitives::size_type       size_type;
-    typedef bslalg_ArrayPrimitives::difference_type difference_type;
+    typedef ArrayPrimitives::size_type       size_type;
+    typedef ArrayPrimitives::difference_type difference_type;
 
     enum {
         // These constants are used in the overloads below, when the last
-        // argument is of type 'bslmf_MetaInt<N> *', indicating that
+        // argument is of type 'bslmf::MetaInt<N> *', indicating that
         // 'TARGET_TYPE' has the traits for which the enumerator equal to 'N'
         // is named.
 
@@ -536,28 +538,27 @@ struct bslalg_ArrayPrimitives_Imp {
         // Number of bytes for which a stack-allocated buffer can be
         // comfortably obtained to optimize bitwise moves.
 
-        INPLACE_BUFFER_SIZE = 16 * bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT
+        INPLACE_BUFFER_SIZE = 16 * bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
     };
 
     // CLASS METHODS
     template <class TARGET_TYPE, class ALLOCATOR>
     static void defaultConstruct(
-                   TARGET_TYPE                                    *begin,
-                   size_type                                       numElements,
-                   ALLOCATOR                                      *allocator,
-                   bslmf_MetaInt<HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *);
+                  TARGET_TYPE                                     *begin,
+                  size_type                                        numElements,
+                  ALLOCATOR                                       *allocator,
+                  bslmf::MetaInt<HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *);
     template <class TARGET_TYPE, class ALLOCATOR>
     static void defaultConstruct(
-                   TARGET_TYPE                                    *begin,
-                   size_type                                       numElements,
-                   ALLOCATOR                                      *allocator,
-                   bslmf_MetaInt<BITWISE_COPYABLE_TRAITS>         *);
+                          TARGET_TYPE                             *begin,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void defaultConstruct(
-                   TARGET_TYPE                                    *begin,
-                   size_type                                       numElements,
-                   ALLOCATOR                                      *allocator,
-                   bslmf_MetaInt<NIL_TRAITS>                      *);
+    static void defaultConstruct(TARGET_TYPE                *begin,
+                                 size_type                   numElements,
+                                 ALLOCATOR                  *allocator,
+                                 bslmf::MetaInt<NIL_TRAITS> *);
         // Use the default constructor of the parameterized 'TARGET_TYPE' (or
         // 'memset' to 0 if 'TARGET_TYPE' has a trivial default constructor) on
         // each element of the array starting at the 'begin' address and ending
@@ -569,8 +570,8 @@ struct bslalg_ArrayPrimitives_Imp {
     static void bitwiseFillN(char      *begin,
                              size_type  numBytesInitialized,
                              size_type  numBytes);
-        // Fill the specified 'numBytes' in the array starting at the
-        // specified 'begin' address, as if by bit-wise copying the specified
+        // Fill the specified 'numBytes' in the array starting at the specified
+        // 'begin' address, as if by bit-wise copying the specified
         // 'numBytesInitialized' at every offset that is a multiple of
         // 'numBytesInitialized' within the output array.  The behavior is
         // undefined unless 'numBytesInitialized <= numBytes'.  Note that
@@ -578,165 +579,163 @@ struct bslalg_ArrayPrimitives_Imp {
         // 'numBytesInitialized'.
 
     static void uninitializedFillN(
-                         bool                                     *begin,
-                         bool                                      value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        bool                                      *begin,
+                        bool                                       value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         char                                     *begin,
-                         char                                      value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        char                                      *begin,
+                        char                                       value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         unsigned char                            *begin,
-                         unsigned char                             value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        unsigned char                             *begin,
+                        unsigned char                              value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         signed char                              *begin,
-                         signed char                               value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        signed char                               *begin,
+                        signed char                                value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         wchar_t                                  *begin,
-                         wchar_t                                   value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        wchar_t                                   *begin,
+                        wchar_t                                    value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         short                                    *begin,
-                         short                                     value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        short                                     *begin,
+                        short                                      value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         unsigned short                           *begin,
-                         unsigned short                            value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        unsigned short                            *begin,
+                        unsigned short                             value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         int                                      *begin,
-                         int                                       value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        int                                       *begin,
+                        int                                        value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         unsigned int                             *begin,
-                         unsigned int                              value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        unsigned int                              *begin,
+                        unsigned int                               value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         long                                     *begin,
-                         long                                      value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        long                                      *begin,
+                        long                                       value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         unsigned long                            *begin,
-                         unsigned long                             value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        unsigned long                             *begin,
+                        unsigned long                              value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         bsls_Types::Int64                        *begin,
-                         bsls_Types::Int64                         value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        bsls::Types::Int64                        *begin,
+                        bsls::Types::Int64                         value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         bsls_Types::Uint64                       *begin,
-                         bsls_Types::Uint64                        value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        bsls::Types::Uint64                       *begin,
+                        bsls::Types::Uint64                        value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         float                                    *begin,
-                         float                                     value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        float                                     *begin,
+                        float                                      value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         double                                   *begin,
-                         double                                    value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        double                                    *begin,
+                        double                                     value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         long double                              *begin,
-                         long double                               value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                        long double                               *begin,
+                        long double                                value,
+                        size_type                                  numElements,
+                        void                                      * = 0,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
     static void uninitializedFillN(
-                         void                                    **begin,
-                         void                                     *value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                       void                                      **begin,
+                       void                                       *value,
+                       size_type                                   numElements,
+                       void                                       * = 0,
+                       bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  * = 0);
     static void uninitializedFillN(
-                         const void                              **begin,
-                         const void                               *value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                       const void                                **begin,
+                       const void                                 *value,
+                       size_type                                   numElements,
+                       void                                       * = 0,
+                       bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  * = 0);
     template <class TARGET_TYPE>
     static void uninitializedFillN(
-                         TARGET_TYPE                             **begin,
-                         TARGET_TYPE                              *value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                       TARGET_TYPE                               **begin,
+                       TARGET_TYPE                                *value,
+                       size_type                                   numElements,
+                       void                                       * = 0,
+                       bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  * = 0);
     template <class TARGET_TYPE>
     static void uninitializedFillN(
-                         const TARGET_TYPE                       **begin,
-                         const TARGET_TYPE                        *value,
-                         size_type                                 numElements,
-                         void                                     * = 0,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> * = 0);
+                       const TARGET_TYPE                         **begin,
+                       const TARGET_TYPE                          *value,
+                       size_type                                   numElements,
+                       void                                       * = 0,
+                       bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  * = 0);
     template <class TARGET_TYPE, class ALLOCATOR>
     static void uninitializedFillN(
-                         TARGET_TYPE                              *begin,
-                         const TARGET_TYPE&                        value,
-                         size_type                                 numElements,
-                         ALLOCATOR                                *allocator,
-                         bslmf_MetaInt<BITWISE_COPYABLE_TRAITS>   *);
+                          TARGET_TYPE                             *begin,
+                          const TARGET_TYPE&                       value,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void uninitializedFillN(
-                         TARGET_TYPE                              *begin,
-                         const TARGET_TYPE&                        value,
-                         size_type                                 numElements,
-                         ALLOCATOR                                *allocator,
-                         bslmf_MetaInt<NIL_TRAITS>                *);
+    static void uninitializedFillN(TARGET_TYPE                *begin,
+                                   const TARGET_TYPE&          value,
+                                   size_type                   numElements,
+                                   ALLOCATOR                  *allocator,
+                                   bslmf::MetaInt<NIL_TRAITS> *);
         // Copy the specified 'value' of the parameterized 'TARGET_TYPE' into
         // every of the specified 'numElements' in the array starting at the
         // specified 'begin' address.  Pass the specified 'allocator' to the
         // copy constructor if appropriate.  Note that if 'TARGET_TYPE' is
-        // bit-wise copyable or is not based on 'bslma_Allocator', 'allocator'
+        // bit-wise copyable or is not based on 'bslma::Allocator', 'allocator'
         // is ignored.  The last argument is for removing overload ambiguities
         // and is not used.
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void copyConstruct(
-                             TARGET_TYPE                            *toBegin,
-                             const TARGET_TYPE                      *fromBegin,
-                             const TARGET_TYPE                      *fromEnd,
-                             ALLOCATOR                              *allocator,
-                             bslmf_MetaInt<BITWISE_COPYABLE_TRAITS> *);
+                            TARGET_TYPE                             *toBegin,
+                            const TARGET_TYPE                       *fromBegin,
+                            const TARGET_TYPE                       *fromEnd,
+                            ALLOCATOR                               *allocator,
+                            bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
-    static void copyConstruct(
-                             TARGET_TYPE                            *toBegin,
-                             FWD_ITER                                fromBegin,
-                             FWD_ITER                                fromEnd,
-                             ALLOCATOR                              *allocator,
-                             bslmf_MetaInt<NIL_TRAITS>              *);
+    static void copyConstruct(TARGET_TYPE                *toBegin,
+                              FWD_ITER                    fromBegin,
+                              FWD_ITER                    fromEnd,
+                              ALLOCATOR                  *allocator,
+                              bslmf::MetaInt<NIL_TRAITS> *);
         // These functions follow the 'copyConstruct' contract.  If the
-        // parameterized 'ALLOCATOR' is based on 'bslma_Allocator' and the
+        // parameterized 'ALLOCATOR' is based on 'bslma::Allocator' and the
         // 'TARGET_TYPE' constructors take an allocator argument, then pass the
         // specified 'allocator' to the copy constructor.  The behavior is
         // undefined unless the output array has length at least the distance
@@ -747,18 +746,17 @@ struct bslalg_ArrayPrimitives_Imp {
 
     template <class TARGET_TYPE, class ALLOCATOR>
     static void destructiveMove(
-                             TARGET_TYPE                            *toBegin,
-                             TARGET_TYPE                            *fromBegin,
-                             TARGET_TYPE                            *fromEnd,
-                             ALLOCATOR                              *allocator,
-                             bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *);
+                            TARGET_TYPE                             *toBegin,
+                            TARGET_TYPE                             *fromBegin,
+                            TARGET_TYPE                             *fromEnd,
+                            ALLOCATOR                               *allocator,
+                            bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *);
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void destructiveMove(
-                             TARGET_TYPE                            *toBegin,
-                             TARGET_TYPE                            *fromBegin,
-                             TARGET_TYPE                            *fromEnd,
-                             ALLOCATOR                              *allocator,
-                             bslmf_MetaInt<NIL_TRAITS>              *);
+    static void destructiveMove(TARGET_TYPE                *toBegin,
+                                TARGET_TYPE                *fromBegin,
+                                TARGET_TYPE                *fromEnd,
+                                ALLOCATOR                  *allocator,
+                                bslmf::MetaInt<NIL_TRAITS> *);
         // These functions follow the 'destructiveMove' contract.  Note that
         // both arrays cannot overlap (one contains only initialized elements
         // and the other only uninitialized elements), and that if
@@ -767,26 +765,26 @@ struct bslalg_ArrayPrimitives_Imp {
         // and is not used.
 
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void insert(TARGET_TYPE                                *toBegin,
-                       TARGET_TYPE                                *toEnd,
-                       const TARGET_TYPE&                          value,
-                       size_type                                   numElements,
-                       ALLOCATOR                                  *allocator,
-                       bslmf_MetaInt<BITWISE_COPYABLE_TRAITS>     *);
+    static void insert(TARGET_TYPE                             *toBegin,
+                       TARGET_TYPE                             *toEnd,
+                       const TARGET_TYPE&                       value,
+                       size_type                                numElements,
+                       ALLOCATOR                               *allocator,
+                       bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void insert(TARGET_TYPE                                *toBegin,
-                       TARGET_TYPE                                *toEnd,
-                       const TARGET_TYPE&                          value,
-                       size_type                                   numElements,
-                       ALLOCATOR                                  *allocator,
-                       bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS>     *);
+    static void insert(TARGET_TYPE                             *toBegin,
+                       TARGET_TYPE                             *toEnd,
+                       const TARGET_TYPE&                       value,
+                       size_type                                numElements,
+                       ALLOCATOR                               *allocator,
+                       bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *);
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void insert(TARGET_TYPE                                *toBegin,
-                       TARGET_TYPE                                *toEnd,
-                       const TARGET_TYPE&                          value,
-                       size_type                                   numElements,
-                       ALLOCATOR                                  *allocator,
-                       bslmf_MetaInt<NIL_TRAITS>                  *);
+    static void insert(TARGET_TYPE                *toBegin,
+                       TARGET_TYPE                *toEnd,
+                       const TARGET_TYPE&          value,
+                       size_type                   numElements,
+                       ALLOCATOR                  *allocator,
+                       bslmf::MetaInt<NIL_TRAITS> *);
         // These functions follow the 'insert' contract.  Note that if
         // 'TARGET_TYPE' is bit-wise copyable, then this operation is simply
         // 'memmove' followed by 'bitwiseFillN'.  If 'TARGET_TYPE' is bit-wise
@@ -796,29 +794,29 @@ struct bslalg_ArrayPrimitives_Imp {
         // used.
 
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void insert(TARGET_TYPE                                *toBegin,
-                       TARGET_TYPE                                *toEnd,
-                       const TARGET_TYPE                          *fromBegin,
-                       const TARGET_TYPE                          *fromEnd,
-                       size_type                                   numElements,
-                       ALLOCATOR                                  *allocator,
-                       bslmf_MetaInt<BITWISE_COPYABLE_TRAITS>     *);
+    static void insert(TARGET_TYPE                             *toBegin,
+                       TARGET_TYPE                             *toEnd,
+                       const TARGET_TYPE                       *fromBegin,
+                       const TARGET_TYPE                       *fromEnd,
+                       size_type                                numElements,
+                       ALLOCATOR                               *allocator,
+                       bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *);
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
-    static void insert(TARGET_TYPE                                *toBegin,
-                       TARGET_TYPE                                *toEnd,
-                       FWD_ITER                                    fromBegin,
-                       FWD_ITER                                    fromEnd,
-                       size_type                                   numElements,
-                       ALLOCATOR                                  *allocator,
-                       bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS>     *);
+    static void insert(TARGET_TYPE                             *toBegin,
+                       TARGET_TYPE                             *toEnd,
+                       FWD_ITER                                 fromBegin,
+                       FWD_ITER                                 fromEnd,
+                       size_type                                numElements,
+                       ALLOCATOR                               *allocator,
+                       bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *);
     template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
-    static void insert(TARGET_TYPE                                *toBegin,
-                       TARGET_TYPE                                *toEnd,
-                       FWD_ITER                                    fromBegin,
-                       FWD_ITER                                    fromEnd,
-                       size_type                                   numElements,
-                       ALLOCATOR                                  *allocator,
-                       bslmf_MetaInt<NIL_TRAITS>                  *);
+    static void insert(TARGET_TYPE                *toBegin,
+                       TARGET_TYPE                *toEnd,
+                       FWD_ITER                    fromBegin,
+                       FWD_ITER                    fromEnd,
+                       size_type                   numElements,
+                       ALLOCATOR                  *allocator,
+                       bslmf::MetaInt<NIL_TRAITS> *);
         // These functions follow the 'insert' contract.  Note that if
         // 'TARGET_TYPE' is bit-wise copyable and 'FWD_ITER' is convertible to
         // 'const TARGET_TYPE *', then this operation is simply 'memmove'
@@ -829,39 +827,40 @@ struct bslalg_ArrayPrimitives_Imp {
         // ambiguities and is not used.
 
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void moveInsert(TARGET_TYPE                            *toBegin,
-                           TARGET_TYPE                            *toEnd,
-                           TARGET_TYPE                           **lastPtr,
-                           TARGET_TYPE                            *first,
-                           TARGET_TYPE                            *last,
-                           size_type                               numElements,
-                           ALLOCATOR                              *allocator,
-                           bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *);
+    static void moveInsert(
+                         TARGET_TYPE                              *toBegin,
+                         TARGET_TYPE                              *toEnd,
+                         TARGET_TYPE                             **lastPtr,
+                         TARGET_TYPE                              *first,
+                         TARGET_TYPE                              *last,
+                         size_type                                 numElements,
+                         ALLOCATOR                                *allocator,
+                         bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>  *);
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void moveInsert(TARGET_TYPE                            *toBegin,
-                           TARGET_TYPE                            *toEnd,
-                           TARGET_TYPE                           **lastPtr,
-                           TARGET_TYPE                            *first,
-                           TARGET_TYPE                            *last,
-                           size_type                               numElements,
-                           ALLOCATOR                              *allocator,
-                           bslmf_MetaInt<NIL_TRAITS>              *);
+    static void moveInsert(TARGET_TYPE                 *toBegin,
+                           TARGET_TYPE                 *toEnd,
+                           TARGET_TYPE                **lastPtr,
+                           TARGET_TYPE                 *first,
+                           TARGET_TYPE                 *last,
+                           size_type                    numElements,
+                           ALLOCATOR                   *allocator,
+                           bslmf::MetaInt<NIL_TRAITS>  *);
         // These functions follow the 'moveInsert' contract.  Note that if
         // 'TARGET_TYPE' is at least bit-wise moveable, then this operation is
         // simply 'memmove' followed by 'memcpy'.
 
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void erase(TARGET_TYPE                                 *first,
-                      TARGET_TYPE                                 *middle,
-                      TARGET_TYPE                                 *last,
-                      ALLOCATOR                                   *allocator,
-                      bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS>      *);
+    static void erase(TARGET_TYPE                             *first,
+                      TARGET_TYPE                             *middle,
+                      TARGET_TYPE                             *last,
+                      ALLOCATOR                               *allocator,
+                      bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *);
     template <class TARGET_TYPE, class ALLOCATOR>
-    static void erase(TARGET_TYPE                                 *first,
-                      TARGET_TYPE                                 *middle,
-                      TARGET_TYPE                                 *last,
-                      ALLOCATOR                                   *allocator,
-                      bslmf_MetaInt<NIL_TRAITS>                   *);
+    static void erase(TARGET_TYPE                *first,
+                      TARGET_TYPE                *middle,
+                      TARGET_TYPE                *last,
+                      ALLOCATOR                  *allocator,
+                      bslmf::MetaInt<NIL_TRAITS> *);
         // These functions follow the 'erase' contract.  Note that if
         // 'TARGET_TYPE' is bit-wise moveable, then this operation can be
         // implemented by first bit-wise moving the elements in
@@ -900,15 +899,15 @@ struct bslalg_ArrayPrimitives_Imp {
         // moves on the underlying 'char' array.
 
     template <class TARGET_TYPE>
-    static void rotate(TARGET_TYPE                            *begin,
-                       TARGET_TYPE                            *middle,
-                       TARGET_TYPE                            *end,
-                       bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *);
+    static void rotate(TARGET_TYPE                             *begin,
+                       TARGET_TYPE                             *middle,
+                       TARGET_TYPE                             *end,
+                       bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *);
     template <class TARGET_TYPE>
-    static void rotate(TARGET_TYPE                            *begin,
-                       TARGET_TYPE                            *middle,
-                       TARGET_TYPE                            *end,
-                       bslmf_MetaInt<NIL_TRAITS>              *);
+    static void rotate(TARGET_TYPE                *begin,
+                       TARGET_TYPE                *middle,
+                       TARGET_TYPE                *end,
+                       bslmf::MetaInt<NIL_TRAITS> *);
         // These functions follow the 'rotate' contract, but the first overload
         // is optimized when the parameterized 'TARGET_TYPE' is bit-wise
         // moveable.  The last argument is for removing overload ambiguities
@@ -935,44 +934,43 @@ struct bslalg_ArrayPrimitives_Imp {
 // fundamental types are not templates nor inline, and thus can be found in the
 // '.cpp' file.
 
-                       // -----------------------------
-                       // struct bslalg_ArrayPrimitives
-                       // -----------------------------
+                       // ----------------------
+                       // struct ArrayPrimitives
+                       // ----------------------
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives::defaultConstruct(TARGET_TYPE *begin,
-                                              size_type    numElements,
-                                              ALLOCATOR   *allocator)
+void ArrayPrimitives::defaultConstruct(TARGET_TYPE *begin,
+                                       size_type    numElements,
+                                       ALLOCATOR   *allocator)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     enum {
-        VALUE = bslalg_HasTrait<TARGET_TYPE,
-                                bslalg_TypeTraitHasTrivialDefaultConstructor
+        VALUE = HasTrait<TARGET_TYPE,
+                                TypeTraitHasTrivialDefaultConstructor
                                >::VALUE ? Imp::HAS_TRIVIAL_DEFAULT_CTOR_TRAITS
-              : bslalg_HasTrait<TARGET_TYPE,
-                                bslalg_TypeTraitBitwiseCopyable
+              : HasTrait<TARGET_TYPE,
+                                TypeTraitBitwiseCopyable
                                >::VALUE ? Imp::BITWISE_COPYABLE_TRAITS
               : Imp::NIL_TRAITS
     };
-    bslalg_ArrayPrimitives_Imp::defaultConstruct(begin,
-                                                 numElements,
-                                                 allocator,
-                                                 (bslmf_MetaInt<VALUE>*)0);
+    ArrayPrimitives_Imp::defaultConstruct(begin,
+                                          numElements,
+                                          allocator,
+                                          (bslmf::MetaInt<VALUE>*)0);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives::uninitializedFillN(
-                                               TARGET_TYPE        *begin,
-                                               size_type           numElements,
-                                               const TARGET_TYPE&  value,
-                                               ALLOCATOR          *allocator)
+void ArrayPrimitives::uninitializedFillN(TARGET_TYPE        *begin,
+                                         size_type           numElements,
+                                         const TARGET_TYPE&  value,
+                                         ALLOCATOR          *allocator)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     enum {
          // We provide specialized overloads of 'uninitializedFillN' for
@@ -981,79 +979,79 @@ void bslalg_ArrayPrimitives::uninitializedFillN(
          // pointer template function overload in 'Imp', so we resort to the
          // general case for those.
 
-         IS_FUNCTION_POINTER = bslmf_IsFunctionPointer<TARGET_TYPE>::VALUE,
-         IS_FUNDAMENTAL      = bslmf_IsFundamental<TARGET_TYPE>::VALUE,
-         IS_POINTER          = bslmf_IsPointer<TARGET_TYPE>::VALUE,
+         IS_FUNCTION_POINTER = bslmf::IsFunctionPointer<TARGET_TYPE>::VALUE,
+         IS_FUNDAMENTAL      = bslmf::IsFundamental<TARGET_TYPE>::VALUE,
+         IS_POINTER          = bslmf::IsPointer<TARGET_TYPE>::VALUE,
 
          IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                      (IS_POINTER && !IS_FUNCTION_POINTER),
 
-         IS_BITWISECOPYABLE  = bslalg_HasTrait<TARGET_TYPE,
-                                       bslalg_TypeTraitBitwiseCopyable>::VALUE,
+         IS_BITWISECOPYABLE  = HasTrait<TARGET_TYPE,
+                                       TypeTraitBitwiseCopyable>::VALUE,
 
          VALUE = IS_FUNDAMENTAL_OR_POINTER ? Imp::IS_FUNDAMENTAL_OR_POINTER
                : IS_BITWISECOPYABLE ?  Imp::BITWISE_COPYABLE_TRAITS
                : Imp::NIL_TRAITS
     };
-    bslalg_ArrayPrimitives_Imp::uninitializedFillN(begin,
-                                                   value,
-                                                   numElements,
-                                                   allocator,
-                                                   (bslmf_MetaInt<VALUE>*)0);
+    ArrayPrimitives_Imp::uninitializedFillN(begin,
+                                            value,
+                                            numElements,
+                                            allocator,
+                                            (bslmf::MetaInt<VALUE>*)0);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR, class FWD_ITER>
 inline
-void bslalg_ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
-                                           FWD_ITER     fromBegin,
-                                           FWD_ITER     fromEnd,
-                                           ALLOCATOR   *allocator)
+void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
+                                    FWD_ITER     fromBegin,
+                                    FWD_ITER     fromEnd,
+                                    ALLOCATOR   *allocator)
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
     enum {
-        IS_BITWISECOPYABLE  = bslalg_HasTrait<TARGET_TYPE,
-                                       bslalg_TypeTraitBitwiseCopyable>::VALUE,
-        CAN_USE_BITWISECOPY = bslmf_IsConvertible<FWD_ITER,
+        IS_BITWISECOPYABLE  = HasTrait<TARGET_TYPE,
+                                       TypeTraitBitwiseCopyable>::VALUE,
+        CAN_USE_BITWISECOPY = bslmf::IsConvertible<FWD_ITER,
                                                    const TARGET_TYPE *>::VALUE,
 
         VALUE = IS_BITWISECOPYABLE && CAN_USE_BITWISECOPY
               ? Imp::BITWISE_COPYABLE_TRAITS
               : Imp::NIL_TRAITS
     };
-    bslalg_ArrayPrimitives_Imp::copyConstruct(toBegin,
-                                              fromBegin,
-                                              fromEnd,
-                                              allocator,
-                                              (bslmf_MetaInt<VALUE>*)0);
+    ArrayPrimitives_Imp::copyConstruct(toBegin,
+                                       fromBegin,
+                                       fromEnd,
+                                       allocator,
+                                       (bslmf::MetaInt<VALUE>*)0);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives::destructiveMove(TARGET_TYPE *toBegin,
-                                             TARGET_TYPE *fromBegin,
-                                             TARGET_TYPE *fromEnd,
-                                             ALLOCATOR   *allocator)
+void ArrayPrimitives::destructiveMove(TARGET_TYPE *toBegin,
+                                      TARGET_TYPE *fromBegin,
+                                      TARGET_TYPE *fromEnd,
+                                      ALLOCATOR   *allocator)
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
-                                                                 fromEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                          fromEnd));
 
     enum {
-        VALUE = bslalg_HasTrait<TARGET_TYPE,
-                                bslalg_TypeTraitBitwiseMoveable>::VALUE
+        VALUE = HasTrait<TARGET_TYPE,
+                                TypeTraitBitwiseMoveable>::VALUE
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
-    bslalg_ArrayPrimitives_Imp::destructiveMove(toBegin,
-                                                fromBegin,
-                                                fromEnd,
-                                                allocator,
-                                                (bslmf_MetaInt<VALUE>*)0);
+    ArrayPrimitives_Imp::destructiveMove(toBegin,
+                                         fromBegin,
+                                         fromEnd,
+                                         allocator,
+                                         (bslmf::MetaInt<VALUE>*)0);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void bslalg_ArrayPrimitives::destructiveMoveAndInsert(
+void ArrayPrimitives::destructiveMoveAndInsert(
                                               TARGET_TYPE         *toBegin,
                                               TARGET_TYPE        **fromEndPtr,
                                               TARGET_TYPE         *fromBegin,
@@ -1088,8 +1086,8 @@ void bslalg_ArrayPrimitives::destructiveMoveAndInsert(
     uninitializedFillN(toPositionBegin, numElements, value, allocator);
 
     TARGET_TYPE *toPositionEnd   = toPositionBegin + numElements;
-    bslalg_AutoArrayDestructor<TARGET_TYPE> guard(toPositionBegin,
-                                                  toPositionEnd);
+    AutoArrayDestructor<TARGET_TYPE> guard(toPositionBegin,
+                                           toPositionEnd);
 
     //..
     //  Transformation: ABCDEFGH: ; ____[vvvvv]____
@@ -1119,16 +1117,15 @@ void bslalg_ArrayPrimitives::destructiveMoveAndInsert(
 }
 
 template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
-void bslalg_ArrayPrimitives::destructiveMoveAndInsert(
-                                                     TARGET_TYPE  *toBegin,
-                                                     TARGET_TYPE **fromEndPtr,
-                                                     TARGET_TYPE  *fromBegin,
-                                                     TARGET_TYPE  *position,
-                                                     TARGET_TYPE  *fromEnd,
-                                                     FWD_ITER      first,
-                                                     FWD_ITER      last,
-                                                     size_type     numElements,
-                                                     ALLOCATOR    *allocator)
+void ArrayPrimitives::destructiveMoveAndInsert(TARGET_TYPE  *toBegin,
+                                               TARGET_TYPE **fromEndPtr,
+                                               TARGET_TYPE  *fromBegin,
+                                               TARGET_TYPE  *position,
+                                               TARGET_TYPE  *fromEnd,
+                                               FWD_ITER      first,
+                                               FWD_ITER      last,
+                                               size_type     numElements,
+                                               ALLOCATOR    *allocator)
 {
     // Key to the transformation diagrams:
     //..
@@ -1154,8 +1151,8 @@ void bslalg_ArrayPrimitives::destructiveMoveAndInsert(
     copyConstruct(toPositionBegin, first, last, allocator);
 
     TARGET_TYPE *toPositionEnd   = toPositionBegin + numElements;
-    bslalg_AutoArrayDestructor<TARGET_TYPE> guard(toPositionBegin,
-                                                  toPositionEnd);
+    AutoArrayDestructor<TARGET_TYPE> guard(toPositionBegin,
+                                           toPositionEnd);
 
     //..
     //  Transformation: ABCDEFGH: ; ____[tuvxy]____
@@ -1185,17 +1182,16 @@ void bslalg_ArrayPrimitives::destructiveMoveAndInsert(
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void bslalg_ArrayPrimitives::destructiveMoveAndMoveInsert(
-                                                     TARGET_TYPE  *toBegin,
-                                                     TARGET_TYPE **fromEndPtr,
-                                                     TARGET_TYPE **lastPtr,
-                                                     TARGET_TYPE  *fromBegin,
-                                                     TARGET_TYPE  *position,
-                                                     TARGET_TYPE  *fromEnd,
-                                                     TARGET_TYPE  *first,
-                                                     TARGET_TYPE  *last,
-                                                     size_type     numElements,
-                                                     ALLOCATOR    *allocator)
+void ArrayPrimitives::destructiveMoveAndMoveInsert(TARGET_TYPE  *toBegin,
+                                                   TARGET_TYPE **fromEndPtr,
+                                                   TARGET_TYPE **lastPtr,
+                                                   TARGET_TYPE  *fromBegin,
+                                                   TARGET_TYPE  *position,
+                                                   TARGET_TYPE  *fromEnd,
+                                                   TARGET_TYPE  *first,
+                                                   TARGET_TYPE  *last,
+                                                   size_type     numElements,
+                                                   ALLOCATOR    *allocator)
 {
     // Key to the transformation diagrams:
     //..
@@ -1224,7 +1220,7 @@ void bslalg_ArrayPrimitives::destructiveMoveAndMoveInsert(
 
     *fromEndPtr = position;  // shorten input range after partial destruction
 
-    bslalg_AutoArrayDestructor<TARGET_TYPE>
+    AutoArrayDestructor<TARGET_TYPE>
                                    guard(toPositionEnd,
                                          toPositionEnd + (fromEnd - position));
 
@@ -1254,109 +1250,109 @@ void bslalg_ArrayPrimitives::destructiveMoveAndMoveInsert(
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives::insert(TARGET_TYPE        *toBegin,
-                                    TARGET_TYPE        *toEnd,
-                                    const TARGET_TYPE&  value,
-                                    size_type           numElements,
-                                    ALLOCATOR          *allocator)
+void ArrayPrimitives::insert(TARGET_TYPE        *toBegin,
+                             TARGET_TYPE        *toEnd,
+                             const TARGET_TYPE&  value,
+                             size_type           numElements,
+                             ALLOCATOR          *allocator)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                                 toEnd));
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
         return;                                                       // RETURN
     }
 
     enum {
-        VALUE = bslalg_HasTrait<TARGET_TYPE,
-                                bslalg_TypeTraitBitwiseCopyable
+        VALUE = HasTrait<TARGET_TYPE,
+                                TypeTraitBitwiseCopyable
                                >::VALUE ? Imp::BITWISE_COPYABLE_TRAITS
-              : bslalg_HasTrait<TARGET_TYPE,
-                                bslalg_TypeTraitBitwiseMoveable
+              : HasTrait<TARGET_TYPE,
+                                TypeTraitBitwiseMoveable
                                >::VALUE ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
-    bslalg_ArrayPrimitives_Imp::insert(toBegin,
-                                       toEnd,
-                                       value,
-                                       numElements,
-                                       allocator,
-                                       (bslmf_MetaInt<VALUE>*)0);
+    ArrayPrimitives_Imp::insert(toBegin,
+                                toEnd,
+                                value,
+                                numElements,
+                                allocator,
+                                (bslmf::MetaInt<VALUE>*)0);
 }
 
 template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives::insert(TARGET_TYPE *toBegin,
-                                    TARGET_TYPE *toEnd,
-                                    FWD_ITER     fromBegin,
-                                    FWD_ITER     fromEnd,
-                                    size_type    numElements,
-                                    ALLOCATOR   *allocator)
+void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
+                             TARGET_TYPE *toEnd,
+                             FWD_ITER     fromBegin,
+                             FWD_ITER     fromEnd,
+                             size_type    numElements,
+                             ALLOCATOR   *allocator)
 {
     if (0 == numElements) {
         return;                                                       // RETURN
     }
 
     enum {
-        IS_BITWISEMOVEABLE  = bslalg_HasTrait<TARGET_TYPE,
-                                       bslalg_TypeTraitBitwiseMoveable>::VALUE,
-        CAN_USE_BITWISECOPY = bslmf_IsConvertible<FWD_ITER,
+        IS_BITWISEMOVEABLE  = HasTrait<TARGET_TYPE,
+                                       TypeTraitBitwiseMoveable>::VALUE,
+        CAN_USE_BITWISECOPY = bslmf::IsConvertible<FWD_ITER,
                                                    const TARGET_TYPE *>::VALUE,
-        IS_BITWISECOPYABLE  = bslalg_HasTrait<TARGET_TYPE,
-                                     bslalg_TypeTraitBitwiseCopyable>::VALUE
+        IS_BITWISECOPYABLE  = HasTrait<TARGET_TYPE,
+                                     TypeTraitBitwiseCopyable>::VALUE
                               && CAN_USE_BITWISECOPY,
 
         VALUE = IS_BITWISECOPYABLE ? Imp::BITWISE_COPYABLE_TRAITS
               : IS_BITWISEMOVEABLE ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
-    bslalg_ArrayPrimitives_Imp::insert(toBegin,
-                                       toEnd,
-                                       fromBegin,
-                                       fromEnd,
-                                       numElements,
-                                       allocator,
-                                       (bslmf_MetaInt<VALUE>*)0);
+    ArrayPrimitives_Imp::insert(toBegin,
+                                toEnd,
+                                fromBegin,
+                                fromEnd,
+                                numElements,
+                                allocator,
+                                (bslmf::MetaInt<VALUE>*)0);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives::moveInsert(TARGET_TYPE  *toBegin,
-                                        TARGET_TYPE  *toEnd,
-                                        TARGET_TYPE **fromEndPtr,
-                                        TARGET_TYPE  *fromBegin,
-                                        TARGET_TYPE  *fromEnd,
-                                        size_type     numElements,
-                                        ALLOCATOR    *allocator)
+void ArrayPrimitives::moveInsert(TARGET_TYPE  *toBegin,
+                                 TARGET_TYPE  *toEnd,
+                                 TARGET_TYPE **fromEndPtr,
+                                 TARGET_TYPE  *fromBegin,
+                                 TARGET_TYPE  *fromEnd,
+                                 size_type     numElements,
+                                 ALLOCATOR    *allocator)
 {
     enum {
-        VALUE = bslalg_HasTrait<TARGET_TYPE,
-                                bslalg_TypeTraitBitwiseMoveable>::VALUE
+        VALUE = HasTrait<TARGET_TYPE,
+                                TypeTraitBitwiseMoveable>::VALUE
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
-    bslalg_ArrayPrimitives_Imp::moveInsert(toBegin,
-                                           toEnd,
-                                           fromEndPtr,
-                                           fromBegin,
-                                           fromEnd,
-                                           numElements,
-                                           allocator,
-                                           (bslmf_MetaInt<VALUE>*)0);
+    ArrayPrimitives_Imp::moveInsert(toBegin,
+                                    toEnd,
+                                    fromEndPtr,
+                                    fromBegin,
+                                    fromEnd,
+                                    numElements,
+                                    allocator,
+                                    (bslmf::MetaInt<VALUE>*)0);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives::erase(TARGET_TYPE *first,
-                                   TARGET_TYPE *middle,
-                                   TARGET_TYPE *last,
-                                   ALLOCATOR   *allocator)
+void ArrayPrimitives::erase(TARGET_TYPE *first,
+                            TARGET_TYPE *middle,
+                            TARGET_TYPE *last,
+                            ALLOCATOR   *allocator)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first,
-                                                                 middle));
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle,
-                                                                 last));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first,
+                                                          middle));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle,
+                                                          last));
 
     if (first == middle) { // erasing empty range O(1) versus O(N): Do not
                            // remove!
@@ -1364,44 +1360,44 @@ void bslalg_ArrayPrimitives::erase(TARGET_TYPE *first,
     }
 
     enum {
-        VALUE = bslalg_HasTrait<TARGET_TYPE,
-                                bslalg_TypeTraitBitwiseMoveable>::VALUE
+        VALUE = HasTrait<TARGET_TYPE,
+                                TypeTraitBitwiseMoveable>::VALUE
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
-    bslalg_ArrayPrimitives_Imp::erase(first,
-                                      middle,
-                                      last,
-                                      allocator,
-                                      (bslmf_MetaInt<VALUE>*)0);
+    ArrayPrimitives_Imp::erase(first,
+                               middle,
+                               last,
+                               allocator,
+                               (bslmf::MetaInt<VALUE>*)0);
 }
 
 template <class TARGET_TYPE>
 inline
-void bslalg_ArrayPrimitives::rotate(TARGET_TYPE *first,
-                                    TARGET_TYPE *middle,
-                                    TARGET_TYPE *last)
+void ArrayPrimitives::rotate(TARGET_TYPE *first,
+                             TARGET_TYPE *middle,
+                             TARGET_TYPE *last)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first,
-                                                                 middle));
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle,
-                                                                 last));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first,
+                                                          middle));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle,
+                                                          last));
 
     enum {
-        VALUE = bslalg_HasTrait<TARGET_TYPE,
-                                bslalg_TypeTraitBitwiseMoveable>::VALUE
+        VALUE = HasTrait<TARGET_TYPE,
+                                TypeTraitBitwiseMoveable>::VALUE
               ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
-    bslalg_ArrayPrimitives_Imp::rotate(first,
-                                       middle,
-                                       last,
-                                       (bslmf_MetaInt<VALUE>*)0);
+    ArrayPrimitives_Imp::rotate(first,
+                                middle,
+                                last,
+                                (bslmf::MetaInt<VALUE>*)0);
 }
 
-                     // ---------------------------------
-                     // struct bslalg_ArrayPrimitives_Imp
-                     // ---------------------------------
+                     // --------------------------
+                     // struct ArrayPrimitives_Imp
+                     // --------------------------
 
 // CLASS METHODS
 
@@ -1409,49 +1405,50 @@ void bslalg_ArrayPrimitives::rotate(TARGET_TYPE *first,
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives_Imp::defaultConstruct(
-                   TARGET_TYPE                                    *begin,
-                   size_type                                       numElements,
-                   ALLOCATOR                                      *,
-                   bslmf_MetaInt<HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *)
+void ArrayPrimitives_Imp::defaultConstruct(
+                  TARGET_TYPE                                     *begin,
+                  size_type                                        numElements,
+                  ALLOCATOR                                       *,
+                  bslmf::MetaInt<HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     std::memset((void *)begin, 0, sizeof(TARGET_TYPE) * numElements);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives_Imp::defaultConstruct(
-                                      TARGET_TYPE     *begin,
-                                      size_type        numElements,
-                                      ALLOCATOR       *allocator,
-                                      bslmf_MetaInt<BITWISE_COPYABLE_TRAITS> *)
+void ArrayPrimitives_Imp::defaultConstruct(
+                          TARGET_TYPE                             *begin,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
-    bslalg_ScalarPrimitives::defaultConstruct(begin, allocator);
+    ScalarPrimitives::defaultConstruct(begin, allocator);
     bitwiseFillN((char *)begin,
                  sizeof(TARGET_TYPE),
                  numElements * sizeof(TARGET_TYPE));
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void bslalg_ArrayPrimitives_Imp::defaultConstruct(TARGET_TYPE     *begin,
-                                                  size_type        numElements,
-                                                  ALLOCATOR       *allocator,
-                                                  bslmf_MetaInt<NIL_TRAITS> *)
+void ArrayPrimitives_Imp::defaultConstruct(
+                                       TARGET_TYPE                *begin,
+                                       size_type                   numElements,
+                                       ALLOCATOR                  *allocator,
+                                       bslmf::MetaInt<NIL_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
-    bslalg_AutoArrayDestructor<TARGET_TYPE> guard(begin, begin);
+    AutoArrayDestructor<TARGET_TYPE> guard(begin, begin);
 
     const TARGET_TYPE *end = begin + numElements;
     while (begin != end) {
-        bslalg_ScalarPrimitives::defaultConstruct(begin, allocator);
+        ScalarPrimitives::defaultConstruct(begin, allocator);
         begin = guard.moveEnd(1);
     }
     guard.release();
@@ -1460,180 +1457,184 @@ void bslalg_ArrayPrimitives_Imp::defaultConstruct(TARGET_TYPE     *begin,
                    // *** 'uninitializedFillN' overloads: ***
 
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                         bool                                     *begin,
-                         bool                                      value,
-                         size_type                                 numElements,
-                         void                                     *,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                        bool                                      *begin,
+                        bool                                       value,
+                        size_type                                  numElements,
+                        void                                      *,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     std::memset((char *)begin, (char)value, numElements);
 }
 
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                         char                                     *begin,
-                         char                                      value,
-                         size_type                                 numElements,
-                         void                                     *,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                        char                                      *begin,
+                        char                                       value,
+                        size_type                                  numElements,
+                        void                                      *,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     std::memset(begin, value, numElements);
 }
 
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                         unsigned char                            *begin,
-                         unsigned char                             value,
-                         size_type                                 numElements,
-                         void                                     *,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                        unsigned char                             *begin,
+                        unsigned char                              value,
+                        size_type                                  numElements,
+                        void                                      *,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     std::memset(begin, value, numElements);
 }
 
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                         signed char                              *begin,
-                         signed char                               value,
-                         size_type                                 numElements,
-                         void                                     *,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                        signed char                               *begin,
+                        signed char                                value,
+                        size_type                                  numElements,
+                        void                                      *,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     std::memset(begin, value, numElements);
 }
 
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                         wchar_t                                  *begin,
-                         wchar_t                                   value,
-                         size_type                                 numElements,
-                         void                                     *,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                        wchar_t                                   *begin,
+                        wchar_t                                    value,
+                        size_type                                  numElements,
+                        void                                      *,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     std::wmemset(begin, value, numElements);
 }
 
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                         unsigned short                           *begin,
-                         unsigned short                            value,
-                         size_type                                 numElements,
-                         void                                     *,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                        unsigned short                            *begin,
+                        unsigned short                             value,
+                        size_type                                  numElements,
+                        void                                      *,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
-    uninitializedFillN((short *)begin, (short)value, numElements,
-                       (void*)0, (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+    uninitializedFillN(
+                      (short *)begin, (short)value, numElements,
+                      (void*)0, (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 }
 
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                         unsigned int                             *begin,
-                         unsigned int                              value,
-                         size_type                                 numElements,
-                         void                                     *,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                        unsigned int                              *begin,
+                        unsigned int                               value,
+                        size_type                                  numElements,
+                        void                                      *,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
-    uninitializedFillN((int *)begin, (int)value, numElements,
-                       (void*)0, (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+    uninitializedFillN(
+                      (int *)begin, (int)value, numElements,
+                      (void*)0, (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 }
 
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                         long                                     *begin,
-                         long                                      value,
-                         size_type                                 numElements,
-                         void                                     *,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                        long                                      *begin,
+                        long                                       value,
+                        size_type                                  numElements,
+                        void                                      *,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
 #if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
-    uninitializedFillN((bsls_Types::Int64 *)begin,
-                       (bsls_Types::Int64)value,
+    uninitializedFillN((bsls::Types::Int64 *)begin,
+                       (bsls::Types::Int64)value,
                        numElements);
 #else
     uninitializedFillN((int *)begin,
                        (int)value,
                        numElements,
                        (void*)0,
-                       (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 #endif
 }
 
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                         unsigned long                            *begin,
-                         unsigned long                             value,
-                         size_type                                 numElements,
-                         void                                     *,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                        unsigned long                             *begin,
+                        unsigned long                              value,
+                        size_type                                  numElements,
+                        void                                      *,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
 #if defined(BSLS_PLATFORM__CPU_64_BIT) && !defined(BSLS_PLATFORM__OS_WINDOWS)
-    uninitializedFillN((bsls_Types::Int64 *)begin,
-                       (bsls_Types::Int64)value,
-                       numElements,
-                       (void*)0, (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+    uninitializedFillN(
+                      (bsls::Types::Int64 *)begin,
+                      (bsls::Types::Int64)value,
+                      numElements,
+                      (void*)0, (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 #else
-    uninitializedFillN((int *)begin, (int)value, numElements,
-                       (void*)0, (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+    uninitializedFillN(
+                      (int *)begin, (int)value, numElements,
+                      (void*)0, (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 #endif
 }
 
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                         bsls_Types::Uint64                       *begin,
-                         bsls_Types::Uint64                        value,
-                         size_type                                 numElements,
-                         void                                     *,
-                         bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                        bsls::Types::Uint64                       *begin,
+                        bsls::Types::Uint64                        value,
+                        size_type                                  numElements,
+                        void                                      *,
+                        bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
-    uninitializedFillN((bsls_Types::Int64 *)begin,
-                       (bsls_Types::Uint64)value,
+    uninitializedFillN((bsls::Types::Int64 *)begin,
+                       (bsls::Types::Uint64)value,
                        numElements,
                        (void*)0,
-                       (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 }
 
 template <class TARGET_TYPE>
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                        TARGET_TYPE                              **begin,
-                        TARGET_TYPE                               *value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                       TARGET_TYPE                               **begin,
+                       TARGET_TYPE                                *value,
+                       size_type                                   numElements,
+                       void                                       *,
+                       bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     // Note: 'const'-correctness is respected because the next overload picks
     // up the 'const TARGET_TYPE' and will be a better match.  Note that we
@@ -1646,20 +1647,20 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                        (void *)value,
                        numElements,
                        (void*)0,
-                       (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 }
 
 template <class TARGET_TYPE>
 inline
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                        const TARGET_TYPE                        **begin,
-                        const TARGET_TYPE                         *value,
-                        size_type                                  numElements,
-                        void                                      *,
-                        bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                       const TARGET_TYPE                         **begin,
+                       const TARGET_TYPE                          *value,
+                       size_type                                   numElements,
+                       void                                       *,
+                       bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>  *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     // While it seems that this overload is subsumed by the previous template,
     // SunPro does not detect it.
@@ -1668,19 +1669,19 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
                        (const void *)value,
                        numElements,
                        (void*)0,
-                       (bslmf_MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
+                       (bslmf::MetaInt<IS_FUNDAMENTAL_OR_POINTER>*)0);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                           TARGET_TYPE                            *begin,
-                           const TARGET_TYPE&                      value,
-                           size_type                               numElements,
-                           ALLOCATOR                              *,
-                           bslmf_MetaInt<BITWISE_COPYABLE_TRAITS> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                          TARGET_TYPE                             *begin,
+                          const TARGET_TYPE&                       value,
+                          size_type                                numElements,
+                          ALLOCATOR                               *,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
         return;
@@ -1710,24 +1711,24 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
-                                        TARGET_TYPE               *begin,
-                                        const TARGET_TYPE&         value,
-                                        size_type                  numElements,
-                                        ALLOCATOR                 *allocator,
-                                        bslmf_MetaInt<NIL_TRAITS> *)
+void ArrayPrimitives_Imp::uninitializedFillN(
+                                       TARGET_TYPE                *begin,
+                                       const TARGET_TYPE&          value,
+                                       size_type                   numElements,
+                                       ALLOCATOR                  *allocator,
+                                       bslmf::MetaInt<NIL_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(begin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
         return;                                                       // RETURN
     }
-    bslalg_AutoArrayDestructor<TARGET_TYPE> guard(begin, begin);
+    AutoArrayDestructor<TARGET_TYPE> guard(begin, begin);
 
     TARGET_TYPE *end = begin + numElements;
     do {
-        bslalg_ScalarPrimitives::copyConstruct(begin, value, allocator);
+        ScalarPrimitives::copyConstruct(begin, value, allocator);
         begin = guard.moveEnd(1);
     } while (begin != end);
     guard.release();
@@ -1737,40 +1738,39 @@ void bslalg_ArrayPrimitives_Imp::uninitializedFillN(
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives_Imp::copyConstruct(
-                             TARGET_TYPE                            *toBegin,
-                             const TARGET_TYPE                      *fromBegin,
-                             const TARGET_TYPE                      *fromEnd,
-                             ALLOCATOR                              *,
-                             bslmf_MetaInt<BITWISE_COPYABLE_TRAITS> *)
+void ArrayPrimitives_Imp::copyConstruct(
+                            TARGET_TYPE                             *toBegin,
+                            const TARGET_TYPE                       *fromBegin,
+                            const TARGET_TYPE                       *fromEnd,
+                            ALLOCATOR                               *,
+                            bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(toBegin);
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
-                                                                 fromEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                          fromEnd));
 
     const size_type numBytes = (const char*)fromEnd - (const char*)fromBegin;
     std::memcpy(toBegin, fromBegin, numBytes);
 }
 
 template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
-void bslalg_ArrayPrimitives_Imp::copyConstruct(
-                                          TARGET_TYPE               *toBegin,
-                                          FWD_ITER                   fromBegin,
-                                          FWD_ITER                   fromEnd,
-                                          ALLOCATOR                 *allocator,
-                                          bslmf_MetaInt<NIL_TRAITS> *)
+void ArrayPrimitives_Imp::copyConstruct(TARGET_TYPE                *toBegin,
+                                        FWD_ITER                    fromBegin,
+                                        FWD_ITER                    fromEnd,
+                                        ALLOCATOR                  *allocator,
+                                        bslmf::MetaInt<NIL_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
-                                                                 fromEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                          fromEnd));
 
-    bslalg_AutoArrayDestructor<TARGET_TYPE> guard(toBegin, toBegin);
+    AutoArrayDestructor<TARGET_TYPE> guard(toBegin, toBegin);
 
     while (fromBegin != fromEnd) {
-        // Note: We are not sure the value type of 'FWD_ITER' is convertible
-        // to 'TARGET_TYPE'.  Use 'construct' instead.
+        // Note: We are not sure the value type of 'FWD_ITER' is convertible to
+        // 'TARGET_TYPE'.  Use 'construct' instead.
 
-        bslalg_ScalarPrimitives::construct(toBegin, *fromBegin, allocator);
+        ScalarPrimitives::construct(toBegin, *fromBegin, allocator);
         ++fromBegin;
         toBegin = guard.moveEnd(1);
     }
@@ -1781,16 +1781,16 @@ void bslalg_ArrayPrimitives_Imp::copyConstruct(
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives_Imp::destructiveMove(
-                             TARGET_TYPE                            *toBegin,
-                             TARGET_TYPE                            *fromBegin,
-                             TARGET_TYPE                            *fromEnd,
-                             ALLOCATOR                              *,
-                             bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *)
+void ArrayPrimitives_Imp::destructiveMove(
+                            TARGET_TYPE                             *toBegin,
+                            TARGET_TYPE                             *fromBegin,
+                            TARGET_TYPE                             *fromEnd,
+                            ALLOCATOR                               *,
+                            bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
-                                                                 fromEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                          fromEnd));
 
     const size_type numBytes = (const char*)fromEnd - (const char*)fromBegin;
     std::memcpy(toBegin, fromBegin, numBytes);
@@ -1798,40 +1798,40 @@ void bslalg_ArrayPrimitives_Imp::destructiveMove(
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives_Imp::destructiveMove(
-                                          TARGET_TYPE               *toBegin,
-                                          TARGET_TYPE               *fromBegin,
-                                          TARGET_TYPE               *fromEnd,
-                                          ALLOCATOR                 *allocator,
-                                          bslmf_MetaInt<NIL_TRAITS> *)
+void ArrayPrimitives_Imp::destructiveMove(
+                                         TARGET_TYPE                *toBegin,
+                                         TARGET_TYPE                *fromBegin,
+                                         TARGET_TYPE                *fromEnd,
+                                         ALLOCATOR                  *allocator,
+                                         bslmf::MetaInt<NIL_TRAITS> *)
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
-                                                                 fromEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                          fromEnd));
 
     // 'TARGET_TYPE' certainly cannot be bit-wise copyable, so we can save the
     // compiler some work.
 
     copyConstruct(toBegin, fromBegin, fromEnd, allocator,
-                  (bslmf_MetaInt<NIL_TRAITS>*)0);
-    bslalg_ArrayDestructionPrimitives::destroy(fromBegin, fromEnd);
+                  (bslmf::MetaInt<NIL_TRAITS>*)0);
+    ArrayDestructionPrimitives::destroy(fromBegin, fromEnd);
 }
 
                    // *** 'insert' with 'value' overloads: ***
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives_Imp::insert(
-                           TARGET_TYPE                            *toBegin,
-                           TARGET_TYPE                            *toEnd,
-                           const TARGET_TYPE&                      value,
-                           size_type                               numElements,
-                           ALLOCATOR                              *allocator,
-                           bslmf_MetaInt<BITWISE_COPYABLE_TRAITS> *)
+void ArrayPrimitives_Imp::insert(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          const TARGET_TYPE&                       value,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                                 toEnd));
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     // Key to the transformation diagrams:
     //..
@@ -1841,10 +1841,10 @@ void bslalg_ArrayPrimitives_Imp::insert(
     //..
 
     // ALIASING: If 'value' is a reference into the array 'toBegin..toEnd',
-    // then moving the array first might introduce a change in 'value'.
-    // Since type is bitwise copyable, then no memory changes outside the
-    // array, so the test below is sufficient to discover all the possible
-    // aliasing.  Note that we never make a copy.
+    // then moving the array first might introduce a change in 'value'.  Since
+    // type is bitwise copyable, then no memory changes outside the array, so
+    // the test below is sufficient to discover all the possible aliasing.
+    // Note that we never make a copy.
 
     const TARGET_TYPE *tempValuePtr = BSLS_UTIL_ADDRESSOF(value);
     if (toBegin <= tempValuePtr && tempValuePtr < toEnd ) {
@@ -1868,9 +1868,9 @@ void bslalg_ArrayPrimitives_Imp::insert(
     // fundamental types using 'operator=' instead, which avoid the 'memcpy'
     // function call.
 
-    bslalg_ScalarPrimitives::copyConstruct(toBegin,
-                                           *tempValuePtr,
-                                           allocator);
+    ScalarPrimitives::copyConstruct(toBegin,
+                                    *tempValuePtr,
+                                    allocator);
 
     //..
     //  Transformation: v__ABCDE => vvvABCDE.
@@ -1880,17 +1880,17 @@ void bslalg_ArrayPrimitives_Imp::insert(
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void bslalg_ArrayPrimitives_Imp::insert(
-                           TARGET_TYPE                            *toBegin,
-                           TARGET_TYPE                            *toEnd,
-                           const TARGET_TYPE&                      value,
-                           size_type                               numElements,
-                           ALLOCATOR                              *allocator,
-                           bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *)
+void ArrayPrimitives_Imp::insert(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          const TARGET_TYPE&                       value,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                                 toEnd));
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     // Key to the transformation diagrams:
     //..
@@ -1924,15 +1924,15 @@ void bslalg_ArrayPrimitives_Imp::insert(
     //..
 
     TARGET_TYPE *destEnd = toEnd + numElements;
-    bslalg_AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
-                                                      destEnd - numGuarded,
-                                                      destEnd - numGuarded,
-                                                      destEnd);
+    AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
+                                               destEnd - numGuarded,
+                                               destEnd - numGuarded,
+                                               destEnd);
 
     while (guard.middle() != guard.end()) {
-        bslalg_ScalarPrimitives::copyConstruct(guard.destination(),
-                                               *tempValuePtr,
-                                               allocator);
+        ScalarPrimitives::copyConstruct(guard.destination(),
+                                        *tempValuePtr,
+                                        allocator);
         guard.advance();
     }
 
@@ -1940,21 +1940,21 @@ void bslalg_ArrayPrimitives_Imp::insert(
     // 'guard.destination()' is the smaller of 'destBegin' or 'toEnd'.
 
     if (tailLen < numElements) {
-        // There still is a gap of 'numElements - tailLen' to fill in
-        // between 'toEnd' and 'destBegin'.  The elements that have been
-        // 'memmove'-ed need to be guarded, we fill the gap backward from
-        // there to keep guarded portion in one piece.
+        // There still is a gap of 'numElements - tailLen' to fill in between
+        // 'toEnd' and 'destBegin'.  The elements that have been 'memmove'-ed
+        // need to be guarded, we fill the gap backward from there to keep
+        // guarded portion in one piece.
 
-        bslalg_AutoArrayDestructor<TARGET_TYPE> endGuard(destBegin, destEnd);
+        AutoArrayDestructor<TARGET_TYPE> endGuard(destBegin, destEnd);
 
         //..
         //  Transformation: vvvvv__[ABCDE] => vvvvv[vvABCDE]
         //..
 
         while (toEnd != destBegin) {
-            bslalg_ScalarPrimitives::copyConstruct(--destBegin,
-                                                   *tempValuePtr,
-                                                   allocator);
+            ScalarPrimitives::copyConstruct(--destBegin,
+                                            *tempValuePtr,
+                                            allocator);
             endGuard.moveBegin(-1);
         }
         endGuard.release();
@@ -1962,17 +1962,16 @@ void bslalg_ArrayPrimitives_Imp::insert(
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void bslalg_ArrayPrimitives_Imp::insert(
-                                      TARGET_TYPE                 *toBegin,
-                                      TARGET_TYPE                 *toEnd,
-                                      const TARGET_TYPE&           value,
-                                      size_type                    numElements,
-                                      ALLOCATOR                   *allocator,
-                                      bslmf_MetaInt<NIL_TRAITS>   *)
+void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
+                                 TARGET_TYPE                *toEnd,
+                                 const TARGET_TYPE&          value,
+                                 size_type                   numElements,
+                                 ALLOCATOR                  *allocator,
+                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                                 toEnd));
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     // Key to the transformation diagrams:
     //..
@@ -1990,25 +1989,26 @@ void bslalg_ArrayPrimitives_Imp::insert(
         //  Transformation: ABCDEFG___[] => ABCDEFG[EFG].
         //..
 
-        copyConstruct(toEnd,                // destination
+        copyConstruct(                                           // destination
+                      toEnd,
                       toEnd - numElements,  // source
                       toEnd,                // end source
                       allocator,
-                      (bslmf_MetaInt<NIL_TRAITS>*)0);
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
 
-        bslalg_AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
-                                                      toEnd + numElements);
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
+                                               toEnd + numElements);
 
-        // Aliasing: Make a temp copy of 'value' (always).  The reason is
-        // that 'value' could be a reference inside the input range, or
-        // even outside but with lifetime controlled by one of these
-        // values, and so the next transformation could invalidate 'value'.
-        // Note: One cannot rely on 'TARGET_TYPE' to have a single-argument
-        // copy ctor (i.e., default allocator argument to 0) if it takes an
-        // allocator; hence the constructor proxy.
+        // Aliasing: Make a temp copy of 'value' (always).  The reason is that
+        // 'value' could be a reference inside the input range, or even outside
+        // but with lifetime controlled by one of these values, and so the next
+        // transformation could invalidate 'value'.  Note: One cannot rely on
+        // 'TARGET_TYPE' to have a single-argument copy ctor (i.e., default
+        // allocator argument to 0) if it takes an allocator; hence the
+        // constructor proxy.
 
-        bslalg_ConstructorProxy<TARGET_TYPE>
-                                  tempValue(value, bslma_Default::allocator());
+        ConstructorProxy<TARGET_TYPE>
+                                 tempValue(value, bslma::Default::allocator());
 
         //..
         //  Transformation: ABCDEFG[EFG] => ABCABCD[EFG].
@@ -2031,9 +2031,9 @@ void bslalg_ArrayPrimitives_Imp::insert(
         guard.release();
     }
     else {
-        // Tail is shorter than input.  We can avoid the temp copy of
-        // value since there will be space to make a first copy after the
-        // tail, and use that to make the subsequent copies.
+        // Tail is shorter than input.  We can avoid the temp copy of value
+        // since there will be space to make a first copy after the tail, and
+        // use that to make the subsequent copies.
 
         difference_type remElements = numElements - tailLen;
 
@@ -2041,14 +2041,15 @@ void bslalg_ArrayPrimitives_Imp::insert(
         //  Transformation: ABC_______[] => ABC____[ABC].
         //..
 
-        copyConstruct(toBegin + numElements,  // destination
+        copyConstruct(                                           // destination
+                      toBegin + numElements,
                       toBegin,                // source
                       toEnd,                  // end source
                       allocator,
-                      (bslmf_MetaInt<NIL_TRAITS>*)0);
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
 
-        bslalg_AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
-                                                      toEnd + numElements);
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
+                                               toEnd + numElements);
 
         //..
         //  Transformation: ABC____[ABC] => ABC[vvvvABC].
@@ -2058,7 +2059,7 @@ void bslalg_ArrayPrimitives_Imp::insert(
                            value,
                            remElements,
                            allocator,
-                           (bslmf_MetaInt<NIL_TRAITS>*)0);
+                           (bslmf::MetaInt<NIL_TRAITS>*)0);
         guard.moveBegin(-remElements);
 
         //..
@@ -2077,23 +2078,23 @@ void bslalg_ArrayPrimitives_Imp::insert(
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives_Imp::insert(
-                           TARGET_TYPE                            *toBegin,
-                           TARGET_TYPE                            *toEnd,
-                           const TARGET_TYPE                      *fromBegin,
-                           const TARGET_TYPE                      *fromEnd,
-                           size_type                               numElements,
-                           ALLOCATOR                              *,
-                           bslmf_MetaInt<BITWISE_COPYABLE_TRAITS> *)
+void ArrayPrimitives_Imp::insert(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          const TARGET_TYPE                       *fromBegin,
+                          const TARGET_TYPE                       *fromEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *,
+                          bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *)
 {
     // 'FWD_ITER' has been converted to a 'const TARGET_TYPE *' and
     // 'TARGET_TYPE' is bit-wise copyable.
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                                 toEnd));
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(fromBegin,
-                                                                 fromEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(fromBegin,
+                                                          fromEnd));
     BSLS_ASSERT_SAFE(fromBegin || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     BSLS_ASSERT_SAFE(fromBegin + numElements == fromEnd);
     BSLS_ASSERT_SAFE(fromEnd <= toBegin || toEnd + numElements <= fromBegin);
@@ -2121,27 +2122,27 @@ void bslalg_ArrayPrimitives_Imp::insert(
 }
 
 template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
-void bslalg_ArrayPrimitives_Imp::insert(
-                           TARGET_TYPE                            *toBegin,
-                           TARGET_TYPE                            *toEnd,
-                           FWD_ITER                                fromBegin,
-                           FWD_ITER,
-                           size_type                               numElements,
-                           ALLOCATOR                              *allocator,
-                           bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *)
+void ArrayPrimitives_Imp::insert(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          FWD_ITER                                 fromBegin,
+                          FWD_ITER,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
     // 'TARGET_TYPE' is bit-wise moveable.
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                                 toEnd));
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
         return;                                                       // RETURN
     }
 
-    // The following assertions only make sense if 'FWD_ITER' is a pointer
-    // to a possibly cv-qualified 'TARGET_TYPE', and are tested in that
-    // overload (see above).
+    // The following assertions only make sense if 'FWD_ITER' is a pointer to a
+    // possibly cv-qualified 'TARGET_TYPE', and are tested in that overload
+    // (see above).
     //..
     //  BSLS_ASSERT(fromBegin + numElements == fromEnd);
     //  BSLS_ASSERT(fromEnd <= toBegin || toEnd + numElements <= fromBegin);
@@ -2172,15 +2173,15 @@ void bslalg_ArrayPrimitives_Imp::insert(
     //..
 
     TARGET_TYPE *destEnd = toEnd + numElements;
-    bslalg_AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
-                                                      destEnd - numGuarded,
-                                                      destEnd - numGuarded,
-                                                      destEnd);
+    AutoArrayMoveDestructor<TARGET_TYPE> guard(toBegin,
+                                               destEnd - numGuarded,
+                                               destEnd - numGuarded,
+                                               destEnd);
 
     for (; guard.middle() != guard.end(); ++fromBegin) {
-        bslalg_ScalarPrimitives::construct(guard.destination(),
-                                           *fromBegin,
-                                           allocator);
+        ScalarPrimitives::construct(guard.destination(),
+                                    *fromBegin,
+                                    allocator);
         guard.advance();
     }
 
@@ -2188,22 +2189,22 @@ void bslalg_ArrayPrimitives_Imp::insert(
     // 'guard.destination()' is the smaller of 'destBegin' or 'toEnd'.
 
     if (tailLen < numElements) {
-        // There still is a gap of 'numElements - tailLen' to fill in
-        // between 'toEnd' and 'destBegin'.  The elements that have been
-        // 'memmove'-ed need to be guarded, and we need to continue to fill the
-        // hole at the same guarding the copied elements as well.
+        // There still is a gap of 'numElements - tailLen' to fill in between
+        // 'toEnd' and 'destBegin'.  The elements that have been 'memmove'-ed
+        // need to be guarded, and we need to continue to fill the hole at the
+        // same guarding the copied elements as well.
 
-        bslalg_AutoArrayDestructor<TARGET_TYPE> endGuard1(toEnd, toEnd);
-        bslalg_AutoArrayDestructor<TARGET_TYPE> endGuard2(destBegin, destEnd);
+        AutoArrayDestructor<TARGET_TYPE> endGuard1(toEnd, toEnd);
+        AutoArrayDestructor<TARGET_TYPE> endGuard2(destBegin, destEnd);
 
         //..
         //  Transformation: tuvwx__[ABCDE] => tuvwx[yzABCDE].
         //..
 
         for (; toEnd != destBegin; ++fromBegin) {
-            bslalg_ScalarPrimitives::construct(toEnd,
-                                               *fromBegin,
-                                               allocator);
+            ScalarPrimitives::construct(toEnd,
+                                        *fromBegin,
+                                        allocator);
             toEnd = endGuard1.moveEnd(1);
         }
         endGuard1.release();
@@ -2212,17 +2213,17 @@ void bslalg_ArrayPrimitives_Imp::insert(
 }
 
 template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
-void bslalg_ArrayPrimitives_Imp::insert(TARGET_TYPE               *toBegin,
-                                        TARGET_TYPE               *toEnd,
-                                        FWD_ITER                   fromBegin,
-                                        FWD_ITER                   fromEnd,
-                                        size_type                  numElements,
-                                        ALLOCATOR                 *allocator,
-                                        bslmf_MetaInt<NIL_TRAITS> *)
+void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
+                                 TARGET_TYPE                *toEnd,
+                                 FWD_ITER                    fromBegin,
+                                 FWD_ITER                    fromEnd,
+                                 size_type                   numElements,
+                                 ALLOCATOR                  *allocator,
+                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                                 toEnd));
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
 
     if (0 == numElements) {
         return;                                                       // RETURN
@@ -2244,14 +2245,15 @@ void bslalg_ArrayPrimitives_Imp::insert(TARGET_TYPE               *toBegin,
         //  Transformation: ABCDEFG___[] => ABCDEFG[EFG].
         //..
 
-        copyConstruct(toEnd,                // destination
+        copyConstruct(                                           // destination
+                      toEnd,
                       toEnd - numElements,  // source
                       toEnd,                // end source
                       allocator,
-                      (bslmf_MetaInt<NIL_TRAITS>*)0);
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
 
-        bslalg_AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
-                                                      toEnd + numElements);
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd,
+                                               toEnd + numElements);
 
         //..
         //  Transformation: ABCDEFG[EFG] => ABCABCD[EFG].
@@ -2282,14 +2284,15 @@ void bslalg_ArrayPrimitives_Imp::insert(TARGET_TYPE               *toBegin,
         //  Transformation: ABC_______[] => ABC____[ABC]
         //..
 
-        copyConstruct(toBegin + numElements,  // destination
+        copyConstruct(                                           // destination
+                      toBegin + numElements,
                       toBegin,                // source
                       toEnd,                  // end source
                       allocator,
-                      (bslmf_MetaInt<NIL_TRAITS>*)0);
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
 
-        bslalg_AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
-                                                      toEnd + numElements);
+        AutoArrayDestructor<TARGET_TYPE> guard(toEnd + remElements,
+                                               toEnd + numElements);
 
         //..
         //  Transformation: ABC____[ABC] => tuv____[ABC].
@@ -2306,7 +2309,7 @@ void bslalg_ArrayPrimitives_Imp::insert(TARGET_TYPE               *toBegin,
                       fromBegin,
                       fromEnd,
                       allocator,
-                      (bslmf_MetaInt<NIL_TRAITS>*)0);
+                      (bslmf::MetaInt<NIL_TRAITS>*)0);
 
         guard.release();
     }
@@ -2316,48 +2319,47 @@ void bslalg_ArrayPrimitives_Imp::insert(TARGET_TYPE               *toBegin,
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives_Imp::moveInsert(
-                          TARGET_TYPE                             *toBegin,
-                          TARGET_TYPE                             *toEnd,
-                          TARGET_TYPE                            **lastPtr,
-                          TARGET_TYPE                             *first,
-                          TARGET_TYPE                             *last,
-                          size_type                                numElements,
-                          ALLOCATOR                               *allocator,
-                          bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS>  *)
+void ArrayPrimitives_Imp::moveInsert(
+                         TARGET_TYPE                              *toBegin,
+                         TARGET_TYPE                              *toEnd,
+                         TARGET_TYPE                             **lastPtr,
+                         TARGET_TYPE                              *first,
+                         TARGET_TYPE                              *last,
+                         size_type                                 numElements,
+                         ALLOCATOR                                *allocator,
+                         bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS>  *)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                                 toEnd));
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first, last));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, last));
     BSLS_ASSERT_SAFE(first || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
     BSLS_ASSERT_SAFE(lastPtr);
 
     // Functionally indistinguishable from this:
 
     *lastPtr = last;
     insert(toBegin, toEnd, first, last, numElements, allocator,
-           (bslmf_MetaInt<BITWISE_COPYABLE_TRAITS>*)0);
+           (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS>*)0);
     *lastPtr = first;
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
-void bslalg_ArrayPrimitives_Imp::moveInsert(
-                                       TARGET_TYPE                *toBegin,
-                                       TARGET_TYPE                *toEnd,
-                                       TARGET_TYPE               **lastPtr,
-                                       TARGET_TYPE                *first,
-                                       TARGET_TYPE                *last,
-                                       size_type                   numElements,
-                                       ALLOCATOR                  *allocator,
-                                       bslmf_MetaInt<NIL_TRAITS>  *)
+void ArrayPrimitives_Imp::moveInsert(TARGET_TYPE                 *toBegin,
+                                     TARGET_TYPE                 *toEnd,
+                                     TARGET_TYPE                **lastPtr,
+                                     TARGET_TYPE                 *first,
+                                     TARGET_TYPE                 *last,
+                                     size_type                    numElements,
+                                     ALLOCATOR                   *allocator,
+                                     bslmf::MetaInt<NIL_TRAITS>  *)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(toBegin,
-                                                                 toEnd));
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first, last));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(toBegin,
+                                                          toEnd));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first, last));
     BSLS_ASSERT_SAFE(first || 0 == numElements);
-    BSLMF_ASSERT((bslmf_IsSame<size_type, std::size_t>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<size_type, std::size_t>::VALUE));
     BSLS_ASSERT_SAFE(lastPtr);
 
     // There isn't any advantage at destroying [first,last) one by one as we're
@@ -2365,25 +2367,25 @@ void bslalg_ArrayPrimitives_Imp::moveInsert(
 
     *lastPtr = last;
     insert(toBegin, toEnd, first, last, numElements, allocator,
-           (bslmf_MetaInt<NIL_TRAITS>*)0);
-    bslalg_ArrayDestructionPrimitives::destroy(first, last);
+           (bslmf::MetaInt<NIL_TRAITS>*)0);
+    ArrayDestructionPrimitives::destroy(first, last);
     *lastPtr = first;
 }
 
                           // *** 'erase' overloads: ***
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void bslalg_ArrayPrimitives_Imp::erase(
-                             TARGET_TYPE                            *first,
-                             TARGET_TYPE                            *middle,
-                             TARGET_TYPE                            *last,
-                             ALLOCATOR                              *,
-                             bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *)
+void ArrayPrimitives_Imp::erase(
+                               TARGET_TYPE                             *first,
+                               TARGET_TYPE                             *middle,
+                               TARGET_TYPE                             *last,
+                               ALLOCATOR                               *,
+                               bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first,
-                                                                 middle));
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle,
-                                                                 last));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first,
+                                                          middle));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle,
+                                                          last));
 
     // Key to the transformation diagrams:
     //..
@@ -2395,7 +2397,7 @@ void bslalg_ArrayPrimitives_Imp::erase(
     //..
     //  Transformation: tuvABCDEFG => ___ABCDEFG (no throw)
     //..
-    bslalg_ArrayDestructionPrimitives::destroy(first, middle);
+    ArrayDestructionPrimitives::destroy(first, middle);
 
     //..
     //  Transformation: ___ABCDEFG => ABCDEFG___  (might overlap, but no throw)
@@ -2405,16 +2407,16 @@ void bslalg_ArrayPrimitives_Imp::erase(
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
-void bslalg_ArrayPrimitives_Imp::erase(TARGET_TYPE               *first,
-                                       TARGET_TYPE               *middle,
-                                       TARGET_TYPE               *last,
-                                       ALLOCATOR                 *,
-                                       bslmf_MetaInt<NIL_TRAITS> *)
+void ArrayPrimitives_Imp::erase(TARGET_TYPE                *first,
+                                TARGET_TYPE                *middle,
+                                TARGET_TYPE                *last,
+                                ALLOCATOR                  *,
+                                bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(first,
-                                                                 middle));
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle,
-                                                                 last));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(first,
+                                                          middle));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle,
+                                                          last));
 
     // Key to the transformation diagrams:
     //..
@@ -2435,35 +2437,35 @@ void bslalg_ArrayPrimitives_Imp::erase(TARGET_TYPE               *first,
     //  Transformation: ABCDEFGEFG => ABCDEFG___.
     //..
 
-    bslalg_ArrayDestructionPrimitives::destroy(first, middle);
+    ArrayDestructionPrimitives::destroy(first, middle);
 }
 
                          // *** 'rotate' overloads: ***
 
 template <class TARGET_TYPE>
 inline
-void bslalg_ArrayPrimitives_Imp::rotate(
-                                TARGET_TYPE                            *begin,
-                                TARGET_TYPE                            *middle,
-                                TARGET_TYPE                            *end,
-                                bslmf_MetaInt<BITWISE_MOVEABLE_TRAITS> *)
+void ArrayPrimitives_Imp::rotate(
+                               TARGET_TYPE                             *begin,
+                               TARGET_TYPE                             *middle,
+                               TARGET_TYPE                             *end,
+                               bslmf::MetaInt<BITWISE_MOVEABLE_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(begin,
-                                                                 middle));
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle, end));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(begin,
+                                                          middle));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle, end));
 
     bitwiseRotate((char *)begin, (char *)middle, (char *)end);
 }
 
 template <class TARGET_TYPE>
-void bslalg_ArrayPrimitives_Imp::rotate(TARGET_TYPE               *begin,
-                                        TARGET_TYPE               *middle,
-                                        TARGET_TYPE               *end,
-                                        bslmf_MetaInt<NIL_TRAITS> *)
+void ArrayPrimitives_Imp::rotate(TARGET_TYPE                *begin,
+                                 TARGET_TYPE                *middle,
+                                 TARGET_TYPE                *end,
+                                 bslmf::MetaInt<NIL_TRAITS> *)
 {
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(begin,
-                                                                 middle));
-    BSLS_ASSERT_SAFE(!bslalg_ArrayPrimitives_Imp::isInvalidRange(middle, end));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(begin,
+                                                          middle));
+    BSLS_ASSERT_SAFE(!ArrayPrimitives_Imp::isInvalidRange(middle, end));
 
     if (begin == middle || middle == end) {
         // This test changes into O(1) what would otherwise be O(N): Do not
@@ -2596,26 +2598,28 @@ void bslalg_ArrayPrimitives_Imp::rotate(TARGET_TYPE               *begin,
 }
 
 template <class FORWARD_ITERATOR>
-bool bslalg_ArrayPrimitives_Imp::isInvalidRange(FORWARD_ITERATOR,
-                                                FORWARD_ITERATOR)
+bool ArrayPrimitives_Imp::isInvalidRange(FORWARD_ITERATOR,
+                                         FORWARD_ITERATOR)
 {
     // Ideally would dispatch on random_access_iterator_tag to support
     // generalized random access iterators, but we are constrained by 'bsl'
-    // levelization to not depend on 'bsl_iterator.h'.  As the intent is
-    // to detect invalid ranges in assertions, the conservative choice is
-    // to return 'false' always.
+    // levelization to not depend on 'bsl_iterator.h'.  As the intent is to
+    // detect invalid ranges in assertions, the conservative choice is to
+    // return 'false' always.
 
     return false;
 }
 
 template <class TARGET_TYPE>
-bool bslalg_ArrayPrimitives_Imp::isInvalidRange(TARGET_TYPE *begin,
-                                                TARGET_TYPE *end)
+bool ArrayPrimitives_Imp::isInvalidRange(TARGET_TYPE *begin,
+                                         TARGET_TYPE *end)
 {
     return !begin != !end || begin > end;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

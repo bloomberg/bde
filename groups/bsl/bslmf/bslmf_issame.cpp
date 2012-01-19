@@ -1,4 +1,4 @@
-// bslmf_issame.cpp                -*-C++-*-
+// bslmf_issame.cpp                                                   -*-C++-*-
 #include <bslmf_issame.h>
 
 #include <bsls_ident.h>

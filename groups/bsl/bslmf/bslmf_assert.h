@@ -38,11 +38,11 @@ BSLS_IDENT("$Id: $")
 //..
 // If the macro argument if true, the macro will generate an innocuous
 // 'typedef' with a name that is the concatenation of the symbol
-// 'bslmf_Assert', and the value of '__LINE__' (which will be the line number
+// 'bslmf::Assert', and the value of '__LINE__' (which will be the line number
 // in the file where the macro was called).  For example, the first line from
 // the example above might result in the following statement:
 //..
-//  typedef bslmf_AssertTest<1> bslmf_Assert_85;
+//  typedef bslmf::AssertTest<1> bslmf_Assert_85;
 //..
 // Note that these generated typedefs are implementation details of the
 // compile-time checking facility and are not intended to be used directly
@@ -51,42 +51,42 @@ BSLS_IDENT("$Id: $")
 // Attempting to invoke 'BSLMF_ASSERT' on a non-compile-time value will
 // typically result in a compilation error.
 //
-// 'BSLMF_ASSERT' can be used at namespace, class, and function scope to
-// assert compile-time conditions.  !WARNING:! a compiler bug on certain
-// platforms produces an error when the 'BSLMF_ASSERT' macro is used more than
-// once on the *same* line in class scope.
+// 'BSLMF_ASSERT' can be used at namespace, class, and function scope to assert
+// compile-time conditions.  !WARNING:! a compiler bug on certain platforms
+// produces an error when the 'BSLMF_ASSERT' macro is used more than once on
+// the *same* line in class scope.
 //..
-//   +---------------------------------------------
-//   | // mytype.h
-//   | #ifndef INCLUDED_BSLMF_ASSERT
-//   | #include <bslmf_assert.h>
-//   | #endif
-//   |
-//   | class MyType {
-//   |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));  // OK
-//   |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));  // OK
-//   |     BSLMF_ASSERT(1 == 1);                       // OK
-//   |     BSLMF_ASSERT(1 == 1); BSLMF_ASSERT(1 == 1); // SAME LINE - MIGHT
-//   |                                                 // CAUSE ERROR!
-//   |
-//   |     int d_data;
-//   |     ...
-//   |     void foo();
-//   |     ...
-//   | };
+//  +---------------------------------------------
+//  | // mytype.h
+//  | #ifndef INCLUDED_BSLMF_ASSERT
+//  | #include <bslmf_assert.h>
+//  | #endif
+//  |
+//  | class MyType {
+//  |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));  // OK
+//  |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));  // OK
+//  |     BSLMF_ASSERT(1 == 1);                       // OK
+//  |     BSLMF_ASSERT(1 == 1); BSLMF_ASSERT(1 == 1); // SAME LINE - MIGHT
+//  |                                                 // CAUSE ERROR!
+//  |
+//  |     int d_data;
+//  |     ...
+//  |     void foo();
+//  |     ...
+//  | };
 //
-//         +---------------------------------------------
-//         | // mytype.cpp
-//         | #include <mytype.h>
-//         | #include <bslmf_assert.h>
-//         |
-//         | BSLMF_ASSERT(sizeof(int) >= sizeof(char));
-//         |
-//         | void MyType::foo()
-//         | {
-//         |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));
-//         |     ...
-//         | }
+//        +---------------------------------------------
+//        | // mytype.cpp
+//        | #include <mytype.h>
+//        | #include <bslmf_assert.h>
+//        |
+//        | BSLMF_ASSERT(sizeof(int) >= sizeof(char));
+//        |
+//        | void MyType::foo()
+//        | {
+//        |     BSLMF_ASSERT(sizeof(int) >= sizeof(char));
+//        |     ...
+//        | }
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -124,20 +124,24 @@ namespace BloombergLP {
 
 // Using a different implementation on Sun; see BSLMF_ASSERT for details.
 
-struct bslmf_Assert_TrueType {
+namespace bslmf {
+
+struct Assert_TrueType {
     typedef int BSLMF_COMPILE_TIME_ASSERTION_FAILURE;
 };
 
-struct bslmf_Assert_FalseType {
+struct Assert_FalseType {
 };
 
 template <bool COND>
-struct bslmf_Assert_If : bslmf_Assert_TrueType {
+struct Assert_If : Assert_TrueType {
 };
 
 template <>
-struct bslmf_Assert_If<false> : bslmf_Assert_FalseType {
+struct Assert_If<false> : Assert_FalseType {
 };
+
+}  // close package namespace
 
 #else
 
@@ -148,18 +152,22 @@ struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE;
 
 template <>
 struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE<1> {
-    // Specialization for value 1 (true).  Referencing this specialization
-    // will allow compilation to succeed (assert succeeded).
+    // Specialization for value 1 (true).  Referencing this specialization will
+    // allow compilation to succeed (assert succeeded).
 
     enum { VALUE = 1 };
 };
 
+namespace bslmf {
+
 template <int INTEGER>
-struct bslmf_AssertTest {
+struct AssertTest {
     // Instantiating this type involves instantiating its template parameter.
     // This dummy type is just used to force instantiation of a meta-function
     // used as its argument.
 };
+
+}  // close package namespace
 
 #endif
 
@@ -170,16 +178,16 @@ struct bslmf_AssertTest {
 #if defined(BSLS_PLATFORM__CMP_SUN)
 
 // The usual definition of the 'BSLMF_ASSERT' macro doesn't work with SunCC
-// (version 10 and below) inside template classes.  Note that Sun CC has a quite
-// non-conformant (read 'broken') template instantiation mechanism.  See DRQS
-// 29636421 for an example of code Sun CC didn't compile correctly with the
-// usual definition of 'BSLMF_ASSERT'.  Below is the definition that works more
-// reliably.  This definition is not well-formed, it just happens to work with
-// SunCC.  So don't use it with other compilers.
+// (version 10 and below) inside template classes.  Note that Sun CC has a
+// quite non-conformant (read 'broken') template instantiation mechanism.  See
+// DRQS 29636421 for an example of code Sun CC didn't compile correctly with
+// the usual definition of 'BSLMF_ASSERT'.  Below is the definition that works
+// more reliably.  This definition is not well-formed, it just happens to work
+// with SunCC.  So don't use it with other compilers.
 
 #define BSLMF_ASSERT(expr)                                         \
     struct BSLMF_ASSERT__CAT(bslmf_Assert_, __LINE__)              \
-        : ::BloombergLP::bslmf_Assert_If<!!(int)(expr)>            \
+        : ::BloombergLP::bslmf::Assert_If<!!(int)(expr)>           \
     {                                                              \
         BSLMF_COMPILE_TIME_ASSERTION_FAILURE * dummy;              \
     };                                                             \
@@ -191,20 +199,20 @@ struct bslmf_AssertTest {
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
 
 #define BSLMF_ASSERT(expr) \
-typedef BloombergLP::bslmf_AssertTest< \
+typedef BloombergLP::bslmf::AssertTest< \
     sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(int)(expr)>)> \
                 bslmf_Assert_MSVC_ZI_BUG
 
 #else
 
 #define BSLMF_ASSERT(expr) \
-typedef BloombergLP::bslmf_AssertTest< \
+typedef BloombergLP::bslmf::AssertTest< \
     sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(int)(expr)>)> \
                 BSLMF_ASSERT__CAT(bslmf_Assert_, __LINE__)
 
 #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 

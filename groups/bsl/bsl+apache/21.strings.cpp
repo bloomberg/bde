@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -82,12 +82,12 @@ _rw_iter_names[] = {
 // order of elements depends on the values of StringIds::FuncId
 static const char* const
 _rw_func_names[] = {
-    "append", "assign", "erase", "insert", "replace", "operator+=", "find", 
-    "rfind", "find_first_of", "find_last_of", "find_first_not_of", 
+    "append", "assign", "erase", "insert", "replace", "operator+=", "find",
+    "rfind", "find_first_of", "find_last_of", "find_first_not_of",
     "find_last_not_of", "compare", "substr", "operator[]", "at", "copy",
     0 /* special handling for the ctor */, "operator=", "swap", "push_back",
     "operator+", "operator==", "operator!=", "operator<", "operator<=",
-    "operator>", "operator>=", "size", "length", "max_size", "resize", 
+    "operator>", "operator>=", "size", "length", "max_size", "resize",
     "capacity", "reserve", "clear", "empty", "begin", "end", "rbegin",
     "rend", "c_str", "data", "get_allocator", "operator>>", "operator<<",
     "getline"
@@ -371,7 +371,7 @@ _rw_sigcat (char **pbuf, size_t *pbufsize,
             rw_asnprintf (pbuf, pbufsize,
                           "%{+}%{?}, %{;}%{?}const %{;}%{$CLASS}&",
                           0 < argno, Ids::arg_cstr == argtype);
-            
+
         }
     }
 
@@ -544,7 +544,7 @@ rw_setvars (const StringFunc     &func,
 
     char str_buf [256];
     char arg_buf [256];
-    
+
     char *str;
     char *arg;
 
@@ -738,14 +738,14 @@ rw_setvars (const StringFunc     &func,
 
     case StringIds::insert_size_cptr:
         // format self-referential ptr argument without size as c_str()
-        rw_asnprintf (&buf, &bufsize, 
+        rw_asnprintf (&buf, &bufsize,
                       "%{+} (%zu, %{?}c_str()%{:}%{#*s}%{;})",
                       pcase->off, self, int (arg_len), arg);
         break;
 
     case StringIds::insert_size_cstr:
         // format self-referential str argument as *this
-        rw_asnprintf (&buf, &bufsize,  
+        rw_asnprintf (&buf, &bufsize,
                       "%{+} (%zu, %{?}*this%{:}%s(%{#*s})%{;})",
                       pcase->off, self, class_name, int (arg_len), arg);
         break;
@@ -753,7 +753,7 @@ rw_setvars (const StringFunc     &func,
     case StringIds::insert_size_cptr_size:
         // format self-referential ptr argument with size as data()
         rw_asnprintf (&buf, &bufsize, "%{+} ("
-                      "%zu, %{?}data()%{:}%{#*s}%{;}, %zu)", 
+                      "%zu, %{?}data()%{:}%{#*s}%{;}, %zu)",
                       pcase->off, self, int (arg_len), arg,
                       pcase->size2);
         break;
@@ -819,7 +819,7 @@ rw_setvars (const StringFunc     &func,
     case StringIds::compare_size_size_cptr_size:
         // format self-referential ptr argument with size as data()
         rw_asnprintf (&buf, &bufsize, "%{+} ("
-                      "%zu, %zu, %{?}data()%{:}%{#*s}%{;}, %zu)", 
+                      "%zu, %zu, %{?}data()%{:}%{#*s}%{;}, %zu)",
                       pcase->off, pcase->size, self,
                       int (arg_len), arg, pcase->size2);
         break;
@@ -835,7 +835,7 @@ rw_setvars (const StringFunc     &func,
         break;
 
     case StringIds::replace_size_size_size_val:
-        rw_asnprintf (&buf, &bufsize, 
+        rw_asnprintf (&buf, &bufsize,
                       "%{+} (%zu, %zu, %zu, %{#c})",
                       pcase->off, pcase->size, pcase->size2, pcase->val);
         break;
@@ -863,15 +863,15 @@ rw_setvars (const StringFunc     &func,
     case StringIds::replace_iter_iter_cptr_size:
         // format self-referential ptr argument with size as data()
         rw_asnprintf (&buf, &bufsize, "%{+} (begin()%{?} + %zu%{;}, "
-                      "begin()%{?} + %zu%{;}, " 
-                      "%{?}data()%{:}%{#*s}%{;}, %zu)", 
+                      "begin()%{?} + %zu%{;}, "
+                      "%{?}data()%{:}%{#*s}%{;}, %zu)",
                       0 != pcase->off, pcase->off,
                       0 != range1_end, range1_end,
                       self, int (arg_len), arg, pcase->size2);
         break;
 
     case StringIds::replace_iter_iter_size_val:
-        rw_asnprintf (&buf, &bufsize, 
+        rw_asnprintf (&buf, &bufsize,
                       "%{+} (begin()%{?} + %zu%{;}, begin()%{? + %zu%{;}, "
                       "%zu, %{#c})",
                       0 != pcase->off, pcase->off, 0 != range1_end, range1_end,
@@ -949,7 +949,7 @@ rw_setvars (const StringFunc     &func,
         rw_asnprintf (&buf, &bufsize,
                       "%{+} (const allocator_type&)");
         break;
-        
+
     case StringIds::erase_size:
     case StringIds::substr_size:
     case StringIds::op_index_size:
@@ -978,7 +978,7 @@ rw_setvars (const StringFunc     &func,
 
     case StringIds::erase_iter_iter:
         rw_asnprintf (&buf, &bufsize,
-                      "%{+} (begin()%{?} + %zu%{;}, begin()%{?} + %zu%{;})", 
+                      "%{+} (begin()%{?} + %zu%{;}, begin()%{?} + %zu%{;})",
                       0 != pcase->off, pcase->off,
                       0 != range1_end, range1_end);
         break;
@@ -1137,7 +1137,7 @@ _rw_dispatch (charT*, Traits*, Allocator*,
     }
 
     const bool reverse_iter =
-           StringIds::ReverseIterator == func.iter_id_ 
+           StringIds::ReverseIterator == func.iter_id_
         || StringIds::ConstReverseIterator == func.iter_id_;
 
     const Data tdata (func, tcase);
@@ -1147,7 +1147,7 @@ _rw_dispatch (charT*, Traits*, Allocator*,
 
         const size_t func_id = StringIds::fid_mask & int (tdata.func_.which_);
 
-        const bool like_ctor =    StringIds::fid_ctor == func_id 
+        const bool like_ctor =    StringIds::fid_ctor == func_id
                                || StringIds::fid_assign == func_id;
 
         // ctor and assignment operator require the full string reverse
@@ -1687,7 +1687,7 @@ _rw_run_test  (int               argc,
     free (optbuf);
 
     return status;
-}   
+}
 
 
 

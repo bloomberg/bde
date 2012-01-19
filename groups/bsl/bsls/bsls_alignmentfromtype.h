@@ -10,28 +10,28 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function that maps a 'TYPE' to its alignment.
 //
 //@CLASSES:
-//   bsls_AlignmentFromType: mechanism to compute alignment for a given 'TYPE'
+//  bsls::AlignmentFromType: mechanism to compute alignment for a given 'TYPE'
 //
 //@SEE_ALSO: bsls_alignmenttotype
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component contains a template meta-function,
-// 'bsls_AlignmentFromType', parameterized on 'TYPE', that defines an integral
-// constant 'VALUE' initialized (at compile-time) to the required alignment
-// for 'TYPE'.  'bsls_AlignmentFromType' also provides a 'typedef', 'Type',
-// that is an alias for a primitive type that has the same alignment
-// requirements as 'TYPE'.
+// 'bsls::AlignmentFromType', parameterized on 'TYPE', that defines an integral
+// constant 'VALUE' initialized (at compile-time) to the required alignment for
+// 'TYPE'.  'bsls::AlignmentFromType' also provides a 'typedef', 'Type', that
+// is an alias for a primitive type that has the same alignment requirements as
+// 'TYPE'.
 //
 ///Terminology
 ///-----------
 // *Efficient* *Alignment* is any alignment that prevents the CPU from
 // performing unaligned memory access.
 //
-// *Compiler* *Alignment* is the alignment chosen for a data type by a
-// specific compiler with a specific set of compile-time options.  On most
-// platforms, the compiler can be instructed to pack all structures with
-// 1-byte alignment, even if inefficient memory access results.
+// *Compiler* *Alignment* is the alignment chosen for a data type by a specific
+// compiler with a specific set of compile-time options.  On most platforms,
+// the compiler can be instructed to pack all structures with 1-byte alignment,
+// even if inefficient memory access results.
 //
 // *Required* *Alignment* is synonymous with *Compiler* *Alignment*, even when
 // the CPU supports unaligned access.  The terms "required alignment" and
@@ -44,16 +44,16 @@ BSLS_IDENT("$Id: $")
 // identical on all platforms.  For example, Linux on 32-bit Intel aligns an
 // 8-byte 'double' on a 4-byte boundary within a 'struct'.
 //
-// On platforms with 32-bit words, there is usually no efficiency gain by
-// using more than 4-byte alignment.  Yet some compilers use 8-byte alignment
-// for 'long long' or 'double', presumably so that the code will run faster on
-// a 64-bit CPU.
+// On platforms with 32-bit words, there is usually no efficiency gain by using
+// more than 4-byte alignment.  Yet some compilers use 8-byte alignment for
+// 'long long' or 'double', presumably so that the code will run faster on a
+// 64-bit CPU.
 //
 ///Usage
 ///-----
 ///Usage Example 1
 ///- - - - - - - -
-// The following shows how 'bsls_AlignmentFromType<T>::VALUE' can be used to
+// The following shows how 'bsls::AlignmentFromType<T>::VALUE' can be used to
 // create a static "database" of types storing their size and required
 // alignment.
 //
@@ -69,10 +69,10 @@ BSLS_IDENT("$Id: $")
 //  };
 //
 //  static const my_ElemAttr MY_ATTRIBUTES[] = {
-//      { MY_CHAR,     sizeof(char),   bsls_AlignmentFromType<char>::VALUE   },
-//      { MY_INT,      sizeof(int),    bsls_AlignmentFromType<int>::VALUE    },
-//      { MY_DOUBLE,   sizeof(double), bsls_AlignmentFromType<double>::VALUE },
-//      { MY_POINTER,  sizeof(void *), bsls_AlignmentFromType<void *>::VALUE }
+//     { MY_CHAR,     sizeof(char),   bsls::AlignmentFromType<char>::VALUE   },
+//     { MY_INT,      sizeof(int),    bsls::AlignmentFromType<int>::VALUE    },
+//     { MY_DOUBLE,   sizeof(double), bsls::AlignmentFromType<double>::VALUE },
+//     { MY_POINTER,  sizeof(void *), bsls::AlignmentFromType<void *>::VALUE }
 //  };
 //..
 ///Usage Example 2
@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 // an appropriately sized and aligned block of memory via the 'buffer'
 // functions.  Note that 'my_AlignedBuffer' ensures that the returned memory is
 // aligned correctly for the specified size by using
-// 'bsls_AlignmentFromType<TYPE>::Type', which provides a primitive type
+// 'bsls::AlignmentFromType<TYPE>::Type', which provides a primitive type
 // having the 'ALIGNMENT' requirement.  The class definition of
 // 'my_AlignedBuffer' is as follows:
 //..
@@ -94,8 +94,8 @@ BSLS_IDENT("$Id: $")
 //  union my_AlignedBuffer {
 //    private:
 //      // DATA
-//      char                                        d_buffer[sizeof(TYPE)];
-//      typename bsls_AlignmentFromType<TYPE>::Type d_align; // force alignment
+//      char                                         d_buffer[sizeof(TYPE)];
+//      typename bsls::AlignmentFromType<TYPE>::Type d_align; //force alignment
 //
 //    public:
 //      // MANIPULATORS
@@ -166,47 +166,47 @@ BSLS_IDENT("$Id: $")
 // for our types.  For simplicity, we use a maximum alignment value for all
 // types (assumed to be 8 here):
 //..
-//    enum { MAX_ALIGNMENT = 8 };
+//  enum { MAX_ALIGNMENT = 8 };
 //..
 // Note that we use 'my_AlignedBuffer' to allocate sufficient, aligned memory
 // to store the result of the operation or an error message:
 //..
-//    private:
-//      union {
-//          my_AlignedBuffer<double, MAX_ALIGNMENT>      d_result;
-//          my_AlignedBuffer<std::string, MAX_ALIGNMENT> d_errorMessage;
-//      };
+//  private:
+//    union {
+//        my_AlignedBuffer<double, MAX_ALIGNMENT>      d_result;
+//        my_AlignedBuffer<std::string, MAX_ALIGNMENT> d_errorMessage;
+//    };
 //..
 // The 'isError' flag indicates whether the response object stores valid data
 // or an error message:
 //..
-//      bool d_isError;
+//  bool d_isError;
 //..
 // Below we provide a simple public interface suitable for illustration only:
 //..
-//    public:
-//      // CREATORS
-//      Response(double result);
-//          // Create a response object that stores the specified 'result'.
+//  public:
+//    // CREATORS
+//    Response(double result);
+//        // Create a response object that stores the specified 'result'.
 //
-//      Response(const std::string& errorMessage);
-//          // Create a response object that stores the specified
-//          // 'errorMessage'.
+//    Response(const std::string& errorMessage);
+//        // Create a response object that stores the specified
+//        // 'errorMessage'.
 //
-//      ~Response();
-//          // Destroy this response object.
+//    ~Response();
+//        // Destroy this response object.
 //..
 // The manipulator functions allow clients to update the response object to
 // store either a 'double' result or an error message:
 //..
-//      // MANIPULATORS
-//      void setResult(double result);
-//          // Update this object to store the specified 'result'.  After this
-//          // operation 'isError' returns 'false'.
+//  // MANIPULATORS
+//  void setResult(double result);
+//      // Update this object to store the specified 'result'.  After this
+//      // operation 'isError' returns 'false'.
 //
-//      void setErrorMessage(const std::string& errorMessage);
-//          // Update this object to store the specified 'errorMessage'.  After
-//          // this operation 'isError' returns 'true'.
+//  void setErrorMessage(const std::string& errorMessage);
+//      // Update this object to store the specified 'errorMessage'.  After
+//      // this operation 'isError' returns 'true'.
 //..
 // The 'isError' function informs clients whether a response object stores a
 // result value or an error message:
@@ -327,28 +327,32 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                           // =============================
-                           // struct bsls_AlignmentFromType
-                           // =============================
+namespace bsls {
+
+                           // ========================
+                           // struct AlignmentFromType
+                           // ========================
 
 template <typename TYPE>
-struct bsls_AlignmentFromType {
+struct AlignmentFromType {
     // This 'struct' computes (at compile time) a constant integral 'VALUE'
-    // that specifies the required alignment for 'TYPE' objects.  Also
-    // provided is a 'typedef', 'Type', that is an alias for a primitive type
-    // that has the same alignment requirements as 'TYPE'.
+    // that specifies the required alignment for 'TYPE' objects.  Also provided
+    // is a 'typedef', 'Type', that is an alias for a primitive type that has
+    // the same alignment requirements as 'TYPE'.
 
     // TYPES
-    enum { VALUE = bsls_AlignmentImpCalc<TYPE>::VALUE };
+    enum { VALUE = AlignmentImpCalc<TYPE>::VALUE };
         // Compile-time constant that specifies the required alignment for
         // 'TYPE'.
 
-    typedef typename bsls_AlignmentToType<VALUE>::Type Type;
+    typedef typename AlignmentToType<VALUE>::Type Type;
         // Alias for a primitive type that has the same alignment requirement
         // as 'TYPE'.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

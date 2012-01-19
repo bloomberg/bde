@@ -10,31 +10,31 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a protocol for memory allocators that support 'release'.
 //
 //@CLASSES:
-//   bslma_ManagedAllocator: protocol for allocators with 'release' capability
+//  bslma::ManagedAllocator: protocol for allocators with 'release' capability
 //
 //@SEE_ALSO: bslma_allocator
 //
 //@AUTHOR: Shao-wei Hung (shung)
 //
 //@DESCRIPTION: This component extends the base-level protocol (pure abstract
-// interface) class, 'bslma_allocator', providing the ability to 'release' all
-// memory currently allocated through the protocol back to the memory supplier
-// of the derived concrete allocator object.
+// interface) class, 'bslma::Allocator', providing the ability to 'release'
+// all memory currently allocated through the protocol back to the memory
+// supplier of the derived concrete allocator object.
 //..
-//   ,----------------------.
-//  ( bslma_ManagedAllocator )
-//   `----------------------'
+//   ,-----------------------.
+//  ( bslma::ManagedAllocator )
+//   `-----------------------'
 //               |       release
 //               V
-//       ,---------------.
-//      ( bslma_Allocator )
-//       `---------------'
+//       ,----------------.
+//      ( bslma::Allocator )
+//       `----------------'
 //                       allocate
 //                       deallocate
 //..
 ///Usage
 ///-----
-// The 'bslma_ManagedAllocator' protocol class serves as a useful internal
+// The 'bslma::ManagedAllocator' protocol class serves as a useful internal
 // interface for documentation purpose and could be used as a parameter to
 // low-level helper functions for some implementations.  We have yet to find a
 // suitable real-world example and when one becomes available, it will be
@@ -50,11 +50,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ============================
-                        // class bslma_ManagedAllocator
-                        // ============================
+namespace bslma {
 
-class bslma_ManagedAllocator : public bslma_Allocator {
+                        // ======================
+                        // class ManagedAllocator
+                        // ======================
+
+class ManagedAllocator : public Allocator {
     // Provide a protocol for allocators with the ability to 'release' all
     // memory currently allocated through the protocol back to the memory
     // supplier of the derived concrete allocator object.
@@ -65,7 +67,9 @@ class bslma_ManagedAllocator : public bslma_Allocator {
         // Release all memory currently allocated through this allocator.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

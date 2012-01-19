@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a proctor to conditionally manage an object.
 //
 //@CLASSES:
-//   bslma_DestructorProctor: proctor to conditionally manage an object
+//  bslma::DestructorProctor: proctor to conditionally manage an object
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
@@ -26,7 +26,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The 'bslma_DestructorProctor' is normally used to manage objects that are
+// The 'bslma::DestructorProctor' is normally used to manage objects that are
 // constructed sequentially in a block of memory provided.  This is often the
 // case when memory management and primitive helpers are implemented in
 // different components.  An example would be the construction of a pair object
@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // 'bslalg_scalarprimitives').  After the first object is constructed in the
 // provided memory, it should be protected in case the constructor of the
 // second object throws.  The following example illustrates a typical use of
-// the 'bslma_DestructorProctor'.
+// the 'bslma::DestructorProctor'.
 //
 // First, suppose we have a pair class similar to 'std::pair':
 //..
@@ -98,28 +98,28 @@ BSLS_IDENT("$Id: $")
 //      // CLASS METHODS
 //
 //      template <class TYPE>
-//      static void copyConstruct(TYPE            *address,
-//                                const TYPE&      original,
-//                                bslma_Allocator *basicAllocator);
+//      static void copyConstruct(TYPE             *address,
+//                                const TYPE&       original,
+//                                bslma::Allocator *basicAllocator);
 //          // Copy construct the specified 'original' into the specified
 //          // 'address' using the specified 'basicAllocator' (if the
 //          // copy constructor of 'TYPE' takes an allocator).
 //
 //      template <class TYPE>
-//      static void copyConstruct(TYPE            *address,
-//                                const TYPE&      original,
-//                                bslma_Allocator *basicAllocator,
-//                                bslmf_MetaInt<PAIR_TRAIT> *);
+//      static void copyConstruct(TYPE             *address,
+//                                const TYPE&       original,
+//                                bslma::Allocator *basicAllocator,
+//                                bslmf::MetaInt<PAIR_TRAIT> *);
 //          // Copy construct the specified 'original' into the specified
 //          // 'address' using the specified 'basicAllocator' (if the
 //          // copy constructor of 'TYPE' takes an allocator).  Note that
 //          // the last parameter is used only for overload resolution.
 //
 //      template <class TYPE>
-//      static void copyConstruct(TYPE            *address,
-//                                const TYPE&      original,
-//                                bslma_Allocator *basicAllocator,
-//                                bslmf_MetaInt<NIL_TRAIT> *);
+//      static void copyConstruct(TYPE             *address,
+//                                const TYPE&       original,
+//                                bslma::Allocator *basicAllocator,
+//                                bslmf::MetaInt<NIL_TRAIT> *);
 //          // Copy construct the specified 'original' into the specified
 //          // 'address' using the specified 'basicAllocator' (if the
 //          // copy constructor of 'TYPE' takes an allocator).  Note that
@@ -128,14 +128,14 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class TYPE>
 //  inline
-//  void my_Primitives::copyConstruct(TYPE            *address,
-//                                    const TYPE&      original,
-//                                    bslma_Allocator *basicAllocator)
+//  void my_Primitives::copyConstruct(TYPE             *address,
+//                                    const TYPE&       original,
+//                                    bslma::Allocator *basicAllocator)
 //  {
 //      copyConstruct(address,
 //                    original,
 //                    basicAllocator,
-//                    (bslmf_MetaInt<my_HasPairTrait<TYPE>::VALUE> *)0);
+//                    (bslmf::MetaInt<my_HasPairTrait<TYPE>::VALUE> *)0);
 //  }
 //..
 // The implementation of 'copyConstruct' constructs the pair object in two
@@ -146,10 +146,10 @@ BSLS_IDENT("$Id: $")
 //..
 //  template <class TYPE>
 //  inline
-//  void my_Primitives::copyConstruct(TYPE            *address,
-//                                    const TYPE&      original,
-//                                    bslma_Allocator *basicAllocator,
-//                                    bslmf_MetaInt<PAIR_TRAIT> *)
+//  void my_Primitives::copyConstruct(TYPE             *address,
+//                                    const TYPE&       original,
+//                                    bslma::Allocator *basicAllocator,
+//                                    bslmf::MetaInt<PAIR_TRAIT> *)
 //  {
 //      copyConstruct(&address->first, original.first, basicAllocator);
 //
@@ -157,7 +157,7 @@ BSLS_IDENT("$Id: $")
 //      // Note the use of the destructor proctor (below). *
 //      //**************************************************
 //
-//      bslma_DestructorProctor<typename TYPE::firstType> proctor(
+//      bslma::DestructorProctor<typename TYPE::firstType> proctor(
 //                                                            &address->first);
 //
 //      copyConstruct(&address->second, original.second, basicAllocator);
@@ -171,10 +171,10 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class TYPE>
 //  inline
-//  void my_Primitives::copyConstruct(TYPE            *address,
-//                                    const TYPE&      original,
-//                                    bslma_Allocator *basicAllocator,
-//                                    bslmf_MetaInt<NIL_TRAIT> *)
+//  void my_Primitives::copyConstruct(TYPE             *address,
+//                                    const TYPE&       original,
+//                                    bslma::Allocator *basicAllocator,
+//                                    bslmf::MetaInt<NIL_TRAIT> *)
 //  {
 //      new(address)TYPE(original, basicAllocator);
 //  }
@@ -186,7 +186,7 @@ BSLS_IDENT("$Id: $")
 // In the above implementation, if the copy construction of the second object
 // in the pair throws, all memory (and any other resources) acquired as a
 // result of copying the (not-yet-managed) object would be leaked.  Using the
-// 'bslma_DestructorProctor' prevents the leaks by invoking the destructor of
+// 'bslma::DestructorProctor' prevents the leaks by invoking the destructor of
 // the proctored object automatically should the proctor go out of scope
 // before the 'release' method of the proctor is called (such as when the
 // function exits prematurely due to an exception).
@@ -195,7 +195,7 @@ BSLS_IDENT("$Id: $")
 // 'TYPE::firstType' and 'TYPE::secondType' takes an allocator as a second
 // argument.  In production code, a constructor proxy that checks the traits
 // of 'TYPE::firstType' and 'TYPE::secondType' (to determine whether they uses
-// 'bslma_Allocator') should be used (see 'bslalg_constructorproxy').
+// 'bslma::Allocator') should be used (see 'bslalg_constructorproxy').
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -211,12 +211,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // =============================
-                        // class bslma_DestructorProctor
-                        // =============================
+namespace bslma {
+
+                        // =======================
+                        // class DestructorProctor
+                        // =======================
 
 template <class TYPE>
-class bslma_DestructorProctor {
+class DestructorProctor {
     // This class implements a proctor that, unless its 'release' method has
     // previously been invoked, automatically destroys a managed object upon
     // destruction by invoking the (managed) object's destructor.
@@ -225,18 +227,18 @@ class bslma_DestructorProctor {
     TYPE *d_object_p;  // managed object
 
     // NOT IMPLEMENTED
-    bslma_DestructorProctor(const bslma_DestructorProctor&);
-    bslma_DestructorProctor& operator=(const bslma_DestructorProctor&);
+    DestructorProctor(const DestructorProctor&);
+    DestructorProctor& operator=(const DestructorProctor&);
 
   public:
     // CREATORS
-    bslma_DestructorProctor(TYPE *object);
+    DestructorProctor(TYPE *object);
         // Create a destructor proctor that conditionally manages the
         // specified 'object' (if non-zero) by invoking the destructor of the
         // object managed by this proctor (if not released -- see 'release')
         // upon destruction.
 
-    ~bslma_DestructorProctor();
+    ~DestructorProctor();
         // Destroy this destructor proctor, and destroy the object it manages
         // (if any) by invoking the destructor of the (managed) object.  If no
         // object is currently being managed, this method has no effect.
@@ -259,21 +261,21 @@ class bslma_DestructorProctor {
 //                      TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // -----------------------------
-                        // class bslma_DestructorProctor
-                        // -----------------------------
+                        // -----------------------
+                        // class DestructorProctor
+                        // -----------------------
 
 // CREATORS
 template <class TYPE>
 inline
-bslma_DestructorProctor<TYPE>::bslma_DestructorProctor(TYPE *object)
+DestructorProctor<TYPE>::DestructorProctor(TYPE *object)
 : d_object_p(object)
 {
 }
 
 template <class TYPE>
 inline
-bslma_DestructorProctor<TYPE>::~bslma_DestructorProctor()
+DestructorProctor<TYPE>::~DestructorProctor()
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != d_object_p)) {
         d_object_p->~TYPE();
@@ -283,21 +285,23 @@ bslma_DestructorProctor<TYPE>::~bslma_DestructorProctor()
 // MANIPULATORS
 template <class TYPE>
 inline
-void bslma_DestructorProctor<TYPE>::release()
+void DestructorProctor<TYPE>::release()
 {
     d_object_p = 0;
 }
 
 template <class TYPE>
 inline
-void bslma_DestructorProctor<TYPE>::reset(TYPE *object)
+void DestructorProctor<TYPE>::reset(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
     d_object_p = object;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

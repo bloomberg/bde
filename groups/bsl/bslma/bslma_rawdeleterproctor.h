@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a proctor to conditionally manage an object.
 //
 //@CLASSES:
-//   bslma_RawDeleterProctor: proctor to conditionally manage an object
+//  bslma::RawDeleterProctor: proctor to conditionally manage an object
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 // conditionally manage an (otherwise-unmanaged) object of parameterized 'TYPE'
 // supplied at construction.  If not explicitly released, the managed object is
 // deleted automatically when the proctor object goes out of scope by first
-// calling the (managed) object's destructor, and then freeing the memory
-// using the parameterized 'ALLOCATOR' (allocator or pool) also supplied at
+// calling the (managed) object's destructor, and then freeing the memory using
+// the parameterized 'ALLOCATOR' (allocator or pool) also supplied at
 // construction.  Note that after a proctor object releases its managed object,
 // the same proctor can be reused to conditionally manage another object
 // (allocated from the same allocator or pool that was supplied at
@@ -36,7 +36,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirement
 ///-----------
-// The parameterized 'ALLOCATOR' type of the 'bslma_RawDeleterProctor' class
+// The parameterized 'ALLOCATOR' type of the 'bslma::RawDeleterProctor' class
 // template must provide a (possibly 'virtual') method:
 //..
 //  void deallocate(void *address);
@@ -46,12 +46,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// 'bslma_RawDeleterProctor' is normally used to achieve *exception* *safety*
+// 'bslma::RawDeleterProctor' is normally used to achieve *exception* *safety*
 // in an *exception* *neutral* way by managing objects that are created
 // temporarily on the heap, but not yet committed to a container object's
 // management.  This (somewhat contrived) example illustrates the use of a
-// 'bslma_RawDeleterProctor' to manage a dynamically-allocated object, deleting
-// the object automatically should an exception occur.
+// 'bslma::RawDeleterProctor' to manage a dynamically-allocated object,
+// deleting the object automatically should an exception occur.
 //
 // Suppose we have a simple linked list class that manages objects of
 // parameterized 'TYPE', but which are (for the purpose of this example)
@@ -73,14 +73,14 @@ BSLS_IDENT("$Id: $")
 //      };
 //
 //      // DATA
-//      Link            *d_head_p;       // head of list
-//      Link            *d_tail_p;       // tail of list
-//      int              d_length;       // number of objects
-//      bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+//      Link             *d_head_p;       // head of list
+//      Link             *d_tail_p;       // tail of list
+//      int               d_length;       // number of objects
+//      bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 //
 //    public:
 //      // CREATORS
-//      my_List(bslma_Allocator *basicAllocator = 0);
+//      my_List(bslma::Allocator *basicAllocator = 0);
 //          // Create a 'my_List' object having an initial length of 0.
 //          // Optionally specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed default allocator
@@ -103,16 +103,16 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that the rest of the 'my_List' interface (above) and implementation
 // (below) are omitted as the portion shown is sufficient to demonstrate the
-// use of 'bslma_RawDeleterProctor'.
+// use of 'bslma::RawDeleterProctor'.
 //..
 //  // CREATORS
 //  template <class TYPE>
 //  inline
-//  my_List<TYPE>::my_List(bslma_Allocator *basicAllocator)
+//  my_List<TYPE>::my_List(bslma::Allocator *basicAllocator)
 //  : d_head_p(0)
 //  , d_tail_p(0)
 //  , d_length(0)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //  }
 //
@@ -138,7 +138,7 @@ BSLS_IDENT("$Id: $")
 //      // Note the use of the raw deleter proctor on 'tmp' (below). *
 //      //************************************************************
 //
-//      bslma_RawDeleterProctor<TYPE, bslma_Allocator> proctor(tmp,
+//      bslma::RawDeleterProctor<TYPE, bslma::Allocator> proctor(tmp,
 //                                                             d_allocator_p);
 //
 //      if (!d_head_p) {
@@ -162,10 +162,10 @@ BSLS_IDENT("$Id: $")
 // The 'append' method defined above potentially throws in three places.  If
 // the memory allocator held in 'd_allocator_p' were to throw while attempting
 // to create the object of parameterized 'TYPE', no memory would be leaked.
-// But without subsequent use of the 'bslma_RawDeleterProctor', if the
+// But without subsequent use of the 'bslma::RawDeleterProctor', if the
 // allocator subsequently throws while creating the link, all memory (and any
 // other resources) acquired as a result of copying the (not-yet-managed)
-// object would be leaked.  Using the 'bslma_RawDeleterProctor' prevents the
+// object would be leaked.  Using the 'bslma::RawDeleterProctor' prevents the
 // leaks by deleting the proctored object automatically should the proctor go
 // out of scope before the 'release' method of the proctor is called (such as
 // when the function exits prematurely due to an exception).
@@ -173,7 +173,7 @@ BSLS_IDENT("$Id: $")
 // Note that the 'append' method assumes the copy constructor of 'TYPE' takes
 // an allocator as a second argument.  In production code, a constructor proxy
 // that checks the traits of 'TYPE' (to determine whether 'TYPE' uses
-// 'bslma_Allocator') should be used (see 'bslalg_constructorproxy').
+// 'bslma::Allocator') should be used (see 'bslalg_constructorproxy').
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -193,12 +193,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // =============================
-                        // class bslma_RawDeleterProctor
-                        // =============================
+namespace bslma {
+
+                        // =======================
+                        // class RawDeleterProctor
+                        // =======================
 
 template <class TYPE, class ALLOCATOR>
-class bslma_RawDeleterProctor {
+class RawDeleterProctor {
     // This class implements a proctor that, unless its 'release' method has
     // previously been invoked, automatically deletes a managed object upon
     // destruction by first invoking the object's destructor, and then invoking
@@ -213,12 +215,12 @@ class bslma_RawDeleterProctor {
     ALLOCATOR *d_allocator_p;  // allocator or pool (held, not owned)
 
     // NOT IMPLEMENTED
-    bslma_RawDeleterProctor(const bslma_RawDeleterProctor&);
-    bslma_RawDeleterProctor& operator=(const bslma_RawDeleterProctor&);
+    RawDeleterProctor(const RawDeleterProctor&);
+    RawDeleterProctor& operator=(const RawDeleterProctor&);
 
   public:
     // CREATORS
-    bslma_RawDeleterProctor(TYPE *object, ALLOCATOR *allocator);
+    RawDeleterProctor(TYPE *object, ALLOCATOR *allocator);
         // Create a raw deleter proctor that conditionally manages the
         // specified 'object' (if non-zero), and that uses the specified
         // 'allocator' to delete the object managed by this proctor (if not
@@ -227,7 +229,7 @@ class bslma_RawDeleterProctor {
         // 'object' (if non-zero).  Note that 'allocator' must remain valid
         // throughout the lifetime of this proctor.
 
-    ~bslma_RawDeleterProctor();
+    ~RawDeleterProctor();
         // Destroy this raw deleter proctor, and delete the object it manages
         // (if any) by first invoking the destructor of the (managed) object,
         // and then invoking the 'deallocate' method of the allocator (or pool)
@@ -250,18 +252,18 @@ class bslma_RawDeleterProctor {
 };
 
 // ============================================================================
-//                      TEMPLATE FUNCTION DEFINITIONS
+//                       TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // -----------------------------
-                        // class bslma_RawDeleterProctor
-                        // -----------------------------
+                        // -----------------------
+                        // class RawDeleterProctor
+                        // -----------------------
 
 // CREATORS
 template <class TYPE, class ALLOCATOR>
 inline
-bslma_RawDeleterProctor<TYPE, ALLOCATOR>::
-bslma_RawDeleterProctor(TYPE *object, ALLOCATOR *allocator)
+RawDeleterProctor<TYPE, ALLOCATOR>::
+RawDeleterProctor(TYPE *object, ALLOCATOR *allocator)
 : d_object_p(object)
 , d_allocator_p(allocator)
 {
@@ -270,33 +272,35 @@ bslma_RawDeleterProctor(TYPE *object, ALLOCATOR *allocator)
 
 template <class TYPE, class ALLOCATOR>
 inline
-bslma_RawDeleterProctor<TYPE, ALLOCATOR>::~bslma_RawDeleterProctor()
+RawDeleterProctor<TYPE, ALLOCATOR>::~RawDeleterProctor()
 {
     BSLS_ASSERT_SAFE(d_allocator_p);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != d_object_p)) {
-        bslma_DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
+        DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
     }
 }
 
 // MANIPULATORS
 template <class TYPE, class ALLOCATOR>
 inline
-void bslma_RawDeleterProctor<TYPE, ALLOCATOR>::release()
+void RawDeleterProctor<TYPE, ALLOCATOR>::release()
 {
     d_object_p = 0;
 }
 
 template <class TYPE, class ALLOCATOR>
 inline
-void bslma_RawDeleterProctor<TYPE, ALLOCATOR>::reset(TYPE *object)
+void RawDeleterProctor<TYPE, ALLOCATOR>::reset(TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
     d_object_p = object;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

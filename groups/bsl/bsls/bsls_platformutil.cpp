@@ -1,4 +1,4 @@
-// bsls_platformutil.cpp      -*-C++-*-
+// bsls_platformutil.cpp                                              -*-C++-*-
 #include <bsls_platformutil.h>
 
 #include <bsls_ident.h>

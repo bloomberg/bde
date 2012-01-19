@@ -1,4 +1,4 @@
-// bslstl_hash.cpp                  -*-C++-*-
+// bslstl_hash.cpp                                                    -*-C++-*-
 #include <bslstl_hash.h>
 
 #include <bsls_ident.h>

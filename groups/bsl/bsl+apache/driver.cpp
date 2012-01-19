@@ -123,7 +123,7 @@ _RWSTD_DLLIMPORT int (fileno)(FILE*) _LIBC_THROWS ();
               RW_TEST_GCC_VER
 #    else
 #      define RW_TEST_COMPILER "gcc " \
-              RW_TEST_STR (__GNUC__) "." RW_TEST_STR (__GNUC_MINOR__) 
+              RW_TEST_STR (__GNUC__) "." RW_TEST_STR (__GNUC_MINOR__)
               RW_TEST_GCC_VER
 #    endif
 #  elif defined (_COMPILER_VERSION) && defined (__sgi)
@@ -160,7 +160,7 @@ _RWSTD_DLLIMPORT int (fileno)(FILE*) _LIBC_THROWS ();
 #  elif defined (__EDG__)
      // handle the vanilla EDG eccp last to avoid overriding
      // the real compiler's macro (compilers such as Intel C++
-     // and HP aCC use eccp for their C++ front end) 
+     // and HP aCC use eccp for their C++ front end)
 #    define RW_TEST_COMPILER "EDG eccp, __EDG_VERSION__ = " \
             RW_TEST_STR (__EDG_VERSION__)
 #  else
@@ -585,7 +585,7 @@ _rw_opt_no_stdout (int argc, char *argv[])
 
         return 0;
     }
-    
+
     // set mode: enable the option
     opt_no_stdout = 1;
 
@@ -763,7 +763,7 @@ _rw_setopt_ulimit (int argc, char **argv)
 
                 rlim.rlim_cur = soft ? lim : RLIM_SAVED_CUR;
                 rlim.rlim_max = hard ? lim : RLIM_SAVED_MAX;
-                
+
                 const int result = setrlimit (limits [i].resource, &rlim);
 
                 if (result) {

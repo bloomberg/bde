@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time check for array types.
 //
 //@CLASSES:
-//    bslmf_IsArray: meta-function for detecting array types
+//  bslmf::IsArray: meta-function for detecting array types
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
@@ -18,22 +18,22 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's single type parameter is of array type.
-// 'bslmf_IsArray' defines a 'VALUE' member that is initialized
-// (at compile-time) to 1 if the parameter is an array type, or is a
+// 'bslmf::IsArray' defines a 'VALUE' member that is initialized (at
+// compile-time) to 1 if the parameter is an array type, or is a
 // reference-to-array type, and to 0 otherwise.
 //
 ///Usage
 ///-----
 // For example:
 //..
-//   assert(1 == bslmf_IsArray<int    [5]>::VALUE);
-//   assert(0 == bslmf_IsArray<int  *    >::VALUE);
-//   assert(0 == bslmf_IsArray<int (*)[5]>::VALUE);
+//  assert(1 == bslmf::IsArray<int    [5]>::VALUE);
+//  assert(0 == bslmf::IsArray<int  *    >::VALUE);
+//  assert(0 == bslmf::IsArray<int (*)[5]>::VALUE);
 //..
-// Note that the 'bslmf_IsArray' meta-function also evaluates to true (i.e., 1)
-// when applied to references to arrays:
+// Note that the 'bslmf::IsArray' meta-function also evaluates to true (i.e.,
+// 1) when applied to references to arrays:
 //..
-//   assert(1 == bslmf_IsArray<int (&)[5]>::VALUE);
+//  assert(1 == bslmf::IsArray<int (&)[5]>::VALUE);
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -60,27 +60,31 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                         // ====================
-                         // struct bslmf_IsArray
-                         // ====================
+namespace bslmf {
+
+                         // ==============
+                         // struct IsArray
+                         // ==============
 
 template <typename TYPE>
-struct bslmf_IsArray  : bslmf_MetaInt<0> {
+struct IsArray  : MetaInt<0> {
 };
 
 template <typename TYPE, std::size_t NUM_ELEMENTS>
-struct bslmf_IsArray<TYPE [NUM_ELEMENTS]> : bslmf_MetaInt<1> {
+struct IsArray<TYPE [NUM_ELEMENTS]> : MetaInt<1> {
 };
 
 template <typename TYPE>
-struct bslmf_IsArray<TYPE []> : bslmf_MetaInt<1> {
+struct IsArray<TYPE []> : MetaInt<1> {
 };
 
 template <typename TYPE>
-struct bslmf_IsArray<TYPE &> : bslmf_IsArray<TYPE>::Type {
+struct IsArray<TYPE &> : IsArray<TYPE>::Type {
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

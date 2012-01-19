@@ -30,6 +30,7 @@ BSLS_IDENT("$Id: $")
 #include <stdexcept>
 
 namespace bsl {
+
     // Import selected symbols into bsl namespace
     using native_std::terminate_handler;
     using native_std::unexpected_handler;
@@ -49,6 +50,7 @@ namespace bsl {
     using native_std::uncaught_exception;
     using native_std::underflow_error;
     using native_std::unexpected;
+
 }  // close namespace bsl
 
 #endif

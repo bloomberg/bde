@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide build-target information in the object file.
 //
 //@CLASSES:
-//  bsls_ExcBuildTarget: type name for identifying exception builds
-//   bsls_MtBuildTarget: type name for identifying multi-threaded builds
+//  bsls::ExcBuildTarget: type name for identifying exception builds
+//  bsls::MtBuildTarget: type name for identifying multi-threaded builds
 //
 //@SEE_ALSO:
 //
@@ -40,10 +40,14 @@ namespace BloombergLP {
 #define BDE_BUILD_TARGET_EXC
 #endif
 
-struct bsls_YesExcBuildTarget {
+namespace bsls {
+
+struct YesExcBuildTarget {
     static const int d_isExcBuildTarget;
 };
-typedef bsls_YesExcBuildTarget bsls_ExcBuildTarget;
+typedef YesExcBuildTarget ExcBuildTarget;
+
+}  // close package namespace
 
 #else
 
@@ -51,10 +55,14 @@ typedef bsls_YesExcBuildTarget bsls_ExcBuildTarget;
 #error Do not define both BDE_BUILD_TARGET_EXC and BDE_BUILD_TARGET_NO_EXC
 #endif
 
-struct bsls_NoExcBuildTarget {
+namespace bsls {
+
+struct NoExcBuildTarget {
     static const int d_isExcBuildTarget;
 };
-typedef bsls_NoExcBuildTarget bsls_ExcBuildTarget;
+typedef NoExcBuildTarget ExcBuildTarget;
+
+}  // close package namespace
 
 #endif
 
@@ -65,10 +73,14 @@ typedef bsls_NoExcBuildTarget bsls_ExcBuildTarget;
 #define BDE_BUILD_TARGET_MT
 #endif
 
-struct bsls_YesMtBuildTarget {
+namespace bsls {
+
+struct YesMtBuildTarget {
     static const int d_isMtBuildTarget;
 };
-typedef bsls_YesMtBuildTarget bsls_MtBuildTarget;
+typedef YesMtBuildTarget MtBuildTarget;
+
+}  // close package namespace
 
 #else
 
@@ -76,26 +88,38 @@ typedef bsls_YesMtBuildTarget bsls_MtBuildTarget;
 #error Do not define both BDE_BUILD_TARGET_MT and BDE_BUILD_TARGET_NO_MT
 #endif
 
-struct bsls_NoMtBuildTarget {
+namespace bsls {
+
+struct NoMtBuildTarget {
     static const int d_isMtBuildTarget;
 };
-typedef bsls_NoMtBuildTarget bsls_MtBuildTarget;
+typedef NoMtBuildTarget MtBuildTarget;
+
+}  // close package namespace
 
 #endif
 
 #ifdef BSLS_PLATFORM__CPU_64_BIT
 
-struct bsls_Yes64BitBuildTarget {
+namespace bsls {
+
+struct Yes64BitBuildTarget {
     static const int d_is64BitBuildTarget;
 };
-typedef bsls_Yes64BitBuildTarget bsls_64BitBuildTarget;
+
+}  // close package namespace
+typedef bsls::Yes64BitBuildTarget bsls_64BitBuildTarget;
 
 #else
 
-struct bsls_No64BitBuildTarget {
+namespace bsls {
+
+struct No64BitBuildTarget {
     static const int d_is64BitBuildTarget;
 };
-typedef bsls_No64BitBuildTarget bsls_64BitBuildTarget;
+
+}  // close package namespace
+typedef bsls::No64BitBuildTarget bsls_64BitBuildTarget;
 
 #endif
 
@@ -103,19 +127,19 @@ typedef bsls_No64BitBuildTarget bsls_64BitBuildTarget;
 
 #if defined(BSLS_PLATFORM__CMP_IBM)
 static const int *bsls_buildtarget_assertion1 =
-                                      &bsls_ExcBuildTarget::d_isExcBuildTarget;
+                                     &bsls::ExcBuildTarget::d_isExcBuildTarget;
 static const int *bsls_buildtarget_assertion2 =
-                                        &bsls_MtBuildTarget::d_isMtBuildTarget;
+                                       &bsls::MtBuildTarget::d_isMtBuildTarget;
 #else
 namespace {
     extern const int *const bsls_buildtarget_assertion1 =
-                                      &bsls_ExcBuildTarget::d_isExcBuildTarget;
+                                     &bsls::ExcBuildTarget::d_isExcBuildTarget;
     extern const int *const bsls_buildtarget_assertion2 =
-                                        &bsls_MtBuildTarget::d_isMtBuildTarget;
+                                       &bsls::MtBuildTarget::d_isMtBuildTarget;
 }
 #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

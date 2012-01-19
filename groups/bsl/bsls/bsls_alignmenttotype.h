@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function mapping an 'ALIGNMENT' to a primitive type.
 //
 //@CLASSES:
-//   bsls_AlignmentToType: maps 'ALIGNMENT' to a so-aligned primitive type
+//  bsls::AlignmentToType: maps 'ALIGNMENT' to a so-aligned primitive type
 //
 //@SEE_ALSO: bsls_alignmentfromtype
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
 //@DESCRIPTION: This component provides a meta-function,
-// 'bsls_AlignmentToType', parameterized on an integral 'ALIGNMENT', that
+// 'bsls::AlignmentToType', parameterized on an integral 'ALIGNMENT', that
 // declares a 'typedef' ('Type'), which is an alias for a primitive type having
 // the indicated 'ALIGNMENT' requirement.
 //
@@ -32,7 +32,7 @@ BSLS_IDENT("$Id: $")
 // an appropriately sized and aligned block of memory via the 'buffer'
 // functions.  Note that 'my_AlignedBuffer' ensures that the returned memory is
 // aligned correctly for the specified size by using
-// 'bsls_AlignmentToType<ALIGNMENT>::Type', which provides a primitive type
+// 'bsls::AlignmentToType<ALIGNMENT>::Type', which provides a primitive type
 // having the 'ALIGNMENT' requirement.  The class definition of
 // 'my_AlignedBuffer' is as follows:
 //..
@@ -41,8 +41,8 @@ BSLS_IDENT("$Id: $")
 //    private:
 //      // DATA
 //      char                                           d_buffer[sizeof(TYPE)];
-//      typename bsls_AlignmentToType<ALIGNMENT>::Type d_align;  // force
-//                                                               // alignment
+//      typename bsls::AlignmentToType<ALIGNMENT>::Type d_align;  // force
+//                                                                // alignment
 //
 //    public:
 //      // MANIPULATORS
@@ -113,47 +113,47 @@ BSLS_IDENT("$Id: $")
 // for our types.  For simplicity, we use a maximum alignment value for all
 // types (assumed to be 8 here):
 //..
-//    enum { MAX_ALIGNMENT = 8 };
+//      enum { MAX_ALIGNMENT = 8 };
 //..
 // Note that we use 'my_AlignedBuffer' to allocate sufficient, aligned memory
 // to store the result of the operation or an error message:
 //..
-//    private:
-//      union {
-//          my_AlignedBuffer<double, MAX_ALIGNMENT>      d_result;
-//          my_AlignedBuffer<std::string, MAX_ALIGNMENT> d_errorMessage;
-//      };
+//  private:
+//    union {
+//        my_AlignedBuffer<double, MAX_ALIGNMENT>      d_result;
+//        my_AlignedBuffer<std::string, MAX_ALIGNMENT> d_errorMessage;
+//    };
 //..
 // The 'isError' flag indicates whether the response object stores valid data
 // or an error message:
 //..
-//      bool d_isError;
+//  bool d_isError;
 //..
 // Below we provide a simple public interface suitable for illustration only:
 //..
-//    public:
-//      // CREATORS
-//      Response(double result);
-//          // Create a response object that stores the specified 'result'.
+//  public:
+//    // CREATORS
+//    Response(double result);
+//        // Create a response object that stores the specified 'result'.
 //
-//      Response(const std::string& errorMessage);
-//          // Create a response object that stores the specified
-//          // 'errorMessage'.
+//    Response(const std::string& errorMessage);
+//        // Create a response object that stores the specified
+//        // 'errorMessage'.
 //
-//      ~Response();
-//          // Destroy this response object.
+//    ~Response();
+//        // Destroy this response object.
 //..
 // The manipulator functions allow clients to update the response object to
 // store either a 'double' result or an error message:
 //..
-//      // MANIPULATORS
-//      void setResult(double result);
-//          // Update this object to store the specified 'result'.  After this
-//          // operation 'isError' returns 'false'.
+//  // MANIPULATORS
+//  void setResult(double result);
+//      // Update this object to store the specified 'result'.  After this
+//      // operation 'isError' returns 'false'.
 //
-//      void setErrorMessage(const std::string& errorMessage);
-//          // Update this object to store the specified 'errorMessage'.  After
-//          // this operation 'isError' returns 'true'.
+//  void setErrorMessage(const std::string& errorMessage);
+//      // Update this object to store the specified 'errorMessage'.  After
+//      // this operation 'isError' returns 'true'.
 //..
 // The 'isError' function informs clients whether a response object stores a
 // result value or an error message:
@@ -270,37 +270,41 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                         // ===========================
-                         // struct bsls_AlignmentToType
-                         // ===========================
+namespace bsls {
+
+                         // ======================
+                         // struct AlignmentToType
+                         // ======================
 
 template <int ALIGNMENT>
-struct bsls_AlignmentToType {
+struct AlignmentToType {
     // This 'struct' provides a 'typedef', 'Type', that aliases a primitive
     // type having the specified 'ALIGNMENT' requirement.
 
   private:
     // PRIVATE TYPES
-    typedef typename bsls_AlignmentImpMatch::MaxPriority MaxPriority;
-    typedef          bsls_AlignmentImpTag<ALIGNMENT>     Tag;
+    typedef typename AlignmentImpMatch::MaxPriority MaxPriority;
+    typedef          AlignmentImpTag<ALIGNMENT>     Tag;
 
     enum {
         // Compute the priority of the primitive type corresponding to the
         // specified 'ALIGNMENT'.
 
-        PRIORITY = sizeof(bsls_AlignmentImpMatch::match(Tag(),
-                                                        Tag(),
-                                                        MaxPriority()))
+        PRIORITY = sizeof(AlignmentImpMatch::match(Tag(),
+                                                   Tag(),
+                                                   MaxPriority()))
     };
 
   public:
     // TYPES
-    typedef typename bsls_AlignmentImpPriorityToType<PRIORITY>::Type Type;
+    typedef typename AlignmentImpPriorityToType<PRIORITY>::Type Type;
         // Alias for a primitive type that has the specified 'ALIGNMENT'
         // requirement.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

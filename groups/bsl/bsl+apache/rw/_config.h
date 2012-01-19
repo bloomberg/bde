@@ -1,4 +1,4 @@
-// _config.h                  -*-C++-*-
+// _config.h                                                          -*-C++-*-
 #ifndef INCLUDED__CONFIG
 #define INCLUDED__CONFIG
 

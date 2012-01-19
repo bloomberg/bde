@@ -493,7 +493,7 @@ struct AppendRange: RangeBase<String> {
     AppendRange () { }
 
     virtual String&
-    operator() (String &str, 
+    operator() (String &str,
                 const StringTestCaseData<StringChar>& tdata) const {
 
         const StringTestCase &tcase = tdata.tcase_;
@@ -528,7 +528,7 @@ struct AppendRangeOverload: RangeBase<String>
     AppendRangeOverload () { }
 
     virtual String&
-    operator() (String &str, 
+    operator() (String &str,
                 const StringTestCaseData<StringChar>& tdata) const {
 
         const StringTestCase &tcase = tdata.tcase_;
@@ -538,7 +538,7 @@ struct AppendRangeOverload: RangeBase<String>
 
         const std::size_t srclen_ = tcase.arg ? tdata.arglen_ : str.size ();
 
-        const std::size_t off = 
+        const std::size_t off =
             reverse_iter ? srclen_ - tdata.off2_ - tdata.ext2_ : tdata.off2_;
         const std::size_t ext = tdata.ext2_;
 
@@ -719,7 +719,7 @@ void test_append (charT*, Traits*, Allocator*, const RangeBase<
 
             // verify that Traits::length was used
             if (Append (cptr) == func.which_ && rg_calls) {
-                rw_assert (n_length_calls - total_length_calls > 0, 
+                rw_assert (n_length_calls - total_length_calls > 0,
                            0, tcase.line, "line %d. %{$FUNCALL} doesn't "
                            "use traits::length()", __LINE__);
             }
@@ -801,8 +801,8 @@ void test_append (charT*, Traits*, Allocator*, const RangeBase<
 
 #else   // if defined (_RWSTD_NO_REPLACEABLE_NEW_DELETE)
 
-    const std::size_t expect_throws = 
-        (StringIds::UserAlloc == func.alloc_id_) 
+    const std::size_t expect_throws =
+        (StringIds::UserAlloc == func.alloc_id_)
       ? str_state.capacity_ < str.capacity (): 0;
 
 #endif   // _RWSTD_NO_REPLACEABLE_NEW_DELETE
@@ -907,7 +907,7 @@ int main (int argc, char** argv)
         TEST (size_val),
         TEST (range),
 
-        { 
+        {
             StringIds::push_back_val, push_back_val_test_cases,
             sizeof push_back_val_test_cases / sizeof *push_back_val_test_cases
         }

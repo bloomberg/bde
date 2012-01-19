@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <bitset>
@@ -289,7 +289,7 @@ test_synopsis (std::bitset<1>*)
 
     MEMFUN (Bitset&, reset, ());
     MEMFUN (Bitset&, reset, (std::size_t));
-    
+
     MEMFUN (Bitset, operator~, () const);
     MEMFUN (Bitset&, flip, ());
     MEMFUN (Bitset&, flip, (std::size_t));
@@ -344,7 +344,7 @@ test_synopsis (std::bitset<1>*)
     MEMFUN (bool, test, (std::size_t) const);
     MEMFUN (bool, any, () const);
     MEMFUN (bool, none, () const);
-    
+
     MEMFUN (Bitset, operator>>, (std::size_t) const);
     MEMFUN (Bitset, operator<<, (std::size_t) const);
 
@@ -364,7 +364,7 @@ test_synopsis (std::bitset<1>*)
     FUN (Bitset, std::operator&,(const Bitset&,const Bitset&) _PTR_THROWS(()));
     FUN (Bitset, std::operator|,(const Bitset&,const Bitset&) _PTR_THROWS(()));
     FUN (Bitset, std::operator^,(const Bitset&,const Bitset&) _PTR_THROWS(()));
-#endif    
+#endif
 
 
 #define PARAMLIST(T)   T, std::char_traits<T>
@@ -419,7 +419,7 @@ void test_ctors (const std::bitset<N>*)
                    "bitset<%d>::bitset ().to_ulong() == 0, got %#lx",
                    b.to_ulong ());
     }
-    
+
     {   // bitset::bitset (unsigned long)
         rw_info (0, 0, __LINE__, "std::bitset<%d>::bitset (unsigned long)", N);
 
@@ -661,19 +661,19 @@ void test_other (const std::bitset<N>*)
         rw_assert (ts2.count () == b2.count (), 0, __LINE__,
                    "bitset<%d>::count () == %d, got %d [%s]",
                    N, ts2.count (), b2.count (), test_set<N>(b2).bits());
-               
+
         // 23.3.5.3, p37
         rw_assert (b2 == b2 && (N && !(b1 == b2) || !N && b1 == b2),
                    0, __LINE__,
                    "bitset<%d>::operator==(const bitset<%ul>&) [%s]",
                    N, N, N ? test_set<N>(b2).bits () : "<empty>");
-    
+
         // 23.3.5.3, p38
         rw_assert ((N && b1 != b2 || !N && !(b1 != b2)) && !(b2 != b2),
                    0, __LINE__,
                    "bitset<%d>::operator!=(const bitset<%ul>&) [%s]",
                    N, N, N ? test_set<N>(b2).bits () : "<empty>");
-    
+
         // 23.3.5.3, p42
         rw_assert (b2.count() && b2.any() || !b2.count() && !b2.any(),
                    0, __LINE__,

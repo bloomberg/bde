@@ -10,26 +10,26 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a nil type.
 //
 //@CLASSES:
-//     bslmf_Nil: class representing a nil (non-existent) type.
-//   bslmf_IsNil: meta-function to test for nil.
+//  bslmf::Nil: class representing a nil (non-existent) type.
+//  bslmf::IsNil: meta-function to test for nil.
 //
 //@AUTHOR: Oleg Grunin (ogrunin)
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: 'bslmf_Nil' is mainly used for template meta-programming.  It
+//@DESCRIPTION: 'bslmf::Nil' is mainly used for template meta-programming.  It
 // is useful for providing defaults for template parameters and terminating
-// template recursions.  'bslmf_Nil' can also be used to represent an unset
+// template recursions.  'bslmf::Nil' can also be used to represent an unset
 // state (i.e., nil) in components that require one.
 //
 ///Usage
 ///-----
-// The following usage illustrates a typical use of 'bslmf_Nil' as a default
+// The following usage illustrates a typical use of 'bslmf::Nil' as a default
 // template parameter for another meta-function.
 //..
 //  template <int   CONDITION,
-//            class TRUE_TYPE = bslmf_Nil,
-//            class FALSE_TYPE = bslmf_Nil>
+//            class TRUE_TYPE = bslmf::Nil,
+//            class FALSE_TYPE = bslmf::Nil>
 //  struct my_If {
 //      typedef TRUE_TYPE Type;
 //  };
@@ -42,7 +42,7 @@ BSLS_IDENT("$Id: $")
 // Next, we can use the 'my_If' meta-function to implement a print function
 // that checks whether a type has a print method (using a fictitious
 // meta-function 'my_IsPrintable'), and print the value.  Note the use of
-// 'bslmf_Nil' as the type for overloading:
+// 'bslmf::Nil' as the type for overloading:
 //..
 //  template <class TYPE>
 //  void print(const TYPE& value, int)
@@ -51,7 +51,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  template <class TYPE>
-//  void print(const TYPE&, bslmf_Nil)
+//  void print(const TYPE&, bslmf::Nil)
 //  {
 //      bsl::cout << "Cannot be printed." << bsl::endl;
 //  }
@@ -61,26 +61,26 @@ BSLS_IDENT("$Id: $")
 //  {
 //      my_If<my_IsPrintable<TYPE>::VALUE, int>::Type Type;  // default false
 //                                                           // type is
-//                                                           // 'bslmf_Nil'.
+//                                                           // 'bslmf::Nil'.
 //      print(value, Type());
 //  }
 //..
 // Using the above functions, the following code:
 //..
 //  int         x = 3;
-//  bslmf_Nil nil;
+//  bslmf::Nil nil;
 //..
 // Will print the following to 'stdout':
 //..
 //  3
 //  Cannot be printed.
 //..
-// Finally, the 'bslmf_IsNil' meta-function returns true if the type passed to
-// it is 'bslmf_Nil', and false otherwise:
+// Finally, the 'bslmf::IsNil' meta-function returns true if the type passed to
+// it is 'bslmf::Nil', and false otherwise:
 //..
-//  assert(1 == bslmf_IsNil<bslmf_Nil>::VALUE)
-//  assert(0 == bslmf_IsNil<int>::VALUE)
-//  assert(0 == bslmf_IsNil<char>::VALUE)
+//  assert(1 == bslmf::IsNil<bslmf::Nil>::VALUE)
+//  assert(0 == bslmf::IsNil<int>::VALUE)
+//  assert(0 == bslmf::IsNil<char>::VALUE)
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -93,37 +93,40 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                      // ================
-                      // struct bslmf_Nil
-                      // ================
+namespace bslmf {
 
-struct bslmf_Nil {
+                      // ==========
+                      // struct Nil
+                      // ==========
+
+struct Nil {
     // This struct is empty and represents a nil type.
 };
 
-                      // ==================
-                      // struct bslmf_IsNil
-                      // ==================
+                      // ============
+                      // struct IsNil
+                      // ============
 
 template <class T>
-struct bslmf_IsNil {
+struct IsNil {
     // This meta function sets 'VALUE' to 0 if the type being tested is not
-    // 'bslmf_Nil'.
+    // 'Nil'.
 
     enum { VALUE = 0 };
-    typedef bslmf_MetaInt<0> Type;
+    typedef MetaInt<0> Type;
 };
 
 template <>
-struct bslmf_IsNil<bslmf_Nil> {
-    // This meta function sets 'VALUE' to 1 if the type being tested is
-    // 'bslmf_Nil'.
+struct IsNil<Nil> {
+    // This meta function sets 'VALUE' to 1 if the type being tested is 'Nil'.
 
     enum { VALUE = 1 };
-    typedef bslmf_MetaInt<1> Type;
+    typedef MetaInt<1> Type;
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

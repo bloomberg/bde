@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a primitive type trait for bit-wise copyable classes.
 //
 //@CLASSES:
-//  bslalg_TypeTraitBitwiseCopyable: bit-wise copyable trait
+//  bslalg::TypeTraitBitwiseCopyable: bit-wise copyable trait
 //
 //@SEE_ALSO: bslmf_typetraits
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg_TypeTraitNil'.  This trait is assigned by default to any class that
+// 'bslalg::TypeTraitNil'.  This trait is assigned by default to any class that
 // does not have any other trait.
 //
 ///Usage
@@ -34,14 +34,18 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                            //====================
-                            // bslalg_TypeTraitNil
-                            //====================
+namespace bslalg {
 
-typedef bslmf_Nil bslalg_TypeTraitNil;
+                            //=============
+                            // TypeTraitNil
+                            //=============
+
+typedef bslmf::Nil TypeTraitNil;
     // The nil trait.  Types with no other traits have the nil trait.
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

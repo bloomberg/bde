@@ -27,9 +27,9 @@ using namespace std;
 // post-conditions and test that the postconditions hold over a reasonable
 // range of inputs.
 //-----------------------------------------------------------------------------
-// [ 1] bsls_AlignmentImpTag<SIZE>
-// [ 1] bsls_AlignmentImpCalc<TYPE>
-// [ 1] bsls_AlignmentImpPriorityToType<PRIORITY>
+// [ 1] bsls::AlignmentImpTag<SIZE>
+// [ 1] bsls::AlignmentImpCalc<TYPE>
+// [ 1] bsls::AlignmentImpPriorityToType<PRIORITY>
 //-----------------------------------------------------------------------------
 //=============================================================================
 
@@ -137,75 +137,75 @@ int main(int argc, char *argv[])
         // TESTING VARIOUS META-FUNCTIONS
         //
         // PLAN
-        //   1) Verify that 'SIZE == sizeof(bsls_AlignmentImpTag<SIZE>)'.
-        //   2) Verify that the 'bsls_AlignmentImpCalc<TYPE>::VALUE returns
+        //   1) Verify that 'SIZE == sizeof(bsls::AlignmentImpTag<SIZE>)'.
+        //   2) Verify that the 'bsls::AlignmentImpCalc<TYPE>::VALUE returns
         //      the correct alignment for various values of 'TYPE'.
-        //   3) Verify that 'bsls_AlignmentImpPriorityToType<PRIORITY>::Type'
+        //   3) Verify that 'bsls::AlignmentImpPriorityToType<PRIORITY>::Type'
         //      returns the correct type for various values of PRIORITY.
         //
         // TACTICS
         //   Ad-hoc data selection
         //
         // TESTING
-        //   bsls_AlignmentImpTag<SIZE>
-        //   bsls_AlignmentImpCalc<TYPE>::Type
-        //   bsls_AlignmentImpPriorityToType<PRIORITY>
+        //   bsls::AlignmentImpTag<SIZE>
+        //   bsls::AlignmentImpCalc<TYPE>::Type
+        //   bsls::AlignmentImpPriorityToType<PRIORITY>
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTest bsls_AlignmentImpTag<SIZE>"
-                          << "\n===============================" << endl;
+        if (verbose) cout << "\nTest bsls::AlignmentImpTag<SIZE>"
+                          << "\n================================" << endl;
         {
-            LOOP_ASSERT(sizeof(bsls_AlignmentImpTag<1>),
-                        1  == sizeof(bsls_AlignmentImpTag<1>));
-            LOOP_ASSERT(sizeof(bsls_AlignmentImpTag<2>),
-                        2  == sizeof(bsls_AlignmentImpTag<2>));
-            LOOP_ASSERT(sizeof(bsls_AlignmentImpTag<3>),
-                        3  == sizeof(bsls_AlignmentImpTag<3>));
-            LOOP_ASSERT(sizeof(bsls_AlignmentImpTag<4>),
-                        4  == sizeof(bsls_AlignmentImpTag<4>));
-            LOOP_ASSERT(sizeof(bsls_AlignmentImpTag<5>),
-                        5  == sizeof(bsls_AlignmentImpTag<5>));
-            LOOP_ASSERT(sizeof(bsls_AlignmentImpTag<6>),
-                        6  == sizeof(bsls_AlignmentImpTag<6>));
-            LOOP_ASSERT(sizeof(bsls_AlignmentImpTag<7>),
-                        7  == sizeof(bsls_AlignmentImpTag<7>));
-            LOOP_ASSERT(sizeof(bsls_AlignmentImpTag<8>),
-                        8  == sizeof(bsls_AlignmentImpTag<8>));
-            LOOP_ASSERT(sizeof(bsls_AlignmentImpTag<9>),
-                        9  == sizeof(bsls_AlignmentImpTag<9>));
-            LOOP_ASSERT(sizeof(bsls_AlignmentImpTag<10>),
-                        10 == sizeof(bsls_AlignmentImpTag<10>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<1>),
+                        1  == sizeof(bsls::AlignmentImpTag<1>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<2>),
+                        2  == sizeof(bsls::AlignmentImpTag<2>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<3>),
+                        3  == sizeof(bsls::AlignmentImpTag<3>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<4>),
+                        4  == sizeof(bsls::AlignmentImpTag<4>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<5>),
+                        5  == sizeof(bsls::AlignmentImpTag<5>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<6>),
+                        6  == sizeof(bsls::AlignmentImpTag<6>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<7>),
+                        7  == sizeof(bsls::AlignmentImpTag<7>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<8>),
+                        8  == sizeof(bsls::AlignmentImpTag<8>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<9>),
+                        9  == sizeof(bsls::AlignmentImpTag<9>));
+            LOOP_ASSERT(sizeof(bsls::AlignmentImpTag<10>),
+                        10 == sizeof(bsls::AlignmentImpTag<10>));
         }
 
         typedef void (*FuncPtr)();
 
         enum {
-            CHAR_ALIGNMENT        = bsls_AlignmentImpCalc<char>::VALUE,
-            SHORT_ALIGNMENT       = bsls_AlignmentImpCalc<short>::VALUE,
-            INT_ALIGNMENT         = bsls_AlignmentImpCalc<int>::VALUE,
-            LONG_ALIGNMENT        = bsls_AlignmentImpCalc<long>::VALUE,
-            INT64_ALIGNMENT       = bsls_AlignmentImpCalc<long long>::VALUE,
-            BOOL_ALIGNMENT        = bsls_AlignmentImpCalc<bool>::VALUE,
-            WCHAR_T_ALIGNMENT     = bsls_AlignmentImpCalc<wchar_t>::VALUE,
-            PTR_ALIGNMENT         = bsls_AlignmentImpCalc<void*>::VALUE,
-            FUNC_PTR_ALIGNMENT    = bsls_AlignmentImpCalc<FuncPtr>::VALUE,
-            FLOAT_ALIGNMENT       = bsls_AlignmentImpCalc<float>::VALUE,
-            DOUBLE_ALIGNMENT      = bsls_AlignmentImpCalc<double>::VALUE,
-            LONG_DOUBLE_ALIGNMENT = bsls_AlignmentImpCalc<long double>::VALUE,
+            CHAR_ALIGNMENT        = bsls::AlignmentImpCalc<char>::VALUE,
+            SHORT_ALIGNMENT       = bsls::AlignmentImpCalc<short>::VALUE,
+            INT_ALIGNMENT         = bsls::AlignmentImpCalc<int>::VALUE,
+            LONG_ALIGNMENT        = bsls::AlignmentImpCalc<long>::VALUE,
+            INT64_ALIGNMENT       = bsls::AlignmentImpCalc<long long>::VALUE,
+            BOOL_ALIGNMENT        = bsls::AlignmentImpCalc<bool>::VALUE,
+            WCHAR_T_ALIGNMENT     = bsls::AlignmentImpCalc<wchar_t>::VALUE,
+            PTR_ALIGNMENT         = bsls::AlignmentImpCalc<void*>::VALUE,
+            FUNC_PTR_ALIGNMENT    = bsls::AlignmentImpCalc<FuncPtr>::VALUE,
+            FLOAT_ALIGNMENT       = bsls::AlignmentImpCalc<float>::VALUE,
+            DOUBLE_ALIGNMENT      = bsls::AlignmentImpCalc<double>::VALUE,
+            LONG_DOUBLE_ALIGNMENT = bsls::AlignmentImpCalc<long double>::VALUE,
 
-            S1_ALIGNMENT          = bsls_AlignmentImpCalc<S1>::VALUE,
-            S2_ALIGNMENT          = bsls_AlignmentImpCalc<S2>::VALUE,
-            S3_ALIGNMENT          = bsls_AlignmentImpCalc<S3>::VALUE,
-            S4_ALIGNMENT          = bsls_AlignmentImpCalc<S4>::VALUE,
+            S1_ALIGNMENT          = bsls::AlignmentImpCalc<S1>::VALUE,
+            S2_ALIGNMENT          = bsls::AlignmentImpCalc<S2>::VALUE,
+            S3_ALIGNMENT          = bsls::AlignmentImpCalc<S3>::VALUE,
+            S4_ALIGNMENT          = bsls::AlignmentImpCalc<S4>::VALUE,
 #if (defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)) \
  && defined(BSLS_PLATFORM__CPU_X86)
-            S5_ALIGNMENT          = bsls_AlignmentImpCalc<S5>::VALUE,
+            S5_ALIGNMENT          = bsls::AlignmentImpCalc<S5>::VALUE,
 #endif
-            U1_ALIGNMENT          = bsls_AlignmentImpCalc<U1>::VALUE
+            U1_ALIGNMENT          = bsls::AlignmentImpCalc<U1>::VALUE
         };
 
-        if (verbose) cout << "\nTest bsls_AlignmentImpCalc<TYPE>"
-                          << "\n================================" << endl;
+        if (verbose) cout << "\nTest bsls::AlignmentImpCalc<TYPE>"
+                          << "\n=================================" << endl;
         {
             int EXP_CHAR_ALIGNMENT        = 1;
             int EXP_BOOL_ALIGNMENT        = 1;
@@ -309,54 +309,55 @@ int main(int argc, char *argv[])
         ASSERT(sameType(int(), int()));
         ASSERT(!sameType(int(), short()));
 
-        if (verbose) cout << "\nTest bsls_AlignmentImpPriorityToType<PRIORITY>"
-                          << "\n=============================================="
-                          << endl;
+        if (verbose)
+            cout << "\nTest bsls::AlignmentImpPriorityToType<PRIORITY>"
+                 << "\n==============================================="
+                 << endl;
         {
 
             long double  LD = 0.0;
             void        *V  = 0;
             long long    LL = 0;
 
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<1>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<1>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<1>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<1>::Type(),
                                  LD));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<2>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<2>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<2>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<2>::Type(),
                                  double()));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<3>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<3>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<3>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<3>::Type(),
                                  float()));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<4>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<4>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<4>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<4>::Type(),
                                  FuncPtr()));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<5>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<5>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<5>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<5>::Type(),
                                  V));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<6>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<6>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<6>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<6>::Type(),
                                  wchar_t()));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<7>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<7>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<7>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<7>::Type(),
                                  bool()));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<8>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<8>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<8>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<8>::Type(),
                                  LL));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<9>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<9>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<9>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<9>::Type(),
                                  long()));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<10>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<10>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<10>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<10>::Type(),
                                  int()));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<11>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<11>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<11>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<11>::Type(),
                                  short()));
-            LOOP_ASSERT(bsls_AlignmentImpPriorityToType<12>::Type(),
-                        sameType(bsls_AlignmentImpPriorityToType<12>::Type(),
+            LOOP_ASSERT(bsls::AlignmentImpPriorityToType<12>::Type(),
+                        sameType(bsls::AlignmentImpPriorityToType<12>::Type(),
                                  char()));
 #if defined(BSLS_PLATFORM__OS_LINUX) && defined(BSLS_PLATFORM__CPU_X86)
-            ASSERT(sameType(bsls_AlignmentImpPriorityToType<13>::Type(),
-                            bsls_AlignmentImp8ByteAlignedType()));
+            ASSERT(sameType(bsls::AlignmentImpPriorityToType<13>::Type(),
+                            bsls::AlignmentImp8ByteAlignedType()));
 #endif
 
         }

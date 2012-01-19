@@ -12,16 +12,16 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Do not use.
 //
 //@CLASSES:
-//  bslalg_TypeTraitPair: for 'std::pair'-like classes
+//  bslalg::TypeTraitPair: for 'std::pair'-like classes
 //
 //@SEE_ALSO: bslmf_typetraits
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg_TypeTraitPair'.  A 'TYPE' that has this trait fulfills the following
-// requirements, where 'mX' is a modifiable object and 'X' a non-modifiable
-// object of 'TYPE':
+// 'bslalg::TypeTraitPair'.  A 'TYPE' that has this trait fulfills the
+// following requirements, where 'mX' is a modifiable object and 'X' a
+// non-modifiable object of 'TYPE':
 //..
 //  Valid expression     Type
 //  ----------------     ----
@@ -41,21 +41,25 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ===========================
-                        // struct bslalg_TypeTraitPair
-                        // ===========================
+namespace bslalg {
 
-struct bslalg_TypeTraitPair {
+                        // ====================
+                        // struct TypeTraitPair
+                        // ====================
+
+struct TypeTraitPair {
     // A type, 'T', with this trait has two data members, 'first' and 'second'
     // of types 'T::first_type' and 'T::second_type', respectively.
     // Metafunctions can be used to probe and combine the traits of the
     // individual pair members.  For example, the pair is bitwise moveable only
     // if both 'first_type' and 'second_type' have the
-    // 'bslalg_TypeTraitBitwiseMoveable' trait.  User-defined types will rarely
-    // need this trait.
+    // 'TypeTraitBitwiseMoveable' trait.  User-defined types will rarely need
+    // this trait.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

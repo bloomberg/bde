@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -244,7 +244,7 @@ _rw_cmp1 (const void *buf1,
     if (CMP_RETOFF & flags) {
         ret = ret ? int (inx) : -1;
     }
-            
+
     return ret;
 
 #else // if !defined (_RWSTD_UINT8_T)
@@ -310,7 +310,7 @@ _rw_cmp2 (const void *buf1,
     if (CMP_RETOFF & flags) {
         ret = ret ? int (inx) : -1;
     }
-            
+
     return ret;
 
 #else   // if !defined (_RWSTD_UINT16_T)
@@ -377,7 +377,7 @@ _rw_cmp4 (const void *buf1,
     if (CMP_RETOFF & flags) {
         ret = ret ? int (inx) : -1;
     }
-            
+
     return ret;
 
 #else   // if !defined (_RWSTD_UINT32_T)
@@ -444,7 +444,7 @@ _rw_cmp8 (const void *buf1,
     if (CMP_RETOFF & flags) {
         ret = ret ? int (inx) : -1;
     }
-            
+
     return ret;
 
 #else   // if !defined (_RWSTD_UINT64_T)

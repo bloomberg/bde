@@ -217,31 +217,31 @@ _rw_char_masks [256] = {
     /* '_'      */ PRINT | PUNCT | GRAPH,
     /* '`'      */ PRINT | PUNCT | GRAPH,
 
-    /* 'a'      */ LETTER (LOWER | XDIGIT),     
-    /* 'b'      */ LETTER (LOWER | XDIGIT),     
-    /* 'c'      */ LETTER (LOWER | XDIGIT),     
-    /* 'd'      */ LETTER (LOWER | XDIGIT),     
-    /* 'e'      */ LETTER (LOWER | XDIGIT),     
-    /* 'f'      */ LETTER (LOWER | XDIGIT),     
-    /* 'g'      */ LETTER (LOWER),              
-    /* 'h'      */ LETTER (LOWER),              
-    /* 'i'      */ LETTER (LOWER),              
-    /* 'j'      */ LETTER (LOWER),              
-    /* 'k'      */ LETTER (LOWER),              
-    /* 'l'      */ LETTER (LOWER),              
-    /* 'm'      */ LETTER (LOWER),              
-    /* 'n'      */ LETTER (LOWER),              
-    /* 'o'      */ LETTER (LOWER),              
-    /* 'p'      */ LETTER (LOWER),              
-    /* 'q'      */ LETTER (LOWER),              
-    /* 'r'      */ LETTER (LOWER),              
-    /* 's'      */ LETTER (LOWER),              
-    /* 't'      */ LETTER (LOWER),              
-    /* 'u'      */ LETTER (LOWER),              
-    /* 'v'      */ LETTER (LOWER),              
-    /* 'w'      */ LETTER (LOWER),              
-    /* 'x'      */ LETTER (LOWER),              
-    /* 'y'      */ LETTER (LOWER),              
+    /* 'a'      */ LETTER (LOWER | XDIGIT),
+    /* 'b'      */ LETTER (LOWER | XDIGIT),
+    /* 'c'      */ LETTER (LOWER | XDIGIT),
+    /* 'd'      */ LETTER (LOWER | XDIGIT),
+    /* 'e'      */ LETTER (LOWER | XDIGIT),
+    /* 'f'      */ LETTER (LOWER | XDIGIT),
+    /* 'g'      */ LETTER (LOWER),
+    /* 'h'      */ LETTER (LOWER),
+    /* 'i'      */ LETTER (LOWER),
+    /* 'j'      */ LETTER (LOWER),
+    /* 'k'      */ LETTER (LOWER),
+    /* 'l'      */ LETTER (LOWER),
+    /* 'm'      */ LETTER (LOWER),
+    /* 'n'      */ LETTER (LOWER),
+    /* 'o'      */ LETTER (LOWER),
+    /* 'p'      */ LETTER (LOWER),
+    /* 'q'      */ LETTER (LOWER),
+    /* 'r'      */ LETTER (LOWER),
+    /* 's'      */ LETTER (LOWER),
+    /* 't'      */ LETTER (LOWER),
+    /* 'u'      */ LETTER (LOWER),
+    /* 'v'      */ LETTER (LOWER),
+    /* 'w'      */ LETTER (LOWER),
+    /* 'x'      */ LETTER (LOWER),
+    /* 'y'      */ LETTER (LOWER),
     /* 'z'      */ LETTER (LOWER),
 
     /* '{'      */ PRINT | PUNCT | GRAPH,
@@ -673,7 +673,7 @@ do_toupper (char_type *lo, const char_type *hi) const
         }
     }
     else {
-        // FIXME: implement this 
+        // FIXME: implement this
         RW_ASSERT (!"do_toupper() not implemented");
     }
 
@@ -730,7 +730,7 @@ do_tolower (char_type *lo, const char_type *hi) const
         }
     }
     else {
-        // FIXME: implement this 
+        // FIXME: implement this
         RW_ASSERT (!"do_toupper() not implemented");
     }
 
@@ -1086,7 +1086,7 @@ do_toupper (char_type *lo, const char_type *hi) const
         }
     }
     else {
-        // FIXME: implement this 
+        // FIXME: implement this
         RW_ASSERT (!"do_toupper() not implemented");
     }
 
@@ -1143,7 +1143,7 @@ do_tolower (char_type *lo, const char_type *hi) const
         }
     }
     else {
-        // FIXME: implement this 
+        // FIXME: implement this
         RW_ASSERT (!"do_toupper() not implemented");
     }
 
@@ -1500,7 +1500,7 @@ do_toupper (char_type *lo, const char_type *hi) const
         }
     }
     else {
-        // FIXME: implement this 
+        // FIXME: implement this
         RW_ASSERT (!"do_toupper() not implemented");
     }
 
@@ -1557,7 +1557,7 @@ do_tolower (char_type *lo, const char_type *hi) const
         }
     }
     else {
-        // FIXME: implement this 
+        // FIXME: implement this
         RW_ASSERT (!"do_toupper() not implemented");
     }
 

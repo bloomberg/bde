@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2003-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -195,7 +195,7 @@ _rw_find_block (void *ptr, bool check_heap, const char *caller)
             rw_error (0, 0, __LINE__,
                       "%s:%d: counts mismatch: found %zu "
                       "bytes in %zu blocks, expected "
-                      "%zu in %zu", __FILE__, __LINE__, 
+                      "%zu in %zu", __FILE__, __LINE__,
                       nbytes, nblocks, sum_bytes, sum_blocks);
 
             abort ();
@@ -206,7 +206,7 @@ _rw_find_block (void *ptr, bool check_heap, const char *caller)
 
 #if !defined (__DECCXX_VER) || __DECCXX_VER >= 60600000
 
-        rw_error (0, 0, __LINE__,  
+        rw_error (0, 0, __LINE__,
                   "%s:%d: %s (%#p): invalid pointer",
                   __FILE__, __LINE__, caller, ptr);
 
@@ -220,7 +220,7 @@ _rw_find_block (void *ptr, bool check_heap, const char *caller)
         // Classic Iostreams library (see bug #359)
         if (static_dtors) {
 
-            rw_error (0, 0, __LINE__, 
+            rw_error (0, 0, __LINE__,
                       "%s:%d: %s (%#p): invalid pointer",
                       __FILE__, __LINE__, caller, ptr);
 
@@ -259,12 +259,12 @@ _rw_print_heap ()
         const size_t seq = hdr->id_;
         const bool array = !!(seq >> (_RWSTD_CHAR_BIT * sizeof (size_t) - 1));
 
-        rw_info (0, 0, __LINE__, 
+        rw_info (0, 0, __LINE__,
                  "%zu: %zu bytes at %#p allocated by operator new%s()",
                  hdr->id_, hdr->size_, hdr->ptr_, array ? "[]" : "");
     }
 
-    if (last) 
+    if (last)
         // check heap consistency
         _rw_find_block (last, true, 0);
 }
@@ -338,7 +338,7 @@ operator_new (size_t nbytes, bool array)
 
     if (reached_breakpoint) {
         char buffer [128];
-        rw_snprintfa (buffer, 128, 
+        rw_snprintfa (buffer, 128,
                       "%s (%zu): breakpoint at sequence number %zu",
                       name [array], nbytes, *pst->break_at_seqno_);
 
@@ -360,22 +360,22 @@ operator_new (size_t nbytes, bool array)
 
             if (reached_call_limit)
                 rw_throw (ex_bad_alloc,
-                __FILE__, __LINE__, name [array], 
-                "(%zu) %s reached call limit of %zu", 
+                __FILE__, __LINE__, name [array],
+                "(%zu) %s reached call limit of %zu",
                 nbytes, threw, pst->new_calls_ [array]);
 
             else if (reached_block_limit)
                 rw_throw (ex_bad_alloc,
-                __FILE__, __LINE__, name [array], 
+                __FILE__, __LINE__, name [array],
                 "(%zu) %s reached block limit of %zu: %zu",
-                nbytes, threw, *pst->throw_at_blocks_ [array], 
+                nbytes, threw, *pst->throw_at_blocks_ [array],
                 pst->blocks_ [array]);
 
             else if (reached_size_limit)
                 rw_throw (ex_bad_alloc,
-                __FILE__, __LINE__, name [array], 
+                __FILE__, __LINE__, name [array],
                 "(%zu) %s reached size limit of %zu: %zu",
-                nbytes, threw, *pst->throw_at_bytes_ [array], 
+                nbytes, threw, *pst->throw_at_bytes_ [array],
                 pst->bytes_ [array]);
         }
         catch (const std::exception & ex) {
@@ -418,7 +418,7 @@ operator_new (size_t nbytes, bool array)
 
         try {
             rw_throw (ex_bad_alloc,
-                __FILE__, __LINE__, name [array], 
+                __FILE__, __LINE__, name [array],
                 "(%zu): malloc() returned 0", nbytes);
         }
         catch (const std::exception & ex) {
@@ -476,8 +476,8 @@ operator_new (size_t nbytes, bool array)
 
     if (trace_sequence [0] <= seq_gen && seq_gen < trace_sequence [1])
         rw_note (0, 0, __LINE__,
-                 "%s:%d: %3zi. %s (%zu) --> %#p", 
-                 __FILE__, __LINE__, seq_gen, 
+                 "%s:%d: %3zi. %s (%zu) --> %#p",
+                 __FILE__, __LINE__, seq_gen,
                  name [array], nbytes, hdr->ptr_);
 
     ++seq_gen;
@@ -516,7 +516,7 @@ operator_delete (void *ptr, bool array)
         }
 
         const size_t nbytes = hdr->size_;
-        
+
         bool mismatch;
 
         size_t seq = hdr->id_;
@@ -578,7 +578,7 @@ operator_delete (void *ptr, bool array)
             last = hdr->prev_;
 
         const size_t block_size = nbytes + sizeof (Header) + sizeof (Guard);
-        
+
         // invalidate the entire block including bookkeeping data
         memset (hdr, -1, block_size);
 
@@ -588,7 +588,7 @@ operator_delete (void *ptr, bool array)
         ++pst->delete_0_calls_ [array];
 
         if (trace_sequence [0] <= seq_gen && seq_gen < trace_sequence [1])
-            rw_note (0, 0, __LINE__, "%s:%d: %s (0)", 
+            rw_note (0, 0, __LINE__, "%s:%d: %s (0)",
                      __FILE__, __LINE__, name [array]);
     }
 }

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide namespace for functions used to delete objects.
 //
 //@CLASSES:
-//  bslma_DeleterHelper: non-primitive pure procedures for deleting objects
+//  bslma::DeleterHelper: non-primitive pure procedures for deleting objects
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
@@ -73,7 +73,7 @@ BSLS_IDENT("$Id: $")
 //  inline
 //  my_RawDeleterGuard<TYPE, ALLOCATOR>::~my_RawDeleterGuard()
 //  {
-//      bslma_DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
+//      bslma::DeleterHelper::deleteObjectRaw(d_object_p, d_allocator_p);
 //  }
 //..
 // Note that we have denoted our guard to be a "raw" guard in keeping with this
@@ -97,12 +97,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-             // =======================================
-             // local struct bslma_DeleterHelper_Helper
-             // =======================================
+namespace bslma {
+
+             // =================================
+             // local struct DeleterHelper_Helper
+             // =================================
 
 template <int IS_POLYMORPHIC>
-struct bslma_DeleterHelper_Helper {
+struct DeleterHelper_Helper {
     template <typename TYPE>
     static void *caster(const TYPE *object)
     {
@@ -111,7 +113,7 @@ struct bslma_DeleterHelper_Helper {
 };
 
 template <>
-struct bslma_DeleterHelper_Helper<1> {
+struct DeleterHelper_Helper<1> {
     template <typename TYPE>
     static void *caster(const TYPE *object)
     {
@@ -119,11 +121,11 @@ struct bslma_DeleterHelper_Helper<1> {
     }
 };
 
-                           // ==========================
-                           // struct bslma_DeleterHelper
-                           // ==========================
+                           // ====================
+                           // struct DeleterHelper
+                           // ====================
 
-struct bslma_DeleterHelper {
+struct DeleterHelper {
     // This struct provides a namespace for helper functions used for deleting
     // objects in various pools and allocators.
 
@@ -154,21 +156,21 @@ struct bslma_DeleterHelper {
 //                      TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
-                           // --------------------------
-                           // struct bslma_DeleterHelper
-                           // --------------------------
+                           // --------------------
+                           // struct DeleterHelper
+                           // --------------------
 
 // CLASS METHODS
 template <class TYPE, class ALLOCATOR>
 inline
-void bslma_DeleterHelper::deleteObject(const TYPE *object,
-                                       ALLOCATOR  *allocator)
+void DeleterHelper::deleteObject(const TYPE *object,
+                                 ALLOCATOR  *allocator)
 {
     BSLS_ASSERT_SAFE(allocator);
 
     if (0 != object) {
-        void *address = bslma_DeleterHelper_Helper<
-                             bslmf_IsPolymorphic<TYPE>::VALUE>::caster(object);
+        void *address = DeleterHelper_Helper<
+                            bslmf::IsPolymorphic<TYPE>::VALUE>::caster(object);
         BSLS_ASSERT_OPT(address);
 
 #ifndef BSLS_PLATFORM__CMP_SUN
@@ -183,8 +185,8 @@ void bslma_DeleterHelper::deleteObject(const TYPE *object,
 
 template <class TYPE, class ALLOCATOR>
 inline
-void bslma_DeleterHelper::deleteObjectRaw(const TYPE *object,
-                                          ALLOCATOR  *allocator)
+void DeleterHelper::deleteObjectRaw(const TYPE *object,
+                                    ALLOCATOR  *allocator)
 {
     BSLS_ASSERT_SAFE(allocator);
 
@@ -201,7 +203,9 @@ void bslma_DeleterHelper::deleteObjectRaw(const TYPE *object,
     }
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

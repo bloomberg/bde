@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide basic parameters and primitive data structures for deques.
 //
 //@CLASSES:
-//   bslalg_DequeImpUtil: deque parameters and primitive data structures
+//  bslalg::DequeImpUtil: deque parameters and primitive data structures
 //
 //@SEE_ALSO: bslalg_scalarprimitives, bslalg_arrayprimitives, bslalg_typetraits
 //
@@ -23,43 +23,43 @@ BSLS_IDENT("$Id: $")
 // deque is identified by an iterator which consists of a pointer to the block
 // pointer array, and a pointer to a value.  A deque implementation is
 // parameterized by the 'VALUE_TYPE' and a 'BLOCK_LENGTH' (fixed number of
-// objects in a block).  'bslalg_DequeImpUtil' provides a namespace for the
+// objects in a block).  'bslalg::DequeImpUtil' provides a namespace for the
 // following types and constants:
 //..
-//    Type                   Short description
-//    ----                   -----------------
-//    ValueType              An alias for the templatized 'VALUE_TYPE'
-//    Block                  An array (of length 'BLOCK_LENGTH') of 'ValueType'
-//    BlockPtr               An alias for a pointer to a block
+//  Type                   Short description
+//  ----                   -----------------
+//  ValueType              An alias for the templatized 'VALUE_TYPE'
+//  Block                  An array (of length 'BLOCK_LENGTH') of 'ValueType'
+//  BlockPtr               An alias for a pointer to a block
 //
-//    Constant               Short description
-//    --------               -----------------
-//    BLOCK_BYTES            Number of bytes in a block
-//    BLOCK_ARRAY_PADDING    Number of empty blocks to keep at both ends of the
-//                           block array pointer (one on each side).
+//  Constant               Short description
+//  --------               -----------------
+//  BLOCK_BYTES            Number of bytes in a block
+//  BLOCK_ARRAY_PADDING    Number of empty blocks to keep at both ends of the
+//                         block array pointer (one on each side).
 //..
 //
 // The picture is as follows:
 //..
-//    +-----+-----+-----+-----+-----+-----+-----+-----+
-//    |  *  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |  (BlockPtr array)
-//    +-----+-----+--|--+--|--+--|--+--|--+-----+-----+
-//                   |     |     |     |                     Block
-//                   |     |     |     |  +---+---+---+---+---+---+---+---+
-//                   |     |     |     `--| V | W | X | Y | Z |   |   |   |
-//                   |     |     |        +---+---+---+---+---+---+---+---+
-//                   |     |     |                      Block
-//                   |     |     |  +---+---+---+---+---+---+---+---+
-//                   |     |     `--| N | O | P | Q | R | S | T | U |
-//                   |     |        +---+---+---+---+---+---+---+---+
-//                   |     |                      Block
-//                   |     |  +---+---+---+---+---+---+---+---+
-//                   |     `--| F | G | H | I | J | K | L | M |
-//                   |        +---+---+---+---+---+---+---+---+
-//                   |                      Block
-//                   |  +---+---+---+---+---+---+---+---+
-//                   `--|   |   |   | A | B | C | D | E |
-//                      +---+---+---+---+---+---+---+---+
+//  +-----+-----+-----+-----+-----+-----+-----+-----+
+//  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |  (BlockPtr array)
+//  +-----+-----+--|--+--|--+--|--+--|--+-----+-----+
+//                 |     |     |     |                     Block
+//                 |     |     |     |  +---+---+---+---+---+---+---+---+
+//                 |     |     |     `--| V | W | X | Y | Z |   |   |   |
+//                 |     |     |        +---+---+---+---+---+---+---+---+
+//                 |     |     |                      Block
+//                 |     |     |  +---+---+---+---+---+---+---+---+
+//                 |     |     `--| N | O | P | Q | R | S | T | U |
+//                 |     |        +---+---+---+---+---+---+---+---+
+//                 |     |                      Block
+//                 |     |  +---+---+---+---+---+---+---+---+
+//                 |     `--| F | G | H | I | J | K | L | M |
+//                 |        +---+---+---+---+---+---+---+---+
+//                 |                      Block
+//                 |  +---+---+---+---+---+---+---+---+
+//                 `--|   |   |   | A | B | C | D | E |
+//                    +---+---+---+---+---+---+---+---+
 //..
 // Depicted above is a deque consisting of an array of eight block pointers,
 // only four actually used to point to blocks of eight elements.  In the first
@@ -80,12 +80,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                           // ======================
-                           // class bslalg_DequeImp
-                           // ======================
+namespace bslalg {
+
+                           // ==============
+                           // class DequeImp
+                           // ==============
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
-struct bslalg_DequeImpUtil {
+struct DequeImpUtil {
     // This 'struct', parameterized by the 'VALUE_TYPE' and a 'BLOCK_LENGTH',
     // provides the various parameters of the deque implementation.
 
@@ -113,7 +115,9 @@ struct bslalg_DequeImpUtil {
         // Pointer to a block.  A deque will own an array of those.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

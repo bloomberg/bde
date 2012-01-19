@@ -1,4 +1,4 @@
-// bslma_sequentialpool.cpp    -*-C++-*-
+// bslma_sequentialpool.cpp                                           -*-C++-*-
 #include <bslma_sequentialpool.h>
 
 #include <bsls_ident.h>
@@ -28,12 +28,14 @@ enum {
 
 namespace BloombergLP {
 
-                             // --------------------
-                             // bslma_SequentialPool
-                             // --------------------
+namespace bslma {
+
+                             // --------------
+                             // SequentialPool
+                             // --------------
 
 // PRIVATE ACCESSORS
-int bslma_SequentialPool::calculateNextBufferSize(int size) const
+int SequentialPool::calculateNextBufferSize(int size) const
 {
     unsigned int nextSize = 0 == d_bufSize ? INITIAL_SIZE : d_bufSize;
 
@@ -49,20 +51,20 @@ int bslma_SequentialPool::calculateNextBufferSize(int size) const
 }
 
 // CREATORS
-bslma_SequentialPool::bslma_SequentialPool(bslma_Allocator *basicAllocator)
+SequentialPool::SequentialPool(Allocator *basicAllocator)
 : d_buffer(0)
 , d_cursor(0)
 , d_bufSize(0)
-, d_alignmentStrategy(bslma_BufferAllocator::NATURAL_ALIGNMENT)
+, d_alignmentStrategy(BufferAllocator::NATURAL_ALIGNMENT)
 , d_maxBufferSize(INT_MAX)
 , d_growthStrategy(GEOMETRIC)
 , d_blockList(basicAllocator)
 {
 }
 
-bslma_SequentialPool::bslma_SequentialPool(
-                      bslma_BufferAllocator::AlignmentStrategy  strategy,
-                      bslma_Allocator                          *basicAllocator)
+SequentialPool::SequentialPool(
+                            BufferAllocator::AlignmentStrategy  strategy,
+                            Allocator                          *basicAllocator)
 : d_buffer(0)
 , d_cursor(0)
 , d_bufSize(0)
@@ -73,11 +75,11 @@ bslma_SequentialPool::bslma_SequentialPool(
 {
 }
 
-bslma_SequentialPool::bslma_SequentialPool(int              initialSize,
-                                           bslma_Allocator *basicAllocator)
+SequentialPool::SequentialPool(int        initialSize,
+                               Allocator *basicAllocator)
 : d_cursor(0)
 , d_bufSize(initialSize < 0 ? -initialSize : initialSize)
-, d_alignmentStrategy(bslma_BufferAllocator::NATURAL_ALIGNMENT)
+, d_alignmentStrategy(BufferAllocator::NATURAL_ALIGNMENT)
 , d_maxBufferSize(INT_MAX)
 , d_growthStrategy(initialSize < 0 ? GEOMETRIC : CONSTANT)
 , d_blockList(basicAllocator)
@@ -85,10 +87,10 @@ bslma_SequentialPool::bslma_SequentialPool(int              initialSize,
     d_buffer = (char *) d_blockList.allocate(d_bufSize);
 }
 
-bslma_SequentialPool::bslma_SequentialPool(
-                      int                                       initialSize,
-                      bslma_BufferAllocator::AlignmentStrategy  strategy,
-                      bslma_Allocator                          *basicAllocator)
+SequentialPool::SequentialPool(
+                            int                                 initialSize,
+                            BufferAllocator::AlignmentStrategy  strategy,
+                            Allocator                          *basicAllocator)
 : d_cursor(0)
 , d_bufSize(initialSize < 0 ? -initialSize : initialSize)
 , d_alignmentStrategy(strategy)
@@ -99,24 +101,24 @@ bslma_SequentialPool::bslma_SequentialPool(
     d_buffer = (char *) d_blockList.allocate(d_bufSize);
 }
 
-bslma_SequentialPool::bslma_SequentialPool(char            *buffer,
-                                           int              bufferSize,
-                                           bslma_Allocator *basicAllocator)
+SequentialPool::SequentialPool(char      *buffer,
+                               int        bufferSize,
+                               Allocator *basicAllocator)
 : d_buffer(buffer)
 , d_cursor(0)
 , d_bufSize(bufferSize < 0 ? -bufferSize : bufferSize)
-, d_alignmentStrategy(bslma_BufferAllocator::NATURAL_ALIGNMENT)
+, d_alignmentStrategy(BufferAllocator::NATURAL_ALIGNMENT)
 , d_maxBufferSize(INT_MAX)
 , d_growthStrategy(bufferSize < 0 ? GEOMETRIC : CONSTANT)
 , d_blockList(basicAllocator)
 {
 }
 
-bslma_SequentialPool::bslma_SequentialPool(
-                      char                                     *buffer,
-                      int                                       bufferSize,
-                      bslma_BufferAllocator::AlignmentStrategy  strategy,
-                      bslma_Allocator                          *basicAllocator)
+SequentialPool::SequentialPool(
+                            char                               *buffer,
+                            int                                 bufferSize,
+                            BufferAllocator::AlignmentStrategy  strategy,
+                            Allocator                          *basicAllocator)
 : d_buffer(buffer)
 , d_cursor(0)
 , d_bufSize(bufferSize < 0 ? -bufferSize : bufferSize)
@@ -127,12 +129,12 @@ bslma_SequentialPool::bslma_SequentialPool(
 {
 }
 
-bslma_SequentialPool::bslma_SequentialPool(int              initialSize,
-                                           int              maxBufferSize,
-                                           bslma_Allocator *basicAllocator)
+SequentialPool::SequentialPool(int        initialSize,
+                               int        maxBufferSize,
+                               Allocator *basicAllocator)
 : d_cursor(0)
 , d_bufSize(initialSize < 0 ? -initialSize : initialSize)
-, d_alignmentStrategy(bslma_BufferAllocator::NATURAL_ALIGNMENT)
+, d_alignmentStrategy(BufferAllocator::NATURAL_ALIGNMENT)
 , d_maxBufferSize(maxBufferSize)
 , d_growthStrategy(initialSize < 0 ? GEOMETRIC : CONSTANT)
 , d_blockList(basicAllocator)
@@ -140,11 +142,11 @@ bslma_SequentialPool::bslma_SequentialPool(int              initialSize,
     d_buffer = (char *) d_blockList.allocate(d_bufSize);
 }
 
-bslma_SequentialPool::bslma_SequentialPool(
-                      int                                       initialSize,
-                      int                                       maxBufferSize,
-                      bslma_BufferAllocator::AlignmentStrategy  strategy,
-                      bslma_Allocator                          *basicAllocator)
+SequentialPool::SequentialPool(
+                            int                                 initialSize,
+                            int                                 maxBufferSize,
+                            BufferAllocator::AlignmentStrategy  strategy,
+                            Allocator                          *basicAllocator)
 : d_cursor(0)
 , d_bufSize(initialSize < 0 ? -initialSize : initialSize)
 , d_alignmentStrategy(strategy)
@@ -155,26 +157,26 @@ bslma_SequentialPool::bslma_SequentialPool(
     d_buffer = (char *) d_blockList.allocate(d_bufSize);
 }
 
-bslma_SequentialPool::bslma_SequentialPool(char            *buffer,
-                                           int              bufferSize,
-                                           int              maxBufferSize,
-                                           bslma_Allocator *basicAllocator)
+SequentialPool::SequentialPool(char      *buffer,
+                               int        bufferSize,
+                               int        maxBufferSize,
+                               Allocator *basicAllocator)
 : d_buffer(buffer)
 , d_cursor(0)
 , d_bufSize(bufferSize < 0 ? -bufferSize : bufferSize)
-, d_alignmentStrategy(bslma_BufferAllocator::NATURAL_ALIGNMENT)
+, d_alignmentStrategy(BufferAllocator::NATURAL_ALIGNMENT)
 , d_maxBufferSize(maxBufferSize)
 , d_growthStrategy(bufferSize < 0 ? GEOMETRIC : CONSTANT)
 , d_blockList(basicAllocator)
 {
 }
 
-bslma_SequentialPool::bslma_SequentialPool(
-                      char                                     *buffer,
-                      int                                       bufferSize,
-                      int                                       maxBufferSize,
-                      bslma_BufferAllocator::AlignmentStrategy  strategy,
-                      bslma_Allocator                          *basicAllocator)
+SequentialPool::SequentialPool(
+                            char                               *buffer,
+                            int                                 bufferSize,
+                            int                                 maxBufferSize,
+                            BufferAllocator::AlignmentStrategy  strategy,
+                            Allocator                          *basicAllocator)
 : d_buffer(buffer)
 , d_cursor(0)
 , d_bufSize(bufferSize < 0 ? -bufferSize : bufferSize)
@@ -186,7 +188,7 @@ bslma_SequentialPool::bslma_SequentialPool(
 }
 
 // MANIPULATORS
-void *bslma_SequentialPool::allocate(int size)
+void *SequentialPool::allocate(int size)
 {
     BSLS_ASSERT(0 <= size);
 
@@ -195,7 +197,7 @@ void *bslma_SequentialPool::allocate(int size)
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(d_buffer)) {
-        void *memory = bslma_BufferAllocator::allocateFromBuffer(
+        void *memory = BufferAllocator::allocateFromBuffer(
                                                           &d_cursor,
                                                           d_buffer,
                                                           d_bufSize,
@@ -215,14 +217,14 @@ void *bslma_SequentialPool::allocate(int size)
     d_bufSize = nextSize;
     d_cursor  = 0;
 
-    return bslma_BufferAllocator::allocateFromBuffer(&d_cursor,
-                                                     d_buffer,
-                                                     d_bufSize,
-                                                     size,
-                                                     d_alignmentStrategy);
+    return BufferAllocator::allocateFromBuffer(&d_cursor,
+                                               d_buffer,
+                                               d_bufSize,
+                                               size,
+                                               d_alignmentStrategy);
 }
 
-void bslma_SequentialPool::release()
+void SequentialPool::release()
 {
     d_blockList.release();
     d_cursor  = 0;
@@ -230,15 +232,14 @@ void bslma_SequentialPool::release()
     d_bufSize = 0;
 }
 
-void bslma_SequentialPool::reserveCapacity(int numBytes)
+void SequentialPool::reserveCapacity(int numBytes)
 {
     BSLS_ASSERT(0 <= numBytes);
 
     if (numBytes) {
         int   cursor = d_cursor;
         void *memory = d_buffer
-                     ? bslma_BufferAllocator::allocateFromBuffer(
-                                                           &cursor,
+                     ? BufferAllocator::allocateFromBuffer(&cursor,
                                                            d_buffer,
                                                            d_bufSize,
                                                            numBytes,
@@ -262,7 +263,7 @@ void bslma_SequentialPool::reserveCapacity(int numBytes)
     }
 }
 
-void *bslma_SequentialPool::allocateAndExpand(int *size)
+void *SequentialPool::allocateAndExpand(int *size)
 {
     BSLS_ASSERT(0 <= *size);
 
@@ -282,7 +283,7 @@ void *bslma_SequentialPool::allocateAndExpand(int *size)
     return memory;
 }
 
-void *bslma_SequentialPool::allocateAndExpand(int *size, int maxNumBytes)
+void *SequentialPool::allocateAndExpand(int *size, int maxNumBytes)
 {
     BSLS_ASSERT(0 <= *size);  BSLS_ASSERT(*size <= maxNumBytes);
 
@@ -306,7 +307,7 @@ void *bslma_SequentialPool::allocateAndExpand(int *size, int maxNumBytes)
     return memory;
 }
 
-int bslma_SequentialPool::expand(void *address, int originalNumBytes)
+int SequentialPool::expand(void *address, int originalNumBytes)
 {
     BSLS_ASSERT(0 <= originalNumBytes);
 
@@ -321,9 +322,9 @@ int bslma_SequentialPool::expand(void *address, int originalNumBytes)
     return originalNumBytes;
 }
 
-int bslma_SequentialPool::expand(void *address,
-                                 int   originalNumBytes,
-                                 int   maxNumBytes)
+int SequentialPool::expand(void *address,
+                           int   originalNumBytes,
+                           int   maxNumBytes)
 {
     BSLS_ASSERT(               0 <= originalNumBytes);
     BSLS_ASSERT(originalNumBytes <= maxNumBytes);
@@ -343,9 +344,9 @@ int bslma_SequentialPool::expand(void *address,
     return originalNumBytes;
 }
 
-int bslma_SequentialPool::truncate(void *address,
-                                   int   originalNumBytes,
-                                   int   newNumBytes)
+int SequentialPool::truncate(void *address,
+                             int   originalNumBytes,
+                             int   newNumBytes)
 {
     BSLS_ASSERT_SAFE(newNumBytes <= originalNumBytes);
 
@@ -360,7 +361,9 @@ int bslma_SequentialPool::truncate(void *address,
     return originalNumBytes;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

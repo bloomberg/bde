@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -63,7 +63,7 @@ _rw_enable_lines (int first, int last, int flags)
 {
     if (nlineranges == rangebufsize) {
         const size_t newbufsize = 2 * nlineranges + 1;
-            
+
         linerange_t* const newranges =
             (linerange_t*)malloc (newbufsize * sizeof (linerange_t));
 

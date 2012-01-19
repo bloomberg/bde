@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a primitive type trait for classes with STL-like iterators.
 //
 //@CLASSES:
-//  bslalg_TypeTraitHasStlIterators: has STL-like iterators
+//  bslalg::TypeTraitHasStlIterators: has STL-like iterators
 //
 //@SEE_ALSO: bslmf_typetraits
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg_TypeTraitHasStlIterators'.  A 'TYPE' that has this trait fulfills
+// 'bslalg::TypeTraitHasStlIterators'.  A 'TYPE' that has this trait fulfills
 // the following requirements, where 'mX' is a modifiable object and 'X' a
 // non-modifiable object of 'TYPE':
 //..
@@ -48,17 +48,21 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        //=======================================
-                        // struct bslalg_TypeTraitHasStlIterators
-                        //=======================================
+namespace bslalg {
 
-struct bslalg_TypeTraitHasStlIterators {
+                        //================================
+                        // struct TypeTraitHasStlIterators
+                        //================================
+
+struct TypeTraitHasStlIterators {
     // A type with this trait defines (at minimum) the nested types 'iterator'
     // and 'const_iterator' and the functions 'begin()' and 'end()' having the
     // standard STL semantics.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

@@ -1,4 +1,4 @@
-// bsltst_map.t.cpp                  -*-C++-*-
+// bsltst_map.t.cpp                                                   -*-C++-*-
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif
@@ -157,11 +157,11 @@ typename MAPTYPE::data_type& mmGet(MAPTYPE *mm, typename MAPTYPE::key_type key)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 //=============================================================================
 //                  GLOBAL HELPER CLASSES FOR TESTING
@@ -212,21 +212,21 @@ struct Cargo {
     // memory allocator is properly passed to elements within a container.
 
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
 
-    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
     explicit
-    Cargo(bslma_Allocator *a = 0) {
+    Cargo(bslma::Allocator *a = 0) {
         QV_("Default:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(4000);
     }
-    Cargo(const Cargo& in, bslma_Allocator* a = 0) {
+    Cargo(const Cargo& in, bslma::Allocator* a = 0) {
         QV_("Copy:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(4000);
         std::memcpy(d_p, in.d_p, 4000);
     }
@@ -245,22 +245,22 @@ struct CargoNoAddressOf {
     // is private for testing 'bsls_addressof'.
 
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
 
     BSLALG_DECLARE_NESTED_TRAITS(CargoNoAddressOf,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
     explicit
-    CargoNoAddressOf(bslma_Allocator *a = 0) {
+    CargoNoAddressOf(bslma::Allocator *a = 0) {
         QV_("Default:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(4000);
     }
-    CargoNoAddressOf(const CargoNoAddressOf& in, bslma_Allocator* a = 0) {
+    CargoNoAddressOf(const CargoNoAddressOf& in, bslma::Allocator* a = 0) {
         QV_("Copy:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(4000);
         std::memcpy(d_p, in.d_p, 4000);
     }
@@ -356,7 +356,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE, ALLOC>::testCase1()
     if (verbose) cout << "\nMAP BREATHING TEST\n"
                            "==================\n";
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
 
     bsl::map<KEY_TYPE, VALUE_TYPE> b(&ta);
     std::map<KEY_TYPE, VALUE_TYPE> s(&ta);
@@ -393,10 +393,10 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase2()
 {
         if (verbose) cout << "\nMAP STORING AND C'TOR TEST\n"
                                "==========================\n";
-        bslma_TestAllocator ta;
-        bslma_TestAllocator tda;
+        bslma::TestAllocator ta;
+        bslma::TestAllocator tda;
 
-        bslma_DefaultAllocatorGuard defaultGuard(&tda);
+        bslma::DefaultAllocatorGuard defaultGuard(&tda);
 
         bsl::less<KEY_TYPE> lessTYPE;
         Greaterp<KEY_TYPE> greaterTYPE;
@@ -417,7 +417,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase2()
             }
 
             LOOP_ASSERT(tda.numBytesInUse(),
-                            tda.numBytesInUse() >= defaultMemUsed + 12 * 1000);
+                        tda.numBytesInUse() >= defaultMemUsed + 12 * 1000);
             PV(tda.numBytesInUse());
         }
 
@@ -437,7 +437,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase2()
             }
 
             LOOP_ASSERT(tda.numBytesInUse(),
-                            tda.numBytesInUse() >= defaultMemUsed + 12 * 1000);
+                        tda.numBytesInUse() >= defaultMemUsed + 12 * 1000);
             PV(tda.numBytesInUse());
         }
 
@@ -461,9 +461,9 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase2()
             }
 
             LOOP_ASSERT(ta.numBytesInUse(),
-                                    ta.numBytesInUse() >= memUsed + 3 * 4000);
+                        ta.numBytesInUse() >= memUsed + 3 * 4000);
             LOOP_ASSERT(tda.numBytesInUse(),
-                                        defaultMemUsed == tda.numBytesInUse());
+                        defaultMemUsed == tda.numBytesInUse());
             PV(ta.numBytesInUse());
         }
 
@@ -487,7 +487,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase2()
             }
 
             LOOP_ASSERT(tda.numBytesInUse(),
-                            tda.numBytesInUse() >= defaultMemUsed + 3 * 4000);
+                        tda.numBytesInUse() >= defaultMemUsed + 3 * 4000);
             PV(tda.numBytesInUse());
         }
 
@@ -511,7 +511,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase2()
             }
 
             LOOP_ASSERT(tda.numBytesInUse(),
-                            tda.numBytesInUse() >= defaultMemUsed + 3 * 4000);
+                        tda.numBytesInUse() >= defaultMemUsed + 3 * 4000);
             PV(tda.numBytesInUse());
         }
 
@@ -530,13 +530,13 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase2()
 
             int defaultMemUsed = tda.numBytesInUse();
             bsl::map<KEY_TYPE, VALUE_TYPE, Greaterp<KEY_TYPE> >
-                                          mB(mA.begin(), mA.end(), greaterTYPE);
+                                         mB(mA.begin(), mA.end(), greaterTYPE);
             for (int i = 0; i < 10; ++i) {
                 ASSERT((i < 3) == mB.count(i));
             }
 
             LOOP_ASSERT(tda.numBytesInUse(),
-                            tda.numBytesInUse() >= defaultMemUsed + 3 * 4000);
+                        tda.numBytesInUse() >= defaultMemUsed + 3 * 4000);
             PV(tda.numBytesInUse());
         }
 
@@ -557,15 +557,15 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase2()
             int memUsed = ta.numBytesInUse();
 
             bsl::map<KEY_TYPE, VALUE_TYPE, Greaterp<KEY_TYPE> >
-                                     mB(mA.begin(), mA.end(), greaterTYPE, &ta);
+                                    mB(mA.begin(), mA.end(), greaterTYPE, &ta);
             for (int i = 0; i < 10; ++i) {
                 ASSERT((i < 3) == mB.count(i));
             }
 
             LOOP_ASSERT(ta.numBytesInUse(),
-                                    ta.numBytesInUse() >= memUsed + 3 * 4000);
+                        ta.numBytesInUse() >= memUsed + 3 * 4000);
             LOOP_ASSERT(tda.numBytesInUse(),
-                                        defaultMemUsed == tda.numBytesInUse());
+                        defaultMemUsed == tda.numBytesInUse());
             PV(ta.numBytesInUse());
         }
 
@@ -591,7 +591,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase2()
             }
 
             LOOP_ASSERT(tda.numBytesInUse(),
-                            tda.numBytesInUse() >= defaultMemUsed + 3 * 4000);
+                        tda.numBytesInUse() >= defaultMemUsed + 3 * 4000);
             PV(tda.numBytesInUse());
         }
 
@@ -615,9 +615,9 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase2()
             }
 
             LOOP_ASSERT(ta.numBytesInUse(),
-                                    ta.numBytesInUse() >= memUsed + 3 * 4000);
+                        ta.numBytesInUse() >= memUsed + 3 * 4000);
             LOOP_ASSERT(tda.numBytesInUse(),
-                                        defaultMemUsed == tda.numBytesInUse());
+                        defaultMemUsed == tda.numBytesInUse());
             PV(ta.numBytesInUse());
         }
 
@@ -629,7 +629,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase3()
 {
     if (verbose) cout << "\nMULTIMAP BREATHING TEST\n"
                            "=======================\n";
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
 
     bsl::multimap<KEY_TYPE, VALUE_TYPE> b(&ta);
     std::multimap<KEY_TYPE, VALUE_TYPE> s(&ta);
@@ -665,10 +665,10 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase4()
 {
     if (verbose) cout << "\nMULTIMAP STORING AND C'TOR TEST\n" << endl;
 
-    bslma_TestAllocator ta;
-    bslma_TestAllocator tda;
+    bslma::TestAllocator ta;
+    bslma::TestAllocator tda;
 
-    bslma_DefaultAllocatorGuard defaultGuard(&tda);
+    bslma::DefaultAllocatorGuard defaultGuard(&tda);
 
     bsl::less<KEY_TYPE> lessTYPE;
     Greaterp<KEY_TYPE> greaterTYPE;
@@ -689,7 +689,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase4()
         }
 
         LOOP_ASSERT(tda.numBytesInUse(),
-                        tda.numBytesInUse() >= defaultMemUsed + 4 * 4000);
+                    tda.numBytesInUse() >= defaultMemUsed + 4 * 4000);
         PV(tda.numBytesInUse());
     }
 
@@ -709,7 +709,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase4()
         }
 
         LOOP_ASSERT(tda.numBytesInUse(),
-                        tda.numBytesInUse() >= defaultMemUsed + 4 * 4000);
+                    tda.numBytesInUse() >= defaultMemUsed + 4 * 4000);
         PV(tda.numBytesInUse());
     }
 
@@ -735,9 +735,9 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase4()
         }
 
         LOOP_ASSERT(ta.numBytesInUse(),
-                                ta.numBytesInUse() >= memUsed + 16 * 1000);
+                    ta.numBytesInUse() >= memUsed + 16 * 1000);
         LOOP_ASSERT(tda.numBytesInUse(),
-                                    tda.numBytesInUse() == defaultMemUsed);
+                    tda.numBytesInUse() == defaultMemUsed);
         PV(ta.numBytesInUse());
     }
 
@@ -764,10 +764,10 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase4()
         }
 
         LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
-                                            ta.numBytesInUse() == memUsed);
+                     ta.numBytesInUse() == memUsed);
 
         LOOP_ASSERT(tda.numBytesInUse(),
-                        tda.numBytesInUse() >= defaultMemUsed + 16 * 1000);
+                    tda.numBytesInUse() >= defaultMemUsed + 16 * 1000);
         PV(ta.numBytesInUse());
     }
 
@@ -795,10 +795,10 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase4()
         }
 
         LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
-                                            ta.numBytesInUse() == memUsed);
+                     ta.numBytesInUse() == memUsed);
 
         LOOP_ASSERT(tda.numBytesInUse(),
-                        tda.numBytesInUse() >= defaultMemUsed + 16 * 1000);
+                    tda.numBytesInUse() >= defaultMemUsed + 16 * 1000);
         PV(ta.numBytesInUse());
     }
 
@@ -826,10 +826,10 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase4()
         }
 
         LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
-                                ta.numBytesInUse() >= memUsed + 16 * 1000);
+                     ta.numBytesInUse() >= memUsed + 16 * 1000);
 
         LOOP_ASSERT(tda.numBytesInUse(),
-                        tda.numBytesInUse() == defaultMemUsed);
+                    tda.numBytesInUse() == defaultMemUsed);
         PV(ta.numBytesInUse());
     }
 
@@ -878,7 +878,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase4()
 
         LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() >= 16 * 1000);
         LOOP_ASSERT(tda.numBytesInUse(),
-                                    defaultMemUsed == tda.numBytesInUse());
+                    defaultMemUsed == tda.numBytesInUse());
         PV(ta.numBytesInUse());
     }
 
@@ -905,9 +905,9 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase4()
         }
 
         LOOP_ASSERT(ta.numBytesInUse(),
-                                ta.numBytesInUse() >= memUsed + 16 * 1000);
+                    ta.numBytesInUse() >= memUsed + 16 * 1000);
         LOOP_ASSERT(tda.numBytesInUse(),
-                                    tda.numBytesInUse() == defaultMemUsed);
+                    tda.numBytesInUse() == defaultMemUsed);
         PV(tda.numBytesInUse());
     }
 
@@ -921,7 +921,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase5()
                       "================================================\n"
                       << endl;
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
 
     bsl::map<KEY_TYPE, VALUE_TYPE> ma(&ta), mb(&ta);
     int j;
@@ -1061,9 +1061,9 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase5()
 
     {
         bsl::map<KEY_TYPE, VALUE_TYPE, Comparep<KEY_TYPE> > mBackwards(
-             ma.begin(),
-             ma.end(),
-             Comparep<KEY_TYPE>(Comparep<KEY_TYPE>::GREATER), &ta);
+                         ma.begin(),
+                         ma.end(),
+                         Comparep<KEY_TYPE>(Comparep<KEY_TYPE>::GREATER), &ta);
 
         ASSERT(mBackwards.size() == 4);
         ASSERT(mBackwards.size() < mBackwards.max_size());
@@ -1249,7 +1249,7 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase6()
                "\nMULTIMAP BASIC MANIPULATOR / ACCESSOR / ITERATOR TEST\n"
                  "=====================================================\n";
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
 
     bsl::multimap<KEY_TYPE, VALUE_TYPE> ma(&ta), mb(&ta);
     int j;
@@ -1395,9 +1395,9 @@ void TestDriver<KEY_TYPE, VALUE_TYPE,  ALLOC>::testCase6()
 
     {
         bsl::multimap<KEY_TYPE, VALUE_TYPE, Comparep<KEY_TYPE> > mBackwards(
-                       ma.begin(),
-                       ma.end(),
-                       Comparep<KEY_TYPE> (Comparep<KEY_TYPE>::GREATER), &ta);
+                        ma.begin(),
+                        ma.end(),
+                        Comparep<KEY_TYPE> (Comparep<KEY_TYPE>::GREATER), &ta);
 
         ASSERT(mBackwards.size() == 4);
         ASSERT(mBackwards.size() < mBackwards.max_size());
@@ -1668,10 +1668,10 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator ta;
-    bslma_TestAllocator tda;
+    bslma::TestAllocator ta;
+    bslma::TestAllocator tda;
 
-    bslma_DefaultAllocatorGuard defaultGuard(&tda);
+    bslma::DefaultAllocatorGuard defaultGuard(&tda);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {

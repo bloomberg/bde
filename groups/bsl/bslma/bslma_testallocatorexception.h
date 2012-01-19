@@ -10,28 +10,28 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an exception class for memory allocation operations.
 //
 //@CLASSES:
-//   bslma_TestAllocatorException: exception containing allocation information
+//  bslma::TestAllocatorException: exception containing allocation information
 //
 //@AUTHOR: Shao-wei Hung (shung1)
 //
 //@DESCRIPTION: This component defines a simple exception object for testing
 // exceptions during memory allocation operations.  The exception object
-// 'bslma_TestAllocatorException' contains information about the allocation
+// 'bslma::TestAllocatorException' contains information about the allocation
 // request, which can be queried for by the "catcher" of this exception.
 //
 ///Usage
 ///-----
-// In the following example, the 'bslma_TestAllocatorException' object is
+// In the following example, the 'bslma::TestAllocatorException' object is
 // thrown by the 'allocate' method of the 'my_Allocator' object after the
 // number of allocation requests exceeds the allocator's allocation limit.
 // This example demonstrates how to use a user-defined allocator (e.g.,
-// 'my_Allocator') and 'bslma_TestAllocatorException' to verify that an object
+// 'my_Allocator') and 'bslma::TestAllocatorException' to verify that an object
 // (e.g., 'my_ShortArray') under test is exception neutral:
 //..
 //  // my_allocator.h
 //  #include <bslma_allocator.h>
 //
-//  class my_Allocator : public bslma_Allocator {
+//  class my_Allocator : public bslma::Allocator {
 //      int d_allocationLimit;
 //      // ...
 //
@@ -61,7 +61,7 @@ BSLS_IDENT("$Id: $")
 //      if (0 <= d_allocationLimit) {
 //          --d_allocationLimit;
 //          if (0 > d_allocationLimit) {
-//              throw bslma_TestAllocatorException(size);
+//              throw bslma::TestAllocatorException(size);
 //          }
 //      }
 //  #endif
@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that the macro 'BDE_BUILD_TARGET_EXC' is defined at compile-time to
 // indicate whether exceptions are enabled.  In the above code, if exceptions
-// are not enabled, the code that throws 'bslma_TestAllocatorException' is
+// are not enabled, the code that throws 'bslma::TestAllocatorException' is
 // never executed.  The following is the test driver for 'my_ShortArray'.
 //
 // Note that "\$" must be replaced by "\" in the preprocessor macro definitions
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 //      try {
 //
 //  #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                           \$
-//      } catch (bslma_TestAllocatorException& e) {                          \$
+//      } catch (bslma::TestAllocatorException& e) {                         \$
 //          if (veryVerbose && bslmaExceptionLimit || veryVeryVerbose) {     \$
 //              --bslmaExceptionLimit;                                       \$
 //              std::cout << "(*** " << bslmaExceptionCounter << ')';        \$
@@ -210,19 +210,21 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ==================================
-                        // class bslma_TestAllocatorException
-                        // ==================================
+namespace bslma {
 
-class bslma_TestAllocatorException {
+                        // ============================
+                        // class TestAllocatorException
+                        // ============================
+
+class TestAllocatorException {
     // This class defines an exception object for memory allocation operations.
     // Objects of this class contain information about an allocation request.
 
   public:
     // PUBLIC TYPES
-    typedef bslma_Allocator::size_type size_type;
-        // Alias for the type used by the 'bslma_Allocator' protocol to request
-        // a memory allocation of a given size.
+    typedef Allocator::size_type size_type;
+        // Alias for the type used by the 'Allocator' protocol to request a
+        // memory allocation of a given size.
 
   private:
     // DATA
@@ -231,11 +233,11 @@ class bslma_TestAllocatorException {
 
   public:
     // CREATORS
-    bslma_TestAllocatorException(size_type numBytes);
+    TestAllocatorException(size_type numBytes);
         // Create an exception object initialized with the specified 'numBytes'
         // that indicates an allocation request size.
 
-    //! ~bslma_TestAllocatorException();
+    //! ~TestAllocatorException();
         // Destroy this object.  Note that this method's definition is compiler
         // generated.
 
@@ -249,26 +251,28 @@ class bslma_TestAllocatorException {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                        // ----------------------------------
-                        // class bslma_TestAllocatorException
-                        // ----------------------------------
+                        // ----------------------------
+                        // class TestAllocatorException
+                        // ----------------------------
 
 // CREATORS
 inline
-bslma_TestAllocatorException::bslma_TestAllocatorException(size_type numBytes)
+TestAllocatorException::TestAllocatorException(size_type numBytes)
 : d_numBytes(numBytes)
 {
 }
 
 // ACCESSORS
 inline
-bslma_TestAllocatorException::size_type
-bslma_TestAllocatorException::numBytes() const
+TestAllocatorException::size_type
+TestAllocatorException::numBytes() const
 {
     return d_numBytes;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

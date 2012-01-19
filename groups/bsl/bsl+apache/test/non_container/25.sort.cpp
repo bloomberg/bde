@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for sort, stable_sort
@@ -36,7 +36,7 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
@@ -44,24 +44,24 @@ _RWSTD_NAMESPACE (std) {
 
 template
 void
-sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
       RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
-void 
-sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
-      RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+void
+sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
+      RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
       binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 void
-stable_sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+stable_sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
              RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 void
-stable_sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
-             RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+stable_sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
+             RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
              binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
@@ -71,7 +71,7 @@ stable_sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
 /**************************************************************************/
 
 template <class T>
-struct Less 
+struct Less
 {
     static std::size_t funcalls_;
 
@@ -102,8 +102,8 @@ template <class T, class Predicate>
 void test_sort (int                line,
                 const char        *src,
                 const std::size_t  N,
-                const T*, 
-                const Predicate   *ppred, 
+                const T*,
+                const Predicate   *ppred,
                 bool               stable,
                 bool               alloc)
 {
@@ -119,7 +119,7 @@ void test_sort (int                line,
 
     const std::size_t nsrc = src ? std::strlen (src) : N;
 
-    T* const xsrc = src ? T::from_char (src, nsrc) : new T[nsrc]; 
+    T* const xsrc = src ? T::from_char (src, nsrc) : new T[nsrc];
 
     T* const xsrc_end = xsrc + nsrc;
 
@@ -215,9 +215,9 @@ void test_sort (int                line,
     }
 
     // verify 25.3.1.1, p2 and 25.3.1.2, p3
-    // the complexity of our implementation is no worse than 
+    // the complexity of our implementation is no worse than
     // 3.33 * N * log (N) (hence the magic 7 and 2)
-    const std::size_t n_ops = 
+    const std::size_t n_ops =
         ppred ? Predicate::funcalls_ : T::n_total_op_lt_ - last_n_op_lt;
 
     const std::size_t exp_ops = 7 * nsrc * ::ilog2 (nsrc);
@@ -248,7 +248,7 @@ void test_sort (int                line,
                        "\"%{X=*.*}\" relative order is broken at %zu: "
                        "got ids %zu and %zu for values %#c and %#c",
                        __LINE__, fname, itname, ppred, funname, src,
-                       int (nsrc), -1, xsrc, j, xsrc[j - 1].origin_, 
+                       int (nsrc), -1, xsrc, j, xsrc[j - 1].origin_,
                        xsrc[j].origin_, xsrc[j - 1].data_.val_,
                        xsrc[j].data_.val_);
         }
@@ -257,7 +257,7 @@ void test_sort (int                line,
                        "line %d: %s<%s%{?}, %s%{;}> (): relative order "
                        "is broken for %zu at %zu: got ids %zu and %zu "
                        "for values %d and %d",
-                       __LINE__, fname, itname, ppred, funname, 
+                       __LINE__, fname, itname, ppred, funname,
                        nsrc, j, xsrc[j - 1].origin_, xsrc[j].origin_,
                        xsrc[j - 1].data_.val_, xsrc[j].data_.val_);
         }
@@ -278,8 +278,8 @@ void test_sort (int                line,
 
 template <class T, class Predicate>
 void test_sort (const std::size_t  N,
-                const T*, 
-                const Predicate   *ppred, 
+                const T*,
+                const Predicate   *ppred,
                 bool               stable,
                 bool               alloc)
 {
@@ -287,7 +287,7 @@ void test_sort (const std::size_t  N,
              "template <class %s%{?}, class %s%{;}> "
              "void std::%{?}stable_%{;}sort (%1$s, %1$s%{?}, %3$s%{;})"
              "%{?} with memory allocation%{;}",
-             "RandomAccessIterator", ppred, "StrictWeakComp", 
+             "RandomAccessIterator", ppred, "StrictWeakComp",
              stable, ppred, stable && alloc);
 
     const char* const itname  = "RandomAccessIterator";
@@ -354,15 +354,15 @@ void test_sort (const std::size_t  N,
 
 template <class T>
 void test_sort (const std::size_t N,
-                const T*, 
+                const T*,
                 bool              stable,
                 bool              alloc)
 {
     test_sort (N, (T*)0, (Less<T>*)0, stable, alloc);
 
     if (rw_opt_no_predicate) {
-        rw_note (0, __FILE__, __LINE__, 
-                 "std::%{?}stable_%{;}sort predicate test disabled", 
+        rw_note (0, __FILE__, __LINE__,
+                 "std::%{?}stable_%{;}sort predicate test disabled",
                  stable);
     }
     else {
@@ -409,7 +409,7 @@ int main (int argc, char *argv[])
                     "|-nloops#0 "   // must be non-negative
                     "|-no-sort# "
                     "|-no-stable_sort# "
-                    "|-no-predicate", 
+                    "|-no-predicate",
                     &rw_opt_nloops,
                     &rw_opt_no_sort,
                     &rw_opt_no_stable_sort,

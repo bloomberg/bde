@@ -1,4 +1,4 @@
-// bsls_alignedbuffer.t.cpp                  -*-C++-*-
+// bsls_alignedbuffer.t.cpp                                           -*-C++-*-
 
 #include <bsls_alignedbuffer.h>
 
@@ -15,7 +15,7 @@ using namespace std;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// bsls_AlignedBuffer is a simple template class that provides a few
+// bsls::AlignedBuffer is a simple template class that provides a few
 // compile-time invariants and two trivial run-time functions.  Our tests
 // involve instantiating it with various representative template parameters
 // and verifying the invariants.
@@ -72,8 +72,8 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // were specified, the buffer would be maximally aligned, which could be
 // wasteful on some platforms.
 //..
-    const int MY_ALIGNMENT = bsls_AlignmentFromType<int>::VALUE;
-    bsls_AlignedBuffer<1000, MY_ALIGNMENT> my_AllocBuffer;
+    const int MY_ALIGNMENT = bsls::AlignmentFromType<int>::VALUE;
+    bsls::AlignedBuffer<1000, MY_ALIGNMENT> my_AllocBuffer;
     const char* my_AllocEnd = my_AllocBuffer.buffer() + 1000;
     char *my_AllocPtr = my_AllocBuffer.buffer();
         // Invariant: my_AllocPtr is always aligned on a multiple of 4 bytes
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example showing how one might use bsls_AlignedBuffer
+        //   Simple example showing how one might use bsls::AlignedBuffer
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
         //   - buffer() returns the address of the first byte of the buffer
         //
         // Plan:
-        //   - Create 'bsls_AlignedBuffer' objects with different sizes and
+        //   - Create 'bsls::AlignedBuffer' objects with different sizes and
         //     alignments.
         //   - For each object, verify that buffer() returns the address of
         //     the object.
@@ -183,8 +183,8 @@ int main(int argc, char *argv[])
 
 #       define TEST_METHODS(SIZE, ALIGNMENT) \
             do { \
-                bsls_AlignedBuffer<SIZE, ALIGNMENT> buff; \
-                const bsls_AlignedBuffer<SIZE, ALIGNMENT>& BUFF = buff; \
+                bsls::AlignedBuffer<SIZE, ALIGNMENT> buff; \
+                const bsls::AlignedBuffer<SIZE, ALIGNMENT>& BUFF = buff; \
                 ASSERT((const char*) &BUFF == buff.buffer()); \
                 ASSERT((const char*) &BUFF == BUFF.buffer()); \
             } while (false)
@@ -197,11 +197,11 @@ int main(int argc, char *argv[])
         TEST_METHODS(3, 2);
         TEST_METHODS(4, 2);
         TEST_METHODS(999, 2);
-        TEST_METHODS(1, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
-        TEST_METHODS(2, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
-        TEST_METHODS(3, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
-        TEST_METHODS(64, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
-        TEST_METHODS(999, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        TEST_METHODS(1, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        TEST_METHODS(2, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        TEST_METHODS(3, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        TEST_METHODS(64, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        TEST_METHODS(999, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
       } break;
 
       case 1: {
@@ -217,9 +217,9 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For a representative set of combinations of SIZE and ALIGNMENT,
-        //   instantiate bsls_AlignedBuffer<SIZE, ALIGNMENT> (a.k.a. Buff) and
+        //   instantiate bsls::AlignedBuffer<SIZE, ALIGNMENT> (a.k.a. Buff) and
         //   verify that:
-        //   - bsls_AlignmentFromType<Buff>::VALUE == ALIGNMENT
+        //   - bsls::AlignmentFromType<Buff>::VALUE == ALIGNMENT
         //   - sizeof(Buff) >= SIZE
         //   - sizeof(Buff) % ALIGNMENT == 0
         //   - sizeof(Buff) - SIZE < ALIGNMENT
@@ -233,8 +233,8 @@ int main(int argc, char *argv[])
 
 #       define TEST_INVARIANTS(SIZE, ALIGNMENT) \
             do { \
-              typedef bsls_AlignedBuffer<SIZE, ALIGNMENT> Buff;  \
-              ASSERT(bsls_AlignmentFromType<Buff>::VALUE == (int) ALIGNMENT); \
+              typedef bsls::AlignedBuffer<SIZE, ALIGNMENT> Buff;  \
+              ASSERT(bsls::AlignmentFromType<Buff>::VALUE == (int) ALIGNMENT);\
               ASSERT(sizeof(Buff) >= SIZE); \
               ASSERT(sizeof(Buff) % ALIGNMENT == 0); \
               ASSERT(sizeof(Buff) - SIZE < (int) ALIGNMENT); \
@@ -248,11 +248,11 @@ int main(int argc, char *argv[])
         TEST_INVARIANTS(3, 2);
         TEST_INVARIANTS(4, 2);
         TEST_INVARIANTS(999, 2);
-        TEST_INVARIANTS(1, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
-        TEST_INVARIANTS(2, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
-        TEST_INVARIANTS(3, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
-        TEST_INVARIANTS(64, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
-        TEST_INVARIANTS(999, bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        TEST_INVARIANTS(1, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        TEST_INVARIANTS(2, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        TEST_INVARIANTS(3, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        TEST_INVARIANTS(64, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+        TEST_INVARIANTS(999, bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
       } break;
 

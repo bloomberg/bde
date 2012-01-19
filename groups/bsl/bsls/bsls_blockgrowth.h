@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for memory block growth strategies.
 //
 //@CLASSES:
-//   bsls_BlockGrowth: namespace for enumerated growth strategy values
+//  bsls::BlockGrowth: namespace for enumerated growth strategy values
 //
 //@SEE_ALSO: bsls_alignment
 //
@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //
 //      int           d_currentBufferSize;  // size of current buffer
 //
-//      bsls_BlockGrowth::Strategy
+//      bsls::BlockGrowth::Strategy
 //                    d_growthStrategy;     // growth strategy
 //
 //      my_BlockList  d_blockList;          // manager for all allocated memory
@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_SequentialPool(bsls_BlockGrowth::Strategy  strategy);
+//      my_SequentialPool(bsls::BlockGrowth::Strategy  strategy);
 //          // Create a pool with the specified memory block growth 'strategy'.
 //
 //      // ...
@@ -96,7 +96,7 @@ BSLS_IDENT("$Id: $")
 //  // PRIVATE MANIPULATORS
 //  int my_SequentialPool::calculateNextSize(int size)
 //  {
-//      if (bsls_BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
+//      if (bsls::BlockGrowth::BSLS_CONSTANT == d_growthStrategy) {
 //          return d_currentBufferSize;
 //      }
 //..
@@ -105,11 +105,11 @@ BSLS_IDENT("$Id: $")
 // If 'size' is greater than the buffer size, the implementation of 'allocate'
 // will return a block having the exact 'size' from the internal block list:
 //..
-//      int nextSize = d_currentBufferSize;
+//  int nextSize = d_currentBufferSize;
 //
-//      do {
-//          nextSize *= 2;  // growth factor of 2
-//      } while (nextSize < size);
+//  do {
+//      nextSize *= 2;  // growth factor of 2
+//  } while (nextSize < size);
 //..
 // Note that, if the growth strategy in effect is geometric growth
 // ('BSLS_GEOMETRIC'), the size of the internal buffer grows geometrically by a
@@ -121,11 +121,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // =======================
-                        // struct bsls_BlockGrowth
-                        // =======================
+namespace bsls {
 
-struct bsls_BlockGrowth {
+                        // ==================
+                        // struct BlockGrowth
+                        // ==================
+
+struct BlockGrowth {
     // This struct provides a namespace for memory block growth strategies for
     // pools, allocators, containers, etc.
 
@@ -138,13 +140,15 @@ struct bsls_BlockGrowth {
     };
 
     // CLASS METHODS
-    static const char *toAscii(bsls_BlockGrowth::Strategy value);
+    static const char *toAscii(BlockGrowth::Strategy value);
         // Return the string representation of the specified enumerator
         // 'value'.  The string representation of 'value' matches its
         // corresponding enumerator name with the 'BSLS_' prefix elided.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

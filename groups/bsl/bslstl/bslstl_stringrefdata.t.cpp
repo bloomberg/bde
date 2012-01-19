@@ -46,12 +46,12 @@ using namespace BloombergLP;
 //:   o swap
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bslstl_StringRefData();
-// [ 2] bslstl_StringRefData(const char *begin, const char *end);
-// [ 7] bslstl_StringRefData(const bslstl_StringRefData& other);
+// [ 2] bslstl::StringRefData();
+// [ 2] bslstl::StringRefData(const char *begin, const char *end);
+// [ 7] bslstl::StringRefData(const bslstl::StringRefData& other);
 //
 // MANIPULATORS
-// [ 9] operator=(const bslstl_StringRefData& other);
+// [ 9] operator=(const bslstl::StringRefData& other);
 //
 // ACCESSORS
 // [ 3] const_iterator begin() const;
@@ -173,18 +173,19 @@ inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
 //
 ///Example 1: Breaking cyclic dependency between string and StringRef classes
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example we demonstrace how 'bslstl_StringRefData' allows us to break
-// the cyclic dependency between hypothetical 'String' and 'StringRef' classes.
+// In this example we demonstrate how 'bslstl::StringRefData' allows us to
+// break the cyclic dependency between hypothetical 'String' and 'StringRef'
+// classes.
 //
 // Objects of our 'String' and 'StringRef' classes need to be
-// convertable to each other.  However only one of these classes can depend on
+// convertible to each other.  However only one of these classes can depend on
 // the definition of the other one, otherwise they will be cyclically
 // dependent.
 //
 // First, we define a hypothetical 'String' class, whose implementation is
-// intentionally simple and constains only the essential constructors and
-// accessor methods; the impotant thing to notice is that 'String' doesn't
-// depend on 'StringRef', which hasn't been defined yet:
+// intentionally simple and contains only the essential constructors and
+// accessor methods; the important thing to notice is that 'String' does not
+// depend on 'StringRef', which has not been defined yet:
 //..
 namespace Usage {
 
@@ -196,7 +197,7 @@ class String {
   public:
     typedef const char *const_iterator;
 
-    String(bslstl_StringRefData<char> const& stringRef)
+    String(bslstl::StringRefData<char> const& stringRef)
         : d_begin_p(stringRef.begin())
         , d_end_p(stringRef.end())
     {
@@ -213,7 +214,7 @@ class String {
     }
 };
 //..
-// Notice that the constructor of 'String' takes a 'bslstl_StringRefData'
+// Notice that the constructor of 'String' takes a 'bslstl::StringRefData'
 // argument and then uses its members 'begin' and 'end' to initialize the
 // string object.
 //
@@ -221,15 +222,15 @@ class String {
 // either with a 'String' object (to enable the conversion from 'String' to
 // 'StringRef') or with two 'const char *' pointers:
 //..
-class StringRef : public bslstl_StringRefData<char>
+class StringRef : public bslstl::StringRefData<char>
 {
   public:
     StringRef(const char *begin, const char *end)
-        : bslstl_StringRefData<char>(begin, end)
+        : bslstl::StringRefData<char>(begin, end)
     {}
 
     StringRef(const String& str)
-        : bslstl_StringRefData<char>(&*str.begin(), &*str.end())
+        : bslstl::StringRefData<char>(&*str.begin(), &*str.end())
     {}
 };
 
@@ -244,10 +245,10 @@ namespace {
 
 // FREE OPERATORS
 template <typename CHAR_TYPE>
-bool operator==(const bslstl_StringRefData<CHAR_TYPE>& lhs,
-                const bslstl_StringRefData<CHAR_TYPE>& rhs)
+bool operator==(const bslstl::StringRefData<CHAR_TYPE>& lhs,
+                const bslstl::StringRefData<CHAR_TYPE>& rhs)
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'bslstl_StringRefData' objects have
+    // value, and 'false' otherwise.  Two 'bslstl::StringRefData' objects have
     // the same value if the corresponding values of their 'begin' and 'end'
     // attributes are the same.
 {
@@ -255,10 +256,10 @@ bool operator==(const bslstl_StringRefData<CHAR_TYPE>& lhs,
 }
 
 template <typename CHAR_TYPE>
-bool operator!=(const bslstl_StringRefData<CHAR_TYPE>& lhs,
-                const bslstl_StringRefData<CHAR_TYPE>& rhs)
+bool operator!=(const bslstl::StringRefData<CHAR_TYPE>& lhs,
+                const bslstl::StringRefData<CHAR_TYPE>& rhs)
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'bslstl_StringRefData' objects
+    // same value, and 'false' otherwise.  Two 'bslstl::StringRefData' objects
     // do not have the same value if the corresponding values of their 'begin'
     // and 'end' attributes are not the same.
 {
@@ -302,9 +303,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Usage Example"
                             "\n=====================\n");
 
-// Note that 'StringRef' also derives from 'bslstl_StringRefData' so that an
+// Note that 'StringRef' also derives from 'bslstl::StringRefData' so that an
 // object of 'StringRef' can be passed to the constructor of 'String' as
-// reference to 'bslstl_StringRefData', which enables the conversion from
+// reference to 'bslstl::StringRefData', which enables the conversion from
 // 'StringRef' to 'String'.
 //
 // Finally, we verify that the conversions between 'String' and "StringRef'
@@ -384,7 +385,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:   pointer having the appropriate signature and return type for the
         //:   copy-assignment operator defined in this component.  (C-4)
         //:
-        //: 2 Create a 'bslma_TestAllocator' object, and install it as the
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
         //:   already installed as the global allocator).
         //:
@@ -414,7 +415,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:
         //:   3 For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
         //:
-        //:     1 Create a 'bslma_TestAllocator' object, 'oa'.
+        //:     1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
         //:     2 Use the value constructor and 'oa' to create a modifiable
         //:       'Obj', 'mX', having the value 'W'.
@@ -464,7 +465,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:   row (representing a distinct object value, 'V') in the table
         //:   described in P-3:  (C-9)
         //:
-        //:   1 Create a 'bslma_TestAllocator' object, 'oa'.
+        //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
         //:   2 Use the value constructor and 'oa' to create a modifiable 'Obj'
         //:     'mX'; also use the value constructor and a distinct "scratch"
@@ -499,7 +500,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:   allocated from the default allocator.  (C-3)
         //
         // Testing:
-        //   operator=(const bslstl_StringRefData& rhs);
+        //   operator=(const bslstl::StringRefData& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY-ASSIGNMENT OPERATOR"
@@ -527,8 +528,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
             const int LINE = DATA[i].d_line;
             const char *STR = DATA[i].d_str;
 
-            bslstl_StringRefData<char> X(STR, STR + strlen(STR));
-            bslstl_StringRefData<char> Y;
+            bslstl::StringRefData<char> X(STR, STR + strlen(STR));
+            bslstl::StringRefData<char> Y;
 
             Y = X;
 
@@ -634,7 +635,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:
         //:   3 For each of these three iterations (P-2.2):  (C-1..12)
         //:
-        //:     1 Create three 'bslma_TestAllocator' objects, and install one
+        //:     1 Create three 'bslma::TestAllocator' objects, and install one
         //:       as the current default allocator (note that a ubiquitous test
         //:       allocator is already installed as the global allocator).
         //:
@@ -687,7 +688,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:   (C-13)
         //
         // Testing:
-        //   bslstl_StringRefData(const bslstl_StringRefData& other);
+        //   bslstl::StringRefData(const bslstl::StringRefData& other);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOPY CONSTRUCTOR"
@@ -715,8 +716,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
             const int LINE = DATA[i].d_line;
             const char *STR = DATA[i].d_str;
 
-            bslstl_StringRefData<char> X(STR, STR + strlen(STR));
-            bslstl_StringRefData<char> Y(X);
+            bslstl::StringRefData<char> X(STR, STR + strlen(STR));
+            bslstl::StringRefData<char> Y(X);
 
             LOOP_ASSERT(LINE, Y.begin() == STR);
             LOOP_ASSERT(LINE, Y.end() - Y.begin() == strlen(STR));
@@ -767,7 +768,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:   comparison operators defined in this component.
         //:   (C-9..10, 12..13)
         //:
-        //: 2 Create a 'bslma_TestAllocator' object, and install it as the
+        //: 2 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
         //:   already installed as the global allocator).
         //:
@@ -808,8 +809,8 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:   allocated from the default allocator.  (C-11)
         //
         // Testing:
-        //   bool operator==(const bslstl_StringRefData& lhs, rhs);
-        //   bool operator!=(const bslstl_StringRefData& lhs, rhs);
+        //   bool operator==(const bslstl::StringRefData& lhs, rhs);
+        //   bool operator!=(const bslstl::StringRefData& lhs, rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nEQUALITY-COMPARISON OPERATORS"
@@ -837,24 +838,24 @@ ASSERT(&*strObj.end()   == strRf2.end());
             const int LINE = DATA[i].d_line;
             const char *STR = DATA[i].d_str;
 
-            bslstl_StringRefData<char> X(STR, STR + strlen(STR));
-            bslstl_StringRefData<char> Y(STR, STR + strlen(STR));
+            bslstl::StringRefData<char> X(STR, STR + strlen(STR));
+            bslstl::StringRefData<char> Y(STR, STR + strlen(STR));
 
             // test 'operator=='
             LOOP_ASSERT(LINE, X == Y);
 
             if (i > 0) {
                 // modify values slightly
-                bslstl_StringRefData<char> Y1(STR, STR + strlen(STR) - 1);
+                bslstl::StringRefData<char> Y1(STR, STR + strlen(STR) - 1);
                 LOOP_ASSERT(LINE, X != Y1);
 
-                bslstl_StringRefData<char> Y2(STR + 1, STR + strlen(STR));
+                bslstl::StringRefData<char> Y2(STR + 1, STR + strlen(STR));
                 LOOP_ASSERT(LINE, X != Y2);
 
                 // compare with a previous value
                 const char *STRPREV = DATA[i - 1].d_str;
-                bslstl_StringRefData<char> Z(STRPREV,
-                                                  STRPREV + strlen(STRPREV));
+                bslstl::StringRefData<char> Z(STRPREV,
+                                              STRPREV + strlen(STRPREV));
 
                 LOOP_ASSERT(LINE, X != Z);
             }
@@ -908,7 +909,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //   which were fully tested in case 2, to further corroborate that
         //   these accessors are properly interpreting object state.
         //
-        //: 1 Create two 'bslma_TestAllocator' objects, and install one as
+        //: 1 Create two 'bslma::TestAllocator' objects, and install one as
         //:   the current default allocator (note that a ubiquitous test
         //:   allocator is already installed as the global allocator).
         //:
@@ -960,7 +961,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
             const int LINE = DATA[i].d_line;
             const char *STR = DATA[i].d_str;
 
-            bslstl_StringRefData<char> Y(STR, STR + strlen(STR));
+            bslstl::StringRefData<char> Y(STR, STR + strlen(STR));
             LOOP_ASSERT(LINE, Y.begin() == STR);
             LOOP_ASSERT(LINE, Y.end() - Y.begin() == strlen(STR));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
@@ -1034,7 +1035,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:
         //:   2 For each of the three iterations in P-2.1:  (C-1, 4..11)
         //:
-        //:     1 Create three 'bslma_TestAllocator' objects, and install one
+        //:     1 Create three 'bslma::TestAllocator' objects, and install one
         //:       as the current default allocator (note that a ubiquitous test
         //:       allocator is already installed as the global allocator).
         //:
@@ -1087,7 +1088,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:   (C-13)
         //
         // Testing:
-        //   bslstl_StringRefData(const char *begin, const char *end);
+        //   bslstl::StringRefData(const char *begin, const char *end);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nVALUE CTOR"
@@ -1117,7 +1118,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
             const int LINE = DATA[i].d_line;
             const char *STR = DATA[i].d_str;
 
-            bslstl_StringRefData<char> Y(STR, STR + strlen(STR));
+            bslstl::StringRefData<char> Y(STR, STR + strlen(STR));
             LOOP_ASSERT(LINE, Y.begin() == STR);
             LOOP_ASSERT(LINE, Y.end() - Y.begin() == strlen(STR));
             LOOP_ASSERT(LINE, *Y.end() == '\0');
@@ -1187,7 +1188,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:   and (c) passing the address of a test allocator distinct from the
         //:   default.  For each of these three iterations:  (C-1..14)
         //:
-        //:   1 Create three 'bslma_TestAllocator' objects, and install one as
+        //:   1 Create three 'bslma::TestAllocator' objects, and install one as
         //:     as the current default allocator (note that a ubiquitous test
         //:     allocator is already installed as the global allocator).
         //:
@@ -1237,7 +1238,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         //:   (C-15)
         //
         // Testing:
-        //   bslstl_StringRefData();
+        //   bslstl::StringRefData();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nDEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR"
@@ -1245,7 +1246,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
 
         if (veryVerbose) printf("\tTesting the default constructor\n");
 
-        bslstl_StringRefData<char> X;
+        bslstl::StringRefData<char> X;
         ASSERT(X.begin() == 0);
         ASSERT(X.end() == 0);
 
@@ -1277,7 +1278,7 @@ ASSERT(&*strObj.end()   == strRf2.end());
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        typedef bslstl_StringRefData<char> Obj;
+        typedef bslstl::StringRefData<char> Obj;
 
         // Attribute Types
 

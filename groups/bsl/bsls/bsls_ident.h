@@ -12,9 +12,8 @@
 // inserting SCM (Source Control Management) Ids into source files.  SCM Ids
 // are useful for identifying source revisions in binaries.  Additional
 // information about SCM Ids may be obtained from the following man pages:
-//   'man ident'
-//   'man strings'  ('strings -a' produces more verbose output)
-//   'man mcs'      (Solaris-only)
+// 'man ident' 'man strings' ('strings -a' produces more verbose output)
+// 'man mcs' (Solaris-only)
 //
 // Note that these SCM Ids are only present if the 'BSLS_IDENT_ON' macro is
 // defined at compilation time.  By default, this macro is *not* defined, and
@@ -25,8 +24,8 @@
 // this header file's documentation.
 //
 // SCM Ids usually take the form "(DOLLAR)Id: (DOLLAR)" which is expanded,
-// automatically, by the source control system into an identifier which maps
-// to specific source revision:
+// automatically, by the source control system into an identifier which maps to
+// specific source revision:
 //..
 //  '(DOLLAR)Id: bsls_ident.h 141104 2010-09-17 00:30:47Z mgiroux (DOLLAR)'
 //..
@@ -89,6 +88,10 @@
 //  BSLS_IDENT("(DOLLAR)Id: (DOLLAR)") // In real usage, replace '(DOLLAR)'
 //                                     // with '$'
 //..
+
+#ifndef INCLUDED_BSLS_BACKCOMPAT
+#include <bsls_backcompat.h>
+#endif
 
 /* ident string intentionally omitted for this header (do not add to binaries)
  * Its use is expected to be so extensive that the cost outweighs benefit

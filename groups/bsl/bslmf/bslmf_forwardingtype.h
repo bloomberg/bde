@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function for determining an optimal forwarding type.
 //
 //@CLASSES:
-//   bslmf_ForwardingType: meta-function to determine optimal forwarding type
+//  bslmf::ForwardingType: meta-function to determine optimal forwarding type
 //
 //@AUTHOR: Ilougino Rocha (irocha)
 //
@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///------
 // The following example shows the result of instantiating
-// 'bslmf_ForwardingType' on a number of different types.  First declare some
+// 'bslmf::ForwardingType' on a number of different types.  First declare some
 // types to compare:
 //..
 //  struct MyType {};
@@ -64,16 +64,26 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, check that they match:
 //..
-//  assert(1 == (bslmf_IsSame<bslmf_ForwardingType<T1>::Type,  EXP1>::VALUE));
-//  assert(1 == (bslmf_IsSame<bslmf_ForwardingType<T2>::Type,  EXP2>::VALUE));
-//  assert(1 == (bslmf_IsSame<bslmf_ForwardingType<T3>::Type,  EXP3>::VALUE));
-//  assert(1 == (bslmf_IsSame<bslmf_ForwardingType<T4>::Type,  EXP4>::VALUE));
-//  assert(1 == (bslmf_IsSame<bslmf_ForwardingType<T5>::Type,  EXP5>::VALUE));
-//  assert(1 == (bslmf_IsSame<bslmf_ForwardingType<T6>::Type,  EXP6>::VALUE));
-//  assert(1 == (bslmf_IsSame<bslmf_ForwardingType<T7>::Type,  EXP7>::VALUE));
-//  assert(1 == (bslmf_IsSame<bslmf_ForwardingType<T8>::Type,  EXP8>::VALUE));
-//  assert(1 == (bslmf_IsSame<bslmf_ForwardingType<T9>::Type,  EXP9>::VALUE));
-//  assert(1 == (bslmf_IsSame<bslmf_ForwardingType<T10>::Type, EXP10>::VALUE));
+//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T1>::Type,
+//                             EXP1>::VALUE));
+//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T2>::Type,
+//                             EXP2>::VALUE));
+//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T3>::Type,
+//                             EXP3>::VALUE));
+//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T4>::Type,
+//                             EXP4>::VALUE));
+//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T5>::Type,
+//                             EXP5>::VALUE));
+//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T6>::Type,
+//                             EXP6>::VALUE));
+//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T7>::Type,
+//                             EXP7>::VALUE));
+//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T8>::Type,
+//                             EXP8>::VALUE));
+//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T9>::Type,
+//                             EXP9>::VALUE));
+//  assert(1 == (bslmf::IsSame<bslmf::ForwardingType<T10>::Type,
+//                             EXP10>::VALUE));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -111,59 +121,62 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <typename TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
-struct bslmf_ForwardingType_Imp;
 
-                        // ==========================
-                        // class bslmf_ForwardingType
-                        // ==========================
+namespace bslmf {
+
+template <typename TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
+struct ForwardingType_Imp;
+
+                        // ====================
+                        // class ForwardingType
+                        // ====================
 
 template <typename TYPE>
-struct bslmf_ForwardingType {
+struct ForwardingType {
     // This template is used to specialize 'TYPE' such that arguments of type
     // 'TYPE' can be efficiently forwarded by reference or pointer.
 
     enum { BSLMF_FORWARDING_TYPE__ID = 1 };  // For testing only.
     enum {
-        IS_BASIC_TYPE = bslmf_IsFundamental<TYPE>::VALUE ||
-                        bslmf_IsPointerToMember<TYPE>::VALUE ||
-                        bslmf_IsMemberFunctionPointer<TYPE>::VALUE ||
-                        bslmf_IsFunctionPointer<TYPE>::VALUE ||
-                        bslmf_IsFunctionPointer<TYPE*>::VALUE ||
-                        bslmf_IsEnum<TYPE>::VALUE
+        IS_BASIC_TYPE = IsFundamental<TYPE>::VALUE ||
+                        IsPointerToMember<TYPE>::VALUE ||
+                        IsMemberFunctionPointer<TYPE>::VALUE ||
+                        IsFunctionPointer<TYPE>::VALUE ||
+                        IsFunctionPointer<TYPE*>::VALUE ||
+                        IsEnum<TYPE>::VALUE
     };
 
     typedef typename
-        bslmf_ForwardingType_Imp<TYPE, IS_BASIC_TYPE, 0 >::Type Type;
+        ForwardingType_Imp<TYPE, IS_BASIC_TYPE, 0 >::Type Type;
 };
 
-//PARTIAL SPECIALIZATIONS
+// PARTIAL SPECIALIZATIONS
 template <typename TYPE>
-struct bslmf_ForwardingType<const TYPE&> {
+struct ForwardingType<const TYPE&> {
     // This specialization is used when the template parameter of
-    // 'bslmf_ForwardingType' is a 'const T&' and 'T' is not a volatile type.
-    // In that case, it may be advantageous to pass an argument by value if 'T'
-    // is a basic type, but not if it is a user-defined type.
+    // 'ForwardingType' is a 'const T&' and 'T' is not a volatile type.  In
+    // that case, it may be advantageous to pass an argument by value if 'T' is
+    // a basic type, but not if it is a user-defined type.
 
     enum { BSLMF_FORWARDING_TYPE__ID = 2 };  // For testing only.
     enum {
-        IS_BASIC_TYPE = bslmf_IsFundamental<TYPE>::VALUE ||
-                        bslmf_IsPointerToMember<TYPE>::VALUE ||
-                        bslmf_IsMemberFunctionPointer<TYPE>::VALUE ||
-                        bslmf_IsFunctionPointer<TYPE>::VALUE ||
-                        bslmf_IsFunctionPointer<TYPE*>::VALUE ||
-                        bslmf_IsEnum<TYPE>::VALUE
+        IS_BASIC_TYPE = IsFundamental<TYPE>::VALUE ||
+                        IsPointerToMember<TYPE>::VALUE ||
+                        IsMemberFunctionPointer<TYPE>::VALUE ||
+                        IsFunctionPointer<TYPE>::VALUE ||
+                        IsFunctionPointer<TYPE*>::VALUE ||
+                        IsEnum<TYPE>::VALUE
     };
 
     typedef typename
-        bslmf_ForwardingType_Imp<const TYPE, IS_BASIC_TYPE, 0 >::Type Type;
+        ForwardingType_Imp<const TYPE, IS_BASIC_TYPE, 0 >::Type Type;
 };
 
 template <typename TYPE>
-struct bslmf_ForwardingType<const volatile TYPE&> {
+struct ForwardingType<const volatile TYPE&> {
     // This specialization is used when the template parameter of
-    // 'bslmf_ForwardingType' is a 'const volatile T&'.  In that case, this
-    // template parameter cannot be forwarded as any other type.
+    // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
+    // parameter cannot be forwarded as any other type.
 
     enum { BSLMF_FORWARDING_TYPE__ID = 3 };  // For testing only.
 
@@ -171,10 +184,10 @@ struct bslmf_ForwardingType<const volatile TYPE&> {
 };
 
 template <typename TYPE>
-struct bslmf_ForwardingType<volatile TYPE&> {
+struct ForwardingType<volatile TYPE&> {
     // This specialization is used when the template parameter of
-    // 'bslmf_ForwardingType' is a 'const volatile T&'.  In that case, this
-    // template parameter cannot be forwarded as any other type.
+    // 'ForwardingType' is a 'const volatile T&'.  In that case, this template
+    // parameter cannot be forwarded as any other type.
 
     enum { BSLMF_FORWARDING_TYPE__ID = 4 };  // For testing only.
 
@@ -182,16 +195,16 @@ struct bslmf_ForwardingType<volatile TYPE&> {
 };
 
 template <typename TYPE>
-struct bslmf_ForwardingType<TYPE&>
-: public bslmf_ForwardingType_Imp<TYPE, 0, 1> {
+struct ForwardingType<TYPE&>
+: public ForwardingType_Imp<TYPE, 0, 1> {
     // This specialization is used when the template parameter of
-    // 'bslmf_ForwardingType' is a 'T&' and 'T' is not cv-qualified.
+    // 'ForwardingType' is a 'T&' and 'T' is not cv-qualified.
 
     enum { BSLMF_FORWARDING_TYPE__ID = 5 };  // For testing only.
 };
 
 template <typename TYPE>
-struct bslmf_ForwardingType<TYPE*> {
+struct ForwardingType<TYPE*> {
     // Pointer rvalues should not be forwarded any other way.
 
     enum { BSLMF_FORWARDING_TYPE__ID = 6 };  // For testing only.
@@ -199,65 +212,67 @@ struct bslmf_ForwardingType<TYPE*> {
 };
 
 template <typename TYPE>
-struct bslmf_ForwardingType<TYPE* const&> {
+struct ForwardingType<TYPE* const&> {
     // Pointer rvalues should not be forwarded any other way.
 
     enum { BSLMF_FORWARDING_TYPE__ID = 7 };  // For testing only.
     typedef TYPE* Type;
 };
 
-                        // ===============================
-                        // class bslmf_ConstForwardingType
-                        // ===============================
+                        // =========================
+                        // class ConstForwardingType
+                        // =========================
 
 template <typename TYPE>
-struct bslmf_ConstForwardingType : public bslmf_ForwardingType<const TYPE>{
-    // Use 'bslmf_ConstForwardingType<TYPE>' for forwarding an rvalue of the
-    // given 'TYPE'.  Note that for lvalues and pointer types,
-    // 'bslmf_ConstForwardingType<TYPE>' should produce the same type as the
-    // 'bslmf_ForwardingType<TYPE>'.
+struct ConstForwardingType : public ForwardingType<const TYPE>{
+    // Use 'ConstForwardingType<TYPE>' for forwarding an rvalue of the given
+    // 'TYPE'.  Note that for lvalues and pointer types,
+    // 'ConstForwardingType<TYPE>' should produce the same type as the
+    // 'ForwardingType<TYPE>'.
 };
 
-//PARTIAL SPECIALIZATIONS
+// PARTIAL SPECIALIZATIONS
 template <typename TYPE>
-struct bslmf_ConstForwardingType<TYPE&> : public bslmf_ForwardingType<TYPE&>{
+struct ConstForwardingType<TYPE&> : public ForwardingType<TYPE&>{
 };
 
 template <typename TYPE>
-struct bslmf_ConstForwardingType<TYPE*> : public bslmf_ForwardingType<TYPE*>{
+struct ConstForwardingType<TYPE*> : public ForwardingType<TYPE*>{
 };
 
-                        // ==============================
-                        // class bslmf_ForwardingType_Imp
-                        // ==============================
+                        // ========================
+                        // class ForwardingType_Imp
+                        // ========================
 
 template <typename TYPE, int IS_BASIC_TYPE, int IS_REFERENCE>
-struct bslmf_ForwardingType_Imp {
+struct ForwardingType_Imp {
     typedef TYPE& Type;
 };
 
-//PARTIAL SPECIALIZATIONS
+// PARTIAL SPECIALIZATIONS
 template <typename TYPE>
-struct bslmf_ForwardingType_Imp<TYPE,0,0> {
+struct ForwardingType_Imp<TYPE,0,0> {
     typedef const TYPE& Type;
 };
 
 template <typename TYPE, std::size_t NUM_ELEMENTS>
-struct bslmf_ForwardingType_Imp<TYPE [NUM_ELEMENTS], 0, 0> {
+struct ForwardingType_Imp<TYPE [NUM_ELEMENTS], 0, 0> {
     typedef TYPE *Type;
 };
 
 template <typename TYPE, std::size_t NUM_ELEMENTS>
-struct bslmf_ForwardingType_Imp<TYPE [NUM_ELEMENTS], 0, 1> {
+struct ForwardingType_Imp<TYPE [NUM_ELEMENTS], 0, 1> {
     typedef TYPE *Type;
 };
 
 template <typename TYPE>
-struct bslmf_ForwardingType_Imp<TYPE,1, 0> {
-    typedef typename bslmf_RemoveCvq<TYPE>::Type Type;
+struct ForwardingType_Imp<TYPE,1, 0> {
+    typedef typename RemoveCvq<TYPE>::Type Type;
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

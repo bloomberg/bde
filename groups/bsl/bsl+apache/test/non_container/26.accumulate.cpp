@@ -23,10 +23,10 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
-#include <numeric>      // for accumulate 
+#include <numeric>      // for accumulate
 #include <cstddef>      // for size_t
 
 #include <alg_test.h>
@@ -62,20 +62,20 @@ inline plus_asgn<T> operator+(plus_asgn<T> a, plus_asgn<T> b)
     { return a; }
 #endif // !RW_BUG
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
-template 
+template
 plus_asgn<assign<base<cpy_ctor> > >
 accumulate (InputIter<plus_asgn<assign<base<cpy_ctor> > > >,
             InputIter<plus_asgn<assign<base<cpy_ctor> > > >,
             plus_asgn<assign<base<cpy_ctor> > >);
 
-template 
-assign<base<cpy_ctor> > 
+template
+assign<base<cpy_ctor> >
 accumulate (InputIter<assign<base<cpy_ctor> > >,
             InputIter<assign<base<cpy_ctor> > >,
             assign<base<cpy_ctor> >,
@@ -167,7 +167,7 @@ struct conv_to_T
         return conv_to_T (val);
     }
 
-    // strictly convertible to a T value 
+    // strictly convertible to a T value
     operator T () const {
         return val_;
     }
@@ -231,7 +231,7 @@ void test_accumulate (const std::size_t    N,
     T::gen_ = gen_seq;
 
     T* const buf = new T [N];
-    
+
     for (std::size_t i = 0; i != N; ++i) {
 
         T* const buf_end = buf + i;

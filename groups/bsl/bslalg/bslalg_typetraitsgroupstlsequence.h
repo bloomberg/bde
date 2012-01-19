@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide facilities for grouping types with compile-time traits.
 //
 //@CLASSES:
-//   bslalg_TypeTraitsGroupStlSequence: for STL sequence containers
+//  bslalg::TypeTraitsGroupStlSequence: for STL sequence containers
 //
 //@SEE_ALSO: bslmf_typetraits
 //
@@ -42,22 +42,26 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                  // =======================================
-                  // class bslalg_TypeTraitsGroupStlSequence
-                  // =======================================
+namespace bslalg {
+
+                  // ================================
+                  // class TypeTraitsGroupStlSequence
+                  // ================================
 
 template <typename T, typename ALLOCATOR>
-struct bslalg_TypeTraitsGroupStlSequence :
-           bslalg_TypeTraitHasStlIterators,
-           bslalg_PassthroughTrait<ALLOCATOR, bslalg_TypeTraitBitwiseMoveable>,
-           bslalg_PassthroughTraitBslmaAllocator<ALLOCATOR> {
+struct TypeTraitsGroupStlSequence :
+           TypeTraitHasStlIterators,
+           PassthroughTrait<ALLOCATOR, TypeTraitBitwiseMoveable>,
+           PassthroughTraitBslmaAllocator<ALLOCATOR> {
     // Type traits for STL *sequence* containers of the parameterized type 'T'.
     // A sequence container is bitwise moveable if the allocator is bitwise
     // moveable.  It uses 'bslma' allocators if the parameterized 'ALLOCATOR'
-    // is convertible from 'bslma_Allocator*'.
+    // is convertible from 'bslma::Allocator*'.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

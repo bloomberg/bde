@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use 'bdema_sequentialpool' instead.
 //
 //@CLASSES:
-//   bslma_SequentialPool: fast variable-size memory pool
+//  bslma::SequentialPool: fast variable-size memory pool
 //
 //@AUTHOR: Shao-wei Hung (shung1)
 //
@@ -31,33 +31,33 @@ BSLS_IDENT("$Id: $")
 //
 ///Alignment Strategy
 ///------------------
-// The 'bslma_SequentialPool' allocates memory using one of the two alignment
+// The 'bslma::SequentialPool' allocates memory using one of the two alignment
 // strategies (defined in 'bslma_bufferallocator') optionally specified at
 // construction: 1) MAXIMUM ALIGNMENT or 2) NATURAL ALIGNMENT.
 //..
-//     MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with
-//     the most restrictive alignment on the host platform.  The value is
-//     defined by 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+//  MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with
+//  the most restrictive alignment on the host platform.  The value is
+//  defined by 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
 //
-//     NATURAL ALIGNMENT: This strategy allocates memory whose alignment
-//     depends on the requested number of bytes.  An instance of a fundamental
-//     type ('int', etc.) is *naturally* *aligned* when it's size evenly
-//     divides its address.  An instance of an aggregate type has natural
-//     alignment if the alignment of the most-restrictively aligned sub-object
-//     evenly divides the address of the aggregate.  Natural alignment is
-//     always at least as restrictive as the compiler's required alignment.
-//     When only the size of an aggregate is known, and not its composition,
-//     we compute the alignment by finding the largest integral power of 2 (up
-//     to and including 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides
-//     the requested (non-zero) number of bytes.  This computed alignment is
-//     guaranteed to be at least as restrictive as any sub-object within the
-//     aggregate.
+//  NATURAL ALIGNMENT: This strategy allocates memory whose alignment
+//  depends on the requested number of bytes.  An instance of a fundamental
+//  type ('int', etc.) is *naturally* *aligned* when it's size evenly
+//  divides its address.  An instance of an aggregate type has natural
+//  alignment if the alignment of the most-restrictively aligned sub-object
+//  evenly divides the address of the aggregate.  Natural alignment is
+//  always at least as restrictive as the compiler's required alignment.
+//  When only the size of an aggregate is known, and not its composition,
+//  we compute the alignment by finding the largest integral power of 2 (up
+//  to and including 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides
+//  the requested (non-zero) number of bytes.  This computed alignment is
+//  guaranteed to be at least as restrictive as any sub-object within the
+//  aggregate.
 //..
 // The default strategy is NATURAL ALIGNMENT.
 //
 ///Optional 'buffer' Parameter
 ///---------------------------
-// A buffer can be supplied to a 'bslma_SequentialPool' object at construction
+// A buffer can be supplied to a 'bslma::SequentialPool' object at construction
 // in which case the pool will try to satisfy allocation requests using this
 // buffer before switching to a dynamically-allocated internal pool.  Once the
 // object is using an internal pool, it will not try to satisfy any subsequent
@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Internal Buffer Growth
 ///----------------------
-// A 'bslma_SequentialPool' replenishes its internal buffer if the current
+// A 'bslma::SequentialPool' replenishes its internal buffer if the current
 // buffer cannot satisfy an allocation request.  It does so by one of two
 // growth strategies:
 //..
@@ -89,8 +89,8 @@ BSLS_IDENT("$Id: $")
 //..
 // If a 'bufferSize' (and corresponding 'buffer') or 'initialSize' is supplied
 // at construction, the sign of its value implicitly specifies which growth
-// strategy to use.  A positive value indicates Constant Growth, whereas a
-// a negative value indicates Geometric Growth.  If neither 'bufferSize' nor
+// strategy to use.  A positive value indicates Constant Growth, whereas a a
+// negative value indicates Geometric Growth.  If neither 'bufferSize' nor
 // 'initialSize' is supplied, Geometric Growth is used.  The optional
 // 'maxBufferSize' parameter may be used to place a cap on Geometric Growth
 // ('maxBufferSize' is ignored if Constant Growth is in effect).  If no value
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The 'bslma_SequentialPool' can be used to allocate memory for containers of
+// The 'bslma::SequentialPool' can be used to allocate memory for containers of
 // non-homogeneous elements, such as 'my_List' below.  Note that the use of a
 // sequential pool allows the 'operator=' and 'removeAll' methods to quickly
 // deallocate memory of all elements by calling the 'release' method of the
@@ -112,38 +112,38 @@ BSLS_IDENT("$Id: $")
 //  #include <bsls_types.h>
 //  #include <bslma_sequentialpool.h>
 //
-//  class bslma_Allocator;
+//  namespace bslma { class Allocator; }
 //
 //  class my_List {
-//      char                  *d_typeArray_p;
-//      void                 **d_list_p;
-//      int                    d_length;
-//      int                    d_size;
-//      bslma_Allocator       *d_allocator_p;
-//      bslma_SequentialPool   d_pool;
+//      char                   *d_typeArray_p;
+//      void                  **d_list_p;
+//      int                     d_length;
+//      int                     d_size;
+//      bslma::Allocator       *d_allocator_p;
+//      bslma::SequentialPool   d_pool;
 //
 //      // NOT IMPLEMENTED
 //      my_List(const my_List&);
 //
 //    private:
-//      my_List(char* buffer, int bufferSize, bslma_Allocator *basicAllocator);
+//      my_List(char* buffer, int bufferSize, bslma::Allocator *basicAllocator);
 //      void increaseSize();
 //
 //    public:
 //      enum Type { INT, DOUBLE, INT64 };
 //
-//      my_List(bslma_Allocator *basicAllocator);
+//      my_List(bslma::Allocator *basicAllocator);
 //
 //      ~my_List();
 //      my_List& operator=(const my_List& rhs);
 //      void append(int value);
 //      void append(double value);
-//      void append(bsls_Types::Int64 value);
+//      void append(bsls::Types::Int64 value);
 //      void removeAll();
 //
 //      const int *theInt(int index) const;
 //      const double *theDouble(int index) const;
-//      const bsls_Types::Int64 *theInt64(int index) const;
+//      const bsls::Types::Int64 *theInt64(int index) const;
 //      const Type type(int index) const;
 //      int length() const;
 //  };
@@ -168,9 +168,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  inline
-//  const bsls_Types::Int64 *my_List::theInt64(int index) const
+//  const bsls::Types::Int64 *my_List::theInt64(int index) const
 //  {
-//      return (bsls_Types::Int64 *) d_list_p[index];
+//      return (bsls::Types::Int64 *) d_list_p[index];
 //  }
 //
 //  inline
@@ -195,7 +195,7 @@ BSLS_IDENT("$Id: $")
 //
 //  static
 //  void copyElement(void **list, my_List::Type type, int index,
-//                   void *srcElement, bslma_SequentialPool *pool)
+//                   void *srcElement, bslma::SequentialPool *pool)
 //      // Copy the value of the specified 'srcElement' of the specified 'type'
 //      // to the specified 'index' position in the specified 'list'.  Use the
 //      // specified 'pool' to supply memory.
@@ -205,7 +205,7 @@ BSLS_IDENT("$Id: $")
 //      assert(srcElement);
 //      assert(pool);
 //
-//      typedef bsls_Types::Int64 Int64;
+//      typedef bsls::Types::Int64 Int64;
 //
 //      switch (type) {
 //        case my_List::INT:
@@ -227,7 +227,7 @@ BSLS_IDENT("$Id: $")
 //
 //  static
 //  void reallocate(void ***list, char **typeArray, int *size,
-//                  int newSize, int length, bslma_Allocator *basicAllocator)
+//                  int newSize, int length, bslma::Allocator *basicAllocator)
 //      // Reallocate memory in the specified 'list' and 'typeArray' using the
 //      // specified 'basicAllocator' and update the specified size to the
 //      // specified 'newSize'.  The specified 'length' number of leading
@@ -268,13 +268,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  my_List::my_List(char* buffer, int bufferSize,
-//                   bslma_Allocator *basicAllocator)
+//                   bslma::Allocator *basicAllocator)
 //  : d_length()
 //  , d_size(MY_INITIAL_SIZE)
 //  , d_pool(buffer, bufferSize, basicAllocator)
 //  , d_allocator_p(basicAllocator)
 //  {
-//      ASSERT(d_allocator_p);
+//      assert(d_allocator_p);
 //
 //      d_typeArray_p =
 //          (char *) d_allocator_p->allocate(d_size * sizeof *d_typeArray_p);
@@ -282,7 +282,7 @@ BSLS_IDENT("$Id: $")
 //          (void **) d_allocator_p->allocate(d_size * sizeof *d_list_p);
 //  }
 //
-//  my_List::my_List(bslma_Allocator *basicAllocator)
+//  my_List::my_List(bslma::Allocator *basicAllocator)
 //  : d_size(INITIAL_SIZE)
 //  , d_length(0)
 //  , d_pool(basicAllocator)
@@ -352,9 +352,9 @@ BSLS_IDENT("$Id: $")
 //      d_list_p[d_length++] = item;
 //  }
 //
-//  void my_List::append(bsls_Types::Int64 value)
+//  void my_List::append(bsls::Types::Int64 value)
 //  {
-//      typedef bsls_Types::Int64 Int64;
+//      typedef bsls::Types::Int64 Int64;
 //
 //      if (d_length >= d_size) {
 //          increaseSize();
@@ -385,11 +385,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                         // ==========================
-                         // class bslma_SequentialPool
-                         // ==========================
+namespace bslma {
 
-class bslma_SequentialPool {
+                         // ====================
+                         // class SequentialPool
+                         // ====================
+
+class SequentialPool {
     // This class implements a memory pool that dispenses arbitrarily-sized
     // blocks of memory from an internal buffer or an optionally user-supplied
     // buffer.  If an allocation request exceeds the remaining free memory
@@ -419,39 +421,37 @@ class bslma_SequentialPool {
     int                    d_bufSize;            // current free memory buffer
                                                  // size
 
-    bslma_BufferAllocator::AlignmentStrategy
+    BufferAllocator::AlignmentStrategy
                            d_alignmentStrategy;  // alignment strategy
 
     int                    d_maxBufferSize;      // maximum buffer size
 
     GrowthStrategy         d_growthStrategy;     // growth strategy
 
-    bslma_InfrequentDeleteBlockList
+    InfrequentDeleteBlockList
                            d_blockList;          // provides free memory
 
     // NOT IMPLEMENTED
-    bslma_SequentialPool(const bslma_SequentialPool&);
-    bslma_SequentialPool& operator=(const bslma_SequentialPool&);
+    SequentialPool(const SequentialPool&);
+    SequentialPool& operator=(const SequentialPool&);
 
   private:
     // PRIVATE ACCESSORS
     int calculateNextBufferSize(int size) const;
-        // Calculate and return the next buffer size corresponding to a
-        // reserve or allocation of the specified 'size' bytes.
+        // Calculate and return the next buffer size corresponding to a reserve
+        // or allocation of the specified 'size' bytes.
 
   public:
     // CREATORS
-    explicit bslma_SequentialPool(
-                 bslma_Allocator                          *basicAllocator = 0);
-    explicit bslma_SequentialPool(
-                 bslma_BufferAllocator::AlignmentStrategy  strategy,
-                 bslma_Allocator                          *basicAllocator = 0);
-    explicit bslma_SequentialPool(int                      initialSize,
-                 bslma_Allocator                          *basicAllocator = 0);
-    bslma_SequentialPool(
-                 int                                       initialSize,
-                 bslma_BufferAllocator::AlignmentStrategy  strategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+    explicit SequentialPool(Allocator *basicAllocator = 0);
+    explicit SequentialPool(
+                       BufferAllocator::AlignmentStrategy  strategy,
+                       Allocator                          *basicAllocator = 0);
+    explicit SequentialPool(int        initialSize,
+                            Allocator *basicAllocator = 0);
+    SequentialPool(int                                 initialSize,
+                   BufferAllocator::AlignmentStrategy  strategy,
+                   Allocator                          *basicAllocator = 0);
         // Create a sequential pool for allocating memory blocks from an
         // internal buffer.  Optionally specify an alignment 'strategy' used to
         // align allocated memory blocks.  If 'strategy' is not specified,
@@ -471,15 +471,13 @@ class bslma_SequentialPool {
         // will have sufficient capacity to satisfy the request.  If *Geometric
         // Growth* is in effect, no limit is imposed on the size of buffers.
 
-    bslma_SequentialPool(
-                 char                                     *buffer,
-                 int                                       bufferSize,
-                 bslma_Allocator                          *basicAllocator = 0);
-    bslma_SequentialPool(
-                 char                                     *buffer,
-                 int                                       bufferSize,
-                 bslma_BufferAllocator::AlignmentStrategy  strategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+    SequentialPool(char      *buffer,
+                   int        bufferSize,
+                   Allocator *basicAllocator = 0);
+    SequentialPool(char                               *buffer,
+                   int                                 bufferSize,
+                   BufferAllocator::AlignmentStrategy  strategy,
+                   Allocator                          *basicAllocator = 0);
         // Create a sequential pool for allocating memory blocks initially from
         // the specified 'buffer' the size (in bytes) of which is indicated by
         // the absolute value of the specified 'bufferSize'.  Optionally
@@ -497,15 +495,13 @@ class bslma_SequentialPool {
         // capacity to satisfy the request.  If *Geometric Growth* is in
         // effect, no limit is imposed on the size of buffers.
 
-    bslma_SequentialPool(
-                 int                                       initialSize,
-                 int                                       maxBufferSize,
-                 bslma_Allocator                          *basicAllocator = 0);
-    bslma_SequentialPool(
-                 int                                       initialSize,
-                 int                                       maxBufferSize,
-                 bslma_BufferAllocator::AlignmentStrategy  strategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+    SequentialPool(int        initialSize,
+                   int        maxBufferSize,
+                   Allocator *basicAllocator = 0);
+    SequentialPool(int                                 initialSize,
+                   int                                 maxBufferSize,
+                   BufferAllocator::AlignmentStrategy  strategy,
+                   Allocator                          *basicAllocator = 0);
         // Create a sequential pool for allocating memory blocks from an
         // internal buffer the initial size (in bytes) of which is indicated by
         // the absolute value of the specified 'initialSize'.  The specified
@@ -530,17 +526,15 @@ class bslma_SequentialPool {
         // overridden by a sufficiently large value passed to 'allocate' or
         // 'reserveCapacity'.
 
-    bslma_SequentialPool(
-                 char                                     *buffer,
-                 int                                       bufferSize,
-                 int                                       maxBufferSize,
-                 bslma_Allocator                          *basicAllocator = 0);
-    bslma_SequentialPool(
-                 char                                     *buffer,
-                 int                                       bufferSize,
-                 int                                       maxBufferSize,
-                 bslma_BufferAllocator::AlignmentStrategy  strategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+    SequentialPool(char      *buffer,
+                   int        bufferSize,
+                   int        maxBufferSize,
+                   Allocator *basicAllocator = 0);
+    SequentialPool(char                               *buffer,
+                   int                                 bufferSize,
+                   int                                 maxBufferSize,
+                   BufferAllocator::AlignmentStrategy  strategy,
+                   Allocator                          *basicAllocator = 0);
         // Create a sequential pool for allocating memory blocks initially from
         // the specified 'buffer' the size (in bytes) of which is indicated by
         // the absolute value of the specified 'bufferSize'.  The specified
@@ -565,7 +559,7 @@ class bslma_SequentialPool {
         // overridden by a sufficiently large value passed to 'allocate' or
         // 'reserveCapacity'.
 
-    ~bslma_SequentialPool();
+    ~SequentialPool();
         // Destroy this object and release all memory currently allocated
         // through this pool.
 
@@ -584,8 +578,8 @@ class bslma_SequentialPool {
     void *allocateAndExpand(int *size, int maxNumBytes);
         // Return memory of at least the specified '*size' and at most the
         // specified 'maxNumBytes'.  Also return the actual amount of memory
-        // allocated in '*size'.  If '*size' is 0, no memory is allocated and
-        // 0 is returned.  The behavior is undefined unless
+        // allocated in '*size'.  If '*size' is 0, no memory is allocated and 0
+        // is returned.  The behavior is undefined unless
         // '0 <= *size <= maxNumBytes'.
 
     template <class TYPE>
@@ -614,13 +608,13 @@ class bslma_SequentialPool {
     int expand(void *address, int originalNumBytes, int maxNumBytes);
         // Increase the amount of memory allocated at the specified 'address'
         // from the specified 'originalNumBytes' to the maximum amount easily
-        // obtainable up to the specified 'maxNumBytes'.  Return the amount
-        // of memory available at 'address' after the expansion.  The behavior
-        // is undefined unless the call to this allocator that provided the
+        // obtainable up to the specified 'maxNumBytes'.  Return the amount of
+        // memory available at 'address' after the expansion.  The behavior is
+        // undefined unless the call to this allocator that provided the
         // 'address' was performed with the 'originalNumBytes' and
-        // 'originalNumBytes < maxNumBytes'.  Note that this function will
-        // not expand the memory unless there have been no allocations since
-        // the allocation for 'originalNumBytes'.
+        // 'originalNumBytes < maxNumBytes'.  Note that this function will not
+        // expand the memory unless there have been no allocations since the
+        // allocation for 'originalNumBytes'.
 
     void release();
         // Release all memory currently allocated through this pool.
@@ -637,29 +631,29 @@ class bslma_SequentialPool {
         // 'newNumBytes'.  Return the amount of memory available at 'address'
         // after the truncation.  The behavior is undefined unless the call to
         // this allocator that provided the 'address' was performed with the
-        // 'originalNumBytes' and 'newNumBytes <= originalNumBytes'.  Note
-        // that this function will not truncate the memory unless there have
-        // been no allocations since the allocation for 'originalNumBytes'.
+        // 'originalNumBytes' and 'newNumBytes <= originalNumBytes'.  Note that
+        // this function will not truncate the memory unless there have been no
+        // allocations since the allocation for 'originalNumBytes'.
 };
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                             // --------------------
-                             // bslma_SequentialPool
-                             // --------------------
+                             // --------------
+                             // SequentialPool
+                             // --------------
 
 // CREATORS
 inline
-bslma_SequentialPool::~bslma_SequentialPool()
+SequentialPool::~SequentialPool()
 {
 }
 
 // MANIPULATORS
 template <class TYPE>
 inline
-void bslma_SequentialPool::deleteObjectRaw(const TYPE *object)
+void SequentialPool::deleteObjectRaw(const TYPE *object)
 {
     if (0 != object) {
 #ifndef BSLS_PLATFORM__CMP_SUN
@@ -672,12 +666,14 @@ void bslma_SequentialPool::deleteObjectRaw(const TYPE *object)
 
 template <class TYPE>
 inline
-void bslma_SequentialPool::deleteObject(const TYPE *object)
+void SequentialPool::deleteObject(const TYPE *object)
 {
     deleteObjectRaw(object);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // FREE OPERATORS
 
@@ -691,13 +687,13 @@ void bslma_SequentialPool::deleteObject(const TYPE *object)
 // would cause dangerous ambiguity.  Consider what would have happened had we
 // overloaded the array version of operator 'new':
 //..
-//   void *operator new[](std::size_t size,
-//                        BloombergLP::bslma_Pool& pool)
+//  void *operator new[](std::size_t size,
+//                       BloombergLP::bslma::Pool& pool)
 //..
 // The user of the pool class would have expected to be able to use
 // 'new-expression':
 //..
-//   new (*pool) my_Type[...];
+//  new (*pool) my_Type[...];
 //..
 // The problem is that this expression returns an array that cannot be safely
 // deallocated.  On the one hand there is no syntax in C++ to invoke an
@@ -710,14 +706,14 @@ void bslma_SequentialPool::deleteObject(const TYPE *object)
 // destroy).
 
 inline
-void *operator new(std::size_t size, BloombergLP::bslma_SequentialPool& pool);
+void *operator new(std::size_t size, BloombergLP::bslma::SequentialPool& pool);
     // Return the memory allocated from the specified 'pool'.  The behavior is
     // undefined unless 'size' is the same as 'objectSize' that 'pool' has been
     // constructed with.  Note that an object may allocate additional memory
     // internally, requiring the allocator to be passed in as a constructor
     // argument:
     //..
-    //  my_Type *newMyType(bslma_Pool *pool, bslma_Allocator *basicAllocator) {
+    //  my_Type *newMyType(bslma::Pool *pool, bslma::Allocator *basicAllocator) {
     //      return new (*pool) my_Type(..., basicAllocator);
     //  }
     //..
@@ -726,14 +722,14 @@ void *operator new(std::size_t size, BloombergLP::bslma_SequentialPool& pool);
     // member function 'deleteObject' parameterized by 'TYPE' that performs the
     // following:
     //..
-    //  void deleteMyType(bslma_Pool *pool, my_Type *t) {
+    //  void deleteMyType(bslma::Pool *pool, my_Type *t) {
     //      t->~my_Type();
     //      pool->deallocate(t);
     //  }
     //..
 
 inline
-void operator delete(void *address, BloombergLP::bslma_SequentialPool& pool);
+void operator delete(void *address, BloombergLP::bslma::SequentialPool& pool);
     // Use the specified 'pool' to deallocate the memory at the specified
     // 'address'.  The behavior is undefined unless 'address' was allocated
     // using 'pool' and has not already been deallocated.  This operator is
@@ -745,13 +741,13 @@ void operator delete(void *address, BloombergLP::bslma_SequentialPool& pool);
 // ============================================================================
 
 inline
-void *operator new(std::size_t size, BloombergLP::bslma_SequentialPool& pool)
+void *operator new(std::size_t size, BloombergLP::bslma::SequentialPool& pool)
 {
     return pool.allocate(static_cast<int>(size));
 }
 
 inline
-void operator delete(void *, BloombergLP::bslma_SequentialPool&)
+void operator delete(void *, BloombergLP::bslma::SequentialPool&)
 {
     // NOTE: there is no deallocation from this allocation mechanism.
 }

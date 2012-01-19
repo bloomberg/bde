@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide source control management (versioning) information.
 //
 //@CLASSES:
-//  bslscm_Version: namespace for RCS and SCCS versioning information for 'bde'
+// bslscm::Version: namespace for RCS and SCCS versioning information for 'bde'
 //
 //@AUTHOR: Jeffrey Mendelsohn (jmendels)
 //
@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // that use one or more components from the 'bde' package group.  This version
 // information may be extracted from binary files using common UNIX utilities
 // (e.g., 'ident' and 'what').  In addition, the 'version' 'static' member
-// function in the 'bslscm_Version' 'struct' can be used to query version
+// function in the 'bslscm::Version' 'struct' can be used to query version
 // information for the 'bde' package group at runtime.  The following usage
 // examples illustrate these two basic capabilities.
 //
@@ -32,10 +32,10 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // A program can display the version of BSL that was used to build it by
-// printing the version string returned by 'bslscm_Version::version()' to
+// printing the version string returned by 'bslscm::Version::version()' to
 // 'stdout' as follows:
 //..
-//  std::printf("BSL version: %s\n", bslscm_Version::version());
+//  std::printf("BSL version: %s\n", bslscm::Version::version());
 //..
 
 #ifndef INCLUDED_BSLS_BUILDTARGET
@@ -48,13 +48,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLSCM_VERSIONTAG
 #include <bslscm_versiontag.h> // BSL_VERSION_MAJOR, BSL_VERSION_MINOR
-#endif
-
-#ifndef bdema_Allocator
-#define bdema_Allocator bslma_Allocator
-    // These preposterous macro definitions are placed here, to preempt clients
-    // forward-declaring 'bdema_Allocator' (pre-migration to 'bsl') from
-    // declaring their own class that differs from 'bslma_Allocator'.
 #endif
 
 #ifndef BSL_LEGACY
@@ -76,7 +69,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-struct bslscm_Version {
+namespace bslscm {
+
+struct Version {
     static const char *d_ident;
     static const char *d_what;
 
@@ -104,24 +99,26 @@ struct bslscm_Version {
 };
 
 inline
-const char *bslscm_Version::version()
+const char *Version::version()
 {
     return BSLSCM_D_VERSION;
 }
+
+}  // close package namespace
 
 // Force linker to pull in this component's object file.
 
 #if defined(BSLS_PLATFORM__CMP_IBM)
 static const char **bslscm_version_assertion =
-                                             &bslscm_Version::BSLSCM_D_VERSION;
+                                            &bslscm::Version::BSLSCM_D_VERSION;
 #else
 namespace {
     extern const char **const bslscm_version_assertion =
-                                             &bslscm_Version::BSLSCM_D_VERSION;
+                                            &bslscm::Version::BSLSCM_D_VERSION;
 }
 #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

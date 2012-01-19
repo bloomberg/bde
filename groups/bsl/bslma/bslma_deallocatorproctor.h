@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a proctor to conditionally manage a block memory.
 //
 //@CLASSES:
-//   bslma_DeallocatorProctor: proctor to conditionally manage a memory
+//  bslma::DeallocatorProctor: proctor to conditionally manage a memory
 //
 //@AUTHOR: Shao-wei Hung (shung1), Arthur Chiu (achiu21)
 //
@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirement
 ///-----------
-// The parameterized 'ALLOCATOR' type of the 'bslma_DeallocatorProctor' class
+// The parameterized 'ALLOCATOR' type of the 'bslma::DeallocatorProctor' class
 // must provide a (possibly 'virtual') method:
 //..
 //  void deallocate(void *address);
@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The 'bslma_DeallocatorProctor' is normally used to achieve *exception*
+// The 'bslma::DeallocatorProctor' is normally used to achieve *exception*
 // *safety* in an *exception* *neutral* way by managing memory in a sequence of
 // continuous memory allocations.  Since each memory allocation may
 // potentially throw an exception, an object of this proctor class can be used
@@ -47,7 +47,7 @@ BSLS_IDENT("$Id: $")
 // allocation, the proctor's destructor deallocates its managed memory,
 // preventing a memory leak.
 //
-// This example illustrate a typical use of 'bslma_DeallocatorProctor'.
+// This example illustrate a typical use of 'bslma::DeallocatorProctor'.
 // Suppose we have an array class that stores an "in-place" representation of
 // objects of parameterized 'TYPE':
 //..
@@ -60,14 +60,14 @@ BSLS_IDENT("$Id: $")
 //      // parameterized 'TYPE' stored contiguously in memory.
 //
 //      // DATA
-//      TYPE            *d_array_p;      // dynamically allocated array
-//      int              d_length;       // logical length of this array
-//      int              d_size;         // physical capacity of this array
-//      bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+//      TYPE             *d_array_p;      // dynamically allocated array
+//      int               d_length;       // logical length of this array
+//      int               d_size;         // physical capacity of this array
+//      bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 //
 //    public:
 //      // CREATORS
-//      my_Array(bslma_Allocator *basicAllocator = 0);
+//      my_Array(bslma::Allocator *basicAllocator = 0);
 //          // Create a 'my_Array' object.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
 //          // 0, the currently installed default allocator is used.
@@ -90,15 +90,15 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that the rest of the 'my_Array' interface (above) and implementation
 // (below) is elided as the portion shown is sufficient to demonstrate the use
-// of 'bslma_DeallocatorProctor'.
+// of 'bslma::DeallocatorProctor'.
 //..
 //  // CREATORS
 //  template <class TYPE>
 //  inline
-//  my_Array<TYPE>::my_Array(bslma_Allocator *basicAllocator)
+//  my_Array<TYPE>::my_Array(bslma::Allocator *basicAllocator)
 //  : d_length(0)
 //  , d_size(1)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      d_array_p = (TYPE *)d_allocator_p->allocate(sizeof(TYPE));
 //  }
@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 //..
 // In order to implement the 'append' function, we first have to introduce an
 // 'my_AutoDestructor' 'class', which automatically destroy a sequence of
-// managed objects upon destruction.  See 'bslma_AutoDestructor' for a similar
+// managed objects upon destruction.  See 'bslma::AutoDestructor' for a similar
 // component with full documentation:
 //..
 //  // my_autodestructor.h
@@ -187,8 +187,8 @@ BSLS_IDENT("$Id: $")
 //          // Note the use of the deallocator proctor on 'newArray' (below). *
 //          //*****************************************************************
 //
-//          bslma_DeallocatorProctor<bslma_Allocator> proctor(newArray,
-//                                                            d_allocator_p);
+//          bslma::DeallocatorProctor<bslma::Allocator> proctor(newArray,
+//                                                              d_allocator_p);
 //
 //          // Note use of 'my_AutoDestructor' here to protect the copy
 //          // construction of 'TYPE' objects.
@@ -218,16 +218,16 @@ BSLS_IDENT("$Id: $")
 //      ++d_length;
 //  }
 //..
-// Both the use of 'bslma_DeallocatorProctor' and 'my_AutoDestructor' are
+// Both the use of 'bslma::DeallocatorProctor' and 'my_AutoDestructor' are
 // necessary to implement exception safety.
 //
 // The 'append' method defined above potentially throws in two places.  If the
 // memory allocator held in 'd_allocator_p' where to throw while attempting to
 // allocate the new array of parameterized 'TYPE', no memory would be leaked.
-// But without subsequent use of the 'bslma_DeallocatorProctor', if the
+// But without subsequent use of the 'bslma::DeallocatorProctor', if the
 // allocator subsequently throws while copy constructing the objects from the
 // old array to the new array, the newly allocated memory block would be
-// leaked.  Using the 'bslma_DeallocatorProctor' prevents the leak by
+// leaked.  Using the 'bslma::DeallocatorProctor' prevents the leak by
 // deallocating the proctored memory automatically should the proctor go out
 // of scope before the 'release' method of the proctor is called (such as when
 // the function exits prematurely due to an exception).
@@ -242,7 +242,7 @@ BSLS_IDENT("$Id: $")
 // Note that the 'append' method assumes the copy constructor of 'TYPE' takes
 // an allocator as a second argument.  In production code, a constructor proxy
 // that checks the traits of 'TYPE' (to see whether 'TYPE' uses
-// 'bslma_Allocator') should be used (see 'bslalg_ConstructorProxy').
+// 'bslma::Allocator') should be used (see 'bslalg::ConstructorProxy').
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -258,12 +258,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ==============================
-                        // class bslma_DeallocatorProctor
-                        // ==============================
+namespace bslma {
+
+                        // ========================
+                        // class DeallocatorProctor
+                        // ========================
 
 template <class ALLOCATOR>
-class bslma_DeallocatorProctor {
+class DeallocatorProctor {
     // This class implements a proctor that, unless its 'release' method has
     // previously been invoked, automatically deallocates a block of managed
     // memory upon destruction by invoking the 'deallocate' method of an
@@ -277,12 +279,12 @@ class bslma_DeallocatorProctor {
     ALLOCATOR *d_allocator_p;  // allocator or pool (held, not owned)
 
     // NOT IMPLEMENTED
-    bslma_DeallocatorProctor(const bslma_DeallocatorProctor&);
-    bslma_DeallocatorProctor& operator=(const bslma_DeallocatorProctor&);
+    DeallocatorProctor(const DeallocatorProctor&);
+    DeallocatorProctor& operator=(const DeallocatorProctor&);
 
   public:
     // CREATORS
-    bslma_DeallocatorProctor(void *memory, ALLOCATOR *allocator);
+    DeallocatorProctor(void *memory, ALLOCATOR *allocator);
         // Create a deallocator proctor that conditionally manages the
         // specified 'memory' (if non-zero), and that uses the specified
         // 'allocator' to deallocate the block of memory managed by this
@@ -291,7 +293,7 @@ class bslma_DeallocatorProctor {
         // 'memory'.  Note that 'allocator' must remain valid throughout the
         // lifetime of this proctor.
 
-    ~bslma_DeallocatorProctor();
+    ~DeallocatorProctor();
         // Destroy this deallocator proctor, and deallocate the block of memory
         // it manages (if any) by invoking the 'deallocate' method of the
         // allocator (or pool) that was supplied at construction of this
@@ -318,15 +320,15 @@ class bslma_DeallocatorProctor {
 //                      TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ------------------------------
-                        // class bslma_DeallocatorProctor
-                        // ------------------------------
+                        // ------------------------
+                        // class DeallocatorProctor
+                        // ------------------------
 
 // CREATORS
 template <class ALLOCATOR>
 inline
-bslma_DeallocatorProctor<ALLOCATOR>::
-bslma_DeallocatorProctor(void *memory, ALLOCATOR *allocator)
+DeallocatorProctor<ALLOCATOR>::
+DeallocatorProctor(void *memory, ALLOCATOR *allocator)
 : d_memory_p(memory)
 , d_allocator_p(allocator)
 {
@@ -335,7 +337,7 @@ bslma_DeallocatorProctor(void *memory, ALLOCATOR *allocator)
 
 template <class ALLOCATOR>
 inline
-bslma_DeallocatorProctor<ALLOCATOR>::~bslma_DeallocatorProctor()
+DeallocatorProctor<ALLOCATOR>::~DeallocatorProctor()
 {
     BSLS_ASSERT_SAFE(d_allocator_p);
 
@@ -347,21 +349,23 @@ bslma_DeallocatorProctor<ALLOCATOR>::~bslma_DeallocatorProctor()
 // MANIPULATORS
 template <class ALLOCATOR>
 inline
-void bslma_DeallocatorProctor<ALLOCATOR>::release()
+void DeallocatorProctor<ALLOCATOR>::release()
 {
     d_memory_p = 0;
 }
 
 template <class ALLOCATOR>
 inline
-void bslma_DeallocatorProctor<ALLOCATOR>::reset(void *memory)
+void DeallocatorProctor<ALLOCATOR>::reset(void *memory)
 {
     BSLS_ASSERT_SAFE(memory);
 
     d_memory_p = memory;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

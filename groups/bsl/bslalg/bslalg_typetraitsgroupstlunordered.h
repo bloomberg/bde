@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide facilities for grouping types with compile-time traits.
 //
 //@CLASSES:
-//   bslalg_TypeTraitsGroupStlSequence: for STL sequence containers
-//    bslalg_TypeTraitsGroupStlOrdered: for STL ordered containers
-//  bslalg_TypeTraitsGroupStlUnordered: for STL unordered containers
+//  bslalg::TypeTraitsGroupStlSequence: for STL sequence containers
+//  bslalg::TypeTraitsGroupStlOrdered: for STL ordered containers
+//  bslalg::TypeTraitsGroupStlUnordered: for STL unordered containers
 //
 //@SEE_ALSO: bslmf_typetraits
 //
@@ -48,27 +48,31 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                  // ========================================
-                  // class bslalg_TypeTraitsGroupStlUnordered
-                  // ========================================
+namespace bslalg {
+
+                  // =================================
+                  // class TypeTraitsGroupStlUnordered
+                  // =================================
 
 template <typename T, typename HASH, typename EQ, typename ALLOCATOR>
-struct bslalg_TypeTraitsGroupStlUnordered :
-    bslalg_TypeTraitHasStlIterators,
-    bslmf_If<bslalg_HasTrait<HASH,bslalg_TypeTraitBitwiseMoveable>::VALUE &&
-             bslalg_HasTrait<EQ,bslalg_TypeTraitBitwiseMoveable>::VALUE &&
-             bslalg_HasTrait<ALLOCATOR,bslalg_TypeTraitBitwiseMoveable>::VALUE,
-             bslalg_TypeTraitBitwiseMoveable,
-             bslalg_TypeTraits_NotTrait<bslalg_TypeTraitBitwiseMoveable>
-            >::Type,
-    bslalg_PassthroughTraitBslmaAllocator<ALLOCATOR> {
+struct TypeTraitsGroupStlUnordered :
+                  TypeTraitHasStlIterators,
+                  bslmf::If<HasTrait<HASH,TypeTraitBitwiseMoveable>::VALUE &&
+                           HasTrait<EQ,TypeTraitBitwiseMoveable>::VALUE &&
+                           HasTrait<ALLOCATOR,TypeTraitBitwiseMoveable>::VALUE,
+                           TypeTraitBitwiseMoveable,
+                           TypeTraits_NotTrait<TypeTraitBitwiseMoveable>
+                          >::Type,
+                  PassthroughTraitBslmaAllocator<ALLOCATOR> {
     // Type traits for STL *unordered* containers.  An unordered container is
     // bitwise moveable if the hash functor, equality functor, and allocator
     // are all bitwise moveable.  It uses 'bslma' allocators if 'ALLOCATOR' is
-    // convertible from 'bslma_Allocator*'.
+    // convertible from 'bslma::Allocator*'.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

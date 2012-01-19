@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a range proctor to managed a block of memory.
 //
 //@CLASSES:
-//   bslma_AutoDeallocator: range proctor to manage a block of memory
+//  bslma::AutoDeallocator: range proctor to manage a block of memory
 //
 //@AUTHOR: Arthur Chiu (achiu1)
 //
@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirement
 ///-----------
-// The parameterized 'ALLOCATOR' type of the 'bslma_AutoRawDeleter' class
+// The parameterized 'ALLOCATOR' type of the 'bslma::AutoRawDeleter' class
 // template must provide a (possibly 'virtual') method:
 //..
 //  void deallocate(void *address);
@@ -39,41 +39,41 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The 'bslma_AutoDeallocator' proctor object can be used to achieve
+// The 'bslma::AutoDeallocator' proctor object can be used to achieve
 // *exception* *safety* in an *exception* *neutral* way during manipulation of
 // "out-of-place" arrays of raw resources or memory.  Since there are no
 // destructor calls, this component is more efficient compared to the
-// 'bslma_AutoRawDeleter'.  The following illustrates the insertion operation
+// 'bslma::AutoRawDeleter'.  The following illustrates the insertion operation
 // for an "out-of-place" array of raw character sequences.  Assume that an
 // array initially contains 5 character sequences as its elements:
 //..
-//                          0     1     2     3     4
-//                        _____ _____ _____ _____ _____
-//                       |  o  |  o  |  o  |  o  |  o  |
-//                       `==|==^==|==^==|==^==|==^==|=='
-//                          |    _V___  |   __V___  |
-//                          |   |"Bye"| |  |"berg"| |
-//                          |   `=====' |  `======' |
-//                         _V_____     _V_____     _V__
-//                        |"Hello"|   |"Bloom"|   |"LP"|
-//                        `======='   `======='   `===='
+//     0     1     2     3     4
+//   _____ _____ _____ _____ _____
+//  |  o  |  o  |  o  |  o  |  o  |
+//  `==|==^==|==^==|==^==|==^==|=='
+//     |    _V___  |   __V___  |
+//     |   |"Bye"| |  |"berg"| |
+//     |   `=====' |  `======' |
+//    _V_____     _V_____     _V__
+//   |"Hello"|   |"Bloom"|   |"LP"|
+//   `======='   `======='   `===='
 //..
 // To insert two more character sequences at index position 2, the array is
 // first reallocated if it is not big enough, and then the existing elements at
 // index positions 2, 3, and 4 are shifted:
 //..
-//                  0     1     2     3     4     5     6
-//                _____ _____ _____ _____ _____ _____ _____
-//               |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
-//               `==|==^==|==^=====^=====^==|==^==|==^==|=='
-//                  |    _V___              |   __V___  |
-//                  |   |"Bye"|             |  |"berg"| |
-//                  |   `====='             |  `======' |
-//                 _V_____                 _V_____     _V__
-//                |"Hello"|               |"Bloom"|   |"LP"|
-//                `======='               `======='   `===='
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
+//  `==|==^==|==^=====^=====^==|==^==|==^==|=='
+//     |    _V___              |   __V___  |
+//     |   |"Bye"|             |  |"berg"| |
+//     |   `====='             |  `======' |
+//    _V_____                 _V_____     _V__
+//   |"Hello"|               |"Bloom"|   |"LP"|
+//   `======='               `======='   `===='
 //
-//               Note: "xxxxx" denotes undefined value.
+//  Note: "xxxxx" denotes undefined value.
 //..
 // Next, two new memory blocks must be allocated to position 2 and 3.  If, one
 // of the two allocations fails and an exception is thrown, the array will be
@@ -84,24 +84,24 @@ BSLS_IDENT("$Id: $")
 // objects, but there is still a problem: the character sequences "Bloom",
 // "berg", and "LP" (at index positions 4, 5, and 6) are "orphaned" and will
 // never be deallocated -- a memory leak.  To prevent this potential memory
-// leak, we can additionally create a 'bslma_AutoDeallocator' object to manage
+// leak, we can additionally create a 'bslma::AutoDeallocator' object to manage
 // (temporarily) the memory at index positions 4, 5, and 6 prior to allocating
 // the new memory:
 //..
-//                  0     1     2     3     4     5     6
-//                _____ _____ _____ _____ _____ _____ _____
-//               |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
-//               `==|==^==|==^=====^=====^==|==^==|==^==|=='
-//                  |    _V___              |   __V___  |
-//                  |   |"Bye"|             |  |"berg"| |
-//                  |   `====='             |  `======' |
-//                 _V_____                 _V_____     _V__
-//                |"Hello"|               |"Bloom"|   |"LP"|
-//                `======='               `======='   `===='
-//               my_StrArray              ^---------------bslma_AutoDeallocator
-//               (length = 2)                          (origin = 4, length = 3)
+//      0     1     2     3     4     5     6
+//    _____ _____ _____ _____ _____ _____ _____
+//   |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
+//   `==|==^==|==^=====^=====^==|==^==|==^==|=='
+//      |    _V___              |   __V___  |
+//      |   |"Bye"|             |  |"berg"| |
+//      |   `====='             |  `======' |
+//     _V_____                 _V_____     _V__
+//    |"Hello"|               |"Bloom"|   |"LP"|
+//    `======='               `======='   `===='
+//   my_StrArray              ^---------------bslma::AutoDeallocator
+//   (length = 2)                          (origin = 4, length = 3)
 //
-//              Note: Configuration after initializing the proctor.
+//  Note: Configuration after initializing the proctor.
 //..
 // If an exception occurs, the array (now of length 2) is in a perfectly valid
 // state, while the proctor is responsible for deallocating the orphaned memory
@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 // set to 7 and the proctor's 'release' method is called, releasing its control
 // over the (temporarily) managed memory.
 //
-// The following example illustrates the use of 'bslma_AutoDeallocator' to
+// The following example illustrates the use of 'bslma::AutoDeallocator' to
 // manage temporarily an "out-of-place" array of character sequences during the
 // array's insertion operation.
 //
@@ -125,7 +125,7 @@ BSLS_IDENT("$Id: $")
 //      // sequences.  Memory will be supplied by the parameterized 'ALLOCATOR'
 //      // type provided at construction (which must remain valid throughout
 //      // the lifetime of this guard object).  Note that memory is managed by
-//      // a parameterized 'ALLOCATOR' type, instead of a 'bslma_Allocator', to
+//      // a parameterized 'ALLOCATOR' type, instead of a 'bslma::Allocator', to
 //      // enable clients to pass in a pool (such as a sequential pool)
 //      // optimized for allocations of character sequences.
 //
@@ -214,7 +214,7 @@ BSLS_IDENT("$Id: $")
 //          tmpSrc = (char **) d_allocator_p->allocate(size);
 //          memcpy(tmpSrc, d_array_p, size);
 //      }
-//      bslma_DeallocatorProctor<ALLOCATOR> proctor(
+//      bslma::DeallocatorProctor<ALLOCATOR> proctor(
 //                                              this == &srcArray ? tmpSrc : 0,
 //                                              d_allocator_p);
 //
@@ -223,7 +223,7 @@ BSLS_IDENT("$Id: $")
 //              d_array_p + dstIndex,
 //              numShifted * sizeof *d_array_p);
 //
-//      // Shorten 'd_length' and use 'bslma_AutoDeallocator' to proctor the
+//      // Shorten 'd_length' and use 'bslma::AutoDeallocator' to proctor the
 //      // memory shifted.
 //      d_length = dstIndex;
 //
@@ -231,14 +231,14 @@ BSLS_IDENT("$Id: $")
 //      // Note use of auto deallocator on tail memory (below). *
 //      //*******************************************************
 //
-//      bslma_AutoDeallocator<ALLOCATOR> tailDeallocator(
+//      bslma::AutoDeallocator<ALLOCATOR> tailDeallocator(
 //                                  (void **) d_array_p + dstIndex + srcLength,
 //                                  d_allocator_p,
 //                                  numShifted);
 //..
 // Now, if any allocation for the inserted character sequences throws, the
 // memory used for the character sequences that had been moved to the end of
-// array will be deallocated automatically by the 'bslma_AutoDeallocator'.
+// array will be deallocated automatically by the 'bslma::AutoDeallocator'.
 //..
 //      // Copy the character sequences from the 'srcArray'.
 //      for (int i = 0; i < srcLength; ++i, ++d_length) {
@@ -258,7 +258,7 @@ BSLS_IDENT("$Id: $")
 // The above method copies the source elements (visually) from left to right.
 // Another (functionally equivalent) implementation copies the source elements
 // from right to left, and makes use of the 'operator--()' of the
-// 'bslma_AutoDeallocator' interface:
+// 'bslma::AutoDeallocator' interface:
 //..
 //  template <class ALLOCATOR>
 //  void my_StrArray<ALLOCATOR>::insert2(int                          dstIndex,
@@ -289,7 +289,7 @@ BSLS_IDENT("$Id: $")
 //          tmpSrc = (char **) d_allocator_p->allocate(size);
 //          memcpy(tmpSrc, d_array_p, size);
 //      }
-//      bslma_DeallocatorProctor<ALLOCATOR> proctor(
+//      bslma::DeallocatorProctor<ALLOCATOR> proctor(
 //                                              this == &srcArray ? tmpSrc : 0,
 //                                              d_allocator_p);
 //
@@ -298,7 +298,7 @@ BSLS_IDENT("$Id: $")
 //              d_array_p + dstIndex,
 //              numShifted * sizeof *d_array_p);
 //
-//      // Shorten 'd_length' and use 'bslma_AutoDeallocator' to proctor the
+//      // Shorten 'd_length' and use 'bslma::AutoDeallocator' to proctor the
 //      // memory shifted.
 //      d_length = dstIndex;
 //
@@ -307,13 +307,13 @@ BSLS_IDENT("$Id: $")
 //      //* memory with negative length (below).     *
 //      //********************************************
 //
-//      bslma_AutoDeallocator<ALLOCATOR> tailDeallocator(
+//      bslma::AutoDeallocator<ALLOCATOR> tailDeallocator(
 //                     (void **) d_array_p + d_length + srcLength + numShifted,
 //                     d_allocator_p,
 //                     -numShifted);
 //..
 // Since we have decided to copy the source elements from right to left, we set
-// the origin of the 'bslma_AutoDeallocator' to the end of the array, and
+// the origin of the 'bslma::AutoDeallocator' to the end of the array, and
 // decrement the (signed) length on each copy to extend the proctor range by 1.
 //..
 //      // Copy the character sequences from the 'srcArray'.  Note that the
@@ -355,12 +355,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ===========================
-                        // class bslma_AutoDeallocator
-                        // ===========================
+namespace bslma {
+
+                        // =====================
+                        // class AutoDeallocator
+                        // =====================
 
 template <class ALLOCATOR>
-class bslma_AutoDeallocator {
+class AutoDeallocator {
     // This class implements a range proctor that, unless its 'release' method
     // has previously been invoked, automatically deallocates the contiguous
     // sequence of managed memory blocks upon its own destruction by invoking
@@ -381,8 +383,8 @@ class bslma_AutoDeallocator {
     ALLOCATOR  *d_allocator_p;  // allocator or pool (held, not owned)
 
     // NOT IMPLEMENTED
-    bslma_AutoDeallocator(const bslma_AutoDeallocator&);
-    bslma_AutoDeallocator& operator=(const bslma_AutoDeallocator&);
+    AutoDeallocator(const AutoDeallocator&);
+    AutoDeallocator& operator=(const AutoDeallocator&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -399,12 +401,12 @@ class bslma_AutoDeallocator {
   public:
     // CREATORS
     template <class TYPE>
-    bslma_AutoDeallocator(TYPE      **origin,
-                          ALLOCATOR  *allocator,
-                          int         length = 0);
-    bslma_AutoDeallocator(void      **origin,
-                          ALLOCATOR  *allocator,
-                          int         length = 0);
+    AutoDeallocator(TYPE      **origin,
+                    ALLOCATOR  *allocator,
+                    int         length = 0);
+    AutoDeallocator(void      **origin,
+                    ALLOCATOR  *allocator,
+                    int         length = 0);
         // Create an auto deallocator to manage a sequence of memory blocks at
         // the specified 'origin', and that uses the specified 'allocator' to
         // deallocate the sequence of memory blocks managed by this range
@@ -437,7 +439,7 @@ class bslma_AutoDeallocator {
         //             ^------------ origin           ^------------ origin
         //..
 
-    ~bslma_AutoDeallocator();
+    ~AutoDeallocator();
         // Destroy this range proctor and deallocate the contiguous sequence of
         // memory blocks it manages (if any) by invoking the 'deallocate'
         // method of the allocator (or pool) supplied at construction on each
@@ -503,13 +505,13 @@ class bslma_AutoDeallocator {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ---------------------------
-                        // class bslma_AutoDeallocator
-                        // ---------------------------
+                        // ---------------------
+                        // class AutoDeallocator
+                        // ---------------------
 
 // PRIVATE MANIPULATORS
 template <class ALLOCATOR>
-void bslma_AutoDeallocator<ALLOCATOR>::deallocate()
+void AutoDeallocator<ALLOCATOR>::deallocate()
 {
     if (d_length > 0) {
         for (; d_length > 0; --d_length, ++d_origin_p) {
@@ -528,10 +530,10 @@ void bslma_AutoDeallocator<ALLOCATOR>::deallocate()
 template <class ALLOCATOR>
 template <class TYPE>
 inline
-bslma_AutoDeallocator<ALLOCATOR>
-::bslma_AutoDeallocator(TYPE      **origin,
-                        ALLOCATOR  *allocator,
-                        int         length)
+AutoDeallocator<ALLOCATOR>
+::AutoDeallocator(TYPE      **origin,
+                  ALLOCATOR  *allocator,
+                  int         length)
 : d_origin_p((void **)origin)
 , d_length(length)
 , d_allocator_p(allocator)
@@ -542,10 +544,10 @@ bslma_AutoDeallocator<ALLOCATOR>
 
 template <class ALLOCATOR>
 inline
-bslma_AutoDeallocator<ALLOCATOR>
-::bslma_AutoDeallocator(void      **origin,
-                        ALLOCATOR  *allocator,
-                        int         length)
+AutoDeallocator<ALLOCATOR>
+::AutoDeallocator(void      **origin,
+                  ALLOCATOR  *allocator,
+                  int         length)
 : d_origin_p(origin)
 , d_length(length)
 , d_allocator_p(allocator)
@@ -556,7 +558,7 @@ bslma_AutoDeallocator<ALLOCATOR>
 
 template <class ALLOCATOR>
 inline
-bslma_AutoDeallocator<ALLOCATOR>::~bslma_AutoDeallocator()
+AutoDeallocator<ALLOCATOR>::~AutoDeallocator()
 {
     BSLS_ASSERT_SAFE(d_origin_p || !d_length);
 
@@ -568,7 +570,7 @@ bslma_AutoDeallocator<ALLOCATOR>::~bslma_AutoDeallocator()
 // MANIPULATORS
 template <class ALLOCATOR>
 inline
-void bslma_AutoDeallocator<ALLOCATOR>::operator++()
+void AutoDeallocator<ALLOCATOR>::operator++()
 {
     BSLS_ASSERT_SAFE(d_origin_p);
 
@@ -577,7 +579,7 @@ void bslma_AutoDeallocator<ALLOCATOR>::operator++()
 
 template <class ALLOCATOR>
 inline
-void bslma_AutoDeallocator<ALLOCATOR>::operator--()
+void AutoDeallocator<ALLOCATOR>::operator--()
 {
     BSLS_ASSERT_SAFE(d_origin_p);
 
@@ -586,7 +588,7 @@ void bslma_AutoDeallocator<ALLOCATOR>::operator--()
 
 template <class ALLOCATOR>
 inline
-void bslma_AutoDeallocator<ALLOCATOR>::release()
+void AutoDeallocator<ALLOCATOR>::release()
 {
     d_length = 0;
 }
@@ -594,7 +596,7 @@ void bslma_AutoDeallocator<ALLOCATOR>::release()
 template <class ALLOCATOR>
 template <class TYPE>
 inline
-void bslma_AutoDeallocator<ALLOCATOR>::reset(TYPE **origin)
+void AutoDeallocator<ALLOCATOR>::reset(TYPE **origin)
 {
     BSLS_ASSERT_SAFE(origin);
 
@@ -603,7 +605,7 @@ void bslma_AutoDeallocator<ALLOCATOR>::reset(TYPE **origin)
 
 template <class ALLOCATOR>
 inline
-void bslma_AutoDeallocator<ALLOCATOR>::reset(void **origin)
+void AutoDeallocator<ALLOCATOR>::reset(void **origin)
 {
     BSLS_ASSERT_SAFE(origin);
 
@@ -613,7 +615,7 @@ void bslma_AutoDeallocator<ALLOCATOR>::reset(void **origin)
 template <class ALLOCATOR>
 inline
 void
-bslma_AutoDeallocator<ALLOCATOR>::setLength(int length)
+AutoDeallocator<ALLOCATOR>::setLength(int length)
 {
     BSLS_ASSERT_SAFE(d_origin_p);
 
@@ -623,12 +625,14 @@ bslma_AutoDeallocator<ALLOCATOR>::setLength(int length)
 // ACCESSORS
 template <class ALLOCATOR>
 inline
-int bslma_AutoDeallocator<ALLOCATOR>::length() const
+int AutoDeallocator<ALLOCATOR>::length() const
 {
     return d_length;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a primitive type trait for bit-wise copyable classes.
 //
 //@CLASSES:
-//  bslalg_TypeTraitBitwiseCopyable: bit-wise copyable trait
+//  bslalg::TypeTraitBitwiseCopyable: bit-wise copyable trait
 //
 //@SEE_ALSO: bslmf_typetraits
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg_TypeTraitBitwiseCopyable'.  An object of a 'TYPE' that has the
+// 'bslalg::TypeTraitBitwiseCopyable'.  An object of a 'TYPE' that has the
 // bit-wise copyable trait can be copied either by invoking the copy
 // constructor or by copying the footprint (i.e., the 'sizeof(TYPE)' bytes at
 // the object address) using 'memcpy'.
@@ -49,24 +49,28 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // =====================================
-                        // class bslalg_TypeTraitBitwiseCopyable
-                        // =====================================
+namespace bslalg {
 
-struct bslalg_TypeTraitBitwiseCopyable {
+                        // ==============================
+                        // class TypeTraitBitwiseCopyable
+                        // ==============================
+
+struct TypeTraitBitwiseCopyable {
     // Objects of a type with this trait can be copied using 'memcpy'.  After
     // such a bitwise copy, both the original and the copy are valid.  Classes
     // with this trait are assumed to have trivial (no-op) destructors and are
-    // assumed to be bitwise moveable (see the
-    // 'bslalg_TypeTraitBitwiseMoveable' trait).  Undefined behavior may result
-    // if this trait is assigned to a type that allocates memory or other
-    // resources, uses virtual inheritance, or places pointers to itself within
-    // other data structures.  Also, objects of a type with this trait can be
-    // destroyed by a no-op, i.e., not invoking the destructor, although it is
-    // safe to write zeros into the memory footprint of the object.
+    // assumed to be bitwise moveable (see the 'TypeTraitBitwiseMoveable'
+    // trait).  Undefined behavior may result if this trait is assigned to a
+    // type that allocates memory or other resources, uses virtual inheritance,
+    // or places pointers to itself within other data structures.  Also,
+    // objects of a type with this trait can be destroyed by a no-op, i.e., not
+    // invoking the destructor, although it is safe to write zeros into the
+    // memory footprint of the object.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

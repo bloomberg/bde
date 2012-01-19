@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide performance hints for code optimization.
 //
 //@CLASSES:
-//   bsls_PerformanceHint: namespace for performance optimization hints
+//  bsls::PerformanceHint: namespace for performance optimization hints
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Data Cache Prefetching
 ///----------------------
-// The two functions provided in the 'bsls_PerformanceHint' 'struct' are
+// The two functions provided in the 'bsls::PerformanceHint' 'struct' are
 // 'prefetchForReading' and 'prefetchForWriting'.  Use of these functions will
 // cause the compiler to generate prefetch instructions to prefetch one cache
 // line worth of data at the specified address into the cache line to minimize
@@ -122,8 +122,8 @@ BSLS_IDENT("$Id: $")
 // functions degrades performance.  Note that there should be sufficient time
 // for the prefetch instruction to finish before the specified address is
 // accessed, otherwise prefetching will be pointless.  A profiler should be
-// used to understand the program's behavior before attempting to optimize
-// with these functions.
+// used to understand the program's behavior before attempting to optimize with
+// these functions.
 //
 ///Usage
 ///-----
@@ -189,8 +189,7 @@ BSLS_IDENT("$Id: $")
 // Now, if 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' is changed to
 // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY', and the
 // 'BSLS_PERFORMANCEHINT_UNLIKELY_HINT' is moved to the first branch, the
-// following assembly code will be
-// generated:
+// following assembly code will be generated:
 //..
 //  b8:   2c 00 00 08     cmpwi   r0,8
 //  bc:   40 c2 00 38     bne-    f4 <.main+0xb4>
@@ -270,7 +269,7 @@ BSLS_IDENT("$Id: $")
 //
 //  int main()
 //  {
-//      BloombergLP::bsls_Stopwatch timer;
+//      BloombergLP::bsls::Stopwatch timer;
 //      timer.start();
 //      for (int i = 0; i < 10; ++i) {
 //          add(array1, array2);
@@ -280,7 +279,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // The above code simply adds two arrays together multiple times.  Using
-// 'bsls_Stopwatch', we recorded the running time and printed it to 'stdout':
+// 'bsls::Stopwatch', we recorded the running time and printed it to 'stdout':
 //..
 //  $./prefetch.sundev1.tsk
 //  time: 8.446806
@@ -293,8 +292,8 @@ BSLS_IDENT("$Id: $")
 //  void add(int *arrayA, int *arrayB)
 //  {
 //      for (int i = 0; i < SIZE / 8; ++i){
-//          bsls_PerformanceHint::prefetchForWriting((int *) arrayA + 16);
-//          bsls_PerformanceHint::prefetchForReading((int *) arrayB + 16);
+//          bsls::PerformanceHint::prefetchForWriting((int *) arrayA + 16);
+//          bsls::PerformanceHint::prefetchForReading((int *) arrayB + 16);
 //
 //          *(arrayA++) = *arrayA + *(arrayB++);
 //          *(arrayA++) = *arrayA + *(arrayB++);
@@ -395,19 +394,21 @@ namespace BloombergLP {
 
 #if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM__CMP_SUN)
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
-                              BloombergLP::bsls_PerformanceHint::rarelyCalled()
+                             BloombergLP::bsls::PerformanceHint::rarelyCalled()
 #elif defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM__CMP_IBM)
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT                                \
-                              BloombergLP::bsls_PerformanceHint::lowFrequency()
+                             BloombergLP::bsls::PerformanceHint::lowFrequency()
 #else
     #define BSLS_PERFORMANCEHINT_UNLIKELY_HINT
 #endif
 
-                        // ===========================
-                        // struct bsls_PerformanceHint
-                        // ===========================
+namespace bsls {
 
-struct bsls_PerformanceHint {
+                        // ======================
+                        // struct PerformanceHint
+                        // ======================
+
+struct PerformanceHint {
     // This 'struct' provides a namespace for a suite of primitive pure
     // procedures that give performance hints to the compiler or hardware.
 
@@ -437,8 +438,8 @@ struct bsls_PerformanceHint {
 // Pragma to flag the function as rarely called.
 #pragma rarely_called(rarelyCalled)
 
-// Pragma to flag the function as no side effect.  This is necessary because
-// a function that is marked as rarely called cannot be inlined without losing
+// Pragma to flag the function as no side effect.  This is necessary because a
+// function that is marked as rarely called cannot be inlined without losing
 // the 'rarely_called' characteristics.  When marked as no side effect, even an
 // out-of-line function will not trigger a function call.
 #pragma no_side_effect(rarelyCalled)
@@ -457,13 +458,13 @@ struct bsls_PerformanceHint {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                        // ---------------------------
-                        // struct bsls_PerformanceHint
-                        // ---------------------------
+                        // ----------------------
+                        // struct PerformanceHint
+                        // ----------------------
 
 // CLASS METHODS
 inline
-void bsls_PerformanceHint::prefetchForReading(const void *address)
+void PerformanceHint::prefetchForReading(const void *address)
 {
 #if defined(BSLS_PLATFORM__CMP_GNU)
 
@@ -494,7 +495,7 @@ void bsls_PerformanceHint::prefetchForReading(const void *address)
 }
 
 inline
-void bsls_PerformanceHint::prefetchForWriting(void *address)
+void PerformanceHint::prefetchForWriting(void *address)
 {
 #if defined(BSLS_PLATFORM__CMP_GNU)
 
@@ -528,7 +529,7 @@ void bsls_PerformanceHint::prefetchForWriting(void *address)
 // This function must be inlined for the pragma to take effect on the branch
 // prediction.
 inline
-void bsls_PerformanceHint::lowFrequency()
+void PerformanceHint::lowFrequency()
 {
 #if defined(BDE_BUILD_TARGET_OPT) && defined(BSLS_PLATFORM__CMP_IBM)
 
@@ -537,7 +538,9 @@ void bsls_PerformanceHint::lowFrequency()
 #endif
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

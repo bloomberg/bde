@@ -46,9 +46,9 @@ using namespace std;
 // allocation limit, then verify that exceptions thrown by the allocator are
 // caught and that they contain the expected contents.
 //-----------------------------------------------------------------------------
-// [ 1] bslma_TestAllocator(int verboseFlag = 0);
-// [ 6] bslma_TestAllocator(const char *name, int verboseFlag = 0);
-// [ 2] ~bslma_TestAllocator();
+// [ 1] bslma::TestAllocator(int verboseFlag = 0);
+// [ 6] bslma::TestAllocator(const char *name, int verboseFlag = 0);
+// [ 2] ~bslma::TestAllocator();
 // [ 3] void *allocate(int size);
 // [ 3] void deallocate(void *address);
 // [ 2] void setNoAbort(int noAbortFlag);
@@ -75,7 +75,7 @@ using namespace std;
 // [ 1] int numDeallocations() const;
 // [ 6] const char *name() const;
 //
-// [ 4] ostream& operator<<(ostream& lhs, const bslma_TestAllocator& rhs);
+// [ 4] ostream& operator<<(ostream& lhs, const bslma::TestAllocator& rhs);
 //-----------------------------------------------------------------------------
 // [ 9] USAGE TEST - Make sure usage example for exception neutrality works.
 // [ 5] Ensure that exception is thrown after allocation limit is exceeded.
@@ -137,7 +137,7 @@ static void aSsErT(int c, const char *s, int i)
 const unsigned char SCRIBBLED_MEMORY = 0xA5;   // byte used to scribble
                                                // deallocated memory
 
-enum { PADDING_SIZE = sizeof(bsls_AlignmentUtil::MaxAlignedType) };
+enum { PADDING_SIZE = sizeof(bsls::AlignmentUtil::MaxAlignedType) };
                                                     // size of the padding
                                                     // before and after the
                                                     // user segment
@@ -151,14 +151,14 @@ class my_ShortArray {
     short *d_array_p; // dynamically-allocated array of short integers
     int d_size;       // physical size of the 'd_array_p' array (elements)
     int d_length;     // logical length of the 'd_array_p' array (elements)
-    bslma_Allocator *d_allocator_p; // holds (but does not own) allocator
+    bslma::Allocator *d_allocator_p; // holds (but does not own) allocator
 
   private:
     void increaseSize(); // Increase the capacity by at least one element.
 
   public:
     // CREATORS
-    my_ShortArray(bslma_Allocator *basicAllocator = 0);
+    my_ShortArray(bslma::Allocator *basicAllocator = 0);
         // Create an empty array.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, global
         // operators 'new' and 'delete' are used.
@@ -176,7 +176,7 @@ enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_shortarray.cpp
 
-my_ShortArray::my_ShortArray(bslma_Allocator *basicAllocator)
+my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(basicAllocator)
@@ -214,8 +214,10 @@ inline void my_ShortArray::append(int value)
 }
 
 inline static
-void reallocate(short **array, int newSize, int length,
-                bslma_Allocator *basicAllocator)
+void reallocate(short            **array, 
+                int                newSize, 
+                int                length,
+                bslma::Allocator  *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified 'newSize'
     // using the specified 'basicAllocator', or, if 'basicAllocator' is 0,
     // global operators 'new' and 'delete'.  The specified 'length' number of
@@ -272,10 +274,10 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
 
 ///Usage
 ///-----
-// The 'bslma_TestAllocator' defined in this component can be used in
+// The 'bslma::TestAllocator' defined in this component can be used in
 // conjunction with the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
 // 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros to test the memory usage
-// patterns of an object that uses the 'bslma_Allocator' protocol in its
+// patterns of an object that uses the 'bslma::Allocator' protocol in its
 // interface.  In this example, we illustrate how we might test that an object
 // under test is exception-neutral.  For illustration purposes, we will assume
 // the existence of a 'my_shortarray' component implementing an
@@ -311,7 +313,7 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
 //
 //..
 
-static int verifyPrint(const bslma_TestAllocator& ta,
+static int verifyPrint(const bslma::TestAllocator& ta,
                        const char* const          FMT,
                        int                        verboseFlag)
     // Return 0 if the specified 'ta' prints the same message as 'FMT'.  Note
@@ -336,7 +338,7 @@ static int verifyPrint(const bslma_TestAllocator& ta,
 
     if (veryVerbose) cout << "\nEXPECTED FORMAT:" << endl << FMT << endl;
 
-    // Because bslma is a low-level utility, bslma_TestAllocator does not
+    // Because bslma is a low-level utility, bslma::TestAllocator does not
     // have a function to print to ostream, and thus cannot print to a
     // strstream.  The print() member function always prints to stdout.
     // The code below forks a process and captures stdout to a memory
@@ -398,7 +400,7 @@ void *operator new(size_t size)
     if (globalNewCalledCountIsEnabled) {
         ++globalNewCalledCount;
         printf ("global new called, count = %d: %p\n",
-                                                globalNewCalledCount, addr);
+                globalNewCalledCount, addr);
     }
 
     return addr;
@@ -434,7 +436,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // Additional code for usage test:
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:
       case 12: {
@@ -473,14 +475,14 @@ int main(int argc, char *argv[])
 //      bool veryVeryVeryVerbose = argc > 5;
 //
 //..
-// We now define a 'bslma_TestAllocator', 'sa', named "supplied" to indicate
+// We now define a 'bslma::TestAllocator', 'sa', named "supplied" to indicate
 // that it is the allocator to be supplied to our object under test, as well as
 // to the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro (below).  Note that
 // if 'veryVeryVeryVerbose' is 'true', then 'sa' prints all allocation and
 // deallocation requests to 'stdout' and also prints the accumulated statistics
 // on destruction:
 //..
-        bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
 //      switch (test) { case 0:
 //
@@ -573,7 +575,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing buffer over/underrun detection\n"
                              "======================================\n";
 
-        bslma_TestAllocator alloc(veryVeryVerbose);
+        bslma::TestAllocator alloc(veryVeryVerbose);
         char *seg;
 
         alloc.setQuiet(true);
@@ -685,10 +687,10 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
        if (verbose) cout <<
-           "\nExpose bug in 'bslma_TestAllocator'" << endl;
+           "\nExpose bug in 'bslma::TestAllocator'" << endl;
        {
-           bslma_TestAllocator testAllocator(veryVeryVerbose);
-           bslma_Allocator *ta = &testAllocator;
+           bslma::TestAllocator testAllocator(veryVeryVerbose);
+           bslma::Allocator *ta = &testAllocator;
 
            ASSERT(0 == testAllocator.numBlocksTotal());
            ASSERT(0 == testAllocator.numBlocksInUse());
@@ -752,7 +754,7 @@ int main(int argc, char *argv[])
                                            rl.rlim_max << endl;
         ASSERT(1 << 20 == rl.rlim_cur);
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
 
         bool caught = false;
         void *p = (void *) 0x12345678;
@@ -779,13 +781,13 @@ int main(int argc, char *argv[])
         // TEST CROSS MEMORY ALLOCATION/DEALLOCATION DETECTION
         //   Testing the detection of cross allocation/deallocation.  The
         //   implementation uses the memory allocation list managed within
-        //   the 'bslma_TestAllocator'.  Makes sure that the number of
+        //   the 'bslma::TestAllocator'.  Makes sure that the number of
         //   mismatches are counted when cross allocation/deallocation occurs.
         //   Test using two allocators allocating the same amount of memory
         //   in the same sequence, and deallocating each other's memory block.
         //
         // Testing:
-        //   'd_list' inside 'bslma_TestAllocator'
+        //   'd_list' inside 'bslma::TestAllocator'
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TEST CROSS MEMORY ALLOCATION/"
@@ -797,11 +799,11 @@ int main(int argc, char *argv[])
         {
         if (verbose) cout << "\tTest cross memory allocation list" <<endl;
 
-        bslma_TestAllocator allocator1(veryVeryVerbose);
+        bslma::TestAllocator allocator1(veryVeryVerbose);
         allocator1.setNoAbort(verbose);
         allocator1.setQuiet(!veryVerbose);
 
-        bslma_TestAllocator allocator2(veryVeryVerbose);
+        bslma::TestAllocator allocator2(veryVeryVerbose);
 
         void *a1 = allocator1.allocate(40);
         void *a2 = allocator1.allocate(30);
@@ -904,13 +906,13 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TEST MEMORY ALLOCATION LIST
         //   Testing the memory allocation list managed internally within the
-        //   'bslma_TestAllocator'.  Ensures that the list of outstanding
+        //   'bslma::TestAllocator'.  Ensures that the list of outstanding
         //   memory blocks are kept track of.  Test the case where there's no
         //   allocated memory block outstanding, all allocated memory
         //   blocks outstanding and some allocated memory blocks outstanding.
         //
         // Testing:
-        //   'd_list' inside 'bslma_TestAllocator'
+        //   'd_list' inside 'bslma::TestAllocator'
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TEST MEMORY ALLOCATION LIST"
@@ -919,7 +921,7 @@ int main(int argc, char *argv[])
         {
         if (verbose) cout << "\tTest empty memory allocation list" <<endl;
 
-        bslma_TestAllocator a;
+        bslma::TestAllocator a;
 
         const char* const FMT =
             "\n"
@@ -942,7 +944,7 @@ int main(int argc, char *argv[])
         {
         if (verbose) cout << "\tTest full memory allocation list" <<endl;
 
-        bslma_TestAllocator a;
+        bslma::TestAllocator a;
 
         void *p1 = a.allocate(40);
         void *p2 = a.allocate(30);
@@ -988,7 +990,7 @@ int main(int argc, char *argv[])
         {
         if (verbose) cout << "\tTest partial memory allocation list" <<endl;
 
-        bslma_TestAllocator a;
+        bslma::TestAllocator a;
 
         void *p1 = a.allocate(40);
         void *p2 = a.allocate(30);
@@ -1029,7 +1031,7 @@ int main(int argc, char *argv[])
         {
         if (verbose) cout << "\tTest empty memory allocation list" <<endl;
 
-        bslma_TestAllocator a;
+        bslma::TestAllocator a;
 
         void *p1 = a.allocate(40);
         void *p2 = a.allocate(30);
@@ -1058,11 +1060,11 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TEST NAMED CONSTRUCTOR AND NAME ACCESS
-        //   Testing the 'bslma_TestAllocator' constructed with a name.
+        //   Testing the 'bslma::TestAllocator' constructed with a name.
         //   Ensures that the name is accessible through the 'name' function.
         //
         // Testing:
-        //   bslma_TestAllocator(const char* name, int verboseFlag = 0);
+        //   bslma::TestAllocator(const char* name, int verboseFlag = 0);
         //   const char *name() const;
         // --------------------------------------------------------------------
 
@@ -1072,7 +1074,7 @@ int main(int argc, char *argv[])
 
         const char *NAME   = "Test Allocator";
         const int   length = strlen(NAME);
-        bslma_TestAllocator a(NAME, veryVeryVerbose);
+        bslma::TestAllocator a(NAME, veryVeryVerbose);
 
         if (verbose) cout << "Make sure all internal states initialized."
                           << endl;
@@ -1118,7 +1120,7 @@ int main(int argc, char *argv[])
         const int LIMIT[] = { 0, 1, 4, 5, -1, -100 };
         const int NUM_TEST = sizeof LIMIT / sizeof *LIMIT;
 
-        bslma_TestAllocator mX(veryVeryVerbose);
+        bslma::TestAllocator mX(veryVeryVerbose);
 
         for (int ti = 0; ti < NUM_TEST; ++ti) {
             mX.setAllocationLimit(LIMIT[ti]);
@@ -1130,7 +1132,7 @@ int main(int argc, char *argv[])
                     void *p = mX.allocate(SIZE);
                     mX.deallocate(p);
                 }
-                catch (bslma_TestAllocatorException& e) {
+                catch (bslma::TestAllocatorException& e) {
                     int numBytes = e.numBytes();
                     if (veryVerbose) { cout << "Caught: "; P(numBytes); }
                     LOOP2_ASSERT(ti, ai, LIMIT[ti] == ai);
@@ -1151,7 +1153,7 @@ int main(int argc, char *argv[])
         //   Lightly verify that the output operator works.
         //
         // Testing:
-        //   ostream& operator<<(ostream& lhs, const bslma_TestAllocator& rhs);
+        //   ostream& operator<<(ostream& l, const bslma::TestAllocator& r);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING OUTPUT OPERATOR (<<)" << endl
@@ -1159,7 +1161,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTest a single case with unique fields." <<endl;
 
-        bslma_TestAllocator a;
+        bslma::TestAllocator a;
 
         if (verbose) cout << "\tSet up unique fields." <<endl;
         void *p1 = a.allocate(40);
@@ -1210,7 +1212,7 @@ int main(int argc, char *argv[])
         //   will cause purify errors.
         //
         // Testing:
-        //   ~bslma_TestAllocator();
+        //   ~bslma::TestAllocator();
         //   void *allocate(int size);
         //   void deallocate(void *address);
         //
@@ -1239,7 +1241,7 @@ int main(int argc, char *argv[])
             if (verbose) cout <<
                 "\nEnsure incompatibility with new/delete." << endl;
 
-            bslma_TestAllocator a(veryVeryVerbose);
+            bslma::TestAllocator a(veryVeryVerbose);
             a.setNoAbort(verbose); a.setQuiet(!veryVerbose);
 
             if (verbose) cout << "\t[deallocate unallocated pointer]" << endl;
@@ -1338,7 +1340,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t[deallocate pointer + sizeof(size_type)]"
                               << endl;
             if (veryVerbose) cout << LINE << endl;
-            a.deallocate((bslma_Allocator::size_type *)p + 1);
+            a.deallocate((bslma::Allocator::size_type *)p + 1);
             if (veryVerbose) cout << LINE << endl;
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(3 == a.numBytesInUse());
@@ -1349,7 +1351,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t[deallocate pointer - sizeof(size_type)]"
                               << endl;
             if (veryVerbose) cout << LINE << endl;
-            a.deallocate((bslma_Allocator::size_type *)p - 1);
+            a.deallocate((bslma::Allocator::size_type *)p - 1);
             if (veryVerbose) cout << LINE << endl;
                                 ASSERT(1 == a.numBlocksInUse());
                                 ASSERT(3 == a.numBytesInUse());
@@ -1434,7 +1436,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTest get/set flags" << endl;
         {
 
-            bslma_TestAllocator a(veryVeryVerbose);
+            bslma::TestAllocator a(veryVeryVerbose);
 
             ASSERT(0 == a.isQuiet());
             ASSERT(0 == a.isNoAbort());
@@ -1515,7 +1517,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   Make sure that all counts are initialized to zero (placement new).
         //
-        //   bslma_TestAllocator(int verboseFlag = 0);
+        //   bslma::TestAllocator(int verboseFlag = 0);
         //   int numBytesInUse() const;
         //   int numBlocksInUse() const;
         //   int numBytesMax() const;
@@ -1538,10 +1540,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nCreate an allocator in a buffer" << endl;
 
-        bsls_ObjectBuffer<bslma_TestAllocator> arena;
+        bsls::ObjectBuffer<bslma::TestAllocator> arena;
 
         memset(&arena, 0xA5, sizeof arena);
-        bslma_TestAllocator *p = new(&arena) bslma_TestAllocator;
+        bslma::TestAllocator *p = new(&arena) bslma::TestAllocator;
 
         if (verbose) cout <<
             "\nMake sure all counts/and flags are initialized" << endl;
@@ -1569,7 +1571,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nCreate an allocator" << endl;
 
-        bslma_TestAllocator a(veryVeryVerbose);
+        bslma::TestAllocator a(veryVeryVerbose);
 
         if (verbose) cout << "\nMake sure counts work properly" << endl;
 
@@ -1753,7 +1755,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing buffer underrun abort\n"
                              "=============================\n";
 
-        bslma_TestAllocator alloc(veryVeryVerbose);
+        bslma::TestAllocator alloc(veryVeryVerbose);
         char *seg;
 
         // make non-quiet underrun happen (and abort) so we can observe the
@@ -1777,7 +1779,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing buffer overrun abort\n"
                              "============================\n";
 
-        bslma_TestAllocator alloc(veryVeryVerbose);
+        bslma::TestAllocator alloc(veryVeryVerbose);
         char *seg;
 
         // make non-quiet overrun happen (and abort) so we can observe the

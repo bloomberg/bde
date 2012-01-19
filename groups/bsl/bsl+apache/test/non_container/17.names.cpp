@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // ISSUE DESCRIPTION:
@@ -467,7 +467,7 @@
 #define finish                  !ERROR!
 #define ForwardIter             !ERROR!
 #define ForwardIterator         !ERROR!
-#define found                   !ERROR! 
+#define found                   !ERROR!
 #define fun                     !ERROR!
 #define Function                !ERROR!
 #define hint                    !ERROR!

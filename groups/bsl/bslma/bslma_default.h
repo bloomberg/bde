@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide utilities to set/fetch the default and global allocators.
 //
 //@CLASSES:
-//  bslma_Default: namespace for default/global allocator management utilities
+//  bslma::Default: namespace for default/global allocator management utilities
 //
 //@SEE_ALSO: bslma_allocator, bslma_newdeleteallocator
 //
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a set of utility functions that manage
 // the addresses of two distinguished memory allocators: the *default*
 // allocator and the *global* allocator.  Each of these allocators are of type
-// derived from 'bslma_Allocator'.  Note that for brevity, in the following we
+// derived from 'bslma::Allocator'.  Note that for brevity, in the following we
 // will generally refer to "the address of the default allocator" as simply
 // "the default allocator" (and similarly for the global allocator).
 //
@@ -31,9 +31,9 @@ BSLS_IDENT("$Id: $")
 // created).
 //
 // Initially, both the default allocator and global allocator resolve to the
-// address of the 'bslma_NewDeleteAllocator' singleton, i.e.:
+// address of the 'bslma::NewDeleteAllocator' singleton, i.e.:
 //..
-//  &bslma_NewDeleteAllocator::singleton()
+//  &bslma::NewDeleteAllocator::singleton()
 //..
 // Methods are provided to retrieve and set the two allocators independently.
 // The following two subsections supply further details, in turn, on the
@@ -42,34 +42,34 @@ BSLS_IDENT("$Id: $")
 ///Default Allocator
 ///-----------------
 // Two methods provide access to the default allocator,
-// 'bslma_Default::defaultAllocator' and 'bslma_Default::allocator' (the latter
-// when called with no argument, or an explicit 0).  When
-// 'bslma_Default::allocator' is supplied with a non-0 argument, it simply
+// 'bslma::Default::defaultAllocator' and 'bslma::Default::allocator' (the
+// latter when called with no argument, or an explicit 0).  When
+// 'bslma::Default::allocator' is supplied with a non-0 argument, it simply
 // returns that argument to the caller, (i.e., it acts as a pass-through).  A
 // (non-singleton) class that is designed to take advantage of an allocator
 // will typically revert to the default allocator whenever a constructor is
 // called without an allocator (yielding the default argument value of 0).  The
-// 'bslma_Default::allocator' method facilitates this behavior.  See the usage
+// 'bslma::Default::allocator' method facilitates this behavior.  See the usage
 // examples below for an illustration of this technique.
 //
 // The default allocator can be set *prior* to a call to
-// 'bslma_Default::defaultAllocator', to 'bslma_Default::allocator' with no
-// argument or an explicit 0, or to 'bslma_Default::lockDefaultAllocator', by
-// calling 'bslma_Default::setDefaultAllocator'.  This method returns 0 on
+// 'bslma::Default::defaultAllocator', to 'bslma::Default::allocator' with no
+// argument or an explicit 0, or to 'bslma::Default::lockDefaultAllocator', by
+// calling 'bslma::Default::setDefaultAllocator'.  This method returns 0 on
 // success and a non-zero value on failure.  This method fails if the default
 // allocator is "locked".  The default allocator is initially unlocked.  It is
-// *explicitly* locked by calling 'bslma_Default::lockDefaultAllocator'.  In
+// *explicitly* locked by calling 'bslma::Default::lockDefaultAllocator'.  In
 // addition, the default allocator is *implicitly* locked as a *side-effect* of
-// calling 'bslma_Default::defaultAllocator', or 'bslma_Default::allocator'
+// calling 'bslma::Default::defaultAllocator', or 'bslma::Default::allocator'
 // with no argument or an explicit 0.  Once locked, the default allocator
-// cannot be unlocked.  However, the 'bslma_Default::setDefaultAllocatorRaw'
+// cannot be unlocked.  However, the 'bslma::Default::setDefaultAllocatorRaw'
 // method will unconditionally set the default allocator regardless of whether
 // it is locked.
 //
-// A well-behaved program should call 'bslma_Default::setDefaultAllocator'
+// A well-behaved program should call 'bslma::Default::setDefaultAllocator'
 // *once*.  It should be invoked in 'main' before starting any threads, and be
-// followed immediately by a call to 'bslma_Default::lockDefaultAllocator.
-// Note that 'bslma_Default::setDefaultAllocatorRaw' is provided for *testing*
+// followed immediately by a call to 'bslma::Default::lockDefaultAllocator.
+// Note that 'bslma::Default::setDefaultAllocatorRaw' is provided for *testing*
 // *only*, and should typically *never* be used in a production environment.
 //
 // *WARNING*: Note that the default allocator can become locked prior to
@@ -85,18 +85,19 @@ BSLS_IDENT("$Id: $")
 ///----------------
 // The interface pertaining to the global allocator is comparatively much
 // simpler, consisting of just two methods.  The
-// 'bslma_Default::globalAllocator' method, when called with no argument (or an
-// explicit 0), returns the global allocator currently in effect at the point
-// of call.  It has *no* side-effects.  When supplied with a non-0 argument,
-// 'bslma_Default::globalAllocator' simply returns that argument to the caller
-// (i.e., it acts as a pass-through similar to 'bslma_Default::allocator' when
-// it is supplied with a non-0 argument).  The global allocator may be set
-// using the 'bslma_Default::setGlobalAllocator' method.  This method *always*
-// succeeds.  In that respect, the global allocator cannot become locked like
-// the default allocator.  'bslma_Default::setGlobalAllocator' returns the
-// global allocator that is in effect upon entry to the function.
+// 'bslma::Default::globalAllocator' method, when called with no argument (or
+// an explicit 0), returns the global allocator currently in effect at the
+// point of call.  It has *no* side-effects.  When supplied with a non-0
+// argument, 'bslma::Default::globalAllocator' simply returns that argument to
+// the caller (i.e., it acts as a pass-through similar to
+// 'bslma::Default::allocator' when it is supplied with a non-0 argument).  The
+// global allocator may be set using the 'bslma::Default::setGlobalAllocator'
+// method.  This method *always* succeeds.  In that respect, the global
+// allocator cannot become locked like the default allocator.
+// 'bslma::Default::setGlobalAllocator' returns the global allocator that is in
+// effect upon entry to the function.
 //
-// Note that 'bslma_Default::setGlobalAllocator' should be used with *extreme*
+// Note that 'bslma::Default::setGlobalAllocator' should be used with *extreme*
 // *caution*.  In particular, a well-behaved program should call this function
 // at most once.  If called, it should be invoked in 'main' before starting any
 // threads and before initializing singletons.
@@ -115,7 +116,7 @@ BSLS_IDENT("$Id: $")
 //  // my_countingallocator.h
 //  #include <bslma_allocator.h>
 //
-//  class my_CountingAllocator : public bslma_Allocator {
+//  class my_CountingAllocator : public bslma::Allocator {
 //      // This concrete allocator maintains: (1) a count of the number of
 //      // blocks allocated that have not yet been deallocated, and (2) a count
 //      // of the cumulative number of blocks ever allocated.
@@ -216,9 +217,9 @@ BSLS_IDENT("$Id: $")
 // trivial class, 'my_Id', that uses an allocator.  'my_Id' simply encapsulates
 // a C-style (null-terminated) id string that is accessible through the 'id'
 // method.  Note that each constructor is declared to take an *optional*
-// 'bslma_Allocator *' as its last argument.  Also note that the expression:
+// 'bslma::Allocator *' as its last argument.  Also note that the expression:
 //..
-//  bslma_Default::allocator(basicAllocator)
+//  bslma::Default::allocator(basicAllocator)
 //..
 // is used in applicable member initializers to propagate each constructor's
 // allocator argument to the data members that require it (in this case, the
@@ -235,21 +236,21 @@ BSLS_IDENT("$Id: $")
 //      // of the default allocator.
 //
 //      // DATA
-//      char            *d_buffer_p;     // allocated (*owned*)
-//      bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+//      char             *d_buffer_p;     // allocated (*owned*)
+//      bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 //
 //      // NOT IMPLEMENTED (in order to reduce example size)
 //      my_Id& operator=(const my_Id&);
 //
 //    public:
 //      // CREATORS
-//      explicit my_Id(const char *id, bslma_Allocator *basicAllocator = 0);
+//      explicit my_Id(const char *id, bslma::Allocator *basicAllocator = 0);
 //          // Create an Id object having the specified 'id'.  Optionally
 //          // specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed default allocator
 //          // is used.
 //
-//      my_Id(const my_Id& original, bslma_Allocator *basicAllocator = 0);
+//      my_Id(const my_Id& original, bslma::Allocator *basicAllocator = 0);
 //          // Create an Id object initialized to the value of the specified
 //          // 'original' Id object.  Optionally specify a 'basicAllocator'
 //          // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -265,16 +266,16 @@ BSLS_IDENT("$Id: $")
 //
 //  // CREATORS
 //  inline
-//  my_Id::my_Id(const char *id, bslma_Allocator *basicAllocator)
-//  : d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  my_Id::my_Id(const char *id, bslma::Allocator *basicAllocator)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      d_buffer_p = (char *)d_allocator_p->allocate(std::strlen(id) + 1);
 //      std::strcpy(d_buffer_p, id);
 //  }
 //
 //  inline
-//  my_Id::my_Id(const my_Id& original, bslma_Allocator *basicAllocator)
-//  : d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  my_Id::my_Id(const my_Id& original, bslma::Allocator *basicAllocator)
+//  : d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //      const char *id = original.id();
 //      d_buffer_p = (char *)d_allocator_p->allocate(std::strlen(id) + 1);
@@ -296,25 +297,26 @@ BSLS_IDENT("$Id: $")
 //..
 // Next we set the default allocator to one of our counting allocator objects.
 // Note that immediately after successfully setting it, we lock the default
-// allocator, so that subsequent calls to 'bslma_Default::setDefaultAllocator'
+// allocator, so that subsequent calls to 'bslma::Default::setDefaultAllocator'
 // fail.  (The default allocator can still be modified by calling
-// 'bslma_Default::setDefaultAllocatorRaw', but calling that function in
+// 'bslma::Default::setDefaultAllocatorRaw', but calling that function in
 // production code is anti-social.  Our usage examples expressly do *not* call
-// that method.) With the possible exception of test drivers, the default
+// that method.)  With the possible exception of test drivers, the default
 // allocator should be set and locked early in 'main' before threads are
 // started and before objects are initialized:
 //..
 //  static my_CountingAllocator defaultCountingAllocator;
 //
-//  int status = bslma_Default::setDefaultAllocator(&defaultCountingAllocator);
+//  int status =
+//              bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
 //  assert(0 == status);
-//  bslma_Default::lockDefaultAllocator();  // subsequent calls to "set" fail
-//  assert(bslma_Default::defaultAllocator() == &defaultCountingAllocator);
+//  bslma::Default::lockDefaultAllocator();  // subsequent calls to "set" fail
+//  assert(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
 //
-//  status = bslma_Default::setDefaultAllocator(
-//                                     &bslma_NewDeleteAllocator::singleton());
+//  status = bslma::Default::setDefaultAllocator(
+//                                    &bslma::NewDeleteAllocator::singleton());
 //  assert(0 != status);
-//  assert(bslma_Default::defaultAllocator() == &defaultCountingAllocator);
+//  assert(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
 //..
 // In the following, we instantiate two objects of type 'my_Id'.  The first
 // object, 'idA', is not supplied with an allocator, so it uses the default
@@ -374,9 +376,9 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_IdPair(const char      *id,
-//                const char      *alias,
-//                bslma_Allocator *basicAllocator = 0);
+//      my_IdPair(const char       *id,
+//                const char       *alias,
+//                bslma::Allocator *basicAllocator = 0);
 //          // Create an Id pair having the specified 'id' and 'alias' ids.
 //          // Optionally specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed default allocator
@@ -395,10 +397,10 @@ BSLS_IDENT("$Id: $")
 //
 //  // CREATORS
 //  inline
-//  my_IdPair::my_IdPair(const char      *id,
-//                       const char      *alias,
-//                       bslma_Allocator *basicAllocator)
-//  : d_id(id, bslma_Default::allocator(basicAllocator))
+//  my_IdPair::my_IdPair(const char       *id,
+//                       const char       *alias,
+//                       bslma::Allocator *basicAllocator)
+//  : d_id(id, bslma::Default::allocator(basicAllocator))
 //  , d_alias(alias)  // drat! (forgot to pass along 'basicAllocator')
 //  {
 //  }
@@ -431,10 +433,11 @@ BSLS_IDENT("$Id: $")
 //..
 //  static my_CountingAllocator defaultCountingAllocator;
 //
-//  int status = bslma_Default::setDefaultAllocator(&defaultCountingAllocator);
+//  int status =
+//              bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
 //  assert(0 == status);
-//  bslma_Default::lockDefaultAllocator();
-//  assert(bslma_Default::defaultAllocator() == &defaultCountingAllocator);
+//  bslma::Default::lockDefaultAllocator();
+//  assert(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
 //..
 // Now we instantiate an object of type 'my_IdPair' without explicitly
 // specifying an allocator.  As a result, the object uses the default
@@ -504,7 +507,7 @@ BSLS_IDENT("$Id: $")
 // singleton object is initialized.  Toward that end, note that in contrast to
 // 'my_Id', the constructor for 'my_Singleton' uses:
 //..
-//  bslma_Default::globalAllocator(basicAllocator)
+//  bslma::Default::globalAllocator(basicAllocator)
 //..
 // in its member initializer:
 //..
@@ -520,13 +523,13 @@ BSLS_IDENT("$Id: $")
 //      my_Id d_id;  // allocating
 //
 //      // NOT IMPLEMENTED
-//      my_Singleton(const my_Singleton&, bslma_Allocator * = 0);
+//      my_Singleton(const my_Singleton&, bslma::Allocator * = 0);
 //      my_Singleton& operator=(const my_Singleton&);
 //
 //    private:
 //      // PRIVATE CREATORS
-//      explicit my_Singleton(const char      *id,
-//                            bslma_Allocator *basicAllocator = 0);
+//      explicit my_Singleton(const char       *id,
+//                            bslma::Allocator *basicAllocator = 0);
 //          // Create a singleton having the specified 'id'.  Optionally
 //          // specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed global allocator
@@ -537,8 +540,8 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CLASS METHODS
-//      static void initSingleton(const char      *id,
-//                                bslma_Allocator *basicAllocator = 0);
+//      static void initSingleton(const char       *id,
+//                                bslma::Allocator *basicAllocator = 0);
 //          // Initialize the singleton with the specified 'id'.  Optionally
 //          // specify a 'basicAllocator' used to supply memory.  If
 //          // 'basicAllocator' is 0, the currently installed global allocator
@@ -563,8 +566,9 @@ BSLS_IDENT("$Id: $")
 //
 //  // PRIVATE CREATORS
 //  inline
-//  my_Singleton::my_Singleton(const char *id, bslma_Allocator *basicAllocator)
-//  : d_id(id, bslma_Default::globalAllocator(basicAllocator))
+//  my_Singleton::my_Singleton(const char       *id,
+//                             bslma::Allocator *basicAllocator)
+//  : d_id(id, bslma::Default::globalAllocator(basicAllocator))
 //  {
 //  }
 //
@@ -590,10 +594,10 @@ BSLS_IDENT("$Id: $")
 //  my_Singleton *my_Singleton::d_singleton_p;
 //
 //  // CLASS METHODS
-//  void my_Singleton::initSingleton(const char      *id,
-//                                   bslma_Allocator *basicAllocator)
+//  void my_Singleton::initSingleton(const char       *id,
+//                                   bslma::Allocator *basicAllocator)
 //  {
-//      static bsls_AlignedBuffer<sizeof(my_Singleton)> singleton;
+//      static bsls::AlignedBuffer<sizeof(my_Singleton)> singleton;
 //      d_singleton_p = new (singleton.buffer()) my_Singleton(id,
 //                                                            basicAllocator);
 //  }
@@ -605,15 +609,16 @@ BSLS_IDENT("$Id: $")
 //..
 //  static my_CountingAllocator defaultCountingAllocator;
 //
-//  int status = bslma_Default::setDefaultAllocator(&defaultCountingAllocator);
+//  int status =
+//              bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
 //  assert(0 == status);
-//  bslma_Default::lockDefaultAllocator();
-//  assert(bslma_Default::defaultAllocator() == &defaultCountingAllocator);
+//  bslma::Default::lockDefaultAllocator();
+//  assert(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
 //
 //  static my_CountingAllocator globalCountingAllocator;
 //
-//  bslma_Default::setGlobalAllocator(&globalCountingAllocator);
-//  assert(bslma_Default::globalAllocator() == &globalCountingAllocator);
+//  bslma::Default::setGlobalAllocator(&globalCountingAllocator);
+//  assert(bslma::Default::globalAllocator() == &globalCountingAllocator);
 //..
 // Finally, we initialize the singleton object.  We explicitly specify the
 // desired allocator in the call to 'initSingleton' to make our intentions as
@@ -627,7 +632,7 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == globalCountingAllocator.numBlocksInUse());
 //  assert(0 == globalCountingAllocator.numBlocksTotal());
 //
-//  my_Singleton::initSingleton("S", bslma_Default::globalAllocator());
+//  my_Singleton::initSingleton("S", bslma::Default::globalAllocator());
 //
 //  assert(0 == defaultCountingAllocator.numBlocksInUse());
 //  assert(0 == defaultCountingAllocator.numBlocksTotal());
@@ -645,34 +650,36 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class bslma_Allocator;
+namespace bslma {
 
-                        // ====================
-                        // struct bslma_Default
-                        // ====================
+class Allocator;
 
-struct bslma_Default {
+                        // ==============
+                        // struct Default
+                        // ==============
+
+struct Default {
     // This struct is a namespace for functions that manipulate and access the
     // default and global allocator pointers.
 
   private:
     // CLASS DATA
-    static bslma_Allocator *s_allocator_p;        // the default allocator
+    static Allocator       *s_allocator_p;        // the default allocator
     static int              s_locked;             // lock to disable non-Raw
                                                   // 'set' of default allocator
-    static bslma_Allocator *s_globalAllocator_p;  // the global allocator
+    static Allocator       *s_globalAllocator_p;  // the global allocator
 
   public:
     // CLASS METHODS
 
                         // *** default allocator ***
 
-    static int setDefaultAllocator(bslma_Allocator *basicAllocator);
+    static int setDefaultAllocator(Allocator *basicAllocator);
         // Set the address of the default allocator to the specified
         // 'basicAllocator' unless calls to this method have been disabled.
         // Return 0 on success and a non-zero value otherwise.  This method
-        // will fail if either 'defaultAllocator', 'lockDefaultAllocator',
-        // or 'allocator' with argument 0 has been called previously in this
+        // will fail if either 'defaultAllocator', 'lockDefaultAllocator', or
+        // 'allocator' with argument 0 has been called previously in this
         // process.  The behavior is undefined unless 'basicAllocator' is the
         // address of an allocator with sufficient lifetime to satisfy all
         // allocation requests within this process, and unless there is only
@@ -682,7 +689,7 @@ struct bslma_Default {
         // the behavior of all clients of the default allocator, and should
         // *not* be used for any other purpose.
 
-    static void setDefaultAllocatorRaw(bslma_Allocator *basicAllocator);
+    static void setDefaultAllocatorRaw(Allocator *basicAllocator);
         // Unconditionally set the address of the default allocator to the
         // specified 'basicAllocator'.  The behavior is undefined unless
         // 'basicAllocator' is the address of an allocator with sufficient
@@ -699,16 +706,16 @@ struct bslma_Default {
         // subsequent calls to the 'setDefaultAllocatorRaw' method are *not*
         // disabled by this method.
 
-    static bslma_Allocator *defaultAllocator();
+    static Allocator *defaultAllocator();
         // Return the address of the default allocator and disable all
         // subsequent calls to the 'setDefaultAllocator' method.  Note that
         // prior to the first call to 'setDefaultAllocator' or
         // 'setDefaultAllocatorRaw' methods, the address of the default
-        // allocator is that of the 'bslma_NewDeleteAllocator' singleton.  Also
-        // note that subsequent calls to 'setDefaultAllocatorRaw' method are
-        // *not* disabled by this method.
+        // allocator is that of the 'NewDeleteAllocator' singleton.  Also note
+        // that subsequent calls to 'setDefaultAllocatorRaw' method are *not*
+        // disabled by this method.
 
-    static bslma_Allocator *allocator(bslma_Allocator *basicAllocator = 0);
+    static Allocator *allocator(Allocator *basicAllocator = 0);
         // Return the allocator returned by 'defaultAllocator' and disable all
         // subsequent calls to the 'setDefaultAllocator' method if the
         // optionally-specified 'basicAllocator' is 0; return 'basicAllocator'
@@ -716,56 +723,53 @@ struct bslma_Default {
 
                         // *** global allocator ***
 
-    static bslma_Allocator *globalAllocator(
-                                          bslma_Allocator *basicAllocator = 0);
+    static Allocator *globalAllocator(Allocator *basicAllocator = 0);
         // Return the address of the global allocator if the optionally-
         // specified 'basicAllocator' is 0, and 'basicAllocator' otherwise.
         // Note that prior to the first call to the 'setGlobalAllocator'
         // method, the address of the global allocator is that of the
-        // 'bslma_NewDeleteAllocator' singleton.
+        // 'NewDeleteAllocator' singleton.
 
-    static bslma_Allocator *setGlobalAllocator(
-                                              bslma_Allocator *basicAllocator);
+    static Allocator *setGlobalAllocator(Allocator *basicAllocator);
         // Unconditionally set the address of the global allocator to the
         // specified 'basicAllocator', or to the address of the
-        // 'bslma_NewDeleteAllocator' singleton if 'basicAllocator' is 0.
-        // Return the address of the global allocator in effect immediately
-        // before calling this method.  The behavior is undefined unless
-        // 'basicAllocator' is 0 or is the address of an allocator with
-        // sufficient lifetime to satisfy all global allocation requests within
-        // this process, and unless there is only one thread started within
-        // this process.  Note that prior to the first call to this method, the
-        // address of the global allocator is that of the
-        // 'bslma_NewDeleteAllocator' singleton.  Also note that this method is
-        // intended for use *only* by the *owner* of 'main' (or for use in
-        // *testing*) where the caller affirmatively takes responsibility for
-        // the behavior of all clients of the global allocator, and should
-        // *not* be used for any other purpose.
+        // 'NewDeleteAllocator' singleton if 'basicAllocator' is 0.  Return the
+        // address of the global allocator in effect immediately before calling
+        // this method.  The behavior is undefined unless 'basicAllocator' is 0
+        // or is the address of an allocator with sufficient lifetime to
+        // satisfy all global allocation requests within this process, and
+        // unless there is only one thread started within this process.  Note
+        // that prior to the first call to this method, the address of the
+        // global allocator is that of the 'NewDeleteAllocator' singleton.
+        // Also note that this method is intended for use *only* by the *owner*
+        // of 'main' (or for use in *testing*) where the caller affirmatively
+        // takes responsibility for the behavior of all clients of the global
+        // allocator, and should *not* be used for any other purpose.
 };
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                        // --------------------
-                        // struct bslma_Default
-                        // --------------------
+                        // --------------
+                        // struct Default
+                        // --------------
 
 // CLASS METHODS
 
                         // *** default allocator ***
 
 inline
-void bslma_Default::lockDefaultAllocator()
+void Default::lockDefaultAllocator()
 {
     s_locked = 1;
 }
 
 inline
-bslma_Allocator *bslma_Default::defaultAllocator()
+Allocator *Default::defaultAllocator()
 {
     if (!s_allocator_p) {
-        setDefaultAllocatorRaw(&bslma_NewDeleteAllocator::singleton());
+        setDefaultAllocatorRaw(&NewDeleteAllocator::singleton());
     }
 
     s_locked = 1;  // unconditionally lock
@@ -773,7 +777,7 @@ bslma_Allocator *bslma_Default::defaultAllocator()
 }
 
 inline
-bslma_Allocator *bslma_Default::allocator(bslma_Allocator *basicAllocator)
+Allocator *Default::allocator(Allocator *basicAllocator)
 {
     return basicAllocator ? basicAllocator : defaultAllocator();
 }
@@ -781,33 +785,34 @@ bslma_Allocator *bslma_Default::allocator(bslma_Allocator *basicAllocator)
                         // *** global allocator ***
 
 inline
-bslma_Allocator *bslma_Default::globalAllocator(
-                                               bslma_Allocator *basicAllocator)
+Allocator *Default::globalAllocator(Allocator *basicAllocator)
 {
     return basicAllocator ? basicAllocator
                           : s_globalAllocator_p
                                       ? s_globalAllocator_p
-                                      : &bslma_NewDeleteAllocator::singleton();
+                                      : &NewDeleteAllocator::singleton();
 }
+
+}  // close package namespace
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
 // ===========================================================================
-//                          BACKWARD COMPATIBILITY
+//                           BACKWARD COMPATIBILITY
 // ===========================================================================
 
                         // ====================
                         // struct bdema_Default
                         // ====================
 
-typedef bslma_Default bdema_Default;
+typedef bslma::Default bdema_Default;
     // This 'struct' is a namespace for functions that manipulate and access
     // the default and global allocator pointers.  This alias is defined for
     // backward compatibility.
 
 #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

@@ -10,33 +10,33 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a consistent interface for platform-dependent types.
 //
 //@CLASSES:
-//   bsls_Types: namespace for platform-neutral type names
+//  bsls::Types: namespace for platform-neutral type names
 //
 //@AUTHOR: Stefano Pacifico (spacifico1)
 //
 //@DESCRIPTION: This component provides a namespace for a set of 'typedef's
 // that provide a stable, portable interface to platform-dependent types.  In
 // particular, this component supplies portable typenames for signed and
-// unsigned 64-bit integers ('bsls_Types::Int64' and 'bsls_Types::Uint64',
+// unsigned 64-bit integers ('bsls::Types::Int64' and 'bsls::Types::Uint64',
 // respectively), as well as the preferred integral type denoting the number of
 // elements in a container, and the number of bytes in a single block of memory
-// supplied by an allocator ('bsls_Types::size_type').
+// supplied by an allocator ('bsls::Types::size_type').
 //
 ///Usage
 ///-----
 // The following illustrates how some of the types supplied by this component
 // might be used.
 //
-// 'bsls_Types::Int64' and 'bsls_Types::Uint64' identify the preferred
+// 'bsls::Types::Int64' and 'bsls::Types::Uint64' identify the preferred
 // fundamental types denoting signed and unsigned 64-bit integers,
 // respectively:
 //..
-//  bsls_Types::Uint64 stimulus = 787000000000ULL;
+//  bsls::Types::Uint64 stimulus = 787000000000ULL;
 //..
 // Clients can use these types in the same way as an 'int'.  Clients can also
 // mix usage with other fundamental integral types:
 //..
-//  bsls_Types::Uint64 nationalDebt = 1000000000000ULL;
+//  bsls::Types::Uint64 nationalDebt = 1000000000000ULL;
 //  nationalDebt += stimulus;
 //
 //  unsigned int deficitReduction = 1000000000;
@@ -44,29 +44,29 @@ BSLS_IDENT("$Id: $")
 //
 //  std::cout << "National Debt Level: " << nationalDebt << std::endl;
 //..
-// 'bsls_Types::size_type' identifies the preferred integral type
-// denoting the number of elements in a container, and the number of bytes in a
-// single block of memory supplied by an allocator.  For example, a typical use
-// is as a 'typedef' in an STL container:
+// 'bsls::Types::size_type' identifies the preferred integral type denoting the
+// number of elements in a container, and the number of bytes in a single block
+// of memory supplied by an allocator.  For example, a typical use is as a
+// 'typedef' in an STL container:
 //..
 //  class vector {
 //
 //      // ...
 //
 //    public:
-//      typedef bsls_Types::size_type size_type;
+//      typedef bsls::Types::size_type size_type;
 //
 //      // ...
 //  };
 //..
-// Note that Standard Library facilities that work with numeric types can
-// be used with 'bsls_Types' as well.  For example, the following code finds
-// out some facts about 'bsls_Types::Int64' in a platform-independent way:
+// Note that Standard Library facilities that work with numeric types can be
+// used with 'bsls::Types' as well.  For example, the following code finds out
+// some facts about 'bsls::Types::Int64' in a platform-independent way:
 //..
 //  std::cout << "Min Int64 value: "
-//            << std::numeric_limits<bsls_Types::Int64>::min() << std::endl
+//            << std::numeric_limits<bsls::Types::Int64>::min() << std::endl
 //            << "Max Int64 value: "
-//            << std::numeric_limits<bsls_Types::Int64>::max() << std::endl;
+//            << std::numeric_limits<bsls::Types::Int64>::max() << std::endl;
 //..
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -80,11 +80,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                          // =================
-                          // struct bsls_Types
-                          // =================
+namespace bsls {
 
-struct bsls_Types{
+                          // ============
+                          // struct Types
+                          // ============
+
+struct Types{
     // Provide a namespace for a suite of 'typedef's that encapsulate
     // platform-dependent types.
 
@@ -98,7 +100,7 @@ struct bsls_Types{
         // number of elements in either 'bslma' allocators or container types.
         // Note that this type is signed, as negative values may make sense in
         // certain contexts.  Also note that the standard-compliant allocators
-        // (e.g., 'bslstl_Allocator' and 'std::allocator') use an *unsigned*
+        // (e.g., 'bslstl::Allocator' and 'std::allocator') use an *unsigned*
         // size type, but that is fine because they also have a mechanism
         // ('max_size') to determine overflows resulting from converting from
         // one size type to the other.
@@ -120,7 +122,9 @@ struct bsls_Types{
         // the appropriate supported platforms.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

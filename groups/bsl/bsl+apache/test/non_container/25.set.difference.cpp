@@ -23,10 +23,10 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
-#include <algorithm>    // for set_difference 
+#include <algorithm>    // for set_difference
 #include <cstddef>      // for size_t
 
 #include <alg_test.h>
@@ -35,13 +35,13 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
-template 
+template
 OutputIter<lt_comp<assign<base<cpy_ctor> > > >
 set_difference (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                 InputIter<lt_comp<assign<base<cpy_ctor> > > >,
@@ -49,7 +49,7 @@ set_difference (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                 InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                 OutputIter<lt_comp<assign<base<cpy_ctor> > > >);
 
-template 
+template
 OutputIter<lt_comp<assign<base<cpy_ctor> > > >
 set_difference (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                 InputIter<lt_comp<assign<base<cpy_ctor> > > >,
@@ -180,26 +180,26 @@ void test_set_difference (int                      line,
     const Less* const ppred = predicate ? &pred : 0;
 
     UserClass* xdst_res = alg.set_difference (xsrc1, xsrc1_end,
-                                              xsrc2, xsrc2_end, 
+                                              xsrc2, xsrc2_end,
                                               xdst, xdst_end, ppred);
 
     // check the returned value
     bool success = xdst_res == xdst_end;
     rw_assert (success, 0, line,
                "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
-               "got res + %td, expected res + %zu", 
-               __LINE__, fname, it1name, it2name, outname, predicate, 
+               "got res + %td, expected res + %zu",
+               __LINE__, fname, it1name, it2name, outname, predicate,
                funname, src1, src2, xdst_res - xdst, ndst);
 
     // quit here to avoid the running out of the array boundaries
-    if (!success) {    
+    if (!success) {
         delete[] xsrc1;
         delete[] xsrc2;
         delete[] xdst;
         return;
     }
 
-    const std::size_t n_ops_lt = ppred ? 
+    const std::size_t n_ops_lt = ppred ?
         Less::funcalls_ : UserClass::n_total_op_lt_ - last_n_op_lt;
 
     // verify the algorithm correctness
@@ -218,8 +218,8 @@ void test_set_difference (int                      line,
 
     rw_assert (success, 0, line,
                "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
-               " ==> \"%{X=*.*}\", expected \"%s\"", 
-               __LINE__, fname, it1name, it2name, outname, predicate, 
+               " ==> \"%{X=*.*}\", expected \"%s\"",
+               __LINE__, fname, it1name, it2name, outname, predicate,
                funname, src1, src2, int (ndst), i, xdst, res);
 
     // verfiy that only elements from first sequence sequence were taken
@@ -228,7 +228,7 @@ void test_set_difference (int                      line,
                "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
                " ==> \"%{X=*.*}\" got %zu elements from first sequence and "
                "%zu from second, expected %zu from first and 0 from second",
-               __LINE__, fname, it1name, it2name, outname, predicate, funname, 
+               __LINE__, fname, it1name, it2name, outname, predicate, funname,
                src1, src2, int (ndst), -1, xdst, n1, n2, ndst);
 
     // verify that the operation is stable : two equal elements
@@ -247,7 +247,7 @@ void test_set_difference (int                      line,
                    "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...)"
                    " ==> \"%{X=*.*}\" not stable : elements %#c==%#c have "
                    "ids %d >= %d ",
-                   __LINE__, fname, it1name, it2name, outname, predicate, 
+                   __LINE__, fname, it1name, it2name, outname, predicate,
                    funname, src1, src2, int (ndst), i, xdst,
                    xdst[i - 1].data_.val_, xdst[i].data_.val_,
                    xdst[i - 1].origin_, xdst[i].origin_);
@@ -260,7 +260,7 @@ void test_set_difference (int                      line,
     rw_assert (n_ops_lt <= n_exp_ops, 0, line,
                "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
                "complexity: got %zu, expected no more than %zu",
-               __LINE__, fname, it1name, it2name, outname, predicate, funname, 
+               __LINE__, fname, it1name, it2name, outname, predicate, funname,
                src1, src2, n_ops_lt, n_exp_ops);
 
     delete[] xsrc1;
@@ -270,7 +270,7 @@ void test_set_difference (int                      line,
 
 /**************************************************************************/
 
-void test_set_difference (const SetDifferenceBase &alg, 
+void test_set_difference (const SetDifferenceBase &alg,
                           bool                     predicate)
 {
     const char* const it1name = alg.iter_names [0];
@@ -286,7 +286,7 @@ void test_set_difference (const SetDifferenceBase &alg,
 #define TEST(src1, src2, res)                                           \
     test_set_difference (__LINE__, src1, sizeof src1 - 1,               \
                          src2, sizeof src2 - 1, res, sizeof res - 1,    \
-                         predicate, alg)  
+                         predicate, alg)
 
     //    +-------------------- first set
     //    |        +----------- second set
@@ -368,7 +368,7 @@ void gen_set_difference_test (const InputIterator1 &it1,
 }
 
 template <class InputIterator1>
-void gen_set_difference_test (const InputIterator1 &it1, 
+void gen_set_difference_test (const InputIterator1 &it1,
                               bool                  predicate)
 {
     if (0 == rw_opt_no_input_iter)

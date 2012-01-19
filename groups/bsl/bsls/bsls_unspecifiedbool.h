@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a class supporting the 'unspecified bool' idiom.
 //
 //@CLASSES:
-//  bsls_UnspecifiedBool: class template for the 'unspecified bool' idiom.
+//  bsls::UnspecifiedBool: class template for the 'unspecified bool' idiom.
 //
 //@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
 //
@@ -86,18 +86,17 @@ BSLS_IDENT("$Id: $")
 //..
 // Next, we define, for convenience, an alias for a unique type that is
 // implicitly convertible to 'bool' (note that we pass the current template
-// instantiation to the 'bsls_UnspecifiedBool' template to guarantee
-// a unique name, even for different instantiations of this same 'SimplePtr'
-// template):
+// instantiation to the 'bsls::UnspecifiedBool' template to guarantee a unique
+// name, even for different instantiations of this same 'SimplePtr' template):
 //..
-//      // TYPES
-//      typedef typename bsls_UnspecifiedBool<SimplePtr>::BoolType BoolType;
+//  // TYPES
+//  typedef typename bsls::UnspecifiedBool<SimplePtr>::BoolType BoolType;
 //..
 // Now, we can define a boolean conversion operator that tests whether or not
 // this 'SimplePtr' object is holding a null pointer, or a valid address:
 //..
 //      operator BoolType() const {
-//          return bsls_UnspecifiedBool<SimplePtr>::makeValue(d_ptr_p);
+//          return bsls::UnspecifiedBool<SimplePtr>::makeValue(d_ptr_p);
 //      }
 //  }; // class SimplePtr
 //..
@@ -120,20 +119,21 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// Notice that 'SimplePtr' objects behave as native pointers.  They should
-// be tested before dereferencing (as they could be null).
+// Notice that 'SimplePtr' objects behave as native pointers.  They should be
+// tested before dereferencing (as they could be null).
 
 namespace BloombergLP {
 
-                         // ==========================
-                         // class bsls_UnspecifiedBool
-                         // ==========================
+namespace bsls {
+
+                         // =====================
+                         // class UnspecifiedBool
+                         // =====================
 
 template<class BSLS_HOST_TYPE>
-class bsls_UnspecifiedBool {
-    // This class provides a member, 'd_member', whose pointer-to-member may
-    // be used as an "unspecified boolean type" for implicit conversion
-    // operators.
+class UnspecifiedBool {
+    // This class provides a member, 'd_member', whose pointer-to-member may be
+    // used as an "unspecified boolean type" for implicit conversion operators.
 
   private:
     // DATA
@@ -143,7 +143,7 @@ class bsls_UnspecifiedBool {
 
   public:
     // TYPES
-    typedef int bsls_UnspecifiedBool::* BoolType;
+    typedef int UnspecifiedBool::* BoolType;
         // Alias of a distinct type that is implicitly convertible to 'bool',
         // but does not promote to 'int'.
 
@@ -168,27 +168,29 @@ class bsls_UnspecifiedBool {
 // CLASS METHODS
 template<class BSLS_HOST_TYPE>
 inline
-typename bsls_UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
-bsls_UnspecifiedBool<BSLS_HOST_TYPE>::falseValue()
+typename UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
+UnspecifiedBool<BSLS_HOST_TYPE>::falseValue()
 {
     return 0;
 }
 
 template<class BSLS_HOST_TYPE>
 inline
-typename bsls_UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
-bsls_UnspecifiedBool<BSLS_HOST_TYPE>::trueValue()
+typename UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
+UnspecifiedBool<BSLS_HOST_TYPE>::trueValue()
 {
-    return &bsls_UnspecifiedBool::d_member;
+    return &UnspecifiedBool::d_member;
 }
 
 template<class BSLS_HOST_TYPE>
 inline
-typename bsls_UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
-bsls_UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
+typename UnspecifiedBool<BSLS_HOST_TYPE>::BoolType
+UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
 {
     return predicate ? trueValue() : falseValue();
 }
+
+}  // close package namespace
 
 }  // close enterprise namespace
 

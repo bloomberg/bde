@@ -137,9 +137,9 @@ void printValue(const void *p)
 template <typename BSLS_TYPE>
 void doDebugPrint(const char *s, const BSLS_TYPE& v, const char *t)
 {
-    BloombergLP::bsls_BslTestUtil::printStringNoFlush(s);
+    BloombergLP::bsls::BslTestUtil::printStringNoFlush(s);
     printValue(v);
-    BloombergLP::bsls_BslTestUtil::printStringNoFlush(t);
+    BloombergLP::bsls::BslTestUtil::printStringNoFlush(t);
     flush();
 }
 
@@ -148,116 +148,120 @@ void doDebugPrint(const char *s, const BSLS_TYPE& v, const char *t)
 namespace BloombergLP
 {
 
-void bsls_BslTestUtil::debugPrint(const char *s, bool v, const char *t)
+namespace bsls {
+
+void BslTestUtil::debugPrint(const char *s, bool v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, char v, const char *t)
+void BslTestUtil::debugPrint(const char *s, char v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, signed char v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void
-bsls_BslTestUtil::debugPrint(const char *s, unsigned char v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, short v, const char *t)
+void BslTestUtil::debugPrint(const char *s, signed char v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
 void
-bsls_BslTestUtil::debugPrint(const char *s, unsigned short v, const char *t)
+BslTestUtil::debugPrint(const char *s, unsigned char v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, int v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, unsigned int v, const char *t)
-{
-    doDebugPrint(s, v, t);
-}
-
-void bsls_BslTestUtil::debugPrint(const char *s, long v, const char *t)
+void BslTestUtil::debugPrint(const char *s, short v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
 void
-bsls_BslTestUtil::debugPrint(const char *s, unsigned long v, const char *t)
+BslTestUtil::debugPrint(const char *s, unsigned short v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, long long v, const char *t)
+void BslTestUtil::debugPrint(const char *s, int v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char         *s,
-                                  unsigned long long  v,
-                                  const char         *t)
+void BslTestUtil::debugPrint(const char *s, unsigned int v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, float v, const char *t)
+void BslTestUtil::debugPrint(const char *s, long v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, double v, const char *t)
+void
+BslTestUtil::debugPrint(const char *s, unsigned long v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, long double v, const char *t)
+void BslTestUtil::debugPrint(const char *s, long long v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, char *v, const char *t)
+void BslTestUtil::debugPrint(const char         *s,
+                             unsigned long long  v,
+                             const char         *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, const char *v, const char *t)
+void BslTestUtil::debugPrint(const char *s, float v, const char *t)
 {
     doDebugPrint(s, v, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, void *p, const char *t)
+void BslTestUtil::debugPrint(const char *s, double v, const char *t)
+{
+    doDebugPrint(s, v, t);
+}
+
+void BslTestUtil::debugPrint(const char *s, long double v, const char *t)
+{
+    doDebugPrint(s, v, t);
+}
+
+void BslTestUtil::debugPrint(const char *s, char *v, const char *t)
+{
+    doDebugPrint(s, v, t);
+}
+
+void BslTestUtil::debugPrint(const char *s, const char *v, const char *t)
+{
+    doDebugPrint(s, v, t);
+}
+
+void BslTestUtil::debugPrint(const char *s, void *p, const char *t)
 {
     doDebugPrint(s, p, t);
 }
 
-void bsls_BslTestUtil::debugPrint(const char *s, const void *p, const char *t)
+void BslTestUtil::debugPrint(const char *s, const void *p, const char *t)
 {
     doDebugPrint(s, p, t);
 }
 
-void bsls_BslTestUtil::printStringNoFlush(const char *s)
+void BslTestUtil::printStringNoFlush(const char *s)
 {
     printf("%s", s);
 }
 
-void bsls_BslTestUtil::printTab()
+void BslTestUtil::printTab()
 {
     putchar('\t');
     flush();
 }
+
+}  // close package namespace
 
 }  // close enterprise namespace
 

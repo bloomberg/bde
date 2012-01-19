@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide instrumented malloc/free allocator to track memory usage.
 //
 //@CLASSES:
-//  bslma_TestAllocator: instrumented 'malloc'/'free' memory allocator
+//  bslma::TestAllocator: instrumented 'malloc'/'free' memory allocator
 //  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN: macro to begin testing exceptions
 //  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END:   macro to end testing exceptions
 //
@@ -19,17 +19,16 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: John Lakos (jlakos)
 //
 //@DESCRIPTION: This component provides an instrumented allocator,
-// 'bslma_TestAllocator', that implements the 'bslma_Allocator' protocol
-// and can be used to track various aspects of memory allocated from it.
-// Available statistics include the number of outstanding blocks (and bytes)
-// that are currently in use, the cumulative number of blocks (and bytes) that
-// have been allocated, and the maximum number of blocks (and bytes) that have
-// been in use at any one time.  A 'print' function formats these values to
-// 'stdout':
+// 'bslma::TestAllocator', that implements the 'bslma::Allocator' protocol and
+// can be used to track various aspects of memory allocated from it.  Available
+// statistics include the number of outstanding blocks (and bytes) that are
+// currently in use, the cumulative number of blocks (and bytes) that have been
+// allocated, and the maximum number of blocks (and bytes) that have been in
+// use at any one time.  A 'print' function formats these values to 'stdout':
 //..
-//   ,-------------------.
-//  ( bslma_TestAllocator )
-//   `-------------------'
+//   ,--------------------.
+//  ( bslma::TestAllocator )
+//   `--------------------'
 //             |         ctor/dtor
 //             |         numBlocksInUse/numBytesInUse
 //             |         numBlocksMax/numBytesMax
@@ -41,9 +40,9 @@ BSLS_IDENT("$Id: $")
 //             |         setVerbose/isVerbose
 //             |         status
 //             V
-//     ,---------------.
-//    ( bslma_Allocator )
-//     `---------------'
+//     ,----------------.
+//    ( bslma::Allocator )
+//     `----------------'
 //                     allocate
 //                     deallocate
 //..
@@ -54,25 +53,25 @@ BSLS_IDENT("$Id: $")
 // current status.
 //
 // By default this allocator gets its memory from the C Standard Library
-// functions 'malloc' and 'free', but can be overridden to take memory from
-// any allocator (supplied at construction) that implements the
-// 'bslma_Allocator' protocol.  Note that allocation and deallocation using a
-// 'bslma_TestAllocator' object is explicitly incompatible with 'malloc' and
+// functions 'malloc' and 'free', but can be overridden to take memory from any
+// allocator (supplied at construction) that implements the 'bslma::Allocator'
+// protocol.  Note that allocation and deallocation using a
+// 'bslma::TestAllocator' object is explicitly incompatible with 'malloc' and
 // 'free' (or any other allocation mechanism).  Attempting to use 'free' to
-// deallocate memory allocated from a 'bslma_TestAllocator' -- even when
+// deallocate memory allocated from a 'bslma::TestAllocator' -- even when
 // 'malloc' and 'free' are used by default -- will result in undefined
 // behavior, almost certainly corrupting the C Standard Library's runtime
 // memory manager.
 //
-// Memory dispensed from a 'bslma_TestAllocator' is marked such that attempting
-// to deallocate previously unallocated (or already deallocated) memory will
-// (with high probability) be flagged as an error (unless quiet mode is set for
-// the purpose of testing the test allocator itself).  A 'bslma_TestAllocator'
-// also supports a buffer overrun / underrun feature -- each allocation has
-// "pads", areas of extra memory before and after the segment which are
-// initialized to a particular value and checked upon deallocation to see if
-// they have been modified.  If they have, a message is printed and the
-// allocator aborts, unless it is in quiet mode.
+// Memory dispensed from a 'bslma::TestAllocator' is marked such that
+// attempting to deallocate previously unallocated (or already deallocated)
+// memory will (with high probability) be flagged as an error (unless quiet
+// mode is set for the purpose of testing the test allocator itself).  A
+// 'bslma::TestAllocator' also supports a buffer overrun / underrun feature --
+// each allocation has "pads", areas of extra memory before and after the
+// segment which are initialized to a particular value and checked upon
+// deallocation to see if they have been modified.  If they have, a message is
+// printed and the allocator aborts, unless it is in quiet mode.
 //
 ///Modes
 ///-----
@@ -120,10 +119,10 @@ BSLS_IDENT("$Id: $")
 //..
 // These macros can be used for testing exception-safety of classes and their
 // methods when memory allocation is needed.  A reference to an object of type
-// 'bslma_TestAllocator' must be supplied as an argument to the '_BEGIN' macro.
-// Note that if exception-handling is disabled (i.e., if 'BDE_BUILD_TARGET_EXC'
-// is not defined when building the code under test), then the macros simply
-// print the following:
+// 'bslma::TestAllocator' must be supplied as an argument to the '_BEGIN'
+// macro.  Note that if exception-handling is disabled (i.e., if
+// 'BDE_BUILD_TARGET_EXC' is not defined when building the code under test),
+// then the macros simply print the following:
 //..
 //  BSLMA EXCEPTION TEST -- (NOT ENABLED) --
 //..
@@ -135,10 +134,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The 'bslma_TestAllocator' defined in this component can be used in
+// The 'bslma::TestAllocator' defined in this component can be used in
 // conjunction with the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and
 // 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END' macros to test the memory usage
-// patterns of an object that uses the 'bslma_Allocator' protocol in its
+// patterns of an object that uses the 'bslma::Allocator' protocol in its
 // interface.  In this example, we illustrate how we might test that an object
 // under test is exception-neutral.  For illustration purposes, we will assume
 // the existence of a 'my_shortarray' component implementing an
@@ -186,42 +185,42 @@ BSLS_IDENT("$Id: $")
 //      bool veryVeryVeryVerbose = argc > 5;
 //
 //..
-// We now define a 'bslma_TestAllocator', 'sa', named "supplied" to indicate
+// We now define a 'bslma::TestAllocator', 'sa', named "supplied" to indicate
 // that it is the allocator to be supplied to our object under test, as well as
 // to the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro (below).  Note that
 // if 'veryVeryVeryVerbose' is 'true', then 'sa' prints all allocation and
 // deallocation requests to 'stdout' and also prints the accumulated statistics
 // on destruction:
 //..
-//      bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
+//  bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 //
-//      switch (test) { case 0:
+//  switch (test) { case 0:
 //
-//        // ...
+//    // ...
 //
-//        case 6: {
+//    case 6: {
+//
+//      // ...
+//
+//      struct {
+//          int   d_line;
+//          int   d_numElem;
+//          short d_exp[NUM_VALUES];
+//      } DATA[] = {
+//          { L_, 0, { } },
+//          { L_, 1, { V0 } },
+//          { L_, 5, { V0, V1, V2, V3, V4 } }
+//      };
+//      const int NUM_DATA = sizeof DATA / sizeof *DATA;
+//
+//      for (int ti = 0; ti < NUM_DATA; ++ti) {
+//          const int    LINE     = DATA[ti].d_line;
+//          const int    NUM_ELEM = DATA[ti].d_numElem;
+//          const short *EXP      = DATA[ti].d_exp;
+//
+//          if (veryVerbose) { T_ P_(ti) P_(NUM_ELEM) }
 //
 //          // ...
-//
-//          struct {
-//              int   d_line;
-//              int   d_numElem;
-//              short d_exp[NUM_VALUES];
-//          } DATA[] = {
-//              { L_, 0, { } },
-//              { L_, 1, { V0 } },
-//              { L_, 5, { V0, V1, V2, V3, V4 } }
-//          };
-//          const int NUM_DATA = sizeof DATA / sizeof *DATA;
-//
-//          for (int ti = 0; ti < NUM_DATA; ++ti) {
-//              const int    LINE     = DATA[ti].d_line;
-//              const int    NUM_ELEM = DATA[ti].d_numElem;
-//              const short *EXP      = DATA[ti].d_exp;
-//
-//              if (veryVerbose) { T_ P_(ti) P_(NUM_ELEM) }
-//
-//              // ...
 //
 //..
 // All code that we want to test for exception-safety must be enclosed within
@@ -237,16 +236,16 @@ BSLS_IDENT("$Id: $")
 // request.  Note that the curly braces surrounding these macros, although
 // visually appealing, are not technically required:
 //..
-//              BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
-//                  my_ShortArray mA(&sa);
-//                  const my_ShortArray& A = mA;
-//                  for (int ei = 0; ei < NUM_ELEM; ++ei) {
-//                      mA.append(VALUES[ei]);
-//                  }
-//                  if (veryVerbose) { T_ T_  P_(NUM_ELEM) P(A) }
-//                  LOOP_ASSERT(LINE, areEqual(EXP, A, NUM_ELEM));
-//              } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+//      BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+//          my_ShortArray mA(&sa);
+//          const my_ShortArray& A = mA;
+//          for (int ei = 0; ei < NUM_ELEM; ++ei) {
+//              mA.append(VALUES[ei]);
 //          }
+//          if (veryVerbose) { T_ T_  P_(NUM_ELEM) P(A) }
+//          LOOP_ASSERT(LINE, areEqual(EXP, A, NUM_ELEM));
+//      } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+//  }
 //
 //..
 // After the exception-safety test we can ensure that all the memory allocated
@@ -289,17 +288,19 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // =========================
-                        // class bslma_TestAllocator
-                        // =========================
+namespace bslma {
 
-struct bslma_TestAllocator_List;
+                             // ===================
+                             // class TestAllocator
+                             // ===================
 
-class bslma_TestAllocator : public bslma_Allocator {
+struct TestAllocator_List;
+
+class TestAllocator : public Allocator {
     // This class defines a concrete "test" allocator mechanism that implements
-    // the 'bslma_Allocator' protocol, and provides instrumentation to track
-    // (1) the number of blocks/bytes currently in use, (2) the maximum number
-    // of blocks/bytes that have been outstanding at any one time, and (3) the
+    // the 'Allocator' protocol, and provides instrumentation to track (1) the
+    // number of blocks/bytes currently in use, (2) the maximum number of
+    // blocks/bytes that have been outstanding at any one time, and (3) the
     // cumulative number of blocks/bytes that have ever been allocated by this
     // test allocator object.  The accumulated statistics are based solely on
     // the number of bytes requested.  Additional testing facilities include
@@ -308,11 +309,11 @@ class bslma_TestAllocator : public bslma_Allocator {
     //
     // Note that, unlike many other allocators, this allocator does DOES NOT
     // rely on the currently installed default allocator (see 'bslma_default')
-    // at all, but instead -- by default -- uses 'bslma_MallocFreeAllocator'
-    // singleton, which in turn calls the C Standard Library functions
-    // 'malloc' and 'free' as needed.  Clients may, however, override this
-    // allocator by supplying (at construction) any other allocator
-    // implementing the 'bslma_Allocator' protocol.
+    // at all, but instead -- by default -- uses 'MallocFreeAllocator'
+    // singleton, which in turn calls the C Standard Library functions 'malloc'
+    // and 'free' as needed.  Clients may, however, override this allocator by
+    // supplying (at construction) any other allocator implementing the
+    // 'Allocator' protocol.
 
     // DATA
 
@@ -328,57 +329,57 @@ class bslma_TestAllocator : public bslma_Allocator {
                                          // reporting hard errors
 
     bool        d_verboseFlag;           // whether or not to report
-                                         // allocation/deallocation events
-                                         // and print statistics on destruction
+                                         // allocation/deallocation events and
+                                         // print statistics on destruction
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_allocationLimit;       // number of allocations before
                                          // exception is thrown by this object
 
                         // Statistics
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_numAllocations;        // total number of allocation
                                          // requests on this object (including
                                          // those for 0 bytes)
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_numDeallocations;      // total number of deallocation
                                          // requests on this object (including
                                          // those supplying a 0 address).
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_numMismatches;         // number of mismatched memory
-                                         // deallocations errors encountered
-                                         // by this object
+                                         // deallocations errors encountered by
+                                         // this object
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_numBoundsErrors;       // number of overrun/underrun errors
                                          // encountered by this object
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_numBlocksInUse;        // number of blocks currently
                                          // allocated from this object
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_numBytesInUse;         // number of bytes currently
                                          // allocated from this object
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_numBlocksMax;          // maximum number of blocks ever
-                                         // allocated from this object at
-                                         // any one time
+                                         // allocated from this object at any
+                                         // one time
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_numBytesMax;           // maximum number of bytes ever
-                                         // allocated from this object at
-                                         // any one time
+                                         // allocated from this object at any
+                                         // one time
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_numBlocksTotal;        // cumulative number of blocks ever
                                          // allocated from this object
 
-    bsls_Types::Int64
+    bsls::Types::Int64
                 d_numBytesTotal;         // cumulative number of bytes ever
                                          // allocated from this object
 
@@ -397,26 +398,26 @@ class bslma_TestAllocator : public bslma_Allocator {
     void       *d_lastDeallocatedAddress_p;
                                          // address of the most recently
                                          // deallocated memory (or 0)
-    bslma_TestAllocator_List
+    TestAllocator_List
                *d_list_p;                // list of allocated memory (owned)
-    bslma_Allocator
+    Allocator
                *d_allocator_p;           // memory allocator (held, not owned)
 
     // NOT IMPLEMENTED
-    bslma_TestAllocator(const bslma_TestAllocator&);
-    bslma_TestAllocator& operator=(const bslma_TestAllocator&);
+    TestAllocator(const TestAllocator&);
+    TestAllocator& operator=(const TestAllocator&);
 
   public:
     // CREATORS
     explicit
-    bslma_TestAllocator(bslma_Allocator *basicAllocator = 0);
+    TestAllocator(Allocator *basicAllocator = 0);
     explicit
-    bslma_TestAllocator(const char *name, bslma_Allocator *basicAllocator = 0);
+    TestAllocator(const char *name, Allocator *basicAllocator = 0);
     explicit
-    bslma_TestAllocator(bool verboseFlag, bslma_Allocator *basicAllocator = 0);
-    bslma_TestAllocator(const char      *name,
-                        bool             verboseFlag,
-                        bslma_Allocator *basicAllocator = 0);
+    TestAllocator(bool verboseFlag, Allocator *basicAllocator = 0);
+    TestAllocator(const char *name,
+                  bool        verboseFlag,
+                  Allocator  *basicAllocator = 0);
         // Create an instrumented "test" allocator.  Optionally specify a
         // 'name' (associated with this object) to be included in diagnostic
         // messages written to 'stdout', thereby distinguishing this test
@@ -424,14 +425,14 @@ class bslma_TestAllocator : public bslma_Allocator {
         // 'name' is 0 (or not specified), no distinguishing name is
         // incorporated in diagnostics.  Optionally specify a 'verboseFlag'
         // indicating whether this test allocator should automatically report
-        // all allocation/deallocation events to 'stdout' and print
-        // accumulated statistics on destruction.  If 'verboseFlag' is 'false'
-        // (or not specified), allocation/deallocation and summary messages
-        // will not be written automatically.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
-        // the 'bslma_MallocFreeAllocator' singleton is used.
+        // all allocation/deallocation events to 'stdout' and print accumulated
+        // statistics on destruction.  If 'verboseFlag' is 'false' (or not
+        // specified), allocation/deallocation and summary messages will not be
+        // written automatically.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the
+        // 'MallocFreeAllocator' singleton is used.
 
-    ~bslma_TestAllocator();
+    ~TestAllocator();
         // Destroy this allocator.  In verbose mode, print all contained state
         // values of this allocator object to 'stdout'.  Except in quiet mode,
         // automatically report any memory leaks or mismatched deallocations to
@@ -439,7 +440,7 @@ class bslma_TestAllocator : public bslma_Allocator {
         // return non-zero unless in no-abort mode or quiet mode.  Note that,
         // in all cases, destroying this object has no effect on outstanding
         // memory blocks allocated from this test allocator (and may result in
-        // memory leaks -- e.g., if the (default) 'bslma_MallocFreeAllocator'
+        // memory leaks -- e.g., if the (default) 'MallocFreeAllocator'
         // singleton was used).
 
     // MANIPULATORS
@@ -454,19 +455,19 @@ class bslma_TestAllocator : public bslma_Allocator {
 
     void deallocate(void *address);
         // Return the memory block at the specified 'address' back to this
-        // allocator.  If 'address' is 0, this function has no effect (e.g.,
-        // on allocation/deallocation statistics).  Otherwise, if the memory at
+        // allocator.  If 'address' is 0, this function has no effect (e.g., on
+        // allocation/deallocation statistics).  Otherwise, if the memory at
         // 'address' is consistent with being allocated from this test
-        // allocator, decrement the number of currently allocated blocks,
-        // and decrease the number of currently allocated bytes by the size
-        // (in bytes) originally requested for this block.  Although
-        // technically undefined behavior, if the memory can be determined
-        // not to have been allocated from this test allocator, increment the
-        // number of mismatches, and -- unless in quiet mode -- immediately
-        // report the details of the mismatch to 'stdout' (e.g., as an
-        // 'std::hex' memory dump) and abort.
+        // allocator, decrement the number of currently allocated blocks, and
+        // decrease the number of currently allocated bytes by the size (in
+        // bytes) originally requested for this block.  Although technically
+        // undefined behavior, if the memory can be determined not to have been
+        // allocated from this test allocator, increment the number of
+        // mismatches, and -- unless in quiet mode -- immediately report the
+        // details of the mismatch to 'stdout' (e.g., as an 'std::hex' memory
+        // dump) and abort.
 
-    void setAllocationLimit(bsls_Types::Int64 limit);
+    void setAllocationLimit(bsls::Types::Int64 limit);
         // Set the number of valid allocation requests before an exception is
         // to be thrown for this allocator to the specified 'limit'.  If
         // 'limit' is less than 0, no exception is to be thrown.  By default,
@@ -498,7 +499,7 @@ class bslma_TestAllocator : public bslma_Allocator {
         // object.  Note that the default mode is *not* verbose.
 
     // ACCESSORS
-    bsls_Types::Int64 allocationLimit() const;
+    bsls::Types::Int64 allocationLimit() const;
         // Return the current number of allocation requests left before an
         // exception is thrown.  A negative value indicated that no exception
         // is scheduled.
@@ -518,8 +519,8 @@ class bslma_TestAllocator : public bslma_Allocator {
     bool isVerbose() const;
         // Return 'true' if this allocator is currently in verbose mode, and
         // 'false' otherwise.  In verbose mode, all allocation/deallocation
-        // events will be reported on 'stdout', as will summary statistics
-        // upon destruction of this object.
+        // events will be reported on 'stdout', as will summary statistics upon
+        // destruction of this object.
 
     void *lastAllocatedAddress() const;
         // Return the allocated memory address of the most recent memory
@@ -545,48 +546,48 @@ class bslma_TestAllocator : public bslma_Allocator {
         // Return the name of this test allocator, or 0 if no name was
         // specified at construction.
 
-    bsls_Types::Int64 numAllocations() const;
+    bsls::Types::Int64 numAllocations() const;
         // Return the cumulative number of allocation requests.  Note that this
         // number is incremented for every 'allocate' invocation, regardless of
         // the validity of the request.
 
-    bsls_Types::Int64 numBlocksInUse() const;
+    bsls::Types::Int64 numBlocksInUse() const;
         // Return the number of blocks currently allocated from this object.
         // Note that 'numBlocksInUse() <= numBlocksMax()'.
 
-    bsls_Types::Int64 numBlocksMax() const;
+    bsls::Types::Int64 numBlocksMax() const;
         // Return the maximum number of blocks ever allocated from this object
         // at any one time.  Note that
         // 'numBlocksInUse() <= numBlocksMax() <= numBlocksTotal()'.
 
-    bsls_Types::Int64 numBlocksTotal() const;
+    bsls::Types::Int64 numBlocksTotal() const;
         // Return the cumulative number of blocks ever allocated from this
         // object.  Note that 'numBlocksMax() <= numBlocksTotal()'.
 
-    bsls_Types::Int64 numBoundsErrors() const;
+    bsls::Types::Int64 numBoundsErrors() const;
         // Return the number of times memory deallocations have detected that
         // pad areas at the front or back of the user segment had been
         // overwritten.
 
-    bsls_Types::Int64 numBytesInUse() const;
+    bsls::Types::Int64 numBytesInUse() const;
         // Return the number of bytes currently allocated from this object.
         // Note that 'numBytesInUse() <= numBytesMax()'.
 
-    bsls_Types::Int64 numBytesMax() const;
+    bsls::Types::Int64 numBytesMax() const;
         // Return the maximum number of bytes ever allocated from this object
         // at any one time.  Note that
         // 'numBytesInUse() <= numBytesMax() <= numBytesTotal()'.
 
-    bsls_Types::Int64 numBytesTotal() const;
+    bsls::Types::Int64 numBytesTotal() const;
         // Return the cumulative number of bytes ever allocated from this
         // object.  Note that 'numBytesMax() <= numBytesTotal()'.
 
-    bsls_Types::Int64 numDeallocations() const;
+    bsls::Types::Int64 numDeallocations() const;
         // Return the cumulative number of deallocation requests.  Note that
         // this number is incremented for every 'deallocate' invocation,
         // regardless of the validity of the request.
 
-    bsls_Types::Int64 numMismatches() const;
+    bsls::Types::Int64 numMismatches() const;
         // Return the number of mismatched memory deallocations that have
         // occurred since this object was created.  A memory deallocation is
         // *mismatched* if that memory was not allocated directly from this
@@ -634,14 +635,14 @@ class bslma_TestAllocator : public bslma_Allocator {
         //
         // DEPRECATED: use 'lastDeallocatedNumBytes' instead.
 
-    bsls_Types::Int64 numAllocation() const;
+    bsls::Types::Int64 numAllocation() const;
         // Return the cumulative number of allocation requests.  Note that this
         // number is incremented for every 'allocate' invocation, regardless of
         // the validity of the request.
         //
         // DEPRECATED: use 'numAllocations' instead.
 
-    bsls_Types::Int64 numDeallocation() const;
+    bsls::Types::Int64 numDeallocation() const;
         // Return the cumulative number of deallocation requests.  Note that
         // this number is incremented for every 'deallocate' invocation,
         // regardless of the validity of the request.
@@ -649,6 +650,8 @@ class bslma_TestAllocator : public bslma_Allocator {
         // DEPRECATED: use 'numDeallocations' instead.
 // TBD #endif
 };
+
+}  // close package namespace
 
                // ==============================================
                // macro BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
@@ -665,27 +668,29 @@ class bslma_TestAllocator : public bslma_Allocator {
 
 #ifdef BDE_BUILD_TARGET_EXC
 
-class bslma_TestAllocator_ProxyBase {
+namespace bslma {
+
+class TestAllocator_ProxyBase {
     // This class provides a common base class for the parameterized
-    // 'bslma_TestAllocator_Proxy' class (below).  Note that the 'virtual'
+    // 'TestAllocator_Proxy' class (below).  Note that the 'virtual'
     // 'setAllocationLimit' method, although a "setter", *must* be declared
     // 'const'.
 
   public:
-    virtual ~bslma_TestAllocator_ProxyBase()
+    virtual ~TestAllocator_ProxyBase()
     {
     }
 
     // ACCESSORS
-    virtual void setAllocationLimit(bsls_Types::Int64 limit) const = 0;
+    virtual void setAllocationLimit(bsls::Types::Int64 limit) const = 0;
 };
 
 template <class BSLMA_ALLOC_TYPE>
-class bslma_TestAllocator_Proxy: public bslma_TestAllocator_ProxyBase {
+class TestAllocator_Proxy: public TestAllocator_ProxyBase {
     // This class provides a proxy to the test allocator that is supplied to
-    // the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro.  This proxy may
-    // be instantiated with 'bslma_TestAllocator', or with a type that supports
-    // the same interface as 'bslma_TestAllocator'.
+    // the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' macro.  This proxy may be
+    // instantiated with 'TestAllocator', or with a type that supports the same
+    // interface as 'TestAllocator'.
 
     // DATA
     BSLMA_ALLOC_TYPE *d_allocator;  // allocator used in '*_BEGIN' and '*_END'
@@ -693,17 +698,17 @@ class bslma_TestAllocator_Proxy: public bslma_TestAllocator_ProxyBase {
 
   public:
     // CREATORS
-    bslma_TestAllocator_Proxy(BSLMA_ALLOC_TYPE *allocator)
+    TestAllocator_Proxy(BSLMA_ALLOC_TYPE *allocator)
     : d_allocator(allocator)
     {
     }
 
-    ~bslma_TestAllocator_Proxy()
+    ~TestAllocator_Proxy()
     {
     }
 
     // ACCESSORS
-    virtual void setAllocationLimit(bsls_Types::Int64 limit) const
+    virtual void setAllocationLimit(bsls::Types::Int64 limit) const
     {
         d_allocator->setAllocationLimit(limit);
     }
@@ -711,13 +716,15 @@ class bslma_TestAllocator_Proxy: public bslma_TestAllocator_ProxyBase {
 
 template <class BSLMA_ALLOC_TYPE>
 inline
-bslma_TestAllocator_Proxy<BSLMA_ALLOC_TYPE>
-bslma_TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
+TestAllocator_Proxy<BSLMA_ALLOC_TYPE>
+TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
     // Return, by value, a test allocator proxy for the specified parameterized
     // 'allocator'.
 {
-    return bslma_TestAllocator_Proxy<BSLMA_ALLOC_TYPE>(allocator);
+    return TestAllocator_Proxy<BSLMA_ALLOC_TYPE>(allocator);
 }
+
+}  // close package namespace
 
 #ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR) {     \
@@ -733,8 +740,8 @@ bslma_TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
         std::puts("\t\tBegin bslma exception test.");                       \
     }                                                                       \
     int bslmaExceptionCounter = 0;                                          \
-    const bslma_TestAllocator_ProxyBase& bslmaExceptionTestAllocator =      \
-                       bslma_TestAllocator_getProxy(&BSLMA_TESTALLOCATOR);  \
+    const bslma::TestAllocator_ProxyBase& bslmaExceptionTestAllocator =     \
+                       bslma::TestAllocator_getProxy(&BSLMA_TESTALLOCATOR); \
     bslmaExceptionTestAllocator.setAllocationLimit(bslmaExceptionCounter);  \
     do {                                                                    \
         try {
@@ -769,7 +776,7 @@ bslma_TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 
 #ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                              \
-        } catch (bslma_TestAllocatorException& e) {                         \
+        } catch (bslma::TestAllocatorException& e) {                        \
             if (veryVeryVerbose) {                                          \
                 std::printf("\t*** BSLMA_EXCEPTION: "                       \
                             "alloc limit = %d, last alloc size = %d ***\n", \
@@ -803,198 +810,202 @@ bslma_TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 #define END_BSLMA_EXCEPTION_TEST BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #endif
 
+namespace bslma {
+
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                        // -------------------------
-                        // class bslma_TestAllocator
-                        // -------------------------
+                        // -------------------
+                        // class TestAllocator
+                        // -------------------
 
 // MANIPULATORS
 inline
-void bslma_TestAllocator::setAllocationLimit(bsls_Types::Int64 limit)
+void TestAllocator::setAllocationLimit(bsls::Types::Int64 limit)
 {
     d_allocationLimit = limit;
 }
 
 inline
-void bslma_TestAllocator::setNoAbort(bool flagValue)
+void TestAllocator::setNoAbort(bool flagValue)
 {
     d_noAbortFlag = flagValue;
 }
 
 inline
-void bslma_TestAllocator::setQuiet(bool flagValue)
+void TestAllocator::setQuiet(bool flagValue)
 {
     d_quietFlag = flagValue;
 }
 
 inline
-void bslma_TestAllocator::setVerbose(bool flagValue)
+void TestAllocator::setVerbose(bool flagValue)
 {
     d_verboseFlag = flagValue;
 }
 
 // ACCESSORS
 inline
-bsls_Types::Int64 bslma_TestAllocator::allocationLimit() const
+bsls::Types::Int64 TestAllocator::allocationLimit() const
 {
     return d_allocationLimit;
 }
 
 inline
-bool bslma_TestAllocator::isNoAbort() const
+bool TestAllocator::isNoAbort() const
 {
     return d_noAbortFlag;
 }
 
 inline
-bool bslma_TestAllocator::isQuiet() const
+bool TestAllocator::isQuiet() const
 {
     return d_quietFlag;
 }
 
 inline
-bool bslma_TestAllocator::isVerbose() const
+bool TestAllocator::isVerbose() const
 {
     return d_verboseFlag;
 }
 
 inline
-void *bslma_TestAllocator::lastAllocatedAddress() const
+void *TestAllocator::lastAllocatedAddress() const
 {
     return d_lastAllocatedAddress_p;
 }
 
 inline
-bslma_TestAllocator::size_type
-bslma_TestAllocator::lastAllocatedNumBytes() const
+TestAllocator::size_type
+TestAllocator::lastAllocatedNumBytes() const
 {
     return d_lastAllocatedNumBytes;
 }
 
 inline
-void *bslma_TestAllocator::lastDeallocatedAddress() const
+void *TestAllocator::lastDeallocatedAddress() const
 {
     return d_lastDeallocatedAddress_p;
 }
 
 inline
-bslma_TestAllocator::size_type
-bslma_TestAllocator::lastDeallocatedNumBytes() const
+TestAllocator::size_type
+TestAllocator::lastDeallocatedNumBytes() const
 {
     return d_lastDeallocatedNumBytes;
 }
 
 inline
-const char *bslma_TestAllocator::name() const
+const char *TestAllocator::name() const
 {
     return d_name_p;
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numAllocations() const
+bsls::Types::Int64 TestAllocator::numAllocations() const
 {
     return d_numAllocations;
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numBoundsErrors() const
+bsls::Types::Int64 TestAllocator::numBoundsErrors() const
 {
     return d_numBoundsErrors;
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numBlocksInUse() const
+bsls::Types::Int64 TestAllocator::numBlocksInUse() const
 {
     return d_numBlocksInUse;
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numBlocksMax() const
+bsls::Types::Int64 TestAllocator::numBlocksMax() const
 {
     return d_numBlocksMax;
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numBlocksTotal() const
+bsls::Types::Int64 TestAllocator::numBlocksTotal() const
 {
     return d_numBlocksTotal;
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numBytesInUse() const
+bsls::Types::Int64 TestAllocator::numBytesInUse() const
 {
     return d_numBytesInUse;
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numBytesMax() const
+bsls::Types::Int64 TestAllocator::numBytesMax() const
 {
     return d_numBytesMax;
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numBytesTotal() const
+bsls::Types::Int64 TestAllocator::numBytesTotal() const
 {
     return d_numBytesTotal;
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numDeallocations() const
+bsls::Types::Int64 TestAllocator::numDeallocations() const
 {
     return d_numDeallocations;
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numMismatches() const
+bsls::Types::Int64 TestAllocator::numMismatches() const
 {
     return d_numMismatches;
 }
 
 // TBD #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 inline
-void *bslma_TestAllocator::lastAllocateAddress() const
+void *TestAllocator::lastAllocateAddress() const
 {
     return lastAllocatedAddress();
 }
 
 inline
-bslma_TestAllocator::size_type
-bslma_TestAllocator::lastAllocateNumBytes() const
+TestAllocator::size_type
+TestAllocator::lastAllocateNumBytes() const
 {
     return lastAllocatedNumBytes();
 }
 
 inline
-void *bslma_TestAllocator::lastDeallocateAddress() const
+void *TestAllocator::lastDeallocateAddress() const
 {
     return lastDeallocatedAddress();
 }
 
 inline
-bslma_TestAllocator::size_type
-bslma_TestAllocator::lastDeallocateNumBytes() const
+TestAllocator::size_type
+TestAllocator::lastDeallocateNumBytes() const
 {
     return lastDeallocatedNumBytes();
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numAllocation() const
+bsls::Types::Int64 TestAllocator::numAllocation() const
 {
     return numAllocations();
 }
 
 inline
-bsls_Types::Int64 bslma_TestAllocator::numDeallocation() const
+bsls::Types::Int64 TestAllocator::numDeallocation() const
 {
     return numDeallocations();
 }
 
+}  // close package namespace
+
 // TBD #endif
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

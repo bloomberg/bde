@@ -161,10 +161,11 @@ public:
   typedef _Rb_tree_node_base* _Base_ptr;
   // those used to be global functions
   static void  _Rebalance(_Rb_tree_node_base* __x, _Rb_tree_node_base*& __root);
-  static _Rb_tree_node_base* _Rebalance_for_erase(_Rb_tree_node_base* __z,
-                                                  _Rb_tree_node_base*& __root,
-                                                  _Rb_tree_node_base*& __leftmost,
-                                                  _Rb_tree_node_base*& __rightmost);
+  static _Rb_tree_node_base* _Rebalance_for_erase(
+                                            _Rb_tree_node_base   *__z,
+                                            _Rb_tree_node_base*&  __root,
+                                            _Rb_tree_node_base*&  __leftmost,
+                                            _Rb_tree_node_base*&  __rightmost);
   // those are from _Rb_tree_base_iterator - moved here to reduce code bloat
   // moved here to reduce code bloat without templatizing _Rb_tree_base_iterator
   static _Rb_tree_node_base*   _M_increment(_Rb_tree_node_base*);
@@ -184,7 +185,7 @@ struct _Rb_tree_base_iterator
 
   // TRAIT
   BSLALG_DECLARE_NESTED_TRAITS(_Rb_tree_base_iterator,
-                               BloombergLP::bslalg_TypeTraitBitwiseCopyable);
+                               BloombergLP::bslalg::TypeTraitBitwiseCopyable);
 
   bool operator==(const _Rb_tree_base_iterator& __y) const {
     return _M_node == __y._M_node;
@@ -209,8 +210,8 @@ template <class _Value, class _Traits> struct _Rb_tree_iterator
   typedef _Rb_tree_iterator<_Value, _Traits> _Self;
   typedef _Rb_tree_node<_Value>* _Link_type;
 
-  typedef BloombergLP::bslalg_PassthroughTrait<_Rb_tree_base_iterator,
-                                  BloombergLP::bslalg_TypeTraitBitwiseCopyable>
+  typedef BloombergLP::bslalg::PassthroughTrait<_Rb_tree_base_iterator,
+                                 BloombergLP::bslalg::TypeTraitBitwiseCopyable>
                                                                      BaseTrait;
 
   // TRAITS
@@ -287,7 +288,7 @@ template <class _Key, class _Value, class _KeyOfValue, class _Compare,
           //_STLP_STD::swap(v1._M_header._M_data, v2._M_header._M_data);
           //_STLP_STD::swap(v1._M_node_count,     v2._M_node_count);
           //_STLP_STD::swap(v1._M_key_compare,    v2._M_key_compare);
-          typedef BloombergLP::bslalg_ScalarPrimitives primitive;
+          typedef BloombergLP::bslalg::ScalarPrimitives primitive;
 
           primitive::swap(v1._M_header._M_data, v2._M_header._M_data);
           primitive::swap(v1._M_node_count,     v2._M_node_count);
@@ -312,7 +313,7 @@ public:
   typedef bidirectional_iterator_tag _Iterator_category;
   typedef typename _Base::allocator_type allocator_type;
 
-  typedef BloombergLP::bslalg_TypeTraitsGroupStlOrdered<_Value,_Compare,_Alloc>
+  typedef BloombergLP::bslalg::TypeTraitsGroupStlOrdered<_Value,_Compare,_Alloc>
       TreeTypeTraits;
   BSLALG_DECLARE_NESTED_TRAITS(_Rb_tree, TreeTypeTraits);
 
@@ -322,9 +323,9 @@ protected:
   {
     _Link_type __tmp = this->_M_header.allocate(1);
     BSLS_TRY {
-      BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-          BSLS_UTIL_ADDRESSOF(__tmp->_M_value_field), __x,
-          this->_M_header.bslmaAllocator());
+      BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                               BSLS_UTIL_ADDRESSOF(__tmp->_M_value_field), __x,
+                               this->_M_header.bslmaAllocator());
     }
     BSLS_CATCH(...) {
         this->_M_header.deallocate(__tmp,1);
@@ -418,7 +419,7 @@ public:
     { _M_empty_initialize(); }
 
   _Rb_tree(const _Self& __x)
-    : _Rb_tree_base<_Value, _Alloc>(BloombergLP::bslstl_Util::copyContainerAllocator(__x.get_allocator())),
+    : _Rb_tree_base<_Value, _Alloc>(BloombergLP::bslstl::Util::copyContainerAllocator(__x.get_allocator())),
       _M_node_count(0), _M_key_compare(__x._M_key_compare)
   {
     if (__x._M_root() == 0)
@@ -492,7 +493,7 @@ public:
   size_type max_size() const { return size_type(-1); }
 
   void swap(_Self& __t) {
-    BloombergLP::bslstl_Util::swapContainers(*this, __t, QuickSwap());
+    BloombergLP::bslstl::Util::swapContainers(*this, __t, QuickSwap());
   }
 
 public:
@@ -514,11 +515,12 @@ public:
 
   void erase(iterator __position) {
     _Link_type __y =
-      (_Link_type) _Rb_global_inst::_Rebalance_for_erase(__position._M_node,
-                                                         this->_M_header._M_data->_M_parent,
-                                                         this->_M_header._M_data->_M_left,
-                                                         this->_M_header._M_data->_M_right);
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+      (_Link_type) _Rb_global_inst::_Rebalance_for_erase(
+                                            __position._M_node,
+                                            this->_M_header._M_data->_M_parent,
+                                            this->_M_header._M_data->_M_left,
+                                            this->_M_header._M_data->_M_right);
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                      BSLS_UTIL_ADDRESSOF(__y->_M_value_field));
     this->_M_header.deallocate(__y,1);
     --_M_node_count;
@@ -701,8 +703,8 @@ _Rb_global<_Dummy>::_Rotate_right(_Rb_tree_node_base* __x, _Rb_tree_node_base*& 
 }
 
 template <class _Dummy> void
-_Rb_global<_Dummy>::_Rebalance(_Rb_tree_node_base* __x,
-                               _Rb_tree_node_base*& __root)
+_Rb_global<_Dummy>::_Rebalance(_Rb_tree_node_base   *__x,
+                               _Rb_tree_node_base*&  __root)
 {
   __x->_M_color = BSLSTP_STL_TREE_RED;
   while (__x != __root && __x->_M_parent->_M_color == BSLSTP_STL_TREE_RED) {
@@ -747,10 +749,10 @@ _Rb_global<_Dummy>::_Rebalance(_Rb_tree_node_base* __x,
 }
 
 template <class _Dummy> _Rb_tree_node_base*
-_Rb_global<_Dummy>::_Rebalance_for_erase(_Rb_tree_node_base* __z,
-                                         _Rb_tree_node_base*& __root,
-                                         _Rb_tree_node_base*& __leftmost,
-                                         _Rb_tree_node_base*& __rightmost)
+_Rb_global<_Dummy>::_Rebalance_for_erase(_Rb_tree_node_base   *__z,
+                                         _Rb_tree_node_base*&  __root,
+                                         _Rb_tree_node_base*&  __leftmost,
+                                         _Rb_tree_node_base*&  __rightmost)
 {
   _Rb_tree_node_base* __y = __z;
   _Rb_tree_node_base* __x = 0;
@@ -787,7 +789,7 @@ _Rb_global<_Dummy>::_Rebalance_for_erase(_Rb_tree_node_base* __z,
     __y->_M_parent = __z->_M_parent;
 
 
-    BloombergLP::bslalg_ScalarPrimitives::swap(__y->_M_color, __z->_M_color);
+    BloombergLP::bslalg::ScalarPrimitives::swap(__y->_M_color, __z->_M_color);
 
     __y = __z;
     // __y now points to node to be actually deleted
@@ -955,8 +957,9 @@ template <class _Key, class _Value, class _KeyOfValue,
 template <class _Key, class _Value, class _KeyOfValue,
           class _Compare, class _Alloc>
 typename _Rb_tree < _Key , _Value , _KeyOfValue , _Compare , _Alloc > :: iterator
-_Rb_tree<_Key,_Value,_KeyOfValue,_Compare,_Alloc> ::_M_insert(_Rb_tree_node_base* __x_, _Rb_tree_node_base* __y_, const _Value& __v,
-  _Rb_tree_node_base* __w_)
+_Rb_tree<_Key,_Value,_KeyOfValue,_Compare,_Alloc> ::_M_insert(
+         _Rb_tree_node_base* __x_, _Rb_tree_node_base* __y_, const _Value& __v,
+         _Rb_tree_node_base* __w_)
 {
   _Link_type __w = (_Link_type) __w_;
   _Link_type __x = (_Link_type) __x_;
@@ -1124,7 +1127,7 @@ _Rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc> ::insert_unique(iterator _
         if ( (!__comp_v_pos) // comp_v_pos true implies comp_v_pos false
              && __comp_pos_v
              && (__after._M_node == this->_M_header._M_data ||
-                _M_key_compare( _KeyOfValue()(__v), _S_key(__after._M_node) ))) {
+              _M_key_compare( _KeyOfValue()(__v), _S_key(__after._M_node) ))) {
 
           if (_S_right(__position._M_node) == 0)
             return _M_insert(0, __position._M_node, __v, __position._M_node);
@@ -1260,7 +1263,7 @@ _Rb_tree<_Key,_Value,_KeyOfValue,
   while (__x != 0) {
     _M_erase(_S_right(__x));
     _Link_type __y = _S_left(__x);
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                      BSLS_UTIL_ADDRESSOF(__x->_M_value_field));
     this->_M_header.deallocate(__x,1);
     __x = __y;
@@ -1340,7 +1343,7 @@ inline
 bool operator<(const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare,_Alloc>& __x,
                const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare,_Alloc>& __y) {
   return std::lexicographical_compare(__x.begin(), __x.end(),
-          __y.begin(), __y.end());
+                                      __y.begin(), __y.end());
 }
 
 template <class _Key, class _Value, class _KeyOfValue, class _Compare, class _Alloc>
@@ -1413,6 +1416,7 @@ bool operator>=(const _Rb_tree<_Key,_Value,_KeyOfValue,_Compare,_Alloc>& __x,
 //#endif
 
 namespace bsl {
+
 // Class rb_tree is not part of the C++ standard.  It is provided for
 // compatibility with the HP STL.
 
@@ -1429,6 +1433,7 @@ struct rb_tree : public _Rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc> {
     : _Rb_tree<_Key, _Value, _KeyOfValue, _Compare, _Alloc>(__comp, __a) {}
   ~rb_tree() {}
 };
+
 }  // close namespace bsl
 
 #endif /* INCLUDED_BSLSTP_TREE */

@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -46,7 +46,7 @@ rw_any_t::rw_any_t (bool value)
     // a SunPro -xarch=v9 bug (PR #28328) that causes the following:
     // Warning (Anachronism): Assigning int to __BIT_BLAST_16_16.
     // Error: Cannot cast from int to __BIT_BLAST_16_16
-    
+
     memset (&val_, 0, sizeof val_);
     val_.bool_ = value;
 }

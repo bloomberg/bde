@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a primitive type trait for bit-wise eq.-comparable classes.
 //
 //@CLASSES:
-//  bslalg_TypeTraitBitwiseEqualityComparable: bit-wise eq.-comparable trait
+//  bslalg::TypeTraitBitwiseEqualityComparable: bit-wise eq.-comparable trait
 //
 //@SEE_ALSO: bslmf_typetraits
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg_TypeTraitBitwiseEqualityComparable'.  Two objects of a 'TYPE' that
+// 'bslalg::TypeTraitBitwiseEqualityComparable'.  Two objects of a 'TYPE' that
 // has the bit-wise equality comparable trait can be compared either by
 // invoking the equality operator or by comparing the footprint (i.e., the
 // 'sizeof(TYPE)' bytes at the respective object addresses) using 'memcmp'.
@@ -42,22 +42,26 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-              //=================================================
-              // struct bslalg_TypeTraitBitwiseEqualityComparable
-              //=================================================
+namespace bslalg {
 
-struct bslalg_TypeTraitBitwiseEqualityComparable {
+              //==========================================
+              // struct TypeTraitBitwiseEqualityComparable
+              //==========================================
+
+struct TypeTraitBitwiseEqualityComparable {
     // Objects of a type with this trait can be compared for equality using
     // 'memcmp'.  If two objects compare equal, then 'memcmp' returns 0,
     // otherwise it returns non-zero.  Classes with this traits are assumed to
     // have no padding and to be bit-wise copyable (see the
-    // 'bslalg_TypeTraitBitwiseCopyable' trait).  Undefined behavior may result
-    // if this trait is assigned to a type that does not have an 'operator=='
-    // or whose 'operator==' implementation may return different from comparing
+    // 'TypeTraitBitwiseCopyable' trait).  Undefined behavior may result if
+    // this trait is assigned to a type that does not have an 'operator==' or
+    // whose 'operator==' implementation may return different from comparing
     // the footprints with 'memcmp' .
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

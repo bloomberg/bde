@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use 'bdema_infrequentdeleteblocklist' instead.
 //
 //@CLASSES:
-//   bslma_InfrequentDeleteBlockList: list of infrequently deleted blocks
+//  bslma::InfrequentDeleteBlockList: list of infrequently deleted blocks
 //
 //@AUTHOR: Shao-wei Hung (shung1)
 //
@@ -21,18 +21,18 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component implements a memory manager that allocates and
 // manages a sequence of memory blocks, each potentially of a different size as
 // specified in the 'allocate' method's invocation.  The
-// 'bslma_InfrequentDeleteBlockList' object's 'release' method deallocates the
+// 'bslma::InfrequentDeleteBlockList' object's 'release' method deallocates the
 // entire sequence of memory blocks, as does its destructor.
 //
 // This component does not allow individual items to be deallocated.
 //
 ///Usage
 ///-----
-// The 'bslma_InfrequentDeleteBlockList' object is commonly used to supply
+// The 'bslma::InfrequentDeleteBlockList' object is commonly used to supply
 // memory to more elaborate memory managers that distribute parts of a memory
-// block supplied by the 'bslma_InfrequentDeleteBlockList' object.  The
+// block supplied by the 'bslma::InfrequentDeleteBlockList' object.  The
 // 'my_StrPool' memory pool manager shown below requests relatively large
-// blocks of memory from its 'bslma_InfrequentDeleteBlockList' member object
+// blocks of memory from its 'bslma::InfrequentDeleteBlockList' member object
 // and distributes memory chunks of varying sizes from each block on demand:
 //..
 //  // my_strpool.h
@@ -41,8 +41,8 @@ BSLS_IDENT("$Id: $")
 //      int   d_blockSize;  // size of current memory block
 //      char *d_block_p;    // current free memory block
 //      int   d_cursor;     // offset to address of next available byte
-//      bslma_InfrequentDeleteBlockList d_blockList;
-//                                      // supplies managed memory blocks
+//      bslma::InfrequentDeleteBlockList d_blockList;
+//                                       // supplies managed memory blocks
 //
 //    private:
 //      void *allocateBlock(int numBytes);
@@ -55,7 +55,7 @@ BSLS_IDENT("$Id: $")
 //      my_StrPool& operator=(const my_StrPool&);
 //
 //    public:
-//      my_StrPool(bslma_Allocator *basicAllocator = 0);
+//      my_StrPool(bslma::Allocator *basicAllocator = 0);
 //          // Create a memory manager using the specified 'basicAllocator' to
 //          // supply memory.  If 'basicAllocator' is 0, the currently
 //          // installed default allocator is used.
@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //
-//  my_StrPool::my_StrPool(bslma_Allocator *basicAllocator)
+//  my_StrPool::my_StrPool(bslma::Allocator *basicAllocator)
 //  : d_blockSize(INITIAL_SIZE)
 //  , d_block_p(0)
 //  , d_blockList(basicAllocator)
@@ -136,15 +136,15 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // In the code above, the 'my_StrPool' memory manager allocates from its
-// 'bslma_InfrequentDeleteBlockList' member object an initial memory block of
+// 'bslma::InfrequentDeleteBlockList' member object an initial memory block of
 // size 'INITIAL_SIZE'.  This size is multiplied by 'GROW_FACTOR' each time a
 // deplete memory block is replaced by a newly allocated block.  The 'allocate'
 // method distributes memory from the current memory block piecemeal, except
 // when the requested size: 1) is not available in the current block and 2)
 // exceeds the 'THRESHOLD_SIZE', in which case a separate memory block is
 // allocated and returned.  When the 'my_StrPool' memory manager is destroyed,
-// its 'bslma_InfrequentDeleteBlockList' member object is also destroyed, which
-// in turn automatically deallocates all of its managed memory blocks.
+// its 'bslma::InfrequentDeleteBlockList' member object is also destroyed,
+// which in turn automatically deallocates all of its managed memory blocks.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -160,13 +160,16 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class bslma_Allocator;
 
-                  // =====================================
-                  // class bslma_InfrequentDeleteBlockList
-                  // =====================================
+namespace bslma {
 
-class bslma_InfrequentDeleteBlockList {
+class Allocator;
+
+                  // ===============================
+                  // class InfrequentDeleteBlockList
+                  // ===============================
+
+class InfrequentDeleteBlockList {
     // This class implements a memory manager that allocates and manages a
     // sequence of memory blocks, each potentially of a different size as
     // specified in the 'allocate' method's invocation.  This object's
@@ -176,27 +179,27 @@ class bslma_InfrequentDeleteBlockList {
 
     // TYPES
     struct Block {
-        Block                              *d_next_p;
-        bsls_AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
+        Block                               *d_next_p;
+        bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
     };
 
     // DATA
     Block           *d_head_p;       // refers to the first memory block
-    bslma_Allocator *d_allocator_p;  // holds (but does not own) the allocator
+    Allocator       *d_allocator_p;  // holds (but does not own) the allocator
 
     // NOT IMPLEMENTED
-    bslma_InfrequentDeleteBlockList(const bslma_InfrequentDeleteBlockList&);
-    bslma_InfrequentDeleteBlockList&
-                          operator=(const bslma_InfrequentDeleteBlockList&);
+    InfrequentDeleteBlockList(const InfrequentDeleteBlockList&);
+    InfrequentDeleteBlockList&
+                          operator=(const InfrequentDeleteBlockList&);
 
   public:
     // CREATORS
-    bslma_InfrequentDeleteBlockList(bslma_Allocator *basicAllocator = 0);
+    InfrequentDeleteBlockList(Allocator *basicAllocator = 0);
         // Create a memory manager.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    ~bslma_InfrequentDeleteBlockList();
+    ~InfrequentDeleteBlockList();
         // Destroy this object and deallocate all memory blocks managed by this
         // object.
 
@@ -217,26 +220,28 @@ class bslma_InfrequentDeleteBlockList {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                  // -------------------------------------
-                  // class bslma_InfrequentDeleteBlockList
-                  // -------------------------------------
+                  // -------------------------------
+                  // class InfrequentDeleteBlockList
+                  // -------------------------------
 
 // CREATORS
 inline
-bslma_InfrequentDeleteBlockList::
-               bslma_InfrequentDeleteBlockList(bslma_Allocator *basicAllocator)
+InfrequentDeleteBlockList::
+               InfrequentDeleteBlockList(Allocator *basicAllocator)
 : d_head_p(0)
-, d_allocator_p(bslma_Default::allocator(basicAllocator))
+, d_allocator_p(Default::allocator(basicAllocator))
 {
 }
 
 // MANIPULATORS
 inline
-void bslma_InfrequentDeleteBlockList::deallocate(void *)
+void InfrequentDeleteBlockList::deallocate(void *)
 {
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 
