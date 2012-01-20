@@ -1,27 +1,16 @@
-// baexml_encoderoptions.h   -*-C++-*-   GENERATED FILE -- DO NOT EDIT
+// baexml_encoderoptions.h-- GENERATED FILE - DO NOT EDIT ---*-C++-*-
 #ifndef INCLUDED_BAEXML_ENCODEROPTIONS
 #define INCLUDED_BAEXML_ENCODEROPTIONS
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
-BDES_IDENT_RCSID(baexml_encoderoptions_h,"$Id$ $CSID$ $CCId$")
+BDES_IDENT_RCSID(baexml_encoderoptions_h,"$Id$ $CSID$")
 BDES_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwale@bloomberg.net)
-//
-//@DESCRIPTION:
-// Options for performing XML encodings.  Encoding style is either COMPACT or
-// PRETTY.  If encoding style is COMPACT, no whitespace will be added between
-// elements.  If encoding style is 'PRETTY', then the 'InitialIndentLevel',
-// 'SpacesPerLevel', and 'WrapColumn' parameters are used to specify the
-// formatting of the output.  Note that 'InitialIndentLevel', 'SpacesPerLevel',
-// and 'WrapColumn' are ignored when 'EncodingStyle' is COMPACT (this is the
-// default).
-// This class is generated using baexml_generateoptions.pl
-//
+//@AUTHOR: Rohan BHINDWALE (rbhindwale@bloomberg.net)
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -85,9 +74,9 @@ namespace BloombergLP {
 class bslma_Allocator;
 
 
-                            // ===========================                     
-                            // class baexml_EncoderOptions
-                            // ===========================                     
+                      // ===============================                       
+                      // class baexml_EncoderOptions                       
+                      // ===============================                       
 
 class baexml_EncoderOptions {
     // Options for performing XML encodings.  Encoding style is either COMPACT
@@ -100,32 +89,38 @@ class baexml_EncoderOptions {
     // This class is generated using baexml_generateoptions.pl 
 
     // INSTANCE DATA
-    bsl::string               d_objectNamespace;
+    bsl::string                      d_objectNamespace;
         // namespace where object is defined 
-    bsl::string               d_schemaLocation;
+    bsl::string                      d_schemaLocation;
         // location of the schema
-    bsl::string               d_tag;
+    bsl::string                      d_tag;
         // tag for top level
-    int                       d_formattingMode;
+    int                              d_formattingMode;
         // Formatting mode
-    int                       d_initialIndentLevel;
+    int                              d_initialIndentLevel;
         // initial indentation level
-    int                       d_spacesPerLevel;
+    int                              d_spacesPerLevel;
         // spaces per level of indentation 
-    int                       d_wrapColumn;
+    int                              d_wrapColumn;
         // number of characters to wrap text 
-    bdeut_NullableValue<int>  d_maxDecimalTotalDigits;
+    bdeut_NullableValue<int>         d_maxDecimalTotalDigits;
         // Maximum total digits of the decimal value that should be displayed 
-    bdeut_NullableValue<int>  d_maxDecimalFractionDigits;
+    bdeut_NullableValue<int>         d_maxDecimalFractionDigits;
         // Maximum fractional digits of the decimal value that should be
         // displayed 
-    bdeut_NullableValue<int>  d_significantDoubleDigits;
+    bdeut_NullableValue<int>         d_significantDoubleDigits;
         // The number of significant digits that must be displayed for the
         // double value. 
-    baexml_EncodingStyle::Value d_encodingStyle;
+    baexml_EncodingStyle::Value  d_encodingStyle;
         // encoding style (see component-level doc) 
-    bool                      d_allowControlCharacters;
+    bool                             d_allowControlCharacters;
         // Allow control characters to be encoded. 
+    bool                             d_outputXMLHeader;
+        // This option controls if the baexml encoder should output the XML
+        // header. 
+    bool                             d_outputXSIAlias;
+        // This option controls if the baexml encoder should output the XSI
+        // alias with the top-level element. 
 
   public:
     // TYPES
@@ -142,10 +137,12 @@ class baexml_EncoderOptions {
       , ATTRIBUTE_ID_SIGNIFICANT_DOUBLE_DIGITS   = 9
       , ATTRIBUTE_ID_ENCODING_STYLE              = 10
       , ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS    = 11
+      , ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER         = 12
+      , ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS          = 13
     };
 
     enum {
-        NUM_ATTRIBUTES = 12
+        NUM_ATTRIBUTES = 14
     };
 
     enum {
@@ -161,6 +158,8 @@ class baexml_EncoderOptions {
       , ATTRIBUTE_INDEX_SIGNIFICANT_DOUBLE_DIGITS   = 9
       , ATTRIBUTE_INDEX_ENCODING_STYLE              = 10
       , ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS    = 11
+      , ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER         = 12
+      , ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS          = 13
     };
 
     // CONSTANTS
@@ -177,6 +176,10 @@ class baexml_EncoderOptions {
     static const baexml_EncodingStyle::Value DEFAULT_INITIALIZER_ENCODING_STYLE;
 
     static const bool DEFAULT_INITIALIZER_ALLOW_CONTROL_CHARACTERS;
+
+    static const bool DEFAULT_INITIALIZER_OUTPUT_X_M_L_HEADER;
+
+    static const bool DEFAULT_INITIALIZER_OUTPUT_X_S_I_ALIAS;
 
     static const bdeat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -201,17 +204,17 @@ class baexml_EncoderOptions {
 
     // CREATORS
     explicit baexml_EncoderOptions(bslma_Allocator *basicAllocator = 0);
-        // Create an object of type 'baexml_EncoderOptions' having the default value. 
-        // Use the optionally specified 'basicAllocator' to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // Create an object of type 'baexml_EncoderOptions' having the
+        // default value.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
 
     baexml_EncoderOptions(const baexml_EncoderOptions& original,
-                   bslma_Allocator *basicAllocator = 0);
-        // Create an object of type 'baexml_EncoderOptions' having the value of the
-        // specified 'original' object.  Use the optionally specified
-        // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
-        // currently installed default allocator is used.
+                              bslma_Allocator *basicAllocator = 0);
+        // Create an object of type 'baexml_EncoderOptions' having the
+        // value of the specified 'original' object.  Use the optionally
+        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.
 
     ~baexml_EncoderOptions();
         // Destroy this object.
@@ -312,6 +315,14 @@ class baexml_EncoderOptions {
         // Set the "AllowControlCharacters" attribute of this object to the
         // specified 'value'.
 
+    bool& outputXMLHeader();
+        // Return a reference to the modifiable "OutputXMLHeader" attribute of
+        // this object.
+
+    bool& outputXSIAlias();
+        // Return a reference to the modifiable "OutputXSIAlias" attribute of
+        // this object.
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -377,19 +388,19 @@ class baexml_EncoderOptions {
         // Return a reference to the non-modifiable "Tag" attribute of this
         // object.
 
-    const int& formattingMode() const;
+    int formattingMode() const;
         // Return a reference to the non-modifiable "FormattingMode" attribute
         // of this object.
 
-    const int& initialIndentLevel() const;
+    int initialIndentLevel() const;
         // Return a reference to the non-modifiable "InitialIndentLevel"
         // attribute of this object.
 
-    const int& spacesPerLevel() const;
+    int spacesPerLevel() const;
         // Return a reference to the non-modifiable "SpacesPerLevel" attribute
         // of this object.
 
-    const int& wrapColumn() const;
+    int wrapColumn() const;
         // Return a reference to the non-modifiable "WrapColumn" attribute of
         // this object.
 
@@ -405,13 +416,21 @@ class baexml_EncoderOptions {
         // Return a reference to the non-modifiable "SignificantDoubleDigits"
         // attribute of this object.
 
-    const baexml_EncodingStyle::Value& encodingStyle() const;
+    baexml_EncodingStyle::Value encodingStyle() const;
         // Return a reference to the non-modifiable "EncodingStyle" attribute
         // of this object.
 
-    const bool& allowControlCharacters() const;
+    bool allowControlCharacters() const;
         // Return a reference to the non-modifiable "AllowControlCharacters"
         // attribute of this object.
+
+    bool outputXMLHeader() const;
+        // Return a reference to the non-modifiable "OutputXMLHeader" attribute
+        // of this object.
+
+    bool outputXSIAlias() const;
+        // Return a reference to the non-modifiable "OutputXSIAlias" attribute
+        // of this object.
 };
 
 // FREE OPERATORS
@@ -443,9 +462,9 @@ BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(baexml_EncoderOptions)
 // ============================================================================
 
 
-                            // ---------------------------                     
-                            // class baexml_EncoderOptions
-                            // ---------------------------                     
+                      // -------------------------------                       
+                      // class baexml_EncoderOptions                       
+                      // -------------------------------                       
 
 // CLASS METHODS
 inline
@@ -473,6 +492,8 @@ STREAM& baexml_EncoderOptions::bdexStreamIn(STREAM& stream, int version)
             bdex_InStreamFunctions::streamIn(stream, d_significantDoubleDigits, 1);
             baexml_EncodingStyle::bdexStreamIn(stream, d_encodingStyle, 1);
             bdex_InStreamFunctions::streamIn(stream, d_allowControlCharacters, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_outputXMLHeader, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_outputXSIAlias, 1);
           } break;
           default: {
             stream.invalidate();
@@ -547,6 +568,16 @@ int baexml_EncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
+    ret = manipulator(&d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -591,6 +622,12 @@ int baexml_EncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
       } break;
       case ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
         return manipulator(&d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
+      } break;
+      case ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
+        return manipulator(&d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+      } break;
+      case ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
+        return manipulator(&d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
       } break;
       default:
         return NOT_FOUND;
@@ -686,6 +723,18 @@ void baexml_EncoderOptions::setAllowControlCharacters(bool value)
     d_allowControlCharacters = value;
 }
 
+inline
+bool& baexml_EncoderOptions::outputXMLHeader()
+{
+    return d_outputXMLHeader;
+}
+
+inline
+bool& baexml_EncoderOptions::outputXSIAlias()
+{
+    return d_outputXSIAlias;
+}
+
 // ACCESSORS
 template <class STREAM>
 STREAM& baexml_EncoderOptions::bdexStreamOut(STREAM& stream, int version) const
@@ -704,6 +753,8 @@ STREAM& baexml_EncoderOptions::bdexStreamOut(STREAM& stream, int version) const
         bdex_OutStreamFunctions::streamOut(stream, d_significantDoubleDigits, 1);
         bdex_OutStreamFunctions::streamOut(stream, d_encodingStyle, 1);
         bdex_OutStreamFunctions::streamOut(stream, d_allowControlCharacters, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_outputXMLHeader, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_outputXSIAlias, 1);
       } break;
     }
     return stream;
@@ -774,6 +825,16 @@ int baexml_EncoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
+    ret = accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+    if (ret) {
+        return ret;
+    }
+
     return ret;
 }
 
@@ -819,6 +880,12 @@ int baexml_EncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_ALLOW_CONTROL_CHARACTERS: {
         return accessor(d_allowControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_CONTROL_CHARACTERS]);
       } break;
+      case ATTRIBUTE_ID_OUTPUT_X_M_L_HEADER: {
+        return accessor(d_outputXMLHeader, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_M_L_HEADER]);
+      } break;
+      case ATTRIBUTE_ID_OUTPUT_X_S_I_ALIAS: {
+        return accessor(d_outputXSIAlias, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_OUTPUT_X_S_I_ALIAS]);
+      } break;
       default:
         return NOT_FOUND;
     }
@@ -860,25 +927,25 @@ const bsl::string& baexml_EncoderOptions::tag() const
 }
 
 inline
-const int& baexml_EncoderOptions::formattingMode() const
+int baexml_EncoderOptions::formattingMode() const
 {
     return d_formattingMode;
 }
 
 inline
-const int& baexml_EncoderOptions::initialIndentLevel() const
+int baexml_EncoderOptions::initialIndentLevel() const
 {
     return d_initialIndentLevel;
 }
 
 inline
-const int& baexml_EncoderOptions::spacesPerLevel() const
+int baexml_EncoderOptions::spacesPerLevel() const
 {
     return d_spacesPerLevel;
 }
 
 inline
-const int& baexml_EncoderOptions::wrapColumn() const
+int baexml_EncoderOptions::wrapColumn() const
 {
     return d_wrapColumn;
 }
@@ -902,15 +969,27 @@ const bdeut_NullableValue<int>& baexml_EncoderOptions::significantDoubleDigits()
 }
 
 inline
-const baexml_EncodingStyle::Value& baexml_EncoderOptions::encodingStyle() const
+baexml_EncodingStyle::Value baexml_EncoderOptions::encodingStyle() const
 {
     return d_encodingStyle;
 }
 
 inline
-const bool& baexml_EncoderOptions::allowControlCharacters() const
+bool baexml_EncoderOptions::allowControlCharacters() const
 {
     return d_allowControlCharacters;
+}
+
+inline
+bool baexml_EncoderOptions::outputXMLHeader() const
+{
+    return d_outputXMLHeader;
+}
+
+inline
+bool baexml_EncoderOptions::outputXSIAlias() const
+{
+    return d_outputXSIAlias;
 }
 
 
@@ -932,7 +1011,9 @@ bool operator==(
          && lhs.maxDecimalFractionDigits() == rhs.maxDecimalFractionDigits()
          && lhs.significantDoubleDigits() == rhs.significantDoubleDigits()
          && lhs.encodingStyle() == rhs.encodingStyle()
-         && lhs.allowControlCharacters() == rhs.allowControlCharacters();
+         && lhs.allowControlCharacters() == rhs.allowControlCharacters()
+         && lhs.outputXMLHeader() == rhs.outputXMLHeader()
+         && lhs.outputXSIAlias() == rhs.outputXSIAlias();
 }
 
 inline
@@ -951,7 +1032,9 @@ bool operator!=(
          || lhs.maxDecimalFractionDigits() != rhs.maxDecimalFractionDigits()
          || lhs.significantDoubleDigits() != rhs.significantDoubleDigits()
          || lhs.encodingStyle() != rhs.encodingStyle()
-         || lhs.allowControlCharacters() != rhs.allowControlCharacters();
+         || lhs.allowControlCharacters() != rhs.allowControlCharacters()
+         || lhs.outputXMLHeader() != rhs.outputXMLHeader()
+         || lhs.outputXSIAlias() != rhs.outputXSIAlias();
 }
 
 inline
@@ -965,10 +1048,10 @@ bsl::ostream& operator<<(
 }  // close namespace BloombergLP
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_3.6.1 Mon Jan  3 12:39:26 2011
+// GENERATED BY BLP_BAS_CODEGEN_3.6.9 Fri Jan 20 14:14:54 2012
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

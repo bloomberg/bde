@@ -1009,7 +1009,9 @@ int baexml_Encoder::encode(baexml_Formatter& formatter, const TYPE& object)
 
     baexml_Encoder_Context context(&formatter,this);
 
-    formatter.addHeader();
+    if (d_options->outputXMLHeader()) {
+        formatter.addHeader();
+    }
 
     const char *tag = d_options->tag().empty()
                     ? bdeat_TypeName::xsdName(object,
@@ -1034,10 +1036,10 @@ int baexml_Encoder::encode(baexml_Formatter& formatter, const TYPE& object)
                                  + d_options->schemaLocation());
         }
     }
-//     else {
-//         context.addAttribute("xmlns:xsi",
-//                              "http://www.w3.org/2001/XMLSchema-instance");
-//     }
+    else if (d_options->outputXSIAlias()) {
+        context.addAttribute("xmlns:xsi",
+                             "http://www.w3.org/2001/XMLSchema-instance");
+    }
 
     baexml_Encoder_EncodeValue encodeValue(&context);
 
