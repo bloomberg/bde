@@ -91,11 +91,11 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name='EncodeEmptyVectors' type='xs:boolean' default='true'>
+      <xs:element name='EncodeEmptyArrays' type='xs:boolean' default='true'>
         <xs:annotation>
           <xs:documentation>
-            This option allows users to control if empty vectors are encoded or
-            not.
+            This option allows users to control if empty arrays should be
+            encoded or not.  By default empty arrays are always encoded.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
