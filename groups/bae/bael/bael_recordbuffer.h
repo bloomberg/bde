@@ -307,13 +307,13 @@ class bael_RecordBuffer {
         // by 'beginSequence' method.
 
     // ACCESSORS
-    virtual const bael_Record& back() const = 0;
+    virtual const bcema_SharedPtr<const bael_Record>& back() const = 0;
         // Return a reference to the non-modifiable log record positioned at
         // the back of this record buffer.  The behavior is undefined unless
         // this record buffer has been locked by the 'beginSequence' method and
         // '0 < length()'.
 
-    virtual const bael_Record& front() const = 0;
+    virtual const bcema_SharedPtr<const bael_Record>& front() const = 0;
         // Return a reference to the non-modifiable log record positioned at
         // the front of this record buffer.  The behavior is undefined unless
         // this record buffer has been locked by the 'beginSequence' method and

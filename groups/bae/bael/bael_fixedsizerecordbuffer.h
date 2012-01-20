@@ -260,13 +260,13 @@ class bael_FixedSizeRecordBuffer: public bael_RecordBuffer {
         // that 'length()' is now 0.
 
     // ACCESSORS
-    virtual const bael_Record& back() const;
+    virtual const bcema_SharedPtr<const bael_Record>& back() const;
         // Return a reference to the non-modifiable log record positioned at
         // the back end of this record buffer.  The behavior is undefined
         // unless this record buffer has been locked by the 'beginSequence'
         // method and unless '0 < length()'.
 
-    virtual const bael_Record& front() const;
+    virtual const bcema_SharedPtr<const bael_Record>& front() const;
         // Return a reference to the non-modifiable log record positioned at
         // the front end of this record buffer.  The behavior is undefined
         // unless this record buffer has been locked by the 'beginSequence'
@@ -319,17 +319,19 @@ void bael_FixedSizeRecordBuffer::removeAll()
 
 // ACCESSORS
 inline
-const bael_Record& bael_FixedSizeRecordBuffer::back() const
+const bcema_SharedPtr<const bael_Record>& bael_FixedSizeRecordBuffer::back(
+                ) const
 {
     bcemt_LockGuard<bcemt_RecursiveMutex> guard(&d_mutex);
-    return *d_deque.back();
+    return d_deque.back();
 }
 
 inline
-const bael_Record& bael_FixedSizeRecordBuffer::front() const
+const bcema_SharedPtr<const bael_Record>& bael_FixedSizeRecordBuffer::front(
+                ) const
 {
     bcemt_LockGuard<bcemt_RecursiveMutex> guard(&d_mutex);
-    return *d_deque.front();
+    return d_deque.front();
 }
 
 inline

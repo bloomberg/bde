@@ -225,11 +225,10 @@ void bael_Logger::publish(bael_Transmission::Cause cause)
     d_recordBuffer_p->beginSequence();
     const int len = d_recordBuffer_p->length();
     bael_Context context(cause, 0, len);
-    bcema_SharedPtr<const bael_Record> handle;
 
     if (1 == len) {  // for len == 1, order does not matter, so optimize it
         context.setRecordIndexRaw(0);
-        handle.createInplace(d_allocator_p, d_recordBuffer_p->back(), d_allocator_p);
+        bcema_SharedPtr<const bael_Record> handle(d_recordBuffer_p->back());
         d_recordObserver_p->publish(handle, context);
         d_recordBuffer_p->popBack();
     }
@@ -237,9 +236,8 @@ void bael_Logger::publish(bael_Transmission::Cause cause)
         if (bael_LoggerManagerConfiguration::BAEL_LIFO == d_logOrder) {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
-                handle.createInplace(d_allocator_p, 
-                                     d_recordBuffer_p->back(), 
-                                     d_allocator_p);
+                bcema_SharedPtr<const bael_Record> handle(
+                                                     d_recordBuffer_p->back());
                 d_recordObserver_p->publish(handle, context);
                 d_recordBuffer_p->popBack();
             }
@@ -247,9 +245,8 @@ void bael_Logger::publish(bael_Transmission::Cause cause)
         else {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
-                handle.createInplace(d_allocator_p, 
-                                     d_recordBuffer_p->back(), 
-                                     d_allocator_p);
+                bcema_SharedPtr<const bael_Record> handle(
+                                                     d_recordBuffer_p->back());
                 d_recordObserver_p->publish(handle, context);
                 d_recordBuffer_p->popFront();
             }
