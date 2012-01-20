@@ -614,9 +614,9 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
 // JSL: REMOVE THIS after it is moved to the test allocator.
-// JSL: change the name to 'bslma_TestAllocatorMonitor'.
+// JSL: change the name to 'TestAllocatorMonitor'.
 
-class bslma_TestAllocatorMonitor {
+class TestAllocatorMonitor {
 
     // DATA
     Int64                              d_lastInUse;
@@ -627,9 +627,9 @@ class bslma_TestAllocatorMonitor {
   public:
     // CREATORS
     explicit
-    bslma_TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
+    TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
 
-    ~bslma_TestAllocatorMonitor();
+    ~TestAllocatorMonitor();
 
     // ACCESSORS
     bool isInUseSame() const;
@@ -647,7 +647,7 @@ class bslma_TestAllocatorMonitor {
 
 // CREATORS
 inline
-bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
+TestAllocatorMonitor::TestAllocatorMonitor(
                                      const bslma_TestAllocator& basicAllocator)
 : d_lastInUse(basicAllocator.numBlocksInUse())
 , d_lastMax(basicAllocator.numBlocksMax())
@@ -657,13 +657,13 @@ bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
 }
 
 inline
-bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
+TestAllocatorMonitor::~TestAllocatorMonitor()
 {
 }
 
 // ACCESSORS
 inline
-bool bslma_TestAllocatorMonitor::isInUseSame() const
+bool TestAllocatorMonitor::isInUseSame() const
 {
 #if 0
     // Why cannot deallocate memory in use at monitor creation?
@@ -676,7 +676,7 @@ bool bslma_TestAllocatorMonitor::isInUseSame() const
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isInUseUp() const
+bool TestAllocatorMonitor::isInUseUp() const
 {
     BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
 
@@ -684,25 +684,25 @@ bool bslma_TestAllocatorMonitor::isInUseUp() const
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isMaxSame() const
+bool TestAllocatorMonitor::isMaxSame() const
 {
     return d_allocator_p->numBlocksMax() == d_lastMax;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isMaxUp() const
+bool TestAllocatorMonitor::isMaxUp() const
 {
     return d_allocator_p->numBlocksMax() != d_lastMax;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isTotalSame() const
+bool TestAllocatorMonitor::isTotalSame() const
 {
     return d_allocator_p->numBlocksTotal() == d_lastTotal;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isTotalUp() const
+bool TestAllocatorMonitor::isTotalUp() const
 {
     return d_allocator_p->numBlocksTotal() != d_lastTotal;
 }
@@ -932,7 +932,7 @@ int main(int argc, char *argv[])
         obj.setSourceFileName("c");
         obj.setSymbolName("d");
 
-        bslma_TestAllocatorMonitor oam(oa), dam(da);
+        TestAllocatorMonitor oam(oa), dam(da);
 
         if (verbose) cout << "Check methods on perturbed object." << endl;
 
@@ -1227,7 +1227,7 @@ int main(int argc, char *argv[])
                     LOOP4_ASSERT(LINE1, LINE2, Z, X,
                                  (Z == X) == (LINE1 == LINE2));
 
-                    bslma_TestAllocatorMonitor oam(oa), sam(scratch);
+                    TestAllocatorMonitor oam(oa), sam(scratch);
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1300,7 +1300,7 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(LINE1, ZZ, Z, ZZ == Z);
 
-                bslma_TestAllocatorMonitor oam(oa), sam(scratch);
+                TestAllocatorMonitor oam(oa), sam(scratch);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1528,7 +1528,7 @@ int main(int argc, char *argv[])
 
             // member 'swap'
             {
-                bslma_TestAllocatorMonitor oam(oa);
+                TestAllocatorMonitor oam(oa);
 
                 mW.swap(mW);
 
@@ -1539,7 +1539,7 @@ int main(int argc, char *argv[])
 
             // free function 'swap'
             {
-                bslma_TestAllocatorMonitor oam(oa);
+                TestAllocatorMonitor oam(oa);
 
                 swap(mW, mW);
 
@@ -1581,7 +1581,7 @@ int main(int argc, char *argv[])
 
                 // member 'swap'
                 {
-                    bslma_TestAllocatorMonitor oam(oa);
+                    TestAllocatorMonitor oam(oa);
 
                     mX.swap(mY);
 
@@ -1594,7 +1594,7 @@ int main(int argc, char *argv[])
 
                 // free function 'swap'
                 {
-                    bslma_TestAllocatorMonitor oam(oa);
+                    TestAllocatorMonitor oam(oa);
 
                     swap(mX, mY);
 
@@ -1629,7 +1629,7 @@ int main(int argc, char *argv[])
             const T6 A6 = "sourceFileName:"    SUFFICIENTLY_LONG_STRING;
             const T7 A7 = "symbolName:"        SUFFICIENTLY_LONG_STRING;
 
-            bslma_TestAllocatorMonitor dam(da);  // More 'da' usage in block?
+            TestAllocatorMonitor dam(da);  // More 'da' usage in block?
 
             bslma_TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
@@ -1642,7 +1642,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(X) P(Y) }
 
-            bslma_TestAllocatorMonitor oam(oa);
+            TestAllocatorMonitor oam(oa);
 
             invokeAdlSwap(mX, mY);
 
@@ -2293,7 +2293,7 @@ int main(int argc, char *argv[])
                             SYM_NAME1,
                             &scratch);
 
-                bslma_TestAllocatorMonitor dam(da);
+                TestAllocatorMonitor dam(da);
 
                 LOOP2_ASSERT(LINE1, X,   X == X);
                 LOOP2_ASSERT(LINE1, X, !(X != X));
@@ -2358,7 +2358,7 @@ int main(int argc, char *argv[])
 
                     // Verify value, commutativity, and no memory allocation.
 
-                    bslma_TestAllocatorMonitor oaxm(oax), oaym(oay), dam(da);
+                    TestAllocatorMonitor oaxm(oax), oaym(oay), dam(da);
 
                     LOOP5_ASSERT(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
                     LOOP5_ASSERT(LINE1, LINE2, CONFIG, Y, X,  EXP == (Y == X));
@@ -2806,7 +2806,7 @@ int main(int argc, char *argv[])
 
                     // Verify supplied stream is returned by reference.
 
-                    bslma_TestAllocatorMonitor dam(da);
+                    TestAllocatorMonitor dam(da);
                     LOOP_ASSERT(LINE, &os == &(os << X));
                     LOOP_ASSERT(LINE, dam.isTotalSame());
 
@@ -2814,7 +2814,7 @@ int main(int argc, char *argv[])
                 }
                 else {
 
-                    bslma_TestAllocatorMonitor dam(da);
+                    TestAllocatorMonitor dam(da);
 
                     // Verify supplied stream is returned by reference.
 
@@ -2968,7 +2968,7 @@ int main(int argc, char *argv[])
         {
             mX.setAddress(A1);
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const T1& address = X.address();
             LOOP2_ASSERT(A1, address, A1 == address);
@@ -2980,7 +2980,7 @@ int main(int argc, char *argv[])
         {
             mX.setLibraryFileName(A2);
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const T2& libraryFileName = X.libraryFileName();
             LOOP2_ASSERT(A2, libraryFileName, A2 == libraryFileName);
@@ -2992,7 +2992,7 @@ int main(int argc, char *argv[])
         {
             mX.setLineNumber(A3);
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const T3& lineNumber = X.lineNumber();
             LOOP2_ASSERT(A3, lineNumber, A3 == lineNumber);
@@ -3004,7 +3004,7 @@ int main(int argc, char *argv[])
         {
             mX.setMangledSymbolName(A4);
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const T4& mangledSymbolName = X.mangledSymbolName();
             LOOP2_ASSERT(A4, mangledSymbolName, A4 == mangledSymbolName);
@@ -3016,7 +3016,7 @@ int main(int argc, char *argv[])
         {
             mX.setOffsetFromSymbol(A5);
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const T5& offsetFromSymbol = X.offsetFromSymbol();
             LOOP2_ASSERT(A5, offsetFromSymbol, A5 == offsetFromSymbol);
@@ -3028,7 +3028,7 @@ int main(int argc, char *argv[])
         {
             mX.setSourceFileName(A6);
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const T6& sourceFileName = X.sourceFileName();
             LOOP2_ASSERT(A6, sourceFileName, A6 == sourceFileName);
@@ -3040,7 +3040,7 @@ int main(int argc, char *argv[])
         {
             mX.setSymbolName(A7);
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const T7& symbolName = X.symbolName();
             LOOP2_ASSERT(A7, symbolName, A7 == symbolName);
@@ -3742,7 +3742,7 @@ int main(int argc, char *argv[])
 
             // 'address'
             {
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 mX.setAddress(A1);
                 LOOP_ASSERT(CONFIG, A1 == X.address());
@@ -3779,7 +3779,7 @@ int main(int argc, char *argv[])
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
-                    bslma_TestAllocatorMonitor tam(oa);
+                    TestAllocatorMonitor tam(oa);
                     mX.setLibraryFileName(A2);
                     LOOP_ASSERT(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -3791,7 +3791,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(CONFIG, D6 == X.sourceFileName());
                 LOOP_ASSERT(CONFIG, D7 == X.symbolName());
 
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 mX.setLibraryFileName(B2);
                 LOOP_ASSERT(CONFIG, D1 == X.address());
@@ -3816,7 +3816,7 @@ int main(int argc, char *argv[])
 
             // 'lineNumber'
             {
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 mX.setLineNumber(A3);
                 LOOP_ASSERT(CONFIG, D1 == X.address());
@@ -3853,7 +3853,7 @@ int main(int argc, char *argv[])
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
-                    bslma_TestAllocatorMonitor tam(oa);
+                    TestAllocatorMonitor tam(oa);
                     mX.setMangledSymbolName(A4);
                     LOOP_ASSERT(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -3865,7 +3865,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(CONFIG, D6 == X.sourceFileName());
                 LOOP_ASSERT(CONFIG, D7 == X.symbolName());
 
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 mX.setMangledSymbolName(B4);
                 LOOP_ASSERT(CONFIG, D1 == X.address());
@@ -3890,7 +3890,7 @@ int main(int argc, char *argv[])
 
             // 'offsetFromSymbol'
             {
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 mX.setOffsetFromSymbol(A5);
                 LOOP_ASSERT(CONFIG, D1 == X.address());
@@ -3927,7 +3927,7 @@ int main(int argc, char *argv[])
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
-                    bslma_TestAllocatorMonitor tam(oa);
+                    TestAllocatorMonitor tam(oa);
                     mX.setSourceFileName(A6);
                     LOOP_ASSERT(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -3939,7 +3939,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(CONFIG, A6 == X.sourceFileName());
                 LOOP_ASSERT(CONFIG, D7 == X.symbolName());
 
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 mX.setSourceFileName(B6);
                 LOOP_ASSERT(CONFIG, D1 == X.address());
@@ -3967,7 +3967,7 @@ int main(int argc, char *argv[])
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
-                    bslma_TestAllocatorMonitor tam(oa);
+                    TestAllocatorMonitor tam(oa);
                     mX.setSymbolName(A7);
                     LOOP_ASSERT(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -3979,7 +3979,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(CONFIG, D6 == X.sourceFileName());
                 LOOP_ASSERT(CONFIG, A7 == X.symbolName());
 
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 mX.setSymbolName(B7);
                 LOOP_ASSERT(CONFIG, D1 == X.address());
@@ -4004,7 +4004,7 @@ int main(int argc, char *argv[])
 
             // Corroborate attribute independence.
             {
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 // Set all attributes to their 'A' values.
 
