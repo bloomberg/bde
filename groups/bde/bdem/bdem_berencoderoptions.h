@@ -80,7 +80,7 @@ class bdem_BerEncoderOptions {
         // that is richer and more standards conformant.  The default should be
         // increased only when old copies of the decoder are completely out of
         // circulation. 
-    bool  d_encodeEmptyVectors;
+    bool  d_encodeEmptyArrays;
         // This option allows users to control if empty vectors are encoded or
         // not. 
 
@@ -201,8 +201,8 @@ class bdem_BerEncoderOptions {
         // Return a reference to the modifiable "BdeVersionConformance"
         // attribute of this object.
 
-    bool& encodeEmptyVectors();
-        // Return a reference to the modifiable "EncodeEmptyVectors" attribute
+    bool& encodeEmptyArrays();
+        // Return a reference to the modifiable "EncodeEmptyArrays" attribute
         // of this object.
 
     // ACCESSORS
@@ -266,8 +266,8 @@ class bdem_BerEncoderOptions {
         // Return a reference to the non-modifiable "BdeVersionConformance"
         // attribute of this object.
 
-    bool encodeEmptyVectors() const;
-        // Return a reference to the non-modifiable "EncodeEmptyVectors"
+    bool encodeEmptyArrays() const;
+        // Return a reference to the non-modifiable "EncodeEmptyArrays"
         // attribute of this object.
 };
 
@@ -320,7 +320,7 @@ STREAM& bdem_BerEncoderOptions::bdexStreamIn(STREAM& stream, int version)
           case 1: {
             bdex_InStreamFunctions::streamIn(stream, d_traceLevel, 1);
             bdex_InStreamFunctions::streamIn(stream, d_bdeVersionConformance, 1);
-            bdex_InStreamFunctions::streamIn(stream, d_encodeEmptyVectors, 1);
+            bdex_InStreamFunctions::streamIn(stream, d_encodeEmptyArrays, 1);
           } break;
           default: {
             stream.invalidate();
@@ -345,7 +345,7 @@ int bdem_BerEncoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;
     }
 
-    ret = manipulator(&d_encodeEmptyVectors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_VECTOR]);
+    ret = manipulator(&d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_VECTOR]);
     if (ret) {
         return ret;
     }
@@ -366,7 +366,7 @@ int bdem_BerEncoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id
         return manipulator(&d_bdeVersionConformance, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
       } break;
       case ATTRIBUTE_ID_ENCODE_EMPTY_VECTOR: {
-        return manipulator(&d_encodeEmptyVectors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_VECTOR]);
+        return manipulator(&d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_VECTOR]);
       } break;
       default:
         return BDEM_NOT_FOUND;
@@ -403,9 +403,9 @@ int& bdem_BerEncoderOptions::bdeVersionConformance()
 }
 
 inline
-bool& bdem_BerEncoderOptions::encodeEmptyVectors()
+bool& bdem_BerEncoderOptions::encodeEmptyArrays()
 {
-    return d_encodeEmptyVectors;
+    return d_encodeEmptyArrays;
 }
 
 // ACCESSORS
@@ -416,7 +416,7 @@ STREAM& bdem_BerEncoderOptions::bdexStreamOut(STREAM& stream, int version) const
       case 1: {
         bdex_OutStreamFunctions::streamOut(stream, d_traceLevel, 1);
         bdex_OutStreamFunctions::streamOut(stream, d_bdeVersionConformance, 1);
-        bdex_OutStreamFunctions::streamOut(stream, d_encodeEmptyVectors, 1);
+        bdex_OutStreamFunctions::streamOut(stream, d_encodeEmptyArrays, 1);
       } break;
     }
     return stream;
@@ -437,7 +437,7 @@ int bdem_BerEncoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;
     }
 
-    ret = accessor(d_encodeEmptyVectors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_VECTOR]);
+    ret = accessor(d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_VECTOR]);
     if (ret) {
         return ret;
     }
@@ -458,7 +458,7 @@ int bdem_BerEncoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_bdeVersionConformance, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE]);
       } break;
       case ATTRIBUTE_ID_ENCODE_EMPTY_VECTOR: {
-        return accessor(d_encodeEmptyVectors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_VECTOR]);
+        return accessor(d_encodeEmptyArrays, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_VECTOR]);
       } break;
       default:
         return BDEM_NOT_FOUND;
@@ -495,9 +495,9 @@ int bdem_BerEncoderOptions::bdeVersionConformance() const
 }
 
 inline
-bool bdem_BerEncoderOptions::encodeEmptyVectors() const
+bool bdem_BerEncoderOptions::encodeEmptyArrays() const
 {
-    return d_encodeEmptyVectors;
+    return d_encodeEmptyArrays;
 }
 
 
@@ -510,7 +510,7 @@ bool operator==(
 {
     return  lhs.traceLevel() == rhs.traceLevel()
          && lhs.bdeVersionConformance() == rhs.bdeVersionConformance()
-         && lhs.encodeEmptyVectors() == rhs.encodeEmptyVectors();
+         && lhs.encodeEmptyArrays() == rhs.encodeEmptyArrays();
 }
 
 inline
@@ -520,7 +520,7 @@ bool operator!=(
 {
     return  lhs.traceLevel() != rhs.traceLevel()
          || lhs.bdeVersionConformance() != rhs.bdeVersionConformance()
-         || lhs.encodeEmptyVectors() != rhs.encodeEmptyVectors();
+         || lhs.encodeEmptyArrays() != rhs.encodeEmptyArrays();
 }
 
 inline

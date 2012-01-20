@@ -51,8 +51,8 @@ const bdeat_AttributeInfo bdem_BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     },
     {
         ATTRIBUTE_ID_ENCODE_EMPTY_VECTOR,
-        "EncodeEmptyVectors",
-        sizeof("EncodeEmptyVectors") - 1,
+        "EncodeEmptyArrays",
+        sizeof("EncodeEmptyArrays") - 1,
         "",
         bdeat_FormattingMode::BDEAT_TEXT
     }
@@ -151,14 +151,14 @@ const bdeat_AttributeInfo *bdem_BerEncoderOptions::lookupAttributeInfo(int id)
 bdem_BerEncoderOptions::bdem_BerEncoderOptions()
 : d_traceLevel(DEFAULT_INITIALIZER_TRACE_LEVEL)
 , d_bdeVersionConformance(DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE)
-, d_encodeEmptyVectors(DEFAULT_INITIALIZER_ENCODE_EMPTY_VECTOR)
+, d_encodeEmptyArrays(DEFAULT_INITIALIZER_ENCODE_EMPTY_VECTOR)
 {
 }
 
 bdem_BerEncoderOptions::bdem_BerEncoderOptions(const bdem_BerEncoderOptions& original)
 : d_traceLevel(original.d_traceLevel)
 , d_bdeVersionConformance(original.d_bdeVersionConformance)
-, d_encodeEmptyVectors(original.d_encodeEmptyVectors)
+, d_encodeEmptyArrays(original.d_encodeEmptyArrays)
 {
 }
 
@@ -174,7 +174,7 @@ bdem_BerEncoderOptions::operator=(const bdem_BerEncoderOptions& rhs)
     if (this != &rhs) {
         d_traceLevel = rhs.d_traceLevel;
         d_bdeVersionConformance = rhs.d_bdeVersionConformance;
-        d_encodeEmptyVectors = rhs.d_encodeEmptyVectors;
+        d_encodeEmptyArrays = rhs.d_encodeEmptyArrays;
     }
     return *this;
 }
@@ -183,7 +183,7 @@ void bdem_BerEncoderOptions::reset()
 {
     d_traceLevel = DEFAULT_INITIALIZER_TRACE_LEVEL;
     d_bdeVersionConformance = DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE;
-    d_encodeEmptyVectors = DEFAULT_INITIALIZER_ENCODE_EMPTY_VECTOR;
+    d_encodeEmptyArrays = DEFAULT_INITIALIZER_ENCODE_EMPTY_VECTOR;
 }
 
 // ACCESSORS
@@ -218,8 +218,8 @@ bsl::ostream& bdem_BerEncoderOptions::print(
                                  -levelPlus1, spacesPerLevel);
 
         bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
-        stream << "EncodeEmptyVectors = ";
-        bdeu_PrintMethods::print(stream, d_encodeEmptyVectors,
+        stream << "EncodeEmptyArrays = ";
+        bdeu_PrintMethods::print(stream, d_encodeEmptyArrays,
                                  -levelPlus1, spacesPerLevel);
 
         bdeu_Print::indent(stream, level, spacesPerLevel);
@@ -241,8 +241,8 @@ bsl::ostream& bdem_BerEncoderOptions::print(
                                  -levelPlus1, spacesPerLevel);
 
         stream << ' ';
-        stream << "EncodeEmptyVectors = ";
-        bdeu_PrintMethods::print(stream, d_encodeEmptyVectors,
+        stream << "EncodeEmptyArrays = ";
+        bdeu_PrintMethods::print(stream, d_encodeEmptyArrays,
                                  -levelPlus1, spacesPerLevel);
 
         stream << " ]";

@@ -945,7 +945,7 @@ bdem_BerEncoder::encodeArrayImpl(const TYPE&                  value,
 
     const int size = (int) bdeat_ArrayFunctions::size(value);
 
-    if (0 == size && d_options && !d_options->encodeEmptyVectors()) {
+    if (0 == size && d_options && !d_options->encodeEmptyArrays()) {
         return BDEM_SUCCESS;                                          // RETURN
     }
 
