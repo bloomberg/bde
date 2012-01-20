@@ -25,6 +25,8 @@ bael_predicateset
 bael_record
 bael_recordattributes
 bael_recordbuffer
+bael_recordobserver
+bael_recordobserveradapter
 bael_recordstringformatter
 bael_rule
 bael_ruleset

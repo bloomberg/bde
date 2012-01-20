@@ -10,6 +10,7 @@ BDES_IDENT_RCSID(bael_loggermanager_cpp,"$Id$ $CSID$")
 #include <bael_fixedsizerecordbuffer.h>
 #include <bael_loggermanagerdefaults.h>
 #include <bael_recordattributes.h>            // for testing only
+#include <bael_recordobserver.h>            // for testing only
 #include <bael_severity.h>
 #include <bael_testobserver.h>                // for testing only
 
@@ -176,7 +177,7 @@ void copyAttributesWithoutMessage(bael_Record                  *record,
 
 // PRIVATE CREATORS
 bael_Logger::bael_Logger(
-           bael_Observer                                   *observer,
+           bael_RecordObserver                             *recordObserver,
            bael_RecordBuffer                               *recordBuffer,
            const bdem_Schema                               *schema,
            const bael_Logger::UserPopulatorCallback&        populator,
@@ -186,7 +187,7 @@ bael_Logger::bael_Logger(
            bael_LoggerManagerConfiguration::TriggerMarkers  triggerMarkers,
            bslma_Allocator                                 *basicAllocator)
 : d_recordPool(-1, basicAllocator)
-, d_observer_p(observer)
+, d_recordObserver_p(recordObserver)
 , d_recordBuffer_p(recordBuffer)
 , d_userSchema_p(schema)
 , d_populator(populator)
@@ -196,7 +197,7 @@ bael_Logger::bael_Logger(
 , d_triggerMarkers(triggerMarkers)
 , d_allocator_p(basicAllocator)
 {
-    BSLS_ASSERT(d_observer_p);
+    BSLS_ASSERT(d_recordObserver_p);
     BSLS_ASSERT(d_recordBuffer_p);
     BSLS_ASSERT(d_userSchema_p);
     BSLS_ASSERT(d_allocator_p);
@@ -207,7 +208,7 @@ bael_Logger::bael_Logger(
 
 bael_Logger::~bael_Logger()
 {
-    BSLS_ASSERT(d_observer_p);
+    BSLS_ASSERT(d_recordObserver_p);
     BSLS_ASSERT(d_recordBuffer_p);
     BSLS_ASSERT(d_userSchema_p);
     BSLS_ASSERT(d_publishAll);
@@ -224,24 +225,32 @@ void bael_Logger::publish(bael_Transmission::Cause cause)
     d_recordBuffer_p->beginSequence();
     const int len = d_recordBuffer_p->length();
     bael_Context context(cause, 0, len);
+    bcema_SharedPtr<const bael_Record> handle;
 
     if (1 == len) {  // for len == 1, order does not matter, so optimize it
         context.setRecordIndexRaw(0);
-        d_observer_p->publish(d_recordBuffer_p->back(), context);
+        handle.createInplace(d_allocator_p, d_recordBuffer_p->back(), d_allocator_p);
+        d_recordObserver_p->publish(handle, context);
         d_recordBuffer_p->popBack();
     }
     else {
         if (bael_LoggerManagerConfiguration::BAEL_LIFO == d_logOrder) {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
-                d_observer_p->publish(d_recordBuffer_p->back(), context);
+                handle.createInplace(d_allocator_p, 
+                                     d_recordBuffer_p->back(), 
+                                     d_allocator_p);
+                d_recordObserver_p->publish(handle, context);
                 d_recordBuffer_p->popBack();
             }
         }
         else {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
-                d_observer_p->publish(d_recordBuffer_p->front(), context);
+                handle.createInplace(d_allocator_p, 
+                                     d_recordBuffer_p->back(), 
+                                     d_allocator_p);
+                d_recordObserver_p->publish(handle, context);
                 d_recordBuffer_p->popFront();
             }
         }
@@ -278,7 +287,7 @@ void bael_Logger::logMessage(const bael_Category&            category,
 
         // Publish this record.
 
-        d_observer_p->publish(*handle,
+        d_recordObserver_p->publish(handle,
                               bael_Context(bael_Transmission::BAEL_PASSTHROUGH,
                                            0,                 // recordIndex
                                            1));               // sequenceLength
@@ -298,7 +307,10 @@ void bael_Logger::logMessage(const bael_Category&            category,
             copyAttributesWithoutMessage(marker, record->fixedFields());
             marker->fixedFields().setMessage(TRIGGER_BEGIN);
 
-            d_observer_p->publish(*marker, triggerContext);
+            bcema_SharedPtr<const bael_Record> handle(marker,
+                                                      &d_recordPool,
+                                                      d_allocator_p);
+            d_recordObserver_p->publish(handle, triggerContext);
         }
 
         // Publish all records archived by *this* logger.
@@ -306,17 +318,18 @@ void bael_Logger::logMessage(const bael_Category&            category,
         publish(bael_Transmission::BAEL_TRIGGER);
 
         if (Config::BAEL_BEGIN_END_MARKERS == d_triggerMarkers) {
-            bcema_SharedPtr<bael_Record> handle(marker,
-                                                &d_recordPool,
-                                                d_allocator_p);
             marker->fixedFields().setMessage(TRIGGER_END);
 
-            d_observer_p->publish(*marker, triggerContext);
+            bcema_SharedPtr<const bael_Record> handle(marker,
+                                                      &d_recordPool,
+                                                      d_allocator_p);
+            d_recordObserver_p->publish(handle, triggerContext);
         }
     }
 
     if (levels.triggerAllLevel() >= severity) {
         bael_Record *marker = 0;
+        bcema_SharedPtr<const bael_Record> record_p;
         bael_Context triggerContext(bael_Transmission::BAEL_TRIGGER, 0, 1);
 
         // Print markers around the trigger logs if configured.
@@ -327,7 +340,10 @@ void bael_Logger::logMessage(const bael_Category&            category,
             copyAttributesWithoutMessage(marker, record->fixedFields());
             marker->fixedFields().setMessage(TRIGGER_ALL_BEGIN);
 
-            d_observer_p->publish(*marker, triggerContext);
+            bcema_SharedPtr<const bael_Record> handle(marker,
+                                                      &d_recordPool,
+                                                      d_allocator_p);
+            d_recordObserver_p->publish(handle, triggerContext);
         }
 
         // Publish all records archived by *all* loggers.
@@ -335,12 +351,12 @@ void bael_Logger::logMessage(const bael_Category&            category,
         d_publishAll(bael_Transmission::BAEL_TRIGGER_ALL);
 
         if (Config::BAEL_BEGIN_END_MARKERS == d_triggerMarkers) {
-            bcema_SharedPtr<bael_Record> handle(marker,
-                                                &d_recordPool,
-                                                d_allocator_p);
             marker->fixedFields().setMessage(TRIGGER_ALL_END);
 
-            d_observer_p->publish(*marker, triggerContext);
+            bcema_SharedPtr<const bael_Record> handle(marker,
+                                                      &d_recordPool,
+                                                      d_allocator_p);
+            d_recordObserver_p->publish(handle, triggerContext);
         }
     }
 }
@@ -426,18 +442,18 @@ bael_LoggerManager *bael_LoggerManager::s_singleton_p = 0;
 
 // PRIVATE CLASS METHODS
 void bael_LoggerManager::initSingletonImpl(
-                 bael_Observer                          *observer,
+                 bael_RecordObserver                    *recordObserver,
                  const bael_LoggerManagerConfiguration&  configuration,
                  bslma_Allocator                        *basicAllocator)
 {
-    BSLS_ASSERT(observer);
+    BSLS_ASSERT(recordObserver);
 
     static bcemt_Once doOnceObj = BCEMT_ONCE_INITIALIZER;
     bcemt_OnceGuard doOnceGuard(&doOnceObj);
     if (doOnceGuard.enter() && 0 == s_singleton_p) {
         bslma_Allocator *allocator =
                                 bslma_Default::globalAllocator(basicAllocator);
-        new(*allocator) bael_LoggerManager(observer, configuration, allocator);
+        new(*allocator) bael_LoggerManager(recordObserver, configuration, allocator);
     }
     else {
         bael_LoggerManager::singleton().getLogger().
@@ -453,24 +469,24 @@ void bael_LoggerManager::initSingletonImpl(
 void
 bael_LoggerManager::createLoggerManager(
                         bdema_ManagedPtr<bael_LoggerManager>   *manager,
-                        bael_Observer                          *observer,
+                        bael_RecordObserver                    *recordObserver,
                         const bael_LoggerManagerConfiguration&  configuration,
                         bslma_Allocator                        *basicAllocator)
 {
     bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
 
     manager->load(new(*allocator) bael_LoggerManager(configuration,
-                                                     observer,
+                                                     recordObserver,
                                                      allocator),
                   allocator);
 }
 
 bael_LoggerManager& bael_LoggerManager::initSingleton(
-                        bael_Observer                          *observer,
+                        bael_RecordObserver                    *recordObserver,
                         const bael_LoggerManagerConfiguration&  configuration,
                         bslma_Allocator                        *basicAllocator)
 {
-    initSingletonImpl(observer, configuration, basicAllocator);
+    initSingletonImpl(recordObserver, configuration, basicAllocator);
     return *s_singleton_p;
 }
 
@@ -481,15 +497,15 @@ void bael_LoggerManager::shutDownSingleton()
     }
 }
 
-void bael_LoggerManager::initSingleton(bael_Observer   *observer,
-                                       bslma_Allocator *basicAllocator)
+void bael_LoggerManager::initSingleton(bael_RecordObserver *recordObserver,
+                                       bslma_Allocator     *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
-    initSingletonImpl(observer, configuration, basicAllocator);
+    initSingletonImpl(recordObserver, configuration, basicAllocator);
 }
 
 void bael_LoggerManager::initSingleton(
-                            bael_Observer                   *observer,
+                            bael_RecordObserver             *recordObserver,
                             const FactoryDefaultThresholds&  factoryThresholds,
                             bslma_Allocator                 *basicAllocator)
 {
@@ -501,21 +517,21 @@ void bael_LoggerManager::initSingleton(
                                           factoryThresholds.d_triggerLevel,
                                           factoryThresholds.d_triggerAllLevel);
     configuration.setDefaultValues(defaults);
-    initSingletonImpl(observer, configuration, basicAllocator);
+    initSingletonImpl(recordObserver, configuration, basicAllocator);
 }
 
 void bael_LoggerManager::initSingleton(
-                       bael_Observer                        *observer,
+                       bael_RecordObserver                  *recordObserver,
                        const DefaultThresholdLevelsCallback& defaultThresholds,
                        bslma_Allocator                      *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
     configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
-    initSingletonImpl(observer, configuration, basicAllocator);
+    initSingletonImpl(recordObserver, configuration, basicAllocator);
 }
 
 void bael_LoggerManager::initSingleton(
-                       bael_Observer                        *observer,
+                       bael_RecordObserver                  *recordObserver,
                        const DefaultThresholdLevelsCallback& defaultThresholds,
                        const FactoryDefaultThresholds&       factoryThresholds,
                        bslma_Allocator                      *basicAllocator)
@@ -529,22 +545,22 @@ void bael_LoggerManager::initSingleton(
                                           factoryThresholds.d_triggerAllLevel);
     configuration.setDefaultValues(defaults);
     configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
-    initSingletonImpl(observer, configuration, basicAllocator);
+    initSingletonImpl(recordObserver, configuration, basicAllocator);
 }
 
 void bael_LoggerManager::initSingleton(
-                     bael_Observer                             *observer,
+                     bael_RecordObserver                       *recordObserver,
                      const bdem_Schema&                         userSchema,
                      const bael_Logger::UserPopulatorCallback&  populator,
                      bslma_Allocator                           *basicAllocator)
 {
     bael_LoggerManagerConfiguration configuration;
     configuration.setUserFields(userSchema, populator);
-    initSingletonImpl(observer, configuration, basicAllocator);
+    initSingletonImpl(recordObserver, configuration, basicAllocator);
 }
 
 void bael_LoggerManager::initSingleton(
-                  bael_Observer                             *observer,
+                  bael_RecordObserver                       *recordObserver,
                   const FactoryDefaultThresholds&            factoryThresholds,
                   const bdem_Schema&                         userSchema,
                   const bael_Logger::UserPopulatorCallback&  populator,
@@ -559,11 +575,11 @@ void bael_LoggerManager::initSingleton(
                                           factoryThresholds.d_triggerAllLevel);
     configuration.setDefaultValues(defaults);
     configuration.setUserFields(userSchema, populator);
-    initSingletonImpl(observer, configuration, basicAllocator);
+    initSingletonImpl(recordObserver, configuration, basicAllocator);
 }
 
 void bael_LoggerManager::initSingleton(
-                   bael_Observer                            *observer,
+                   bael_RecordObserver                      *recordObserver,
                    const DefaultThresholdLevelsCallback&     defaultThresholds,
                    const bdem_Schema&                        userSchema,
                    const bael_Logger::UserPopulatorCallback& populator,
@@ -572,11 +588,11 @@ void bael_LoggerManager::initSingleton(
     bael_LoggerManagerConfiguration configuration;
     configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
     configuration.setUserFields(userSchema, populator);
-    initSingletonImpl(observer, configuration, basicAllocator);
+    initSingletonImpl(recordObserver, configuration, basicAllocator);
 }
 
 void bael_LoggerManager::initSingleton(
-                   bael_Observer                            *observer,
+                   bael_RecordObserver                      *recordObserver,
                    const DefaultThresholdLevelsCallback&     defaultThresholds,
                    const FactoryDefaultThresholds&           factoryThresholds,
                    const bdem_Schema&                        userSchema,
@@ -593,7 +609,7 @@ void bael_LoggerManager::initSingleton(
     configuration.setDefaultValues(defaults);
     configuration.setDefaultThresholdLevelsCallback(defaultThresholds);
     configuration.setUserFields(userSchema, populator);
-    initSingletonImpl(observer, configuration, basicAllocator);
+    initSingletonImpl(recordObserver, configuration, basicAllocator);
 }
 
 bael_LoggerManager& bael_LoggerManager::singleton()
@@ -669,9 +685,9 @@ char *bael_LoggerManager::obtainMessageBuffer(bcemt_Mutex **mutex,
 // PRIVATE CREATORS
 bael_LoggerManager::bael_LoggerManager(
                         const bael_LoggerManagerConfiguration&  configuration,
-                        bael_Observer                          *observer,
+                        bael_RecordObserver                    *recordObserver,
                         bslma_Allocator                        *basicAllocator)
-: d_observer_p(observer)
+: d_recordObserver_p(recordObserver)
 , d_nameFilter(configuration.categoryNameFilterCallback())
 , d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
 , d_defaultThresholdLevels(configuration.defaults().defaultRecordLevel(),
@@ -697,7 +713,7 @@ bael_LoggerManager::bael_LoggerManager(
 , d_triggerMarkers(configuration.triggerMarkers())
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 {
-    BSLS_ASSERT(observer);
+    BSLS_ASSERT(recordObserver);
 
     constructObject(configuration);
 }
@@ -739,7 +755,7 @@ void bael_LoggerManager::constructObject(
                                                               recordBufferSize,
                                                               d_allocator_p);
 
-    d_logger_p = new(*d_allocator_p) bael_Logger(d_observer_p,
+    d_logger_p = new(*d_allocator_p) bael_Logger(d_recordObserver_p,
                                                  d_recordBuffer_p,
                                                  &d_userSchema,
                                                  d_populator,
@@ -759,10 +775,10 @@ void bael_LoggerManager::constructObject(
 
 // CREATORS
 bael_LoggerManager::bael_LoggerManager(
-                        bael_Observer                          *observer,
+                        bael_RecordObserver                    *recordObserver,
                         const bael_LoggerManagerConfiguration&  configuration,
                         bslma_Allocator                        *basicAllocator)
-: d_observer_p(observer)
+: d_recordObserver_p(recordObserver)
 , d_nameFilter(configuration.categoryNameFilterCallback())
 , d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
 , d_defaultThresholdLevels(configuration.defaults().defaultRecordLevel(),
@@ -788,7 +804,7 @@ bael_LoggerManager::bael_LoggerManager(
 , d_triggerMarkers(configuration.triggerMarkers())
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 {
-    BSLS_ASSERT(observer);
+    BSLS_ASSERT(recordObserver);
 
     constructObject(configuration);
 
@@ -838,7 +854,7 @@ bael_Logger *bael_LoggerManager::allocateLogger(bael_RecordBuffer *buffer)
 {
     bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_loggersLock);
 
-    bael_Logger *logger = new(*d_allocator_p) bael_Logger(d_observer_p,
+    bael_Logger *logger = new(*d_allocator_p) bael_Logger(d_recordObserver_p,
                                                           buffer,
                                                           &d_userSchema,
                                                           d_populator,
@@ -858,7 +874,7 @@ bael_Logger *bael_LoggerManager::allocateLogger(
 {
     bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_loggersLock);
 
-    bael_Logger *logger = new(*d_allocator_p) bael_Logger(d_observer_p,
+    bael_Logger *logger = new(*d_allocator_p) bael_Logger(d_recordObserver_p,
                                                           buffer,
                                                           &d_userSchema,
                                                           d_populator,
@@ -872,12 +888,12 @@ bael_Logger *bael_LoggerManager::allocateLogger(
     return logger;
 }
 
-bael_Logger *bael_LoggerManager::allocateLogger(bael_RecordBuffer *buffer,
-                                                bael_Observer     *observer)
+bael_Logger *bael_LoggerManager::allocateLogger(bael_RecordBuffer   *buffer,
+                                                bael_RecordObserver *recordObserver)
 {
     bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_loggersLock);
 
-    bael_Logger *logger = new(*d_allocator_p) bael_Logger(observer,
+    bael_Logger *logger = new(*d_allocator_p) bael_Logger(recordObserver,
                                                           buffer,
                                                           &d_userSchema,
                                                           d_populator,
@@ -892,13 +908,13 @@ bael_Logger *bael_LoggerManager::allocateLogger(bael_RecordBuffer *buffer,
 }
 
 bael_Logger *bael_LoggerManager::allocateLogger(
-                                          bael_RecordBuffer *buffer,
-                                          int                scratchBufferSize,
-                                          bael_Observer     *observer)
+                                          bael_RecordBuffer   *buffer,
+                                          int                  scratchBufferSize,
+                                          bael_RecordObserver *recordObserver)
 {
     bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_loggersLock);
 
-    bael_Logger *logger = new(*d_allocator_p) bael_Logger(observer,
+    bael_Logger *logger = new(*d_allocator_p) bael_Logger(recordObserver,
                                                           buffer,
                                                           &d_userSchema,
                                                           d_populator,
@@ -1182,9 +1198,9 @@ void bael_LoggerManager::setMaxNumCategories(int length)
     d_maxNumCategoriesMinusOne = length - 1;
 }
 
-bael_Observer *bael_LoggerManager::observer()
+bael_RecordObserver *bael_LoggerManager::observer()
 {
-    return d_observer_p;
+    return d_recordObserver_p;
 }
 
 void bael_LoggerManager::publishAll()
@@ -1240,9 +1256,9 @@ const bael_Category& bael_LoggerManager::defaultCategory() const
     return *d_defaultCategory_p;
 }
 
-const bael_Observer *bael_LoggerManager::observer() const
+const bael_RecordObserver *bael_LoggerManager::observer() const
 {
-    return d_observer_p;
+    return d_recordObserver_p;
 }
 
 const bael_Logger::UserPopulatorCallback *
