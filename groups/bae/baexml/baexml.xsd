@@ -165,6 +165,24 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='OutputXMLHeader' type='xs:boolean'
+                  minOccurs='0' maxOccurs='1' default='true'>
+        <xs:annotation>
+          <xs:documentation>
+            This option controls if the baexml encoder should output the XML
+            header.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name='OutputXSIAlias' type='xs:boolean'
+                  minOccurs='0' maxOccurs='1' default='true'>
+        <xs:annotation>
+          <xs:documentation>
+            This option controls if the baexml encoder should output the XSI
+            alias with the top-level element.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 
