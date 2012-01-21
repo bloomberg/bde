@@ -17,6 +17,8 @@ BDES_IDENT("$Id: $")
 //                                             scheduled event
 //
 //
+//@SEE ALSO: bcep_timereventscheduler
+//
 //@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
 //
 //@DESCRIPTION: This component provides a thread-safe event scheduler.
@@ -32,6 +34,17 @@ BDES_IDENT("$Id: $")
 // 'Event' and 'RecurringEvent' pointers, which must be released using
 // 'releaseEventRaw'.  Such pointers are used in the "Raw" API of this class
 // and must be used carefully.
+//
+// This component was written after bcep_timereventscheduler, which suffered
+// from a couple of problems: 1) there was a maximum number of events it could
+// manage, and 2) it was inefficient at dealing with large numbers of events.
+// This component addresses both those problems -- there is no limit on the
+// number of events it can handle, and it is more efficient at dealing with
+// large numbers of events.  The only disadvantage of this component relative
+// to bcep_timereventschedule is that handles referring to managed events in a
+// 'bcep_EventScheduler' are reference-counted and need to be released, while
+// handles of events in a 'bcep_TimerEventScheduler' are integral types that
+// need no such releasing.
 //
 ///Thread Safety and "Raw" Event Pointers
 ///--------------------------------------
