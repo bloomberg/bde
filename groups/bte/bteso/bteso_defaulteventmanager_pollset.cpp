@@ -535,11 +535,6 @@ void TheClass::deregisterAll()
                              // ACCESSORS
                              // ---------
 
-bool TheClass::canRegisterSockets() const
-{
-    return true;
-}
-
 bool TheClass::hasLimitedSocketCapacity() const
 {
     return false;

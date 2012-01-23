@@ -65,7 +65,6 @@ using namespace bsl;  // automatically added by script
 // [ 8] dispatch
 //
 // ACCESSORS
-// [11] canRegisterSockets
 // [11] hasLimitedSocketCapacity
 // [ 3] numSocketEvents
 // [ 3] numEvents
@@ -402,27 +401,22 @@ int main(int argc, char *argv[])
 
       case 11: {
         // -----------------------------------------------------------------
-        // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
+        // TESTING 'hasLimitedSocketCapacity'
         //
         // Concern:
         //: 1 'hasLimitiedSocketCapacity' returns 'false'.
-        //:
-        //: 2 'canRegisterSockets' always returns 'true'.
         //
         // Plan:
         //: 1 Assert that 'hasLimitedSocketCapacity' returns 'false'.
-        //:
-        //: 2 Assert that 'canRegisterSockets' returns 'true'.
         //
         // Testing:
-        //   bool canRegisterSockets() const;
         //   bool hasLimitedSocketCapacity() const;
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                << "TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity"
+                << "TESTING 'hasLimitedSocketCapacity"
                 << endl
-                << "=========================================================="
+                << "================================="
                 << endl;
 
         if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
@@ -430,13 +424,6 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             bool hlsc = X.hasLimitedSocketCapacity();
             LOOP_ASSERT(hlsc, false == hlsc);
-        }
-
-        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
-        {
-            Obj mX;  const Obj& X = mX;
-            bool crs = X.canRegisterSockets();
-            LOOP_ASSERT(crs, true == crs);
         }
       } break;
 
