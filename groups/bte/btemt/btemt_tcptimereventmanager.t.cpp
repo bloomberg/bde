@@ -877,9 +877,16 @@ int main(int argc, char *argv[])
 
             enum { NUM_TIMERS  = 10000 };
             bdet_TimeInterval  timeValues[NUM_TIMERS];
-            bdet_TimeInterval  delta(0.5);
+
+            // DELTA had to be increased from 0.5 for when built in safe mode
+            // on Solaris
+
+            const double       DELTA = 1.25;
+            bdet_TimeInterval  delta(DELTA);
             int                flags[NUM_TIMERS];
             void              *ids[NUM_TIMERS];
+
+            bdet_TimeInterval  start = bdetu_SystemTime::now();
 
             for (int i = 0; i < NUM_TIMERS; ++i) {
                 flags[i] = 0;
@@ -900,9 +907,17 @@ int main(int argc, char *argv[])
                 cout << "\t\tRegistered " << NUM_TIMERS << " timers." << endl;
             }
 
+            double soFar =
+                      (bdetu_SystemTime::now() - start).totalSecondsAsDouble();
+            LOOP_ASSERT(soFar, soFar < DELTA);
+            if (verbose) { P_(DELTA); P(soFar); }
+
             for (int i = 0; i < NUM_TIMERS; ++i) {
                 LOOP_ASSERT(i, 0 == flags[i]);
             }
+
+            soFar = (bdetu_SystemTime::now() - start).totalSecondsAsDouble();
+            LOOP_ASSERT(soFar, soFar < DELTA);
 
             for (int i = 0; i < NUM_TIMERS; ++i) {
                 bslma_TestAllocator da;
