@@ -885,6 +885,10 @@ int main(int argc, char *argv[])
               Obj mE(Obj::BTEMT_NO_HINT, false, true, &testAllocator);
               Obj mF(Obj::BTEMT_NO_HINT, false, false, &testAllocator);
               Obj mG(&dummyEventManager, &testAllocator);
+              Obj mH(true, &testAllocator);
+              Obj mI(false, &testAllocator);
+              Obj mJ(false, true, &testAllocator);
+              Obj mK(false, false, &testAllocator);
 
               const Obj& A = mA;
               const Obj& B = mB;
@@ -893,6 +897,10 @@ int main(int argc, char *argv[])
               const Obj& E = mE;
               const Obj& F = mF;
               const Obj& G = mG;
+              const Obj& H = mH;
+              const Obj& I = mI;
+              const Obj& J = mJ;
+              const Obj& K = mK;
               ASSERT(true  == A.hasTimeMetrics());
               ASSERT(true  == B.hasTimeMetrics());
               ASSERT(true  == C.hasTimeMetrics());
@@ -900,6 +908,10 @@ int main(int argc, char *argv[])
               ASSERT(false == E.hasTimeMetrics());
               ASSERT(false == F.hasTimeMetrics());
               ASSERT(false == G.hasTimeMetrics());
+              ASSERT(true  == H.hasTimeMetrics());
+              ASSERT(false == I.hasTimeMetrics());
+              ASSERT(false == J.hasTimeMetrics());
+              ASSERT(false == K.hasTimeMetrics());
           }
           {
               if (veryVerbose) {
