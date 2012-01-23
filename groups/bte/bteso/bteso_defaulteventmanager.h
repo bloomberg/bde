@@ -134,11 +134,9 @@ struct bteso_EventMgr {
     // platform.
 
     // This class is DEPRECATED: instead of 'bteso_EventMgr::TYPE', use
-    // 'bteso_DefaultEventManager<>'.
+    // 'bteso_DefaultEventManager<>' directly.
 
-    typedef
-        bteso_DefaultEventManager<bteso_Platform::DEFAULT_POLLING_MECHANISM>
-        TYPE;
+    typedef bteso_DefaultEventManager<> TYPE;
 };
 
                      // ===============================
