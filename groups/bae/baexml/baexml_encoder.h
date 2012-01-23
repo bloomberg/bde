@@ -1024,16 +1024,19 @@ int baexml_Encoder::encode(baexml_Formatter& formatter, const TYPE& object)
 
         context.addAttribute("xmlns", d_options->objectNamespace());
 
-        // Only declare the "xsi" namespace and schema location if an object
-        // namespace was provided because only then can validation happen.
-        context.addAttribute("xmlns:xsi",
-                             "http://www.w3.org/2001/XMLSchema-instance");
+        if (d_options->outputXSIAlias()) {
+            // Only declare the "xsi" namespace and schema location if an
+            // object namespace was provided because only then can validation
+            // happen.
+            context.addAttribute("xmlns:xsi",
+                                 "http://www.w3.org/2001/XMLSchema-instance");
 
-        if (!d_options->schemaLocation().empty()) {
-            context.addAttribute("xsi:schemaLocation",
-                                 d_options->objectNamespace()
-                                 + " "
-                                 + d_options->schemaLocation());
+            if (!d_options->schemaLocation().empty()) {
+                context.addAttribute("xsi:schemaLocation",
+                                     d_options->objectNamespace()
+                                     + " "
+                                     + d_options->schemaLocation());
+            }
         }
     }
     else if (d_options->outputXSIAlias()) {
@@ -1107,7 +1110,8 @@ baexml_Encoder_EncodeObject::executeImp(const TYPE&            object,
     if (bdeat_NullableValueFunctions::isNull(object)) {
         if (formattingMode & bdeat_FormattingMode::BDEAT_NILLABLE) {
             d_context_p->openElement(tag);
-            if (!d_context_p->encoderOptions().objectNamespace().empty()) {
+            if (!d_context_p->encoderOptions().objectNamespace().empty()
+             && d_context_p->encoderOptions().outputXSIAlias()) {
                 // Only add the "xsi:nil" attribute if an object namespace was
                 // provided because only then can validation happen.
                 d_context_p->addAttribute("xsi:nil", "true");

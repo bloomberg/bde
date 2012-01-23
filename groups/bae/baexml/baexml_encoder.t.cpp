@@ -10405,7 +10405,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -10422,6 +10422,327 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) cout << "\nEnd of Test." << endl;
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING ENCODING OF NILLABLES IN PRESENCE OF 'outputXSIAlias' OPTION
+        //   This will test encoding of nillables.
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Encoding of Nillables"
+                          << "\n=============================" << endl;
+
+        static const char OBJ_NS[] =
+            "http://bloomberg.com/schemas/baexml_encoder.t.xsd";
+        static const char PRETTY_NS_ATTR[] = "\n    "
+            "xmlns=\"http://bloomberg.com/schemas/baexml_encoder.t.xsd\"";
+        static const char PRETTY_XSI_ATTR[] = "\n    "
+            "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
+        static const char COMPACT_NS_ATTR[] =
+            " xmlns=\"http://bloomberg.com/schemas/baexml_encoder.t.xsd\"";
+        static const char COMPACT_XSI_ATTR[] =
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
+        static const char NIL_ATTR[]=" xsi:nil=\"true\"";
+
+        typedef test::MySequenceWithNillables Type;
+
+        const int         ATTRIBUTE1_VALUE = 123;
+        const bsl::string ATTRIBUTE2_VALUE = "test string";
+        test::MySequence  ATTRIBUTE3_VALUE;
+
+        ATTRIBUTE3_VALUE.attribute1() = 987;
+        ATTRIBUTE3_VALUE.attribute2() = "inner";
+
+        for (int i = 0; i < Type::NUM_ATTRIBUTES; ++i) {
+
+            // In each expected string, the first %s will be replaced by the
+            // object namespace, the second %s will be replaced by the xsi
+            // namespace, and the third %s will be replaced by the xsi:nil
+            // attribute if the object namespace is used; otherwise, they will
+            // be replaced by empty strings.
+            static const char *PRETTY_RESULT[3] = {
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNillables%s%s>\n"
+                "    <Attribute1%s/>\n"
+                "    <Attribute2>test string</Attribute2>\n"
+                "    <Attribute3>\n"
+                "        <Attribute1>987</Attribute1>\n"
+                "        <Attribute2>inner</Attribute2>\n"
+                "    </Attribute3>\n"
+                "</MySequenceWithNillables>\n",
+
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNillables%s%s>\n"
+                "    <Attribute1>123</Attribute1>\n"
+                "    <Attribute2%s/>\n"
+                "    <Attribute3>\n"
+                "        <Attribute1>987</Attribute1>\n"
+                "        <Attribute2>inner</Attribute2>\n"
+                "    </Attribute3>\n"
+                "</MySequenceWithNillables>\n",
+
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                "<MySequenceWithNillables%s%s>\n"
+                "    <Attribute1>123</Attribute1>\n"
+                "    <Attribute2>test string</Attribute2>\n"
+                "    <Attribute3%s/>\n"
+                "</MySequenceWithNillables>\n",
+            };
+
+            Type mX;  const Type& X = mX;
+
+            // Each attribute except attribute 'i' should be non-null:
+            if (0 != i) {
+                mX.attribute1().makeValue(ATTRIBUTE1_VALUE);
+            }
+            if (1 != i) {
+                mX.attribute2().makeValue(ATTRIBUTE2_VALUE);
+            }
+            if (2 != i) {
+                mX.attribute3().makeValue(ATTRIBUTE3_VALUE);
+            }
+
+            char expResult1[1000], expResult2[1000], expResult3[1000];
+            const char *EXPECTED_RESULT1 = expResult1;
+            const char *EXPECTED_RESULT2 = expResult2;
+            const char *EXPECTED_RESULT3 = expResult3;
+
+            EncoderOptions options1, options2, options3;
+            options1.outputXSIAlias() = true;
+            options2.outputXSIAlias() = false;
+
+            if (verbose) cout << "PRETTY without object namespace" << endl;
+
+            // Format expected result without object namespace and,
+            // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            bsl::sprintf(expResult1, PRETTY_RESULT[i], "",
+                         PRETTY_XSI_ATTR, "");
+            bsl::sprintf(expResult2, PRETTY_RESULT[i], "",
+                         "", "");
+            bsl::sprintf(expResult3, PRETTY_RESULT[i], "",
+                         PRETTY_XSI_ATTR, "");
+
+            bsl::stringstream result1, result2, result3;
+
+            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            int rc;
+            baexml_Encoder encoder1(&options1, 0, 0);
+            rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            baexml_Encoder encoder2(&options2, 0, 0);
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            baexml_Encoder encoder3(&options3, 0, 0);
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+
+            if (verbose) cout << "PRETTY with object namespace" << endl;
+
+            // Format expected result with object namespace and,
+            // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            bsl::sprintf(expResult1, PRETTY_RESULT[i],
+                         PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
+            bsl::sprintf(expResult2, PRETTY_RESULT[i],
+                         PRETTY_NS_ATTR, "", "");
+            bsl::sprintf(expResult3, PRETTY_RESULT[i],
+                         PRETTY_NS_ATTR, PRETTY_XSI_ATTR, NIL_ATTR);
+
+            result1.str("");
+            result2.str("");
+            result3.str("");
+
+            options1.setObjectNamespace(OBJ_NS);
+            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            options2.setObjectNamespace(OBJ_NS);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            options3.setObjectNamespace(OBJ_NS);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+
+            static const char *COMPACT_RESULT[3] = {
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                "<MySequenceWithNillables%s%s>"
+                "<Attribute1%s/>"
+                "<Attribute2>test string</Attribute2>"
+                "<Attribute3>"
+                "<Attribute1>987</Attribute1>"
+                "<Attribute2>inner</Attribute2>"
+                "</Attribute3>"
+                "</MySequenceWithNillables>",
+
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                "<MySequenceWithNillables%s%s>"
+                "<Attribute1>123</Attribute1>"
+                "<Attribute2%s/>"
+                "<Attribute3>"
+                "<Attribute1>987</Attribute1>"
+                "<Attribute2>inner</Attribute2>"
+                "</Attribute3>"
+                "</MySequenceWithNillables>",
+
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+                "<MySequenceWithNillables%s%s>"
+                "<Attribute1>123</Attribute1>"
+                "<Attribute2>test string</Attribute2>"
+                "<Attribute3%s/>"
+                "</MySequenceWithNillables>",
+            };
+
+            if (verbose) cout << "COMPACT without object namespace" << endl;
+
+            // Format expected result without object namespace and,
+            // therefore, without 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            bsl::sprintf(expResult1, COMPACT_RESULT[i], "",
+                         COMPACT_XSI_ATTR, "");
+            bsl::sprintf(expResult2, COMPACT_RESULT[i], "", "", "");
+            bsl::sprintf(expResult3, COMPACT_RESULT[i], "",
+                         COMPACT_XSI_ATTR, "");
+
+            result1.str("");
+            result2.str("");
+            result3.str("");
+
+            options1.setObjectNamespace("");
+            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            options2.setObjectNamespace("");
+            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            options3.setObjectNamespace("");
+            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+
+            if (verbose) cout << "COMPACT with object namespace" << endl;
+
+            // Format expected result with object namespace and,
+            // therefore, with 'xmlns', 'xmlns:xsi', and 'xsi:nil':
+            bsl::sprintf(expResult1, COMPACT_RESULT[i],
+                         COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
+            bsl::sprintf(expResult2, COMPACT_RESULT[i],
+                         COMPACT_NS_ATTR, "", "");
+            bsl::sprintf(expResult3, COMPACT_RESULT[i],
+                         COMPACT_NS_ATTR, COMPACT_XSI_ATTR, NIL_ATTR);
+
+            result1.str("");
+            result2.str("");
+            result3.str("");
+
+            options1.setObjectNamespace(OBJ_NS);
+            options1.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            options2.setObjectNamespace(OBJ_NS);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            options3.setObjectNamespace(OBJ_NS);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_COMPACT);
+
+            rc = encoder1.encodeToStream(result1, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT1,   result1.str(),
+                         EXPECTED_RESULT1 == result1.str());
+
+            rc = encoder2.encodeToStream(result2, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT2,   result2.str(),
+                         EXPECTED_RESULT2 == result2.str());
+
+            rc = encoder3.encodeToStream(result3, X);
+            LOOP_ASSERT(rc, 0 == rc);
+            LOOP2_ASSERT(EXPECTED_RESULT3,   result3.str(),
+                         EXPECTED_RESULT3 == result3.str());
+        } // End for i
+
+        if (verbose) cout << "Testing with 'schemaLocation' specified" << endl;
+        {
+            Type mX; const Type& X = mX;
+
+            bsl::stringstream result1, result2, result3;
+            EncoderOptions options1, options2, options3;
+            baexml_Encoder encoder1(&options1);
+            baexml_Encoder encoder2(&options2);
+            baexml_Encoder encoder3(&options3);
+
+            options1.outputXSIAlias() = true;
+            options1.setSchemaLocation("bas\\bassvc\\bassvc.xsd");
+            options2.outputXSIAlias() = false;
+            options2.setSchemaLocation("bas\\bassvc\\bassvc.xsd");
+            options3.setSchemaLocation("bas\\bassvc\\bassvc.xsd");
+
+            if (verbose) cout << "PRETTY with object namespace" << endl;
+
+            result1.str("");
+            result2.str("");
+            result3.str("");
+
+            options1.setObjectNamespace(OBJ_NS);
+            options1.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            options2.setObjectNamespace(OBJ_NS);
+            options2.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            options3.setObjectNamespace(OBJ_NS);
+            options3.setEncodingStyle(EncodingStyle::BAEXML_PRETTY);
+
+            int rc = encoder1.encodeToStream(result1, X);
+            rc = encoder2.encodeToStream(result2, X);
+            rc = encoder3.encodeToStream(result3, X);
+
+            if (veryVerbose) {
+                P(result1.str());
+                P(result2.str());
+                P(result3.str());
+            }
+        }
+
+        if (verbose) cout << "\nEnd of Test." << endl;
+
       } break;
       case 11: {
         // --------------------------------------------------------------------
