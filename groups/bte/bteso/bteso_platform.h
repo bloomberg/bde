@@ -55,7 +55,7 @@ struct bteso_Platform {
 
         #if defined(BSLS_PLATFORM__OS_AIX)
             struct POLLSET {};
-	    typedef POLLSET DEFAULT_POLLING_MECHANISM;
+            typedef POLLSET DEFAULT_POLLING_MECHANISM;
         #endif
 
         #if defined(BSLS_PLATFORM__OS_SOLARIS) || \
