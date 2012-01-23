@@ -461,6 +461,9 @@ public:
         ++d_ctorCount;
     }
 
+    AttribClass5(const AttribClass5& other)
+        : d_attrib(other.d_attrib) { ++d_ctorCount; }
+
     ~AttribClass5() { d_attrib.d_b = 0xdeadbeaf; ++d_dtorCount; }
 
     char        a() const { return d_attrib.d_a; }
@@ -764,9 +767,6 @@ void testAllocatorConformance(const char* allocName)
 {
     if (verbose) printf("Testing allocator class temlate %s\n", allocName);
 
-    int initCtorCount = AttribClass5::ctorCount();
-    int initDtorCount = AttribClass5::dtorCount();
-
     typedef ALLOC_TMPLT<AttribClass5> Alloc;
 
     bslma_TestAllocator default_ta, ta;
@@ -806,8 +806,8 @@ void testAllocatorConformance(const char* allocName)
     LOOP_ASSERT_ISSAME(allocName, ALLOC_TMPLT<float>,
                        typename Alloc::template rebind<float>::other);
     
-    if (veryVerbose) printf("  Testing constructon\n");
     {
+        if (veryVerbose) printf("  Testing constructon\n");
         Alloc a1;
         LOOP_ASSERT(allocName, &default_ta == a1.mechanism());
 
@@ -817,22 +817,35 @@ void testAllocatorConformance(const char* allocName)
         Alloc a3(a2);
         LOOP_ASSERT(allocName, &ta == a3.mechanism());
 
+        Alloc a4(&ta);
+        LOOP_ASSERT(allocName, &ta == a4.mechanism());
+
         if (veryVerbose) printf("  Testing operator== and operator!=\n");
         LOOP_ASSERT(allocName, ! (a1 == a2));
         LOOP_ASSERT(allocName,    a1 != a2 );
         LOOP_ASSERT(allocName,    a2 == a3 );
         LOOP_ASSERT(allocName, ! (a3 != a3));
+        LOOP_ASSERT(allocName,   (a2 == a4));
+        LOOP_ASSERT(allocName, ! (a2 != a4));
     }
 
     if (veryVerbose) printf("  Testing member functions\n");
+    AttribClass5 val('x',  6, -1.5, "pizza", 0);
     Alloc a(&ta);
 
+    int ctorCountBefore = AttribClass5::ctorCount();
+    int dtorCountBefore = AttribClass5::dtorCount();
+    const char *const hint1 = "A", *const hint2 = "B";
+
+    g_lastHint = hint1;
     p = a.allocate(1);
     LOOP_ASSERT(allocName, ta.numBytesInUse() == sizeof(value_type));
     LOOP_ASSERT(allocName, ta.numBlocksInUse() == 1);
+    LOOP_ASSERT(allocName, AttribClass5::ctorCount() == ctorCountBefore);
+    LOOP_ASSERT(allocName, 0 == g_lastHint);
 
-    AttribClass5 val('x',  6, -1.5, "pizza", 0);
     a.construct(p, val);
+    LOOP_ASSERT(allocName, AttribClass5::ctorCount() == ctorCountBefore + 1);
     LOOP_ASSERT(allocName, matchAttrib(*p, 'x',  6, -1.5, "pizza", 0));
 
     // Test that 'pointer' can convert to 'const_pointer'
@@ -840,7 +853,7 @@ void testAllocatorConformance(const char* allocName)
     LOOP_ASSERT(allocName, isMutable(*p));
     LOOP_ASSERT(allocName, ! isMutable(*cp));
 
-    // Test the dereferencing a pointer yields a reference
+    // Test that dereferencing a pointer yields a reference
     value_type& v        = *p;
     const value_type& cv = *cp;
     LOOP_ASSERT(allocName, matchAttrib(cv, 'x',  6, -1.5, "pizza", 0));
@@ -849,9 +862,21 @@ void testAllocatorConformance(const char* allocName)
     LOOP_ASSERT(allocName, cp == a.address(cv));
 
     a.destroy(p);
+    LOOP_ASSERT(allocName, AttribClass5::dtorCount() == dtorCountBefore + 1);
     LOOP_ASSERT(allocName, 0xdeadbeaf == p->b());
     LOOP_ASSERT(allocName, 0xdeadbeaf == cp->b());
 
+    a.deallocate(p, 1);
+    LOOP_ASSERT(allocName, ta.numBytesInUse() == 0)
+    LOOP_ASSERT(allocName, ta.numBlocksInUse() == 0);
+    LOOP_ASSERT(allocName, AttribClass5::dtorCount() == dtorCountBefore + 1);
+
+    // Test that allocation hint is saved in g_lastHint
+    g_lastHint = hint1;
+    p = a.allocate(2, hint2);
+    LOOP_ASSERT(allocName, ta.numBytesInUse() == 2 * sizeof(value_type));
+    LOOP_ASSERT(allocName, ta.numBlocksInUse() == 1);
+    LOOP_ASSERT(allocName, hint2 == g_lastHint);
     a.deallocate(p, 1);
     LOOP_ASSERT(allocName, ta.numBytesInUse() == 0)
     LOOP_ASSERT(allocName, ta.numBlocksInUse() == 0);
@@ -1164,7 +1189,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 For any allocator, 'a' of type 'ALLOC', with value type 'T',
         //:   calling 'allocator_traits<ALLOC>::allocate(a, n)' results in a
-        //:   pass-through call to 'a.allocate(n), returning enougn space for
+        //:   pass-through call to 'a.allocate(n), returning enough space for
         //:   'n' objects of type 'T'.
         //: 2 If a hint pointer, 'h', is passed to
         //:   'allocator_traits<ALLOC>::allocate(a, n, h)', then 'h' is passed
@@ -1370,6 +1395,9 @@ int main(int argc, char *argv[])
         //: 18 Concerns 15 to 17 also apply to 'AttribClass5bslma' except that
         //:    the allocator attribute is of type 'bslma_Allocator*' instead
         //:    of a standard allocator type.
+        //: 19 Within this test driver, all of the allocators will store the
+        //:    most recent hint passed to 'allocate' in the 'g_lastHint'
+        //:    global variable.
         //
         // Plan:
         //: o Create a function template, 'testAllocatorConformance', to check
@@ -1392,6 +1420,11 @@ int main(int argc, char *argv[])
         //:   'AttribClass5bslma') and allocator type ('NonBslmaAllocator',
         //:   'BslmaAllocator', 'FunkyAllocator', 'bslma_Allocator*', and no
         //:   allocator). (C16-C18)
+        //: o Within 'testAllocatorConformance', set 'g_lastHint' to a known
+        //:   address before calling 'allocate' with no hint.  Verify that
+        //:   'g_lastHint' gets set to null.  Repeat this test, but pass a
+        //:   second known address as a hint, verifying that 'g_lastHint' gets
+        //:   set to the second known address.
         //
         // Testing
         //   template <class T> class NonBsmlaAllocator;
