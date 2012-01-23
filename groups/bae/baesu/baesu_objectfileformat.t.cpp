@@ -109,26 +109,26 @@ typedef baesu_ObjectFileFormat          Obj;
 // value when passed an object of types
 // 'baesu_ObjectFileFormat::{Elf,Xcoff,Windows}', and 0 otherwise.
 //..
-    template <typename TYPE>
-    int typeTest(const TYPE &)
-    {
-        return 0;
-    }
+template <typename TYPE>
+int typeTest(const TYPE &)
+{
+    return 0;
+}
 
-    int typeTest(const baesu_ObjectFileFormat::Elf &)
-    {
-        return 1;
-    }
+int typeTest(const baesu_ObjectFileFormat::Elf &)
+{
+    return 1;
+}
 
-    int typeTest(const baesu_ObjectFileFormat::Xcoff &)
-    {
-        return 2;
-    }
+int typeTest(const baesu_ObjectFileFormat::Xcoff &)
+{
+    return 2;
+}
 
-    int typeTest(const baesu_ObjectFileFormat::Windows &)
-    {
-        return 3;
-    }
+int typeTest(const baesu_ObjectFileFormat::Windows &)
+{
+    return 3;
+}
 //..
 
 // ============================================================================

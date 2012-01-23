@@ -294,14 +294,14 @@ int main(int argc, char *argv[])
        config.setDefaultThresholdLevelsCallback(defaultThresholds);
        config.setLogOrder(bael_LoggerManagerConfiguration::BAEL_FIFO);
        config.setTriggerMarkers(
-                      bael_LoggerManagerConfiguration::BAEL_BEGIN_END_MARKERS);
+                      bael_LoggerManagerConfiguration::BAEL_NO_MARKERS);
 //
        ASSERT(           schema == config.userSchema());
        ASSERT(        populator == config.userPopulatorCallback());
        ASSERT(       nameFilter == config.categoryNameFilterCallback());
        ASSERT(defaultThresholds == config.defaultThresholdLevelsCallback());
        ASSERT(bael_LoggerManagerConfiguration::BAEL_FIFO == config.logOrder());
-       ASSERT(bael_LoggerManagerConfiguration::BAEL_BEGIN_END_MARKERS
+       ASSERT(bael_LoggerManagerConfiguration::BAEL_NO_MARKERS
                                                    == config.triggerMarkers());
 //..
 // The configuration object is now validly configured with our choice of
@@ -359,7 +359,7 @@ if (veryVerbose)
                 "    Category Name Filter functor is null"       NL
                 "    Default Threshold Callback functor is null" NL
                 "    Logging order is FIFO"                      NL
-                "    Trigger markers are BEGIN_END_MARKERS"      NL
+                "    Trigger markers are NO_MARKERS"             NL
                 "]"                                              NL
                 ;
 
@@ -389,19 +389,18 @@ if (veryVerbose)
         //   const TriggerMarkers triggerMarkers() const;
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING  'setTriggerMarkers'"
-                             "AND 'triggerMarkers'"
-                          << "\n============================"
-                             "=====================" << endl;
+        if (verbose) 
+            cout << "\nTESTING  'setTriggerMarkers' AND 'triggerMarkers'"
+                 << "\n=================================================\n";
 
         Obj lmc;
-        ASSERT(lmc.triggerMarkers() == Obj::BAEL_NO_MARKERS);
-
-        lmc.setTriggerMarkers(Obj::BAEL_BEGIN_END_MARKERS);
         ASSERT(lmc.triggerMarkers() == Obj::BAEL_BEGIN_END_MARKERS);
 
         lmc.setTriggerMarkers(Obj::BAEL_NO_MARKERS);
         ASSERT(lmc.triggerMarkers() == Obj::BAEL_NO_MARKERS);
+
+        lmc.setTriggerMarkers(Obj::BAEL_BEGIN_END_MARKERS);
+        ASSERT(lmc.triggerMarkers() == Obj::BAEL_BEGIN_END_MARKERS);
 
       } break;
       case 4: {
@@ -822,7 +821,7 @@ if (veryVerbose)
                 "    Category Name Filter functor is null"       NL
                 "    Default Threshold Callback functor is null" NL
                 "    Logging order is LIFO"                      NL
-                "    Trigger markers are NO_MARKERS"             NL
+                "    Trigger markers are BEGIN_END_MARKERS"      NL
                 "]"                                              NL
                 ;
 
@@ -858,7 +857,7 @@ if (veryVerbose)
                 "    Category Name Filter functor is not null"       NL
                 "    Default Threshold Callback functor is not null" NL
                 "    Logging order is LIFO"                          NL
-                "    Trigger markers are NO_MARKERS"                 NL
+                "    Trigger markers are BEGIN_END_MARKERS"          NL
                 "]"                                                  NL
                 ;
             ASSERT(EXPECTED == o.str());

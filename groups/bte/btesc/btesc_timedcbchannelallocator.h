@@ -60,8 +60,8 @@ BDES_IDENT("$Id: $")
 // interrupted (e.g., via a timeout): the channel address is null and the
 // (non-negative) status conveys the nature of the interruption, (3) "canceled"
 // -- the operation was aborted (synchronously) by an explicit call to
-// 'cancelAll': the channel-allocator address in null and the status" is -1, or
-// (4) "error" -- an implementation-dependent error occurred: the channel
+// 'cancelAll': the channel-allocator address in null and the "status" is -1,
+// or (4) "error" -- an implementation-dependent error occurred: the channel
 // address is null and status is less than -1.  The user may retry interrupted
 // and cancelled operations with a reasonable expectation of success.  An
 // "error" status implies that the allocation is unlikely to succeed if

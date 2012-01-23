@@ -118,9 +118,7 @@ bsls_Assert::Handler bsls_Assert::failureHandler()
 
                        // Macro Dispatcher Method
 
-#ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
-BSLS_ASSERT_NORETURN
-#endif
+BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 void bsls_Assert::invokeHandler(const char *text, const char *file, int line)
 {
     s_handler(text, file, line);

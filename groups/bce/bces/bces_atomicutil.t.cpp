@@ -3,6 +3,8 @@
 #include <bces_atomicutil.h>
 #include <bslma_allocator.h>
 #include <bslma_default.h> // for usage examples
+
+#include <bsl_c_limits.h>
 #include <bsl_c_stdlib.h> // atoi
 
 #if defined(BSLS_PLATFORM__OS_AIX) ||                                         \
@@ -1129,6 +1131,26 @@ int main(int argc, char *argv[]) {
 
     switch (test) {
       case 0:
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING STATIC INITIALIZATION
+        //
+        // Concern:
+        //   That static initialization compiles and works on all platforms.
+        //
+        // Plan:
+        //   Statically initialize some atomics and verify their values
+        // --------------------------------------------------------------------
+
+        static bces_AtomicUtil::Int i     = { -2 };
+        static bces_AtomicUtil::Int64 j   = { 0x1234abcd1234abcdLL };
+        static bces_AtomicUtil::Pointer p = { &i };
+
+        ASSERT(bces_AtomicUtil::getInt(i)   == -2);
+        ASSERT(bces_AtomicUtil::getInt64(j) == 0x1234abcd1234abcdLL);
+        ASSERT(bces_AtomicUtil::getPtr(p)   == &i);
+      } break;
+
       case 8: {
         // --------------------------------------------------------------------
         // TESTING relaxed methods
@@ -1170,7 +1192,6 @@ int main(int argc, char *argv[]) {
         Case8_64 args64;
 
         Obj::Int64 value64;
-        Obj::Pointer termPtr;
         Obj::setInt64Relaxed(&value64, OFFSET_64);
         args64.d_value_p = &value64;
 

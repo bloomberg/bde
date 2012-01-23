@@ -179,9 +179,10 @@ struct bdesu_FileUtil {
     static const Offset OFFSET_MIN = _I64_MIN;
 #else
     typedef int     FileDescriptor;
-#ifdef BDES_PLATFORM__OS_FREEBSD
-    // 'off_t' is 64-bit on FreeBSD (even when running 32-bit) so they do not
-    // have a 'off64_t' type.
+#if defined(BSLS_PLATFORM__OS_FREEBSD) \
+ || defined(BSLS_PLATFORM__OS_DARWIN)
+    // 'off_t' is 64-bit on Darwin/FreeBSD (even when running 32-bit) so they
+    // do not have a 'off64_t' type.
 
     typedef off_t Offset;
 #else

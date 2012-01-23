@@ -388,8 +388,9 @@ int main(int argc, char *argv[])
         //  to be 100 milliseconds.
 #if defined BSLS_PLATFORM__OS_SOLARIS || defined BSLS_PLATFORM__OS_FREEBSD
         const Int64 timeQuantum = nsecsPerSec / CLK_TCK;
-#elif defined BSLS_PLATFORM__OS_LINUX \
-   || defined BSLS_PLATFORM__OS_AIX   \
+#elif defined BSLS_PLATFORM__OS_LINUX  \
+   || defined BSLS_PLATFORM__OS_AIX    \
+   || defined BSLS_PLATFORM__OS_DARWIN \
    || defined BSLS_PLATFORM__OS_HPUX
         const Int64 timeQuantum = nsecsPerSec / sysconf(_SC_CLK_TCK);
                                         // On our local flavor of Linux, old

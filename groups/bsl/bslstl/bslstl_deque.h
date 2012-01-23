@@ -1081,8 +1081,9 @@ inline
 typename Deque_Base<VALUE_TYPE>::reference
 Deque_Base<VALUE_TYPE>::operator[](size_type position)
 {
-    BSLS_ASSERT_SAFE(position >= 0);
     BSLS_ASSERT_SAFE(begin() + position < end());
+
+    // BSLS_ASSERT_SAFE(position >= 0); // 'size_type' is 'size_t', always >= 0
 
     return *(begin() + position);
 }
@@ -1217,8 +1218,9 @@ inline
 typename Deque_Base<VALUE_TYPE>::const_reference
 Deque_Base<VALUE_TYPE>::operator[](size_type position) const
 {
-    BSLS_ASSERT_SAFE(position >= 0);
     BSLS_ASSERT_SAFE(begin() + position < end());
+
+    // BSLS_ASSERT_SAFE(position >= 0); // 'size_type' is 'size_t', always >= 0
 
     return *(begin() + position);
 }

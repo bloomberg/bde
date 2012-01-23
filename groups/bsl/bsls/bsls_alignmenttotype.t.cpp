@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
                              int()));
 #endif
 
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)
     #if defined(BSLS_PLATFORM__CPU_64_BIT)
         LOOP_ASSERT(INT64_ALIGNMENT,
                     sameType(bsls_AlignmentToType<INT64_ALIGNMENT>::Type(),
@@ -480,9 +480,16 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(DOUBLE_ALIGNMENT,
                     sameType(bsls_AlignmentToType<DOUBLE_ALIGNMENT>::Type(),
                              int()));
+
+        #ifdef BSLS_PLATFORM__OS_LINUX
         LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
                   sameType(bsls_AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
                            int()));
+        #else
+        LOOP_ASSERT(LONG_DOUBLE_ALIGNMENT,
+                  sameType(bsls_AlignmentToType<LONG_DOUBLE_ALIGNMENT>::Type(),
+                           LD));
+        #endif
     #endif
 #elif defined(BSLS_PLATFORM__OS_AIX)
     #if defined(BSLS_PLATFORM__CPU_64_BIT)

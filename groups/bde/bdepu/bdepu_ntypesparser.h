@@ -49,9 +49,9 @@ BDES_IDENT("$Id: $")
 // of generating into a 'bsl::vector<char>' buffer will always be
 // null-terminated (whether or not the buffer came in that way).
 //
-// All functions permit the case-insensitive keyword "NULL to be substituted to
-// indicate the unset value for any of the 'bdet' types (see the 'bdetu_unset'
-// component).
+// All functions permit the case-insensitive keyword "NULL" to be substituted
+// to indicate the unset value for any of the 'bdet' types (see the
+// 'bdetu_unset' component).
 //
 // The following two subsections describe the grammar defining the parsing
 // rules and rules used in the implementation of this component.
@@ -1369,7 +1369,7 @@ struct bdepu_NTypesParser {
         // 'buffer'.  If the specified 'value' matches the unset value defined
         // in 'bdetu_unset' it will be formatted as "NULL".  Otherwise, the
         // string is formatted such that it is always surrounded by double
-        // quotes (").  Printable characters, as identified by 'isprint'
+        // quotes ('"').  Printable characters, as identified by 'isprint'
         // function, are generated as is.  Characters that are identified as
         // <SIMPLE_ESCAPE_SEQUENCE> are generated as '\\' followed by the
         // escape literal.  (i.e., '\a' is generated as '\\a').  Other
@@ -1909,7 +1909,7 @@ struct bdepu_NTypesParser {
         // while maintaining null-character termination.  If the specified
         // 'value' matches the unset value defined in 'bdetu_unset' it will be
         // formatted as "NULL".  Otherwise, the string is formatted such that
-        // it is always surrounded by double quotes (").  Printable
+        // it is always surrounded by double quotes ('"').  Printable
         // characters, as identified by 'isprint' function, are generated as
         // is.  Characters that are identified as <SIMPLE_ESCAPE_SEQUENCE> are
         // generated as '\\' followed by the escape literal.  (i.e., '\a' is

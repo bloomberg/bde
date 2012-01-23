@@ -325,11 +325,7 @@ class bteso_DefaultEventManager<bteso_Platform::SELECT>
 
     bool hasLimitedSocketCapacity() const;
         // Return 'true' if this event manager has a limited socket capacity,
-        // and 'false' otherwise.  Note that if 'hasLimitedSocketCapacity' is
-        // 'true' then 'canRegisterSockets' may either return 'true' or
-        // 'false' depending on whether the socket capacity of this event
-        // manager has been reached, but if 'hasLimitedSocketCapacity' is
-        // 'false' then 'canRegisterSockets' is (always) 'true'.
+        // and 'false' otherwise.
 
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      const bteso_EventType::Type       event) const;

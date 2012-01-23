@@ -39,20 +39,20 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Basic Syntax
 ///- - - - - - - - - - - -
-// The following snippets of code provide a simple illustration of
-// 'baetzo_DstPolicy' usage.
+// The following snippets of code provide a simple illustration of using
+// 'baetzo_DstPolicy'.
 //
 // First, we create a variable 'value' of type 'baetzo_DstPolicy::Enum' and
 // initialize it with the enumerator value 'baetzo_DstPolicy::BAETZO_STANDARD':
 //..
 //  baetzo_DstPolicy::Enum value = baetzo_DstPolicy::BAETZO_STANDARD;
 //..
-// Now, we store a pointer to its ASCII representation in a variable
-// 'asciiValue' of type 'const char *':
+// Now, we store the address of its ASCII representation in a pointer variable,
+// 'asciiValue', of type 'const char *':
 //..
 //  const char *asciiValue = baetzo_DstPolicy::toAscii(value);
 //  assert(0 == bsl::strcmp(asciiValue, "STANDARD"));
