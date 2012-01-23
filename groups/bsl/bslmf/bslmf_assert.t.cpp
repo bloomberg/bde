@@ -56,7 +56,11 @@ BSLMF_ASSERT(sizeof(int) >= sizeof(char));
 // un-named namespace
 namespace {
     BSLMF_ASSERT(1);
+#if defined(BSLS_PLATFORM__CMP_SUN)
+    BSLMF_ASSERT(1);
+#else
     BSLMF_ASSERT(1); BSLMF_ASSERT(1); // not class scope
+#endif
 }
 
 namespace {
@@ -65,7 +69,11 @@ namespace {
 
 namespace Bar {
     BSLMF_ASSERT(1);
+#if defined(BSLS_PLATFORM__CMP_SUN)
+    BSLMF_ASSERT(1);
+#else
     BSLMF_ASSERT(1); BSLMF_ASSERT(1); // not class scope
+#endif
 }
 
 class MyType {
@@ -126,22 +134,28 @@ int main(int argc, char *argv[])
 
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
-        BSLMF_ASSERT(1);  ASSERT(129 == __LINE__);
-        BSLMF_ASSERT(1);  ASSERT(130 == __LINE__);
+        BSLMF_ASSERT(1);  ASSERT(137 == __LINE__);
+        BSLMF_ASSERT(1);  ASSERT(138 == __LINE__);
         BSLMF_ASSERT(1 > 0 && 1);
 
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
-#if !defined(BSLS_PLATFORM__CMP_MSVC) &&                \
+// SUN:  BSLMF_ASSERT is defined the way that breaks this test
+#if !defined(BSLS_PLATFORM__CMP_MSVC) &&                    \
+    !defined(BSLS_PLATFORM__CMP_SUN)  &&                    \
     !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
-        bslmf_Assert_129 t1; // test typedef name creation; matches above line
-        bslmf_Assert_130 t2; // test typedef name creation; matches above line
+        bslmf_Assert_137 t1; // test typedef name creation; matches above line
+        bslmf_Assert_138 t2; // test typedef name creation; matches above line
         ASSERT(sizeof t1 == sizeof t2);  // use t1 and t2
 #endif
 
         BSLMF_ASSERT(2);
         BSLMF_ASSERT(-1);
 
+#if defined(BSLS_PLATFORM__CMP_SUN)
+        BSLMF_ASSERT(1);
+#else
         BSLMF_ASSERT(1); BSLMF_ASSERT(1); // not class scope
+#endif
 
       } break;
       default: {
