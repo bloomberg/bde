@@ -779,20 +779,8 @@ BDES_IDENT("$Id: $")
 #include <bslmf_memberfunctionpointertraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
-#include <bslmf_removereference.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST

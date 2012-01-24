@@ -16,7 +16,6 @@
 #include <string.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                                TEST PLAN
