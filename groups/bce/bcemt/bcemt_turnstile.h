@@ -100,16 +100,22 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
-#ifndef INCLUDED_BCEMT_THREAD
-#include <bcemt_thread.h>
-#endif
-
 #ifndef INCLUDED_BCES_ATOMICTYPES
 #include <bces_atomictypes.h>
 #endif
 
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
+#endif
+
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BCEMT_THREAD
+#include <bcemt_thread.h>
 #endif
 
 #ifndef INCLUDED_BDETU_SYSTEMTIME
@@ -120,8 +126,6 @@ BDES_IDENT("$Id: $")
 #include <bsls_platformutil.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
 #endif
 
 namespace BloombergLP {
