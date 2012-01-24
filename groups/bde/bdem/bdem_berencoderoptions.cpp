@@ -32,7 +32,7 @@ const int bdem_BerEncoderOptions::DEFAULT_INITIALIZER_TRACE_LEVEL = 0;
 
 const int bdem_BerEncoderOptions::DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE = 10500;
 
-const bool bdem_BerEncoderOptions::DEFAULT_INITIALIZER_ENCODE_EMPTY_VECTOR = true;
+const bool bdem_BerEncoderOptions::DEFAULT_INITIALIZER_ENCODE_EMPTY_VECTOR = false;
 
 const bdeat_AttributeInfo bdem_BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
