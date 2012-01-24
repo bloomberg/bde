@@ -10824,7 +10824,7 @@ int main(int argc, char *argv[])
         //: 4 Create three 'baexml_Encoder' objects passing the encoder
         //:   options created above.
         //:
-        //: 5 Encode the 'MySequenceWithNillaables' object onto a 
+        //: 5 Encode the 'MySequenceWithNillables' object onto a
         //:   'bsl::stringstream' using one of the created 'baexml_Encoder'
         //:   objects.
         //:
