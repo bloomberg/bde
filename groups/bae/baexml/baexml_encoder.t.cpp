@@ -10425,14 +10425,40 @@ int main(int argc, char *argv[])
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING ENCODING OF XML HEADER
-        //   This will test encoding of simple content.
+        // TESTING XML HEADER WITH 'outputXMLHeader' option (DRQS 22278116)
         //
         // Concerns:
+        //: 1 If the 'outputXMLHeader' is set to 'true' or not set at all then
+        //:   the xml header is always output.
+        //:
+        //: 2 If the 'outputXMLHeader' is set to 'false' then the xml header is
+        //:   not output.
         //
         // Plan:
+        //: 1 Create three 'baexml_EncoderOptions' objects.  Set the
+        //:   'outputXMLHeader' option in one encoder options object to
+        //:   'true' and to 'false' in the another object.  Leave the third
+        //:   encoder options object unmodified.
+        //:
+        //: 2 Create three 'bsl::stringstream' objects.
+        //:
+        //: 3 Populate a 'MySequence' object.
+        //:
+        //: 4 Create three 'baexml_Encoder' objects passing the encoder
+        //:   options created above.
+        //:
+        //: 5 Encode the 'MySequence' object onto a 'bsl::stringstream' using
+        //:   one of the created 'baexml_Encoder' objects.
+        //:
+        //: 6 Ensure that the xml header is output only when 'outputXMLAlias'
+        //:   is not set to 'false'.
+        //:
+        //: 8 Repeat steps 1 - 7 for 'BAEXML_COMPACT' encoding style.
+        //:
+        //: 9 Repeat steps 1 - 8 for 'MyChoice' and 'MySimpleContent' objects.
         //
         // Testing:
+        //  Encoding of XML header
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Encoding of XML Header"
@@ -10768,14 +10794,54 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING ENCODING OF NILLABLES WITH 'outputXSIAlias' OPTION
-        //   Ensure that the 'outputXSIAlias' 
+        // TESTING NILLABLES WITH 'outputXSIAlias' option (DRQS 29523606)
         //
         // Concerns:
+        //: 1 If the 'outputXSIAlias' is set to 'true' or not set at all then
+        //:   the xsi prefix is always aliased to
+        //:   'xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"'.
+        //:
+        //: 2 If the 'outputXSIAlias' is set to 'false' then the xsi prefix is
+        //:   not aliased.
+        //:
+        //: 3 Nillable elements are encoded with 'xsi:nil=true' only if
+        //:   'outputXSIAlias' is not set to 'false'.
+        //:
+        //: 4 The specification of the 'objectNamespace' and 'schemaLocation'
+        //:   options interacts correctly with the 'outputXSIAlias' option.
         //
         // Plan:
+        //: 1 Create three 'baexml_EncoderOptions' objects.  Set the
+        //:   'outputXSIAlias' option in one encoder options object to
+        //:   'true' and to 'false' in the another object.  Leave the third
+        //:   encoder options object unmodified.
+        //:
+        //: 2 Create three 'bsl::stringstream' objects.
+        //:
+        //: 3 Populate a 'MySequenceWithNillables' object ensuring that one of
+        //:   its nillable elements is null.
+        //:
+        //: 4 Create three 'baexml_Encoder' objects passing the encoder
+        //:   options created above.
+        //:
+        //: 5 Encode the 'MySequenceWithNillaables' object onto a 
+        //:   'bsl::stringstream' using one of the created 'baexml_Encoder'
+        //:   objects.
+        //:
+        //: 6 Ensure that the xsi prefix is aliased only when 'outputXSIAlias'
+        //:   is not set to 'false'.
+        //:
+        //: 7 Also ensure that the 'xsi:nil' attribute is output only when
+        //:   'outputXSIAlias' is not set to 'false'.
+        //:
+        //: 8 Repeat steps 1 - 7 for 'BAEXML_COMPACT' encoding style.
+        //:
+        //: 9 Repeat steps 1 - 7 specifying an 'objectNamespace'.
+        //:
+        //:10 Repeat steps 1 - 7 specifying a 'schemaLocation'.
         //
         // Testing:
+        //  Encoding of Nillables
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Encoding of Nillables"
