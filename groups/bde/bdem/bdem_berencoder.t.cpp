@@ -9912,15 +9912,15 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 If 'bdem_BerEncoderOptions' is not specified then empty arrays
-        //:   are always encoded.
+        //:   are not encoded.
         //:
         //: 2 If 'bdem_BerEncoderOptions' is specified but the
-        //:   'encodeEmptyArrays' is not set or set to 'true' then empty arrays
+        //:   'encodeEmptyArrays' is set to 'true' then empty arrays
         //:   are always encoded.
         //:
         //: 3 If 'bdem_BerEncoderOptions' is specified and the
-        //:   'encodeEmptyArrays' option is set to 'false' then empty arrays
-        //:   are not encoded.
+        //:   'encodeEmptyArrays' option is not set or set to 'false' then
+        //:   empty arrays are not encoded.
         //:
         //: 4 Non-empty arrays are always encoded.
         //
@@ -9980,11 +9980,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == encoder3.encode(&osb3, value));
             ASSERT(0 == encoder4.encode(&osb4, value));
 
-            ASSERT(osb1.length()  > osb2.length())
-            ASSERT(osb1.length() == osb3.length())
-            ASSERT(osb1.length() == osb4.length())
-            ASSERT(0 == memcmp(osb1.data(), osb3.data(), osb1.length()));
-            ASSERT(0 == memcmp(osb1.data(), osb4.data(), osb1.length()));
+            ASSERT(osb1.length()  > osb2.length());
+            ASSERT(osb2.length() == osb3.length());
+            ASSERT(osb2.length() == osb4.length());
+            ASSERT(0 == memcmp(osb2.data(), osb3.data(), osb2.length()));
+            ASSERT(0 == memcmp(osb2.data(), osb4.data(), osb2.length()));
 
             printDiagnostic(encoder1);
             printDiagnostic(encoder2);
