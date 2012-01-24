@@ -100,12 +100,24 @@ BDES_IDENT("$Id: $")
 #include <bcescm_version.h>
 #endif
 
+#ifndef INCLUDED_BCEMT_THREAD
+#include <bcemt_thread.h>
+#endif
+
 #ifndef INCLUDED_BCES_ATOMICTYPES
 #include <bces_atomictypes.h>
 #endif
 
 #ifndef INCLUDED_BDET_TIMEINTERVAL
 #include <bdet_timeinterval.h>
+#endif
+
+#ifndef INCLUDED_BDETU_SYSTEMTIME
+#include <bdetu_systemtime.h>
+#endif
+
+#ifndef INCLUDED_BSLS_PLATFORMUTIL
+#include <bsls_platformutil.h>
 #endif
 
 #ifndef INCLUDED_BSLS_TYPES
