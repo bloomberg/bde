@@ -315,13 +315,13 @@ class baexml_EncoderOptions {
         // Set the "AllowControlCharacters" attribute of this object to the
         // specified 'value'.
 
-    bool& outputXMLHeader();
-        // Return a reference to the modifiable "OutputXMLHeader" attribute of
-        // this object.
+    void setOutputXMLHeader(bool value);
+        // Set the "OutputXMLHeader" attribute of this object to the specified
+        // 'value'.
 
-    bool& outputXSIAlias();
-        // Return a reference to the modifiable "OutputXSIAlias" attribute of
-        // this object.
+    void setOutputXSIAlias(bool value);
+        // Set the "OutputXSIAlias" attribute of this object to the specified
+        // 'value'.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
@@ -724,15 +724,15 @@ void baexml_EncoderOptions::setAllowControlCharacters(bool value)
 }
 
 inline
-bool& baexml_EncoderOptions::outputXMLHeader()
+void baexml_EncoderOptions::setOutputXMLHeader(bool value)
 {
-    return d_outputXMLHeader;
+    d_outputXMLHeader = value;
 }
 
 inline
-bool& baexml_EncoderOptions::outputXSIAlias()
+void baexml_EncoderOptions::setOutputXSIAlias(bool value)
 {
-    return d_outputXSIAlias;
+    d_outputXSIAlias = value;
 }
 
 // ACCESSORS

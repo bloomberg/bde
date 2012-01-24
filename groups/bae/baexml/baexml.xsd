@@ -166,7 +166,10 @@
         </xs:annotation>
       </xs:element>
       <xs:element name='OutputXMLHeader' type='xs:boolean'
-                  minOccurs='0' maxOccurs='1' default='true'>
+                  minOccurs='0' maxOccurs='1'
+                  default='true'
+                  bdem:allocatesMemory='0'
+                  bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
             This option controls if the baexml encoder should output the XML
@@ -175,7 +178,10 @@
         </xs:annotation>
       </xs:element>
       <xs:element name='OutputXSIAlias' type='xs:boolean'
-                  minOccurs='0' maxOccurs='1' default='true'>
+                  minOccurs='0' maxOccurs='1'
+                  default='true'
+                  bdem:allocatesMemory='0'
+                  bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
             This option controls if the baexml encoder should output the XSI
