@@ -52,6 +52,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
 namespace BloombergLP {
 
                       // ====================================
@@ -93,26 +97,19 @@ struct bslmf_IsEnum_AnyArithmeticType {
                         // ==================
 
 template <class TYPE>
-struct bslmf_IsEnum {
+struct bslmf_IsEnum 
+: bslmf_MetaInt<!bslmf_IsFundamental<TYPE>::VALUE
+         && bslmf_IsConvertible<TYPE, bslmf_IsEnum_AnyArithmeticType>::VALUE> {
     // This struct provides a meta-function that computes, at compile time,
-    // whether 'TYPE' is of enumeration type.
+    // whether 'TYPE' is of enumeration type.  It derives from
+    // 'bslmf_MetaInt<1>' if 'TYPE' is an enumeration type, or from
+    // 'bslmf_MetaInt<0>' otherwise.
     //
     // Enumeration types are the only user-defined types that have the
     // characteristics of a native arithmetic type (i.e., they can be promoted
     // to 'int' without invoking user-defined conversions).  This class takes
     // advantage if this property to distinguish 'enum' types from class types
     // that are convertible to 'int'.
-
-    enum {
-        VALUE = (!bslmf_IsFundamental<TYPE>::VALUE
-           && bslmf_IsConvertible<TYPE, bslmf_IsEnum_AnyArithmeticType>::VALUE)
-            // 'VALUE' is a compile-time constant with value 'true' if 'TYPE'
-            // is of 'enum' type, and 'false' otherwise.
-    };
-
-    typedef bslmf_MetaInt<VALUE> Type;
-        // 'Type' is an alias for 'bslmf_MetaInt<1>' if 'TYPE' is of 'enum'
-        // type, and 'bslmf_MetaInt<0>' otherwise.
 };
 
 }  // close namespace BloombergLP

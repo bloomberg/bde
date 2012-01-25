@@ -2232,6 +2232,22 @@ int main(int argc, char *argv[])
           const int ESSZ = ES.length() + 1;
           ASSERT(ESSZ < SIZE);           // Check buffer is large enough.
           ASSERT(out.str() == ES);
+          ASSERT(out.good());
+
+          // test default-constructed empty string ref
+          Obj es1;  const Obj& ES1 = es1;
+
+          if (veryVerbose) std::cout << "\tEXPECTED FORMAT: "
+                                     << static_cast<bsl::string>(ES1)
+                                     << std::endl;
+          std::ostringstream out1;  out1 << ES1;
+          if (veryVerbose) std::cout << "\tACTUAL FORMAT:   "
+                                     << out1.str() << std::endl;
+
+          const int ESSZ1 = ES1.length() + 1;
+          ASSERT(ESSZ1 < SIZE);           // Check buffer is large enough.
+          ASSERT(out1.str() == ES1);
+          ASSERT(out1.good());
 
           Obj nes(NON_EMPTY_STRING);  const Obj& NES = nes;
 
@@ -2244,6 +2260,7 @@ int main(int argc, char *argv[])
           const int NESSZ = NES.length() + 1;
           ASSERT(NESSZ < SIZE);           // Check buffer is large enough.
           ASSERT(nesOut.str() == NES);
+          ASSERT(nesOut.good());
 
           Obj ness(NON_EMPTY_STRING + 2, NON_EMPTY_STRING + 6);
           const Obj& NESS = ness;
@@ -2258,6 +2275,7 @@ int main(int argc, char *argv[])
           const int NESSSZ = NESS.length() + 1;
           ASSERT(NESSSZ < SIZE);          // Check buffer is large enough.
           ASSERT(nessOut.str() == NESS);
+          ASSERT(nessOut.good());
         }
       } break;
       case 3: {
