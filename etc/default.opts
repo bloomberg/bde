@@ -597,6 +597,10 @@ unix-Linux-*-*-gcc-4.*          _  RPATH_FLAGS = -Wl,-rpath -Wl,/opt/swt/install
 
 unix-Linux-*-*-*        _   DEF_ENDLDFLAGS = $(RPATH_FLAGS)
 
+unix-Linux-*-*-gcc-clang     _  DEF_LDFLAGS = -B/usr/lib/gcc/x86_64-redhat-linux6E/4.4.0/32 -L/usr/lib/gcc/x86_64-redhat-linux6E/4.4.0/32
+
+unix-Linux-*-*-gcc-clang     64  DEF_LDFLAGS = -B/usr/lib/gcc/x86_64-redhat-linux6E/4.4.0 -L/usr/lib/gcc/x86_64-redhat-linux6E/4.4.0
+
 # Flags for shared memory access compatibility on HP
 unix-HP_UX-*-*-*       _   DEF_LDFLAGS    = $(LINKARGSCOMMON) -AA -ext
 !! unix-HP_UX-*-*-gcc  _   DEF_LDFLAGS    = $(LINKARGSCOMMON)
@@ -1030,7 +1034,8 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 # for development only; use GCC found in PATH; no retry
 !! unix-Linux-*-*-gcc-def              _  CXX          = g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
-!! unix-FreeBSD-*-*-def                _  CXX          = $(RETRY_ON_SIGNAL) g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+# for development only; use Clang instead of gcc
+!! unix-Linux-*-*-gcc-clang            _  CXX          = /opt/swt/install/llvm-2.9-64/bin/clang++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS) -D__CLANG_GNUC__=4 -D__CLANG_GNUC_MINOR__=4 -D__CLANG_GNUC_PATCHLEVEL__=0 -isystem /usr/include/c++/4.4.0 -isystem /usr/include/c++/4.4.0/x86_64-redhat-linux6E -isystem /usr/include/c++/4.4.0/backward -isystem /usr/include/c++/4.4.0/i386-redhat-linux6E
 
 !! unix-Cygwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__cygwin -D__linux $(CXX64FLAGS)
 

@@ -2550,9 +2550,9 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReserveRaw(
     BSLS_ASSERT_SAFE(newCapacity <= max_size());
 
     if (this->d_capacity < newCapacity) {
-        size_type newStorage = computeNewCapacity(newCapacity,
-                                                  this->d_capacity,
-                                                  max_size());
+        size_type newStorage = this->computeNewCapacity(newCapacity,
+                                                        this->d_capacity,
+                                                        max_size());
         CHAR_TYPE *newBuffer = privateAllocate(newStorage);
 
         CHAR_TRAITS::copy(newBuffer, this->dataPtr(), this->d_length + 1);
@@ -2579,9 +2579,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReserveRaw(
         return 0;                                                     // RETURN
     }
 
-    *storage = computeNewCapacity(newCapacity,
-                                  *storage,
-                                  max_size());
+    *storage = this->computeNewCapacity(newCapacity,
+                                        *storage,
+                                        max_size());
 
     CHAR_TYPE *newBuffer = privateAllocate(*storage);
 

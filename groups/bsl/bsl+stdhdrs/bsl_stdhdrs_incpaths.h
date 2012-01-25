@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // guaranteed.
 //
 // The macros in this component allow a source file compiled in bde-stl mode
-// to include the compiler's native C++ library headers, even when the 
+// to include the compiler's native C++ library headers, even when the
 // compiler's search path would otherwise find the headers with the same name
 // in the 'bsl+stdhdrs' package.  The actual paths are hard coded to be
 // platform specific.
@@ -130,6 +130,20 @@ BSLS_IDENT("$Id: $")
 #       define BSL_NATIVE_CPP_C_HEADER(filename)                              \
                                         BSL_NATIVE_SUN_STLPORT_HEADER(filename)
 #   endif
+
+#elif defined(BSLS_PLATFORM__CMP_CLANG)
+  // Clang (should go before CMP_GNU)
+#   define BSL_NATIVE_CPP_LIB_HEADER(filename) \
+            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
+#   define BSL_NATIVE_CPP_RUNTIME_HEADER(filename) \
+            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
+#   define BSL_NATIVE_CPP_DEPRECATED_HEADER(filename) \
+            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/backward/filename>
+#   define BSL_NATIVE_CPP_C_HEADER(filename) \
+            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
+#   define BSL_NATIVE_CISO646_HEADER(filename) \
+            <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
+#   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
 
 #elif defined(BSLS_PLATFORM__CMP_GNU)
   // gcc 4.1 or above
