@@ -48,9 +48,10 @@ BDES_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// This component is thread-safe and thread-enabled, meaning that multiple
-// threads may safely use their own instances or a shared instance of a
-// 'bcemt_Turnstile' object.
+// Except for the 'reset' method, this component is thread-safe and
+// thread-enabled, meaning that multiple threads may safely use their own
+// instances or a shared instance of a 'bcemt_Turnstile' object, provided that
+// 'reset' is not called while multiple threads are accessing the object.
 //
 ///Timer Resolution
 ///----------------
@@ -136,14 +137,21 @@ namespace BloombergLP {
 
 class bcemt_Turnstile {
     // This class provides a mechanism to meter time.  Using either the
-    // constructor or the 'reset' method, the client specifies 'rate', the
-    // frequency per second that events are to occur.  The client calls
-    // 'waitTurn', which will sleep until the next event is to occur.  If
-    // 'waitTurn' is not called until after the next event is due, the
-    // turnstile is said to be 'lagging' behind, and calls to 'waitTurn' will
-    // not sleep until the events have caught up with the schedule.  The amount
-    // of lagging can be determined via the 'lagTime' method, which returns 0
-    // if no lagging is occurring, or a positive lag time in micro seconds.
+    // constructor or the 'reset' method, the client specifies 'rate',
+    // indicating the number of events per second that the turnstile will
+    // allow.  The client then calls 'waitTurn', which will either sleep until
+    // the next event is to occur, or return immediately if 'waitTurn' was
+    // called after the next event is due.  If 'waitTurn' is not called until
+    // after the next event is due, the turnstile is said to be 'lagging'
+    // behind, and calls to 'waitTurn' will not sleep until the events have
+    // caught up with the schedule.  Note that one call to 'waitTurn' only
+    // catches up one cycle -- if the frequency is one event per second and the
+    // client is 10 seconds behind, calling 'waitTurn' once per second will
+    // remain 10 events behind.  Calling waitTurn 6 times in one second will
+    // result in being 5 events behind.  The amount by which events are lagging
+    // behind the schedule can be determined via the 'lagTime' method, which
+    // returns the positive number of microseconds by which the turnstile is
+    // lagging, or 0 if the turnstile is not behind schedule.
 
     // DATA
     bces_AtomicInt64         d_nextTurn;   // absolute time of next turn in
@@ -155,7 +163,7 @@ class bcemt_Turnstile {
                                            // microseconds
 
     // PRIVATE TYPES
-    typedef bsls_Types::Int64        Int64;
+    typedef bsls_Types::Int64 Int64;
 
   private:
     // NOT IMPLEMENTED
@@ -187,9 +195,9 @@ class bcemt_Turnstile {
         // threads blocked on 'waitTurn' are not interrupted.
 
     bsls_Types::Int64 waitTurn();
-        // Sleep until the next turn may be taken, and set the time of the
-        // subsequent turn.  Return the non-negative number of microseconds
-        // spent waiting.
+        // Sleep until the next turn may be taken or return immediately if the
+        // turnstile is lagging behind schedule.  Return the non-negative
+        // number of microseconds spent waiting.
 
     // ACCESSORS
     bsls_PlatformUtil::Int64 lagTime() const;
