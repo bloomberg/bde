@@ -1145,6 +1145,93 @@ void testRebind(const char* testName)
                  TraitsU*>::VALUE));
 }
 
+template <class ALLOC>
+void testAllocateDeallocate(const char* name)
+{
+    typedef allocator_traits<ALLOC>          TraitsT;
+    typedef typename TraitsT::value_type     value_type;
+    typedef typename TraitsT::pointer        pointer;
+    typedef typename TraitsT::size_type      size_type;
+
+    const size_type SIZES[] = { 1, 2, 10 };
+    const int       NUM_SIZES = sizeof(SIZES) / sizeof(SIZES[0]);
+
+    pointer pointers[NUM_SIZES * 2];
+
+    bslma_TestAllocator ta;
+
+    ALLOC a(&ta);
+
+    // Source of arbitrary addresses for hints
+    const char hint[1] =  { 'H' };
+    const char nonHint[1] = { '-' };
+
+    // All of the test classes use 'AttribClass5' to keep track of their
+    // constructor and destructor calls.
+    const int ctorCountB = AttribClass5::ctorCount();
+    const int dtorCountB = AttribClass5::dtorCount();
+    
+    if (verbose) printf("testing allocate(a, n) for %s\n", name);
+    for (int i = 0; i < 2 * NUM_SIZES; ++i) {
+        const int N = SIZES[i % NUM_SIZES];
+        const bool useHint = i >= NUM_SIZES;  // Use hint for 2nd half
+
+        const int allocationsB = ta.numAllocations();
+        const int blocksInUseB = ta.numBlocksInUse();
+        const int bytesInUseB  = ta.numBytesInUse();
+
+        const size_type blockSize = N * sizeof(value_type);
+
+        g_lastHint = nonHint;
+        if (useHint) {
+            if (veryVerbose) printf("  Call allocate(a, %d, hint)\n", int(N));
+            pointers[i] = TraitsT::allocate(a, N, hint);
+        }
+        else {
+            if (veryVerbose) printf("  Call allocate(a, %d)\n", int(N));
+            pointers[i] = TraitsT::allocate(a, N);
+        }
+
+        // Check that hint was passed through if useHint == true, and was not
+        // passed through if useHint == false.
+        LOOP2_ASSERT(name, N, (useHint ? hint : 0) == g_lastHint);
+
+        // Check memory allocation
+        LOOP2_ASSERT(name, N, ta.lastAllocatedAddress() == &*pointers[i]);
+        LOOP2_ASSERT(name, N, ta.lastAllocatedNumBytes() == blockSize);
+        LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB + 1);
+        LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB + 1);
+        LOOP2_ASSERT(name, N, ta.numBytesInUse()  == bytesInUseB + blockSize);
+
+        // No constructors or destructors were called
+        LOOP2_ASSERT(name, N, AttribClass5::ctorCount() == ctorCountB);
+        LOOP2_ASSERT(name, N, AttribClass5::dtorCount() == dtorCountB);
+    }
+
+    if (verbose) printf("testing deallocate(a, p, n) for %s\n", name);
+    for (int i = 0; i < 2 * NUM_SIZES; ++i) {
+        const int N = SIZES[i % NUM_SIZES];
+
+        const int allocationsB = ta.numAllocations();
+        const int blocksInUseB = ta.numBlocksInUse();
+        const int bytesInUseB  = ta.numBytesInUse();
+
+        const size_type blockSize = N * sizeof(value_type);
+
+        TraitsT::deallocate(a, pointers[i], N);
+
+        // Check memory deallocation
+        LOOP2_ASSERT(name, N, ta.lastDeallocatedNumBytes() == blockSize);
+        LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB);
+        LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB - 1);
+        LOOP2_ASSERT(name, N, ta.numBytesInUse()  == bytesInUseB - blockSize);
+
+        // No constructors or destructors were called
+        LOOP2_ASSERT(name, N, AttribClass5::ctorCount() == ctorCountB);
+        LOOP2_ASSERT(name, N, AttribClass5::dtorCount() == dtorCountB);
+    }
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1201,8 +1288,64 @@ int main(int argc, char *argv[])
         //:   being called for 'T'.
         //
         // Plan:
-        //: o 
+        //: o Create a function template 'testAllocateDeallocate' which may
+        //:   be instantiated with an arbitrary standard-conforming allocator
+        //:   type, ALLOC.  This function makes multiple calls to
+        //:   'allocator_traits<ALLOC>::allocate(a, n)', where 'a' is an
+        //:   instance of 'ALLOC' and n is 1, 2, and 10.  Verify that the
+        //:   allocator allocates the expected amount of memory. (C1)
+        //: o Within 'testAllocateDeallocate', also call
+        //:   'allocator_traits<ALLOC>::allocate(a, n, h)', where 'h' is an
+        //:   aribrary address, and verify that the correct amount of memory
+        //:   is allocated and that 'h' was passed through to the allocator.
+        //:   (All of the allocators used for testing are instrumented so that
+        //:   'h' is stored in a known location.) (C2)
+        //: o For each pointer, 'p', returned by calling
+        //:   'allocator_traits<ALLOC>::allocate(a, n [, h])' within
+        //:   'testAllocateDeallocate', call
+        //:   'allocator_traits<ALLOC>::deallocate(p, n)' and verify that the
+        //:   storage was deallocated. (C3)
+        //: o Finally, test that none of the operations within
+        //:   'testAllocateDeallocate' change the count of constructors or
+        //:   destructors invoked on our test types. (C4)
+        //: o Instantiate and invoke 'testAllocateDealloate' on each meaningful
+        //:   combination of attribute classes ('AttribClass5',
+        //:   'AttribClass5Alloc', and 'AttribClass5bslma') and allocator type
+        //:   ('NonBslmaAllocator', 'BslmaAllocator',
+        //:   'FunkyAllocator'). (C1-C4)
+        // --------------------------------------------------------------------
 
+        if (verbose) printf("\nTESTING ALLOCATE AND DEALLOCATE"
+                            "\n===============================\n");
+
+#define TEST_ALLOC_DEALLOC(ALLOC) \
+        testAllocateDeallocate<ALLOC >(#ALLOC);
+
+        typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
+        typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
+        typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocFunky;
+
+        TEST_ALLOC_DEALLOC(NonBslmaAllocator<AttribClass5>);
+        TEST_ALLOC_DEALLOC(BslmaAllocator<AttribClass5>);
+        TEST_ALLOC_DEALLOC(FunkyAllocator<AttribClass5>);
+
+        TEST_ALLOC_DEALLOC(NonBslmaAllocator<AC5AllocNonBslma>);
+        TEST_ALLOC_DEALLOC(BslmaAllocator<AC5AllocNonBslma>);
+        TEST_ALLOC_DEALLOC(FunkyAllocator<AC5AllocNonBslma>);
+
+        TEST_ALLOC_DEALLOC(NonBslmaAllocator<AC5AllocBslma>);
+        TEST_ALLOC_DEALLOC(BslmaAllocator<AC5AllocBslma>);
+        TEST_ALLOC_DEALLOC(FunkyAllocator<AC5AllocBslma>);
+
+        TEST_ALLOC_DEALLOC(NonBslmaAllocator<AC5AllocFunky>);
+        TEST_ALLOC_DEALLOC(BslmaAllocator<AC5AllocFunky>);
+        TEST_ALLOC_DEALLOC(FunkyAllocator<AC5AllocFunky>);
+
+        TEST_ALLOC_DEALLOC(NonBslmaAllocator<AttribClass5bslma>);
+        TEST_ALLOC_DEALLOC(BslmaAllocator<AttribClass5bslma>);
+        TEST_ALLOC_DEALLOC(FunkyAllocator<AttribClass5bslma>);
+
+#undef TEST_ALLOC_DEALLOC        
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -1234,8 +1377,8 @@ int main(int argc, char *argv[])
         //   rebind_traits<U>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING NESTED TYPEDEFS"
-                            "\n=======================\n");
+        if (verbose) printf("\nTESTING REBIND"
+                            "\n==============\n");
 
         typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
         typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
