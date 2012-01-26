@@ -3853,6 +3853,11 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
     bsl::vector<bsl::string> options;
     bsl::vector<bsl::string> nonOptions;
 
+    // options[0] is the conglomeration of all optional single-arg booleans.
+    // options[1] is the conglomeration of all required single-arg booleans,
+    // a required boolean really doesn't make much sense, but the specification
+    // allows for it, so let's support it.
+
     options.push_back("");  // optional flags
     options.push_back("");  // required flags
     for (unsigned int i = 0; i < d_options.size(); ++i) {
@@ -3868,6 +3873,9 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
                 break;                                                 // BREAK
             }
           }                                                     // FALL THROUGH
+
+          // note this falls through for long-form-only bools
+
           case baea_CommandLineOptionInfo::BAEA_OPTION: {
             if (d_options[i].occurrenceInfo().isHidden()) {
                 break;
@@ -3894,10 +3902,13 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
                 options.back().append(2, '-');
                 options.back().append(d_options[i].longTag());
             }
-            options.back().append(1, ' ');
-            options.back().append(1, '<');
-            options.back().append(d_options[i].name());
-            options.back().append(1, '>');
+            if (baea_CommandLineOptionInfo::BAEA_FLAG != 
+                                                      d_options[i].argType()) {
+                options.back().append(1, ' ');
+                options.back().append(1, '<');
+                options.back().append(d_options[i].name());
+                options.back().append(1, '>');
+            }
             if (end) {
                 options.back().append(1, end);
             }
@@ -3952,7 +3963,7 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
     stream << usage;
     format(usage.size(), end, options, stream, usage.size());
 
-    stream << "\nWhere: \n";
+    stream << "\nWhere:\n";
 
     bsl::string temp;
     temp.append(start, ' ');
