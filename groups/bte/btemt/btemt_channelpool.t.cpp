@@ -7914,7 +7914,6 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(numTimesDataCbCalled, 1 == numTimesDataCbCalled);
       } break;
-#if 0
       case 37: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
@@ -15144,7 +15143,6 @@ int main(int argc, char *argv[])
             factory.deallocate(channels[i].first);
         }
       } break;
-#endif
       default: {
         cerr << "WARNING: CASE " << test << " NOT FOUND." << endl;
         testStatus = -1;
