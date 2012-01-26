@@ -7898,19 +7898,13 @@ int main(int argc, char *argv[])
 
         d_pool_p = &pool;
 
-//         btesos_TcpTimedChannel channel(socket);
-
         const char *TEXT = "Hello World";
         const int   LEN  = strlen(TEXT);
-        const int   NUM_TIMES = 100;
+        const int   NUM_TIMES = 1000;
         const int   TIMEOUT = 3;
 
         for (int i = 0; i < NUM_TIMES; ++i) {
-            P(i)
             socket->write(TEXT, LEN);
-//             if (LEN != rc) {
-//                 break;
-//             }
         }
 
         // Wait for the dispatcher thread to process the deregister the READ

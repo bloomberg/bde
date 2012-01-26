@@ -49,9 +49,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #undef min
 #endif
 
-// TBD: Remove
-#include <bsl_iostream.h>
-
 namespace BloombergLP {
 
 typedef bteso_StreamSocket<bteso_IPv4Address>        StreamSocket;
@@ -1927,9 +1924,6 @@ void btemt_Channel::disableRead(ChannelHandle self, bool enqueueStateChangeCb)
                                   d_eventManager_p->dispatcherThreadHandle()));
     BSLS_ASSERT(this == self.ptr());
 
-    bsl::cout << bcemt_ThreadUtil::selfIdAsInt()
-              << "Disable read in channel" << bsl::endl;
-
     deregisterSocketRead(self);
     if (d_readTimeoutTimerId) {
         d_eventManager_p->deregisterTimer(d_readTimeoutTimerId);
@@ -3729,9 +3723,6 @@ int btemt_ChannelPool::disableRead(int channelId)
 {
     enum { NOT_FOUND = -1 };
 
-    bsl::cout << bcemt_ThreadUtil::selfIdAsInt()
-              << "Disable read in channel" << bsl::endl;
-
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
         return NOT_FOUND;
@@ -3743,7 +3734,7 @@ int btemt_ChannelPool::disableRead(int channelId)
                           bcemt_ThreadUtil::self(),
                           channel->eventManager()->dispatcherThreadHandle())) {
 
-        channel->disableRead(channelHandle, false);
+        channel->disableRead(channelHandle, true);
     }
     else {
         bdef_Function<void (*)()> disableReadCommand(bdef_BindUtil::bindA(
@@ -3751,7 +3742,7 @@ int btemt_ChannelPool::disableRead(int channelId)
                                                    &btemt_Channel::disableRead,
                                                    channel,
                                                    channelHandle,
-                                                   true));
+                                                   false));
 
         channel->eventManager()->execute(disableReadCommand);
     }
