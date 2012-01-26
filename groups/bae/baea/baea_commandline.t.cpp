@@ -105,7 +105,8 @@ using bsl::flush;
 // [13] TESTING ORDER OF ARGUMENTS
 // [14] TESTING PARSING OF STRINGS
 // [15] TESTING NON-OPTION TOGGLE '--'
-// [16] USAGE EXAMPLE
+// [16] TESTING PRINTUSAGE
+// [17] USAGE EXAMPLE
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -1623,9 +1624,9 @@ bool isCompatibleOrdering(const char *const *argv1,
     for (int i = 1; i < argc; ++i) {
         bool isOption = argv1[i][0] == '-';
         char shortOptionTag = isOption ? argv1[i][1] : 0;
-        if (isOption && 'A' <= shortOptionTag && shortOptionTag <= 'Z' &&
-                                     !multiOptionSeenFlag[shortOptionTag - 'A']
-         || !isOption && !nonOptionSeenFlag)
+        if ((isOption && 'A' <= shortOptionTag && shortOptionTag <= 'Z' &&
+                                    !multiOptionSeenFlag[shortOptionTag - 'A'])
+         || (!isOption && !nonOptionSeenFlag))
         {
             if (isOption) {
                 multiOptionSeenFlag[shortOptionTag - 'A'] = true;
@@ -1637,16 +1638,16 @@ bool isCompatibleOrdering(const char *const *argv1,
 
             filter1.push_back(argv1[i]);
             for (int j = i + 1; j < argc; ++j) {
-                if (argv1[i][0] == '-' && argv1[j][0] == '-' &&
-                                                  argv1[j][1] == shortOptionTag
-                 || argv1[i][0] != '-' && argv1[j][0] != '-') {
+                if ((argv1[i][0] == '-' && argv1[j][0] == '-' &&
+                                                 argv1[j][1] == shortOptionTag)
+                 || (argv1[i][0] != '-' && argv1[j][0] != '-')) {
                     filter1.push_back(argv1[j]);
                 }
             }
             for (int j = 1; j < argc; ++j) {
-                if (argv1[i][0] == '-' && argv2[j][0] == '-' &&
-                                                  argv2[j][1] == shortOptionTag
-                 || argv1[i][0] != '-' && argv2[j][0] != '-') {
+                if ((argv1[i][0] == '-' && argv2[j][0] == '-' &&
+                                                 argv2[j][1] == shortOptionTag)
+                 || (argv1[i][0] != '-' && argv2[j][0] != '-')) {
                     filter2.push_back(argv2[j]);
                 }
             }
@@ -1890,7 +1891,7 @@ int main(int argc, const char *argv[])  {
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE:
         //
@@ -1911,19 +1912,21 @@ int main(int argc, const char *argv[])  {
 
         using namespace BAEA_COMMANDLINE_USAGE_EXAMPLE;
 
+        typedef const char *CChar;
+
         static const struct {
             int   d_line;
             int   d_retCode;
-            char *d_cmdLine;
+            const char *d_cmdLine;
         } DATA[] = {
             // LINE RET CMD_LINE
             // ---- --- ---------------
-            {  L_, -1, (char*)"mysort -riu -o myofile -aDUMBSORT f1 f2"      },
-            {  L_, -1, (char*)"mysort -riu f1 f2"                            },
-            {  L_,  0, (char*)"mysort -omyofile f1 f2 f3"                    },
-            {  L_,  0, (char*)"mysort -ainsertionSort f1 f2 f3"
+            {  L_, -1, "mysort -riu -o myofile -aDUMBSORT f1 f2"      },
+            {  L_, -1, "mysort -riu f1 f2"                            },
+            {  L_,  0, "mysort -omyofile f1 f2 f3"                    },
+            {  L_,  0, "mysort -ainsertionSort f1 f2 f3"
                                                       " -riu -o myofile"     },
-            {  L_,  0, (char*)"mysort --algorithm insertionSort"
+            {  L_,  0, "mysort --algorithm insertionSort"
                                     " --outputfile myofile  f1 f2 f3 --uniq" },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1946,6 +1949,187 @@ int main(int argc, const char *argv[])  {
             LOOP_ASSERT(LINE, RET == usageExample(ARGC, ARGV, veryVerbose));
         }
 
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING PRINTUSAGE
+        //
+        // Concerns:
+        //   That 'printUsage' properly formats the given variables.
+        //
+        // Plan:
+        //   Set up a variety of variables and options and verify that
+        //   'printUsage' formats them correctly.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING PRINTUSAGE\n"
+                             "==================\n";
+
+        if (veryVerbose) cout << "Complex case\n";
+        {
+            baea_CommandLineOptionInfo specTable[] = {
+              {
+                "r|reverse",
+                "isReverse",
+                "sort in reverse order",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_BOOL)
+              },
+              {
+                "i|insensitivetocase",
+                "isCaseInsensitive",
+                "be case insensitive while sorting",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_BOOL)
+              },
+              {
+                "u|uniq",
+                "isUniq",
+                "discard duplicate lines",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_BOOL)
+              },
+              {
+                "a|algorithm",
+                "sortAlgo",
+                "sorting algorithm",
+                baea_CommandLineTypeInfo(
+                                      baea_CommandLineOptionType::BAEA_STRING),
+                baea_CommandLineOccurrenceInfo(bsl::string("quickSort"))
+              },
+              {
+                "o|outputfile",
+                "outputFile",
+                "output file",
+                baea_CommandLineTypeInfo(
+                                      baea_CommandLineOptionType::BAEA_STRING),
+                baea_CommandLineOccurrenceInfo::BAEA_REQUIRED
+              },
+              {
+                "",
+                "fileList",
+                "files to be sorted",
+                baea_CommandLineTypeInfo(
+                                baea_CommandLineOptionType::BAEA_STRING_ARRAY),
+                baea_CommandLineOccurrenceInfo::BAEA_REQUIRED
+              }
+            };
+
+            baea_CommandLine cmdLine(specTable);
+
+            bsl::stringstream ss;
+            cmdLine.printUsage(ss);
+
+            if (veryVerbose) cout << ss.str() << endl;
+
+            const char *EXPECTED = "\n"
+"Usage: programName [-riu] [-a <sortAlgo>] -o <outputFile> [<fileList>]+\n"
+"Where:\n"
+"  -r | --reverse                                 sort in reverse order\n"
+"  -i | --insensitivetocase                       be case insensitive while\n"
+"                                                 sorting\n"
+"  -u | --uniq                                    discard duplicate lines\n"
+"  -a | --algorithm          <sortAlgo>           "
+                                                "sorting algorithm (default:\n"
+"                                                 quickSort)\n"
+"  -o | --outputfile         <outputFile>         output file\n"
+"                            <fileList>           files to be sorted\n";
+
+            LOOP_ASSERT(ss.str(), EXPECTED == ss.str());
+        }
+
+        if (veryVerbose) cout << "Medium case\n";
+        {
+            baea_CommandLineOptionInfo specTable[] = {
+              {
+                "w|woof",
+                "woof",
+                "grrowll",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_BOOL)
+              },
+              {
+                "a|arf",
+                "arf",
+                "arrrrrrrrrrf",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_BOOL)
+              },
+              {
+                "meow",
+                "meow",
+                "merrrrower",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_BOOL)
+              },
+              {
+                "n|number",
+                "number",
+                "#",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_INT)
+              },
+              {
+                "s|size",
+                "size",
+                "size in bytes",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_INT),
+                baea_CommandLineOccurrenceInfo::BAEA_REQUIRED
+              },
+              {
+                "m|meters",
+                "meters",
+                "distance",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_INT)
+              },
+              {
+                "radius",
+                "radius",
+                "half diameter",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_INT)
+              },
+            };
+
+            baea_CommandLine cmdLine(specTable);
+
+            bsl::stringstream ss;
+            cmdLine.printUsage(ss);
+
+            if (veryVerbose) cout << ss.str() << endl;
+
+            const char *EXPECTED = "\n"
+"Usage: programName [-wa] [--meow] [-n <number>] -s <size> [-m <meters>]\n"
+"                   [--radius <radius>]\n"
+"Where:\n"
+"  -w | --woof              grrowll\n"
+"  -a | --arf               arrrrrrrrrrf\n"
+"       --meow              merrrrower\n"
+"  -n | --number  <number>  #\n"
+"  -s | --size    <size>    size in bytes\n"
+"  -m | --meters  <meters>  distance\n"
+"       --radius  <radius>  half diameter\n";
+
+            LOOP_ASSERT(ss.str(), EXPECTED == ss.str());
+        }
+
+        if (veryVerbose) cout << "Simple pathological case (fixed)\n";
+        {
+            baea_CommandLineOptionInfo specTable[] = {
+              {
+                "reverse",
+                "isReverse",
+                "sort in reverse order",
+                baea_CommandLineTypeInfo(baea_CommandLineOptionType::BAEA_BOOL)
+              }
+            };
+
+            baea_CommandLine cmdLine(specTable);
+
+            bsl::stringstream ss;
+            cmdLine.printUsage(ss);
+
+            if (veryVerbose) cout << ss.str() << endl;
+
+            const char *EXPECTED = "\n"
+"Usage: programName  [--reverse]\n"
+"Where:\n"
+"       --reverse               sort in reverse order\n";
+
+            LOOP_ASSERT(ss.str(), EXPECTED == ss.str());
+        }
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -2979,14 +3163,14 @@ int main(int argc, const char *argv[])  {
 
         for (int i = 0, j = NUM_OPTIONS; i < NUM_OPTIONS; ++i, ++j) {
             limit = 0;
-            arrayNonOption = options[i].d_tag.empty() &&
-                                 ET::isArrayType(options[i].d_typeInfo.type())
-                          || options[j].d_tag.empty() &&
-                                 ET::isArrayType(options[j].d_typeInfo.type());
-            defaultNonOption = options[i].d_tag.empty() &&
-                                    options[i].d_defaultInfo.hasDefaultValue()
-                            || options[j].d_tag.empty() &&
-                                    options[j].d_defaultInfo.hasDefaultValue();
+            arrayNonOption = (options[i].d_tag.empty() &&
+                                ET::isArrayType(options[i].d_typeInfo.type()))
+                          || (options[j].d_tag.empty() &&
+                                ET::isArrayType(options[j].d_typeInfo.type()));
+            defaultNonOption = (options[i].d_tag.empty() &&
+                                   options[i].d_defaultInfo.hasDefaultValue())
+                            || (options[j].d_tag.empty() &&
+                                   options[j].d_defaultInfo.hasDefaultValue());
 
             int k = ((i + 107) * (i + 293)) % NUM_OPTIONS;
             while (options[i].d_name == options[k].d_name
