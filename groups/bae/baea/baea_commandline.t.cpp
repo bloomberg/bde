@@ -1790,7 +1790,7 @@ namespace BAEA_COMMANDLINE_USAGE_EXAMPLE {
           },
           {
             "",                                          // non-option
-            "fileList",                                  // name
+            "file",                                      // name
             "files to be sorted",                        // description
             baea_CommandLineTypeInfo(&files)             // link
           }
