@@ -91,11 +91,13 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name='EncodeEmptyArrays' type='xs:boolean' default='false'>
+      <xs:element name='EncodeEmptyArrays' type='xs:boolean' default='true'
+                  bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
-            This option allows users to control if empty arrays should be
-            encoded or not.  By default empty arrays are always encoded.
+            This option allows users to control if empty arrays are encoded.
+            By default empty arrays are not encoded as encoding empty arrays is
+            non-compliant with the BER encoding specification.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
