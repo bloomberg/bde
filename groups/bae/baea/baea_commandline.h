@@ -205,9 +205,10 @@ BDES_IDENT("$Id: $")
 ///--------------------------------------------
 // Options can have several values.  For example, in the command-line
 // specification described by the following usage string, '*' denotes a
-// multi-valued option:
+// multi-valued option, and '+' denotes a multivalued option that must occur
+// at least once.
 //..
-//  usage: mycompiler [-l|library <libName>]* [-o|out outFile] objects...
+//  usage: mycompiler [-l|library <libName>]* [-o|out outFile] <object>+
 //..
 // multiple values can be given as follows:
 //..
@@ -233,7 +234,7 @@ BDES_IDENT("$Id: $")
 // Command-line arguments can appear in any order.  For example, given the
 // command-line specification described by the following usage string:
 //..
-//  usage: mysort [-r|reverse] [-o|outputfile <outfile>] files...
+//  usage: mysort [-r|reverse] [-o|outputfile <outfile>] <file>+
 //..
 // all the following command lines are valid:
 //..
@@ -593,8 +594,8 @@ BDES_IDENT("$Id: $")
 // following syntax:
 //..
 //  usage: mysort  [-r|reverse] [-i|insensitivetocase] [-u|uniq]
-//                 [-a|algorithm sortAlgo] <-o|outputfile outputFile>
-//                 fileList...
+//                 [-a|algorithm sortAlgo] -o|outputfile <outputFile>
+//                 <file>+
 //                            // Sort the specified files (in 'fileList'),
 //                            // using the specified sorting algorithm and
 //                            // write the output to the specified output file.
