@@ -2020,14 +2020,16 @@ int main(int argc, const char *argv[])  {
             if (veryVerbose) cout << ss.str() << endl;
 
             const char *EXPECTED = "\n"
-"Usage: programName [-riu] [-a <sortAlgo>] -o <outputFile> [<fileList>]+\n"
+"Usage: programName [-r|reverse] [-i|insensitivetocase] [-u|uniq]\n"
+"                   [-a|algorithm <sortAlgo>] -o|outputfile <outputFile>\n"
+"                   [<fileList>]+\n"
 "Where:\n"
 "  -r | --reverse                                 sort in reverse order\n"
 "  -i | --insensitivetocase                       be case insensitive while\n"
 "                                                 sorting\n"
 "  -u | --uniq                                    discard duplicate lines\n"
-"  -a | --algorithm          <sortAlgo>           "
-                                                "sorting algorithm (default:\n"
+"  -a | --algorithm          <sortAlgo>           sorting algorithm (default:"
+"\n"
 "                                                 quickSort)\n"
 "  -o | --outputfile         <outputFile>         output file\n"
 "                            <fileList>           files to be sorted\n";
@@ -2091,8 +2093,8 @@ int main(int argc, const char *argv[])  {
             if (veryVerbose) cout << ss.str() << endl;
 
             const char *EXPECTED = "\n"
-"Usage: programName [-wa] [--meow] [-n <number>] -s <size> [-m <meters>]\n"
-"                   [--radius <radius>]\n"
+"Usage: programName [-w|woof] [-a|arf] [--meow] [-n|number <number>]\n"
+"                   -s|size <size> [-m|meters <meters>] [--radius <radius>]\n"
 "Where:\n"
 "  -w | --woof              grrowll\n"
 "  -a | --arf               arrrrrrrrrrf\n"
@@ -2124,7 +2126,7 @@ int main(int argc, const char *argv[])  {
             if (veryVerbose) cout << ss.str() << endl;
 
             const char *EXPECTED = "\n"
-"Usage: programName  [--reverse]\n"
+"Usage: programName [--reverse]\n"
 "Where:\n"
 "       --reverse               sort in reverse order\n";
 
@@ -2782,11 +2784,13 @@ int main(int argc, const char *argv[])  {
             bool exceptionCaught = false;
 
             OptionInfo SPEC[] = {
+              {
                 TAG,                 // non-option
                 "SomeValidName",     // name
                 "Some description",  // description
                 createTypeInfo(ET::BDEM_BOOL),
                 OccurrenceInfo::BAEA_OPTIONAL
+              }
             };
 
             if (verbose) { T_(); T_(); P_(LINE); P_(IS_VALID); P(TAG); }

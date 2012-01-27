@@ -3853,29 +3853,9 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
     bsl::vector<bsl::string> options;
     bsl::vector<bsl::string> nonOptions;
 
-    // options[0] is the conglomeration of all optional single-arg booleans.
-    // options[1] is the conglomeration of all required single-arg booleans,
-    // a required boolean really doesn't make much sense, but the specification
-    // allows for it, so let's support it.
-
-    options.push_back("");  // optional flags
-    options.push_back("");  // required flags
     for (unsigned int i = 0; i < d_options.size(); ++i) {
         switch (d_options[i].argType()) {
-          case baea_CommandLineOptionInfo::BAEA_FLAG: {
-            if (!d_options[i].occurrenceInfo().isHidden()
-             && d_options[i].shortTag()) {
-                if (d_options[i].occurrenceInfo().isRequired()) {
-                    options[1].append(1, d_options[i].shortTag());
-                } else {
-                    options[0].append(1, d_options[i].shortTag());
-                }
-                break;                                                 // BREAK
-            }
-          }                                                     // FALL THROUGH
-
-          // note this falls through for long-form-only bools
-
+          case baea_CommandLineOptionInfo::BAEA_FLAG:
           case baea_CommandLineOptionInfo::BAEA_OPTION: {
             if (d_options[i].occurrenceInfo().isHidden()) {
                 break;
@@ -3892,68 +3872,65 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
             }
 
             options.push_back("");
+            bsl::string& latest = options.back();
             if (start) {
-                options.back().append(1, start);
+                latest.append(1, start);
             }
             if (d_options[i].shortTag()) {
-                options.back().append(1, '-');
-                options.back().append(1, d_options[i].shortTag());
+                latest.append(1, '-');
+                latest.append(1, d_options[i].shortTag());
+                latest.append(1, '|');
             } else {
-                options.back().append(2, '-');
-                options.back().append(d_options[i].longTag());
+                latest.append(2, '-');
             }
+            latest.append(d_options[i].longTag());
             if (baea_CommandLineOptionInfo::BAEA_FLAG != 
                                                       d_options[i].argType()) {
-                options.back().append(1, ' ');
-                options.back().append(1, '<');
-                options.back().append(d_options[i].name());
-                options.back().append(1, '>');
+                latest.append(1, ' ');
+                latest.append(1, '<');
+                latest.append(d_options[i].name());
+                latest.append(1, '>');
             }
             if (end) {
-                options.back().append(1, end);
+                latest.append(1, end);
             }
             if (multiIndicator) {
-                options.back().append(1, multiIndicator);
+                latest.append(1, multiIndicator);
             }
           } break;                                                     // BREAK
           case baea_CommandLineOptionInfo::BAEA_NON_OPTION: {
             char start = 0, end = 0, multiIndicator = 0;
 
-             if (d_options[i].isArray()
-              || !d_options[i].occurrenceInfo().isRequired()) {
-                 start = '[';
-                 end = ']';
-             }
+            if (d_options[i].isArray()
+             || !d_options[i].occurrenceInfo().isRequired()) {
+                start = '[';
+                end = ']';
+            }
+            
+            if (d_options[i].isArray()) {
+                multiIndicator =
+                      !d_options[i].occurrenceInfo().isRequired() ? '*' : '+';
+            }
 
-             if (d_options[i].isArray()) {
-                 multiIndicator =
-                       !d_options[i].occurrenceInfo().isRequired() ? '*' : '+';
-             }
-
-             nonOptions.push_back("");
-             if (start) {
-                 nonOptions.back().append(1, start);
-             }
-             nonOptions.back().append(1, '<');
-             nonOptions.back().append(d_options[i].name());
-             nonOptions.back().append(1, '>');
-             if (end) {
-                 nonOptions.back().append(1, end);
-             }
-             if (multiIndicator) {
-                 nonOptions.back().append(1, multiIndicator);
-             }
+            nonOptions.push_back("");
+            bsl::string& latest = nonOptions.back();
+            if (start) {
+                latest.append(1, start);
+            }
+            latest.append(1, '<');
+            latest.append(d_options[i].name());
+            latest.append(1, '>');
+            if (end) {
+                latest.append(1, end);
+            }
+            if (multiIndicator) {
+                latest.append(1, multiIndicator);
+            }
           } break;                                                     // BREAK
           default: {
             BSLS_ASSERT(0);
           } break;
         }
-    }
-    if (options[0].size() != 0) {
-        options[0] = bsl::string("[-") + options[0] + bsl::string("]");
-    }
-    if (options[1].size() != 0) {
-        options[1] = bsl::string("-") + options[1];
     }
     options.insert(options.end(), nonOptions.begin(), nonOptions.end());
 
