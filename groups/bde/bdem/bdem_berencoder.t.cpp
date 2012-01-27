@@ -9912,15 +9912,15 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 If 'bdem_BerEncoderOptions' is not specified then empty arrays
-        //:   are not encoded.
+        //:   are encoded.
         //:
         //: 2 If 'bdem_BerEncoderOptions' is specified but the
-        //:   'encodeEmptyArrays' is set to 'true' then empty arrays
-        //:   are always encoded.
+        //:   'encodeEmptyArrays' is set to 'false' then empty arrays
+        //:   are not encoded.
         //:
         //: 3 If 'bdem_BerEncoderOptions' is specified and the
-        //:   'encodeEmptyArrays' option is not set or set to 'false' then
-        //:   empty arrays are not encoded.
+        //:   'encodeEmptyArrays' option is not set or set to 'true' then
+        //:   empty arrays are encoded.
         //:
         //: 4 Non-empty arrays are always encoded.
         //
@@ -9964,8 +9964,8 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting with empty array." << bsl::endl;
         {
             bdem_BerEncoderOptions options1, options2, options3;
-            options1.encodeEmptyArrays() = true;
-            options2.encodeEmptyArrays() = false;
+            options1.setEncodeEmptyArrays(true);
+            options2.setEncodeEmptyArrays(false);
 
             bdem_BerEncoder encoder1(&options1), encoder2(&options2),
                             encoder3(&options3), encoder4;
@@ -9981,10 +9981,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == encoder4.encode(&osb4, value));
 
             ASSERT(osb1.length()  > osb2.length());
-            ASSERT(osb2.length() == osb3.length());
-            ASSERT(osb2.length() == osb4.length());
-            ASSERT(0 == memcmp(osb2.data(), osb3.data(), osb2.length()));
-            ASSERT(0 == memcmp(osb2.data(), osb4.data(), osb2.length()));
+            ASSERT(osb1.length() == osb3.length());
+            ASSERT(osb1.length() == osb4.length());
+            ASSERT(0 == memcmp(osb1.data(), osb3.data(), osb1.length()));
+            ASSERT(0 == memcmp(osb1.data(), osb4.data(), osb1.length()));
 
             printDiagnostic(encoder1);
             printDiagnostic(encoder2);
@@ -10010,8 +10010,8 @@ int main(int argc, char *argv[])
                                << bsl::endl;
         {
             bdem_BerEncoderOptions options1, options2, options3;
-            options1.encodeEmptyArrays() = true;
-            options2.encodeEmptyArrays() = false;
+            options1.setEncodeEmptyArrays(true);
+            options2.setEncodeEmptyArrays(false);
 
             bdem_BerEncoder encoder1(&options1), encoder2(&options2),
                             encoder3(&options3), encoder4;
