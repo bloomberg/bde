@@ -75,12 +75,12 @@ using namespace std;
 // [ 5] void deallocate(ALLOC& a, pointer p, size_type n);
 // [ 6] void construct(ALLOC& a, T *p, Args&&... args);
 // [ 6] void destroy(ALLOC& a, T* p);
-// [  ] size_type max_size(const ALLOC& a);
-// [  ] ALLOC select_on_container_copy_construction(const ALLOC& rhs);
+// [ 7] size_type max_size(const ALLOC& a);
+// [ 8] ALLOC select_on_container_copy_construction(const ALLOC& rhs);
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [  ] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
 // [ 2] TEST HARNESS
 
 //-----------------------------------------------------------------------------
@@ -1394,7 +1394,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1403,7 +1403,8 @@ int main(int argc, char *argv[])
         //: 2 The usage example in the header produces correct results
         //
         // Test plan:
-        //   Copy the usage examples from the header into this test driver.
+        //: o Copy the usage examples from the header into this test driver,
+        //:   replacing 'assert' with 'ASSERT' and 'main' with 'usageExample1'. 
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -1413,6 +1414,132 @@ int main(int argc, char *argv[])
                             "\n=====================\n");
 
         usageExample1();
+
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING SELECT_ON_CONTAINER_COPY_CONSTRUCTION
+        //
+        // Concerns:
+        //: 1 For an allocator 'a' of type 'ALLOC' that is convertible from
+        //:   'bslma_Allocator*', 'allocator_traits<ALLOC>::
+        //:   select_on_container_copy_construction(a)' returns 'ALLOC()'
+        //: 2 For an allocator 'a' of type 'ALLOC' that is NOT convertible
+        //:   from 'bslma_Allocator*', 'allocator_traits<ALLOC>::
+        //:   select_on_container_copy_construction(a)' returns 'a'
+        //
+        // Plan
+        //: o For a variety of allocators, test that the function under test
+        //:   returns the appropriate result.
+        //
+        // Testing:
+        //   ALLOC select_on_container_copy_construction(const ALLOC& rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting select_on_container_copy_construction"
+                            "\n============================================="
+                            "\n");
+
+#define TEST_SOCCC_COPY(ALLOC) {                                             \
+            ALLOC a;                                                         \
+            typedef allocator_traits<ALLOC> AT;                              \
+            ASSERT(AT::select_on_container_copy_construction(a) == a);       \
+        } break;
+
+#define TEST_SOCCC_DFLT(ALLOC) {                                             \
+            ALLOC a;                                                         \
+            typedef allocator_traits<ALLOC> AT;                              \
+            ASSERT(AT::select_on_container_copy_construction(a) == ALLOC()); \
+        } break;
+
+        typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
+        typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
+        typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
+
+        TEST_SOCCC_COPY(NonBslmaAllocator<int>);
+        TEST_SOCCC_DFLT(BslmaAllocator<int>);
+        TEST_SOCCC_DFLT(FunkyAllocator<int>);
+
+        TEST_SOCCC_COPY(NonBslmaAllocator<AttribClass5>);
+        TEST_SOCCC_DFLT(BslmaAllocator<AttribClass5>);
+        TEST_SOCCC_DFLT(FunkyAllocator<AttribClass5>);
+
+        TEST_SOCCC_COPY(NonBslmaAllocator<AC5AllocNonBslma>);
+        TEST_SOCCC_DFLT(BslmaAllocator<AC5AllocNonBslma>);
+        TEST_SOCCC_DFLT(FunkyAllocator<AC5AllocNonBslma>);
+
+        TEST_SOCCC_COPY(NonBslmaAllocator<AC5AllocBslma>);
+        TEST_SOCCC_DFLT(BslmaAllocator<AC5AllocBslma>);
+        TEST_SOCCC_DFLT(FunkyAllocator<AC5AllocBslma>);
+
+        TEST_SOCCC_COPY(NonBslmaAllocator<AC5AllocFunky>);
+        TEST_SOCCC_DFLT(BslmaAllocator<AC5AllocFunky>);
+        TEST_SOCCC_DFLT(FunkyAllocator<AC5AllocFunky>);
+
+        TEST_SOCCC_COPY(NonBslmaAllocator<AttribClass5bslma>);
+        TEST_SOCCC_DFLT(BslmaAllocator<AttribClass5bslma>);
+        TEST_SOCCC_DFLT(FunkyAllocator<AttribClass5bslma>);
+
+#undef TEST_SOCCC_COPY
+#undef TEST_SOCCC_DFLT
+
+      } break;
+
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING MAX_SIZE
+        //
+        // Concerns:
+        //: 1 For any allocator 'a' of type 'ALLOC',
+        //:   'allocator_traits<ALLOC>::max_size(a)' will return the same
+        //:   value as 'a.max_size()'. 
+        //
+        // Plan:
+        //: o For a variety of allocators, test the result of calling
+        //:   'max_size' through the 'allocator_traits' is the same as calling
+        //:   'max_size' directly.
+        //
+        // Testing:
+        //   size_type max_size(const ALLOC& a);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting max_size"
+                            "\n================\n");
+
+#define TEST_MAX_SIZE(ALLOC) {                                              \
+            ALLOC a;                                                        \
+            ASSERT(allocator_traits<ALLOC >::max_size(a) == a.max_size());  \
+        }
+
+        typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
+        typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
+        typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
+
+        TEST_MAX_SIZE(NonBslmaAllocator<int>);
+        TEST_MAX_SIZE(BslmaAllocator<int>);
+        TEST_MAX_SIZE(FunkyAllocator<int>);
+
+        TEST_MAX_SIZE(NonBslmaAllocator<AttribClass5>);
+        TEST_MAX_SIZE(BslmaAllocator<AttribClass5>);
+        TEST_MAX_SIZE(FunkyAllocator<AttribClass5>);
+
+        TEST_MAX_SIZE(NonBslmaAllocator<AC5AllocNonBslma>);
+        TEST_MAX_SIZE(BslmaAllocator<AC5AllocNonBslma>);
+        TEST_MAX_SIZE(FunkyAllocator<AC5AllocNonBslma>);
+
+        TEST_MAX_SIZE(NonBslmaAllocator<AC5AllocBslma>);
+        TEST_MAX_SIZE(BslmaAllocator<AC5AllocBslma>);
+        TEST_MAX_SIZE(FunkyAllocator<AC5AllocBslma>);
+
+        TEST_MAX_SIZE(NonBslmaAllocator<AC5AllocFunky>);
+        TEST_MAX_SIZE(BslmaAllocator<AC5AllocFunky>);
+        TEST_MAX_SIZE(FunkyAllocator<AC5AllocFunky>);
+
+        TEST_MAX_SIZE(NonBslmaAllocator<AttribClass5bslma>);
+        TEST_MAX_SIZE(BslmaAllocator<AttribClass5bslma>);
+        TEST_MAX_SIZE(FunkyAllocator<AttribClass5bslma>);
+
+#undef TEST_MAX_SIZE        
 
       } break;
       case 6: {
