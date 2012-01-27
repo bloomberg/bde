@@ -12,6 +12,7 @@
 #include <bslalg_typetraitsgroupstlsequence.h>
 #include <bslmf_issame.h>
 #include <bslmf_removecvq.h>
+#include <bsls_objectbuffer.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -69,11 +70,11 @@ using namespace std;
 // [ 3] propagate_on_container_swap
 //
 // STATIC MEMBER FUNCTIONS:
-// [  ] pointer allocate(ALLOC& a, size_type n);
-// [  ] pointer allocate(ALLOC& a, size_type n, const_void_pointer hint);
-// [  ] void deallocate(ALLOC& a, pointer p, size_type n);
-// [  ] void construct(ALLOC& a, T *p, Args&&... args);
-// [  ] void destroy(ALLOC& a, T* p);
+// [ 5] pointer allocate(ALLOC& a, size_type n);
+// [ 5] pointer allocate(ALLOC& a, size_type n, const_void_pointer hint);
+// [ 5] void deallocate(ALLOC& a, pointer p, size_type n);
+// [ 6] void construct(ALLOC& a, T *p, Args&&... args);
+// [ 6] void destroy(ALLOC& a, T* p);
 // [  ] size_type max_size(const ALLOC& a);
 // [  ] ALLOC select_on_container_copy_construction(const ALLOC& rhs);
 //
@@ -196,14 +197,14 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // typedef bsls_Types::Uint64            Uint64;
 
 // 'g_x' is a dummy object with a unique address
-int g_x;
+struct Uniq { } g_x;
 
 // The following are default values for the 5 attributes of our test classes.
 char        const DFLT_A = ' ';
 int         const DFLT_B = 99;
 double      const DFLT_C = 1.0;
 const char *const DFLT_D = "hello";
-void       *const DFLT_E = &g_x;
+Uniq       *const DFLT_E = &g_x;
 
 //=============================================================================
 //                  GLOBAL HELPER CLASSES FOR TESTING
@@ -228,6 +229,10 @@ public:
     typedef T&              reference;
     typedef const T&        const_reference;
     typedef T               value_type;
+
+    // A client that uses this allocator should not have the
+    // bslalg_TypeTraitUsesBslmaAllocator trait.  This is a stand-in trait.
+    typedef struct UsesNonBslma { } ClientTrait;
 
     template <class U> struct rebind
     {
@@ -292,6 +297,9 @@ public:
     {
         typedef BslmaAllocator<U> other;
     };
+
+    // A client that uses this allocator should have this trait
+    typedef bslalg_TypeTraitUsesBslmaAllocator ClientTrait;
 
     BslmaAllocator(bslma_Allocator *basicAlloc = 0)
         : d_mechanism(bslma_Default::allocator(basicAlloc)) { }
@@ -388,7 +396,10 @@ public:
         typedef FunkyAllocator<U> other;
     };
 
-    explicit FunkyAllocator(bslma_Allocator *basicAlloc = 0)
+    // A client that uses this allocator should have this trait
+    typedef bslalg_TypeTraitUsesBslmaAllocator ClientTrait;
+
+    FunkyAllocator(bslma_Allocator *basicAlloc = 0)
         : d_mechanism(bslma_Default::allocator(basicAlloc)) { }
 
     pointer allocate(size_type n, const void *hint = 0) {
@@ -433,7 +444,7 @@ struct AttribStruct5
     int         d_b;
     double      d_c;
     const char *d_d;
-    void       *d_e;
+    Uniq       *d_e;
 };
 
 class AttribClass5
@@ -450,11 +461,13 @@ public:
     static int ctorCount() { return d_ctorCount; }
     static int dtorCount() { return d_dtorCount; }
 
-    AttribClass5(char        a = DFLT_A,
-                 int         b = DFLT_B,
-                 double      c = DFLT_C,
-                 const char *d = DFLT_D,
-                 void       *e = DFLT_E)
+    typedef bslma_Allocator* AllocatorType;
+
+    explicit AttribClass5(char        a = DFLT_A,
+                          int         b = DFLT_B,
+                          double      c = DFLT_C,
+                          const char *d = DFLT_D,
+                          Uniq       *e = DFLT_E)
     {
         AttribStruct5 values = { a, b, c, d, e };
         d_attrib = values;
@@ -470,7 +483,9 @@ public:
     int         b() const { return d_attrib.d_b; }
     double      c() const { return d_attrib.d_c; }
     const char *d() const { return d_attrib.d_d; }
-    void       *e() const { return d_attrib.d_e; }
+    Uniq       *e() const { return d_attrib.d_e; }
+
+    AllocatorType allocator() const { return bslma_Default::allocator(0); }
 };
 
 int AttribClass5::d_ctorCount = 0;
@@ -488,11 +503,17 @@ class AttribClass5Alloc
     ALLOC        d_allocator;
 
 public:
+    // Use the client trait exported by the allocator.  If the allocator uses
+    // the bslma model, then this type will be
+    // 'bslalg_TypeTraitUsesBslmaAllocator'
+    typedef typename ALLOC::ClientTrait UsesAllocTrait;
+    BSLALG_DECLARE_NESTED_TRAITS(AttribClass5Alloc, UsesAllocTrait);
+
     typedef ALLOC AllocatorType;
     
-    AttribClass5Alloc(const ALLOC& alloc = ALLOC())
+    explicit AttribClass5Alloc(const ALLOC& alloc = ALLOC())
         : d_attrib(), d_allocator(alloc) { }
-    AttribClass5Alloc(char a, const ALLOC& alloc = ALLOC())
+    explicit AttribClass5Alloc(char a, const ALLOC& alloc = ALLOC())
         : d_attrib(a), d_allocator(alloc) { }
     AttribClass5Alloc(char a, int b, const ALLOC& alloc = ALLOC())
         : d_attrib(a, b), d_allocator(alloc) { }
@@ -501,15 +522,22 @@ public:
     AttribClass5Alloc(char a, int b, double c, const char *d,
                       const ALLOC& alloc = ALLOC())
         : d_attrib(a, b, c, d), d_allocator(alloc) { }
-    AttribClass5Alloc(char a, int b, double c, const char *d, void *e,
+    AttribClass5Alloc(char a, int b, double c, const char *d, Uniq *e,
                       const ALLOC& alloc = ALLOC())
         : d_attrib(a, b, c, d, e), d_allocator(alloc) { }
+    AttribClass5Alloc(const AttribClass5Alloc& other)
+        : d_attrib(other.d_attrib)
+        , d_allocator(bslmf_IsConvertible<bslma_Allocator*,ALLOC>::VALUE ?
+                      ALLOC() : other.d_allocator)
+        { }
+    AttribClass5Alloc(const AttribClass5Alloc& other, const ALLOC& alloc)
+        : d_attrib(other.d_attrib), d_allocator(alloc) { }
 
     char        a() const { return d_attrib.a(); }
     int         b() const { return d_attrib.b(); }
     double      c() const { return d_attrib.c(); }
     const char *d() const { return d_attrib.d(); }
-    void       *e() const { return d_attrib.e(); }
+    Uniq       *e() const { return d_attrib.e(); }
 
     AllocatorType allocator() const { return d_allocator; }
 };
@@ -524,11 +552,14 @@ class AttribClass5bslma
     bslma_Allocator* d_allocator;
 
 public:
+    BSLALG_DECLARE_NESTED_TRAITS(AttribClass5bslma,
+                                 bslalg_TypeTraitUsesBslmaAllocator);
+
     typedef bslma_Allocator* AllocatorType;
 
-    AttribClass5bslma(bslma_Allocator *alloc = 0)
+    explicit AttribClass5bslma(bslma_Allocator *alloc = 0)
         : d_attrib(), d_allocator(bslma_Default::allocator(alloc)) { }
-    AttribClass5bslma(char a, bslma_Allocator *alloc = 0)
+    explicit AttribClass5bslma(char a, bslma_Allocator *alloc = 0)
         : d_attrib(a), d_allocator(bslma_Default::allocator(alloc)) { }
     AttribClass5bslma(char a, int b, bslma_Allocator *alloc = 0)
         : d_attrib(a, b), d_allocator(bslma_Default::allocator(alloc)) { }
@@ -538,28 +569,32 @@ public:
                       bslma_Allocator *alloc = 0)
         : d_attrib(a, b, c, d)
         , d_allocator(bslma_Default::allocator(alloc)) { }
-    AttribClass5bslma(char a, int b, double c, const char *d, void *e,
+    AttribClass5bslma(char a, int b, double c, const char *d, Uniq *e,
                       bslma_Allocator *alloc = 0)
         : d_attrib(a, b, c, d, e)
+        , d_allocator(bslma_Default::allocator(alloc)) { }
+    AttribClass5bslma(const AttribClass5bslma& other,
+                      bslma_Allocator *alloc = 0)
+        : d_attrib(other.d_attrib)
         , d_allocator(bslma_Default::allocator(alloc)) { }
 
     char        a() const { return d_attrib.a(); }
     int         b() const { return d_attrib.b(); }
     double      c() const { return d_attrib.c(); }
     const char *d() const { return d_attrib.d(); }
-    void       *e() const { return d_attrib.e(); }
+    Uniq       *e() const { return d_attrib.e(); }
 
     bslma_Allocator *allocator() const { return d_allocator; }
 };
 
 template <class T>
-bool matchAttrib(const T& v, char a, int b, double c, const char *d, void *e)
+bool matchAttrib(const T& v, char a, int b, double c, const char *d, Uniq *e)
 {
     return v.a() == a && v.b() == b && v.c() == c && v.d() == d && v.e() == e;
 }
 
 template <class T, class ALLOC>
-bool matchAttrib(const T& v, char a, int b, double c, const char *d, void *e,
+bool matchAttrib(const T& v, char a, int b, double c, const char *d, Uniq *e,
                  const ALLOC& alloc)
 {
     return matchAttrib(v, a, b, c, d, e) && v.allocator() == alloc;
@@ -895,7 +930,7 @@ void testAttribClass(const char* className)
     typedef typename T::AllocatorType Alloc;
 
     // Contents of this array are unimportant -- only their addresses are used.
-    int addresses[5];
+    Uniq addresses[5];
 
     // Small set of random values for testing attributes.  None of these
     // values match the default for the corresponding attribute.
@@ -922,7 +957,7 @@ void testAttribClass(const char* className)
         const int         B = DATA[i].d_b;
         const double      C = DATA[i].d_c;
         const char *const D = DATA[i].d_d;
-        void       *const E = DATA[i].d_e;
+        Uniq       *const E = DATA[i].d_e;
 
         T v0;
         LOOP2_ASSERT(className, i, matchAttrib(v0, DFLT_A, DFLT_B, DFLT_C,
@@ -980,7 +1015,7 @@ void testAttribClass<AttribClass5>(const char* className)
     if (verbose) printf("Testing attribute class %s\n", className);
 
     // Contents of this array are unimportant -- only their addresses are used.
-    int addresses[5];
+    Uniq addresses[5];
 
     // Small set of random values for testing attributes.  None of these
     // values match the default for the corresponding attribute.
@@ -1003,7 +1038,7 @@ void testAttribClass<AttribClass5>(const char* className)
         const int         B = DATA[i].d_b;
         const double      C = DATA[i].d_c;
         const char *const D = DATA[i].d_d;
-        void       *const E = DATA[i].d_e;
+        Uniq       *const E = DATA[i].d_e;
 
         AttribClass5 v0;
         LOOP2_ASSERT(className, i, matchAttrib(v0, DFLT_A, DFLT_B, DFLT_C,
@@ -1146,7 +1181,7 @@ void testRebind(const char* testName)
 }
 
 template <class ALLOC>
-void testAllocateDeallocate(const char* name)
+void testAllocateDeallocate(const char *name)
 {
     typedef allocator_traits<ALLOC>          TraitsT;
     typedef typename TraitsT::value_type     value_type;
@@ -1232,6 +1267,117 @@ void testAllocateDeallocate(const char* name)
     }
 }
 
+template <class ALLOC, class T>
+void testConstructDestroy(const char *allocname,
+                          const char *tname,
+                          bool        scoped)
+{
+    typedef allocator_traits<ALLOC> TraitsT;
+    typedef AttribClass5            C;
+
+    if (verbose) {
+        printf("Testing construct & destroy for alloc %s & obj type %s\n",
+               allocname, tname);
+    }
+
+    bslma_TestAllocator default_ta, ta;
+    bslma_DefaultAllocatorGuard guard(&default_ta);
+
+    ALLOC a(&ta);
+
+    // Expected allocator for object after construction will be a copy of 'a'
+    // if the scoped model is used or the default allocator otherwise.  Note
+    // that 'T::AllocatorType might be different than 'ALLOC', in which case
+    // 'scoped' must be false.
+    typename T::AllocatorType exp_a(scoped ? &ta : &default_ta);
+
+    // Contents of this array are unimportant -- only their addresses are used.
+    Uniq addresses[5];
+
+    // Small set of random values for testing attributes.  None of these
+    // values match the default for the corresponding attribute.
+    // Floating-point values are chosen to be exactly representable in IEEE
+    // format so that they can be compared for exact equality.
+    static const AttribStruct5 DATA[] = {
+        //  a    b    c          d             e
+        // ==== === ===== ============== ==============
+        {    0,  0,  0.0,            "",             0 },
+        {  'x',  0, -1.5,       "pizza", &addresses[0] },
+        {  'y', 42,  0.0,         "BDE", &addresses[1] },
+        {  'a', 98, 3.25,            "", &addresses[2] },
+        {  'm', -7, 0.25, "test driver",             0 },
+        {  'z', 98, 3.25, "test driver", &addresses[3] }
+    };
+    static const std::size_t NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+    for (int i = 0; i < NUM_DATA; ++i) {
+        const char        A = DATA[i].d_a;
+        const int         B = DATA[i].d_b;
+        const double      C = DATA[i].d_c;
+        const char *const D = DATA[i].d_d;
+        Uniq       *const E = DATA[i].d_e;
+
+        bsls_ObjectBuffer<T> objects[7];
+        int expCtorCount = C::ctorCount();
+        int expDtorCount = C::dtorCount();
+
+        TraitsT::construct(a, &objects[0].object());
+        LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
+        LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
+        LOOP3_ASSERT(allocname, tname, i,
+                     matchAttrib(objects[0].object(), DFLT_A, DFLT_B, DFLT_C,
+                                 DFLT_D, DFLT_E, exp_a));
+
+        TraitsT::construct(a, &objects[1].object(), A);
+        LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
+        LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
+        LOOP3_ASSERT(allocname, tname, i,
+                     matchAttrib(objects[1].object(), A, DFLT_B, DFLT_C,
+                                 DFLT_D, DFLT_E, exp_a));
+
+        TraitsT::construct(a, &objects[2].object(), A, B);
+        LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
+        LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
+        LOOP3_ASSERT(allocname, tname, i,
+                     matchAttrib(objects[2].object(), A, B, DFLT_C, DFLT_D,
+                                 DFLT_E, exp_a));
+
+        TraitsT::construct(a, &objects[3].object(), A, B, C);
+        LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
+        LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
+        LOOP3_ASSERT(allocname, tname, i,
+                     matchAttrib(objects[3].object(), A, B, C, DFLT_D, DFLT_E,
+                                 exp_a));
+
+        TraitsT::construct(a, &objects[4].object(), A, B, C, D);
+        LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
+        LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
+        LOOP3_ASSERT(allocname, tname, i,
+                     matchAttrib(objects[4].object(), A, B, C, D, DFLT_E,
+                                 exp_a));
+
+        TraitsT::construct(a, &objects[5].object(), A, B, C, D, E);
+        LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
+        LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
+        LOOP3_ASSERT(allocname, tname, i,
+                     matchAttrib(objects[5].object(), A, B, C, D, E, exp_a));
+
+        TraitsT::construct(a, &objects[6].object(), objects[5].object());
+        LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
+        LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
+        LOOP3_ASSERT(allocname, tname, i,
+                     matchAttrib(objects[6].object(), A, B, C, D, E, exp_a));
+
+        for (int j = 0; j < 7; ++j) {
+            TraitsT::destroy(a, &objects[i].object());
+            LOOP3_ASSERT(allocname,tname,i, C::ctorCount() == expCtorCount);
+            LOOP3_ASSERT(allocname,tname,i, C::dtorCount() == ++expDtorCount);
+            LOOP3_ASSERT(allocname,tname,i,
+                         0xdeadbeaf == objects[i].object().b());
+        }
+    }
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1248,7 +1394,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1269,12 +1415,125 @@ int main(int argc, char *argv[])
         usageExample1();
 
       } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING CONSTRUCT AND DESTROY
+        //
+        // Concerns:
+        //: 1 For an allocator 'a' of type 'ALLOC', calling
+        //:   'allocator_traits<ALLOC>::construct(a, p, args)', where 'p' is a
+        //:   pointer to an object of type 'T' and *args* represents 0 to 5
+        //:   constructor arguments for 'T', the constructor for 'T' will be
+        //:   invoked for the object at 'p' and will be passed *args*.
+        //: 2 (Special case of the previous concern) calling
+        //:   'allocator_traits<ALLOC>::construct(a, p, v)', where 'v' is an
+        //:   expression of type 'T' will result in the copy constructor for
+        //:   'T' being invoked to make a copy of 'v'.
+        //: 3 If 'T' is a type which has the trait
+        //:   'bslalg_TypeTraitUsesBslmaAllocator', and 'ALLOC' is convertable
+        //:   from 'bslma_Allocator*', then 'a' is passed as an additional
+        //:   constructor argument to 'allocator_traits<ALLOC>::construct'.
+        //: 4 Calling 'allocator_traits<ALLOC>::destroy(a, p)' invokes the
+        //:   destructor for 'T' for the object at 'p'.
+        //: 5 The behavior of 'construct' and 'destroy' is unaffected by the
+        //:   type of 'ALLOC::value_type' nor by the relationship between
+        //:   'ALLOC::value_type' and 'T'.
+        //
+        // Plan:
+        //: o Create a function template, 'testConstructDestruct' that can be
+        //:   instantiated with an arbitrary allocator type 'ALLOC' and type
+        //:   'T' and that addresses of the above concerns as follows. Give
+        //:   'testConstructDestruct' a boolean parameter, 'scoped', that the
+        //:   caller sets to 'true' if 'ALLOC' is convertible from
+        //:   'bslma_Allocator*' and 'T' has the trait
+        //:   'bslalg_TypeTraitUsesBslmaAllocator' (C1-C5)
+        //: o Within 'testConstructDestruct', create an aligned buffer 'b' for
+        //:   an object of type 'T'.  Create an allocator 'a' and call
+        //:   'allocator_traits<ALLOC>::construct(a, &b, args)', where args is
+        //:   0 to 5 arguments, including a single argument of type 'T'.
+        //:   Verify that a constructor for 'T' was called and that the
+        //:   resulting object has the expected attributes. (C1,C2)
+        //: o If 'scoped' is true, verify that the call to 'construct'
+        //:   resulted in the constructed object using allocator 'a'.
+        //:   Otherwise, the constructed object uses the default allocator.
+        //:   (C3)
+        //: o Call 'allocator_traits<ALLOC>::construct(a, &b)' and verify that
+        //:   the 'T' destructor for the object in 'b' has been invoked. (C4)
+        //: o Instantiate and invoke 'testConstructDestroy' on each meaningful
+        //:   combination of attribute classes ('AttribClass5',
+        //:   'AttribClass5Alloc', and 'AttribClass5bslma') and allocator type
+        //:   ('NonBslmaAllocator', 'BslmaAllocator', 'FunkyAllocator',
+        //:   including combinations were the allocator's 'value_type' does
+        //:   and does not match the attribute class.  When instantiating
+        //:   'testConstructDestroy', ensure that 'scoped' is set
+        //:   appropriately for the combination of the allocator and attribute
+        //:   class. (C1-C5)
+        //
+        // Testing:
+        //   void construct(ALLOC& a, T *p, Args&&... args);
+        //   void destroy(ALLOC& a, T* p);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING CONSTRUCT AND DESTROY"
+                            "\n=============================\n");
+
+#define TEST_CONSTRUCT_DESTROY(ALLOC, T, SCOPED)       \
+        testConstructDestroy<ALLOC, T >(#ALLOC, #T, (SCOPED));
+
+        typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
+        typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
+        typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
+
+        TEST_CONSTRUCT_DESTROY(NonBslmaAllocator<AttribClass5>,
+                               AttribClass5, false);
+        TEST_CONSTRUCT_DESTROY(BslmaAllocator<AttribClass5>,
+                               AttribClass5, false);
+        TEST_CONSTRUCT_DESTROY(FunkyAllocator<AttribClass5>,
+                               AttribClass5, false);
+
+        TEST_CONSTRUCT_DESTROY(NonBslmaAllocator<AC5AllocNonBslma>,
+                               AC5AllocNonBslma, false);
+        TEST_CONSTRUCT_DESTROY(BslmaAllocator<AC5AllocNonBslma>,
+                               AC5AllocNonBslma, false);
+        TEST_CONSTRUCT_DESTROY(FunkyAllocator<AC5AllocNonBslma>,
+                               AC5AllocNonBslma, false);
+
+        TEST_CONSTRUCT_DESTROY(NonBslmaAllocator<AC5AllocBslma>,
+                               AC5AllocBslma, false);
+        TEST_CONSTRUCT_DESTROY(NonBslmaAllocator<int>,
+                               AC5AllocBslma, false);
+        TEST_CONSTRUCT_DESTROY(BslmaAllocator<AC5AllocBslma>,
+                               AC5AllocBslma, true);
+        TEST_CONSTRUCT_DESTROY(FunkyAllocator<AC5AllocBslma>,
+                               AC5AllocBslma, true);
+
+        TEST_CONSTRUCT_DESTROY(NonBslmaAllocator<AC5AllocFunky>,
+                               AC5AllocFunky, false);
+        TEST_CONSTRUCT_DESTROY(BslmaAllocator<AC5AllocFunky>,
+                               AC5AllocFunky, true);
+        TEST_CONSTRUCT_DESTROY(BslmaAllocator<int>,
+                               AC5AllocFunky, true);
+        TEST_CONSTRUCT_DESTROY(FunkyAllocator<AC5AllocFunky>,
+                               AC5AllocFunky, true);
+
+        TEST_CONSTRUCT_DESTROY(NonBslmaAllocator<AttribClass5bslma>,
+                               AttribClass5bslma, false);
+        TEST_CONSTRUCT_DESTROY(BslmaAllocator<AttribClass5bslma>,
+                               AttribClass5bslma, true);
+        TEST_CONSTRUCT_DESTROY(FunkyAllocator<AttribClass5bslma>,
+                               AttribClass5bslma, true);
+        TEST_CONSTRUCT_DESTROY(FunkyAllocator<int>,
+                               AttribClass5bslma, true);
+
+#undef TEST_CONSTRUCT_DESTROY        
+
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING ALLOCATE AND DEALLOCATE
         //
         // Concerns:
-        //: 1 For any allocator, 'a' of type 'ALLOC', with value type 'T',
+        //: 1 For any allocator 'a' of type 'ALLOC', with value type 'T',
         //:   calling 'allocator_traits<ALLOC>::allocate(a, n)' results in a
         //:   pass-through call to 'a.allocate(n), returning enough space for
         //:   'n' objects of type 'T'.
@@ -1313,6 +1572,11 @@ int main(int argc, char *argv[])
         //:   'AttribClass5Alloc', and 'AttribClass5bslma') and allocator type
         //:   ('NonBslmaAllocator', 'BslmaAllocator',
         //:   'FunkyAllocator'). (C1-C4)
+        //
+        // Testing:
+        //   pointer allocate(ALLOC& a, size_type n);
+        //   pointer allocate(ALLOC& a, size_type n, const_void_pointer hint);
+        //   void deallocate(ALLOC& a, pointer p, size_type n);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ALLOCATE AND DEALLOCATE"
@@ -1323,7 +1587,7 @@ int main(int argc, char *argv[])
 
         typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
         typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
-        typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocFunky;
+        typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
 
         TEST_ALLOC_DEALLOC(NonBslmaAllocator<AttribClass5>);
         TEST_ALLOC_DEALLOC(BslmaAllocator<AttribClass5>);
@@ -1469,7 +1733,7 @@ int main(int argc, char *argv[])
 
         typedef AttribClass5Alloc<NonBslmaAllocator<int> > AC5AllocNonBslma;
         typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocBslma;
-        typedef AttribClass5Alloc<BslmaAllocator<int> >    AC5AllocFunky;
+        typedef AttribClass5Alloc<FunkyAllocator<int> >    AC5AllocFunky;
 
         TEST_NESTED_TYPEDEFS(NonBslmaAllocator<AttribClass5>);
         TEST_NESTED_TYPEDEFS(BslmaAllocator<AttribClass5>);
@@ -1578,10 +1842,10 @@ int main(int argc, char *argv[])
         //   class AttribClass5bslma;
         //   template <class T>
         //     bool matchAttrib(const T& v, char a, int b, double c,
-        //                      const char *d, void *e);
+        //                      const char *d, Uniq *e);
         //   template <class T, class ALLOC>
         //     bool matchAttrib(const T& v, char a, int b, double c,
-        //                      const char *d, void *e, const ALLOC& alloc);
+        //                      const char *d, Uniq *e, const ALLOC& alloc);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TEST HARNESS"
@@ -1600,9 +1864,9 @@ int main(int argc, char *argv[])
                                       BslmaAllocator<AttribClass5> >::VALUE));
         ASSERT(! (bslmf_IsConvertible<bslma_Allocator*,
                                     NonBslmaAllocator<AttribClass5> >::VALUE));
-        ASSERT(! (bslmf_IsConvertible<bslma_Allocator*,
+        ASSERT(  (bslmf_IsConvertible<bslma_Allocator*,
                                       FunkyAllocator<int> >::VALUE));
-        ASSERT(! (bslmf_IsConvertible<bslma_Allocator*,
+        ASSERT(  (bslmf_IsConvertible<bslma_Allocator*,
                                       FunkyAllocator<AttribClass5> >::VALUE));
 
         testAttribClass<AttribClass5>("AttribClass5");

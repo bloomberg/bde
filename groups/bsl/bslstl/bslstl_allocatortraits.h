@@ -606,6 +606,10 @@ struct allocator_traits {
         // 'false_type' otherwise.
 };
 
+// ===========================================================================
+//          INLINE AND TEMPLATE STATIC MEMBER FUNCTION DEFINITIONS
+// ===========================================================================
+
 #ifdef BDE_CXX0X_VARIADIC_TEMPLATES
 template <class ALLOC>
     template <class T, class... Args>
@@ -920,22 +924,6 @@ allocator_traits<ALLOC>::select_on_container_copy_construction(
 {
     return selectOnCopyConstruct(rhs, IsBslma());
 }
-
-// FREE OPERATORS
-
-// ===========================================================================
-//                      INLINE FUNCTION DEFINITIONS
-// ===========================================================================
-
-// CLASS METHODS
-
-// CREATORS
-
-// MANIPULATORS
-
-// ACCESSORS
-
-// FREE OPERATORS
 
 }  // close namespace bsl
 
