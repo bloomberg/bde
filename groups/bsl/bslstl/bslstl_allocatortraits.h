@@ -256,8 +256,12 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_hastrait.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
-#include <bslalg_typetraitusesbslmaallocator.h>
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalarprimitives.h>
+#endif
+
+#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
+#include <bslalg_scalardestructionprimitives.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_METAINT
@@ -306,125 +310,22 @@ struct allocator_traits {
     typename BloombergLP::bslmf_IsConvertible<BloombergLP::bslma_Allocator*,
                                               ALLOC>::Type IsBslma;
 
-    // 'IsScoped::VALUE' is true iff 'IsBslma::VALUE' is true and 'T' has the
-    // 'bslalg_TypeTraitUsesBslmaAllocator' trait, i.e., if the allocator
-    // should be passed to 'T's constructor.
-    template <class T>
-    struct IsScoped
-    {
-        enum {
-            USES_BDEMA = BloombergLP::bslalg_HasTrait<T,
-                   BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>::VALUE
-        };
-
-        typedef BloombergLP::bslmf_MetaInt<IsBslma::VALUE && USES_BDEMA> Type;
-    };
-
-    // construct object, passing the allocator in if scoped and ignoring
-    // the allocator otherwise.
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
-    template <class T, class... Args>
-    static void doConstruct(TrueType   /*scoped*/,
-                            ALLOC&     a,
-                            T         *p,
-                            Args&&...  args);
-
-    template <class T, class... Args>
-    static void doConstruct(FalseType  /*scoped*/,
-                            ALLOC&     a,
-                            T         *p,
-                            Args&&...  args);
-#else
-    template <class T>
-    static void doConstruct(TrueType     /*scoped*/,
-                            ALLOC&       a,
-                            T           *p);
-    template <class T, class ARG1>
-    static void doConstruct(TrueType     /*scoped*/,
-                            ALLOC&       a,
-                            T           *p,
-                            const ARG1&  a1);
-    template <class T, class ARG1, class ARG2>
-    static void doConstruct(TrueType     /*scoped*/,
-                            ALLOC&       a,
-                            T           *p,
-                            const ARG1&  a1,
-                            const ARG2&  a2);
-    template <class T, class ARG1, class ARG2, class ARG3>
-    static void doConstruct(TrueType     /*scoped*/,
-                            ALLOC&       a,
-                            T           *p,
-                            const ARG1&  a1,
-                            const ARG2&  a2,
-                            const ARG3&  a3);
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4>
-    static void doConstruct(TrueType     /*scoped*/,
-                            ALLOC&       a,
-                            T           *p,
-                            const ARG1&  a1,
-                            const ARG2&  a2,
-                            const ARG3&  a3,
-                            const ARG4&  a4);
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5>
-    static void doConstruct(TrueType     /*scoped*/,
-                            ALLOC&       a,
-                            T           *p,
-                            const ARG1&  a1,
-                            const ARG2&  a2,
-                            const ARG3&  a3,
-                            const ARG4&  a4,
-                            const ARG5&  a5);
-
-    template <class T>
-    static void doConstruct(FalseType    /*scoped*/,
-                            ALLOC&       a,
-                            T           *p);
-    template <class T, class ARG1>
-    static void doConstruct(FalseType    /*scoped*/,
-                            ALLOC&       a,
-                            T           *p,
-                            const ARG1&  a1);
-    template <class T, class ARG1, class ARG2>
-    static void doConstruct(FalseType    /*scoped*/,
-                            ALLOC&       a,
-                            T           *p,
-                            const ARG1&  a1,
-                            const ARG2&  a2);
-    template <class T, class ARG1, class ARG2, class ARG3>
-    static void doConstruct(FalseType    /*scoped*/,
-                            ALLOC&       a,
-                            T           *p,
-                            const ARG1&  a1,
-                            const ARG2&  a2,
-                            const ARG3&  a3);
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4>
-    static void doConstruct(FalseType    /*scoped*/,
-                            ALLOC&       a,
-                            T           *p,
-                            const ARG1&  a1,
-                            const ARG2&  a2,
-                            const ARG3&  a3,
-                            const ARG4&  a4);
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5>
-    static void doConstruct(FalseType    /*scoped*/,
-                            ALLOC&       a,
-                            T           *p,
-                            const ARG1&  a1,
-                            const ARG2&  a2,
-                            const ARG3&  a3,
-                            const ARG4&  a4,
-                            const ARG5&  a5);
-#endif
-
     static ALLOC selectOnCopyConstruct(const ALLOC& a, FalseType);
-        // Return allocator 'a'.  This function is called when 'ALLOC' is
+        // Return allocator 'a'.  This function is called only when 'ALLOC' is
         // not a bslma allocator.
 
     static ALLOC selectOnCopyConstruct(const ALLOC&, TrueType);
         // Return a default constructed 'ALLOC' object.  This function is
-        // called when 'ALLOC' is bslma allocator.
+        // called only when 'ALLOC' is bslma allocator.
+
+    static void *mechanism(const ALLOC&, FalseType);
+        // Return a null pointer.  This function is called only when 'ALLOC'
+        // is not a bslma allocator.
+    
+    static BloombergLP::bslma_Allocator *mechanism(const ALLOC& a, TrueType);
+        // Return the 'bslma_Allocator' pointer that implements the mechanism
+        // for the specified allocator 'a', i.e., return 'a.mechanism()'. This
+        // function is called only when 'ALLOC' is bslma allocator.
 
   public:
     // PUBLIC TYPES
@@ -610,179 +511,6 @@ struct allocator_traits {
 //          INLINE AND TEMPLATE STATIC MEMBER FUNCTION DEFINITIONS
 // ===========================================================================
 
-#ifdef BDE_CXX0X_VARIADIC_TEMPLATES
-template <class ALLOC>
-    template <class T, class... Args>
-inline
-void allocator_traits<ALLOC>::doConstruct(TrueType  /*scoped*/,
-                                          ALLOC&    a,
-                                          T        *p,
-                                          Args&&... args)
-{
-    ::new((void*) p) T(std::forward<Args>(args)..., a.mechanism());
-}
-
-template <class ALLOC>
-    template <class T, class... Args>
-inline
-void allocator_traits<ALLOC>::doConstruct(FalseType  /*scoped*/,
-                                          ALLOC&    a,
-                                          T        *p,
-                                          Args&&... args)
-{
-    ::new((void*) p) T(std::forward<Args>(args)...);
-}
-#else
-
-template <class ALLOC>
-    template <class T>
-inline
-void allocator_traits<ALLOC>::doConstruct(TrueType /*scoped*/, ALLOC& a, T* p)
-{
-    ::new((void*) p) T(a.mechanism());
-}
-
-template <class ALLOC>
-    template <class T, class ARG1>
-inline
-void allocator_traits<ALLOC>::doConstruct(TrueType     /*scoped*/,
-                                          ALLOC&       a,
-                                          T           *p,
-                                          const ARG1&  a1)
-{
-    ::new((void*) p) T(a1, a.mechanism());
-}
-
-template <class ALLOC>
-    template <class T, class ARG1, class ARG2>
-inline
-void allocator_traits<ALLOC>::doConstruct(TrueType     /*scoped*/,
-                                          ALLOC&       a,
-                                          T           *p,
-                                          const ARG1&  a1,
-                                          const ARG2&  a2)
-{
-    ::new((void*) p) T(a1, a2, a.mechanism());
-}
-
-template <class ALLOC>
-    template <class T, class ARG1, class ARG2, class ARG3>
-inline
-void allocator_traits<ALLOC>::doConstruct(TrueType     /*scoped*/,
-                                          ALLOC&       a,
-                                          T           *p,
-                                          const ARG1&  a1,
-                                          const ARG2&  a2,
-                                          const ARG3&  a3)
-{
-    ::new((void*) p) T(a1, a2, a3, a.mechanism());
-}
-
-template <class ALLOC>
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4>
-inline
-void allocator_traits<ALLOC>::doConstruct(TrueType     /*scoped*/,
-                                          ALLOC&       a,
-                                          T           *p,
-                                          const ARG1&  a1,
-                                          const ARG2&  a2,
-                                          const ARG3&  a3,
-                                          const ARG4&  a4)
-{
-    ::new((void*) p) T(a1, a2, a3, a4, a.mechanism());
-}
-
-template <class ALLOC>
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5>
-inline
-void allocator_traits<ALLOC>::doConstruct(TrueType     /*scoped*/,
-                                          ALLOC&       a,
-                                          T           *p,
-                                          const ARG1&  a1,
-                                          const ARG2&  a2,
-                                          const ARG3&  a3,
-                                          const ARG4&  a4,
-                                          const ARG5&  a5)
-{
-    ::new((void*) p) T(a1, a2, a3, a4, a5, a.mechanism());
-}
-
-template <class ALLOC>
-    template <class T>
-inline
-void allocator_traits<ALLOC>::doConstruct(FalseType /*scoped*/, ALLOC& a, T* p)
-{
-    ::new((void*) p) T();
-}
-
-template <class ALLOC>
-    template <class T, class ARG1>
-inline
-void allocator_traits<ALLOC>::doConstruct(FalseType    /*scoped*/,
-                                          ALLOC&       a,
-                                          T           *p,
-                                          const ARG1&  a1)
-{
-    ::new((void*) p) T(a1);
-}
-
-template <class ALLOC>
-    template <class T, class ARG1, class ARG2>
-inline
-void allocator_traits<ALLOC>::doConstruct(FalseType    /*scoped*/,
-                                          ALLOC&       a,
-                                          T           *p,
-                                          const ARG1&  a1,
-                                          const ARG2&  a2)
-{
-    ::new((void*) p) T(a1, a2);
-}
-
-template <class ALLOC>
-    template <class T, class ARG1, class ARG2, class ARG3>
-inline
-void allocator_traits<ALLOC>::doConstruct(FalseType    /*scoped*/,
-                                          ALLOC&       a,
-                                          T           *p,
-                                          const ARG1&  a1,
-                                          const ARG2&  a2,
-                                          const ARG3&  a3)
-{
-    ::new((void*) p) T(a1, a2, a3);
-}
-
-template <class ALLOC>
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4>
-inline
-void allocator_traits<ALLOC>::doConstruct(FalseType    /*scoped*/,
-                                          ALLOC&       a,
-                                          T           *p,
-                                          const ARG1&  a1,
-                                          const ARG2&  a2,
-                                          const ARG3&  a3,
-                                          const ARG4&  a4)
-{
-    ::new((void*) p) T(a1, a2, a3, a4);
-}
-
-template <class ALLOC>
-    template <class T, class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5>
-inline
-void allocator_traits<ALLOC>::doConstruct(FalseType    /*scoped*/,
-                                          ALLOC&       a,
-                                          T           *p,
-                                          const ARG1&  a1,
-                                          const ARG2&  a2,
-                                          const ARG3&  a3,
-                                          const ARG4&  a4,
-                                          const ARG5&  a5)
-{
-    ::new((void*) p) T(a1, a2, a3, a4, a5);
-}
-#endif // !BDE_CXX0X_VARIADIC_TEMPLATES
-
 template <class ALLOC>
 inline
 ALLOC allocator_traits<ALLOC>::selectOnCopyConstruct(const ALLOC& a, FalseType)
@@ -795,6 +523,21 @@ inline
 ALLOC allocator_traits<ALLOC>::selectOnCopyConstruct(const ALLOC&, TrueType)
 {
     return ALLOC();
+}
+
+template <class ALLOC>
+inline
+void* allocator_traits<ALLOC>::mechanism(const ALLOC&, FalseType)
+{
+    return 0;
+}
+    
+template <class ALLOC>
+inline
+BloombergLP::bslma_Allocator *
+allocator_traits<ALLOC>::mechanism(const ALLOC& a, TrueType)
+{
+    return a.mechanism();
 }
 
 template <class ALLOC>
@@ -826,8 +569,8 @@ template <class T, class... Args>
 inline void
 allocator_traits<ALLOC>::construct(ALLOC& a, T* p, Args&&... args)
 {
-    doConstruct(typename IsScoped<T>::Type(), a, p,
-                std::forward<Args>(args)...);
+    BloombergLP::bslalg_ScalarPrimitives::construct(
+        p, std::forward<Args>(args)..., mechanism(a, IsBslma()));
 }
 #else
 template <class ALLOC>
@@ -836,7 +579,8 @@ inline void
 allocator_traits<ALLOC>::construct(ALLOC&  a,
                                    T      *p)
 {
-    doConstruct(typename IsScoped<T>::Type(), a, p);
+    BloombergLP::bslalg_ScalarPrimitives::defaultConstruct(
+        p, mechanism(a, IsBslma()));
 }
 
 template <class ALLOC>
@@ -846,7 +590,8 @@ allocator_traits<ALLOC>::construct(ALLOC&       a,
                                    T           *p,
                                    const ARG1&  a1)
 {
-    doConstruct(typename IsScoped<T>::Type(), a, p, a1);
+    BloombergLP::bslalg_ScalarPrimitives::construct(
+        p, a1, mechanism(a, IsBslma()));
 }
 
 template <class ALLOC>
@@ -857,7 +602,8 @@ allocator_traits<ALLOC>::construct(ALLOC&       a,
                                    const ARG1&  a1,
                                    const ARG2&  a2)
 {
-    doConstruct(typename IsScoped<T>::Type(), a, p, a1, a2);
+    BloombergLP::bslalg_ScalarPrimitives::construct(
+        p, a1, a2, mechanism(a, IsBslma()));
 }
 
 template <class ALLOC>
@@ -869,7 +615,8 @@ allocator_traits<ALLOC>::construct(ALLOC&       a,
                                    const ARG2&  a2,
                                    const ARG3&  a3)
 {
-    doConstruct(typename IsScoped<T>::Type(), a, p, a1, a2, a3);
+    BloombergLP::bslalg_ScalarPrimitives::construct(
+        p, a1, a2, a3, mechanism(a, IsBslma()));
 }
 
 template <class ALLOC>
@@ -882,7 +629,8 @@ allocator_traits<ALLOC>::construct(ALLOC&       a,
                                    const ARG3&  a3,
                                    const ARG4&  a4)
 {
-    doConstruct(typename IsScoped<T>::Type(), a, p, a1, a2, a3, a4);
+    BloombergLP::bslalg_ScalarPrimitives::construct(
+        p, a1, a2, a3, a4, mechanism(a, IsBslma()));
 }
 
 template <class ALLOC>
@@ -896,7 +644,8 @@ allocator_traits<ALLOC>::construct(ALLOC&       a,
                                    const ARG4&  a4,
                                    const ARG5&  a5)
 {
-    doConstruct(typename IsScoped<T>::Type(), a, p, a1, a2, a3, a4, a5);
+    BloombergLP::bslalg_ScalarPrimitives::construct(
+        p, a1, a2, a3, a4, a5, mechanism(a, IsBslma()));
 }
 
 #endif // ! BDE_CXX0X_VARIADIC_TEMPLATES
@@ -906,7 +655,7 @@ template <class T>
 inline void
 allocator_traits<ALLOC>::destroy(ALLOC& a, T* p)
 {
-    p->~T();
+    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(p);
 }
 
 template <class ALLOC>
