@@ -117,6 +117,40 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef Printer Obj;
 
+struct TestEnumNoStreaming {
+   // A test enum with no streaming operator.
+   enum Enum {
+       VALUE_A,
+       VALUE_B
+   };
+};
+
+struct TestEnumWithStreaming {
+    // A test enum with no streaming operator.
+    enum Enum {
+        VALUE_A,
+        VALUE_B
+    };
+};
+
+bsl::ostream& operator<<(bsl::ostream&               stream, 
+                         TestEnumWithStreaming::Enum value)
+{
+    const char *ascii;
+    switch (value) {
+      case TestEnumWithStreaming::VALUE_A: 
+        ascii = "VALUE_A";
+        break;
+      case TestEnumWithStreaming::VALUE_B: 
+        ascii = "VALUE_B";
+        break;
+      default:
+        BSLS_ASSERT(false);
+    }
+    stream << ascii;
+    return stream;
+}
+
 //=============================================================================
 //                        GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -2083,6 +2117,86 @@ int main(int argc, char *argv[])
                          << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
                 }
                 LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+            }
+        }
+        {
+            if (verbose) cout << "enum" << endl
+                              << "----" << endl;
+
+            // Test level & spaces per level
+            {
+                static const struct {
+                    int         d_lineNum;        // source line number
+                    int         d_level;          // indentation level
+                    int         d_spacesPerLevel; // spaces per indentation lvl
+                    bsl::string d_expected;       // expected output format
+                } DATA[] = {
+                    //LINE  LEVEL SPL EXPECTED OUTPUT
+                    //----  ----- --- --------------
+                    { L_,    2,    3, "         %s\n" },
+                    { L_,    2,   -3, " %s"           }
+                };
+                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+                
+                for (int i = 0; i < NUM_DATA;  ++i) {
+                    const int LINE  = DATA[i].d_lineNum;
+                    int LEVEL = DATA[i].d_level;
+                    int SPL   = DATA[i].d_spacesPerLevel;
+                    
+                    if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+                    
+                    ostringstream out;
+                    TestEnumWithStreaming::Enum value = 
+                                               TestEnumWithStreaming::VALUE_B;
+                    Obj p(&out, LEVEL, SPL); p.printValue(value);
+                    
+                    char buf[999];
+                    snprintf(buf, 999, DATA[i].d_expected.c_str(), "VALUE_B");
+                    const bsl::string EXPECTED(buf);
+                    const bsl::string& ACTUAL = out.str();
+                    
+                    if (veryVeryVerbose) {
+                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
+                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                    }
+                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+                }
+            }            
+            {
+                // Test different enum values
+                TestEnumWithStreaming::Enum asciiA = 
+                                                TestEnumWithStreaming::VALUE_A;
+                TestEnumWithStreaming::Enum asciiB = 
+                                                TestEnumWithStreaming::VALUE_B;
+                TestEnumNoStreaming::Enum nonAsciiA = 
+                                                  TestEnumNoStreaming::VALUE_A;
+                TestEnumNoStreaming::Enum nonAsciiB = 
+                                                  TestEnumNoStreaming::VALUE_B;
+
+                {
+                    ostringstream out;
+                    Obj p(&out, 0, -1); p.printValue(asciiA);
+                    const bsl::string EXPECTED(" VALUE_A");
+                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+                }
+                {
+                    ostringstream out;
+                    Obj p(&out, 0, -1); p.printValue(asciiB);
+                    const bsl::string EXPECTED(" VALUE_B");                   
+                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+                }
+                {
+                    ostringstream out;
+                    Obj p(&out, 0, -1); p.printValue(nonAsciiA);
+                    const bsl::string EXPECTED(" 0");                   
+                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+                }
+                {
+                    ostringstream out;
+                    Obj p(&out, 0, -1); p.printValue(nonAsciiB);
+                    const bsl::string EXPECTED(" 1");                   
+                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+                }
             }
         }
       } break;
