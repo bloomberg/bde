@@ -126,7 +126,7 @@ struct TestEnumNoStreaming {
 };
 
 struct TestEnumWithStreaming {
-    // A test enum with no streaming operator.
+    // A test enum with a streaming operator.
     enum Enum {
         VALUE_A,
         VALUE_B
