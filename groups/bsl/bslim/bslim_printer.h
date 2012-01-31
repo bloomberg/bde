@@ -727,7 +727,7 @@ struct Printer_DetectType {
     // TYPES
     enum {
         VALUE =
-        bslmf_IsFundamental<TYPE>::VALUE || bslmf_IsEnum<TYPE>::VALUE
+          bslmf_IsFundamental<TYPE>::VALUE || bslmf_IsEnum<TYPE>::VALUE
              ? Printer_Selector::BSLIM_FUNDAMENTAL
              : bslmf_IsFunctionPointer<TYPE>::VALUE
                 ? Printer_Selector::BSLIM_FUNCTION_POINTER
