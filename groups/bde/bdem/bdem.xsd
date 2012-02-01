@@ -96,7 +96,7 @@
         <xs:annotation>
           <xs:documentation>
             This option allows users to control if empty arrays are encoded.
-            By default empty arrays are not encoded as encoding empty arrays is
+            By default empty arrays are encoded as not encoding empty arrays is
             non-compliant with the BER encoding specification.
           </xs:documentation>
         </xs:annotation>
