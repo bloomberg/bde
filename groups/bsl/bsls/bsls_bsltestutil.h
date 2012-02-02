@@ -12,6 +12,19 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsls_BslTestUtil: utilities to aid writing 'bsl' test drivers
 //
+//@MACROS:
+//  BSLS_BSLTESTUTIL_LOOP_ASSERT(I, X)
+//  BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, X)
+//  BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, X)
+//  BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X)
+//  BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X)
+//  BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X)
+//  BSLS_BSLTESTUTIL_Q(X)
+//  BSLS_BSLTESTUTIL_P(X)
+//  BSLS_BSLTESTUTIL_P_(X)
+//  BSLS_BSLTESTUTIL_L_
+//  BSLS_BSLTESTUTIL_T_
+//
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides a set of macros and utility functions
@@ -109,9 +122,11 @@ BSLS_IDENT("$Id: $")
 //      LOOP_ASSERT(value, 42 == value);
 //    } break;
 //..
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+
+                       // =================
+                       // Macro Definitions
+                       // =================
+
 # define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) { \
     if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
@@ -151,9 +166,6 @@ BSLS_IDENT("$Id: $")
                 bsls_BslTestUtil::debugPrint(#N ": ", N, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
 #define BSLS_BSLTESTUTIL_Q(X)  bsls_BslTestUtil::printString("<| " #X " |>\n");
     // Quote identifier literally.
 
@@ -168,8 +180,6 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_BSLTESTUTIL_T_ bsls_BslTestUtil::printTabAndFlush();
     // Print a tab (w/o newline).
-
-//-----------------------------------------------------------------------------
 
 namespace BloombergLP {
 
