@@ -21,31 +21,26 @@ using namespace BloombergLP;
 // [ 2] Usage example
 //-----------------------------------------------------------------------------
 //
-///Usage
-///-----
-// In this section we show intended usage of this component.
-//
 ///Example 1: Writing a test driver
 /// - - - - - - - - - - - - - - - -
-// First we write a component to test, which might hold the following utility
-// class.
+// First, we write a component to test, which provides a utility class:
 //..
-    struct bsls_BslTestUtil_FortyTwo {
-        // This utility class provides sample functionality to demonstrate
-        // how a test driver might be written validating its only method.
+    struct xyza_BslExampleUtil {
+        // This utility class provides sample functionality to demonstrate how
+        // a test driver might be written validating its only method.
 
-        static int value();
+        static int fortyTwo();
             // Return the integer value '42'.
     };
 
     inline
-    int bsls_BslTestUtil_FortyTwo::value()
+    int xyza_BslExampleUtil::fortyTwo()
     {
         return 42;
     }
 //..
 // Then, we can write a test driver for this component.  We start by providing
-// the standard BDE assert test macro.
+// the standard BDE assert test macro:
 //..
     //=========================================================================
     //                       STANDARD BDE ASSERT TEST MACRO
@@ -63,7 +58,7 @@ using namespace BloombergLP;
     # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //..
 // Next, we define the standard print and LOOP_ASSERT macros, as aliases to the
-// macros defined by this component.
+// macros defined by this component:
 //..
     //=========================================================================
     //                       STANDARD BDE TEST DRIVER MACROS
@@ -81,8 +76,8 @@ using namespace BloombergLP;
     #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
     #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 //..
-// Finally, we write the test case for the 'value' function of this component,
-// using the (standard) abbreviated macro names we have just defined.
+// Finally, we write the test case for the 'static' 'fortyTwo' method, using
+// the (standard) abbreviated macro names we have just defined.
 //..
 //=============================================================================
 //                                MAIN PROGRAM
@@ -109,8 +104,9 @@ int main(int argc, char *argv[])
         //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into driver, remove leading
-        //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+        //: 1 Incorporate the usage example from the header into the test
+        //    driver, remove leading comment characters, and replace 'assert'
+        //    with 'ASSERT'.  (C-1)
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -119,7 +115,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING USAGE EXAMPLE"
                             "\n---------------------\n");
 
-        const int value = bsls_BslTestUtil_FortyTwo::value();
+        const int value = xyza_BslExampleUtil::fortyTwo();
         if (verbose) P(value);
         LOOP_ASSERT(value, 42 == value);
       } break;
@@ -241,7 +237,7 @@ int main(int argc, char *argv[])
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

@@ -137,9 +137,9 @@ void printValue(const void *p)
 template <typename BSLS_TYPE>
 void doDebugPrint(const char *s, const BSLS_TYPE& v, const char *t)
 {
-    BloombergLP::bsls_BslTestUtil::printString(s);
+    BloombergLP::bsls_BslTestUtil::printStringNoFlush(s);
     printValue(v);
-    BloombergLP::bsls_BslTestUtil::printString(t);
+    BloombergLP::bsls_BslTestUtil::printStringNoFlush(t);
     flush();
 }
 
@@ -248,12 +248,12 @@ void bsls_BslTestUtil::debugPrint(const char *s, const void *p, const char *t)
     doDebugPrint(s, p, t);
 }
 
-void bsls_BslTestUtil::printString(const char *s)
+void bsls_BslTestUtil::printStringNoFlush(const char *s)
 {
     printf("%s", s);
 }
 
-void bsls_BslTestUtil::printTabAndFlush()
+void bsls_BslTestUtil::printTab()
 {
     putchar('\t');
     flush();
@@ -263,7 +263,7 @@ void bsls_BslTestUtil::printTabAndFlush()
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
