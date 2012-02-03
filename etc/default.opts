@@ -923,6 +923,9 @@ unix-SunOS-sparc-*-cc      pic  BDE_CXXFLAGS   = -xcode=pic32
 unix-SunOS-*-*-cc       stlport     BDE_CXXFLAGS    = -library=stlport4 -template=no%extdef
 unix-SunOS-*-*-cc       stlport     BDE_LDFLAGS     = -library=stlport4
 
+# DRQS 29644737 - disable BSLS_IDENT to save space in bigs
+*                   _   BDE_CXXFLAGS = $(SWITCHCHAR)DBSLS_IDENT_OFF
+
 #old flags
 unix-AIX-*-*-CC64   _   CC64FLAGS   = -q64
 #new flags for 64 bits
