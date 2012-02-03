@@ -917,7 +917,7 @@ unix-SunOS-*-*-cc       stlport     BDE_CXXFLAGS    = -library=stlport4 -templat
 unix-SunOS-*-*-cc       stlport     BDE_LDFLAGS     = -library=stlport4
 
 # DRQS 29644737 - disable BSLS_IDENT to save space in bigs
-*                   _   BDE_CXXFLAG = $(SWITCHCHAR)DBSLS_IDENT_OFF
+*                   _   BDE_CXXFLAGS = $(SWITCHCHAR)DBSLS_IDENT_OFF
 
 #old flags
 unix-AIX-*-*-CC64   _   CC64FLAGS   = -q64
