@@ -349,7 +349,7 @@ bsls_ByteOrder__Util_x86_swap_64(const bsls_Types::Uint64 x)
     __asm__ ("bswap %0\n\t"
              "bswap %1\n\t"
            : "=r" (res), "=r" (tmp)
-           : "0" (x), "1" (x >> 32));
+           : "0" ((unsigned) x), "1" ((unsigned) (x >> 32)));
 
     return ((bsls_Types::Uint64)res << 32ULL)
           | (bsls_Types::Uint64)tmp;

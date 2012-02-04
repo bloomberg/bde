@@ -28,6 +28,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdef_function.h>
 #include <bdef_bind.h>
 
+#include <bdeut_nullablevalue.h>
+
 #include <bslma_default.h>
 #include <bslmf_metaint.h>
 #include <bsls_assert.h>
@@ -770,10 +772,12 @@ class btemt_Connector {
                                                     // connections must
                                                     // create channels
 
-    const bteso_SocketOptions  *d_socketOptions_p;  // socket options provided
+    bdeut_NullableValue<bteso_SocketOptions> d_socketOptions;
+                                                    // socket options provided
                                                     // for connect
 
-    const bteso_IPv4Address    *d_localAddress_p;  // client address to bind
+    bdeut_NullableValue<bteso_IPv4Address>   d_localAddress;
+                                                    // client address to bind
                                                     // while connecting
 
     // CREATORS
@@ -794,8 +798,6 @@ class btemt_Connector {
 inline
 btemt_Connector::btemt_Connector(bslma_Allocator *basicAllocator)
 : d_serverName(basicAllocator)
-, d_socketOptions_p(0)
-, d_localAddress_p(0)
 {
 }
 
@@ -814,8 +816,8 @@ btemt_Connector::btemt_Connector(const btemt_Connector&  original,
 , d_resolutionFlag(original.d_resolutionFlag)
 , d_readEnabledFlag(original.d_readEnabledFlag)
 , d_keepHalfOpenMode(original.d_keepHalfOpenMode)
-, d_socketOptions_p(original.d_socketOptions_p)
-, d_localAddress_p(original.d_localAddress_p)
+, d_socketOptions(original.d_socketOptions)
+, d_localAddress(original.d_localAddress)
 {
 }
 
@@ -2924,13 +2926,13 @@ void btemt_ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         // At this point, the serverAddress and socket are set and valid, and
         // socket is in non-blocking mode.
 
-        // If a client address is specified bind to that address.
-
-        if (cs.d_localAddress_p) {
-            const int rc = socket->bind(*cs.d_localAddress_p);
+        if (!cs.d_socketOptions.isNull()) {
+            const int rc = bteso_SocketOptUtil::setSocketOptions(
+                                                   socket->handle(),
+                                                   cs.d_socketOptions.value());
 
             if (rc) {
-                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_BINDING_CLIENT_ADDR,
+                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_SETTING_OPTIONS,
                               clientId,
                               BTEMT_ALERT);
                 bcemt_LockGuard<bcemt_Mutex> cGuard(&d_connectorsLock);
@@ -2939,13 +2941,13 @@ void btemt_ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
             }
         }
 
-        if (cs.d_socketOptions_p) {
-            const int rc = bteso_SocketOptUtil::setSocketOptions(
-                                                        socket->handle(),
-                                                        *cs.d_socketOptions_p);
+        // If a client address is specified bind to that address.
+
+        if (!cs.d_localAddress.isNull()) {
+            const int rc = socket->bind(cs.d_localAddress.value());
 
             if (rc) {
-                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_SETTING_OPTIONS,
+                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_BINDING_CLIENT_ADDR,
                               clientId,
                               BTEMT_ALERT);
                 bcemt_LockGuard<bcemt_Mutex> cGuard(&d_connectorsLock);
@@ -3602,8 +3604,14 @@ int btemt_ChannelPool::connect(const char                *serverName,
     cs.d_inProgress       = false;
     cs.d_readEnabledFlag  = readEnabledFlag;
     cs.d_keepHalfOpenMode = keepHalfOpenMode;
-    cs.d_socketOptions_p  = socketOptions;
-    cs.d_localAddress_p   = localAddress;
+
+    if (socketOptions) {
+        cs.d_socketOptions = *socketOptions;
+    }
+
+    if (localAddress) {
+        cs.d_localAddress = *localAddress;
+    }
 
     if (BTEMT_RESOLVE_ONCE == resolutionMode) {
         int errorCode = 0;
@@ -3683,8 +3691,14 @@ int btemt_ChannelPool::connect(const bteso_IPv4Address&   server,
     cs.d_inProgress       = false;
     cs.d_readEnabledFlag  = readEnabledFlag;
     cs.d_keepHalfOpenMode = mode;
-    cs.d_socketOptions_p  = socketOptions;
-    cs.d_localAddress_p   = localAddress;
+
+    if (socketOptions) {
+        cs.d_socketOptions = *socketOptions;
+    }
+
+    if (localAddress) {
+        cs.d_localAddress = *localAddress;
+    }
 
     bdetu_SystemTime::loadCurrentTime(&cs.d_start);
 

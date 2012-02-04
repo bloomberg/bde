@@ -34,6 +34,15 @@ BDES_IDENT("$Id: $")
 // tune the underlying thread pool in accordance with the 'bcep_ThreadPool'
 // documentation.
 //
+///Thread Safety
+///-------------
+// The 'bcep_MultiQueueThreadPool' class is *thread-aware*, but not *fully
+// thread-safe*.  The function-level documentation identifies methods (i.e.,
+// the 'reset' method) that cannot be safely used by multiple threads.  This
+// class is also *thread-enabled* (i.e., the class does not function correctly
+// in a non-multi-threading environment).  See 'bsldoc_glossary' for complete
+// definitions of *thread-aware*, *fully thread-safe*, and *thread-enabled*.
+//
 ///Usage Examples
 ///--------------
 // The first example illustrates how to use a 'bcep_MultiQueueThreadPool' in

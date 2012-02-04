@@ -752,8 +752,8 @@ bdec2_Map<KEY, VALUE, HASH>::~bdec2_Map()
 // MANIPULATORS
 template <class KEY, class VALUE, class HASH>
 inline
-bdec2_Map<KEY, VALUE, HASH>& bdec2_Map<KEY, VALUE, HASH>::
-                              operator=(const bdec2_Map<KEY, VALUE, HASH>& rhs)
+bdec2_Map<KEY, VALUE, HASH>&
+bdec2_Map<KEY, VALUE, HASH>::operator=(const bdec2_Map<KEY, VALUE, HASH>& rhs)
 {
     d_hashtable = rhs.d_hashtable;
     return *this;
@@ -1067,8 +1067,9 @@ bdec2_MapIter<KEY, VALUE, HASH>::~bdec2_MapIter()
 // MANIPULATORS
 template <class KEY, class VALUE, class HASH>
 inline
-bdec2_MapIter<KEY, VALUE, HASH>& bdec2_MapIter<KEY, VALUE, HASH>::
-                          operator=(const bdec2_MapIter<KEY, VALUE, HASH>& rhs)
+bdec2_MapIter<KEY, VALUE, HASH>&
+bdec2_MapIter<KEY, VALUE, HASH>::operator=(
+                                    const bdec2_MapIter<KEY, VALUE, HASH>& rhs)
 {
     d_iter          = rhs.d_iter;
     d_nextSlotIndex = rhs.d_nextSlotIndex;

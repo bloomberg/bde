@@ -108,6 +108,8 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 
+typedef baexml_NamespaceRegistry Registry;
+
 //=============================================================================
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
 //=============================================================================
@@ -418,7 +420,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING 'lookupNamespaceId'"
-                               << "\n================" << bsl::endl;
+                               << "\n===========================" << bsl::endl;
 
         const bsl::string N  = "http://google.com/xml";
         const bsl::string N1 = "http://google.com/xml1";
@@ -539,10 +541,33 @@ int main(int argc, char *argv[])
         i = x.lookupOrRegister(N2); ASSERT(1 == i);
 
         ASSERT(0 == y.numPrefixes());
-        ASSERT(baexml_NamespaceRegistry::BAEXML_XML ==
-               y.lookupNamespaceId("xml"));
-        ASSERT(baexml_NamespaceRegistry::BAEXML_XMLNS ==
-               y.lookupNamespaceId("xmlns"));
+
+        ASSERT(Registry::BAEXML_XML == y.lookupNamespaceId("xml"));
+        ASSERT(Registry::BAEXML_XMLNS == y.lookupNamespaceId("xmlns"));
+        ASSERT(Registry::BAEXML_XMLSCHEMA_INSTANCE ==
+                                                   y.lookupNamespaceId("xsi"));
+
+        ASSERT(0 == strcmp("xml", y.lookupNamespacePrefix("xml")));
+        ASSERT(0 == strcmp("xmlns", y.lookupNamespacePrefix("xmlns")));
+        ASSERT(0 == strcmp("xsi", y.lookupNamespacePrefix("xsi")));
+
+        const char *X1 = "http://www.w3.org/XML/1998/namespace";
+        const char *X2 = "http://www.w3.org/2000/xmlns/";
+        const char *X3 = "http://www.w3.org/2001/XMLSchema-instance";
+
+        ASSERT(0 == strcmp(X1, y.lookupNamespaceUri("xml")));
+        ASSERT(0 == strcmp(X2, y.lookupNamespaceUri("xmlns")));
+        ASSERT(0 == strcmp(X3, y.lookupNamespaceUri("xsi")));
+
+        ASSERT(0 == strcmp(X1, y.lookupNamespaceUri(Registry::BAEXML_XML)));
+        ASSERT(0 == strcmp(X2, y.lookupNamespaceUri(Registry::BAEXML_XMLNS)));
+        ASSERT(0 == strcmp(X3,
+                   y.lookupNamespaceUri(Registry::BAEXML_XMLSCHEMA_INSTANCE)));
+
+        ASSERT(0 == strcmp("xml", y.lookupNamespacePrefix("xml")));
+        ASSERT(0 == strcmp("xmlns", y.lookupNamespacePrefix("xmlns")));
+        ASSERT(0 == strcmp("xsi", y.lookupNamespacePrefix("xsi")));
+
         ASSERT(-1 == y.lookupNamespaceId(P1));
         ASSERT(-1 == y.lookupNamespaceId(P2));
         ASSERT(-1 == y.lookupNamespaceId(P3));

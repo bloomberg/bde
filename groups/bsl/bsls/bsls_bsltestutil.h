@@ -12,15 +12,28 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsls_BslTestUtil: utilities to aid writing 'bsl' test drivers
 //
+//@MACROS:
+//  BSLS_BSLTESTUTIL_LOOP_ASSERT(I, X)
+//  BSLS_BSLTESTUTIL_LOOP2_ASSERT(I, J, X)
+//  BSLS_BSLTESTUTIL_LOOP3_ASSERT(I, J, K, X)
+//  BSLS_BSLTESTUTIL_LOOP4_ASSERT(I, J, K, L, X)
+//  BSLS_BSLTESTUTIL_LOOP5_ASSERT(I, J, K, L, M, X)
+//  BSLS_BSLTESTUTIL_LOOP6_ASSERT(I, J, K, L, M, N, X)
+//  BSLS_BSLTESTUTIL_Q(X)
+//  BSLS_BSLTESTUTIL_P(X)
+//  BSLS_BSLTESTUTIL_P_(X)
+//  BSLS_BSLTESTUTIL_L_
+//  BSLS_BSLTESTUTIL_T_
+//
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides a set of macros and utility functions
 // to support writing test drivers in the 'bsl' package group.  This utility is
-// necessary parts of 'bsl' reside below the standard library, precluding the
-// use of 'iostreams'.  The intent is for the clients of this component to use
-// only the macros listed below to implement standard test driver macros.
-// Instead of the standard 'ASSERT' macro, it is required that a client test
-// driver define the standard 'aSsErT' function.
+// necessary because parts of 'bsl' reside below the standard library,
+// precluding the use of 'iostreams'.  The intent is for the clients of this
+// component to use only the macros listed below to implement standard test
+// driver macros.  Instead of the standard 'ASSERT' macro, it is required that
+// a client test driver define the standard 'aSsErT' function.
 //
 ///Usage
 ///-----
@@ -108,9 +121,11 @@ BSLS_IDENT("$Id: $")
 //      LOOP_ASSERT(value, 42 == value);
 //    } break;
 //..
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
+
+                       // =================
+                       // Macro Definitions
+                       // =================
+
 # define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) { \
     if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
@@ -150,11 +165,8 @@ BSLS_IDENT("$Id: $")
                 bsls_BslTestUtil::debugPrint(#N ": ", N, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define BSLS_BSLTESTUTIL_Q(X)  bsls_BslTestUtil::printStringNoFlush(          \
-                                                             "<| " #X " |>\n");
+#define BSLS_BSLTESTUTIL_Q(X)                                                 \
+                        bsls_BslTestUtil::printStringNoFlush("<| " #X " |>\n");
     // Quote identifier literally.
 
 #define BSLS_BSLTESTUTIL_P(X)  bsls_BslTestUtil::debugPrint(#X " = ", X, "\n");
@@ -168,8 +180,6 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_BSLTESTUTIL_T_ bsls_BslTestUtil::printTab();
     // Print a tab (w/o newline).
-
-//-----------------------------------------------------------------------------
 
 namespace BloombergLP {
 

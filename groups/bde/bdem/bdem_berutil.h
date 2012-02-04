@@ -345,6 +345,7 @@ struct bdem_BerUtil_Imp {
                         bdet_TimeTz    *value,
                         int             length);
 
+    static int numBytesToStream(short value);
     static int numBytesToStream(int value);
     static int numBytesToStream(long long value);
     template <typename TYPE>
@@ -438,11 +439,11 @@ int bdem_BerUtil::getValue(bsl::streambuf *streamBuf,
     int length;
     if (bdem_BerUtil_Imp::getLength(streamBuf, &length, accumNumBytesConsumed))
     {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     if (getValue(streamBuf, value, length)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
 
     *accumNumBytesConsumed += length;
@@ -464,7 +465,8 @@ int bdem_BerUtil::putIndefiniteLengthOctet(bsl::streambuf *streamBuf)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
-    // "extra" unsigned char cast needed to suppress warning on Windows
+    // "extra" unsigned char cast needed to suppress warning on Windows.
+
     return bdem_BerUtil_Imp::INDEFINITE_LENGTH_OCTET
                == streamBuf->sputc(static_cast<char>(
                   (unsigned char)(bdem_BerUtil_Imp::INDEFINITE_LENGTH_OCTET)))
@@ -506,8 +508,10 @@ int bdem_BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
         // only if first byte is zero.  (This is so that large unsigned
         // numbers don't appear as negative numbers in the BER stream).
         // Remove the leading zero byte.
+
         if (0 != streamBuf->sbumpc()) {
             // First byte was not zero.  Fail.
+
             return BDEM_FAILURE;                                      // RETURN
         }
 
@@ -515,7 +519,8 @@ int bdem_BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
     }
 
     if ((unsigned) length > sizeof(TYPE)) {
-        // Overflow
+        // Overflow.
+
         return BDEM_FAILURE;                                          // RETURN
     }
 
@@ -593,7 +598,7 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 
     short temp;
     if (bdem_BerUtil_Imp::getIntegerValue(streamBuf, &temp, length)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
     *value = (unsigned char) temp;
     return BDEM_SUCCESS;
@@ -616,7 +621,7 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 
     double dvalue;
     if (bdem_BerUtil_Imp::getDoubleValue(streamBuf, &dvalue, length)) {
-        return BDEM_FAILURE;
+        return BDEM_FAILURE;                                          // RETURN
     }
     *value = (float) dvalue;
     return BDEM_SUCCESS;
@@ -648,11 +653,13 @@ int bdem_BerUtil_Imp::numBytesToStream(TYPE value)
             // prevent the value from looking like a negative value on the
             // wire.  The leading zero is followed by all of the bytes of the
             // unsigned value.
-            return sizeof(TYPE) + 1;
+
+            return sizeof(TYPE) + 1;                                  // RETURN
         }
 
         // mask that zeroes out the most significant byte and the first bit
-        // of the next byte
+        // of the next byte.
+
         static const TYPE POS_MASK = TYPE(~NEG_MASK);
         while ((value & POS_MASK) == value) {
             value = (TYPE)(value << 8);  // shift out redundant high-order 0x00
@@ -689,12 +696,13 @@ int bdem_BerUtil_Imp::putIntegerGivenLength(bsl::streambuf *streamBuf,
         // Length may be one greater than sizeof(TYPE) only if type is
         // unsigned and the high bit (normally the sign bit) is set.  In this
         // case, a leading zero octet is emitted.
+
         if (! (value & SGN_BIT)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
 
         if (0 != streamBuf->sputc(0)) {
-            return BDEM_FAILURE;
+            return BDEM_FAILURE;                                      // RETURN
         }
 
         --length;

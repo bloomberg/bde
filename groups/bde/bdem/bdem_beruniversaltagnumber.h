@@ -847,9 +847,6 @@ bdem_BerUniversalTagNumber::Value
 bdem_BerUniversalTagNumber_Imp::select(const TYPE&,
                                        bdeat_TypeCategory::NullableValue)
 {
-    BSLS_ASSERT_SAFE(
-          FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
-
     if (d_formattingMode & FMode::BDEAT_NILLABLE) {
         return bdem_BerUniversalTagNumber::BDEM_BER_SEQUENCE;
     }

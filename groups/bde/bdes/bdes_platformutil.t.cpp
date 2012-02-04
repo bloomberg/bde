@@ -227,8 +227,8 @@ int main(int argc, char *argv[])
             << endl;
         {
             static const struct {
-                int         d_lineNum;    // source line number
-                short int   d_value;
+                int             d_lineNum;    // source line number
+                unsigned short  d_value;
             } DATA[] = {
                 //line  value
                 //----  --------
@@ -244,11 +244,12 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int LINE    = DATA[ti].d_lineNum;
-                const short VALUE = DATA[ti].d_value;
+                const unsigned short VALUE = DATA[ti].d_value;
 
                 {
-                    const short oracle = htons(VALUE);
-                    const short newValue = BDES_PLATFORMUTIL__HTONS(VALUE);
+                    const unsigned short oracle = htons(VALUE);
+                    const unsigned short newValue
+                                             = BDES_PLATFORMUTIL__HTONS(VALUE);
 
                     if (veryVerbose) {
                         TAB P_(ti); P_(VALUE); P_(newValue); P(oracle)
@@ -257,8 +258,9 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, newValue == oracle);
                 }
                 {
-                    const short oracle = ntohs(VALUE);
-                    const short newValue = BDES_PLATFORMUTIL__NTOHS(VALUE);
+                    const unsigned short oracle = ntohs(VALUE);
+                    const unsigned short newValue
+                                             = BDES_PLATFORMUTIL__NTOHS(VALUE);
 
                     if (veryVerbose) {
                         TAB P_(ti); P_(VALUE); P_(newValue); P(oracle)

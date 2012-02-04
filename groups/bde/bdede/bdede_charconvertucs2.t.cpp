@@ -640,7 +640,7 @@ void buildUpAndTestStringsU2ToU8(int             idx,
 // turn , and validating the reported 'numCharsWritten' and output string.
 
 struct PerturbationDesc {
-    char            d_octetToConvertTo;
+    unsigned char   d_octetToConvertTo;
     bool            d_isNewValid;
     unsigned short  d_newCharacter;
     int             d_extraInvalidBefore;
