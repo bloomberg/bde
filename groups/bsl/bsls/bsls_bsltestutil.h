@@ -29,37 +29,36 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a set of macros and utility functions
 // to support writing test drivers in the 'bsl' package group.  This utility is
-// necessary as 'bsl' is layered below the standard library, restricting the
-// use of 'iostreams'.  The intent is for the client to use only the macros
-// listed below to implement the standard test driver macros inside a given
-// component.  It is required that a client test driver define the standard
-// 'aSsErT' function.
+// necessary because parts of 'bsl' reside below the standard library,
+// precluding the use of 'iostreams'.  The intent is for the clients of this
+// component to use only the macros listed below to implement standard test
+// driver macros.  Instead of the standard 'ASSERT' macro, it is required that
+// a client test driver define the standard 'aSsErT' function.
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Writing a test driver
 /// - - - - - - - - - - - - - - - -
-// First we write a component to test, which might hold the following utility
-// class.
+// First, we write a component to test, which provides a utility class:
 //..
-//  struct bsls_BslTestUtil_FortyTwo {
-//      // This utility class provides sample functionality to demonstrate
-//      // how a test driver might be written validating its only method.
+//  struct xyza_BslExampleUtil {
+//      // This utility class provides sample functionality to demonstrate how
+//      // a test driver might be written validating its only method.
 //
-//      static int value();
+//      static int fortyTwo();
 //          // Return the integer value '42'.
 //  };
 //
 //  inline
-//  int bsls_BslTestUtil_FortyTwo::value()
+//  int xyza_BslExampleUtil::fortyTwo()
 //  {
 //      return 42;
 //  }
 //..
 // Then, we can write a test driver for this component.  We start by providing
-// the standard BDE assert test macro.
+// the standard BDE assert test macro:
 //..
 //  //=========================================================================
 //  //                       STANDARD BDE ASSERT TEST MACRO
@@ -77,7 +76,7 @@ BSLS_IDENT("$Id: $")
 //  # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 //..
 // Next, we define the standard print and LOOP_ASSERT macros, as aliases to the
-// macros defined by this component.
+// macros defined by this component:
 //..
 //  //=========================================================================
 //  //                       STANDARD BDE TEST DRIVER MACROS
@@ -95,8 +94,8 @@ BSLS_IDENT("$Id: $")
 //  #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 //  #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 //..
-// Finally, we write the test case for the 'value' function of this component,
-// using the (standard) abbreviated macro names we have just defined.
+// Finally, we write the test case for the 'static' 'fortyTwo' method, using
+// the (standard) abbreviated macro names we have just defined.
 //..
 //    case 2: {
 //      // --------------------------------------------------------------------
@@ -166,7 +165,8 @@ BSLS_IDENT("$Id: $")
                 bsls_BslTestUtil::debugPrint(#N ": ", N, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
-#define BSLS_BSLTESTUTIL_Q(X)  bsls_BslTestUtil::printString("<| " #X " |>\n");
+#define BSLS_BSLTESTUTIL_Q(X)                                                 \
+                        bsls_BslTestUtil::printStringNoFlush("<| " #X " |>\n");
     // Quote identifier literally.
 
 #define BSLS_BSLTESTUTIL_P(X)  bsls_BslTestUtil::debugPrint(#X " = ", X, "\n");
@@ -178,31 +178,32 @@ BSLS_IDENT("$Id: $")
 #define BSLS_BSLTESTUTIL_L_ __LINE__
     // current Line number
 
-#define BSLS_BSLTESTUTIL_T_ bsls_BslTestUtil::printTabAndFlush();
+#define BSLS_BSLTESTUTIL_T_ bsls_BslTestUtil::printTab();
     // Print a tab (w/o newline).
 
 namespace BloombergLP {
 
 struct bsls_BslTestUtil {
     // This class provides a namespace for utilities that are useful when
-    // writing a test driver that may not use the standard C++ iostream
-    // facilities.  This is a typical requirement for test drivers in the 'bsl'
+    // writing a test driver that is not permitted to use the standard C++
+    // iostream facilities, which is typical of test drivers in the 'bsl'
     // package group.
 
   public:
 
     static void debugPrint(const char *s, bool b, const char *t);
-        // Print a message to the console consististing of the specified
-        // initial string 's', followed by the string "true" if the specified
-        // 'b' is true, or the string "false" otherwise, followed by the
-        // specified trailing string 't', then 'flush' the stream to ensure the
-        // text is written.
+        // Print a message to the console, consististing of the specified
+        // initial string, 's', followed by the string "true" if the specified
+        // 'b' is true, and the string "false" otherwise, followed by the
+        // specified trailing string 't'; then 'flush' the underlying stream to
+        // ensure the text is written.
 
     static void debugPrint(const char *s, char c, const char *t);
         // Print a message to the console consististing of the specified
-        // initial string 's', followed by the specified character 'c' enclosed
-        // by single-quote characters ('), followed by the specified trailing
-        // string 't', then 'flush' the stream to ensure the text is written.
+        // initial string, 's', followed by the specified character, 'c',
+        // enclosed by single-quote characters ('), followed by the specified
+        // trailing string, 't'; then 'flush' the stream to ensure the text is
+        // written.
 
     static void debugPrint(const char *s, signed char v, const char *t);
     static void debugPrint(const char *s, unsigned char v, const char *t);
@@ -214,41 +215,44 @@ struct bsls_BslTestUtil {
     static void debugPrint(const char *s, unsigned long v, const char *t);
     static void debugPrint(const char *s, long long v, const char *t);
     static void debugPrint(const char *s, unsigned long long v, const char *t);
-        // Print a message to the console consististing of the specified
-        // initial string 's', followed by the specified integer value 'v'
-        // formatted as a string, followed by the specified trailing string
-        // 't', then 'flush' the stream to ensure the text is written.
+        // Print a message to the console, consististing of the specified
+        // initial string, 's', followed by the specified integer value, 'v',
+        // formatted as a string, followed by the specified trailing string,
+        // 't'; then 'flush' the underlying stream to ensure the text is
+        // written.
 
     static void debugPrint(const char *s, float v, const char *t);
     static void debugPrint(const char *s, double v, const char *t);
     static void debugPrint(const char *s, long double v, const char *t);
-        // Print a message to the console consististing of the specified
-        // initial string 's', followed by the specified value 'v' formatted
+        // Print a message to the console, consististing of the specified
+        // initial string, 's', followed by the specified value, 'v', formatted
         // as a string enclosed by single-quote characters ('), followed by the
-        // specified trailing string 't', then 'flush' the stream to ensure the
-        // text is written.
+        // specified trailing string 't'; then 'flush' the underlying stream to
+        // ensure the text is written.
 
     static void debugPrint(const char *s, char *str, const char *t);
     static void debugPrint(const char *s, const char *str, const char *t);
-        // Print a message to the console consististing of the specified
-        // initial string 's', followed by the specified string 'str' enclosed
-        // by quote characters ("), followed by the specified trailing string
-        // 't', then 'flush' the stream to ensure the text is written.
+        // Print a message to the console, consististing of the specified
+        // initial string, 's', followed by the specified string, 'str',
+        // enclosed by quote characters ("), followed by the specified trailing
+        // string, 't'; then 'flush' the underlying stream to ensure the text
+        // is written.
 
     static void debugPrint(const char *s, void *p, const char *t);
     static void debugPrint(const char *s, const void *p, const char *t);
-        // Print a message to the console consististing of the specified
-        // initial string 's', followed by the specified memory address 'p'
+        // Print a message to the console, consististing of the specified
+        // initial string, 's', followed by the specified memory address, 'p',
         // formatted as a hexadecimal integer, followed by the specified
-        // trailing string 't', then 'flush' the stream to ensure the text is
-        // written.
+        // trailing string, 't'; then 'flush' the underlying stream to ensure
+        // the text is written.
 
-    static void printString(const char *s);
-        // Print the specified string 's' to the console.  Note that the stream
-        // is *not* flushed.
+    static void printStringNoFlush(const char *s);
+        // Print the specified string, 's', to the console.  Note that the
+        // underlying stream is *not* flushed.
 
-    static void printTabAndFlush();
-        // Print a tab character to the console, and then 'flush' the stream.
+    static void printTab();
+        // Print a tab character to the console, and then 'flush' the
+        // underlying stream to ensure the text is written.
 };
 
 }  // close namespace BloombergLP
@@ -257,7 +261,7 @@ struct bsls_BslTestUtil {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
