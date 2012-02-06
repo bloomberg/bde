@@ -1736,10 +1736,15 @@ namespace BAEA_COMMANDLINE_USAGE_EXAMPLE {
         // the 'parse' function is able to handle non-const command line
         // arguments correctly.
 
-        // variables to be linked with option
-        bool isReverse;
-        bool isCaseInsensitive;
-        bool isUniq;
+        // Variables to be linked with options.  Note that it is important that
+        // unless a default is specified via 'baea_CommandLineOccurrenceInfo',
+        // the variables must be initialized to their default value since
+        // unless the option is specified on the command line, the variable's
+        // value will be unmodified by 'parse'.
+
+        bool isReverse = false;
+        bool isCaseInsensitive = false;
+        bool isUniq = false;
 
         bsl::string outFile;
         bsl::string sortAlgo;

@@ -647,11 +647,16 @@ BDES_IDENT("$Id: $")
 // them as local variables inside 'main':
 //..
 //  int main(int argc, const char *argv[]) {
-//
-//      // variables to be linked to options
-//      bool isReverse;
-//      bool isCaseInsensitive;
-//      bool isUniq;
+//..
+// Variables to be linked with options.  Note that it is important that unless
+// a default is specified via 'baea_CommandLineOccurrenceInfo', the variables
+// must be initialized to their default value since unless the option is
+// specified on the command line, the variable's value will be unmodified by
+// 'parse'.
+//..
+//      bool isReverse = false;
+//      bool isCaseInsensitive = false;
+//      bool isUniq = false;
 //
 //      bsl::string outFile;
 //      bsl::string sortAlgo;
