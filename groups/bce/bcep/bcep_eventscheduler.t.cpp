@@ -570,6 +570,31 @@ void cancelEventCallback(Obj         *scheduler,
     LOOP3_ASSERTT(line, expectedStatus, ret, expectedStatus == ret);
 }
 
+void cancelEventHandleCallback(Obj         *scheduler,
+                               EventHandle *handle,
+                               int          wait,
+                               int          expectedStatus,
+                               int          line)
+    // Invoke 'scheduler->cancelEvent(*handlePtr, wait)' and assert that
+    // result of the 'cancelEvent' is equal to the specified
+    // 'expectedStatus'.
+{
+    if (veryVerbose) {
+        ET_("cancelEventCallback"); PT(bdetu_SystemTime::now());
+    }
+
+    int ret = -999;
+    if (wait) {
+        ret = scheduler->cancelEventAndWait(handle);
+    }
+    else {
+        ret = scheduler->cancelEvent(handle);
+    }
+
+    LOOP3_ASSERTT(line, expectedStatus, ret, expectedStatus == ret);
+    ASSERTT(0 == (const Event *) *handle);
+}
+
 void cancelEventRawCallback(Obj         *scheduler,
                             Event      **handle,
                             int          wait,
@@ -653,8 +678,8 @@ namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE
        // connection and provides a method 'processData' to process the
        // incoming data for the connection.
      public:
-       int processData(void *data, int length)
-           // Process the specified 'data' of the specified 'length'.
+       int processData(void *, int)
+           // Process the data of length given by 'int' pointed at by 'void *'
        {
            // (undefined in usage example...no-op here)
            return 0;
@@ -733,9 +758,9 @@ void my_Server::newConnection(my_Server::Connection *connection)
         bdef_BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
-void my_Server::closeConnection(my_Server::Connection *connection)
+void my_Server::closeConnection(my_Server::Connection *)
 {
-    // logic to close the 'connection' and remove it from 'd_ioTimeout'
+    // logic to close the 'Connection *' and remove it from 'd_ioTimeout'
 }
 
 void my_Server::dataAvailable(my_Server::Connection *connection,
@@ -1430,9 +1455,7 @@ struct Test5_1 {
         bdet_TimeInterval  T(1 * DECI_SEC);
         const bdet_TimeInterval T2(2 * DECI_SEC);
         const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
-        const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
         const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
-        const int T40 = 40 * DECI_SEC_IN_MICRO_SEC;
         Obj x(pta);
         TestClass1 testObj1(T20);
         TestClass1 testObj2;
@@ -1618,9 +1641,7 @@ struct Test4_1 {
             // This will not be put onto the pending list.
 
         const int TM3  =  3 * DECI_SEC_IN_MICRO_SEC;
-        const int TM10 = 10 * DECI_SEC_IN_MICRO_SEC;
         const int TM20 = 20 * DECI_SEC_IN_MICRO_SEC;
-        const int TM40 = 40 * DECI_SEC_IN_MICRO_SEC;
 
         Obj x(pta);
 
@@ -1679,7 +1700,6 @@ struct Test4_2 {
 
         const int T3  = 3 * DECI_SEC_IN_MICRO_SEC;
         const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
-        const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
 
         Obj x(pta);
 
@@ -2010,7 +2030,7 @@ int main(int argc, char *argv[])
             scheduler.stop();
             ASSERT(values.size() >= 4);
             if (verbose) {
-                for (int i = 0; i < values.size(); ++i) {
+                for (int i = 0; i < (int) values.size(); ++i) {
                     cout << "At " << values[i].first << " g_data was "
                          << values[i].second << endl;
                 }
@@ -3200,7 +3220,6 @@ int main(int argc, char *argv[])
           const bdet_TimeInterval T2(2 * DECI_SEC);
           const int T3  = 3 * DECI_SEC_IN_MICRO_SEC;
           const int T6  = 6 * DECI_SEC_IN_MICRO_SEC;
-          const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
 
           Obj x(&ta);
 
@@ -3647,10 +3666,10 @@ int main(int argc, char *argv[])
 
                 x.stop();
 
-                bdet_TimeInterval  T(1 * DECI_SEC);
+                bdet_TimeInterval       T (1 * DECI_SEC);
                 const bdet_TimeInterval T2(2 * DECI_SEC);
                 const int TI = DECI_SEC;
-                const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
+                const int T3  =  3 * DECI_SEC_IN_MICRO_SEC;
                 const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
                 const int T13 = 13 * DECI_SEC_IN_MICRO_SEC;
 
@@ -3688,6 +3707,99 @@ int main(int argc, char *argv[])
                 x.cancelAllEventsAndWait();
             }
 
+            if (verbose) ET("\tCancel event and wait handle.");
+            {
+                // Schedule events e1 and e2 at T and T2 respectively, cancel
+                // e2 from e1 and verify that cancellation succeed.
+
+                const bdet_TimeInterval T1(1 * DECI_SEC);
+                const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+
+                x.start();
+                TestClass1 testObj;
+                EventHandle handleToBeCancelled;
+                bdet_TimeInterval now = bdetu_SystemTime::now();
+                if (verbose) {
+                    ET_("main thread:"); PT(now);
+                }
+                x.scheduleEvent(&handleToBeCancelled, now + T1,
+                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
+
+                int rc = x.cancelEventAndWait(&handleToBeCancelled);
+                ASSERT(0 == rc);
+                ASSERT(0 == (const Event*) handleToBeCancelled);
+
+                microSleep(T2, 0);
+
+                LOOP2_ASSERT(&testObj,
+                             testObj.numExecuted(),
+                             0 == testObj.numExecuted() );
+                ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
+            }
+
+            if (verbose) ET("\tCancel recurring event handle.");
+            {
+                // Schedule events e1 and e2 at T and T2 respectively, cancel
+                // e2 from e1 and verify that cancellation succeed.
+
+                const bdet_TimeInterval T1(1 * DECI_SEC);
+                const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+
+                x.start();
+                TestClass1 testObj;
+                RecurringEventHandle handleToBeCancelled;
+                bdet_TimeInterval now = bdetu_SystemTime::now();
+                if (verbose) {
+                    ET_("main thread:"); PT(now);
+                }
+                x.scheduleRecurringEvent(&handleToBeCancelled, now + T1,
+                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
+
+                microSleep(T2, 0);
+
+                int rc = x.cancelEvent(&handleToBeCancelled);
+                ASSERT(0 == rc);
+                ASSERT(0 == (const RecurringEvent*) handleToBeCancelled);
+
+                LOOP2_ASSERT(&testObj,
+                             testObj.numExecuted(),
+                             0 == testObj.numExecuted() );
+                ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
+            }
+
+            if (verbose) ET("\tCancel and wait recurring event handle.");
+            {
+                // Schedule events e1 and e2 at T and T2 respectively, cancel
+                // e2 from e1 and verify that cancellation succeed.
+
+                const bdet_TimeInterval T1(1 * DECI_SEC);
+                const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+
+                x.start();
+                TestClass1 testObj;
+                RecurringEventHandle handleToBeCancelled;
+                bdet_TimeInterval now = bdetu_SystemTime::now();
+                if (verbose) {
+                    ET_("main thread:"); PT(now);
+                }
+                x.scheduleRecurringEvent(&handleToBeCancelled, now + T1,
+                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
+
+                microSleep(T2, 0);
+
+                int rc = x.cancelEventAndWait(&handleToBeCancelled);
+                ASSERT(0 == rc);
+                ASSERT(0 == (const RecurringEvent*) handleToBeCancelled);
+
+                LOOP2_ASSERT(&testObj,
+                             testObj.numExecuted(),
+                             0 == testObj.numExecuted() );
+                ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
+            }
+
             if (verbose) ET("\tCancel event from another event prior.");
             {
                 // Schedule events e1 and e2 at T and T2 respectively, cancel
@@ -3719,6 +3831,48 @@ int main(int argc, char *argv[])
                                                         handleToBeCancelled,
                                                         0,
                                                         0, L_));
+                    microSleep(T10, 0);
+                    LOOP2_ASSERT( &testObj,
+                                  testObj.numExecuted(),
+                                  0 == testObj.numExecuted() );
+                    ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
+                }
+                // Else should we complain that too much time has elapsed?
+                // In any case, this is not a failure, do not stop.
+            }
+
+            if (verbose) ET("\tCancel event handle from another event prior.");
+            {
+                // Schedule events e1 and e2 at T and T2 respectively, cancel
+                // e2 from e1 and verify that cancellation succeed.
+
+                const bdet_TimeInterval T(1 * DECI_SEC);
+                const bdet_TimeInterval T2(5 * DECI_SEC);
+                const int T10 = 20 * DECI_SEC_IN_MICRO_SEC;
+
+                x.start();
+                TestClass1 testObj;
+                EventHandle handleToBeCancelled;
+                bdet_TimeInterval now = bdetu_SystemTime::now();
+                if (verbose) {
+                    ET_("main thread:"); PT(now);
+                }
+                x.scheduleEvent(&handleToBeCancelled, now + T2,
+                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
+
+                // It could possibly happen that testObj has already been
+                // scheduled for execution, and thus the following
+                // cancelEvent will fail.  Make sure that does not happen.
+                bdet_TimeInterval elapsed = bdetu_SystemTime::now() - now;
+                if (elapsed < T) {
+                    x.scheduleEvent(
+                                now + T,
+                                bdef_BindUtil::bind(&cancelEventHandleCallback,
+                                                    &x,
+                                                    &handleToBeCancelled,
+                                                    0,
+                                                    0, L_));
                     microSleep(T10, 0);
                     LOOP2_ASSERT( &testObj,
                                   testObj.numExecuted(),
@@ -4315,7 +4469,6 @@ int main(int argc, char *argv[])
           const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 100 microsecs
           const int T  = 1 * DECI_SEC_IN_MICRO_SEC;
           const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
-          const int T4 = 4 * DECI_SEC_IN_MICRO_SEC;
           const bdet_TimeInterval T3(3 * DECI_SEC);
           const bdet_TimeInterval T5(5 * DECI_SEC);
           const bdet_TimeInterval T6(6 * DECI_SEC);
@@ -4427,7 +4580,6 @@ int main(int argc, char *argv[])
           // T2, cancelling it at T3 should result in failure.
 
           const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
-          const int T  = 1 * DECI_SEC_IN_MICRO_SEC;
           const bdet_TimeInterval T2(2 * DECI_SEC);
           const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 

@@ -323,6 +323,30 @@ bcep_EventScheduler::scheduleRecurringEventRaw(
     }
 }
 
+int bcep_EventScheduler::cancelEvent(EventHandle *handle)
+{
+    int ret = cancelEvent((const Event *) *handle);
+    if (EventQueue::BCEC_INVALID == ret) {
+        // handle is already released
+
+        return ret;
+    }
+    handle->release();
+    return ret;
+}
+
+int bcep_EventScheduler::cancelEvent(RecurringEventHandle *handle)
+{
+    int ret = cancelEvent((const RecurringEvent *) *handle);
+    if (RecurringEventQueue::BCEC_INVALID == ret) {
+        // handle is already released
+
+        return ret;
+    }
+    handle->release();
+    return ret;
+}
+
 int bcep_EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
 {
     BSLS_ASSERT(!bcemt_ThreadUtil::isEqual(bcemt_ThreadUtil::self(),
@@ -387,6 +411,30 @@ int bcep_EventScheduler::cancelEventAndWait(const Event *handle)
         }
     }
 
+    return ret;
+}
+
+int bcep_EventScheduler::cancelEventAndWait(EventHandle *handle)
+{
+    int ret = cancelEventAndWait((const Event *) *handle);
+    if (EventQueue::BCEC_INVALID == ret) {
+        // handle is already released
+
+        return ret;
+    }
+    handle->release();
+    return ret;
+}
+
+int bcep_EventScheduler::cancelEventAndWait(RecurringEventHandle *handle)
+{
+    int ret = cancelEventAndWait((const RecurringEvent *) *handle);
+    if (RecurringEventQueue::BCEC_INVALID == ret) {
+        // handle is already released
+
+        return ret;
+    }
+    handle->release();
     return ret;
 }
 

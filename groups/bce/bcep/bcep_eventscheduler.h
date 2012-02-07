@@ -453,6 +453,14 @@ class bcep_EventScheduler {
         // successful cancellation, and a non-zero value if the 'handle' is
         // invalid *or* if the event has already been dispatched or canceled.
 
+    int cancelEvent(EventHandle          *handle);
+    int cancelEvent(RecurringEventHandle *handle);
+        // Cancel the event having the specified 'handle' and release the
+        // handlee.  Return 0 on successful cancellation, and a non-zero value
+        // if the 'handle' is invalid *or* if the event has already been
+        // dispatched or canceled.  Note that 'handle' is released whether this
+        // call is successful or not.
+
     int cancelEventAndWait(const Event          *handle);
     int cancelEventAndWait(const RecurringEvent *handle);
         // Cancel the event having the specified 'handle'.  Block until
@@ -464,6 +472,20 @@ class bcep_EventScheduler {
         // from the dispatcher thread.  Note that if the event is being
         // executed when this method is invoked, this method will block until
         // it is completed and then return a nonzero value.
+
+    int cancelEventAndWait(EventHandle          *handle);
+    int cancelEventAndWait(RecurringEventHandle *handle);
+        // Cancel the event having the specified 'handle' and release
+        // '*handle'.  Block until the event having the specified 'handle' (if
+        // it is valid) is either successfully canceled or dispatched before
+        // the call returns.  Return 0 on successful cancellation, and a
+        // non-zero value if the 'handle' is invalid *or* if the event has
+        // already been dispatched or canceled.  The behavior is undefined if
+        // this method is invoked from the dispatcher thread.  Note that if the
+        // event is being executed when this method is invoked, this method
+        // will block until it is completed and then return a nonzero value.
+        // Also note that it is guaranteed that '*handle' will be released
+        // whether this call is successful or not.
 
     void releaseEventRaw(Event          *handle);
     void releaseEventRaw(RecurringEvent *handle);
