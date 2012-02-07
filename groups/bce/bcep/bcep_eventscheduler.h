@@ -456,7 +456,7 @@ class bcep_EventScheduler {
     int cancelEvent(EventHandle          *handle);
     int cancelEvent(RecurringEventHandle *handle);
         // Cancel the event having the specified 'handle' and release the
-        // handlee.  Return 0 on successful cancellation, and a non-zero value
+        // handle.  Return 0 on successful cancellation, and a non-zero value
         // if the 'handle' is invalid *or* if the event has already been
         // dispatched or canceled.  Note that 'handle' is released whether this
         // call is successful or not.

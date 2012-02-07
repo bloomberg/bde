@@ -3707,6 +3707,37 @@ int main(int argc, char *argv[])
                 x.cancelAllEventsAndWait();
             }
 
+            if (verbose) ET("\tCancel recurring event handle.");
+            {
+                // Schedule events e1 and e2 at T and T2 respectively, cancel
+                // e2 from e1 and verify that cancellation succeed.
+
+                const bdet_TimeInterval T1(1 * DECI_SEC);
+                const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+
+                x.start();
+                TestClass1 testObj;
+                EventHandle handleToBeCancelled;
+                bdet_TimeInterval now = bdetu_SystemTime::now();
+                if (verbose) {
+                    ET_("main thread:"); PT(now);
+                }
+                x.scheduleEvent(&handleToBeCancelled, now + T1,
+                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
+
+                int rc = x.cancelEvent(&handleToBeCancelled);
+                ASSERT(0 == rc);
+                ASSERT(0 == (const Event*) handleToBeCancelled);
+
+                microSleep(T2, 0);
+
+                LOOP2_ASSERT(&testObj,
+                             testObj.numExecuted(),
+                             0 == testObj.numExecuted() );
+                ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
+            }
+
             if (verbose) ET("\tCancel event and wait handle.");
             {
                 // Schedule events e1 and e2 at T and T2 respectively, cancel
@@ -3753,15 +3784,15 @@ int main(int argc, char *argv[])
                 if (verbose) {
                     ET_("main thread:"); PT(now);
                 }
-                x.scheduleRecurringEvent(&handleToBeCancelled, now + T1,
+                x.scheduleRecurringEvent(&handleToBeCancelled, T1,
                                 bdef_MemFnUtil::memFn(&TestClass1::callback,
                                                       &testObj));
-
-                microSleep(T2, 0);
 
                 int rc = x.cancelEvent(&handleToBeCancelled);
                 ASSERT(0 == rc);
                 ASSERT(0 == (const RecurringEvent*) handleToBeCancelled);
+
+                microSleep(T2, 0);
 
                 LOOP2_ASSERT(&testObj,
                              testObj.numExecuted(),
