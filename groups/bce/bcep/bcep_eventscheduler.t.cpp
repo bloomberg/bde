@@ -3707,7 +3707,7 @@ int main(int argc, char *argv[])
                 x.cancelAllEventsAndWait();
             }
 
-            if (verbose) ET("\tCancel recurring event handle.");
+            if (verbose) ET("\tCancel event handle.");
             {
                 // Schedule events e1 and e2 at T and T2 respectively, cancel
                 // e2 from e1 and verify that cancellation succeed.
