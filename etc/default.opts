@@ -425,7 +425,7 @@ windows-            _   AR_PACKAGE      = $(AR) /out:"$@"
 unix-           _   SERIALIZE   = $(BDE_BINDIR)serialize -l$(TMPDIR) -im $(LIB_EXT)$$
 
 unix-               _   AR_INSTALL      = $(SERIALIZE) $(AR) $@
-windows-                _       AR_INSTALL      = $(RETRY_ON_EXIT) perl -e "unshift @ARGV,'$@' if -f '$@'; system('lib','/NOLOGO /OUT:$@',@ARGV)" --
+windows-                _       AR_INSTALL      = $(RETRY_ON_EXIT) perl -e "unshift @ARGV,'$@' if -f '$@'; system('lib','/OUT:$@',@ARGV)" --
 !! windows      shr AR_INSTALL  = $(AR) /out:"$@"
 
 #old flags
