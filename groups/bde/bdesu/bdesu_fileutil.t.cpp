@@ -123,6 +123,24 @@ bool isForwardSlash (char t)
 
 #endif
 
+void localSleep(int seconds)
+{
+#ifdef BSLS_PLATFORM__OS_UNIX
+    sleep(seconds);
+#else
+    ::Sleep(seconds * 1000);
+#endif
+}
+
+int localErrval()
+{
+#ifdef BSLS_PLATFORM__OS_UNIX
+    return errno;
+#else
+    return GetLastError();
+#endif
+}
+
 string rollupPaths(vector<bsl::string>& paths)
 {
    string result;
@@ -281,7 +299,7 @@ int main(int argc, char *argv[]) {
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
+    int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -478,69 +496,118 @@ int main(int argc, char *argv[]) {
         //   cases.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "tryLock test\n"
-                             "============\n";
+        int rc;
 
-        const char *testFileNameExists = "tmp.bdesu_fileutil_10.exists.txt";
+        typedef bdesu_FileUtil::FileDescriptor FD;
 
-        bdesu_FileUtil::remove(testFileNameExists);
-        int fd = bdesu_FileUtil::open(testFileNameExists, true, false);
-        bdesu_FileUtil::write(fd, "woof", 4);
+        const char *fileNameWrite   = "tmp.bdesu_fileutil_10.write.txt";
+        const char *fileNameRead    = "tmp.bdesu_fileutil_10.read.txt";
+        const char *fileNameSuccess = "tmp.bdesu_fileutil_10.success.txt";
 
-        // We have a problem.  On some if not all platforms, the same process
-        // can lock a file multiple times.  We need to try to lock from two
-        // processes, so a fork is necessary.
-
-        if (0 == fork()) {
-            // child process
-
-            sleep(3);    // give parent process time to lock file
-
-            // attempt to get second lock
-
-            if (verbose) Q(Locked twice);
-
-            int rc = bdesu_FileUtil::tryLock(fd, true);
-            ASSERT(0 != rc);
-
-#ifdef BSLS_PLATFORM__OS_UNIX
-            if (verbose) P(errno);
-
-# if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
-            LOOP_ASSERT(errno, EACCES == errno);
-# else
-            LOOP_ASSERT(errno, EAGAIN == errno);
-# endif
-#else
-            P(GetLastError());
-#endif
+        bool isChild = verbose && argv[2] == bsl::string("child");
+        if (isChild) {
+            verbose = veryVerbose;
+            veryVerbose = veryVeryVerbose;
+            veryVeryVerbose = false;
         }
         else {
-            int rc = bdesu_FileUtil::tryLock(fd, true);
+            if (verbose) cout << "tryLock test\n"
+                                 "============\n";
+
+            bdesu_FileUtil::remove(fileNameWrite);
+            bdesu_FileUtil::remove(fileNameRead);
+            bdesu_FileUtil::remove(fileNameSuccess);
+        }
+
+        FD fdWrite = bdesu_FileUtil::open(fileNameWrite, true, isChild);
+        FD fdRead  = bdesu_FileUtil::open(fileNameRead,  true, isChild);
+
+        if (!isChild) {
+            // parent process
+
+            bdesu_FileUtil::write(fdWrite, "woof", 4);
+            rc = bdesu_FileUtil::tryLock(fdWrite, true);
+            ASSERT(0 == rc);
+            bdesu_FileUtil::write(fdRead,  "woof", 4);
+            rc = bdesu_FileUtil::tryLock(fdRead,  false);
             ASSERT(0 == rc);
 
-            wait(&rc);
-            ASSERT(0 == rc);
+            bsl::stringstream cmd;
+            cmd << argv[0] << ' ' << argv[1] << " child";
+            cmd << (verbose ? " v" : "");
+            cmd << (veryVerbose ? " v" : "");
+            cmd << " &";
 
-            rc = bdesu_FileUtil::unlock(fd);
-            bdesu_FileUtil::close(fd);
+            bsl::system(cmd.str().c_str());
+
+            localSleep(3);
+
+            ASSERT(bdesu_FileUtil::exists(fileNameSuccess));
+
+            rc = bdesu_FileUtil::unlock(fdWrite);
+            ASSERT(0 == rc);
+            rc = bdesu_FileUtil::unlock(fdRead);
+            ASSERT(0 == rc);
+            bdesu_FileUtil::close(fdWrite);
+            bdesu_FileUtil::close(fdRead);
 
             // try to lock a closed file descriptor
 
             if (verbose) Q(Locking closed file descriptor);
 
-            rc = bdesu_FileUtil::tryLock(fd, true);
+            rc = bdesu_FileUtil::tryLock(fdWrite, true);
             ASSERT(0 != rc);
 
-#ifdef BSLS_PLATFORM__OS_UNIX
-            if (verbose) P(errno);
+            if (verbose) P(localErrval());
 
-            LOOP_ASSERT(errno, EBADF == errno);
-#else
-            P(GetLastError());
+#ifdef BSLS_PLATFORM__OS_UNIX
+            LOOP_ASSERT(localErrval(), EBADF == localErrval());
 #endif
 
-            bdesu_FileUtil::remove(testFileNameExists);
+            bdesu_FileUtil::remove(fileNameWrite);
+            bdesu_FileUtil::remove(fileNameRead);
+            bdesu_FileUtil::remove(fileNameSuccess);
+        }
+        else {
+            // child process
+
+            if (verbose) Q(Locked for write twice);
+
+            rc = bdesu_FileUtil::tryLock(fdWrite, true);
+            ASSERT(0 != rc);
+
+            if (verbose) P(localErrval());
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+# if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
+            LOOP_ASSERT(localErrval(), EACCES == localErrval());
+# else
+            LOOP_ASSERT(localErrval(), EAGAIN == localErrval());
+# endif
+#endif
+            if (verbose) Q(Locked for read then write);
+
+            rc = bdesu_FileUtil::tryLock(fdRead, true);
+            ASSERT(0 != rc);
+
+            if (verbose) P(localErrval());
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+# if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
+            LOOP_ASSERT(localErrval(), EACCES == localErrval());
+# else
+            LOOP_ASSERT(localErrval(), EAGAIN == localErrval());
+# endif
+#endif
+
+            if (0 == testStatus) {
+                // Touch the 'success' file to tell the parent process we
+                // succeeded.
+
+                FD fdSuccess = bdesu_FileUtil::open(fileNameSuccess, true,
+                                                    false);
+                bdesu_FileUtil::close(fdSuccess);
+            }
         }
       } break;
       case 9: {
