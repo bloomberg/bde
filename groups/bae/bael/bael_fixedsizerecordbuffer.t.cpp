@@ -64,8 +64,8 @@ using namespace bsl;  // automatically added by script
 //
 // ACCESSORS
 // [ 6] int length() const;
-// [ 5] const bcema_SharedPtr<const bael_Record>& back() const;
-// [11] const bcema_SharedPtr<const bael_Record>& front() const;
+// [ 5] const bcema_SharedPtr<bael_Record>& back() const;
+// [11] const bcema_SharedPtr<bael_Record>& front() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 7] TESTING 'PUSHBACK' CONSIDERING THE EFFECT OF 'MAX_TOTAL_SIZE' PARAMETER

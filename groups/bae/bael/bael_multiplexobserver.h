@@ -22,13 +22,11 @@ BDES_IDENT("$Id: $")
 //..
 //               ( bael_MultiplexObserver )
 //                            |             ctor
-//                            |             registerObserver(bael_RecordObserver)
-//                            |             deregisterObserver(bael_RecordObserver)
-//                            |             registerObserver(bael_Observer)
-//                            |             deregisterObserver(bael_Observer)
+//                            |             registerObserver
+//                            |             deregisterObserver
 //                            |             numRegisteredObservers
 //                            V
-//                 ( bael_RecordObserver )
+//                    ( bael_Observer )
 //                                          dtor
 //                                          publish
 //..
@@ -122,14 +120,6 @@ BDES_IDENT("$Id: $")
 #include <bael_observer.h>
 #endif
 
-#ifndef INCLUDED_BAEL_RECORDOBSERVER
-#include <bael_recordobserver.h>
-#endif
-
-#ifndef INCLUDED_BAEL_RECORDOBSERVERADAPTER
-#include <bael_recordobserveradapter.h>
-#endif
-
 #ifndef INCLUDED_BCEMT_READLOCKGUARD
 #include <bcemt_readlockguard.h>
 #endif
@@ -140,10 +130,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BCEMT_WRITELOCKGUARD
 #include <bcemt_writelockguard.h>
-#endif
-
-#ifndef INCLUDED_BSL_LIST
-#include <bsl_list.h>
 #endif
 
 #ifndef INCLUDED_BSL_SET
@@ -164,7 +150,7 @@ class bael_Context;
                          // class bael_MultiplexObserver
                          // ============================
 
-class bael_MultiplexObserver : public bael_RecordObserver {
+class bael_MultiplexObserver : public bael_Observer {
     // This class provides a multiplexing implementation of the 'bael_Observer'
     // protocol.  Other concrete observers may be registered with a
     // multiplexing observer ('registerObserver' method) and later unregistered
@@ -173,16 +159,11 @@ class bael_MultiplexObserver : public bael_RecordObserver {
     // each registered observer.
 
     // DATA
-    bsl::set<bael_RecordObserver *>         d_observerSet;  // record observer registry
+    bsl::set<bael_Observer *> d_observerSet;  // observer registry
 
-    bsl::list<bael_RecordObserverAdapter>   d_adapterList;  // list of adapters 
-                                                            // of registered observers
-                                                           
-    mutable bcemt_RWMutex                   d_rwMutex;      // protects concurrent 
-                                                            // access to 'd_observerSet'
+    mutable bcemt_RWMutex     d_rwMutex;      // protects concurrent access
+                                              // to 'd_observerSet'
 
-    bslma_Allocator                        *d_allocator_p;  // memory allocator (held, 
-                                                            // not owned)
     // NOT IMPLEMENTED
     bael_MultiplexObserver(const bael_MultiplexObserver&);
     bael_MultiplexObserver& operator=(const bael_MultiplexObserver&);
@@ -201,29 +182,14 @@ class bael_MultiplexObserver : public bael_RecordObserver {
         // if any.
 
     // MANIPULATORS
-    virtual void publish(const bcema_SharedPtr<const bael_Record>&  record,
+    virtual void publish(const bael_Record&  record,
                          const bael_Context& context);
         // Process the specified log 'record' having the specified publishing
         // 'context' by forwarding 'record' and 'context' to each of the
         // observers registered with this multiplexing observer.
 
-    int registerObserver(bael_RecordObserver *recordObserver);
-        // Add the specified 'observer' to the registry of this multiplexing
-        // observer.  Return 0 if 'observer' is non-null and was not already
-        // registered with this multiplexing observer, and a non-zero value
-        // (with no effect) otherwise.  Henceforth, this multiplexing observer
-        // will forward each record it receives through its 'publish' method,
-        // including the record's context, to the 'publish' method of
-        // 'observer', until 'observer' is deregistered.  The behavior is
-        // undefined unless 'observer' remains valid until it is deregistered
-        // from this multiplexing observer or until this observer is destroyed.
-
-    int deregisterObserver(bael_RecordObserver *recordObserver);
-        // Remove the specified 'observer' from the registry of this
-        // multiplexing observer.  Return 0 if 'observer' is non-null and was
-        // registered with this multiplexing observer, and a non-zero value
-        // (with no effect) otherwise.  Henceforth, 'observer' will no longer
-        // receive log records from this multiplexing observer.
+    virtual void publish(const bcema_SharedPtr<const bael_Record>&  record,
+                         const bael_Context& context);
 
     int registerObserver(bael_Observer *observer);
         // Add the specified 'observer' to the registry of this multiplexing
@@ -261,10 +227,7 @@ class bael_MultiplexObserver : public bael_RecordObserver {
 inline
 bael_MultiplexObserver::bael_MultiplexObserver(bslma_Allocator *basicAllocator)
 : d_observerSet(basicAllocator)
-, d_adapterList(basicAllocator)
-, d_allocator_p(basicAllocator)
 {
-    BSLS_ASSERT(d_allocator_p);
 }
 
 // ACCESSORS

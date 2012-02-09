@@ -230,7 +230,7 @@ typedef bael_LoggerManager              Obj;
 typedef bael_Logger                     Logger;
 
 typedef bael_Category                   Cat;
-typedef bael_RecordObserver             Obs;
+typedef bael_Observer                   Obs;
 typedef bael_Record                     Rec;
 typedef bael_RecordAttributes           Attr;
 typedef bael_RecordBuffer               RecBuf;

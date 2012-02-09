@@ -243,7 +243,6 @@ int main(int argc, char *argv[])
 
         bsls_ProtocolTest<ObserverTest> t(veryVerbose);
 
-        ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
         ASSERT(t.testVirtualDestructor());
 

@@ -185,6 +185,10 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
+#ifndef INCLUDED_BCEMA_SHAREDPTR
+#include <bcema_sharedptr.h>
+#endif
+
 namespace BloombergLP {
 
 class bael_Record;
@@ -205,9 +209,14 @@ class bael_Observer {
 
     // MANIPULATORS
     virtual void publish(const bael_Record&  record,
-                         const bael_Context& context) = 0;
+                         const bael_Context& context); 
         // Process the specified log 'record' having the specified publishing
         // 'context'.
+    virtual void publish(const bcema_SharedPtr<const bael_Record>& record,
+                         const bael_Context& context); 
+        // Process the specified log shared pointer 'record' having the 
+        // specified publishing 'context'.
+    virtual void clean();
 };
 
 }  // close namespace BloombergLP

@@ -18,7 +18,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Hong Shi (hshi2)
 //
-//@SEE_ALSO: bael_record, bael_recordattributes, bael_recordobserver, bael_context,
+//@SEE_ALSO: bael_record, bael_recordattributes, bael_observer, bael_context,
 //           bael_loggermanagerdefaults, bael_loggermanagerconfiguration,
 //           bael_severity, bael_transmission, bael_log
 //
@@ -52,8 +52,8 @@ BDES_IDENT("$Id: $")
 //
 // All loggers share a single registered observer to which log records are
 // transmitted when they are published (see the component-level documentation
-// of 'bael_recordobserver' for more information on observers).  The shared 
-// observer must be supplied when the logger manager singleton is initialized.
+// of 'bael_observer' for more information on observers).  The shared observer
+// must be supplied when the logger manager singleton is initialized.
 //
 // A logger can achieve high performance through the use of an in-memory record
 // buffer for storing the records logged by a program.  Each logger is
@@ -337,7 +337,7 @@ BDES_IDENT("$Id: $")
 // manager using the 'bael_LoggerManagerScopedGuard' class.  This example shows
 // how to create a logger manager with the most basic "default behavior".
 // Subsequent examples will show more customized behavior.  Note that a
-// 'bael_RecordObserver' (which will receive the records that are published) is a
+// 'bael_Observer' (which will receive the records that are published) is a
 // required argument; we will use a 'bael_DefaultObserver' here.
 //
 // The following snippets of code illustrate the initialization sequence
@@ -881,7 +881,7 @@ namespace BloombergLP {
 class bael_LoggerManager;
 class bael_LoggerCategoryIter;
 class bael_LoggerCategoryManip;
-class bael_RecordObserver;
+class bael_Observer;
 class bael_RecordBuffer;
 
 template <typename TYPE>
@@ -918,7 +918,7 @@ class bael_Logger {
     bcec_ObjectPool<bael_Record>
                           d_recordPool;         // pool of records
 
-    bael_RecordObserver  *d_recordObserver_p;   // holds record observer (not owned)
+    bael_Observer        *d_observer_p;         // holds observer (not owned)
 
     bael_RecordBuffer    *d_recordBuffer_p;     // holds log record buffer
                                                 // (not owned)
@@ -957,7 +957,7 @@ class bael_Logger {
 
     // PRIVATE CREATORS
     bael_Logger(
-           bael_RecordObserver                             *recordObserver,
+           bael_Observer                                   *observer,
            bael_RecordBuffer                               *recordBuffer,
            const bdem_Schema                               *schema,
            const UserPopulatorCallback&                     populator,
@@ -1190,8 +1190,8 @@ class bael_LoggerManager {
     static bael_LoggerManager *s_singleton_p;    // singleton-enforcement
 
     // INSTANCE DATA
-    bael_RecordObserver   *d_recordObserver_p;   // holds (but does not own)
-                                                 // record observer
+    bael_Observer         *d_observer_p;         // holds (but does not own)
+                                                 // observer
 
     CategoryNameFilterCallback
                            d_nameFilter;         // category name filter
@@ -1261,7 +1261,7 @@ class bael_LoggerManager {
 
     // PRIVATE CLASS METHODS
     static void initSingletonImpl(
-                      bael_RecordObserver                    *recordObserver,
+                      bael_Observer                          *observer,
                       const bael_LoggerManagerConfiguration&  configuration,
                       bslma_Allocator                        *globalAllocator);
         // Initialize (once!) the logger manager singleton having the specified
@@ -1276,7 +1276,7 @@ class bael_LoggerManager {
     // PRIVATE CREATORS
     bael_LoggerManager(
                   const bael_LoggerManagerConfiguration&  configuration,
-                  bael_RecordObserver                    *recordObserver,
+                  bael_Observer                          *observer,
                   bslma_Allocator                        *globalAllocator = 0);
         // Create a logger manager having the specified 'observer' that
         // receives published log records and the specified 'configuration' of
@@ -1292,7 +1292,7 @@ class bael_LoggerManager {
 
     // CREATORS
     bael_LoggerManager(
-                  bael_RecordObserver                    *recordObserver,
+                  bael_Observer                          *observer,
                   const bael_LoggerManagerConfiguration&  configuration,
                   bslma_Allocator                        *globalAllocator = 0);
         // Create (once!) the logger manager singleton having the specified
@@ -1327,7 +1327,7 @@ class bael_LoggerManager {
   public:
     // CLASS METHODS
     static bael_LoggerManager& initSingleton(
-                  bael_RecordObserver                    *recordObserver,
+                  bael_Observer                          *observer,
                   const bael_LoggerManagerConfiguration&  configuration,
                   bslma_Allocator                        *basicAllocator = 0);
         // Initialize (once!) the logger manager singleton having the specified
@@ -1349,46 +1349,46 @@ class bael_LoggerManager {
         // method is *not* thread-safe).
 
     static void initSingleton(
-                        bael_RecordObserver              *recordObserver,
+                        bael_Observer                    *observer,
                         bslma_Allocator                  *globalAllocator = 0);
 
     static void initSingleton(
-                    bael_RecordObserver                  *recordObserver,
+                    bael_Observer                        *observer,
                     const DefaultThresholdLevelsCallback& defaultThresholds,
                     bslma_Allocator                      *globalAllocator = 0);
     static void initSingleton(
-                        bael_RecordObserver              *recordObserver,
+                        bael_Observer                    *observer,
                         const FactoryDefaultThresholds&   factoryThresholds,
                         bslma_Allocator                  *globalAllocator = 0);
 
     static void initSingleton(
-               bael_RecordObserver                       *recordObserver,
+               bael_Observer                             *observer,
                const bdem_Schema&                         userSchema,
                const bael_Logger::UserPopulatorCallback&  populator,
                bslma_Allocator                           *globalAllocator = 0);
 
     static void initSingleton(
-                   bael_RecordObserver                   *recordObserver,
+                   bael_Observer                         *observer,
                    const DefaultThresholdLevelsCallback&  defaultThresholds,
                    const FactoryDefaultThresholds&        factoryThresholds,
                    bslma_Allocator                       *globalAllocator = 0);
 
     static void initSingleton(
-               bael_RecordObserver                       *recordObserver,
+               bael_Observer                             *observer,
                const DefaultThresholdLevelsCallback&      defaultThresholds,
                const bdem_Schema&                         userSchema,
                const bael_Logger::UserPopulatorCallback&  populator,
                bslma_Allocator                           *globalAllocator = 0);
 
     static void initSingleton(
-               bael_RecordObserver                       *recordObserver,
+               bael_Observer                             *observer,
                const FactoryDefaultThresholds&            factoryThresholds,
                const bdem_Schema&                         userSchema,
                const bael_Logger::UserPopulatorCallback&  populator,
                bslma_Allocator                           *globalAllocator = 0);
 
     static void initSingleton(
-               bael_RecordObserver                       *recordObserver,
+               bael_Observer                             *observer,
                const DefaultThresholdLevelsCallback&      defaultThresholds,
                const FactoryDefaultThresholds&            factoryThresholds,
                const bdem_Schema&                         userSchema,
@@ -1415,7 +1415,7 @@ class bael_LoggerManager {
 
     static void createLoggerManager(
                   bdema_ManagedPtr<bael_LoggerManager>   *manager,
-                  bael_RecordObserver                    *recordObserver,
+                  bael_Observer                          *observer,
                   const bael_LoggerManagerConfiguration&  configuration,
                   bslma_Allocator                        *basicAllocator = 0);
         // Create a logger manager that is *not* the singleton logger manager
@@ -1466,11 +1466,11 @@ class bael_LoggerManager {
     bael_Logger *allocateLogger(bael_RecordBuffer *buffer);
     bael_Logger *allocateLogger(bael_RecordBuffer *buffer,
                                 int                scratchBufferSize);
-    bael_Logger *allocateLogger(bael_RecordBuffer   *buffer,
-                                bael_RecordObserver *recordObserver);
+    bael_Logger *allocateLogger(bael_RecordBuffer *buffer,
+                                bael_Observer     *observer);
     bael_Logger *allocateLogger(bael_RecordBuffer *buffer,
                                 int                scratchBufferSize,
-                                bael_RecordObserver *recordObserver);
+                                bael_Observer     *observer);
         // Return the address of a modifiable logger managed by this logger
         // manager configured with the specified record 'buffer'.  Optionally
         // specify a 'scratchBufferSize' for the logger's user-accessible
@@ -1615,7 +1615,7 @@ class bael_LoggerManager {
         // categories to the registry will fail.  The behavior is undefined
         // unless '0 <= length'.
 
-    bael_RecordObserver *observer();
+    bael_Observer *observer();
         // Return the address of the modifiable observer registered with this
         // logger manager.
 
@@ -1666,7 +1666,7 @@ class bael_LoggerManager {
         // Return a reference to the non-modifiable *default* *category* in the
         // category registry of this logger manager.
 
-    const bael_RecordObserver *observer() const;
+    const bael_Observer *observer() const;
         // Return the address of the non-modifiable observer registered with
         // this logger manager.
 
@@ -1741,7 +1741,7 @@ class bael_LoggerManagerScopedGuard {
   public:
     // CREATORS
     bael_LoggerManagerScopedGuard(
-                  bael_RecordObserver                    *recordObserver,
+                  bael_Observer                          *observer,
                   const bael_LoggerManagerConfiguration&  configuration,
                   bslma_Allocator                        *globalAllocator = 0);
         // Create a scoped guard that will create (once!) the logger manager
@@ -1882,11 +1882,11 @@ bool bael_LoggerManager::isInitialized()
 // CREATORS
 inline
 bael_LoggerManagerScopedGuard::bael_LoggerManagerScopedGuard(
-                       bael_RecordObserver                    *recordObserver,
+                       bael_Observer                          *observer,
                        const bael_LoggerManagerConfiguration&  configuration,
                        bslma_Allocator                        *globalAllocator)
 {
-    bael_LoggerManager::initSingleton(recordObserver,
+    bael_LoggerManager::initSingleton(observer,
                                       configuration,
                                       globalAllocator);
 }

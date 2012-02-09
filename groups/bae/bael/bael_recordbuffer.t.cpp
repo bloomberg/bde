@@ -236,8 +236,8 @@ class my_RecordBuffer : public bael_RecordBuffer {
     virtual void removeAll();
 
     // ACCESSORS
-    virtual const bcema_SharedPtr<const bael_Record>& back()  const;
-    virtual const bcema_SharedPtr<const bael_Record>& front() const;
+    virtual const bcema_SharedPtr<bael_Record>& back()  const;
+    virtual const bcema_SharedPtr<bael_Record>& front() const;
     virtual int length() const;
 };
 
@@ -299,14 +299,14 @@ void my_RecordBuffer::removeAll()
 
 // ACCESSORS
 inline
-const bcema_SharedPtr<const bael_Record>& my_RecordBuffer::back() const
+const bcema_SharedPtr<bael_Record>& my_RecordBuffer::back() const
 {
     bcemt_LockGuard<bcemt_RecursiveMutex> guard(&d_mutex);
     return d_buffer.back();
 }
 
 inline
-const bcema_SharedPtr<const bael_Record>& my_RecordBuffer::front() const
+const bcema_SharedPtr<bael_Record>& my_RecordBuffer::front() const
 {
     bcemt_LockGuard<bcemt_RecursiveMutex> guard(&d_mutex);
     return d_buffer.front();
@@ -337,9 +337,9 @@ struct RecordBufferTest : bsls_ProtocolTestImp<bael_RecordBuffer> {
     void removeAll()                                   { markDone(); }
     void beginSequence()                               { markDone(); }
     void endSequence()                                 { markDone(); }
-    const bcema_SharedPtr<const bael_Record>& back() const
+    const bcema_SharedPtr<bael_Record>& back() const
                                                        { return markDoneRef(); }
-    const bcema_SharedPtr<const bael_Record>& front() const                   
+    const bcema_SharedPtr<bael_Record>& front() const                   
                                                        { return markDoneRef(); }
     int length() const                                 { return markDone(); }
 };
