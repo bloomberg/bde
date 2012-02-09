@@ -116,7 +116,7 @@ extern "C" {
 }
 
 static
-int fcntl_lock(int fd, int cmd, int type)
+int localFcntlLock(int fd, int cmd, int type)
 {
     int rc;
     do {
@@ -841,19 +841,21 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
 
 int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
 {
-    return fcntl_lock(fd, F_SETLK, lockWrite ? F_WRLCK : F_RDLCK) == -1 ? -1
-                                                                        : 0;
+    return localFcntlLock(fd, F_SETLK, lockWrite ? F_WRLCK : F_RDLCK) == -1
+    ? -1
+    : 0;
 }
 
 int bdesu_FileUtil::lock(FileDescriptor fd, bool lockWrite)
 {
-    return fcntl_lock(fd, F_SETLKW, lockWrite ? F_WRLCK : F_RDLCK) == -1 ? -1
-                                                                         : 0;
+    return localFcntlLock(fd, F_SETLKW, lockWrite ? F_WRLCK : F_RDLCK) == -1
+    ? -1
+    : 0;
 }
 
 int bdesu_FileUtil::unlock(FileDescriptor fd)
 {
-    return fcntl_lock(fd, F_SETLK, F_UNLCK) == -1 ? -1 : 0;
+    return localFcntlLock(fd, F_SETLK, F_UNLCK) == -1 ? -1 : 0;
 }
 
 int bdesu_FileUtil::move(const char *oldName, const char *newName)
