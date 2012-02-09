@@ -9,6 +9,7 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_cstdlib.h>
 #include <bsl_sstream.h>
 
 #ifndef BSLS_PLATFORM__OS_WINDOWS
@@ -25,10 +26,11 @@
     #endif
 #endif
 #include <sys/stat.h>
-
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #else
-#include <windows.h>  // for Sleep
+#include <windows.h>  // for Sleep, GetLastError
 #endif
 
 #include <bsl_algorithm.h>
@@ -284,7 +286,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch(test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -371,7 +373,7 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -461,6 +463,85 @@ int main(int argc, char *argv[]) {
 
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TRYLOCK TEST
+        //
+        // Concerns:
+        //   That 'tryLock' returns proper status on failure, depending upon
+        //   the type of failure.
+        //
+        // Plan:
+        //   Create a file and try to lock it twice, then try to lock a file
+        //   that doesn't exist.  Verify different return codes in those two
+        //   cases.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "tryLock test\n"
+                             "============\n";
+
+        const char *testFileNameExists = "tmp.bdesu_fileutil_10.exists.txt";
+
+        bdesu_FileUtil::remove(testFileNameExists);
+        int fd = bdesu_FileUtil::open(testFileNameExists, true, false);
+        bdesu_FileUtil::write(fd, "woof", 4);
+
+        // We have a problem.  On some if not all platforms, the same process
+        // can lock a file multiple times.  We need to try to lock from two
+        // processes, so a fork is necessary.
+
+        if (0 == fork()) {
+            // child process
+
+            sleep(3);    // give parent process time to lock file
+
+            // attempt to get second lock
+
+            if (verbose) Q(Locked twice);
+
+            int rc = bdesu_FileUtil::tryLock(fd, true);
+            ASSERT(0 != rc);
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+            if (verbose) P(errno);
+
+# if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
+            LOOP_ASSERT(errno, EACCES == errno);
+# else
+            LOOP_ASSERT(errno, EAGAIN == errno);
+# endif
+#else
+            P(GetLastError());
+#endif
+        }
+        else {
+            int rc = bdesu_FileUtil::tryLock(fd, true);
+            ASSERT(0 == rc);
+
+            wait(&rc);
+            ASSERT(0 == rc);
+
+            rc = bdesu_FileUtil::unlock(fd);
+            bdesu_FileUtil::close(fd);
+
+            // try to lock a closed file descriptor
+
+            if (verbose) Q(Locking closed file descriptor);
+
+            rc = bdesu_FileUtil::tryLock(fd, true);
+            ASSERT(0 != rc);
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+            if (verbose) P(errno);
+
+            LOOP_ASSERT(errno, EBADF == errno);
+#else
+            P(GetLastError());
+#endif
+
+            bdesu_FileUtil::remove(testFileNameExists);
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1045,7 +1126,7 @@ int main(int argc, char *argv[]) {
 
             struct sockaddr_un address;
             address.sun_family = AF_UNIX;
-            sprintf(address.sun_path, filename.c_str());
+            sprintf(address.sun_path, "%s", filename.c_str());
 
             // Add one to account for the null terminator for the filename.
 
