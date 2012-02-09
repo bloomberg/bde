@@ -562,6 +562,8 @@ int main(int argc, char *argv[]) {
 
 #ifdef BSLS_PLATFORM__OS_UNIX
             LOOP_ASSERT(localErrval(), EBADF == localErrval());
+#else
+            LOOP_ASSERT(localErrval(), ERROR_INVALID_HANDLE == localErrval());
 #endif
 
             bdesu_FileUtil::remove(fileNameWrite);
@@ -584,6 +586,25 @@ int main(int argc, char *argv[]) {
 # else
             LOOP_ASSERT(localErrval(), EAGAIN == localErrval());
 # endif
+#else
+            LOOP_ASSERT(localErrval(), ERROR_INVALID_HANDLE == localErrval());
+#endif
+
+            if (verbose) Q(Locked for write then read);
+
+            rc = bdesu_FileUtil::tryLock(fdWrite, false);
+            ASSERT(0 != rc);
+
+            if (verbose) P(localErrval());
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+# if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
+            LOOP_ASSERT(localErrval(), EACCES == localErrval());
+# else
+            LOOP_ASSERT(localErrval(), EAGAIN == localErrval());
+# endif
+#else
+            LOOP_ASSERT(localErrval(), ERROR_INVALID_HANDLE == localErrval());
 #endif
             if (verbose) Q(Locked for read then write);
 
@@ -598,6 +619,8 @@ int main(int argc, char *argv[]) {
 # else
             LOOP_ASSERT(localErrval(), EAGAIN == localErrval());
 # endif
+#else
+            LOOP_ASSERT(localErrval(), ERROR_INVALID_HANDLE == localErrval());
 #endif
 
             if (0 == testStatus) {
