@@ -79,7 +79,9 @@ int parseDate(int         *year,
 
     // Parse year.
 
-    if (0 != parseUint(&p, year, p, end) || '-' != *p) {
+    if    (0   != parseUint(&p, year, p, end)
+       ||  p   >= end
+       ||  '-' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -90,6 +92,7 @@ int parseDate(int         *year,
     const char *expectedEnd = p + 2;
 
     if (0   != parseUint(&p, month, p, end)
+     || p   >= end
      || p   != expectedEnd
      || '-' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
@@ -101,7 +104,8 @@ int parseDate(int         *year,
 
     expectedEnd = p + 2;
 
-    if (0 != parseUint(&p, day, p, end) || p != expectedEnd) {
+    if   (0 != parseUint(&p, day, p, end)
+       || p != expectedEnd) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -134,6 +138,7 @@ int parseTime(int         *hour,
     const char *expectedEnd = p + 2;
 
     if (0   != parseUint(&p, hour, p, end)
+     || p   >= end
      || p   != expectedEnd
      || ':' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
@@ -146,6 +151,7 @@ int parseTime(int         *hour,
     expectedEnd = p + 2;
 
     if (0   != parseUint(&p, minute, p, end)
+     || p   >= end
      || p   != expectedEnd
      || ':' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
@@ -157,7 +163,8 @@ int parseTime(int         *hour,
 
     expectedEnd = p + 2;
 
-    if (0 != parseUint(&p, second, p, end) || p != expectedEnd) {
+    if   (0 != parseUint(&p, second, p, end)
+       || p != expectedEnd) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -170,7 +177,7 @@ int parseTime(int         *hour,
 
         ++p;  // skip dot
 
-        if (!bdeu_CharType::isDigit(*p)) {
+        if (p >= end || !bdeu_CharType::isDigit(*p)) {
             return BDEPU_FAILURE;                                     // RETURN
         }
 
@@ -224,6 +231,10 @@ int parseTimezoneOffset(int         *minuteOffset,
 
     const char *p = *begin;
 
+    if (p >= end) {
+        return BDEPU_FAILURE;
+    }
+
     int sign;
 
     if ('+' == *p) {
@@ -248,10 +259,11 @@ int parseTimezoneOffset(int         *minuteOffset,
     const char *expectedEnd = p + 2;
 
     int hourVal;
-    if (0   != parseUint(&p, &hourVal, p, end)
-     || p   != expectedEnd
-     || hourVal > 14  // Max TZ offset is 14 hours.
-     || ':' != *p) {
+    if   (0           != parseUint(&p, &hourVal, p, end)
+       || p           != expectedEnd
+       || hourVal     >  14  // Max TZ offset is 14 hours.
+       || p           >= end
+       || ':' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -260,9 +272,9 @@ int parseTimezoneOffset(int         *minuteOffset,
     expectedEnd = p + 2;
 
     int minuteVal;
-    if (0 != parseUint(&p, &minuteVal, p, end)
-     || p != expectedEnd
-     || minuteVal > 59) {
+    if   (0           != parseUint(&p, &minuteVal, p, end)
+       || p           != expectedEnd
+       || minuteVal   >  59) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
