@@ -132,15 +132,6 @@ void localSleep(int seconds)
 #endif
 }
 
-int localErrval()
-{
-#ifdef BSLS_PLATFORM__OS_UNIX
-    return errno;
-#else
-    return GetLastError();
-#endif
-}
-
 string rollupPaths(vector<bsl::string>& paths)
 {
    string result;
@@ -496,21 +487,16 @@ int main(int argc, char *argv[]) {
         //   cases.
         // --------------------------------------------------------------------
 
-        int rc;
-
         typedef bdesu_FileUtil::FileDescriptor FD;
+
+        int rc;
 
         const char *fileNameWrite   = "tmp.bdesu_fileutil_10.write.txt";
         const char *fileNameRead    = "tmp.bdesu_fileutil_10.read.txt";
         const char *fileNameSuccess = "tmp.bdesu_fileutil_10.success.txt";
 
-        bool isChild = verbose && argv[2] == bsl::string("child");
-        if (isChild) {
-            verbose = veryVerbose;
-            veryVerbose = veryVeryVerbose;
-            veryVeryVerbose = false;
-        }
-        else {
+        bool isParent = !verbose || bsl::string(argv[2]) != "child";
+        if (isParent) {
             if (verbose) cout << "tryLock test\n"
                                  "============\n";
 
@@ -518,11 +504,18 @@ int main(int argc, char *argv[]) {
             bdesu_FileUtil::remove(fileNameRead);
             bdesu_FileUtil::remove(fileNameSuccess);
         }
+        else {
+            // child process
 
-        FD fdWrite = bdesu_FileUtil::open(fileNameWrite, true, isChild);
-        FD fdRead  = bdesu_FileUtil::open(fileNameRead,  true, isChild);
+            verbose = veryVerbose;
+            veryVerbose = veryVeryVerbose;
+            veryVeryVerbose = false;
+        }
 
-        if (!isChild) {
+        FD fdWrite = bdesu_FileUtil::open(fileNameWrite, true, !isParent);
+        FD fdRead  = bdesu_FileUtil::open(fileNameRead,  true, !isParent);
+
+        if (isParent) {
             // parent process
 
             bdesu_FileUtil::write(fdWrite, "woof", 4);
@@ -534,7 +527,7 @@ int main(int argc, char *argv[]) {
 
             bsl::stringstream cmd;
             cmd << argv[0] << ' ' << argv[1] << " child";
-            cmd << (verbose ? " v" : "");
+            cmd << (verbose     ? " v" : "");
             cmd << (veryVerbose ? " v" : "");
             cmd << " &";
 
@@ -558,12 +551,14 @@ int main(int argc, char *argv[]) {
             rc = bdesu_FileUtil::tryLock(fdWrite, true);
             ASSERT(0 != rc);
 
-            if (verbose) P(localErrval());
-
 #ifdef BSLS_PLATFORM__OS_UNIX
-            LOOP_ASSERT(localErrval(), EBADF == localErrval());
+            if (verbose) P(errno);
+
+            LOOP_ASSERT(errno, EBADF == errno);
 #else
-            LOOP_ASSERT(localErrval(), ERROR_INVALID_HANDLE == localErrval());
+            if (verbose) P(GetLastError());
+
+            LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
 #endif
 
             bdesu_FileUtil::remove(fileNameWrite);
@@ -578,16 +573,18 @@ int main(int argc, char *argv[]) {
             rc = bdesu_FileUtil::tryLock(fdWrite, true);
             ASSERT(0 != rc);
 
-            if (verbose) P(localErrval());
-
 #ifdef BSLS_PLATFORM__OS_UNIX
+            if (verbose) P(errno);
+
 # if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
-            LOOP_ASSERT(localErrval(), EACCES == localErrval());
+            LOOP_ASSERT(errno, EACCES == errno);
 # else
-            LOOP_ASSERT(localErrval(), EAGAIN == localErrval());
+            LOOP_ASSERT(errno, EAGAIN == errno);
 # endif
 #else
-            LOOP_ASSERT(localErrval(), ERROR_INVALID_HANDLE == localErrval());
+            if (verbose) P(GetLastError());
+
+            LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
 #endif
 
             if (verbose) Q(Locked for write then read);
@@ -595,32 +592,37 @@ int main(int argc, char *argv[]) {
             rc = bdesu_FileUtil::tryLock(fdWrite, false);
             ASSERT(0 != rc);
 
-            if (verbose) P(localErrval());
-
 #ifdef BSLS_PLATFORM__OS_UNIX
+            if (verbose) P(errno);
+
 # if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
-            LOOP_ASSERT(localErrval(), EACCES == localErrval());
+            LOOP_ASSERT(errno, EACCES == errno);
 # else
-            LOOP_ASSERT(localErrval(), EAGAIN == localErrval());
+            LOOP_ASSERT(errno, EAGAIN == errno);
 # endif
 #else
-            LOOP_ASSERT(localErrval(), ERROR_INVALID_HANDLE == localErrval());
+            if (verbose) P(GetLastError());
+
+            LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
 #endif
             if (verbose) Q(Locked for read then write);
 
             rc = bdesu_FileUtil::tryLock(fdRead, true);
             ASSERT(0 != rc);
 
-            if (verbose) P(localErrval());
 
 #ifdef BSLS_PLATFORM__OS_UNIX
+            if (verbose) P(errno);
+
 # if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
-            LOOP_ASSERT(localErrval(), EACCES == localErrval());
+            LOOP_ASSERT(errno, EACCES == errno);
 # else
-            LOOP_ASSERT(localErrval(), EAGAIN == localErrval());
+            LOOP_ASSERT(errno, EAGAIN == errno);
 # endif
 #else
-            LOOP_ASSERT(localErrval(), ERROR_INVALID_HANDLE == localErrval());
+            if (verbose) P(GetLastError());
+
+            LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
 #endif
 
             if (0 == testStatus) {
