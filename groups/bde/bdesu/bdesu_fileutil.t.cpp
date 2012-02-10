@@ -510,10 +510,15 @@ int main(int argc, char *argv[]) {
             verbose = veryVerbose;
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
+
+            ASSERT(bdesu_FileUtil::exists(fileNameWrite));
+            ASSERT(bdesu_FileUtil::exists(fileNameRead));
         }
 
         FD fdWrite = bdesu_FileUtil::open(fileNameWrite, true, !isParent);
+        ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
         FD fdRead  = bdesu_FileUtil::open(fileNameRead,  true, !isParent);
+        ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
 
         if (isParent) {
             // parent process
@@ -567,6 +572,18 @@ int main(int argc, char *argv[]) {
         }
         else {
             // child process
+
+            char buf[10];
+
+            bsl::memset(buf, 0, sizeof(buf));
+            rc = bdesu_FileUtil::read(fdWrite, buf, 4);
+            ASSERT(4 == rc);
+            ASSERT(bsl::string("woof") == buf);
+
+            bsl::memset(buf, 0, sizeof(buf));
+            rc = bdesu_FileUtil::read(fdRead,  buf, 4);
+            ASSERT(4 == rc);
+            ASSERT(bsl::string("woof") == buf);
 
             if (verbose) Q(Locked for write twice);
 
