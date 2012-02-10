@@ -520,6 +520,15 @@ int main(int argc, char *argv[]) {
         FD fdRead  = bdesu_FileUtil::open(fileNameRead,  true, !isParent);
         ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
 
+        if (bdesu_FileUtil::INVALID_FD == fdRead) {
+            Q(Open failed.  Examine Error.);
+#ifdef BSLS_PLATFORM__OS_UNIX
+            P(errno);
+#else
+            P(GetLastError());
+#endif
+        }
+
         if (isParent) {
             // parent process
 
