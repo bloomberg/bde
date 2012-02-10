@@ -491,9 +491,18 @@ int main(int argc, char *argv[]) {
 
         int rc;
 
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+        const bool isWindows = true;
+#else
+        const bool isWindows = false;
+#endif
+
         const char *fileNameWrite   = "tmp.bdesu_fileutil_10.write.txt";
         const char *fileNameRead    = "tmp.bdesu_fileutil_10.read.txt";
         const char *fileNameSuccess = "tmp.bdesu_fileutil_10.success.txt";
+
+        FD fdWrite = bdesu_FileUtil::INVALID_FD;
+        FD fdRead  = bdesu_FileUtil::INVALID_FD;
 
         bool isParent = !verbose || bsl::string(argv[2]) != "child";
         if (isParent) {
@@ -503,39 +512,30 @@ int main(int argc, char *argv[]) {
             bdesu_FileUtil::remove(fileNameWrite);
             bdesu_FileUtil::remove(fileNameRead);
             bdesu_FileUtil::remove(fileNameSuccess);
-        }
-        else {
-            // child process
 
-            verbose = veryVerbose;
-            veryVerbose = veryVeryVerbose;
-            veryVeryVerbose = false;
-
-            ASSERT(bdesu_FileUtil::exists(fileNameWrite));
-            ASSERT(bdesu_FileUtil::exists(fileNameRead));
-        }
-
-        FD fdWrite = bdesu_FileUtil::open(fileNameWrite, true, !isParent);
-        ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
-        FD fdRead  = bdesu_FileUtil::open(fileNameRead,  true, !isParent);
-        ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
-
-        if (bdesu_FileUtil::INVALID_FD == fdRead) {
-            Q(Open failed.  Examine Error.);
-#ifdef BSLS_PLATFORM__OS_UNIX
-            P(errno);
-#else
-            P(GetLastError());
-#endif
-        }
-
-        if (isParent) {
-            // parent process
-
-            bdesu_FileUtil::write(fdWrite, "woof", 4);
-            rc = bdesu_FileUtil::tryLock(fdWrite, true);
+            fdWrite = bdesu_FileUtil::open(fileNameWrite, true, false);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
+            rc = bdesu_FileUtil::write(fdWrite, "woof", 4);
+            ASSERT(4 == rc);
+            rc = bdesu_FileUtil::close(fdWrite);
             ASSERT(0 == rc);
-            bdesu_FileUtil::write(fdRead,  "woof", 4);
+            fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
+
+
+            fdRead  = bdesu_FileUtil::open(fileNameRead,  true, false);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
+            rc = bdesu_FileUtil::write(fdRead , "woof", 4);
+            ASSERT(4 == rc);
+            rc = bdesu_FileUtil::close(fdRead);
+            ASSERT(0 == rc);
+            fdRead  = bdesu_FileUtil::open(fileNameWrite, false, true);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
+
+            // Unix can only lock a writable file for write
+
+            rc = bdesu_FileUtil::tryLock(fdWrite, isWindows);
+            ASSERT(0 == rc);
             rc = bdesu_FileUtil::tryLock(fdRead,  false);
             ASSERT(0 == rc);
 
@@ -582,17 +582,29 @@ int main(int argc, char *argv[]) {
         else {
             // child process
 
-            char buf[10];
+            verbose = veryVerbose;
+            veryVerbose = veryVeryVerbose;
+            veryVeryVerbose = false;
 
+            ASSERT(bdesu_FileUtil::exists(fileNameWrite));
+            ASSERT(bdesu_FileUtil::exists(fileNameRead));
+
+            char buf[5];
+            const bsl::string WOOF = "woof";
+
+            fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
             bsl::memset(buf, 0, sizeof(buf));
             rc = bdesu_FileUtil::read(fdWrite, buf, 4);
             ASSERT(4 == rc);
-            ASSERT(bsl::string("woof") == buf);
+            ASSERT(WOOF == buf);
 
+            fdRead  = bdesu_FileUtil::open(fileNameRead,  false, true);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
             bsl::memset(buf, 0, sizeof(buf));
             rc = bdesu_FileUtil::read(fdRead,  buf, 4);
             ASSERT(4 == rc);
-            ASSERT(bsl::string("woof") == buf);
+            ASSERT(WOOF == buf);
 
             if (verbose) Q(Locked for write twice);
 
@@ -635,7 +647,6 @@ int main(int argc, char *argv[]) {
 
             rc = bdesu_FileUtil::tryLock(fdRead, true);
             ASSERT(0 != rc);
-
 
 #ifdef BSLS_PLATFORM__OS_UNIX
             if (verbose) P(errno);
