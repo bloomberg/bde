@@ -486,11 +486,6 @@ class bael_AsyncFileObserver : public bael_Observer {
         // time by this async file observer.  This method has no effect if 
         // publishing in local time is already enabled.
 
-    void publish(const bael_Record& record, const bael_Context& context);
-        // DEPRECATED: This method exists for backwards compatibility.  It is 
-        //             a no-op.  Use the 'publish' method that takes in a 
-        //             shared point of record to publish asychronously.
-
     void publish(const bcema_SharedPtr<const bael_Record>& record,
                  const bael_Context& context); 
         // Process the record pointed by the specified shared pointer 'record', 

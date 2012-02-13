@@ -26,6 +26,7 @@ bael_Observer::~bael_Observer()
 void bael_Observer::publish(const bael_Record&  record,
                             const bael_Context& context) 
 {
+    BSLS_ASSERT_OPT(false);  // Should not be called
 }
 
 void bael_Observer::publish(const bcema_SharedPtr<const bael_Record>& record,
@@ -34,7 +35,7 @@ void bael_Observer::publish(const bcema_SharedPtr<const bael_Record>& record,
     publish(*record, context);
 }
 
-void bael_Observer::clean()
+void bael_Observer::clear()
 {
 }
 

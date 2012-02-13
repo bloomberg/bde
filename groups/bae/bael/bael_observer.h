@@ -216,7 +216,7 @@ class bael_Observer {
                          const bael_Context& context); 
         // Process the specified log shared pointer 'record' having the 
         // specified publishing 'context'.
-    virtual void clean();
+    virtual void clear();
 };
 
 }  // close namespace BloombergLP

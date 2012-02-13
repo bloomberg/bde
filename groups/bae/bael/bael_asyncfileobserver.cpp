@@ -43,11 +43,12 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
 {
     while (1) 
     {
-        AsyncRecord r = d_recordQueue.popFront();
-        if (bael_Transmission::BAEL_END == r.d_context.transmissionCause()
+        AsyncRecord asyncRecord = d_recordQueue.popFront();
+        if (bael_Transmission::BAEL_END 
+                == asyncRecord.d_context.transmissionCause()
             || d_clearing) 
             break;
-        d_fileObserver.publish(*r.d_record, r.d_context);
+        d_fileObserver.publish(*asyncRecord.d_record, asyncRecord.d_context);
     }
 }
 
@@ -102,20 +103,14 @@ void bael_AsyncFileObserver::clear()
     startThread();
 }
 
-void bael_AsyncFileObserver::publish(const bael_Record& record, 
-                                     const bael_Context& context)
-{   
-    // DEPRECATED
-}
-
 void bael_AsyncFileObserver::publish(
                 const bcema_SharedPtr<const bael_Record>& record,
                 const bael_Context& context)
 {
-    AsyncRecord r;
-    r.d_record  = record;
-    r.d_context = context;
-    d_recordQueue.pushBack(r);
+    AsyncRecord asyncRecord;
+    asyncRecord.d_record  = record;
+    asyncRecord.d_context = context;
+    d_recordQueue.pushBack(asyncRecord);
 }
 
 void bael_AsyncFileObserver::startThread()

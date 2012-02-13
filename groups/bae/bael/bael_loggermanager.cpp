@@ -281,7 +281,7 @@ void bael_Logger::logMessage(const bael_Category&            category,
 
         // Publish this record.
 
-        d_observer_p->publish(*handle,
+        d_observer_p->publish(handle,
                               bael_Context(bael_Transmission::BAEL_PASSTHROUGH,
                                            0,                 // recordIndex
                                            1));               // sequenceLength
