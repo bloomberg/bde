@@ -162,8 +162,28 @@ typedef bdepu_Iso8601 Util;
 static char *cloneStr(const char *str, int len)
 {
     char *ret = (char *) malloc(len);
+#ifdef BSLS_PLATFORM__OS_AIX
+    // 'malloc(0) return 0 on AIX, which complicates life later
+
+    if (0 == len) {
+        ASSERT(0 == ret);
+        ret = (char *) malloc(4) + 4;
+    }
+#endif
+
     bsl::memcpy(ret, str, len);
     return ret;
+}
+
+static void freeStr(char *str, int len)
+{
+#ifdef BSLS_PLATFORM__OS_AIX
+    if (0 == len) {
+        str -= 4;
+    }
+#endif
+
+    free(str);
 }
 
 //=============================================================================
@@ -474,7 +494,7 @@ int main(int argc, char *argv[])
                         char *segment = cloneStr(input, k);
                         datetime = initDatetimeTz;
                         ret = Util::parse(&datetime, segment, k);
-                        free(segment);
+                        freeStr(segment, k);
                     }
                     LOOP5_ASSERT(LINE, input, ret, isValidDatetimeTz,
                                         UTC_OFFSET, isValidDatetimeTz == !ret);
@@ -516,7 +536,7 @@ int main(int argc, char *argv[])
                         char *segment = cloneStr(input, k);
                         datetime = initDatetime;
                         ret = Util::parse(&datetime, input, inputLen);
-                        free(segment);
+                        freeStr(segment, k);
                     }
                     LOOP3_ASSERT(LINE, input, ret, isValidDatetime == !ret);
                     if (isValidDatetime) {
@@ -552,7 +572,7 @@ int main(int argc, char *argv[])
                         char *segment = cloneStr(input, k);
                         date = initDateTz;
                         ret = Util::parse(&date, input, inputLen);
-                        free(segment);
+                        freeStr(segment, k);
                     }
                     LOOP3_ASSERT(LINE, input, ret, isValidDate == !ret);
                     if (isValidDate) {
@@ -579,7 +599,7 @@ int main(int argc, char *argv[])
                         char *segment = cloneStr(input, k);
                         date = initDate;
                         ret = Util::parse(&date, input, inputLen);
-                        free(segment);
+                        freeStr(segment, k);
                     }
                     LOOP3_ASSERT(LINE, input, ret, isValidDate == !ret);
                     if (isValidDate) {
@@ -604,7 +624,7 @@ int main(int argc, char *argv[])
                         char *segment = cloneStr(input, k);
                         time = initTimeTz;
                         ret = Util::parse(&time, input, inputLen);
-                        free(segment);
+                        freeStr(segment, k);
                     }
                     LOOP5_ASSERT(LINE, input, ret, isValidTimeTz, UTC_OFFSET,
                                                         isValidTimeTz == !ret);
@@ -637,7 +657,7 @@ int main(int argc, char *argv[])
                         char *segment = cloneStr(input, k);
                         time = initTime;
                         ret = Util::parse(&time, input, inputLen);
-                        free(segment);
+                        freeStr(segment, k);
                     }
                     LOOP3_ASSERT(LINE, input, ret, isValidTime == !ret);
                     if (isValidTime) {
