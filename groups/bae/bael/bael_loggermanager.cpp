@@ -849,6 +849,7 @@ bael_LoggerManager::~bael_LoggerManager()
         (*itr)->~bael_Logger();
         d_allocator_p->deallocate(*itr);
     }
+    d_observer_p->clear();
     d_recordBuffer_p->~bael_RecordBuffer();
     d_allocator_p->deallocate(d_recordBuffer_p);
 }
