@@ -494,15 +494,15 @@ int main(int argc, char *argv[])
                 int errCode = UNUSED_VALUE;
 
             #ifdef BSLS_PLATFORM__OS_UNIX
-                const char *conc[]  = { "209.31.173.176",
-                                    #if !defined(BSLS_PLATFORM__OS_LINUX) \
-                                     && !defined(BDES_PLATFORM__OS_FREEBSD)
-                                        "209.31.173.177",
-                                        "209.31.173.178",
-                                        "209.31.173.179",
-                                    #endif
-                                        0
-                                      };
+                const char *applix[]  = { "86.0.0.32",
+                                      #if !defined(BSLS_PLATFORM__OS_LINUX) \
+                                       && !defined(BDES_PLATFORM__OS_FREEBSD)
+                                          "86.0.0.43",
+                                          "87.0.0.36",
+                                          "87.0.0.131",
+                                      #endif
+                                          0
+                                        };
                 const char *soros[] = { "202.217.132.211",
                                     #if !defined(BSLS_PLATFORM__OS_LINUX) \
                                      && !defined(BDES_PLATFORM__OS_FREEBSD)
@@ -552,8 +552,8 @@ int main(int argc, char *argv[])
             #ifdef BSLS_PLATFORM__OS_UNIX
                     { L_, "jlu1",               &errCode,       0,     FAIL },
                     { L_, "jlu1",                      0,       0,     FAIL },
-                    { L_, "concmachineintokyo", &errCode,    conc,  SUCCESS },
-                    { L_, "concmachineintokyo",        0,    conc,  SUCCESS },
+                    { L_, "applix",             &errCode,  applix,  SUCCESS },
+                    { L_, "applix",                    0,  applix,  SUCCESS },
                     { L_, "soros.wk1",          &errCode,   soros,  SUCCESS },
                     { L_, "soros.wk1",                 0,   soros,  SUCCESS },
                     { L_, "jlu_wrong",          &errCode,       0,     FAIL },
@@ -836,12 +836,12 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\tTest valid IP addresses." << endl;
 
         #ifdef BSLS_PLATFORM__OS_UNIX
-            const char *conc[]  = { "209.31.173.176",
-                                    "209.31.173.177",
-                                    "209.31.173.178",
-                                    "209.31.173.179",
-                                    0
-                                  };
+            const char *applix[]  = { "86.0.0.43",
+                                      "87.0.0.36",
+                                      "87.0.0.131",
+                                      "86.0.0.32",
+                                      0
+                                    };
             const char *soros[] = { "202.217.132.211",
                                     "202.217.132.212",
                                     "202.217.132.213",
@@ -874,8 +874,8 @@ int main(int argc, char *argv[])
             //  ----  --------              ---------   ---------
             {
         #ifdef BSLS_PLATFORM__OS_UNIX
-                { L_, "concmachineintokyo", &errCode,        conc },
-                { L_, "concmachineintokyo",        0,        conc },
+                { L_, "applix",             &errCode,      applix },
+                { L_, "applix",                    0,      applix },
                 { L_, "soros.wk1",          &errCode,       soros },
                 { L_, "soros.wk1",                 0,       soros },
                 { L_, "fft-corp-rtr1",      &errCode,         fft },
@@ -1135,15 +1135,15 @@ int main(int argc, char *argv[])
             // Cannot come up with any multi-homed hosts
             // resolvable on BLP CORP LINUX machines! TBD FIXME
 
-            const char *conc[]  = { "209.31.173.176",
-                                #if !defined(BSLS_PLATFORM__OS_LINUX) \
-                                 && !defined(BDES_PLATFORM__OS_FREEBSD)
-                                    "209.31.173.177",
-                                    "209.31.173.178",
-                                    "209.31.173.179",
-                                #endif
-                                    0
-                                  };
+            const char *applix[]  = { "86.0.0.32",
+                                  #if !defined(BSLS_PLATFORM__OS_LINUX) \
+                                   && !defined(BDES_PLATFORM__OS_FREEBSD)
+                                      "86.0.0.43",
+                                      "87.0.0.36",
+                                      "87.0.0.131",
+                                  #endif
+                                      0
+                                    };
             const char *soros[] = { "202.217.132.211",
                                 #if !defined(BSLS_PLATFORM__OS_LINUX) \
                                  && !defined(BDES_PLATFORM__OS_FREEBSD)
@@ -1193,8 +1193,8 @@ int main(int argc, char *argv[])
         #ifdef BSLS_PLATFORM__OS_UNIX
                 { L_, "jlu1",               &errCode,        0,       FAIL },
                 { L_, "jlu1",                      0,        0,       FAIL },
-                { L_, "concmachineintokyo", &errCode,     conc,    SUCCESS },
-                { L_, "concmachineintokyo",        0,     conc,    SUCCESS },
+                { L_, "applix",             &errCode,   applix,    SUCCESS },
+                { L_, "applix",                    0,   applix,    SUCCESS },
                 { L_, "soros.wk1",          &errCode,    soros,    SUCCESS },
                 { L_, "soros.wk1",                 0,    soros,    SUCCESS },
                 { L_, "jlu_wrong",          &errCode,        0,       FAIL },
