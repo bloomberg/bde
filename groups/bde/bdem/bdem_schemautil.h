@@ -871,6 +871,10 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
+#ifndef INCLUDED_BDEM_ELEMTYPE
+#include <bdem_elemtype.h>
+#endif
+
 namespace BloombergLP {
 
 class bdem_EnumerationDef;
@@ -982,6 +986,13 @@ struct bdem_SchemaUtil {
         //  bdem_SchemaUtil::areSymbolicallyEquivalent(r1, r2);
         //  bdem_SchemaUtil::areSymbolicallyEquivalent(r1, r2, 0);
         //..
+
+    static bool isNillableScalarArrayDescription(
+                                             bdem_ElemType::Type   type, 
+                                             const bdem_RecordDef *constraint);
+        // Return 'true' if the specified 'type' and 'constraint' together 
+        // are the definition of an array, with elements of a scalar type,
+        // that is nillable.  
 
     static bool isSuperset(const bdem_EnumerationDef& super,
                            const bdem_EnumerationDef& sub);

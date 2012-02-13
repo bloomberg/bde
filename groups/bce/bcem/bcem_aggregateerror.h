@@ -186,7 +186,7 @@ class bcem_AggregateError
         // currently installed default allocator is used.
 
     bcem_AggregateError(Code             errorCode,
-                        const char*      errorString, 
+                        const char      *errorString, 
                         bslma_Allocator *basicAllocator = 0);
         // Create an AggregateError object having the specified 'errorCode'
         // and 'errorString'.  Use the optionally specified 'basicAllocator'
@@ -246,6 +246,63 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
     // method has the same behavior as 'object.print(stream, 0, -1)' with the
     // attribute names elided.
 
+// ============================================================================
+//                         INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+inline
+bcem_AggregateError::bcem_AggregateError(Code             errorCode, 
+                                         const char      *errorString, 
+                                         bslma_Allocator *basicAllocator)
+: d_description(errorString, basicAllocator)
+, d_code(errorCode)
+{
+}    
+
+inline
+bcem_AggregateError::bcem_AggregateError(const bcem_AggregateError& original,
+                                         bslma_Allocator *basicAllocator)
+: d_description(original.d_description, basicAllocator)
+, d_code(original.d_code)
+{
+}    
+
+inline
+bcem_AggregateError::bcem_AggregateError(bslma_Allocator *basicAllocator)
+: d_description(basicAllocator)
+{
+}    
+
+inline
+bcem_AggregateError::Code& bcem_AggregateError::code()
+{
+    return d_code;
+}
+
+inline
+bcem_AggregateError::Code bcem_AggregateError::code() const
+{
+    return d_code;
+}
+
+inline 
+bsl::string& bcem_AggregateError::description() {
+    return d_description;
+}
+
+inline 
+const bsl::string& bcem_AggregateError::description() const {
+    return d_description;
+}
+
+inline
+std::ostream& operator<<(std::ostream&              stream,
+                         const bcem_AggregateError& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+} //  close namespace BloombergLP
 
 #endif // INCLUDED_BCEM_AGGREGATEERROR
 
