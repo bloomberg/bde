@@ -612,14 +612,14 @@ int main(int argc, char *argv[])
             char buf[5];
             const bsl::string WOOF = "woof";
 
-            fdWrite = bdesu_FileUtil::open(fileNameWrite, true, true);
+            fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
             bsl::memset(buf, 0, sizeof(buf));
             rc = bdesu_FileUtil::read(fdWrite, buf, 4);
             ASSERT(4 == rc);
             ASSERT(WOOF == buf);
 
-            fdRead  = bdesu_FileUtil::open(fileNameRead,  true, true);
+            fdRead  = bdesu_FileUtil::open(fileNameRead,  false, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
             bsl::memset(buf, 0, sizeof(buf));
             rc = bdesu_FileUtil::read(fdRead,  buf, 4);
