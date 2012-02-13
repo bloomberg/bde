@@ -427,7 +427,7 @@ class bcefi_Vfunc0F4 : public bcefr_Vfunc0 {
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
         // four additional trailing arguments and the corresponding arguments'
-        // specified 'embeddedArg1', 'embeddedArg2, 'embeddedArg3', and
+        // specified 'embeddedArg1', 'embeddedArg2', 'embeddedArg3', and
         // 'embeddedArg4' values.  Use the specified 'basicAllocator' to
         // supply memory.  Note that any value returned from 'procedure' will
         // be ignored.
@@ -484,7 +484,7 @@ class bcefi_Vfunc0F5 : public bcefr_Vfunc0 {
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
         // five additional trailing arguments and the corresponding arguments'
-        // specified 'embeddedArg1', 'embeddedArg2, 'embeddedArg3',
+        // specified 'embeddedArg1', 'embeddedArg2', 'embeddedArg3',
         // 'embeddedArg4', and 'embeddedArg5' values.  Use the specified
         // 'basicAllocator' to supply memory.  Note that any value returned
         // from 'procedure' will be ignored.
@@ -543,7 +543,7 @@ class bcefi_Vfunc0F6 : public bcefr_Vfunc0 {
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
         // six additional trailing arguments and the corresponding arguments'
-        // specified 'embeddedArg1', 'embeddedArg2, 'embeddedArg3',
+        // specified 'embeddedArg1', 'embeddedArg2', 'embeddedArg3',
         // 'embeddedArg4', 'embeddedArg5', and 'embeddedArg6' values.  Use the
         // specified 'basicAllocator' to supply memory.  Note that any value
         // returned from 'procedure' will be ignored.
@@ -735,7 +735,7 @@ class bcefi_Vfunc0F9 : public bcefr_Vfunc0 {
         // arguments and returning 'void', using the specified 'procedure'
         // (i.e., free function, static member function, or functor) taking
         // nine additional trailing arguments and the corresponding arguments'
-        // specified 'embeddedArg1', 'embeddedArg2, 'embeddedArg3',
+        // specified 'embeddedArg1', 'embeddedArg2', 'embeddedArg3',
         // 'embeddedArg4', 'embeddedArg5', 'embeddedArg6', 'embeddedArg7',
         // 'embeddedArg8', and 'embeddedArg9' values.  Use the specified
         // 'basicAllocator' to supply memory.  Note that any value returned
