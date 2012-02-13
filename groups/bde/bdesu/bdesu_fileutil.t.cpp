@@ -285,8 +285,8 @@ void findMatchingFilesInTimeframe(bsl::vector<bsl::string> *result,
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
@@ -295,7 +295,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch(test) { case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -382,7 +382,7 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -420,16 +420,17 @@ int main(int argc, char *argv[]) {
         string        fileName;
         for (vector<bsl::string>::iterator it = logFiles.begin();
                                               it != logFiles.end(); ++it) {
-           ASSERT(0 == bdesu_FileUtil::getLastModificationTime(&modTime, *it));
-           bdesu_PathUtil::getLeaf(&fileName, *it);
-           bsl::string* whichDirectory =
-                2 < (bdetu_SystemTime::nowAsDatetime() - modTime).totalDays()
-                  ? &oldPath
-                  : &newPath;
-           bdesu_PathUtil::appendRaw(whichDirectory, fileName.c_str());
-           ASSERT(0 == bdesu_FileUtil::move(it->c_str(),
+            ASSERT(0 ==
+                       bdesu_FileUtil::getLastModificationTime(&modTime, *it));
+            bdesu_PathUtil::getLeaf(&fileName, *it);
+            bsl::string* whichDirectory =
+                 2 < (bdetu_SystemTime::nowAsDatetime() - modTime).totalDays()
+                   ? &oldPath
+                   : &newPath;
+            bdesu_PathUtil::appendRaw(whichDirectory, fileName.c_str());
+            ASSERT(0 == bdesu_FileUtil::move(it->c_str(),
                                             whichDirectory->c_str()));
-           bdesu_PathUtil::popLeaf(whichDirectory);
+            bdesu_PathUtil::popLeaf(whichDirectory);
         }
 
 #if 0
@@ -473,29 +474,226 @@ int main(int argc, char *argv[]) {
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
       } break;
+
+      // ----------------------------------------------------------------------
+      // TRYLOCK TESTS
+      //
+      // Concerns:
+      //   That 'tryLock' returns proper status on failure, depending upon
+      //   the type of failure.
+      //
+      //   Unix and Windows have different nuances about locking.  On Windows,
+      //   any file that's opened for write by one process cannot be opened for
+      //   read or write by any other process.  On Unix it can.  On Unix you
+      //   cannot lock for write a file that is not opened for write.  On
+      //   Windows you can.  On Windows if another process has a a file opened
+      //   for read and locked for write, you can open it for read but an
+      //   actual read from it will fail.
+      //
+      //   Initially the two were developed as one test.  At first I did it
+      //   with fork and it worked on Unix, but it turns out fork doesn't exist
+      //   on Windoze, and I don't know what the corresponding windows call
+      //   would be (searching for 'fork' on MSDN just refers you to
+      //   stackOverflow talking about Unix fork).  So the tests were redone
+      //   using 'system' rather than fork.
+      //
+      // Plan:
+      //   Given that the behaviors are so different, I'm doing completely
+      //   different tests for Unix and Windoze.  Test 10 will test Unix, test
+      //   11 will do Windoze.
+      // ----------------------------------------------------------------------
+
+      case 11: {
+        // --------------------------------------------------------------------
+        // WINDOWS TRYLOCK TEST
+        // --------------------------------------------------------------------
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+        typedef bdesu_FileUtil::FileDescriptor FD;
+
+        int rc;
+
+        const char *fileNameWrite   = "tmp.bdesu_fileutil_11.write.txt";
+        const char *fileNameRead    = "tmp.bdesu_fileutil_11.read.txt";
+        const char *fileNameSuccess = "tmp.bdesu_fileutil_11.success.txt";
+
+        FD fdWrite = bdesu_FileUtil::INVALID_FD;
+        FD fdRead  = bdesu_FileUtil::INVALID_FD;
+
+        bool isParent = !verbose || bsl::string(argv[2]) != "child";
+        if (isParent) {
+            if (verbose) cout << "tryLock test\n"
+                                 "============\n";
+
+            bdesu_FileUtil::remove(fileNameWrite);
+            bdesu_FileUtil::remove(fileNameRead);
+            bdesu_FileUtil::remove(fileNameSuccess);
+
+            // on Windows, a file opened for write is implicitly locked, but
+            // a file opened for read may be locked for write.  So open
+            // 'fdWrite' for read and lock it for write.
+
+            fdWrite = bdesu_FileUtil::open(fileNameWrite, true, false);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
+            rc = bdesu_FileUtil::write(fdWrite, "woof", 4);
+            ASSERT(4 == rc);
+            rc = bdesu_FileUtil::close(fdWrite);
+            ASSERT(0 == rc);
+            fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
+
+            fdRead  = bdesu_FileUtil::open(fileNameRead,  true, false);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
+            rc = bdesu_FileUtil::write(fdRead , "woof", 4);
+            ASSERT(4 == rc);
+            rc = bdesu_FileUtil::close(fdRead);
+            ASSERT(0 == rc);
+            fdRead  = bdesu_FileUtil::open(fileNameRead, false, true);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
+
+            // Unix can only lock a writable file for write
+
+            rc = bdesu_FileUtil::tryLock(fdWrite, true);
+            ASSERT(0 == rc);
+            rc = bdesu_FileUtil::tryLock(fdRead,  false);
+            ASSERT(0 == rc);
+
+            bsl::stringstream cmd;
+            cmd << argv[0] << ' ' << argv[1] << " child";
+            cmd << (verbose     ? " v" : "");
+            cmd << (veryVerbose ? " v" : "");
+            cmd << " &";
+
+            bsl::system(cmd.str().c_str());
+
+            localSleep(3);
+
+            ASSERT(bdesu_FileUtil::exists(fileNameSuccess));
+
+            rc = bdesu_FileUtil::unlock(fdWrite);
+            ASSERT(0 == rc);
+            rc = bdesu_FileUtil::unlock(fdRead);
+            ASSERT(0 == rc);
+            bdesu_FileUtil::close(fdWrite);
+            bdesu_FileUtil::close(fdRead);
+
+            if (verbose) Q(Locking closed file descriptor);
+
+            rc = bdesu_FileUtil::tryLock(fdWrite, false);
+            ASSERT(0 != rc);
+
+            if (verbose) P(GetLastError());
+
+            LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
+
+            if (verbose) Q(Locking invalid file descriptor);
+
+            rc = bdesu_FileUtil::tryLock(bdesu_FileUtil::INVALID_FD, false);
+            ASSERT(0 != rc);
+
+            if (verbose) P(GetLastError());
+
+            LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
+
+            bdesu_FileUtil::remove(fileNameWrite);
+            bdesu_FileUtil::remove(fileNameRead);
+            bdesu_FileUtil::remove(fileNameSuccess);
+        }
+        else {
+            // child process
+
+            verbose = veryVerbose;
+            veryVerbose = veryVeryVerbose;
+            veryVeryVerbose = false;
+
+            ASSERT(bdesu_FileUtil::exists(fileNameWrite));
+            ASSERT(bdesu_FileUtil::exists(fileNameRead));
+
+            char buf[5];
+            const bsl::string WOOF = "woof";
+
+            fdWrite = bdesu_FileUtil::open(fileNameWrite, true, true);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
+            bsl::memset(buf, 0, sizeof(buf));
+            rc = bdesu_FileUtil::read(fdWrite, buf, 4);
+            ASSERT(4 == rc);
+            ASSERT(WOOF == buf);
+
+            fdRead  = bdesu_FileUtil::open(fileNameRead,  true, true);
+            ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
+            bsl::memset(buf, 0, sizeof(buf));
+            rc = bdesu_FileUtil::read(fdRead,  buf, 4);
+            ASSERT(4 == rc);
+            ASSERT(WOOF == buf);
+
+            if (verbose) Q(Locked for write twice);
+            SetLastError(0);
+            rc = bdesu_FileUtil::tryLock(fdWrite, true);
+            ASSERT(0 != rc);
+            if (verbose) P(GetLastError());
+            LOOP_ASSERT(GetLastError(), ERROR_LOCK_VIOLATION==GetLastError());
+
+            if (verbose) Q(Locked for write then read);
+            SetLastError(0);
+            rc = bdesu_FileUtil::tryLock(fdWrite, false);
+            ASSERT(0 != rc);
+            if (verbose) P(GetLastError());
+            LOOP_ASSERT(GetLastError(), ERROR_LOCK_VIOLATION==GetLastError());
+
+            if (verbose) Q(Locked for read then write);
+            SetLastError(0);
+            rc = bdesu_FileUtil::tryLock(fdRead, true);
+            ASSERT(0 != rc);
+            if (verbose) P(GetLastError());
+            LOOP_ASSERT(GetLastError(), ERROR_LOCK_VIOLATION==GetLastError());
+
+            if (verbose) Q(Locked for read then read (succeeds));
+            SetLastError(0);
+            rc = bdesu_FileUtil::tryLock(fdRead, false);
+            ASSERT(0 == rc);
+            if (verbose) P(GetLastError());
+            LOOP_ASSERT(GetLastError(), 0 == GetLastError());
+            rc = bdesu_FileUtil::unlock(fdRead);
+            ASSERT(0 == rc);
+
+            rc = bdesu_FileUtil::close(fdWrite);
+            ASSERT(0 == rc);
+            rc = bdesu_FileUtil::close(fdRead);
+            ASSERT(0 == rc);
+
+            if (0 == testStatus) {
+                // Touch the 'success' file to tell the parent process we
+                // succeeded.
+
+                FD fdSuccess = bdesu_FileUtil::open(fileNameSuccess, true,
+                                                    false);
+                bdesu_FileUtil::close(fdSuccess);
+            }
+        }
+#endif
+      } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TRYLOCK TEST
+        // UNIX TRYLOCK TEST
         //
         // Concerns:
         //   That 'tryLock' returns proper status on failure, depending upon
         //   the type of failure.
         //
         // Plan:
-        //   Create a file and try to lock it twice, then try to lock a file
-        //   that doesn't exist.  Verify different return codes in those two
-        //   cases.
+        //   This plan takes advantage of the fact that there is no implicit
+        //   exclusionary nature to opening a file for write on Unix, and
+        //   respects the fact that one cannot lock a file for write unless
+        //   the fd is opened for write.
+        //   Note that attempting to unlock a fd that was not successfully
+        //   does not return an error status on Unix.
         // --------------------------------------------------------------------
 
+#ifdef BSLS_PLATFORM__OS_UNIX
         typedef bdesu_FileUtil::FileDescriptor FD;
+        enum { BEGINNING = bdesu_FileUtil::BDESU_SEEK_FROM_BEGINNING };
 
         int rc;
-
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-        const bool isWindows = true;
-#else
-        const bool isWindows = false;
-#endif
 
         const char *fileNameWrite   = "tmp.bdesu_fileutil_10.write.txt";
         const char *fileNameRead    = "tmp.bdesu_fileutil_10.read.txt";
@@ -517,11 +715,6 @@ int main(int argc, char *argv[]) {
             ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
             rc = bdesu_FileUtil::write(fdWrite, "woof", 4);
             ASSERT(4 == rc);
-            rc = bdesu_FileUtil::close(fdWrite);
-            ASSERT(0 == rc);
-            fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
-            ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
-
 
             fdRead  = bdesu_FileUtil::open(fileNameRead,  true, false);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
@@ -529,12 +722,16 @@ int main(int argc, char *argv[]) {
             ASSERT(4 == rc);
             rc = bdesu_FileUtil::close(fdRead);
             ASSERT(0 == rc);
-            fdRead  = bdesu_FileUtil::open(fileNameWrite, false, true);
+            fdRead  = bdesu_FileUtil::open(fileNameRead, false, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
 
             // Unix can only lock a writable file for write
 
-            rc = bdesu_FileUtil::tryLock(fdWrite, isWindows);
+            rc = bdesu_FileUtil::tryLock(fdRead,  true);
+            ASSERT(0 != rc);
+            ASSERT(EBADF == errno);
+
+            rc = bdesu_FileUtil::tryLock(fdWrite, true);
             ASSERT(0 == rc);
             rc = bdesu_FileUtil::tryLock(fdRead,  false);
             ASSERT(0 == rc);
@@ -561,19 +758,18 @@ int main(int argc, char *argv[]) {
             // try to lock a closed file descriptor
 
             if (verbose) Q(Locking closed file descriptor);
-
-            rc = bdesu_FileUtil::tryLock(fdWrite, true);
+            errno = 0;
+            rc = bdesu_FileUtil::tryLock(fdWrite, false);
             ASSERT(0 != rc);
-
-#ifdef BSLS_PLATFORM__OS_UNIX
             if (verbose) P(errno);
-
             LOOP_ASSERT(errno, EBADF == errno);
-#else
-            if (verbose) P(GetLastError());
 
-            LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
-#endif
+            if (verbose) Q(Invalid file descriptor);
+            errno = 0;
+            rc = bdesu_FileUtil::tryLock(bdesu_FileUtil::INVALID_FD, false);
+            ASSERT(0 != rc);
+            if (verbose) P(errno);
+            LOOP_ASSERT(errno, EBADF == errno);
 
             bdesu_FileUtil::remove(fileNameWrite);
             bdesu_FileUtil::remove(fileNameRead);
@@ -592,75 +788,62 @@ int main(int argc, char *argv[]) {
             char buf[5];
             const bsl::string WOOF = "woof";
 
-            fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
+            fdWrite = bdesu_FileUtil::open(fileNameWrite, true, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
             bsl::memset(buf, 0, sizeof(buf));
             rc = bdesu_FileUtil::read(fdWrite, buf, 4);
             ASSERT(4 == rc);
             ASSERT(WOOF == buf);
 
-            fdRead  = bdesu_FileUtil::open(fileNameRead,  false, true);
+            // Note on Unix we open fdRead for 'write' so we can try to lock
+            // it for write later
+
+            fdRead  = bdesu_FileUtil::open(fileNameRead,  true, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
             bsl::memset(buf, 0, sizeof(buf));
             rc = bdesu_FileUtil::read(fdRead,  buf, 4);
             ASSERT(4 == rc);
             ASSERT(WOOF == buf);
 
+#if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
+            enum { COLLIDE = EACCES };
+#else
+            enum { COLLIDE = EAGAIN };
+#endif
             if (verbose) Q(Locked for write twice);
-
+            errno = 0;
             rc = bdesu_FileUtil::tryLock(fdWrite, true);
             ASSERT(0 != rc);
-
-#ifdef BSLS_PLATFORM__OS_UNIX
             if (verbose) P(errno);
-
-# if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
-            LOOP_ASSERT(errno, EACCES == errno);
-# else
-            LOOP_ASSERT(errno, EAGAIN == errno);
-# endif
-#else
-            if (verbose) P(GetLastError());
-
-            LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
-#endif
+            LOOP_ASSERT(errno, COLLIDE == errno);
 
             if (verbose) Q(Locked for write then read);
-
+            errno = 0;
             rc = bdesu_FileUtil::tryLock(fdWrite, false);
             ASSERT(0 != rc);
-
-#ifdef BSLS_PLATFORM__OS_UNIX
             if (verbose) P(errno);
+            LOOP_ASSERT(errno, COLLIDE == errno);
 
-# if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
-            LOOP_ASSERT(errno, EACCES == errno);
-# else
-            LOOP_ASSERT(errno, EAGAIN == errno);
-# endif
-#else
-            if (verbose) P(GetLastError());
-
-            LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
-#endif
             if (verbose) Q(Locked for read then write);
-
+            errno = 0;
             rc = bdesu_FileUtil::tryLock(fdRead, true);
             ASSERT(0 != rc);
-
-#ifdef BSLS_PLATFORM__OS_UNIX
             if (verbose) P(errno);
+            LOOP_ASSERT(errno, COLLIDE == errno);
 
-# if defined(BSLS_PLATFORM__OS_HPUX) || defined(BSLS_PLATFORM__OS_AIX)
-            LOOP_ASSERT(errno, EACCES == errno);
-# else
-            LOOP_ASSERT(errno, EAGAIN == errno);
-# endif
-#else
-            if (verbose) P(GetLastError());
+            if (verbose) Q(Locked for read then read);
+            errno = 0;
+            rc = bdesu_FileUtil::tryLock(fdRead, false);
+            ASSERT(0 == rc);
+            if (verbose) P(errno);
+            LOOP_ASSERT(errno, 0 == errno);
+            rc = bdesu_FileUtil::unlock(fdRead);
+            ASSERT(0 == rc);
 
-            LOOP_ASSERT(GetLastError(), ERROR_INVALID_HANDLE==GetLastError());
-#endif
+            rc = bdesu_FileUtil::close(fdWrite);
+            ASSERT(0 == rc);
+            rc = bdesu_FileUtil::close(fdRead);
+            ASSERT(0 == rc);
 
             if (0 == testStatus) {
                 // Touch the 'success' file to tell the parent process we
@@ -671,6 +854,7 @@ int main(int argc, char *argv[]) {
                 bdesu_FileUtil::close(fdSuccess);
             }
         }
+#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1727,7 +1911,7 @@ int main(int argc, char *argv[]) {
         {
             int rc = Util::remove(fileName);
             ASSERT(0 == rc);
-        }       
+        }
       }  break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
