@@ -390,9 +390,13 @@ int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
-    return !LockFileEx(fd, LOCKFILE_FAIL_IMMEDIATELY |
-                           (lockWrite ? LOCKFILE_EXCLUSIVE_LOCK : 0),
-                      0, 1, 0, &overlapped);
+    bool success = LockFileEx(fd, LOCKFILE_FAIL_IMMEDIATELY |
+                              (lockWrite ? LOCKFILE_EXCLUSIVE_LOCK : 0),
+                              0, 1, 0, &overlapped);
+    return success ? 0
+                   : ERROR_LOCK_VIOLATION == GetLastError()
+                   ? BDESU_ERROR_LOCKING_CONFLICT
+                   : -1;
 }
 
 int bdesu_FileUtil::unlock(FileDescriptor fd)
@@ -841,9 +845,11 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
 
 int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
 {
-    return localFcntlLock(fd, F_SETLK, lockWrite ? F_WRLCK : F_RDLCK) == -1
-    ? -1
-    : 0;
+    int rc = localFcntlLock(fd, F_SETLK, lockWrite ? F_WRLCK : F_RDLCK);
+    return -1 != rc ? 0
+                    : EAGAIN == errno || EACCES == errno
+                    ? BDESU_ERROR_LOCKING_CONFLICT
+                    : -1;
 }
 
 int bdesu_FileUtil::lock(FileDescriptor fd, bool lockWrite)

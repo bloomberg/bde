@@ -630,6 +630,7 @@ int main(int argc, char *argv[])
             SetLastError(0);
             rc = bdesu_FileUtil::tryLock(fdWrite, true);
             ASSERT(0 != rc);
+            ASSERT(bdesu_FileUtil::BDESU_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(GetLastError());
             LOOP_ASSERT(GetLastError(), ERROR_LOCK_VIOLATION==GetLastError());
 
@@ -637,6 +638,7 @@ int main(int argc, char *argv[])
             SetLastError(0);
             rc = bdesu_FileUtil::tryLock(fdWrite, false);
             ASSERT(0 != rc);
+            ASSERT(bdesu_FileUtil::BDESU_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(GetLastError());
             LOOP_ASSERT(GetLastError(), ERROR_LOCK_VIOLATION==GetLastError());
 
@@ -644,6 +646,7 @@ int main(int argc, char *argv[])
             SetLastError(0);
             rc = bdesu_FileUtil::tryLock(fdRead, true);
             ASSERT(0 != rc);
+            ASSERT(bdesu_FileUtil::BDESU_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(GetLastError());
             LOOP_ASSERT(GetLastError(), ERROR_LOCK_VIOLATION==GetLastError());
 
@@ -814,6 +817,7 @@ int main(int argc, char *argv[])
             errno = 0;
             rc = bdesu_FileUtil::tryLock(fdWrite, true);
             ASSERT(0 != rc);
+            ASSERT(bdesu_FileUtil::BDESU_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(errno);
             LOOP_ASSERT(errno, COLLIDE == errno);
 
@@ -821,6 +825,7 @@ int main(int argc, char *argv[])
             errno = 0;
             rc = bdesu_FileUtil::tryLock(fdWrite, false);
             ASSERT(0 != rc);
+            ASSERT(bdesu_FileUtil::BDESU_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(errno);
             LOOP_ASSERT(errno, COLLIDE == errno);
 
@@ -828,6 +833,7 @@ int main(int argc, char *argv[])
             errno = 0;
             rc = bdesu_FileUtil::tryLock(fdRead, true);
             ASSERT(0 != rc);
+            ASSERT(bdesu_FileUtil::BDESU_ERROR_LOCKING_CONFLICT == rc);
             if (verbose) P(errno);
             LOOP_ASSERT(errno, COLLIDE == errno);
 
