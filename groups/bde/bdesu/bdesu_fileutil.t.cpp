@@ -612,12 +612,12 @@ int main(int argc, char *argv[])
             char buf[5];
             const bsl::string WOOF = "woof";
 
+            // A curious thing about Windows -- if a file was already open for
+            // read and locked for write, you can open it for read, but you
+            // can't actually read from it.
+
             fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
-            bsl::memset(buf, 0, sizeof(buf));
-            rc = bdesu_FileUtil::read(fdWrite, buf, 4);
-            ASSERT(4 == rc);
-            ASSERT(WOOF == buf);
 
             fdRead  = bdesu_FileUtil::open(fileNameRead,  false, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
