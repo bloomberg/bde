@@ -18,20 +18,6 @@ BDES_IDENT_RCSID(bael_asyncfileobserver_cpp,"$Id$ $CSID$")
 
 #include <bslma_default.h>
 
-using namespace bsl;
-
-namespace {
-
-const char *const DEFAULT_LONG_FORMAT =  "\n%d %p:%t %s %f:%l %c %m %u\n";
-const char *const DEFAULT_LONG_FORMAT_WITHOUT_USERFIELDS =
-                                         "\n%d %p:%t %s %f:%l %c %m\n";
-
-const char *const DEFAULT_SHORT_FORMAT = "\n%s %f:%l %c %m %u\n";
-const char *const DEFAULT_SHORT_FORMAT_WITHOUT_USERFIELDS =
-                                         "\n%s %f:%l %c %m\n";
-
-}  // close unnamed namespace
-
 namespace BloombergLP {
 
                        // ----------------------------
