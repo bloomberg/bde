@@ -343,6 +343,8 @@ class bael_AsyncFileObserver : public bael_Observer {
                                                      // publication thread
                                                      // function
 
+    mutable bcemt_Mutex           d_mutex;              // serialize operations
+
     bslma_Allocator              *d_allocator_p;     // memory allocator (held,
                                                      // not owned)
 
@@ -354,6 +356,10 @@ class bael_AsyncFileObserver : public bael_Observer {
     // PRIVATE MANIPULATORS
     void publishThreadEntryPoint();
         // Entry point for the publication thread.
+    void startPublicationThread();
+        // Start publication thread, not thread-safe.
+    void stopPublicationThread();
+        // Stop publication thread, not thread-safe.
 
   public:
     // CREATORS

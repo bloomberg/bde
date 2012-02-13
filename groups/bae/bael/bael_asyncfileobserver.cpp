@@ -52,6 +52,32 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
     }
 }
 
+void bael_AsyncFileObserver::startPublicationThread()
+{
+    if (bcemt_ThreadUtil::invalidHandle() == d_threadHandle)
+    {
+        bcemt_ThreadAttributes attr;
+        bcemt_ThreadUtil::create(&d_threadHandle, 
+                                 attr,
+                                 d_publishThreadEntryPoint);
+    }
+}
+
+void bael_AsyncFileObserver::stopPublicationThread()
+{
+    if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle) 
+    {
+        // Push an empty record with BAEL_END set in context
+        bcema_SharedPtr<const bael_Record> record(
+                new (*d_allocator_p) bael_Record(d_allocator_p), 
+                d_allocator_p);
+        bael_Context context(bael_Transmission::BAEL_END, 0, 1);
+        publish(record, context);
+        bcemt_ThreadUtil::join(d_threadHandle);
+    }
+}
+
+
 // CREATORS
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                 bael_Severity::Level  stdoutThreshold,
@@ -96,11 +122,12 @@ bael_AsyncFileObserver::~bael_AsyncFileObserver()
 // MANIPULATORS
 void bael_AsyncFileObserver::clear()
 {
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_clearing = true;
-    stopThread();
+    stopPublicationThread();
     d_recordQueue.removeAll();
     d_clearing = false;
-    startThread();
+    startPublicationThread();
 }
 
 void bael_AsyncFileObserver::publish(
@@ -115,27 +142,14 @@ void bael_AsyncFileObserver::publish(
 
 void bael_AsyncFileObserver::startThread()
 {
-    if (bcemt_ThreadUtil::invalidHandle() == d_threadHandle)
-    {
-        bcemt_ThreadAttributes attr;
-        bcemt_ThreadUtil::create(&d_threadHandle, 
-                                 attr,
-                                 d_publishThreadEntryPoint);
-    }
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+    startPublicationThread();
 }
 
 void bael_AsyncFileObserver::stopThread()
 {
-    if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle) 
-    {
-        // Push an empty record with BAEL_END set in context
-        bcema_SharedPtr<const bael_Record> record(
-                new (*d_allocator_p) bael_Record(d_allocator_p), 
-                d_allocator_p);
-        bael_Context context(bael_Transmission::BAEL_END, 0, 1);
-        publish(record, context);
-        bcemt_ThreadUtil::join(d_threadHandle);
-    }
+    bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
+    stopPublicationThread();
 }
 
 }  // close namespace BloombergLP

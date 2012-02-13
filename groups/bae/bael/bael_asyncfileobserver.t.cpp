@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
         cerr << "Error, non-zero test status = " << testStatus << "."
              << endl;
     }
+    testStatus = -1;
     return testStatus;
 }
 
