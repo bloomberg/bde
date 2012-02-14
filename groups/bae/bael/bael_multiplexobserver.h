@@ -190,6 +190,14 @@ class bael_MultiplexObserver : public bael_Observer {
 
     virtual void publish(const bcema_SharedPtr<const bael_Record>&  record,
                          const bael_Context& context);
+        // Process the log pointed by the specified shared pointer 'record' by 
+        // forwarding 'record' and the specified publishing 'context' of the 
+        // log to each of the observers registered with this multiplexing
+        // observer.
+
+    virtual void clear();
+        // Call the clear method of each of the observers registered with this
+        // multiplexing observer.
 
     int registerObserver(bael_Observer *observer);
         // Add the specified 'observer' to the registry of this multiplexing

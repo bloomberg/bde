@@ -60,6 +60,7 @@ void bael_AsyncFileObserver::stopPublicationThread()
         bael_Context context(bael_Transmission::BAEL_END, 0, 1);
         publish(record, context);
         bcemt_ThreadUtil::join(d_threadHandle);
+        d_threadHandle = bcemt_ThreadUtil::invalidHandle();
     }
 }
 

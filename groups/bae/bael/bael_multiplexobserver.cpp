@@ -45,6 +45,16 @@ void bael_MultiplexObserver::publish(
     }
 }
 
+void bael_MultiplexObserver::clear()
+{
+    bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_rwMutex);
+
+    bsl::set<bael_Observer *>::const_iterator it = d_observerSet.begin();
+    for (; it != d_observerSet.end(); ++it) {
+        (*it)->clear();
+    }
+}
+
 int bael_MultiplexObserver::registerObserver(bael_Observer *observer)
 {
     if (0 == observer) {

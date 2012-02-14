@@ -838,6 +838,8 @@ bael_LoggerManager::~bael_LoggerManager()
     // to their default value.  (Note that this might not *be* the singleton,
     // so check for that)
 
+    d_observer_p->clear();
+
     if (this == s_singleton_p) {
         s_singleton_p = 0;
     }
@@ -849,7 +851,6 @@ bael_LoggerManager::~bael_LoggerManager()
         (*itr)->~bael_Logger();
         d_allocator_p->deallocate(*itr);
     }
-    d_observer_p->clear();
     d_recordBuffer_p->~bael_RecordBuffer();
     d_allocator_p->deallocate(d_recordBuffer_p);
 }
