@@ -734,15 +734,20 @@ windows         dbg DBG_LIBSUFFIX   = d
 *           _   BDE_F77FLAGS    = $(DBG_F77FLAGS)
 *           _   BDE_LDFLAGS = $(DBG_LDFLAGS)
 
+!! unix-HP_UX-*-*-*     mt  MT_LDFLAGS      = -lpthread
+
 #==============================================================================
 # Safe builds
 
 # Prevent ambiguity for operators in safe mode:
-!! unix-HP_UX-*-*-*     mt  MT_LDFLAGS      = -lpthread
 !! *                       safe    SAFE_CXXFLAGS   = -D_STLP_EXTRA_OPERATORS_FOR_DEBUG=1
 !! windows                 safe    SAFE_CXXFLAGS   = /D"_STLP_EXTRA_OPERATORS_FOR_DEBUG"
 !! *                       safe2   SAFE_CXXFLAGS   = -D_STLP_EXTRA_OPERATORS_FOR_DEBUG=1
 !! windows                 safe2   SAFE_CXXFLAGS   = /D"_STLP_EXTRA_OPERATORS_FOR_DEBUG"
+
+# Prevent transitive includes in safe mode (DRQS 30168600):
+*                          safe    SAFE_CXXFLAGS   = $(SWITCHCHAR)DBDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+*                          safe2   SAFE_CXXFLAGS   = $(SWITCHCHAR)DBDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #===
 
