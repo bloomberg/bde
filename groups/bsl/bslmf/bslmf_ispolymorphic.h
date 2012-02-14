@@ -89,77 +89,78 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isclass.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
 #endif
 
+#endif
+
+#ifdef BDE_BUILD_TARGET_EXC
+#define BSLMF_ISPOLYMORPHIC_NOTHROW throw()
+#else
+#define BSLMF_ISPOLYMORPHIC_NOTHROW
+#endif
+
 namespace BloombergLP {
+
+                       // ==============================
+                       // struct bslmf_IsPolymorphic_Imp
+                       // ==============================
+
+template <typename TYPE, int IS_CLASS = bslmf_IsClass<TYPE>::VALUE>
+struct bslmf_IsPolymorphic_Imp {
+    typedef bslmf_MetaInt<0> Type;
+};
+
+template <typename TYPE>
+struct bslmf_IsPolymorphic_Imp<TYPE, 1> {
+    typedef typename bslmf_RemoveCvq<TYPE>::Type NONCV_TYPE;
+
+    struct IsPoly : public NONCV_TYPE {
+        IsPoly();
+        virtual ~IsPoly() BSLMF_ISPOLYMORPHIC_NOTHROW;
+        char dummy[256];
+    };
+    struct MaybePoly : public NONCV_TYPE {
+        MaybePoly();
+        ~MaybePoly() BSLMF_ISPOLYMORPHIC_NOTHROW;
+        char dummy[256];
+    };
+
+    typedef bslmf_MetaInt<sizeof(IsPoly) == sizeof(MaybePoly)> Type;
+};
 
                          // ==========================
                          // struct bslmf_IsPolymorphic
                          // ==========================
 
 template <typename TYPE>
-struct bslmf_IsPolymorphic_NonClassImp {
-    enum { VALUE = 0 };
+struct bslmf_IsPolymorphic : bslmf_IsPolymorphic_Imp<TYPE>::Type {
+    // This metafunction class derives from 'bslmf_MetaInt<1>' if the specified
+    // 'TYPE' is a class type (or a reference to a class type) with a v-table,
+    // or from 'bslmf_MetaInt<0>' otherwise.
 };
 
 template <typename TYPE>
-struct bslmf_IsPolymorphic_ClassImp {
-    typedef typename bslmf_RemoveReference<TYPE>::Type NONREF_TYPE;
-    typedef typename bslmf_RemoveCvq<NONREF_TYPE>::Type NONCV_TYPE;
-
-    struct IsPoly : public NONCV_TYPE {
-        IsPoly();
-#ifdef BDE_BUILD_TARGET_EXC
-        virtual ~IsPoly() throw();
-#else
-        virtual ~IsPoly();
-#endif
-        char dummy[256];
-    };
-    struct MaybePoly : public NONCV_TYPE {
-        MaybePoly();
-#ifdef BDE_BUILD_TARGET_EXC
-        ~MaybePoly() throw();
-#else
-        ~MaybePoly();
-#endif
-        char dummy[256];
-    };
-    enum { VALUE = sizeof(IsPoly) == sizeof(MaybePoly) };
-};
-
-template <int IS_CLASS>
-struct bslmf_IsPolymorphic_Selector {
-    template <typename NON_CLASS_TYPE>
-    struct rebind {
-        typedef bslmf_IsPolymorphic_NonClassImp<NON_CLASS_TYPE> Type;
-    };
-};
-
-template <>
-struct bslmf_IsPolymorphic_Selector<1> {
-    template <typename CLASS_TYPE>
-    struct rebind {
-        typedef bslmf_IsPolymorphic_ClassImp<CLASS_TYPE> Type;
-    };
-};
-
-template <typename TYPE>
-struct bslmf_IsPolymorphic {
-    typedef bslmf_IsPolymorphic_Selector<
-                                      bslmf_IsClass<TYPE>::VALUE> SelectorType;
-    typedef typename SelectorType::template rebind<TYPE> BinderType;
-    typedef typename BinderType::Type ImpType;
-    enum { VALUE = ImpType::VALUE };
+struct bslmf_IsPolymorphic<TYPE&> : bslmf_IsPolymorphic_Imp<TYPE>::Type {
+    // This metafunction class derives from 'bslmf_MetaInt<1>' if the specified
+    // 'TYPE' is a class type (or a reference to a class type) with a v-table,
+    // or from 'bslmf_MetaInt<0>' otherwise.
 };
 
 }  // close namespace BloombergLP
+
+#undef BSLMF_ISPOLYMORPHIC_NOTHROW
 
 #endif
 

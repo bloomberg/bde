@@ -517,6 +517,8 @@ struct bsls_Platform_Assert;
     #elif defined(_WIN32) || defined(__WIN32__) && \
           ! (defined(cygwin) || defined(__cygwin))
         #define BSLS_PLATFORM__OS_WINDOWS 1
+    #elif defined(__APPLE__) 
+        #define BSLS_PLATFORM__OS_DARWIN 1
     #else
         #if defined(__GNUC__)
             #error "Unable to determine on which OS GNU compiler is running."
@@ -716,6 +718,7 @@ struct bsls_Platform_Assert;
 
 #define BSLS_PLATFORM__OS_SUBTYPE_COUNT \
     BSLS_PLATFORM__OS_AIX     \
+  + BSLS_PLATFORM__OS_DARWIN  \
   + BSLS_PLATFORM__OS_HPUX    \
   + BSLS_PLATFORM__OS_LINUX   \
   + BSLS_PLATFORM__OS_FREEBSD \
@@ -875,6 +878,9 @@ struct bsls_Platform {
     #if defined(BSLS_PLATFORM__OS_WINDOWS)
         typedef OsWinNT             Os;
     #endif
+    #if defined(BSLS_PLATFORM__OS_DARWIN)
+        typedef OsDarwin            Os;
+    #endif
 
     // CPU TRAIT
     // Will fail to compile if more than one CPU type is set.
@@ -941,6 +947,10 @@ struct bsls_Platform {
 
 #ifdef BSLS_PLATFORM__OS_LINUX
 #define BDES_PLATFORM__OS_LINUX       BSLS_PLATFORM__OS_LINUX
+#endif
+
+#ifdef BSLS_PLATFORM__OS_DARWIN
+#define BDES_PLATFORM__OS_DARWIN      BSLS_PLATFORM__OS_DARWIN
 #endif
 
 #ifdef BSLS_PLATFORM__OS_FREEBSD

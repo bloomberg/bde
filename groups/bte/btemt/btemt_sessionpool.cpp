@@ -17,6 +17,8 @@ BDES_IDENT_RCSID(btemt_sessionpool_cpp,"$Id$ $CSID$")
 #include <bdef_function.h>
 #include <bdef_memfn.h>
 
+#include <bdema_bufferedsequentialallocator.h>
+
 #include <bdet_timeinterval.h>
 #include <bdetu_systemtime.h>
 
@@ -210,11 +212,13 @@ void btemt_SessionPool::channelStateCb(int   channelId,
 
           if (d_useBlobForDataReads) {
               handle->d_channel_p = new (*d_allocator_p)
-                                 btemt_ChannelPoolChannel(channelId,
-                                                          d_channelPool_p,
-                                                          &d_blobBufferFactory,
-                                                          &d_spAllocator,
-                                                          d_allocator_p);
+                                 btemt_ChannelPoolChannel(
+                                                        channelId,
+                                                        d_channelPool_p,
+                                                        &d_blobBufferFactory,
+                                                        &d_spAllocator,
+                                                        d_allocator_p,
+                                                        &d_bufferChainFactory);
           }
           else {
               handle->d_channel_p = new (*d_allocator_p)
@@ -222,7 +226,8 @@ void btemt_SessionPool::channelStateCb(int   channelId,
                                                          d_channelPool_p,
                                                          &d_bufferChainFactory,
                                                          &d_spAllocator,
-                                                         d_allocator_p);
+                                                         d_allocator_p,
+                                                         &d_blobBufferFactory);
           }
 
           lock.release()->unlock();
@@ -595,7 +600,13 @@ int btemt_SessionPool::stop()
         ret = d_channelPool_p->stop();
     }
 
-    bsl::vector<HandlePtr> handles;
+    const int NUM_HANDLES = 32;
+    const int SIZE        = NUM_HANDLES * sizeof(HandlePtr);
+
+    char BUFFER[SIZE];
+    bdema_BufferedSequentialAllocator bufferAllocator(BUFFER, SIZE);
+
+    bsl::vector<HandlePtr> handles(&bufferAllocator);
     {
         bcec_ObjectCatalogIter<HandlePtr> itr(d_handles);
 
@@ -945,6 +956,7 @@ int btemt_SessionPool::listen(
                                       reuseAddress,
                                       false,
                                       socketOptions);
+
     if (ret) {
         d_handles.remove(handle->d_handleId);
         return ret;

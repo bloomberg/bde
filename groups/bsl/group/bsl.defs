@@ -6,12 +6,12 @@
 # STL (bsl+stlport)
 
 # extra directory for install: uc(package name less '+' prefix)_INCLUDE
-*			_	BSL_STLPORT_DIR	= 
+*			_	BSL_STLPORT_DIR	=
 *			_	BSL_STDHDRS_DIR	= sys
 
-*			_	STL_CXXFLAGS	= 
+*			_	STL_CXXFLAGS	=
 *			_	STL_LDFLAGS	=
-*			_	STL_DEFINES	= 
+*			_	STL_DEFINES	=
 #*			_	STL_INCLUDE	= -I$(BSL_LOCN)/include/$(UPLID)/$(LINK_UFID)/$(BSL_STLPORT_DIR)
 #*                       _       STL_INCLUDE     = -I$(BSL_ROOTLOCN)/include/bsl/$(UPLID)/$(LINK_UFID)
 # BSL_ROOT is defined by bsl_build.pl; it is the source root where bsl was
@@ -25,6 +25,9 @@
 
 windows             _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
 !! windows          shr     STL_DEFINES     = $(BSL_STD_FLAG) /D_STLP_USE_DYNAMIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
+
+# DRQS 29608792: Build windows with BSL_LEGACY=0 to match release process
+windows             _       STL_DEFINES     = /DBSL_LEGACY=0
 
 # enable/disable STLport debug
 !! unix-*-*-*-* 	_       STL_DBGDEFS     =

@@ -251,7 +251,7 @@ template <class ADDRESS>
 class bteso_StreamSocket {
     // This class defines a protocol for stream-based socket communications.
     // The class is templatized to provide a family of type-safe address
-    // specializations (e.g., "IPv4", IPv6").  Various socket-related
+    // specializations (e.g., "IPv4", "IPv6").  Various socket-related
     // operations including accepting and initiating connections and
     // blocking/non-blocking I/O operations are provided.  Vector I/O
     // operations are also supported.

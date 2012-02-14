@@ -1001,7 +1001,7 @@ const TestString  TEST_STRING_DATA[] = { VK, VL, VM, VN, VO };
 //                         HELPER FUNCTION FOR TESTING
 //=============================================================================
 
-struct bdeut_VariantTestDriverException {};
+struct VariantTestDriverException {};
 
 // Note that a portable syntax for 'noreturn' will be available once we have
 // access to conforming C++0x compilers.
@@ -1020,7 +1020,7 @@ void applyRawFailureHandler(const char *, const char *, int)
     // This function is a placeholder for BDE 2.4, until "negative testing" is
     // formalized in a later BDE release.
 
-    throw bdeut_VariantTestDriverException();
+    throw VariantTestDriverException();
 }
 
 #undef BDEUT_VARIANT_NORETURN
@@ -7849,7 +7849,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(!"The call above should have thrown an exception.");
             }
-            catch (bdeut_VariantTestDriverException) {
+            catch (VariantTestDriverException) {
                 // This is the expected path, after catching an exception from
                 // the registered assert handler, indicating that 'mX' is
                 // empty.

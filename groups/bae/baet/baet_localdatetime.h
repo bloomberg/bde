@@ -53,7 +53,7 @@ BDES_IDENT("$Id: $ $CSID: $")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Creation and Use of a 'baet_LocalDatetime' Object
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

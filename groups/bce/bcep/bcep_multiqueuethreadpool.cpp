@@ -449,7 +449,7 @@ int bcep_MultiQueueThreadPool::drainQueue(int id)
 
 int bcep_MultiQueueThreadPool::start()
 {
-    bcemt_LockGuard<bces_SpinLock>(&this->d_stateLock);
+    bcemt_LockGuard<bces_SpinLock> guard(&d_stateLock);
     if (STATE_RUNNING == d_state) {
         return 0;
     }
@@ -473,7 +473,7 @@ int bcep_MultiQueueThreadPool::start()
 
 void bcep_MultiQueueThreadPool::drain()
 {
-    bcemt_LockGuard<bces_SpinLock> guard(&this->d_stateLock);
+    bcemt_LockGuard<bces_SpinLock> guard(&d_stateLock);
     if (STATE_STOPPED == d_state) {
         return;
     }
@@ -495,7 +495,7 @@ void bcep_MultiQueueThreadPool::drain()
 
 void bcep_MultiQueueThreadPool::stop()
 {
-    bcemt_LockGuard<bces_SpinLock> guard(&this->d_stateLock);
+    bcemt_LockGuard<bces_SpinLock> guard(&d_stateLock);
     if (STATE_STOPPED == d_state) {
         return;
     }
@@ -518,7 +518,7 @@ void bcep_MultiQueueThreadPool::stop()
 
 void bcep_MultiQueueThreadPool::shutdown()
 {
-    bcemt_LockGuard<bces_SpinLock> guard(&this->d_stateLock);
+    bcemt_LockGuard<bces_SpinLock> guard(&d_stateLock);
     d_registryLock.lockWrite();
     d_state = STATE_STOPPED;    // disables all queues
     d_registryLock.unlock();

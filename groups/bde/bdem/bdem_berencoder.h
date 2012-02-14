@@ -941,7 +941,13 @@ bdem_BerEncoder::encodeArrayImpl(const TYPE&                  value,
                                  int                          tagNumber,
                                  int                          formattingMode)
 {
-    enum { BDEM_FAILURE = -1 };
+    enum { BDEM_FAILURE = -1, BDEM_SUCCESS = 0 };
+
+    const int size = (int) bdeat_ArrayFunctions::size(value);
+
+    if (0 == size && d_options && !d_options->encodeEmptyArrays()) {
+        return BDEM_SUCCESS;                                          // RETURN
+    }
 
     const bdem_BerConstants::TagType tagType =
                                            bdem_BerConstants::BDEM_CONSTRUCTED;
@@ -957,8 +963,6 @@ bdem_BerEncoder::encodeArrayImpl(const TYPE&                  value,
 
     bdem_BerEncoder_UniversalElementVisitor visitor(this,
                                                     formattingMode);
-
-    const int size = (int)bdeat_ArrayFunctions::size(value);
 
     for (int i = 0; i < size; ++i) {
         if (0 != bdeat_ArrayFunctions::accessElement(value, visitor, i)) {

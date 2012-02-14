@@ -219,10 +219,15 @@ class bdet_DatetimeInterval {
         // Create a time interval object having the value given by the
         // specified 'days' and the optionally specified 'hours', 'minutes',
         // 'seconds' and 'milliseconds'.  Unspecified fields default to zero.
-        // The behavior is undefined unless the resulting time interval value
-        // is valid (i.e., the 'days' field must not overflow a 32-bit
-        // integer), and every time argument separately can be represented as a
-        // *62-bit* integer number of milliseconds.
+        // The behavior is undefined unless (1) the resulting time interval
+        // value is valid (i.e., the expressed interval must not overflow a
+        // 32-bit integer number of days), and (2) every time argument
+        // separately can be represented as a *62-bit* integer number of
+        // milliseconds.  Note that the latter restriction ensures that an
+        // overflow cannot occur in an intermediate sum when computing an
+        // otherwise valid result, as may occur, for example, given a very
+        // large positive number of hours and a large very negative number of
+        // minutes.
 
     bdet_DatetimeInterval(const bdet_DatetimeInterval& original);
         // Create a time interval object having the value of the specified
@@ -653,7 +658,7 @@ STREAM& bdet_DatetimeInterval::bdexStreamIn(STREAM& stream, int version)
           case 1: {
             stream.getInt64(d_milliseconds);
             if (!stream) {
-                return stream;
+                return stream;                                        // RETURN
             }
           } break;
           default: {

@@ -62,7 +62,6 @@ using namespace bsl;  // automatically added by script
 // [ 8] dispatch
 //
 // ACCESSORS
-// [13] canRegisterSockets
 // [13] hasLimitedSocketCapacity
 // [ 3] numSocketEvents
 // [ 3] numEvents
@@ -349,41 +348,27 @@ int main(int argc, char *argv[]) {
 
       case 13: {
         // -----------------------------------------------------------------
-        // TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity'
+        // TESTING 'hasLimitedSocketCapacity'
         //
         // Concern:
         //: 1 'hasLimitiedSocketCapacity' returns 'false'.
-        //:
-        //: 2 'canRegisterSockets' always returns 'true'.
         //
         // Plan:
         //: 1 Assert that 'hasLimitedSocketCapacity' returns 'false'.
-        //:
-        //: 2 Assert that 'canRegisterSockets' returns 'true'.
         //
         // Testing:
-        //   bool canRegisterSockets() const;
         //   bool hasLimitedSocketCapacity() const;
         // -----------------------------------------------------------------
 
         if (verbose) cout << endl
-                << "TESTING 'canRegisterSockets' and 'hasLimitedSocketCapacity"
-                << endl
-                << "=========================================================="
-                << endl;
+                          << "TESTING 'hasLimitedSocketCapacity" << endl
+                          << "=================================" << endl;
 
         if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
         {
             Obj mX;  const Obj& X = mX;
             bool hlsc = X.hasLimitedSocketCapacity();
             LOOP_ASSERT(hlsc, false == hlsc);
-        }
-
-        if (verbose) cout << "Testing 'canRegisterSockets'" << endl;
-        {
-            Obj mX;  const Obj& X = mX;
-            bool crs = X.canRegisterSockets();
-            LOOP_ASSERT(crs, true == crs);
         }
       } break;
 
@@ -755,8 +740,14 @@ int main(int argc, char *argv[]) {
     // later versions do.  So we'll run this only if compiled on 2.6.10 and
     // later.
 
+#if 0
+    // Actually, it turns out 2.6.18 doesn't seem to guarantee the order either
+    // so these broke again.
+
 /// On length 3
-// Deregistering signaled socket handle
+// Deregistering signaled socket handle.  Registering 'r'/'w' without number of
+// bytes registers number of bytes as '-1' which will fail when 'Dn' is called,
+// unless the event is deregistered before it happens.
 { L_, 0,  "+0r64,{-1}; +1r; +2r64; W0,64; W1,64; W2,64; T3; Dn,2; T2;"
           "E0r; E1; E2r"                                                },
 
@@ -768,6 +759,7 @@ int main(int argc, char *argv[]) {
 
 { L_, 0,  "+0r64; +1r64, {-2}; +2r; W0,64; W1,64; W2,64; T3; Dn,2; T2;"
           "E0r; E1r; E2"                                                },
+#endif
 #endif
 // Deregistering non-signaled socket handle
 

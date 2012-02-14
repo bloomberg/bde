@@ -1042,7 +1042,7 @@ struct bdepu_TypesParser {
                                  const char   *inputString);
         // Parse the specified 'inputString' (ignoring any leading whitespace)
         // for a sequence of characters matching the production rule
-        // <QUOTED STRING> and place into the specified 'result' the
+        // '<QUOTED STRING>' and place into the specified 'result' the
         // corresponding value.  Store in the specified '*endPos' the address
         // of the non-modifiable character in 'inputString' immediately
         //  following the successfully parsed text, or the position at which
@@ -1064,7 +1064,7 @@ struct bdepu_TypesParser {
                                          const char   *inputString);
         // Parse the specified 'inputString' (ignoring any leading whitespace)
         // for a sequence of characters matching the production rule
-        // <UNQUOTED STRING> to allow character double-quote ('\"') (i.e.,
+        // '<UNQUOTED STRING>' to allow character double-quote ('\"') (i.e.,
         // zero or more characters followed by at least one whitespace) and
         // place into the specified 'result' the corresponding value.  Store
         // in the specified '*endPos' the address of the first whitespace
@@ -1113,7 +1113,7 @@ struct bdepu_TypesParser {
                                    const char   *inputString);
         // Parse the specified 'inputString' (ignoring any leading whitespace)
         // for a sequence of characters matching the production rule
-        // <UNQUOTED STRING> and place into the specified 'result' the
+        // '<UNQUOTED STRING>' and place into the specified 'result' the
         // corresponding value.  Store in the specified '*endPos' the address
         // of the first whitespace character or EOS located after
         // non-whitespace characters have been found, or the position at which

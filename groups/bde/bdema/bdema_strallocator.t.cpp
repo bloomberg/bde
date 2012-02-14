@@ -3,6 +3,7 @@
 #include <bdema_strallocator.h>
 #include <bslma_allocator.h>                  // for testing only
 #include <bslma_default.h>                    // for testing only
+#include <bslma_deleterhelper.h>              // for testing only
 #include <bslma_testallocator.h>              // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -260,8 +261,7 @@ my_StrArray::~my_StrArray()
         }
     }
     else {
-        d_strAllocator_p->~bslma_Allocator();
-        d_allocator_p->deallocate(d_strAllocator_p);
+        bslma_DeleterHelper::deleteObject(d_strAllocator_p, d_allocator_p);
     }
     d_allocator_p->deallocate(d_array_p);
 }

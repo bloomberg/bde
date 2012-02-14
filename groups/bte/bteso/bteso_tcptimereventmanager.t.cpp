@@ -711,7 +711,7 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
         #if   defined(BSLS_PLATFORM__OS_UNIX) \
            && !defined(BSLS_PLATFORM__OS_CYGWIN)
-        const bdet_TimeInterval tolerance(0.02);
+        const bdet_TimeInterval tolerance(0.03);
         #else
         const bdet_TimeInterval tolerance(0.1);
         #endif
@@ -744,7 +744,10 @@ int main(int argc, char *argv[])
                 bdet_TimeInterval(DATA[i].d_dispatchOffset);
 
             LOOP_ASSERT(i, delta >= expected);
-            LOOP_ASSERT(i, delta - expected < tolerance);
+            bdet_TimeInterval overshoot = delta - expected;
+            LOOP3_ASSERT(i, overshoot.totalSecondsAsDouble(),
+                                              tolerance.totalSecondsAsDouble(),
+                                                        overshoot < tolerance);
             if (veryVerbose) {
                 P_(now); P(now1);
                 P_(delta); P(expected);
