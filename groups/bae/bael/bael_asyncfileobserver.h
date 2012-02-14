@@ -50,7 +50,6 @@ BDES_IDENT("$Id: $")
 //                         |              isFileLoggingEnabled
 //                         |              isStdoutLoggingPrefixEnabled
 //                         |              isUserFieldsLoggingEnabled
-//                         |              isPublishInLocaltimeEnabled
 //                         |              rotationLifetime
 //                         |              rotationSize
 //                         |              localTimeOffset
@@ -65,10 +64,12 @@ BDES_IDENT("$Id: $")
 //..
 // A 'bael_AsyncFileObserver' object processes the log records received through
 // its 'publish' method by writing them asynchronously to a user-specified
-// file.  The format of published log records is user-configurable (see "Log
-// Record Formatting" below).  In addition, an async  file observer may be
-// configured to perform automatic log file rotation (see "Log File Rotation"
-// below).
+// file.  An async file observer uses a fixed queue to store up to a fixed 
+// number of shared pointers to log records and launches a publication thread 
+// dedicated to process log records in the fixed queue.  The format of 
+// published log records is user-configurable (see "Log Record Formatting" 
+// below).  In addition, an async file observer may be configured to perform 
+// automatic log file rotation (see "Log File Rotation" below).
 //
 ///Log Record Formatting
 ///---------------------
@@ -173,8 +174,8 @@ BDES_IDENT("$Id: $")
 //
 ///Thread-Safety
 ///-------------
-// All methods of 'bael_AsyncFileObserver' are thread-safe, and can be called
-// concurrently by multiple threads.
+// All public methods of 'bael_AsyncFileObserver' are thread-safe, and can be 
+// called concurrently by multiple threads.
 //
 ///Usage
 ///-----
@@ -185,8 +186,14 @@ BDES_IDENT("$Id: $")
 //..
 //  bael_AsyncFileObserver asyncFileObserver;
 //..
+// The async file observer does not automatically start the publication thread
+// upon construction.  To start the publication thread, invoke 'startThread'
+// method:
+//..
+//  asyncFileObserver.startThread();
+//..
 // The async file observer must then be installed within a 'bael' logging
-// system.  This is done by passing 'asyncFileObserver' to the
+// system.  This is done by passing the async file observer object to the
 // 'bael_LoggerManager::initSingleton' method:
 //..
 //  bael_LoggerManagerConfiguration configuration;
@@ -243,6 +250,19 @@ BDES_IDENT("$Id: $")
 //..
 //  asyncFileObserver.disableSizeRotation();
 //..
+// Stop the publication thread before destroying an async file observer: 
+//..
+//  asyncFileObserver.stopThread();
+//..
+// Note that the logger manager to which the async file observer is plugged
+// may get destroyed before the async file observer does.  In that case log 
+// record pointed by the shared pointers in the async file observer's fixed 
+// queue are no longer valid.  The logger manager calls 'clear' method of the
+// async file observer before releasing its log record buffers internally.  
+// The 'clear' method stops the publication thread, clears the fixed queue and
+// then restart the publication thread.  The 'clear' method can be used in 
+// similar situation besides the logger manager case when the underlying 
+// resources pointed by queued shared pointers need to be released in advance.
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -278,10 +298,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BCEC_FIXEDQUEUE
 #include <bcec_fixedqueue.h>
-#endif
-
-#ifndef INCLUDED_BCEC_SHAREDOBJECTPOOL
-#include <bcec_sharedobjectpool.h>
 #endif
 
 #ifndef INCLUDED_BDEF_FUNCTION
@@ -494,20 +510,21 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     void publish(const bcema_SharedPtr<const bael_Record>& record,
                  const bael_Context& context); 
-        // Process the record pointed by the specified shared pointer 'record', 
-        // having the specified publishing 'context' by writing 'record' and 
-        // 'context' to a file if file logging is enabled for this async file 
-        // observer, and to 'stdout' if the severity of 'record' is at least 
-        // as severe as the severity level specified at construction.
+        // Process the record pointed by the specified shared pointer 'record' 
+        // by writing the record and the specified 'context' of the record to 
+        // a file if file logging is enabled for this async file observer, and 
+        // to 'stdout' if the severity of 'record' is at least as severe as 
+        // the severity level specified at construction.
 
     void clear();
-        // Discard the shared pointers in the queue without publishing the 
-        // records pointed by these shared pointers.  This method stops the 
-        // publication thread before clearing the queue and restarts the 
-        // publication thread afterwards.  This method has no effect if the
-        // publication thread has not started.  This method should be called by 
-        // the owner of the records pointed by the share pointers in the queue 
-        // when these records are being released or becoming invalid.
+        // Discard the shared pointers in the fixed queue of this async file
+        // observer without publishing the records pointed by these shared 
+        // pointers.  This method stops the publication thread before clearing 
+        // the queue and restarts the publication thread afterwards.  This 
+        // method has no effect if the publication thread has not started.  
+        // This method should be called by the owner of the records pointed by 
+        // the share pointers in the fixed queue when these records are no 
+        // longer usable.
 
     void forceRotation();
         // Forcefully perform a log file rotation by this async file observer.  

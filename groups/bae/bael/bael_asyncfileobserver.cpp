@@ -12,6 +12,8 @@ BDES_IDENT_RCSID(bael_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bael_multiplexobserver.h>           // for testing only
 #endif
 
+#include <bcemt_lockguard.h>
+
 #include <bdef_function.h>
 #include <bdef_bind.h>
 #include <bdef_memfn.h>

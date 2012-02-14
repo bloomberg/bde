@@ -1053,9 +1053,6 @@ int main(int argc, char *argv[])
                         bael_Severity::BAEL_OFF));
             bael_LoggerManagerScopedGuard guard(&mX, configuration);
 
-
-            bael_LoggerManager& mLM = bael_LoggerManager::singleton();
-
             BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             // Throw some logs into the queue
@@ -1784,7 +1781,6 @@ int main(int argc, char *argv[])
             mX.startThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os;
-            int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
             multiplexObserver.registerObserver(&mX);
 
@@ -1843,7 +1839,6 @@ int main(int argc, char *argv[])
             Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
             mX.startThread();
             bcemt_ThreadUtil::microSleep(0, 1);
-            int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
             multiplexObserver.registerObserver(&mX);
 
@@ -2220,7 +2215,6 @@ int main(int argc, char *argv[])
             Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
             const char *logFileFormat;
             const char *stdoutFormat;
-            int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
             ASSERT(X.isUserFieldsLoggingEnabled());
             X.getLogFormat(&logFileFormat, &stdoutFormat);
