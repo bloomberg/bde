@@ -1346,7 +1346,7 @@ struct Vector_RangeCheck {
     static
     typename BloombergLP::bslmf_EnableIf<
            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
-    isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
+    isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
         // Return 'false' as we know of no way to identify an input iterator
         // range that is guaranteed to be invalid.
     {

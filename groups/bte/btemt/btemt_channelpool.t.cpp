@@ -638,6 +638,12 @@ int maxConsecutiveFailures = 1;
 int minMsgSize = 100;
 int maxMsgSize = 32000;
 
+#ifdef BDE_BUILD_TARGET_OPT
+const int NUM_THREADS = 20;
+#else
+const int NUM_THREADS = 5;
+#endif
+
 bcemt_Barrier *barrier;
 
 void poolStateCb(int state, int source, int severity)
@@ -715,7 +721,7 @@ const char* checkRcToString(int type)
     };
     #undef CASE
 
-    BSLS_ASSERT_OPT(0);
+    ASSERT(0);
     return "UNKNOWN";
 }
 
@@ -740,7 +746,7 @@ void delay(int delay)
 {
     int i;
     for (i = 0; i < delay; ++i);
-    BSLS_ASSERT_OPT(i); // poor way to stop optimize-away
+    ASSERT(i); // poor way to stop optimize-away
 }
 
 // signal allow writer threads to start writing from the same time (to
@@ -768,7 +774,7 @@ void writerThread(unsigned threadIndex)
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
         int randVal = rand();
-#else 
+#else
         int randVal = rand_r(&threadIndex);
 #endif
         int nBytes  = minMsgSize + randVal % (maxMsgSize - minMsgSize + 1);
@@ -778,7 +784,6 @@ void writerThread(unsigned threadIndex)
         oldSignal = sig;
 
         int rc = channelPool->write(s_channelId, blob);
-        LOOP_ASSERT(rc, !rc);
 
         if (rc == 0) {
             consecutiveFailures = 0;
@@ -884,95 +889,6 @@ void blobBasedReadCb(int             *needed,
 }
 
 }  // namespace TEST_CASE_36_NAMESPACE
-
-//-----------------------------------------------------------------------------
-// CASE 35
-//-----------------------------------------------------------------------------
-
-namespace CASE35 {
-
-static int numChannels = 0;
-
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-
-static const int MAX_NUM_HANDLES = FD_SETSIZE;
-
-#else
-
-static const int MAX_NUM_HANDLES = 64;
-
-#endif
-
-void poolCb(int              state,
-            int              source,
-            int              severity)
-{
-    if (veryVerbose) {
-        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
-        bsl::cout << "Pool state callback called with"
-                  << " State: " << state
-                  << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
-    }
-}
-
-void poolStateCb(int              state,
-                 int              source,
-                 int              severity,
-                 int             *currState,
-                 bcemt_Mutex     *mutex,
-                 bcemt_Condition *condition)
-{
-    if (veryVerbose) {
-        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
-        bsl::cout << "Pool state callback called with"
-                  << " State: " << state
-                  << " Source: "  << source
-                  << " Severity: " << severity << bsl::endl;
-    }
-
-    bcemt_LockGuard<bcemt_Mutex> guard(mutex);
-    ++numChannels;
-    if (MAX_NUM_HANDLES == numChannels) {
-        *currState = state;
-        condition->signal();
-    }
-}
-
-void channelStateCb(int              channelId,
-                    int              serverId,
-                    int              state,
-                    void            *arg,
-                    int             *id)
-{
-    if (veryVerbose) {
-        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
-        bsl::cout << "Channel state callback called with"
-                  << " Channel Id: " << channelId
-                  << " Server Id: "  << serverId
-                  << " State: " << state << bsl::endl;
-    }
-    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
-        *id = channelId;
-    }
-}
-
-void blobBasedReadCb(int             *needed,
-                     bcema_Blob      *msg,
-                     int              channelId,
-                     void            *arg)
-{
-    if (veryVerbose) {
-        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
-        bsl::cout << "Blob Based Read Cb called with"
-                  << " Channel Id: " << channelId
-                  << " of length: "  << msg->length() << bsl::endl;
-    }
-    *needed = 1;
-    msg->removeAll();
-}
-
-}
 
 //-----------------------------------------------------------------------------
 // CASE 32
@@ -1370,6 +1286,7 @@ int verify(const Obj&                 pool,
                                     bteso_SocketOptUtil::BTESO_RECEIVETIMEOUT,
                                     bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
                                     channelId);
+
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -7859,7 +7776,7 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 38: {
+      case 37: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
         //   Send and receive various messages conforming to the vlm_EchoServer
@@ -7946,7 +7863,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.numBytesInUse());
 
       } break;
-      case 37: {
+      case 36: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST: my_QueueProcessor
         //
@@ -8033,7 +7950,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == qp.stopProcessor());
 
       } break;
-      case 36: {
+      case 35: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -8070,372 +7987,6 @@ int main(int argc, char *argv[])
 
       } break;
 
-      case 35: {
-        // -----------------------------------------------------------------
-        // TESTING ERROR HANDLING IN CASE OF LIMITED SOCKET CAPACITY
-        //
-        // Concern:
-        //: 1 If there are no socket limits then all of the below functions
-        //:   return success (i.e. no error).
-        //:
-        //: 2 After the socket limit is exceeded the pool state callback is
-        //:   called with the appropriate error state.
-        //:
-        //: 3 'listen'ing on more than the socket limit returns an error.
-        //:
-        //: 4 'connect'ing on more than the socket limit returns an error.
-        //:
-        //: 5 'import'ing on more than the socket limit returns an error.
-        //:
-        //
-        // Plan:
-        //: 1 Try to 'listen' to greater than the socket limit sockets and
-        //:   verify that the appropriate pool state callback is called.
-        //:
-        //: 2 Try to 'listen' to greater than the socket limit sockets and
-        //:   verify that 'listen' returns an error.
-        //:
-        //: 3 Try to 'connect' to greater than the socket limit sockets and
-        //:   verify that 'connect' returns an error.
-        //:
-        //: 4 Try to 'import' to greater than the socket limit sockets and
-        //:   verify that 'import' returns an error.
-        //:
-        //: 5 If there are no socket limits than no error is encountered in
-        //:   any of the above cases.
-        //
-        // Testing:
-        // -----------------------------------------------------------------
-
-        if (verbose) cout << endl
-                << "TESTING ERROR HANDLING IN CASE OF LIMITED SOCKET CAPACITY"
-                << endl
-                << "========================================================="
-                << endl;
-
-        using namespace CASE35;
-
-        if (verbose) cout << "Testing 'listen' with callback" << endl;
-        {
-            btemt_ChannelPoolConfiguration config;
-            for (int i = 0; i < 2; i++) {
-                const int NUM_THREADS = 0 == i ? 1 : 5;
-
-                config.setMaxThreads(NUM_THREADS);
-                if (verbose) {
-                    P(config);
-                }
-
-                int channelId;
-                btemt_ChannelPool::ChannelStateChangeCallback channelCb(
-                                           bdef_BindUtil::bind(&channelStateCb,
-                                                               _1, _2, _3, _4,
-                                                               &channelId));
-
-                int             currState = 0;
-                bcemt_Mutex     mutex;
-                bcemt_Condition condition;
-                btemt_ChannelPool::PoolStateChangeCallback poolCb(
-                                            bdef_BindUtil::bind(&poolStateCb,
-                                                                _1, _2, _3,
-                                                                &currState,
-                                                                &mutex,
-                                                                &condition));
-
-                btemt_ChannelPool::BlobBasedReadCallback dataCb(
-                                                             &blobBasedReadCb);
-
-                btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
-
-                ASSERT(0 == pool.start());
-
-                const int SERVER_PORT     = 33100;
-                const int SERVER_ID       = 100;
-                const int SOURCE_ID       = 200;
-
-                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-                vector<bteso_StreamSocket<bteso_IPv4Address> *> sockets;
-                int numExpChannels = 0;
-
-                int rc = pool.listen(SERVER_PORT,
-                                     MAX_NUM_HANDLES,
-                                     SERVER_ID,
-                                     bdet_TimeInterval(1),
-                                     true,
-                                     true);
-
-                bteso_IPv4Address serverAddr;
-                ASSERT(0 == pool.getServerAddress(&serverAddr, SERVER_ID));
-
-                if (veryVerbose) { P(MAX_NUM_HANDLES) }
-
-                for (int i = 0; i < MAX_NUM_HANDLES; ++i) {
-                    if (veryVerbose) { P(i) }
-
-                    bteso_StreamSocket<bteso_IPv4Address> *socket =
-                                                            factory.allocate();
-                    sockets.push_back(socket);
-
-                    ASSERT(0 == socket->connect(serverAddr));
-                }
-
-                bteso_StreamSocket<bteso_IPv4Address> *socket =
-                                                            factory.allocate();
-                sockets.push_back(socket);
-                ASSERT(0 == socket->connect(serverAddr));
-
-                while (1) {
-                    bcemt_LockGuard<bcemt_Mutex> guard(&mutex);
-                    if (MAX_NUM_HANDLES <= numChannels) {
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-                        LOOP_ASSERT(currState,
-                        btemt_PoolMsg::BTEMT_EVENT_MANAGER_LIMIT == currState);
-#else
-                        LOOP_ASSERT(currState, 0 == currState);
-#endif
-                        break;
-                    }
-                    else {
-                        condition.wait(&mutex);
-                    }
-                }
-
-                ASSERT(0 == pool.stop());
-
-                const int numSockets = sockets.size();
-                for (int i = 0; i < numSockets; ++i) {
-                    factory.deallocate(sockets[i]);
-                }
-            }
-        }
-
-        if (verbose) cout << "Testing 'listen' return code" << endl;
-        {
-            btemt_ChannelPoolConfiguration config;
-            for (int ni = 0; ni < 2; ni++) {
-                const int NUM_THREADS = 0 == ni ? 1 : 5;
-
-                config.setMaxThreads(NUM_THREADS);
-                if (verbose) {
-                    P(config);
-                }
-
-                int channelId;
-                btemt_ChannelPool::ChannelStateChangeCallback channelCb(
-                                           bdef_BindUtil::bind(&channelStateCb,
-                                                               _1, _2, _3, _4,
-                                                               &channelId));
-
-                btemt_ChannelPool::PoolStateChangeCallback poolCb(
-                                              bdef_BindUtil::bind(&poolCb,
-                                                                  _1, _2, _3));
-
-                btemt_ChannelPool::BlobBasedReadCallback dataCb(
-                                                             &blobBasedReadCb);
-
-                btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
-
-                ASSERT(0 == pool.start());
-
-                const int SERVER_PORT     = 31178;
-                const int SERVER_ID       = 100;
-
-                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-                vector<bteso_StreamSocket<bteso_IPv4Address> *> sockets;
-                int numExpChannels = 0;
-
-                if (veryVerbose) { P(MAX_NUM_HANDLES) }
-
-                int i = 0;
-                for (; i < MAX_NUM_HANDLES; ++i) {
-                    if (veryVerbose) { P(i) }
-
-                    int rc = pool.listen(SERVER_PORT + i,
-                                         MAX_NUM_HANDLES,
-                                         SERVER_ID + i,
-                                         bdet_TimeInterval(1),
-                                         true,
-                                         true);
-
-                    ASSERT(0 == rc);
-                }
-
-                int rc = pool.listen(SERVER_PORT + i,
-                                     MAX_NUM_HANDLES,
-                                     SERVER_ID + i,
-                                     bdet_TimeInterval(1),
-                                     true,
-                                     true);
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-                LOOP_ASSERT(rc, -12 == rc);
-#else
-                LOOP_ASSERT(rc, 0 == rc);
-#endif
-                ASSERT(0 == pool.stop());
-            }
-        }
-
-        if (verbose) cout << "Testing 'connect'" << endl;
-        {
-            btemt_ChannelPoolConfiguration config;
-            for (int ni = 0; ni < 2; ni++) {
-                const int NUM_THREADS = 0 == ni ? 1 : 5;
-
-                config.setMaxThreads(NUM_THREADS);
-                if (verbose) {
-                    P(config);
-                }
-
-                int channelId;
-                btemt_ChannelPool::ChannelStateChangeCallback channelCb(
-                                           bdef_BindUtil::bind(&channelStateCb,
-                                                               _1, _2, _3, _4,
-                                                               &channelId));
-
-                btemt_ChannelPool::PoolStateChangeCallback poolCb(
-                                              bdef_BindUtil::bind(&poolCb,
-                                                                  _1, _2, _3));
-
-                btemt_ChannelPool::BlobBasedReadCallback dataCb(
-                                                             &blobBasedReadCb);
-
-                btemt_ChannelPool listenPool(channelCb,
-                                             dataCb,
-                                             poolCb,
-                                             config);
-                btemt_ChannelPool connectPool(channelCb,
-                                              dataCb,
-                                              poolCb,
-                                              config);
-
-                ASSERT(0 == listenPool.start());
-                ASSERT(0 == connectPool.start());
-
-                const int SERVER_PORT     = 31178;
-                const int SERVER_ID       = 100;
-                const int SOURCE_ID       = 200;
-
-                int rc = listenPool.listen(SERVER_PORT,
-                                           MAX_NUM_HANDLES + 1,
-                                           SERVER_ID,
-                                           bdet_TimeInterval(1),
-                                           true,
-                                           true);
-
-                ASSERT(0 == rc);
-
-                bteso_IPv4Address serverAddr;
-                ASSERT(0 == listenPool.getServerAddress(&serverAddr,
-                                                        SERVER_ID));
-
-                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-                vector<bteso_StreamSocket<bteso_IPv4Address> *> sockets;
-                int numExpChannels = 0;
-
-                if (veryVerbose) { P(MAX_NUM_HANDLES) }
-
-                int i = 0;
-                for (; i < MAX_NUM_HANDLES; ++i) {
-                    if (veryVerbose) { P(i) }
-
-                    int rc = connectPool.connect(serverAddr,
-                                                 1,
-                                                 bdet_TimeInterval(1),
-                                                 SOURCE_ID + i,
-                                                 true,
-                                                 Obj::BTEMT_CLOSE_BOTH);
-
-                    ASSERT(0 == rc);
-                }
-
-                rc = connectPool.connect(serverAddr,
-                                         1,
-                                         bdet_TimeInterval(1),
-                                         SOURCE_ID + i,
-                                         true,
-                                         Obj::BTEMT_CLOSE_BOTH);
-
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-                LOOP_ASSERT(rc, -3 == rc);
-#else
-                LOOP_ASSERT(rc, 0 == rc);
-#endif
-                ASSERT(0 == listenPool.stop());
-                ASSERT(0 == connectPool.stop());
-            }
-        }
-
-        if (verbose) cout << "Testing 'import'" << endl;
-        {
-            btemt_ChannelPoolConfiguration config;
-            for (int ni = 0; ni < 2; ni++) {
-                const int NUM_THREADS = 0 == ni ? 1 : 5;
-
-                config.setMaxThreads(NUM_THREADS);
-                if (verbose) {
-                    P(config);
-                }
-
-                int channelId;
-                btemt_ChannelPool::ChannelStateChangeCallback channelCb(
-                                           bdef_BindUtil::bind(&channelStateCb,
-                                                               _1, _2, _3, _4,
-                                                               &channelId));
-
-                btemt_ChannelPool::PoolStateChangeCallback poolCb(
-                                            bdef_BindUtil::bind(&poolCb,
-                                                                _1, _2, _3));
-
-                btemt_ChannelPool::BlobBasedReadCallback dataCb(
-                                                             &blobBasedReadCb);
-
-                bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-
-                btemt_ChannelPool pool(channelCb,
-                                       dataCb,
-                                       poolCb,
-                                       config);
-
-                ASSERT(0 == pool.start());
-
-                const int SERVER_PORT = 31178;
-                const int SERVER_ID   = 100;
-                const int SRC_ID      = 200;
-
-                if (veryVerbose) { P(MAX_NUM_HANDLES) }
-
-                int i = 0;
-                for (; i < MAX_NUM_HANDLES; ++i) {
-                    if (veryVerbose) { P(i) }
-
-                    bteso_StreamSocket<bteso_IPv4Address> *socket =
-                                                            factory.allocate();
-
-                    ASSERT(0 == socket->bind(bteso_IPv4Address()));
-                    ASSERT(0 == socket->listen(5));
-
-                    int rc = pool.import(socket, &factory, SRC_ID + i);
-
-                    ASSERT(!rc);
-                }
-
-                bteso_StreamSocket<bteso_IPv4Address> *socket =
-                                                            factory.allocate();
-                ASSERT(0 == socket->bind(bteso_IPv4Address()));
-                ASSERT(0 == socket->listen(5));
-
-                int rc = pool.import(socket, &factory, SRC_ID + i);
-
-#ifdef BSLS_PLATFORM__OS_WINDOWS
-                LOOP_ASSERT(rc, -2 == rc);
-#else
-                LOOP_ASSERT(rc, !rc);
-#endif
-                ASSERT(0 == pool.stop());
-            }
-        }
-      } break;
-
       case 34: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 25245489
@@ -8469,7 +8020,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nREPRODUCING DRQS 20199908"
+            cout << "\nREPRODUCING DRQS 25245489"
                  << "\n========================="
                  << endl;
 
@@ -8527,8 +8078,7 @@ int main(int argc, char *argv[])
         channelCbBarrier.wait();
         channelCbBarrier.wait();
 
-        const int NT = 2;
-        bcemt_Barrier currBarrier(NT + 1);
+        bcemt_Barrier currBarrier(NUM_THREADS + 1);
         barrier = &currBarrier;
 
         rc = check();
@@ -8540,7 +8090,7 @@ int main(int argc, char *argv[])
         ASSERT(!rc);
 
         // fork threads
-        for (int i = 0; i < NT; ++i) {
+        for (int i = 0; i < NUM_THREADS; ++i) {
             bcemt_ThreadUtil::Handle handle;
             rc = bcemt_ThreadUtil::create(&handle,
                                         bdef_BindUtil::bind(&writerThread, i));
@@ -8669,8 +8219,15 @@ int main(int argc, char *argv[])
             P(data);
         }
 
+        numTimesDataCbCalled = 0;
+
         rc = pool.disableRead(channelId);
         ASSERT(!rc);
+
+        // Wait for the dispatcher thread to process the deregister the READ
+        // event.
+
+        bcemt_ThreadUtil::microSleep(0, 2);
 
         rc = socket->write(TEXT, LEN);
         LOOP2_ASSERT(LEN, rc, LEN == rc);
@@ -8684,8 +8241,7 @@ int main(int argc, char *argv[])
 
         ASSERT(rc);
 
-        LOOP_ASSERT(numTimesDataCbCalled,    1   == numTimesDataCbCalled);
-        LOOP3_ASSERT(LEN, data.size(), data, LEN == data.size());
+        LOOP_ASSERT(numTimesDataCbCalled, 0 == numTimesDataCbCalled);
 
         if (veryVerbose) {
             P(data);
@@ -8724,6 +8280,7 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // Line   Spec        Exp Return Code
             // ----   ----        ---------------
+
             {   L_,   "GN",         0 },
 
 #ifdef BSLS_PLATFORM__OS_LINUX
@@ -8838,7 +8395,7 @@ int main(int argc, char *argv[])
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        // connect(IPv4Address .... ) with socket options provided
+        if (verbose) cout << "connect(IPv4Address...) with options" << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8876,16 +8433,18 @@ int main(int argc, char *argv[])
 
                 SocketOptions opt = g(SPEC); const SocketOptions& OPT = opt;
 
-                if (veryVerbose) { P_(LINE) P(OPT) }
+                if (veryVerbose) { P_(LINE) P(OPT); }
 
                 const int SERVER_ID = 100;
                 const int SOURCE_ID = 200;
 
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
                                                             factory.allocate();
+                ASSERT(socket);
                 sockets.push_back(socket);
 
                 ASSERT(0 == socket->bind(bteso_IPv4Address()));
+
                 ASSERT(0 == socket->listen(5));
 
                 bteso_IPv4Address serverAddr;
@@ -8918,7 +8477,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // connect(hostname ... ) with socket options provided
+        if (verbose) cout << "connect(hostname...) with options" << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8956,13 +8515,14 @@ int main(int argc, char *argv[])
 
                 SocketOptions opt = g(SPEC); const SocketOptions& OPT = opt;
 
-                if (veryVerbose) { P_(LINE) P(OPT) }
+                if (veryVerbose) { P(LINE) P(OPT) }
 
                 const int SERVER_ID = 100;
                 const int SOURCE_ID = 200;
 
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
                                                             factory.allocate();
+                ASSERT(socket);
                 sockets.push_back(socket);
 
                 ASSERT(0 == socket->bind(bteso_IPv4Address()));
@@ -8998,7 +8558,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // connect(IPv4Address .... ) with client address specified
+        if (verbose) cout << "connect(IPv4Address...) with client address"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -9060,7 +8621,8 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
 
-        // connect(hostname ... ) with client address specified
+        if (verbose) cout << "connect(hostname...) with client address"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -9125,7 +8687,7 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
 
-        // listen(port, backlog, id, reuseAddr, readEnabled, sockOpts)
+        if (verbose) cout << "listen with socket options" << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -9216,7 +8778,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // listen(port, backlog, id, timeout, reuseAddr, readEnabled, sockOpts)
+        if (verbose) cout << "listen with time out and socket options"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -9308,7 +8871,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // listen(addr, backlog, id, reuseAddr, readEnabled, sockOpts)
+        if (verbose) cout << "listen(IPv4Address...) and socket options"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -9397,7 +8961,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // listen(addr, backlog, id, time, reuse, read, mode, sockOpts)
+        if (verbose) cout << "listen(IPv4Address...) with time out and options"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -9976,6 +9541,16 @@ int main(int argc, char *argv[])
                                         btemt_ChannelPool::BTEMT_CHANNEL_UP,
                                         bdet_TimeInterval(1.0)));
 
+#if  defined(BSLS_PLATFORM__OS_LINUX)           \
+ &&  defined(BDE_BUILD_TARGET_OPT)              \
+ &&  defined(BSLS_PLATFORM__CPU_64_BIT)
+            // 64-bit opt builds on Linux this check that the latest imported
+            // socket is assigned to the lastClientSocketThreadId fails.  The
+            // allocation to a specific event manager thread is not an error
+            // per se.  It happens only in one specific build mode and where
+            // the allocation to event managers is based on the cpu
+            // utilization of the process.
+#else
             // Verify that the newly imported socket was assigned to the
             // thread (i.e., the event manager) of the channel that was not
             // simulating processing (i.e., the last channel).
@@ -9987,6 +9562,7 @@ int main(int argc, char *argv[])
                                                          states[k].d_threadId);
                 }
             }
+#endif
 
             pool.stop();
             factory.deallocate(clientSocket);
@@ -11684,9 +11260,6 @@ int main(int argc, char *argv[])
         using namespace TEST_CASE_19_NAMESPACE;
         bcema_TestAllocator ta(veryVeryVerbose);
         {
-            //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Test Initialization
-
             enum {
                 MAX_THREADS = 5,
                 SERVER_ID   = 1013410001,
@@ -11701,11 +11274,11 @@ int main(int argc, char *argv[])
             btemt_ChannelPool::ChannelStateChangeCallback channelCb;
             makeNull(&channelCb);
 
-            btemt_ChannelPool::PoolStateChangeCallback    poolCb(
-                    bdef_BindUtil::bindA( &ta
-                                        , &case19PoolStateCallback
-                                        , _1, _2, _3
-                                        , &acceptErrors));
+            btemt_ChannelPool::PoolStateChangeCallback poolCb(
+                                 bdef_BindUtil::bindA(&ta,
+                                                      &case19PoolStateCallback,
+                                                      _1, _2, _3,
+                                                      &acceptErrors));
 
             btemt_ChannelPool::DataReadCallback         dataCb;
             makeNull(&dataCb);
@@ -11717,7 +11290,9 @@ int main(int argc, char *argv[])
 
             struct rlimit rlim;
             ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
-#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_LINUX)
+
+#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_LINUX) \
+ || defined(BSLS_PLATFORM__OS_HPUX)
             rlim.rlim_cur = 4 * MAX_THREADS + 2;
 #else
             rlim.rlim_cur = 4 * MAX_THREADS + 5;
@@ -11759,19 +11334,24 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
-                                              bteso_Flag::BTESO_BLOCKING_MODE);
+                                           bteso_Flag::BTESO_NONBLOCKING_MODE);
                 LOOP2_ASSERT(i, retCode, 0 == retCode);
             }
 
             for (int i = 0; i < MAX_THREADS; ++i) {
                 retCode = sockets[i]->connect(PEER);
                 if (veryVerbose) { P_(retCode); P(errno); }
+
+                // Give time to the channel pool to process accept error
+                // callbacks.
+                bcemt_ThreadUtil::microSleep(0, 1);
             }
 
             // Give time to the channel pool to process accept error callbacks.
             bcemt_ThreadUtil::microSleep(0, 8);
 
             ASSERT(acceptErrors);
+
             if (veryVerbose) { P(acceptErrors); }
 
             for (int i = 0; i < MAX_THREADS; ++i) {

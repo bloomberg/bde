@@ -111,6 +111,102 @@ bool Printer::suppressInitialIndentFlag() const
     return d_suppressInitialIndentFlag;
 }
 
+                        // ---------------------
+                        // struct Printer_Helper
+                        // ---------------------
+
+// CLASS METHODS
+void Printer_Helper::printRaw(
+                          bsl::ostream& stream,
+                          char          data,
+                          int           ,
+                          int           spacesPerLevel,
+                          bslmf_MetaInt<Printer_Selector::BSLIM_FUNDAMENTAL> *)
+{
+#define HANDLE_CONTROL_CHAR(value) case value: stream << #value; break;
+    if (bsl::isprint(data)) {
+        // print within quotes
+
+        stream << "'" << data <<"'";
+    }
+    else {
+        switch(data) {
+          HANDLE_CONTROL_CHAR('\n');
+          HANDLE_CONTROL_CHAR('\t');
+          HANDLE_CONTROL_CHAR('\0');
+
+          default:
+            // Print as hex.
+
+            bsl::ios_base::fmtflags fmtFlags = stream.flags();
+            stream << bsl::hex
+                   << bsl::showbase
+                   << static_cast<bsls_Types::UintPtr>(data);
+            stream.flags(fmtFlags);
+        }
+    }
+#undef HANDLE_CONTROL_CHAR
+
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+}
+
+void Printer_Helper::printRaw(
+                          bsl::ostream& stream,
+                          bool          data,
+                          int           ,
+                          int           spacesPerLevel,
+                          bslmf_MetaInt<Printer_Selector::BSLIM_FUNDAMENTAL> *)
+{
+    bsl::ios_base::fmtflags fmtFlags = stream.flags();
+    stream << bsl::boolalpha
+           << data;
+    stream.flags(fmtFlags);
+
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+}
+
+void Printer_Helper::printRaw(bsl::ostream&  stream,
+                              const char    *data,
+                              int            ,
+                              int            spacesPerLevel,
+                              bslmf_MetaInt<Printer_Selector::BSLIM_POINTER> *)
+{
+    if (0 == data) {
+        stream << "NULL";
+    }
+    else {
+        stream << '"' << data << '"';
+    }
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+}
+
+void Printer_Helper::printRaw(bsl::ostream&  stream,
+                              const void    *data,
+                              int            ,
+                              int            spacesPerLevel,
+                              bslmf_MetaInt<Printer_Selector::BSLIM_POINTER> *)
+{
+    if (0 == data) {
+        stream << "NULL";
+    }
+    else {
+        bsl::ios_base::fmtflags fmtFlags = stream.flags();
+        stream << bsl::hex
+               << bsl::showbase
+               << reinterpret_cast<bsls_Types::UintPtr>(data);
+        stream.flags(fmtFlags);
+    }
+    if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
+}
+
 }  // close namespace bslim
 }  // close namespace BloombergLP
 

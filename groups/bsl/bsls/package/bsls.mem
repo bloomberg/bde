@@ -9,6 +9,7 @@ bsls_assert
 bsls_asserttest
 bsls_asserttestexception
 bsls_blockgrowth
+bsls_bsltestutil
 bsls_buildtarget
 bsls_byteorder
 bsls_compilerfeatures

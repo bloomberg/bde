@@ -379,11 +379,11 @@ BSLMF_ISCONVERTIBLE_FORWARD(FROM_TYPE, TO_TYPE&, 1, 1)
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct bslmf_IsConvertible_Imp<const FROM_TYPE, TO_TYPE, 1, 1>
-    : bslmf_IsConvertible_Imp<const FROM_TYPE, double, 0, 0> {
+    : bslmf_IsConvertible_Imp<const FROM_TYPE, double, 0, 0>::Type {
 };
 template <typename FROM_TYPE, typename TO_TYPE>
 struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 1>
-    : bslmf_IsConvertible_Imp<FROM_TYPE, double, 0, 0> {
+    : bslmf_IsConvertible_Imp<FROM_TYPE, double, 0, 0>::Type {
 };
 
 // SECTION 2: ONLY THE 'TO_TYPE' IS FUNDAMENTAL
@@ -395,7 +395,7 @@ struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 1>
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 0, 1>
-    : bslmf_IsConvertible_Imp<FROM_TYPE, double, 0, 0> {
+    : bslmf_IsConvertible_Imp<FROM_TYPE, double, 0, 0>::Type {
 };
 
 // SECTION 3: ONLY THE 'FROM_TYPE' IS FUNDAMENTAL
@@ -408,7 +408,7 @@ struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 0, 1>
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 0>
-    : bslmf_IsConvertible_Imp<int, TO_TYPE, 0, 0> {
+    : bslmf_IsConvertible_Imp<int, TO_TYPE, 0, 0>::Type {
 };
 
 #undef BSLMF_ISCONVERTIBLE_SAMETYPEVALUE
@@ -423,7 +423,7 @@ struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 0>
 template <typename FROM_TYPE, typename TO_TYPE>
 struct bslmf_IsConvertible
     : bslmf_IsConvertible_Imp<FROM_TYPE,
-                              typename bslmf_RemoveCvq<TO_TYPE>::Type const&> {
+                        typename bslmf_RemoveCvq<TO_TYPE>::Type const&>::Type {
     // Implement a meta function which computes -- at compile time -- whether
     // 'FROM_TYPE' is convertible to 'TO_TYPE'.  Note that if 'TO_TYPE' is not
     // a reference type, then the cv-qualification of 'TO_TYPE' is ignored.
@@ -437,7 +437,7 @@ struct bslmf_IsConvertible
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct bslmf_IsConvertible<FROM_TYPE, TO_TYPE&>
-    : bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE&> {
+    : bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE&>::Type {
     // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
     // the case where 'TO_TYPE' is a reference.
 };
@@ -450,14 +450,14 @@ struct bslmf_IsConvertible<FROM_TYPE, void> : bslmf_MetaInt<0> {
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct bslmf_IsConvertible<volatile FROM_TYPE, TO_TYPE>
-    : bslmf_IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE> {
+    : bslmf_IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE>::Type {
     // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
     // for the case where 'FROM_TYPE' is volatile.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct bslmf_IsConvertible<volatile FROM_TYPE, TO_TYPE&>
-    : bslmf_IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE&> {
+    : bslmf_IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE&>::Type {
     // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
     // for the case where 'FROM_TYPE' is volatile and 'TO_TYPE' is a reference.
 };
@@ -471,14 +471,14 @@ struct bslmf_IsConvertible<volatile FROM_TYPE, void> : bslmf_MetaInt<0> {
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct bslmf_IsConvertible<volatile FROM_TYPE&, TO_TYPE>
-    : bslmf_IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE> {
+    : bslmf_IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE>::Type {
     // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
     // for the case where 'FROM_TYPE' is a reference to 'volatile'.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
 struct bslmf_IsConvertible<volatile FROM_TYPE&, TO_TYPE&>
-    : bslmf_IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE&> {
+    : bslmf_IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE&>::Type {
     // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
     // for the case where 'FROM_TYPE' is a reference to 'volatile' and
     // 'TO_TYPE' is a reference.

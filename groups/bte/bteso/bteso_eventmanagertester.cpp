@@ -118,14 +118,14 @@ void* threadSignalGenerator(void *arg)
 
     pthread_kill(socketInfo.d_tid, SIGSYS);
     if (socketInfo.d_ctrlFlag & bteso_EventManagerTester::BTESO_VERY_VERBOSE) {
-        std::printf("Thread %d generated a SIGSYS signal.\n",
-                    bcemt_ThreadUtil::selfIdAsInt());
+        std::printf("Thread %llu generated a SIGSYS signal.\n",
+                    bcemt_ThreadUtil::selfIdAsUint64());
         std::fflush(stdout);
     }
     bcemt_ThreadUtil::microSleep(3 * BASE_TIME);
     pthread_kill(socketInfo.d_tid, SIGSYS);
     if (socketInfo.d_ctrlFlag & bteso_EventManagerTester::BTESO_VERY_VERBOSE) {
-        std::printf("Thread %d delivered another SIGSYS signal to %d.\n",
+        std::printf("Thread %llu delivered another SIGSYS signal to %d.\n",
                     bcemt_ThreadUtil::selfIdAsInt(),
                     bcemt_ThreadUtil::idAsInt(
                               bcemt_ThreadUtil::handleToId(socketInfo.d_tid)));
@@ -145,8 +145,8 @@ void* threadSignalGenerator(void *arg)
 
         if (socketInfo.d_ctrlFlag &
                                 bteso_EventManagerTester::BTESO_VERY_VERBOSE) {
-            std::printf("Thread %d writes %d bytes to socket %d.\n",
-                        bcemt_ThreadUtil::selfIdAsInt(),
+            std::printf("Thread %llu writes %d bytes to socket %d.\n",
+                        bcemt_ThreadUtil::selfIdAsUint64(),
                         len,
                         socketInfo.d_socket);
             std::fflush(stdout);
@@ -157,9 +157,9 @@ void* threadSignalGenerator(void *arg)
                 BSLS_ASSERT(0);
             }
             else {
-                std::printf("Thread %d doesn't write the right number of bytes"
-                            " to socket %d.\n",
-                            bcemt_ThreadUtil::selfIdAsInt(),
+                std::printf("Thread %llu doesn't write the right number of"
+                            " bytes to socket %d.\n",
+                            bcemt_ThreadUtil::selfIdAsUint64(),
                             socketInfo.d_socket);
                 std::fflush(stdout);
             }
@@ -660,11 +660,19 @@ static int ggHelper(bteso_EventManager         *mX,
               return FAIL;
           }
           bsl::memset(wBuffer, 0xAB, sizeof wBuffer); // to keep purify happy
-          int rc = bteso_SocketImpUtil::write(fds[fd].controlFd(), &wBuffer,
-                                              bytes);
+          rc = bteso_SocketImpUtil::write(fds[fd].controlFd(), &wBuffer,
+                                          bytes);
           if (0 >= rc) {
               return FAIL;
           }
+      } break;
+      case 'S': {
+          int milliSeconds = 0;
+          rc = bsl::sscanf(test, "S%d", &milliSeconds);
+          if (1 != rc) {
+              return FAIL;
+          }
+          bcemt_ThreadUtil::microSleep(milliSeconds * 1000);
       } break;
       default:
           return FAIL;
@@ -1150,8 +1158,8 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
           {L_, "+0w28720; Dn,1; +0w26000; Dn120,0; -0w; T0"                 },
 #endif
 #if defined(BSLS_PLATFORM__OS_AIX)
-          {L_, "+0w8192; Dn,1; +0w8192; Dn300,1; Dn150,0; -0w; T0"          },
-          {L_, "+0w8192; Dn,1; +0w8192; Dn120,1; Dn150,0; -0w; T0"          },
+          {L_, "+0w131072; Dn,1; +0w8192; Dn300,1; Dn150,0; -0w; T0"        },
+          {L_, "+0w131072; Dn,1; +0w8192; Dn120,1; Dn150,0; -0w; T0"        },
 #endif
 #if defined(BSLS_PLATFORM__OS_SOLARIS)
           {L_, "+0w73728; Dn,1; +0w26000; Dn150,0; -0w; T0"                 },
@@ -1162,6 +1170,15 @@ bteso_EventManagerTester::testDispatch(bteso_EventManager *mX, int flags)
         for (int i = 0; i < NUM_SCRIPTS; ++i) {
             enum { NUM_PAIRS = 4 };
             SocketPair socketPairs[NUM_PAIRS];
+
+#ifdef BSLS_PLATFORM__OS_HPUX
+            // For some reason, sockets on HPUX are woozy for the first ~ 20 ms
+            // or so after they're created, after that they seem to be OK.  In
+            // a polling interface, this just means events will take a few
+            // cycles to catch up.
+
+            bcemt_ThreadUtil::microSleep(40 * 1000);
+#endif
 
             for (int j = 0; j < NUM_PAIRS; ++j) {
                 socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);

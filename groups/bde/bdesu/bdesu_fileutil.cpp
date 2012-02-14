@@ -655,7 +655,7 @@ bdesu_FileUtil::open(const char *pathName,
                       | (writableFlag && appendFlag ? O_APPEND : 0);
 
     if (existFlag) {
-#ifdef BSLS_PLATFORM__OS_FREEBSD
+#if defined(BSLS_PLATFORM__OS_FREEBSD) || defined(BSLS_PLATFORM__OS_DARWIN)
         return ::open(  pathName, oflag);                             // RETURN
 #elif defined(BSLS_PLATFORM__OS_HPUX)
         // In 64-bit mode, HP-UX defines 'open64' to be 'open', which triggers
@@ -666,7 +666,7 @@ bdesu_FileUtil::open(const char *pathName,
 #endif
     }
 
-#ifdef BSLS_PLATFORM__OS_FREEBSD
+#if defined(BSLS_PLATFORM__OS_FREEBSD) || defined(BSLS_PLATFORM__OS_DARWIN)
     return ::open(  pathName, oflag | O_CREAT | O_TRUNC,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 #elif defined(BSLS_PLATFORM__OS_HPUX)
@@ -687,7 +687,7 @@ bdesu_FileUtil::Offset
 bdesu_FileUtil::seek(FileDescriptor fd, Offset offset, int whence)
 {
     switch (whence) {
-#ifdef BSLS_PLATFORM__OS_FREEBSD
+#if defined(BSLS_PLATFORM__OS_FREEBSD) || defined(BSLS_PLATFORM__OS_DARWIN)
       case BDESU_SEEK_FROM_BEGINNING:
         return lseek(fd, offset, SEEK_SET);                           // RETURN
       case BDESU_SEEK_FROM_CURRENT:
@@ -808,7 +808,7 @@ int bdesu_FileUtil::map(FileDescriptor   fd,
     if (mode & bdesu_MemoryUtil::BDESU_ACCESS_WRITE)   protect |= PROT_WRITE;
     if (mode & bdesu_MemoryUtil::BDESU_ACCESS_EXECUTE) protect |= PROT_EXEC;
 
-#ifdef BSLS_PLATFORM__OS_FREEBSD
+#if defined(BSLS_PLATFORM__OS_FREEBSD) || defined(BSLS_PLATFORM__OS_DARWIN)
     *addr = mmap(0, size, protect, MAP_SHARED, fd, offset);
 #else
     *addr = mmap64(0, size, protect, MAP_SHARED, fd, offset);
@@ -947,7 +947,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
 {
     BSLS_ASSERT(path);
 
-#ifdef BSLS_PLATFORM__OS_FREEBSD
+#if defined(BSLS_PLATFORM__OS_FREEBSD) || defined(BSLS_PLATFORM__OS_DARWIN)
     struct statvfs buf;
     int rc = statvfs(path, &buf);
 #else
@@ -963,7 +963,7 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(const char *path)
 
 bdesu_FileUtil::Offset bdesu_FileUtil::getAvailableSpace(FileDescriptor fd)
 {
-#ifdef BSLS_PLATFORM__OS_FREEBSD
+#if defined(BSLS_PLATFORM__OS_FREEBSD) || defined(BSLS_PLATFORM__OS_DARWIN)
     struct statvfs buf;
     int rc = fstatvfs(fd, &buf);
 #else
@@ -990,7 +990,8 @@ bdesu_FileUtil::Offset bdesu_FileUtil::getFileSize(const char *path)
 
 bdesu_FileUtil::Offset bdesu_FileUtil::getFileSizeLimit()
 {
-#if defined(BSLS_PLATFORM__OS_FREEBSD) || defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM__OS_FREEBSD) || defined(BSLS_PLATFORM__OS_DARWIN) \
+ || defined(BSLS_PLATFORM__OS_HPUX)
     struct rlimit rl, rlMax, rlInf;
     int rc = getrlimit(RLIMIT_FSIZE, &rl);
 #else

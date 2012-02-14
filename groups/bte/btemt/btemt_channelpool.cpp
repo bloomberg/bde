@@ -1,4 +1,5 @@
 // btemt_channelpool.cpp         -*-C++-*-
+
 #include <btemt_channelpool.h>
 
 #include <bsls_ident.h>
@@ -26,6 +27,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bdef_function.h>
 #include <bdef_bind.h>
+
+#include <bdeut_nullablevalue.h>
 
 #include <bslma_default.h>
 #include <bslmf_metaint.h>
@@ -259,7 +262,7 @@ class btemt_Channel {
                                                              // (variables
                                                              // 'd_write*', and
                                                           // 'd_isWriteActive'.
-                                                                              
+
 
     bool                            d_isWriteActive;         // a thread is
                                                              // actively
@@ -769,10 +772,12 @@ class btemt_Connector {
                                                     // connections must
                                                     // create channels
 
-    const bteso_SocketOptions  *d_socketOptions_p;  // socket options provided
+    bdeut_NullableValue<bteso_SocketOptions> d_socketOptions;
+                                                    // socket options provided
                                                     // for connect
 
-    const bteso_IPv4Address    *d_localAddress_p;  // client address to bind
+    bdeut_NullableValue<bteso_IPv4Address>   d_localAddress;
+                                                    // client address to bind
                                                     // while connecting
 
     // CREATORS
@@ -793,8 +798,6 @@ class btemt_Connector {
 inline
 btemt_Connector::btemt_Connector(bslma_Allocator *basicAllocator)
 : d_serverName(basicAllocator)
-, d_socketOptions_p(0)
-, d_localAddress_p(0)
 {
 }
 
@@ -813,8 +816,8 @@ btemt_Connector::btemt_Connector(const btemt_Connector&  original,
 , d_resolutionFlag(original.d_resolutionFlag)
 , d_readEnabledFlag(original.d_readEnabledFlag)
 , d_keepHalfOpenMode(original.d_keepHalfOpenMode)
-, d_socketOptions_p(original.d_socketOptions_p)
-, d_localAddress_p(original.d_localAddress_p)
+, d_socketOptions(original.d_socketOptions)
+, d_localAddress(original.d_localAddress)
 {
 }
 
@@ -2214,7 +2217,7 @@ int btemt_Channel::setWriteCacheHiWatermark(int numBytes)
 
     // Generate a 'HIWAT' alert if the new cache size limit is smaller than the
     // existing cache size and a 'HIWAT' alert has not already been generated.
-    
+
     const int writeCacheSize =
                d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
 
@@ -2257,23 +2260,13 @@ btemt_ChannelPool::allocateEventManager()
     int numManagers = d_managers.size();
     BSLS_ASSERT(numManagers == d_config.maxThreads());
 
+    // If there's a single thread, there's no need to choose the event
+    // manager with the least usage (since there is only 1 option).
     if (1 == numManagers) {
-        return d_managers[0]->canRegisterSockets()
-             ? d_managers[0]
-             : 0;                                                     // RETURN
+        return d_managers[0];                                         // RETURN
     }
 
     int result = 0;
-
-    // Check if *any* event manager can register additional sockets.  If none
-    // can then return failure.
-
-    while (!d_managers[result]->canRegisterSockets()) {
-        ++result;
-        if (result >= numManagers) {
-            return 0;                                                 // RETURN
-        }
-    }
 
     // If metrics are being collected, use those metrics to determine the
     // event manager with the lowest work-load.
@@ -2282,12 +2275,11 @@ btemt_ChannelPool::allocateEventManager()
         int minMetrics =
                      d_managers[result]->timeMetrics()->percentage(CPU_BOUND);
         minMetrics += d_managers[result]->numEvents();
-        for (int i = result + 1; i < numManagers; ++i) {
+        for (int i = 1; i < numManagers; ++i) {
             int currentMetrics =
                           d_managers[i]->timeMetrics()->percentage(CPU_BOUND);
             currentMetrics += d_managers[i]->numEvents();
-            if (currentMetrics < minMetrics
-             && d_managers[i]->canRegisterSockets()) {
+            if (currentMetrics < minMetrics) {
                 result = i;
                 minMetrics = currentMetrics;
             }
@@ -2298,10 +2290,10 @@ btemt_ChannelPool::allocateEventManager()
         // If metrics are not being collected, choose the event manager with
         // the fewest registered events.
 
-        int minEvents = d_managers[result]->numTotalSocketEvents();
-        for (int i = result + 1; i < numManagers; ++i) {
+        int minEvents = d_managers[0]->numTotalSocketEvents();
+        for (int i = 1; i < numManagers; ++i) {
             int numEvents = d_managers[i]->numTotalSocketEvents();
-            if (numEvents < minEvents && d_managers[i]->canRegisterSockets()) {
+            if (numEvents < minEvents) {
                 minEvents = numEvents;
                 result    = i;
             }
@@ -2444,12 +2436,7 @@ void btemt_ChannelPool::acceptCb(int                                serverId,
     }
 
     btemt_TcpTimerEventManager *manager = allocateEventManager();
-    if (!manager) {
-        d_poolStateCb(btemt_PoolMsg::BTEMT_EVENT_MANAGER_LIMIT,
-                      serverId,
-                      BTEMT_CRITICAL);
-        return;
-    }
+    BSLS_ASSERT(manager);
 
     // Reserve location for new channel.  This is so we have a 'newId' to
     // pass to the channel at construction.
@@ -2603,7 +2590,6 @@ int btemt_ChannelPool::listen(const bteso_IPv4Address&   endpoint,
                               const bteso_SocketOptions *socketOptions)
 {
     enum {
-        EVENT_MANAGER_LIMIT_REACHED = -12,
         AMBIGUOUS_REUSE_ADDRESS     = -11,
         SET_SOCKET_OPTION_FAILED    = -10,
         SET_CLOEXEC_FAILED          = -9,
@@ -2628,8 +2614,7 @@ int btemt_ChannelPool::listen(const bteso_IPv4Address&   endpoint,
     bcemt_LockGuard<bcemt_Mutex> aGuard(&d_acceptorsLock);
 
     ServerStateMap::iterator idx = d_acceptors.find(serverId);
-    if (idx != d_acceptors.end())
-    {
+    if (idx != d_acceptors.end()) {
         return DUPLICATE_ID;                                          // RETURN
     }
 
@@ -2731,10 +2716,7 @@ int btemt_ChannelPool::listen(const bteso_IPv4Address&   endpoint,
     BSLS_ASSERT(idx_status.second);
 
     btemt_TcpTimerEventManager *manager = allocateEventManager();
-
-    if (!manager) {
-        return EVENT_MANAGER_LIMIT_REACHED;                           // RETURN
-    }
+    BSLS_ASSERT(manager);
 
     ss->d_manager_p = manager;
 
@@ -2802,12 +2784,7 @@ void btemt_ChannelPool::connectCb(ConnectorMap::iterator idx)
     d_connectors.erase(idx);
 
     btemt_TcpTimerEventManager *manager = allocateEventManager();
-    if (!manager) {
-        d_poolStateCb(btemt_PoolMsg::BTEMT_EVENT_MANAGER_LIMIT,
-                      clientId,
-                      BTEMT_CRITICAL);
-        return;
-    }
+    BSLS_ASSERT(manager);
 
     importCb(socket,
              &d_factory,
@@ -2949,13 +2926,13 @@ void btemt_ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
         // At this point, the serverAddress and socket are set and valid, and
         // socket is in non-blocking mode.
 
-        // If a client address is specified bind to that address.
-
-        if (cs.d_localAddress_p) {
-            const int rc = socket->bind(*cs.d_localAddress_p);
+        if (!cs.d_socketOptions.isNull()) {
+            const int rc = bteso_SocketOptUtil::setSocketOptions(
+                                                   socket->handle(),
+                                                   cs.d_socketOptions.value());
 
             if (rc) {
-                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_BINDING_CLIENT_ADDR,
+                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_SETTING_OPTIONS,
                               clientId,
                               BTEMT_ALERT);
                 bcemt_LockGuard<bcemt_Mutex> cGuard(&d_connectorsLock);
@@ -2964,13 +2941,13 @@ void btemt_ChannelPool::connectInitiateCb(ConnectorMap::iterator idx)
             }
         }
 
-        if (cs.d_socketOptions_p) {
-            const int rc = bteso_SocketOptUtil::setSocketOptions(
-                                                        socket->handle(),
-                                                        *cs.d_socketOptions_p);
+        // If a client address is specified bind to that address.
+
+        if (!cs.d_localAddress.isNull()) {
+            const int rc = socket->bind(cs.d_localAddress.value());
 
             if (rc) {
-                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_SETTING_OPTIONS,
+                d_poolStateCb(btemt_PoolMsg::BTEMT_ERROR_BINDING_CLIENT_ADDR,
                               clientId,
                               BTEMT_ALERT);
                 bcemt_LockGuard<bcemt_Mutex> cGuard(&d_connectorsLock);
@@ -3587,7 +3564,6 @@ int btemt_ChannelPool::connect(const char                *serverName,
     BSLS_ASSERT(0 < interval || 1 == numAttempts);
 
     enum {
-        EVENT_MANAGER_LIMIT_REACHED = -3,
         FAILED_RESOLUTION           = -2,
         NOT_RUNNING                 = -1,
         SUCCESS                     =  0,
@@ -3606,9 +3582,7 @@ int btemt_ChannelPool::connect(const char                *serverName,
     }
 
     btemt_TcpTimerEventManager *manager = allocateEventManager();
-    if (!manager) {
-        return EVENT_MANAGER_LIMIT_REACHED;                           // RETURN
-    }
+    BSLS_ASSERT(manager);
 
     bsl::pair<ConnectorMap::iterator,bool> idx_status =
                         d_connectors.insert(bsl::make_pair(clientId,
@@ -3630,8 +3604,14 @@ int btemt_ChannelPool::connect(const char                *serverName,
     cs.d_inProgress       = false;
     cs.d_readEnabledFlag  = readEnabledFlag;
     cs.d_keepHalfOpenMode = keepHalfOpenMode;
-    cs.d_socketOptions_p  = socketOptions;
-    cs.d_localAddress_p   = localAddress;
+
+    if (socketOptions) {
+        cs.d_socketOptions = *socketOptions;
+    }
+
+    if (localAddress) {
+        cs.d_localAddress = *localAddress;
+    }
 
     if (BTEMT_RESOLVE_ONCE == resolutionMode) {
         int errorCode = 0;
@@ -3674,7 +3654,6 @@ int btemt_ChannelPool::connect(const bteso_IPv4Address&   server,
     BSLS_ASSERT(0 < interval || 1 == numAttempts);
 
     enum {
-        EVENT_MANAGER_LIMIT_REACHED = -3,
         NOT_RUNNING                 = -1,
         SUCCESS                     =  0,
         DUPLICATE_ID                =  1
@@ -3692,9 +3671,7 @@ int btemt_ChannelPool::connect(const bteso_IPv4Address&   server,
     }
 
     btemt_TcpTimerEventManager *manager = allocateEventManager();
-    if (!manager) {
-        return EVENT_MANAGER_LIMIT_REACHED;                           // RETURN
-    }
+    BSLS_ASSERT(manager);
 
     bsl::pair<ConnectorMap::iterator,bool> idx_status =
                         d_connectors.insert(bsl::make_pair(clientId,
@@ -3714,8 +3691,14 @@ int btemt_ChannelPool::connect(const bteso_IPv4Address&   server,
     cs.d_inProgress       = false;
     cs.d_readEnabledFlag  = readEnabledFlag;
     cs.d_keepHalfOpenMode = mode;
-    cs.d_socketOptions_p  = socketOptions;
-    cs.d_localAddress_p   = localAddress;
+
+    if (socketOptions) {
+        cs.d_socketOptions = *socketOptions;
+    }
+
+    if (localAddress) {
+        cs.d_localAddress = *localAddress;
+    }
 
     bdetu_SystemTime::loadCurrentTime(&cs.d_start);
 
@@ -3784,9 +3767,8 @@ int btemt_ChannelPool::import(
         KeepHalfOpenMode                              mode)
 {
     enum {
-        EVENT_MANAGER_LIMIT_REACHED = -2,
-        CHANNEL_LIMIT               = -1,
-        SUCCESS                     =  0
+        CHANNEL_LIMIT = -1,
+        SUCCESS       =  0
     };
 
     if (d_config.maxConnections() == d_channels.length()) {
@@ -3794,9 +3776,7 @@ int btemt_ChannelPool::import(
     }
 
     btemt_TcpTimerEventManager *manager = allocateEventManager();
-    if (!manager) {
-        return EVENT_MANAGER_LIMIT_REACHED;                           // RETURN
-    }
+    BSLS_ASSERT(manager);
 
     bdef_Function<void (*)()> importFunctor(bdef_BindUtil::bindA(
                 d_allocator_p
@@ -4044,15 +4024,12 @@ int btemt_ChannelPool::registerClock(const bdef_Function<void (*)()>& command,
                                      int                      clockId)
 {
     enum {
-        EVENT_MANAGER_LIMIT_REACHED = -1,
-        SUCCESS                     = 0,
-        DUPLICATE_ID                = 1
+        SUCCESS      = 0,
+        DUPLICATE_ID = 1
     };
 
     btemt_TcpTimerEventManager *manager = allocateEventManager();
-    if (!manager) {
-        return EVENT_MANAGER_LIMIT_REACHED;                           // RETURN
-    }
+    BSLS_ASSERT(manager);
 
     btemt_TimerState ts;
     ts.d_absoluteTime = startTime;

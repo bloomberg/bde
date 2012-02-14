@@ -173,20 +173,27 @@
 
 # ifndef INCLUDED_BSLSTL_FORWARDITERATOR
 #   include <bslstl_forwarditerator.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 
 # ifndef INCLUDED_BSLSTL_BIDIRECTIONALITERATOR
 #   include <bslstl_bidirectionaliterator.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 #  endif
 
 # ifndef INCLUDED_BSLSTL_RANDOMACCESSITERATOR
 #   include <bslstl_randomaccessiterator.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif
 
 #ifdef BSL_INCLUDE_BSL_STRING
 # ifndef INCLUDED_BSLSTL_STRING
 #   include <bslstl_string.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+# ifndef INCLUDED_BSLSTL_STRINGREF
+#   include <bslstl_stringref.h>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
 #endif

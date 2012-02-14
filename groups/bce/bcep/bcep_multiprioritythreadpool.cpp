@@ -191,11 +191,11 @@ int bcep_MultipriorityThreadPool::enqueueJob(const ThreadFunctor& job,
 }
 
 int bcep_MultipriorityThreadPool::enqueueJob(
-                                          bcemt_ThreadFunction  jobFunctionPtr,
-                                          void                 *userData,
+                                          bcemt_ThreadFunction  jobFunction,
+                                          void                 *jobData,
                                           int                   priority)
 {
-    return enqueueJob(bdef_BindUtil::bind(jobFunctionPtr, userData), priority);
+    return enqueueJob(bdef_BindUtil::bind(jobFunction, jobData), priority);
 }
 
 void bcep_MultipriorityThreadPool::enableQueue()

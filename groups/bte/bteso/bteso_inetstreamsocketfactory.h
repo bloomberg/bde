@@ -262,7 +262,7 @@ class bteso_InetStreamSocket : public bteso_StreamSocket<ADDRESS> {
     // This class implements the 'bteso_StreamSocket<ADDRESS>' protocol to
     // provide stream-based socket communications.  The class is templatized to
     // provide a family of type-safe address specializations (e.g., "IPv4",
-    // IPv6").  Various socket-related operations, including accepting and
+    // "IPv6").  Various socket-related operations, including accepting and
     // initiating connections and blocking/non-blocking I/O operations, are
     // provided.  Vector I/O operations are also supported.
 

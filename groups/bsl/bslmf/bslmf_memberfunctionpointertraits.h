@@ -85,6 +85,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_if.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
 #endif
@@ -108,15 +112,11 @@ struct bslmf_MemberFunctionPointerTraits
                     // ===================================
 
 template <class PROTOTYPE>
-struct bslmf_IsMemberFunctionPointer {
+struct bslmf_IsMemberFunctionPointer : bslmf_MetaInt<
+        bslmf_MemberFunctionPointerTraits<PROTOTYPE>::IS_MEMBER_FUNCTION_PTR> {
     // This template determines if the specified 'PROTOTYPE' is a member
     // function pointer.  VALUE is defined as 1 if the specified 'PROTOTYPE'
     // is a member function, and a zero value otherwise.
-
-    enum {
-        VALUE =
-         (bslmf_MemberFunctionPointerTraits<PROTOTYPE>::IS_MEMBER_FUNCTION_PTR)
-    };
 };
 
 // ---- Anything below this line is implementation specific.  Do not use. ----

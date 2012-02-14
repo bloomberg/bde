@@ -25,7 +25,8 @@ struct PredefinedPrefix {
 const PredefinedPrefix predefinedPrefixes[] =
 {
     { "xml",   baexml_NamespaceRegistry::BAEXML_XML },
-    { "xmlns", baexml_NamespaceRegistry::BAEXML_XMLNS }
+    { "xmlns", baexml_NamespaceRegistry::BAEXML_XMLNS },
+    { "xsi",   baexml_NamespaceRegistry::BAEXML_XMLSCHEMA_INSTANCE }
 };
 
 const PredefinedPrefix nullPrefix = { "", -1 };

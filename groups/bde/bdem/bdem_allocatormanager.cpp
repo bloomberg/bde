@@ -9,6 +9,7 @@ BDES_IDENT_RCSID(bdem_allocatormanager_cpp,"$Id$ $CSID$")
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_deleterhelper.h>
 #include <bslma_rawdeleterproctor.h>
 
 #include <bsls_assert.h>
@@ -114,8 +115,7 @@ bdem_AllocatorManager::~bdem_AllocatorManager()
                              & bdem_AggregateOption::BDEM_OWN_ALLOCATOR_FLAG) {
         BSLS_ASSERT(d_allocator_p != d_internalAllocator_p);
 
-        d_internalAllocator_p->~bslma_Allocator();
-        d_allocator_p->deallocate(d_internalAllocator_p);
+        bslma_DeleterHelper::deleteObject(d_internalAllocator_p, d_allocator_p);
     }
 }
 

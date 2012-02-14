@@ -353,7 +353,7 @@ void btemt_QueryDispatcher::dispatcherV1Cb(
         if (0 != entry->d_category) {
             d_mapLock.lock();
             d_queryMap.erase(
-                bsl::make_pair<void*, Int64>(entry->d_category, queryId));
+                bsl::pair<void*, Int64>(entry->d_category, queryId));
             d_mapLock.unlock();
         }
     }
@@ -506,8 +506,7 @@ bsls_PlatformUtil::Int64 btemt_QueryDispatcher::timedQuery(
 
     if (category) {
         d_mapLock.lock();
-        d_queryMap.insert(bsl::make_pair<void*, Int64>(category,
-                                                       queryId));
+        d_queryMap.insert(bsl::pair<void*, Int64>(category, queryId));
         d_mapLock.unlock();
     }
 
@@ -579,7 +578,7 @@ void btemt_QueryDispatcher::cancel(bsls_PlatformUtil::Int64 queryId)
     if (0 != entry->d_category) {
         d_mapLock.lock();
         d_queryMap.erase(
-            bsl::make_pair<void*, Int64>(entry->d_category, queryId));
+            bsl::pair<void*, Int64>(entry->d_category, queryId));
         d_mapLock.unlock();
     }
 }
@@ -591,7 +590,7 @@ void btemt_QueryDispatcher::cancel(void *category)
     bsl::vector<Int64> queryIds;
     d_mapLock.lock();
     bsl::set<bsl::pair<void*, Int64> >::iterator itr =
-        d_queryMap.lower_bound(bsl::make_pair<void*, Int64>(category,
+        d_queryMap.lower_bound(bsl::pair<void*, Int64>(category,
 #if !defined(BSLS_PLATFORM__CMP_MSVC) \
  && !defined(BDES_PLATFORM__OS_FREEBSD)
                                                             INT64_MIN));
@@ -605,7 +604,7 @@ void btemt_QueryDispatcher::cancel(void *category)
     }
     typedef bsl::vector<Int64>::size_type size_type;
     for (size_type i = 0; i < queryIds.size(); ++i) {
-        d_queryMap.erase(bsl::make_pair<void*, Int64>(category, queryIds[i]));
+        d_queryMap.erase(bsl::pair<void*, Int64>(category, queryIds[i]));
     }
     d_mapLock.unlock();
 

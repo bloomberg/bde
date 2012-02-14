@@ -50,6 +50,10 @@ BDES_IDENT("$Id: $")
 #include <baesu_stacktraceresolver_filehelper.h>
 #endif
 
+#ifndef INCLUDED_BCEMT_QLOCK
+#include <bcemt_qlock.h>
+#endif
+
 #ifndef INCLUDED_BDEMA_HEAPBYPASSALLOCATOR
 #include <bdema_heapbypassallocator.h>
 #endif
@@ -197,6 +201,10 @@ class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Xcoff> {
                                               // memory allocated by this
                                               // object will be freed when this
                                               // allocator is destroyed.
+
+    static bcemt_QLock     s_demangleQLock;   // 'QLock' to guard access to
+                                              // the non-thread-safe 'Demangle'
+                                              // function.
 
   private:
     // NOT IMPLEMENTED

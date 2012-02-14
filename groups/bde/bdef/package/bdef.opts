@@ -1,7 +1,7 @@
 *                       _       OPTS_FILE       = bdef.opts
 
 !! unix-SunOS-*-*-*     _       STL_CXXFLAGS    = -library=no%rwtools7
-!! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    = 
+!! unix-SunOS-*-*-gcc   _       STL_CXXFLAGS    =
 
 !! *			_	RETRY_TIMEOUT	= 4800
 !! *			_	TEST_TIMEOUT	= 4800

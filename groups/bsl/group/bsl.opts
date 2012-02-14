@@ -16,3 +16,6 @@
 -- unix-SunOS-*-*-CC64	_	AR_INSTALL	= $(SET_TEMPLATE_CACHE_DIR)
 
 windows			shr	STL_DEFINES	= /D_STLP_DESIGNATED_DLL
+
+# DRQS 29608792: Build windows with BSL_LEGACY=0 to match release process
+windows             _       BDE_CXXFLAGS     = /DBSL_LEGACY=0
