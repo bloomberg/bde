@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-safe recurring and non-recurring event scheduler.
 //
 //@CLASSES:
-//    bcep_TimerEventScheduler: thread-safe event scheduler
+//  bcep_TimerEventScheduler: thread-safe event scheduler
 //
 //@SEE_ALSO: bcep_eventscheduler, bcec_timequeue
 //
@@ -27,16 +27,20 @@ BDES_IDENT("$Id: $")
 // deferred executions, calendars and reminders, and recurring tasks, among
 // other time-bound behaviors.
 //
-// This class has been largely obsoleted by the newer 'bcep_eventscheduler',
-// which has two main advantages: 1) 'bcep_timereventscheduler' can only manage
-// a finite number of events -- this limit is in the millions, but
-// 'bcep_eventscheduler' has no such limit; and 2) accessing the queue is
-// inefficient when the number of managed events is large, since adding or
-// removing an event involves a linear search, while 'bcep_eventscheduler' has
+///Comparison to 'bcep_EventScheduler'
+///- - - - - - - - - - - - - - - - - -
+// This class has been made mostly obsolete by the newer
+// 'bcep_eventscheduler', which addresses two main disadvantages of this
+// component: 1) 'bcep_timereventscheduler' can only manage a finite number of
+// events -- this limit is in the millions, but 'bcep_eventscheduler' has no
+// such limit; and 2) accessing the queue of a 'bcep_TimerEventScheduler' is
+// inefficient when there is a large number of managed events (since adding or
+// removing an event involves a linear search); 'bcep_eventscheduler' has
 // a more sophisticated queue which can be accessed in constant or worst-case
-// log(n) time.  The only advantage of this component over that one is that
-// handles into the queue are more lightweight, while the handles in
-// 'bcep_eventmanager' are reference-counted and must be freed.
+// log(n) time.  The advantage this component provides over
+// 'bcep_eventscheduler' is that it provides light-weight handles to events
+// in the queue, 'bcep_eventmanager' provides more heavy-weight
+// reference-counted handles that must be released.
 //
 ///Order of Execution of Events
 ///----------------------------

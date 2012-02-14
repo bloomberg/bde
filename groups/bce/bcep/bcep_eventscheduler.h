@@ -10,12 +10,9 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a thread-safe recurring and one-time event scheduler.
 //
 //@CLASSES:
-//    bcep_EventScheduler:                     thread-safe event scheduler
-//    bcep_EventSchedulerEventHandle:          managed handle to a scheduled
-//                                             event
-//    bcep_EventSchedulerRecurringEventHandle: managed handle to a recurring
-//                                             scheduled event
-//
+//  bcep_EventScheduler: a thread-safe event scheduler
+//  bcep_EventSchedulerEventHandle: handle to a single scheduled event
+//  bcep_EventSchedulerRecurringEventHandle: handle to a recurring event
 //
 //@SEE ALSO: bcep_timereventscheduler
 //
@@ -35,16 +32,18 @@ BDES_IDENT("$Id: $")
 // 'releaseEventRaw'.  Such pointers are used in the "Raw" API of this class
 // and must be used carefully.
 //
-// This component was written after bcep_timereventscheduler, which suffered
-// from a couple of problems: 1) there was a maximum number of events it could
-// manage, and 2) it was inefficient at dealing with large numbers of events.
-// This component addresses both those problems -- there is no limit on the
-// number of events it can handle, and it is more efficient at dealing with
-// large numbers of events.  The only disadvantage of this component relative
-// to bcep_timereventschedule is that handles referring to managed events in a
-// 'bcep_EventScheduler' are reference-counted and need to be released, while
-// handles of events in a 'bcep_TimerEventScheduler' are integral types that
-// need no such releasing.
+///Comparison to 'bcep_TimerEventScheduler'
+/// - - - - - - - - - - - - - - - - - - - -
+// This component was written after 'bcep_timereventscheduler', which suffered
+// from a couple of short-comings: 1) there was a maximum number of events it
+// could manage, and 2) it was inefficient at dealing with large numbers of
+// events.  This component addresses both those problems -- there is no limit
+// on the number of events it can , and it is more efficient at dealing
+// with large numbers of events.  The disadvantage of this component relative
+// to 'bcep_timereventscheduler' is that handles referring to managed events
+// in a 'bcep_EventScheduler' are reference-counted and need to be released,
+// while handles of events in a 'bcep_TimerEventScheduler' are integral types
+// that do not need to be released.
 //
 ///Thread Safety and "Raw" Event Pointers
 ///--------------------------------------
