@@ -241,9 +241,9 @@ static const Descriptor DESCRIPTORS[] = {
 };
 
 // TBD: REMOVE THIS after it is moved to the test allocator.
-// TBD: change the name to 'bslma_TestAllocatorMonitor'.
+// TBD: change the name to 'TestAllocatorMonitor'.
 
-class bslma_TestAllocatorMonitor {
+class TestAllocatorMonitor {
     // TBD
 
     // DATA
@@ -254,10 +254,10 @@ class bslma_TestAllocatorMonitor {
 
   public:
     // CREATORS
-    bslma_TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
+    TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
         // TBD
 
-    ~bslma_TestAllocatorMonitor();
+    ~TestAllocatorMonitor();
         // TBD
 
     // ACCESSORS
@@ -282,7 +282,7 @@ class bslma_TestAllocatorMonitor {
 
 // CREATORS
 inline
-bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
+TestAllocatorMonitor::TestAllocatorMonitor(
                                      const bslma_TestAllocator& basicAllocator)
 : d_lastInUse(basicAllocator.numBlocksInUse())
 , d_lastMax(basicAllocator.numBlocksMax())
@@ -292,13 +292,13 @@ bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
 }
 
 inline
-bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
+TestAllocatorMonitor::~TestAllocatorMonitor()
 {
 }
 
 // ACCESSORS
 inline
-bool bslma_TestAllocatorMonitor::isInUseSame() const
+bool TestAllocatorMonitor::isInUseSame() const
 {
     BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
 
@@ -306,7 +306,7 @@ bool bslma_TestAllocatorMonitor::isInUseSame() const
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isInUseUp() const
+bool TestAllocatorMonitor::isInUseUp() const
 {
     BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
 
@@ -314,25 +314,25 @@ bool bslma_TestAllocatorMonitor::isInUseUp() const
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isMaxSame() const
+bool TestAllocatorMonitor::isMaxSame() const
 {
     return d_allocator_p->numBlocksMax() == d_lastMax;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isMaxUp() const
+bool TestAllocatorMonitor::isMaxUp() const
 {
     return d_allocator_p->numBlocksMax() != d_lastMax;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isTotalSame() const
+bool TestAllocatorMonitor::isTotalSame() const
 {
     return d_allocator_p->numBlocksTotal() == d_lastTotal;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isTotalUp() const
+bool TestAllocatorMonitor::isTotalUp() const
 {
     return d_allocator_p->numBlocksTotal() != d_lastTotal;
 }
@@ -742,7 +742,7 @@ int main(int argc, char *argv[])
 
             Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
 
-            bslma_TestAllocatorMonitor oam(oa);
+            TestAllocatorMonitor oam(oa);
 
             Obj::TransitionConstIterator iter = X.findTransitionForUtcTime(DT);
 
@@ -1021,7 +1021,7 @@ int main(int argc, char *argv[])
                     LOOP4_ASSERT(LINE1, LINE2, X, Z,
                                  (X == Z) == (LINE1 == LINE2));
 
-                    bslma_TestAllocatorMonitor oam(oa), sam(scratch);
+                    TestAllocatorMonitor oam(oa), sam(scratch);
 
                     Obj *mR = 0;
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
@@ -1069,7 +1069,7 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(LINE1, ZZ, Z, ZZ == Z);
 
-                bslma_TestAllocatorMonitor oam(oa), sam(scratch);
+                TestAllocatorMonitor oam(oa), sam(scratch);
 
                 Obj *mR = 0;
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
@@ -1277,7 +1277,7 @@ int main(int argc, char *argv[])
 
             // member 'swap'
             {
-                bslma_TestAllocatorMonitor oam(oa);
+                TestAllocatorMonitor oam(oa);
 
                 mW.swap(mW);
 
@@ -1288,7 +1288,7 @@ int main(int argc, char *argv[])
 
             // free function 'swap'
             {
-                bslma_TestAllocatorMonitor oam(oa);
+                TestAllocatorMonitor oam(oa);
 
                 swap(mW, mW);
 
@@ -1310,7 +1310,7 @@ int main(int argc, char *argv[])
 
                 // member 'swap'
                 {
-                    bslma_TestAllocatorMonitor oam(oa);
+                    TestAllocatorMonitor oam(oa);
 
                     mX.swap(mY);
 
@@ -1323,7 +1323,7 @@ int main(int argc, char *argv[])
 
                 // free function 'swap'
                 {
-                    bslma_TestAllocatorMonitor oam(oa);
+                    TestAllocatorMonitor oam(oa);
 
                     swap(mX, mY);
 
@@ -1806,7 +1806,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&oa);  const Obj& X = mX;
 
-                bslma_TestAllocatorMonitor oam(oa);
+                TestAllocatorMonitor oam(oa);
 
                 mX.setIdentifier(ID_CSTR);
                 LOOP3_ASSERT(LINE, ID_STRING, X.identifier(),
@@ -1824,7 +1824,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&oa);  const Obj& X = mX;
 
-                bslma_TestAllocatorMonitor oam(oa);
+                TestAllocatorMonitor oam(oa);
 
                 mX.setIdentifier(ID_STRING);
                 LOOP3_ASSERT(LINE, ID_STRING, X.identifier(),
@@ -1842,7 +1842,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&oa);  const Obj& X = mX;
 
-                bslma_TestAllocatorMonitor oam(oa);
+                TestAllocatorMonitor oam(oa);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -2047,7 +2047,7 @@ int main(int argc, char *argv[])
 
                     // Verify value, commutativity, and no memory allocation.
 
-                    bslma_TestAllocatorMonitor pam(pa), qam(qa);
+                    TestAllocatorMonitor pam(pa), qam(qa);
 
                     LOOP4_ASSERT(LINE1, LINE2, X, Y, EXP == (X == Y));
                     LOOP4_ASSERT(LINE1, LINE2, X, Y, EXP == (Y == X));
@@ -2487,8 +2487,8 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P_(LINE1) P_(X) P(C) }
 
-                    bslma_TestAllocatorMonitor dam(da);
-                    bslma_TestAllocatorMonitor oam(oa);
+                    TestAllocatorMonitor dam(da);
+                    TestAllocatorMonitor oam(oa);
 
                     LOOP_ASSERT(LINE1, false == (X < X));
 
@@ -2523,7 +2523,7 @@ int main(int argc, char *argv[])
 
                     if (veryVerbose) { T_ P_(LINE2) P_(X) P(Y) }
 
-                    bslma_TestAllocatorMonitor oam1(oa1), oam2(oa2);
+                    TestAllocatorMonitor oam1(oa1), oam2(oa2);
 
                     if (X.utcTime() == Y.utcTime()) {
                         LOOP4_ASSERT(LINE1, LINE2, X, Y, false == (X < Y));
@@ -2690,7 +2690,7 @@ int main(int argc, char *argv[])
 
                 // Verify value, commutativity, and no memory allocation.
 
-                bslma_TestAllocatorMonitor oam1(oa1), oam2(oa2);
+                TestAllocatorMonitor oam1(oa1), oam2(oa2);
 
                 LOOP4_ASSERT(LINE1, LINE2, X, Z, EXP == (X == Z));
                 LOOP4_ASSERT(LINE1, LINE2, X, Z, EXP == (Z == X));
@@ -3053,7 +3053,7 @@ int main(int argc, char *argv[])
             mX.addTransition(A1, A2);
             LOOP_ASSERT(X.numTransitions(), 1 == X.numTransitions());
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const Transition& FRONT = X.firstTransition();
             LOOP2_ASSERT(A1, FRONT.utcTime(),    A1 == FRONT.utcTime());
@@ -3074,7 +3074,7 @@ int main(int argc, char *argv[])
             mX.addTransition(D1, D2);
             LOOP_ASSERT(X.numTransitions(), 2 == X.numTransitions());
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const Transition& FRONT = X.firstTransition();
             LOOP2_ASSERT(D1, FRONT.utcTime(),    D1 == FRONT.utcTime());

@@ -120,6 +120,27 @@ namespace BloombergLP {
                              // Support types
                              // =============
 
+#if defined(BSLS_PLATFORM__CMP_SUN)
+
+// Using a different implementation on Sun; see BSLMF_ASSERT for details.
+
+struct bslmf_Assert_TrueType {
+    typedef int BSLMF_COMPILE_TIME_ASSERTION_FAILURE;
+};
+
+struct bslmf_Assert_FalseType {
+};
+
+template <bool COND>
+struct bslmf_Assert_If : bslmf_Assert_TrueType {
+};
+
+template <>
+struct bslmf_Assert_If<false> : bslmf_Assert_FalseType {
+};
+
+#else
+
 template <int INTEGER>
 struct BSLMF_COMPILE_TIME_ASSERTION_FAILURE;
     // Declared but not defined.  If assert macro references this type, then
@@ -140,12 +161,34 @@ struct bslmf_AssertTest {
     // used as its argument.
 };
 
+#endif
+
                              // ==================
                              // macro BSLMF_ASSERT
                              // ==================
 
+#if defined(BSLS_PLATFORM__CMP_SUN)
+
+// The usual definition of the 'BSLMF_ASSERT' macro doesn't work with SunCC
+// (version 10 and below) inside template classes.  Note that Sun CC has a quite
+// non-conformant (read 'broken') template instantiation mechanism.  See DRQS
+// 29636421 for an example of code Sun CC didn't compile correctly with the
+// usual definition of 'BSLMF_ASSERT'.  Below is the definition that works more
+// reliably.  This definition is not well-formed, it just happens to work with
+// SunCC.  So don't use it with other compilers.
+
+#define BSLMF_ASSERT(expr)                                         \
+    struct BSLMF_ASSERT__CAT(bslmf_Assert_, __LINE__)              \
+        : ::BloombergLP::bslmf_Assert_If<!!(int)(expr)>            \
+    {                                                              \
+        BSLMF_COMPILE_TIME_ASSERTION_FAILURE * dummy;              \
+    };                                                             \
+                                                                   \
+    enum { BSLMF_ASSERT__CAT(bslmf_Assert_Check_, __LINE__)        \
+           = sizeof(BSLMF_ASSERT__CAT(bslmf_Assert_, __LINE__)) }  \
+
+#elif defined(BSLS_PLATFORM__CMP_MSVC)
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
-#if defined(BSLS_PLATFORM__CMP_MSVC)
 
 #define BSLMF_ASSERT(expr) \
 typedef BloombergLP::bslmf_AssertTest< \

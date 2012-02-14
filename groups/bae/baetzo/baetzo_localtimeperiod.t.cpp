@@ -242,9 +242,9 @@ const int UTC_MAX =  24 * 60 * 60 - 1;
 //                               TEST APPARATUS
 // ----------------------------------------------------------------------------
 // JSL: REMOVE THIS after it is moved to the test allocator.
-// JSL: change the name to 'bslma_TestAllocatorMonitor'.
+// JSL: change the name to 'TestAllocatorMonitor'.
 
-class bslma_TestAllocatorMonitor {
+class TestAllocatorMonitor {
     // TBD
 
     // DATA
@@ -255,10 +255,10 @@ class bslma_TestAllocatorMonitor {
 
   public:
     // CREATORS
-    bslma_TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
+    TestAllocatorMonitor(const bslma_TestAllocator& basicAllocator);
         // TBD
 
-    ~bslma_TestAllocatorMonitor();
+    ~TestAllocatorMonitor();
         // TBD
 
     // ACCESSORS
@@ -283,7 +283,7 @@ class bslma_TestAllocatorMonitor {
 
 // CREATORS
 inline
-bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
+TestAllocatorMonitor::TestAllocatorMonitor(
                                      const bslma_TestAllocator& basicAllocator)
 : d_lastInUse(basicAllocator.numBlocksInUse())
 , d_lastMax(basicAllocator.numBlocksMax())
@@ -293,13 +293,13 @@ bslma_TestAllocatorMonitor::bslma_TestAllocatorMonitor(
 }
 
 inline
-bslma_TestAllocatorMonitor::~bslma_TestAllocatorMonitor()
+TestAllocatorMonitor::~TestAllocatorMonitor()
 {
 }
 
 // ACCESSORS
 inline
-bool bslma_TestAllocatorMonitor::isInUseSame() const
+bool TestAllocatorMonitor::isInUseSame() const
 {
     BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
 
@@ -307,7 +307,7 @@ bool bslma_TestAllocatorMonitor::isInUseSame() const
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isInUseUp() const
+bool TestAllocatorMonitor::isInUseUp() const
 {
     BSLS_ASSERT(d_lastInUse <= d_allocator_p->numBlocksInUse());
 
@@ -315,25 +315,25 @@ bool bslma_TestAllocatorMonitor::isInUseUp() const
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isMaxSame() const
+bool TestAllocatorMonitor::isMaxSame() const
 {
     return d_allocator_p->numBlocksMax() == d_lastMax;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isMaxUp() const
+bool TestAllocatorMonitor::isMaxUp() const
 {
     return d_allocator_p->numBlocksMax() != d_lastMax;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isTotalSame() const
+bool TestAllocatorMonitor::isTotalSame() const
 {
     return d_allocator_p->numBlocksTotal() == d_lastTotal;
 }
 
 inline
-bool bslma_TestAllocatorMonitor::isTotalUp() const
+bool TestAllocatorMonitor::isTotalUp() const
 {
     return d_allocator_p->numBlocksTotal() != d_lastTotal;
 }
@@ -935,7 +935,7 @@ int main(int argc, char *argv[])
                     LOOP4_ASSERT(LINE1, LINE2, Z, X,
                                  (Z == X) == (LINE1 == LINE2));
 
-                    bslma_TestAllocatorMonitor oam(oa), sam(scratch);
+                    TestAllocatorMonitor oam(oa), sam(scratch);
 
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -988,7 +988,7 @@ int main(int argc, char *argv[])
 
                 LOOP3_ASSERT(LINE1, ZZ, Z, ZZ == Z);
 
-                bslma_TestAllocatorMonitor oam(oa), sam(scratch);
+                TestAllocatorMonitor oam(oa), sam(scratch);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
@@ -1251,7 +1251,7 @@ int main(int argc, char *argv[])
 
             // member 'swap'
             {
-                bslma_TestAllocatorMonitor oam(oa);
+                TestAllocatorMonitor oam(oa);
 
                 mW.swap(mW);
 
@@ -1262,7 +1262,7 @@ int main(int argc, char *argv[])
 
             // free function 'swap'
             {
-                bslma_TestAllocatorMonitor oam(oa);
+                TestAllocatorMonitor oam(oa);
 
                 swap(mW, mW);
 
@@ -1294,7 +1294,7 @@ int main(int argc, char *argv[])
 
                 // member 'swap'
                 {
-                    bslma_TestAllocatorMonitor oam(oa);
+                    TestAllocatorMonitor oam(oa);
 
                     mX.swap(mY);
 
@@ -1307,7 +1307,7 @@ int main(int argc, char *argv[])
 
                 // free function 'swap'
                 {
-                    bslma_TestAllocatorMonitor oam(oa);
+                    TestAllocatorMonitor oam(oa);
 
                     swap(mX, mY);
 
@@ -1349,7 +1349,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) { T_ P_(X) P(Y) }
 
-            bslma_TestAllocatorMonitor oam(oa);
+            TestAllocatorMonitor oam(oa);
 
             invokeAdlSwap(mX, mY);
 
@@ -1975,7 +1975,7 @@ int main(int argc, char *argv[])
 
                     // Verify value, commutativity, and no memory allocation.
 
-                    bslma_TestAllocatorMonitor oaxm(oax), oaym(oay);
+                    TestAllocatorMonitor oaxm(oax), oaym(oay);
 
                     LOOP5_ASSERT(LINE1, LINE2, CONFIG, X, Y,  EXP == (X == Y));
                     LOOP5_ASSERT(LINE1, LINE2, CONFIG, Y, X,  EXP == (Y == X));
@@ -2432,7 +2432,7 @@ int main(int argc, char *argv[])
         {
             mX.setDescriptor(A1);
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const T1& descriptor = X.descriptor();
             LOOP2_ASSERT(A1, descriptor, A1 == descriptor);
@@ -2445,7 +2445,7 @@ int main(int argc, char *argv[])
             ASSERT(A2 != A3);
             mX.setUtcStartAndEndTime(A2, A3);
 
-            bslma_TestAllocatorMonitor oam(oa), dam(da);
+            TestAllocatorMonitor oam(oa), dam(da);
 
             const T2& utcStartTime = X.utcStartTime();
             LOOP2_ASSERT(A2, utcStartTime, A2 == utcStartTime);
@@ -3096,12 +3096,12 @@ int main(int argc, char *argv[])
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
-                    bslma_TestAllocatorMonitor tam(oa);
+                    TestAllocatorMonitor tam(oa);
                     mX.setDescriptor(A1);
                     LOOP_ASSERT(CONFIG, tam.isInUseUp());
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 LOOP_ASSERT(CONFIG, A1 == X.descriptor());
                 LOOP_ASSERT(CONFIG, D2 == X.utcStartTime());
@@ -3122,7 +3122,7 @@ int main(int argc, char *argv[])
 
             // 'utcStartTime' and 'utcEndTime'
             {
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 ASSERT(A2 != A3);
                 mX.setUtcStartAndEndTime(A2, A3);
@@ -3141,7 +3141,7 @@ int main(int argc, char *argv[])
 
             // Corroborate attribute independence.
             {
-                bslma_TestAllocatorMonitor tam(oa);
+                TestAllocatorMonitor tam(oa);
 
                 // Set all attributes to their 'A' values.
 

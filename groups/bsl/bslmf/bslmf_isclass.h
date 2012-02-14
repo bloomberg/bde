@@ -51,19 +51,19 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
 #endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_CSTDLIB
 #include <cstdlib>  // TBD Robo transitively needs this for 'bsl::atoi', etc.
@@ -74,9 +74,9 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                         // ====================
-                         // struct bslmf_IsClass
-                         // ====================
+                       // ========================
+                       // struct bslmf_IsClass_Imp
+                       // ========================
 
 typedef char ISCLASS_TYPE;
 
@@ -92,17 +92,27 @@ ISNOTCLASS_TYPE bslmf_IsClass_Tester(...);
 
 template <typename TYPE>
 struct bslmf_IsClass_Imp
+: bslmf_MetaInt<sizeof(bslmf_IsClass_Tester<TYPE>(0)) == sizeof(ISCLASS_TYPE)>
 {
-    enum { VALUE =
-               sizeof(bslmf_IsClass_Tester<TYPE>(0)) == sizeof(ISCLASS_TYPE) };
+};
+
+                         // ====================
+                         // struct bslmf_IsClass
+                         // ====================
+
+template <typename TYPE>
+struct bslmf_IsClass
+: bslmf_IsClass_Imp<typename bslmf_RemoveCvq<TYPE>::Type>::Type {
+    // This metafunction derives from 'bslmf_MetaInt<1>' if the specified
+    // 'TYPE' is a class type, or is a reference to a class type, and from
+    // 'bslmf_MetaInt<0>' otherwise.
 };
 
 template <typename TYPE>
-struct bslmf_IsClass {
-    typedef typename bslmf_RemoveReference<TYPE>::Type NONREF_TYPE;
-    typedef typename bslmf_RemoveCvq<NONREF_TYPE>::Type NONCV_TYPE;
-
-    enum { VALUE = bslmf_IsClass_Imp<NONCV_TYPE>::VALUE };
+struct bslmf_IsClass<TYPE &> : bslmf_IsClass<TYPE>::Type {
+    // This metafunction derives from 'bslmf_MetaInt<1>' if the specified
+    // 'TYPE' is a class type, or is a reference to a class type, and from
+    // 'bslmf_MetaInt<0>' otherwise.
 };
 
 }  // close namespace BloombergLP
