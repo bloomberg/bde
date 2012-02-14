@@ -49,9 +49,10 @@ BDES_IDENT("$Id: $")
 ///Thread Safety
 ///-------------
 // Except for the 'reset' method, this component is thread-safe and
-// thread-enabled, meaning that multiple threads may safely use their own
+// thread-aware, meaning that multiple threads may safely use their own
 // instances or a shared instance of a 'bcemt_Turnstile' object, provided that
-// 'reset' is not called while multiple threads are accessing the object.
+// 'reset' is not called on a turnstile object while another thread is
+// accessing or modifying the same object.
 //
 ///Timer Resolution
 ///----------------
@@ -144,14 +145,15 @@ class bcemt_Turnstile {
     // called after the next event is due.  If 'waitTurn' is not called until
     // after the next event is due, the turnstile is said to be 'lagging'
     // behind, and calls to 'waitTurn' will not sleep until the events have
-    // caught up with the schedule.  Note that one call to 'waitTurn' only
-    // catches up one cycle -- if the frequency is one event per second and the
-    // client is 10 seconds behind, calling 'waitTurn' once per second will
-    // remain 10 events behind.  Calling waitTurn 6 times in one second will
-    // result in being 5 events behind.  The amount by which events are lagging
-    // behind the schedule can be determined via the 'lagTime' method, which
-    // returns the positive number of microseconds by which the turnstile is
-    // lagging, or 0 if the turnstile is not behind schedule.
+    // caught up with the schedule.  Note that calling 'waitTurn' a single time
+    // does not bring a turnstile back on schedule.  For example, if a
+    // turnstile's configured frequency is one event per second, and the client
+    // is 10 seconds behind schedule, if 'waitTurn' were subsequently called
+    // once per second, the turnstile will remain at 10 seconds behind
+    // schedule.  The amount by which events are lagging behind the schedule
+    // can be determined via the 'lagTime' method, which returns the positive
+    // number of microseconds by which the turnstile is lagging, or 0 if the
+    // turnstile is not behind schedule.
 
     // DATA
     bces_AtomicInt64         d_nextTurn;   // absolute time of next turn in
