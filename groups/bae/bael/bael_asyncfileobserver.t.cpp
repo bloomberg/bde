@@ -68,8 +68,8 @@ using bsl::flush;
 // MANIPULATORS
 // [ 1] publish(const bael_Record& record, const bael_Context& context)
 // [ 1] void disableFileLogging()
-// [ 2] void disableLifetimeRotation()
-// [ 2] void disableSizeRotation()
+// [ 3] void disableLifetimeRotation()
+// [ 3] void disableSizeRotation()
 // [ 1] void disableStdoutLoggingPrefix()
 // [ 1] void disableUserFieldsLogging()
 // [ 1] int enableFileLogging(const char *fileName, bool timestampFlag = false)
@@ -78,9 +78,9 @@ using bsl::flush;
 // [ 1] void publish(const bcemt_SharedPtr<const bael_Record>& record, 
 //                   const bael_Context& context)
 // [ 2] void clear()
-// [ 2] void forceRotation()
-// [ 2] void rotateOnSize(int size)
-// [ 2] void rotateOnLifetime(bdet_DatetimeInterval timeInterval)
+// [ 3] void forceRotation()
+// [ 3] void rotateOnSize(int size)
+// [ 3] void rotateOnLifetime(bdet_DatetimeInterval timeInterval)
 // [ 1] void setStdoutThreshold(bael_Severity::Level stdoutThreshold)
 // [ 1] void setLogFormat(const char*, const char*)
 // [ 1] void startThread();
@@ -91,10 +91,9 @@ using bsl::flush;
 // [ 1] bool isStdoutLoggingPrefixEnabled() const
 // [ 1] bool isUserFieldsLoggingEnabled() const
 // [ 1] void getLogFormat(const char**, const char**) const
-// [ 2] bdet_DatetimeInterval rotationLifetime() const
-// [ 2] int rotationSize() const
+// [ 3] bdet_DatetimeInterval rotationLifetime() const
+// [ 3] int rotationSize() const
 // [ 1] bael_Severity::Level stdoutThreshold() const
-// [ 3] int maxLogFiles() const;
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -1009,6 +1008,36 @@ int main(int argc, char *argv[])
 #endif
       } break;
       case 2: {
+        // --------------------------------------------------------------------
+        // Clearance Test
+        //
+        // Concerns:
+        //   1. clear() is properly called by logger manager when it gets 
+        //      destroyed before the plugged async file observer does.
+        //   2. clear() works properly to clear all shared pointers in async
+        //      file observer's fixed queue without logging them
+        //
+        // Plan:
+        //   We will first create:
+        //     a. an async file observer
+        //     b. a logger manager through scoped guard
+        //   and then let the scoped guard run out of scope before the async
+        //   file observer.  The logger manager will be released and it should
+        //   call the 'clear' method of async file observer before destruction.
+        //   We publish sufficient amount of records asynchronously right 
+        //   before the scoped guard running out of scope to ensure taht there 
+        //   are some shared pointers of records remained in the fixed queue 
+        //   when 'clear' is invoked.  We verify that the records pointed by 
+        //   these shared pointers are not logged.
+        //
+        // Tactics:
+        //   - Ad-Hoc Data Selection Method
+        //   - Brute Force Implementation Technique
+        //
+        // Testing:
+        //   void clear();
+        // --------------------------------------------------------------------
+
         if (verbose) cout << "Testing Queue Clearance.\n"
                              "====================================\n";
 
