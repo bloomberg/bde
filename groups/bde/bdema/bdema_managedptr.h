@@ -63,7 +63,7 @@ BDES_IDENT("$Id: $")
 // to another managed pointer (possibly of a different type), which we'll call
 // the "original" managed pointer.  When 'ptr' is invoked on the alias, the
 // aliased pointer value is returned, but when the managed pointer is
-// destroyed, the original managed object will be passed to the deleter. (See
+// destroyed, the original managed object will be passed to the deleter.  (See
 // also the documentation of the 'alias' constructor or of the 'loadAlias'
 // method.)
 //
@@ -274,7 +274,7 @@ BDES_IDENT("$Id: $")
 //..
 //  struct Ticker {
 //
-//      static double getQuote() // From ticker plant. Simulated here
+//      static double getQuote() // From ticker plant.  Simulated here
 //      {
 //          static const double QUOTES[] = {
 //          7.25, 12.25, 11.40, 12.00, 15.50, 16.25, 18.75, 20.25, 19.25, 21.00
@@ -715,7 +715,7 @@ struct bsls_Nullptr {
     //
     // This 'struct' provides an alias for a type that can match a null pointer
     // literal, but is not a pointer itself.  It is a limited emulation of the
-    // C++11 'std::nullptr_t' type.  
+    // C++11 'std::nullptr_t' type.
 
   private:
     struct Nullptr_ProxyType { int dummy; }; // private class to supply a
@@ -842,7 +842,7 @@ class bdema_ManagedPtr {
     // A managed pointer may be *empty*, in which case it neither refers to a
     // target object nor owns a managed object.  An empty managed pointer is
     // the equivalent of a null pointer: Such a managed pointer is not
-    // deferenceable, and tests as 'false' in boolean expressions.
+    // de-referenceable, and tests as 'false' in boolean expressions.
     //
     // A managed pointer for which the managed object is not the same object as
     // the target is said to *alias* the managed object (see the section
@@ -917,7 +917,7 @@ class bdema_ManagedPtr {
   private:
     // NOT IMPLEMENTED
     template <class MANAGED_TYPE>
-    bdema_ManagedPtr(MANAGED_TYPE *ptr, bsl::nullptr_t);
+    bdema_ManagedPtr(MANAGED_TYPE *, bsl::nullptr_t);
         // It is never defined behavior to pass a null pointer literal as a
         // factory, unless the specified 'ptr' is also a null pointer literal.
 
@@ -975,7 +975,7 @@ class bdema_ManagedPtr {
         // 'MANAGED_TYPE *' is convertible to 'TARGET_TYPE *'.  The behavior is
         // undefined unless the managed object (if any) can be destroyed by the
         // currently installed default allocator, or if the the lifetime of the
-        // managed object is already managed by another object. Note that this
+        // managed object is already managed by another object.  Note that this
         // behavior allows 'bdema_ManagedPtr' to be defined for 'void'
         // pointers, and to call the correct destructor for the managed object,
         // even if the destructor for 'TARGET_TYPE' is not declared as
@@ -1083,7 +1083,7 @@ class bdema_ManagedPtr {
         // Note that this constructor is needed only to avoid ambiguous type
         // deductions when passing a null pointer literal as the 'cookie' when
         // the user passes a deleter taking a type other than 'void *' for its
-        // object type. Note that this function is *deprecated* as it relies
+        // object type.  Note that this function is *deprecated* as it relies
         // on undefined compiler behavior for its implementation (that luckily
         // performs as required on every platform supported by BDE).
 
@@ -1126,7 +1126,7 @@ class bdema_ManagedPtr {
     bdema_ManagedPtr& operator=(bdema_ManagedPtr& rhs);
         // If this object and the specified 'rhs' manage the same object,
         // return a reference to this managed pointer; otherwise destroy the
-        // manged object owned by this managed pointer, then transfer ownership 
+        // manged object owned by this managed pointer, then transfer ownership
         // of the managed object owned by the specified 'rhs', and set this
         // managed pointer to point to the target object currently referenced
         // by 'rhs', then reset 'rhs' as empty, and return a reference to this
@@ -1297,7 +1297,7 @@ class bdema_ManagedPtr {
     // ACCESSORS
     operator BoolType() const;
         // Return a value of "unspecified bool" type that evaluates to 'false'
-        // if this managed pointer is empty, and 'true' otherwise. Note that
+        // if this managed pointer is empty, and 'true' otherwise.  Note that
         // this conversion operator allows a managed pointer to be used within
         // a conditional context, such as within an 'if' or 'while' statement,
         // but does *not* allow managed pointers to be compared (e.g., via
@@ -1626,7 +1626,7 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
     BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    this->loadImp(ptr, cookie, deleter); 
+    this->loadImp(ptr, cookie, deleter);
 }
 #endif
 
@@ -1761,9 +1761,10 @@ bdema_ManagedPtr<TARGET_TYPE>::release()
     TARGET_TYPE *p = ptr();
     if (!p) {
         // undefined behavior to call d_members.deleter() if 'p' is null.
-        return bsl::pair<TARGET_TYPE*,bdema_ManagedPtrDeleter>();
+
+        return bsl::pair<TARGET_TYPE*,bdema_ManagedPtrDeleter>();     // RETURN
     }
-    bsl::pair<TARGET_TYPE *, bdema_ManagedPtrDeleter> 
+    bsl::pair<TARGET_TYPE *, bdema_ManagedPtrDeleter>
                                                 result(p, d_members.deleter());
     d_members.clear();
     return result;

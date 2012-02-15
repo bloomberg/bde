@@ -31,12 +31,13 @@ BDES_IDENT("$Id: $")
 //
 //  Complex Constraints
 //  -----------------------------------------------------------------
-//  '0 == deleter' or 'deleter(object, factory)' has defined behavior. 
+//  '0 == deleter' or 'deleter(object, factory)' has defined behavior.
 //..
 //: o object  address of the object to be destroyed by the factory.
 //:
 //: o factory  address of the factory object that is responsible for destroying
 //:            'object'
+//:
 //: o deleter  address of the function that knows how to restore the erased
 //:            types of 'object' and 'factory', and how to invoke the 'factory'
 //:            method to destroy object.
@@ -61,7 +62,7 @@ namespace BloombergLP {
                        // =============================
 
 class bdema_ManagedPtrDeleter {
-    // This complex constrained in-core value-semantic class  holds the
+    // This complex constrained in-core value-semantic class holds the
     // information necessary for 'bdema_ManagedPtr' correctly manage its
     // underlying object, namely the addresses of 'object' and 'factory', and
     // the 'deleter' function, optionally supplied through the constructors or

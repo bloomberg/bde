@@ -69,7 +69,7 @@ class bdema_ManagedPtr_Members {
                                           // A pointer to void is used so that
                                           // this single (non-template) class
                                           // may be used for any instantiation
-                                          // of the 'bdem_ManagedPtrRef' 
+                                          // of the 'bdem_ManagedPtrRef'
                                           // template.
 
     bdema_ManagedPtrDeleter  d_deleter;   // deleter-related information
