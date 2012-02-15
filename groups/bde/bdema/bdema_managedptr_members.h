@@ -7,10 +7,10 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a managed pointer class.
+//@PURPOSE: Provide the internal state of a managed pointer class.
 //
 //@CLASSES:
-//        bdema_ManagedPtr_Members: internal state of a bcema_ManagedPtr object
+//  bdema_ManagedPtr_Members: internal state of a bcema_ManagedPtr object
 //
 //@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
 //
@@ -18,7 +18,8 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a class to store and manage the
 // internal state of a 'bdema_ManagedPtr' object.  It enforces the rules for
-// correct transfer of ownership from one Members object to another.
+// correct transfer of ownership from one 'bdema_ManagedPtr_Members' object to
+// another.
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
@@ -65,9 +66,12 @@ class bdema_ManagedPtr_Members {
     typedef bdema_ManagedPtrDeleter::Deleter DeleterFunc;
 
     void                    *d_obj_p;     // pointer to the managed instance.
-                                          // A void pointer is used so that a
-                                          // bdem_ManagedPtrRef of a different
-                                          // type can point to this pointer.
+                                          // A pointer to void is used so that
+                                          // this single (non-template) class
+                                          // may be used for any instantiation
+                                          // of the 'bdem_ManagedPtrRef' 
+                                          // template.
+
     bdema_ManagedPtrDeleter  d_deleter;   // deleter-related information
 
   private:
@@ -79,15 +83,15 @@ class bdema_ManagedPtr_Members {
 
     bdema_ManagedPtr_Members();
         // Create a 'bdema_ManagedPtr_Members' object in an unset state.  Sets
-        // 'd_obj_p' to 0, and default constructs 'd_deleter'.
+        // 'pointer' to 0.
 
     explicit bdema_ManagedPtr_Members(bdema_ManagedPtr_Members& other);
-        // Create a 'bdema_ManagedPtr_Members' object having the same 'd_obj_p'
-        // and, if that 'd_obj_p' is not null, 'd_deleter' values as the
-        // specified 'other', and then put 'other' into an unset state.
+        // Create a 'bdema_ManagedPtr_Members' object having the same 'pointer'
+        // as the specified 'other' object, and, if 'pointer' is not 0, the
+        // same deleter as 'other', and then put 'other' into an unset state.
 
     bdema_ManagedPtr_Members(void *object, void *factory, DeleterFunc deleter);
-        // If 'object' is null, create a 'bdema_ManagedPtr_Members' object that
+        // If 'object' is 0, create a 'bdema_ManagedPtr_Members' object that
         // does not manage a pointer; otherwise create a
         // 'bdema_ManagedPtr_Members' object having the specified 'object',
         // 'factory' and 'deleter'.
@@ -96,7 +100,7 @@ class bdema_ManagedPtr_Members {
                              void        *factory,
                              DeleterFunc  deleter,
                              void        *alias);
-        // If 'object' is null, create a 'bdema_ManagedPtr_Members' object that
+        // If 'object' is 0, create a 'bdema_ManagedPtr_Members' object that
         // does not manage a pointer; otherwise create a
         // 'bdema_ManagedPtr_Members' object having the specified 'object',
         // 'factory' and 'deleter', but aliasing 'alias'.  Note that this
@@ -114,17 +118,17 @@ class bdema_ManagedPtr_Members {
         // managed object will not be destroyed.
 
     void move(bdema_ManagedPtr_Members *other);
-        // Re-initialize this object, having the same 'd_obj_p' and, if that
-        // 'd_obj_p' is not null, 'd_deleter' values as the specified 'other',
-        // and then put 'other' into an unset set.  Note that any previously
-        // managed object will not be destroyed.
+        // Re-initialize this object,  having the same 'pointer'
+        // as the specified 'other' object, and, if 'pointer' is not 0, the
+        // same deleter as 'other', and then put 'other' into an unset set.
+        // Note that any previously managed object will not be destroyed.
 
     void moveAssign(bdema_ManagedPtr_Members *other);
         // Destroy the currently managed object (if any) unless the specified
         // 'other' refers to this object, then re-initialize this object,
-        // having the same 'd_obj_p' and, if that 'd_obj_p' is not null,
-        // 'd_deleter' values as the specified 'other', and then put 'other'
-        // into an unset set.
+        // having the same 'pointer' as the specified 'other' object, and, if
+        // 'pointer' is not 0, the same deleter as 'other', and then put
+        // 'other' into an unset set.
 
     void set(void *object, void *factory, DeleterFunc deleter);
         // Re-initialize this object with the specified 'object' pointer
@@ -133,7 +137,7 @@ class bdema_ManagedPtr_Members {
         // destroyed.
 
     void setAliasPtr(void *ptr);
-        // Set 'd_obj_p' to have the specified 'ptr' value.  If 'ptr' is null
+        // Set 'pointer' to have the specified 'ptr' value.  If 'ptr' is 0
         // then this object will have an unset state.
 
     void swap(bdema_ManagedPtr_Members& other);
@@ -141,10 +145,9 @@ class bdema_ManagedPtr_Members {
         // specified 'other' object.  This method provides the no-throw
         // exception-safety guarantee.  Note that if either object is in an
         // unset state, there are no guarantees about the unset state that may
-        // be exchanged, other than 'd_obj_p' shall be null.
+        // be exchanged, other than 'pointer' shall be null.
 
     //ACCESSORS
-
     void runDeleter() const;
         // Destroy the currently managed object(if any).  Note that calling
         // this method twice without assigning a new pointer to manage will

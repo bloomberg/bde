@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a basic deleter for the managed pointer class.
 //
 //@CLASSES:
-// bdema_ManagedPtr_FactoryDeleter: deduced deleter used by bdema_ManagedPtr
+//  bdema_ManagedPtr_FactoryDeleter: deduced deleter used by bdema_ManagedPtr
 //
 //@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
 //
@@ -18,8 +18,8 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a class used as an implementation
 // detail by 'bdema_ManagedPtr' to produce a type-erasing deleter function
-// that will destroy an object of a specified type, using a factory of another
-// specified type that provides a 'deleteObject' method.
+// that will destroy an object of a parameterized type, using a factory of
+// another parameterized type that provides a 'deleteObject' method.
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
@@ -44,7 +44,7 @@ struct bdema_ManagedPtr_FactoryDeleter {
         // Deleter function that deletes the specified 'object' by invoking
         // 'deleteObject' on the specified 'factory', casting 'object' to
         // 'BDEMA_TYPE *' and 'factory' to 'FACTORY *'.  Note that the behavior
-        // is undefined if 0 == 'object', or if 'factory' does not point to an
+        // is undefined if '0 == object', or if 'factory' does not point to an
         // an object of type 'FACTORY', or 'object' does not point to a
         // complete object of type 'BDEMA_TYPE' unless 'BDEMA_TYPE' has a
         // virtual destructor and 'object' points to an object whose dynamic

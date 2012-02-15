@@ -28,16 +28,19 @@ BDES_IDENT("$Id: $")
 //  object            void *                    0
 //  factory           void *                    0
 //  deleter           void (*)(void *, void *)  0
+//
+//  Complex Constraints
+//  -----------------------------------------------------------------
+//  '0 == deleter' or 'deleter(object, factory)' has defined behavior. 
 //..
-//: o object: address of the object to be destroyed by the factory.
+//: o object  address of the object to be destroyed by the factory.
 //:
-//: o factory: address of the factory object that is responsible for destroying
+//: o factory  address of the factory object that is responsible for destroying
 //:            'object'
-//: o deleter: address of the function that knows how to restore the erased
+//: o deleter  address of the function that knows how to restore the erased
 //:            types of 'object' and 'factory', and how to invoke the 'factory'
 //:            method to destroy object.
-//..
-//
+
 
 #ifndef INCLUDED_BDESCM_VERSION
 #include <bdescm_version.h>
@@ -105,7 +108,10 @@ class bdema_ManagedPtrDeleter {
     bdema_ManagedPtrDeleter(void *object, void *factory, Deleter deleter);
         // Create a 'bdema_ManagedPtrDeleter' struct that refers to the object
         // and factory instance located at the specified 'object' and 'factory'
-        // memory locations, and the specified 'deleter'.
+        // memory locations, and the specified 'deleter'.  The behavior is
+        // undefined unless 'deleter' is either 0, or points to a function
+        // whose behavior is also defined if called once with 'object' and
+        // 'factory' as arguments.
 
     //! ~bdema_ManagedPtrDeleter() = default;
         // Destroy this object.  Note that this trivial destructor's definition
@@ -121,18 +127,18 @@ class bdema_ManagedPtrDeleter {
     void set(void *object, void *factory, Deleter deleter);
         // Set this 'bdema_ManagedPtrDeleter' to refer to the object and
         // factory instance located at the specified 'object' and 'factory'
-        // memory locations, and to the specified 'deleter'.  Note that
-        // 'object' and 'factory' may be null if and only if the specified
-        // 'deleter' function permits null pointers.
+        // memory locations, and to the specified 'deleter'.  The behavior is
+        // undefined unless 'deleter' is either 0, or points to a function
+        // whose behavior is also defined if called once with 'object' and
+        // 'factory' as arguments.
 
     void clear();
         // Reset this 'bdema_ManagedPtrDeleter' to its uninitialized state.
 
-
     // ACCESSORS
     void deleteManagedObject() const;
-        // Invoke the deleter object.  Behavior is not defined unless this
-        // object has a deleter.
+        // Invoke the deleter object.  The behavior is undefined unless
+        // 'deleter' is not 0.
 
     Deleter deleter() const;
         // Return the deleter function associated with this deleter.

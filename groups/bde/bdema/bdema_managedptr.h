@@ -700,20 +700,22 @@ BDES_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-// The following two classes will reside in 'bsl' packages, but missed the
-// lock-down date for 'bsl' which precedes a 'BDE' release by several weeks.
-// They are duplicated inside this component only for the BDE 2.12 release,
-// and should not be used independently of this component.  The two 'bsl'
-// components will be made available as part of the BDE 2.13 release.
+// The following two classes are intended to reside in the 'bsl'
+// package-group.  They are duplicated inside this component temporarily, and
+// will be migrated to public components in 'bsl' in a future BDE release.
+// These classes should *not* be used directly by clients.
 
-                       // ==============================
+                       // ==================
                        // class bsls_Nullptr
-                       // ==============================
+                       // ==================
 
 struct bsls_Nullptr {
+    // This class should *not* be used directly by clients.
+    // It will be migrated to a public component in 'bsl' in a future release.
+    //
     // This 'struct' provides an alias for a type that can match a null pointer
     // literal, but is not a pointer itself.  It is a limited emulation of the
-    // C++11 'std::nullptr_t' type.
+    // C++11 'std::nullptr_t' type.  
 
   private:
     struct Nullptr_ProxyType { int dummy; }; // private class to supply a
@@ -730,6 +732,9 @@ struct bsls_Nullptr {
 
 template <class BDEMA_TYPE>
 struct bslmf_IsVoid : bslmf_MetaInt<0> { };
+    // This class should *not* be used directly by clients.
+    // It will be migrated to a public component in 'bsl' in a future release.
+    //
     // This metafunction struct contains a nested 'VALUE' which converts to
     // 'true' if 'BDEMA_TYPE' is type 'void' and to 'false' otherwise.
 
