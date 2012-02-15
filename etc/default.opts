@@ -734,8 +734,6 @@ windows         dbg DBG_LIBSUFFIX   = d
 *           _   BDE_F77FLAGS    = $(DBG_F77FLAGS)
 *           _   BDE_LDFLAGS = $(DBG_LDFLAGS)
 
-!! unix-HP_UX-*-*-*     mt  MT_LDFLAGS      = -lpthread
-
 #==============================================================================
 # Safe builds
 
@@ -862,7 +860,7 @@ windows         _   MT_LIBTYPE  = L
 !! unix-*-*-*-gcc       mt  MT_LDFLAGS  = -lthread
 !! unix-SunOS-*-*-gcc   mt  MT_LDFLAGS  = -lthread
 !! unix-AIX-*-*-gcc     mt  MT_LDFLAGS  = -lpthread
-!! unix-HP_UX-*-*-gcc   mt  MT_LDFLAGS  = -lpthread
+!! unix-HP_UX-*-*-*     mt  MT_LDFLAGS  = -lpthread
 !! unix-Linux-*-*-*     mt  MT_LDFLAGS  = -lpthread
 !! unix-FreeBSD-*-*-*   mt  MT_LDFLAGS  = -lpthread
 !! unix-Cygwin-*-*-*    mt  MT_LDFLAGS  = -lpthread
