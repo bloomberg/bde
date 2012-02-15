@@ -14,6 +14,9 @@ bdema_heapbypassallocator
 bdema_infrequentdeleteblocklist
 bdema_managedallocator
 bdema_managedptr
+bdema_managedptr_factorydeleter
+bdema_managedptr_members
+bdema_managedptrdeleter
 bdema_memoryblockdescriptor
 bdema_multipool
 bdema_multipoolallocator
