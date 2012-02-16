@@ -11,6 +11,14 @@ BDES_IDENT_PRAGMA_ONCE
 //@PURPOSE: Provide value-semantic attribute classes
 //
 //@AUTHOR: Rohan BHINDWALE (rbhindwale@bloomberg.net)
+// Options for performing XML encodings.  Encoding style is either COMPACT or
+// PRETTY.  If encoding style is COMPACT, no whitespace will be added between
+// elements.  If encoding style is 'PRETTY', then the 'InitialIndentLevel',
+// 'SpacesPerLevel', and 'WrapColumn' parameters are used to specify the
+// formatting of the output.  Note that 'InitialIndentLevel', 'SpacesPerLevel',
+// and 'WrapColumn' are ignored when 'EncodingStyle' is COMPACT (this is the
+// default).
+// This class is generated using baexml_generateoptions.pl
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
