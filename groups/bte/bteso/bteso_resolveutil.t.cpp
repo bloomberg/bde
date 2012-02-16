@@ -536,7 +536,6 @@ int main(int argc, char *argv[])
         const char* sundev5[] = { "10.126.149.12", 0 };
         const char* ibm1[]    = { "172.17.1.27",   0 };
         const char* n100[]    = { "10.126.151.36", 0 };
-        const char* ny1001[]  = { "10.16.8.100",   0 };
             #endif
 
                 struct {
@@ -574,8 +573,6 @@ int main(int argc, char *argv[])
                     { L_, "ibm1",               &errCode,     ibm1,    SUCCESS
                                                                             },
                     { L_, "n100",               &errCode,     n100,    SUCCESS
-                                                                            },
-                    { L_, "ny1001.corp",        &errCode,   ny1001,    SUCCESS
                                                                             }
             #else
 
@@ -1177,7 +1174,6 @@ int main(int argc, char *argv[])
             const char* sundev5[] = { "10.126.149.12", 0 };
             const char* ibm1[]    = { "172.17.1.27",   0 };
             const char* n100[]    = { "10.126.151.36", 0 };
-            const char* ny1001[]  = { "10.16.8.100",   0 };
         #endif
 
             struct {
@@ -1208,8 +1204,7 @@ int main(int argc, char *argv[])
                 { L_, "sundev5",            &errCode,  sundev5,    SUCCESS },
                 { L_, "sundev5",                   0,  sundev5,    SUCCESS },
                 { L_, "ibm1",               &errCode,     ibm1,    SUCCESS },
-                { L_, "n100",               &errCode,     n100,    SUCCESS },
-                { L_, "ny1001.corp",        &errCode,   ny1001,    SUCCESS }
+                { L_, "n100",               &errCode,     n100,    SUCCESS }
         #else
 
         #error getHostnameByAddress does not handle current platform type!
