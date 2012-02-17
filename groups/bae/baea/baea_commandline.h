@@ -649,8 +649,8 @@ BDES_IDENT("$Id: $")
 //  int main(int argc, const char *argv[]) {
 //..
 // Note that it is important that variables that will be bound to optional
-// command line arguments be initialized to their default value otherwise their
-// value will unspecified if a value isn't provided on the command line
+// command line arguments be initialized to their default value, otherwise
+// their value will unspecified if a value isn't provided on the command line
 // (unless a default is specified via 'baea_CommandLineOccurrenceInfo'):
 //..
 //      bool isReverse = false;
@@ -1824,7 +1824,7 @@ class baea_CommandLineOption {
     baea_CommandLineOption(
                         const baea_CommandLineOption&      original,
                         bslma_Allocator                   *basicAllocator = 0);
-        // Create a 'baetzo_LocalTimeDescriptor' object having the same value
+        // Create a 'baea_CommandLineOption' object having the same value
         // as the specified 'original' object.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
