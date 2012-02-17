@@ -13,7 +13,6 @@
 
 #include <bslma_testallocator.h>                // for testing only
 
-#include <bsls_platformutil.h>                  // for testing only
 #include <bsls_protocoltest.h>                  // for testing only
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -102,7 +101,7 @@ class my_OstreamObserver : public bael_ObserverAdapter {
   public:
     using bael_ObserverAdapter::publish; // to use the async 'publish'
 
-    my_OstreamObserver(ostream& stream) : d_stream(stream) { }
+    explicit my_OstreamObserver(ostream& stream) : d_stream(stream) { }
     virtual ~my_OstreamObserver();
     virtual void publish(const bael_Record&  record,
                          const bael_Context& context);
@@ -110,7 +109,9 @@ class my_OstreamObserver : public bael_ObserverAdapter {
 
 // my_ostreamobserver.cpp
 
-my_OstreamObserver::~my_OstreamObserver() { }
+my_OstreamObserver::~my_OstreamObserver()
+{
+}
 
 void my_OstreamObserver::publish(const bael_Record&  record,
                                  const bael_Context& context)

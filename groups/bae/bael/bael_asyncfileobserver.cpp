@@ -34,8 +34,9 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
         AsyncRecord asyncRecord = d_recordQueue.popFront();
         if (bael_Transmission::BAEL_END
                 == asyncRecord.d_context.transmissionCause()
-            || d_clearing)
+            || d_clearing) {
             break;
+        }
         d_fileObserver.publish(*asyncRecord.d_record, asyncRecord.d_context);
     }
 }
@@ -56,6 +57,7 @@ void bael_AsyncFileObserver::stopPublicationThread()
     if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle)
     {
         // Push an empty record with BAEL_END set in context
+
         bcema_SharedPtr<const bael_Record> record(
                 new (*d_allocator_p) bael_Record(d_allocator_p),
                 d_allocator_p);

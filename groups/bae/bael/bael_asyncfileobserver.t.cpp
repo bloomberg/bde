@@ -92,7 +92,8 @@ using bsl::flush;
 // [ 3] int rotationSize() const
 // [ 1] bael_Severity::Level stdoutThreshold() const
 //-----------------------------------------------------------------------------
-
+// [ 7] Usage Example: Ensure main usage example compiles and works properly.
+//
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -186,7 +187,8 @@ bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
     return index;
 }
 
-bdet_Datetime getCurrentTimestamp() {
+bdet_Datetime getCurrentTimestamp()
+{
     time_t currentTime = time(0);
     struct tm localtm;
 #ifdef BSLS_PLATFORM__OS_WINDOWS
@@ -370,6 +372,66 @@ int main(int argc, char *argv[])
     bslma_TestAllocator allocator; bslma_TestAllocator *Z = &allocator;
 
     switch (test) { case 0:
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 2
+        //
+        // Concerns:
+        //   The 'Usage Example: Asynchronous Logging' provided in the
+        //   component header file must compile, link, and run on all
+        //   platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove leading
+        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE 2
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nUsage Example: Asynchronous Logging"
+                          << "\n===================================" << endl;
+
+        bsl::string fileName = tempFileName(veryVerbose);
+
+        Obj mX(bael_Severity::BAEL_WARN);
+        mX.startThread();
+        bcemt_ThreadUtil::microSleep(0, 1);
+
+        bael_LoggerManagerConfiguration configuration;
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_TRACE,
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_OFF));
+        bael_LoggerManager::initSingleton(&mX, configuration);
+
+        BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+
+        mX.enableFileLogging(fileName.c_str());
+
+        int beginFileOffset = bdesu_FileUtil::getFileSize(fileName);
+        if (verbose) cout << "Begin file offset: " << beginFileOffset << endl;
+
+        for (int i = 0;i < 10000; ++i) {
+             BAEL_LOG_TRACE << "bael_AsyncFileObserver Usage Example 2"
+                            << BAEL_LOG_END;
+        }
+
+        int asyncFileOffset = bdesu_FileUtil::getFileSize(fileName);
+        if (verbose)
+            cout << "FileOffset after publish: " << asyncFileOffset << endl;
+        ASSERT(asyncFileOffset > beginFileOffset);
+
+        bcemt_ThreadUtil::microSleep(0, 1);
+
+        int endFileOffset = bdesu_FileUtil::getFileSize(fileName);
+        if (verbose) cout << "End file offset: " << endFileOffset << endl;
+        ASSERT(endFileOffset > asyncFileOffset);
+
+        mX.stopThread();
+
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION
@@ -1025,7 +1087,7 @@ int main(int argc, char *argv[])
         //   file observer.  The logger manager will be released and it should
         //   call the 'clear' method of async file observer before destruction.
         //   We publish sufficient amount of records asynchronously right
-        //   before the scoped guard running out of scope to ensure taht there
+        //   before the scoped guard running out of scope to ensure that there
         //   are some shared pointers of records remained in the fixed queue
         //   when 'clear' is invoked.  We verify that the records pointed by
         //   these shared pointers are not logged.

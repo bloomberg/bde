@@ -9,10 +9,10 @@ BDES_IDENT("$Id: $")
 
 
 
-//@PURPOSE: A basic asynchronous observer that adapts synchronous observer
+//@PURPOSE: Provide basic asynchronous observer adapting synchronous observer.
 //
 //@CLASSES:
-//  bael_ObserverAdapter: class for synchronous observer adaption
+//  bael_ObserverAdapter: class for synchronous observer adaptation
 //
 //@SEE_ALSO: bael_observer, bael_record, bael_context
 //
@@ -20,7 +20,7 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component inherits from 'bael_Observer', implementing the
 // asynchronous 'publish(const sharedptr&)' method by calling the synchronous
-// 'public(const record&)' method.  This component proivdes a base class for
+// 'public(const record&)' method.  This component provides a base class for
 // other observers which implement 'public(const record&)', and enables these
 // observers to receive log records through 'public(const sharedptr&)'.
 // Existing observers derived from this component do not need to change their
@@ -227,11 +227,15 @@ class bael_Context;
                         // ==========================
 
 class bael_ObserverAdapter : public bael_Observer {
-    // This class provides an adaption for existing concrete observers to
+    // This class provides an adaptation for existing concrete observers to
     // receive and process log record through asynchronous 'publish'.
 
   public:
     // CREATORS
+    //! bael_ObserverAdapter() = default;
+        // Create a 'bael_ObserverAdapter' object using the compiler generated
+        // default constructor.
+
     virtual ~bael_ObserverAdapter();
         // Destroy this observer.
 
@@ -253,6 +257,36 @@ class bael_ObserverAdapter : public bael_Observer {
         // This method is called when the underlying resources referred by
         // these shared pointers are being released or becoming invalid.
 };
+
+// ============================================================================
+//                          INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                          // --------------------------
+                          // class bael_ObserverAdapter
+                          // --------------------------
+
+// MANIPULATORS
+inline
+void bael_ObserverAdapter::publish(const bael_Record&  record,
+                                   const bael_Context& context)
+{
+    BSLS_ASSERT_OPT(false);  // Should not be called
+}
+
+inline
+void bael_ObserverAdapter::publish(
+                            const bcema_SharedPtr<const bael_Record>& record,
+                            const bael_Context&                       context)
+{
+    publish(*record, context);
+}
+
+inline
+void bael_ObserverAdapter::clear()
+{
+}
+
 
 }  // close namespace BloombergLP
 

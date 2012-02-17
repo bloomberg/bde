@@ -7,7 +7,7 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide an asynchronous observer that logs to a file and 'stdout'
+//@PURPOSE: Provide an asynchronous observer that logs to a file and 'stdout'.
 //
 //@CLASSES:
 //  bael_AsyncFileObserver: observer that outputs logs to a file and 'stdout'
@@ -19,7 +19,7 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'bael_Observer' protocol for publishing log records to a user-specified
-// file in an asychronous manner.  The following inheritance hierarchy diagram
+// file in an asynchronous manner.  The following inheritance hierarchy diagram
 // shows the classes involved and their methods:
 //..
 //             ,----------------------.
@@ -173,8 +173,8 @@ BDES_IDENT("$Id: $")
 // All public methods of 'bael_AsyncFileObserver' are thread-safe, and can be
 // called concurrently by multiple threads.
 //
-///Usage
-///-----
+///Usage Example: Use bael_AsyncFileObserver
+///--------------------------------------------------
 // The following code fragments illustrate the essentials of using a file
 // observer within a 'bael' logging system.
 //
@@ -262,6 +262,62 @@ BDES_IDENT("$Id: $")
 // then restart the publication thread.  The 'clear' method can be used in
 // similar situation besides the logger manager case when the underlying
 // resources pointed by queued shared pointers need to be released in advance.
+//
+///Usage Example: Asynchronous Logging
+///--------------------------------------------------
+// The following code fragments illustrate the asynchronous nature of
+// 'bael_AsyncFileObserver' publication.  The 'publish' method is non-blocking
+// and the actual log record writing can happen asynchronously.  In this
+// example, ten thousand records are written to a file in a for loop by calling
+// 'publish'.  All the ten thousand records are not completely written to the
+// file immediately after for loop by checking the file size.  The file size is
+// checked again after one second.  It can be told from the size difference
+// that publication thread was still working on writing file.  This example
+// indicates potential performance benefit given by async file observer to
+// deploy 'publish' and the actual file writing in separate concurrent threads.
+//..
+//     void asyncPublisher()
+//     {
+//         bsl::string fileName = "asyncOutput.txt";
+//
+//         bael_AsyncFileObserver asyncFileObserver;
+//         asyncFileObserver.startThread();
+//         bcemt_ThreadUtil::microSleep(0, 1);
+//
+//         bael_LoggerManagerConfiguration configuration;
+//         bael_LoggerManager::initSingleton(&asyncFileObserver,
+//                                           configuration);
+//
+//         BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+//
+//         asyncFileObserver.enableFileLogging(fileName.c_str());
+//
+//         int fileOffset = bdesu_FileUtil::getFileSize(fileName);
+//
+//         bsl::cout << "Begin file offset: " << fileOffset << bsl::endl;
+//
+//         for (int i = 0;i < 10000; ++i) {
+//             BAEL_LOG_WARN << "bael_AsyncFileObserver Usage Example"
+//                           << BAEL_LOG_END;
+//         }
+//
+//         fileOffset = bdesu_FileUtil::getFileSize(fileName);
+//         bsl::cout << "FileOffset after publish: "
+//                   << fileOffset
+//                   << bsl::endl;
+//
+//         bcemt_ThreadUtil::microSleep(0, 1);
+//
+//         fileOffset = bdesu_FileUtil::getFileSize(fileName);
+//         bsl::cout << "End file offset: " << fileOffset << bsl::endl;
+//    }
+//..
+// 'asyncPublisher', when invoked, prints the following to 'stdout':
+//
+//      Begin file offset: 0
+//      FileOffset after publish: 1616440
+//      End file offset: 2300000
+
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
