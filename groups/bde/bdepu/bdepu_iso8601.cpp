@@ -16,6 +16,7 @@ BDES_IDENT_RCSID(bdepu_iso8601_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
@@ -28,35 +29,51 @@ int parseUint(const char **nextPos,
               int         *result,
               const char  *begin,
               const char  *end)
+    // Parse the string beginning at 'begin' and ending at 'end' or the first
+    // non-digit character after 'begin', whichever comes first, as a decimal
+    // non-negative integer and store the result in '*result', setting
+    // '*nextPos' to after the last character parsed.  Return 0 on success and
+    // a non-zero value otherwise.  Failure will occur if there is not a string
+    // of digits starting at 'begin' before 'end', or if 'begin' begins a
+    // number that is too large to be represented in an integer.  The behavior
+    // is undefined unless 'nextPos', 'result', 'begin', and 'end' are all
+    // valid non-null pointers.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(result);
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
 
-    static const int maxDigits = 15;
-
-    // Stop parsing at 'maxDigits'.
-    if (end - begin > maxDigits) {
-        end = begin + maxDigits + 1;  // Parse one extra digit.
-    }
-
-    char buf[maxDigits + 2];  // Make room for one extra digit.
-    char *bufPtr = buf;
+    bool allZeroes = true;
+    int nextResult = 0;
     const char *inPtr = begin;
     while (inPtr < end && bdeu_CharType::isDigit(*inPtr)) {
-        *bufPtr++ = *inPtr++;
+        int digit = *inPtr++ - '0';
+
+        allZeroes &= 0 == digit;
+        if (!allZeroes) {
+            enum { INT_MAX_OVER_10 = INT_MAX / 10 };
+            if (nextResult > INT_MAX_OVER_10) {
+                return -1;                                            // RETURN
+            }
+            nextResult *= 10;
+
+            if (nextResult > INT_MAX - digit) {
+                return -1;                                            // RETURN
+            }
+            nextResult += digit;
+        }
     }
 
-    int parsedLen = inPtr - begin;
-    if (0 == parsedLen || parsedLen > maxDigits) {
-        // Parsed too few or too many digits.
+    if (inPtr == begin) {
+        // no digits were found, not a number
+
         return -1;                                                    // RETURN
     }
 
     *nextPos = inPtr;
-    *bufPtr = '\0';
-    *result = bsl::atoi(buf);
+    *result  = nextResult;
+
     return 0;
 }
 
@@ -66,6 +83,17 @@ int parseDate(int         *year,
               int         *day,
               const char **begin,
               const char  *end)
+    // Read a date from a string starting at '*begin' and ending at or before
+    // 'end' of the form "YYYY-MM-DD" where 'YYYY', 'MM', and 'DD' are strings
+    // representing positive integers, '-' is literally a dash character,
+    // 'YYYY' is 4 chars long, and 'MM' and 'DD' are both 2 chars long.  Parse
+    // 'YYYY', 'MM' and 'DD' and store the results in '*year', '*month', and
+    // '*day' respectively.  Set '*begin' to the end of the parsed string,
+    // which will be at or before 'end'.  Return 0 on success and a non-zero
+    // value on failure, where failure will occur if the string beginning at
+    // '*begin' does not conform to the description above, or if it is not
+    // completed at or before 'end'.  Note that if the pattern is successfully
+    // completed before 'end' is reached, that is not an error.
 {
     BSLS_ASSERT(year);
     BSLS_ASSERT(month);
@@ -79,9 +107,12 @@ int parseDate(int         *year,
 
     // Parse year.
 
-    if    (0   != parseUint(&p, year, p, end)
-       ||  p   >= end
-       ||  '-' != *p) {
+    const char *expectedEnd = p + 4;
+
+    if   (0   != parseUint(&p, year, p, end)
+       || p   >= end
+       || p   != expectedEnd
+       || '-' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -89,12 +120,12 @@ int parseDate(int         *year,
 
     // Parse month.
 
-    const char *expectedEnd = p + 2;
+    expectedEnd = p + 2;
 
-    if (0   != parseUint(&p, month, p, end)
-     || p   >= end
-     || p   != expectedEnd
-     || '-' != *p) {
+    if   (0   != parseUint(&p, month, p, end)
+       || p   >= end
+       || p   != expectedEnd
+       || '-' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -104,7 +135,7 @@ int parseDate(int         *year,
 
     expectedEnd = p + 2;
 
-    if   (0 != parseUint(&p, day, p, end)
+    if   (0 != parseUint(&p, day, p, expectedEnd)
        || p != expectedEnd) {
         return BDEPU_FAILURE;                                         // RETURN
     }
@@ -121,6 +152,19 @@ int parseTime(int         *hour,
               int         *millisecond,
               const char **begin,
               const char  *end)
+    // Parse a time of the form 'hh:mm:ss<FRAC>' where 'hh', 'mm', 'ss' are all
+    // 2 digit integer (left padded with 0's if necessary) denoting hours,
+    // minutes, and seconds, and '<fRAC>' is the optional fraction of a seconds
+    // part, consisting of a '.' followed by one or more decimal digits.
+    // Assign 'hh' to '*hour', 'mm' to '*minute', and 'ss' to '*second', and
+    // the high order 3 digits of 'frac' to '*millisecond' (or set
+    // '*millisecond' to 0 if '<FRAC>' is not present.  If 'frac' contains 4
+    // digits or more, round it to the nearest value in milliseconds.  Note
+    // that a '<FRAC>' of '.9995' or more will get rounded to 1000
+    // milliseconds.  Digits past the first 4 digits of '<FRAC>' are skipped
+    // and ignored.  Return 0 on success and a non-zero value otherwise.  Note
+    // that extra trailing bytes after the time is successfully parsed is
+    // tolerated.
 {
     BSLS_ASSERT(hour);
     BSLS_ASSERT(minute);
@@ -163,7 +207,7 @@ int parseTime(int         *hour,
 
     expectedEnd = p + 2;
 
-    if   (0 != parseUint(&p, second, p, end)
+    if   (0 != parseUint(&p, second, p, expectedEnd)
        || p != expectedEnd) {
         return BDEPU_FAILURE;                                         // RETURN
     }
@@ -172,7 +216,7 @@ int parseTime(int         *hour,
 
     *millisecond = 0;
 
-    if (end != p && '.' == *p) {
+    if (p < end && '.' == *p) {
         // We have a fraction of a second.
 
         ++p;  // skip dot
@@ -190,7 +234,7 @@ int parseTime(int         *hour,
         // digits.  Thus, an input of "02" yields a 'fractionBuffer' of "0200"
         // (20 milliseconds or 200 tenths).
 
-        for (int i = 0; i < 4 && p != end && bdeu_CharType::isDigit(*p); ++i) {
+        for (int i = 0; i < 4 && p < end && bdeu_CharType::isDigit(*p); ++i) {
             fractionBuffer[i] = *p++;
         }
 
@@ -207,7 +251,7 @@ int parseTime(int         *hour,
         *millisecond = (fraction + 5) / 10;
 
         // Skip remaining digits in fraction:
-        while (p != end && bdeu_CharType::isDigit(*p)) {
+        while (p < end && bdeu_CharType::isDigit(*p)) {
             ++p;
         }
 
@@ -222,6 +266,15 @@ static
 int parseTimezoneOffset(int         *minuteOffset,
                         const char **begin,
                         const char  *end)
+    // Parse the string from '*begin' to 'end' as a time zone of the form
+    // 'Shh:mm' where 'S' is '+' or '-', 'hh' and 'mm' are 2 digit integers
+    // (left padded with '0's if necessary).  'hh' must be in the range
+    // '[ 00, 24 )' and 'mm' must be in the range '[ 0, 60 )'.  An alternate
+    // form of the string is 'Z' or 'z', signifying a zero offset.  Return 0 if
+    // the input string meets all the above conditions and set '*minuteOffset'
+    // to '('-' == S ?  -1 : 1) * (hh * 60 + mm)' and set '*begin' on success
+    // and return a non-zero value otherwise.  Note that trailing characters
+    // after the time zone is parsed are tolerated.
 {
     BSLS_ASSERT(minuteOffset);
     BSLS_ASSERT(begin);
@@ -235,22 +288,16 @@ int parseTimezoneOffset(int         *minuteOffset,
         return BDEPU_FAILURE;
     }
 
-    int sign;
+    char sign = *p;
 
-    if ('+' == *p) {
-        sign = +1;
-    }
-    else if ('-' == *p) {
-        sign = -1;
-    }
-    else if ('Z' == *p || 'z' == *p) {
+    if ('Z' == sign || 'z' == sign) {
         *minuteOffset = 0;
 
         *begin = (*begin) + 1;
 
         return BDEPU_SUCCESS;                                         // RETURN
     }
-    else {
+    else if ('+' != sign && '-' != sign) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -261,7 +308,7 @@ int parseTimezoneOffset(int         *minuteOffset,
     int hourVal;
     if   (0           != parseUint(&p, &hourVal, p, end)
        || p           != expectedEnd
-       || hourVal     >  14  // Max TZ offset is 14 hours.
+       || hourVal     >= 24  // Max TZ offset is 24 hours.
        || p           >= end
        || ':' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
@@ -272,13 +319,16 @@ int parseTimezoneOffset(int         *minuteOffset,
     expectedEnd = p + 2;
 
     int minuteVal;
-    if   (0           != parseUint(&p, &minuteVal, p, end)
-       || p           != expectedEnd
-       || minuteVal   >  59) {
+    if    (0 != parseUint(&p, &minuteVal, p, end)
+       ||  p != expectedEnd
+       ||  minuteVal > 59) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
-    *minuteOffset = sign * (hourVal * 60 + minuteVal);
+    *minuteOffset = hourVal * 60 + minuteVal;
+    if ('-' == sign) {
+        *minuteOffset *= -1;
+    }
 
     *begin = p;
 
@@ -289,7 +339,9 @@ static
 char *generateInt(char *buffer, int val, int len)
     // Write into the specified 'buffer', the decimal value of the specified
     // 'val', left-padded with zeros to the specified 'len' and return
-    // 'buffer + len'.  The buffer is NOT null-terminated.
+    // 'buffer + len'.  The buffer is NOT null-terminated.  Note that if the
+    // decimal string representation of 'val' is more than 'len' digits, only
+    // the low order digits are printed.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= len);
@@ -472,8 +524,8 @@ int bdepu_Iso8601::generateRaw(char                   *buffer,
         timezoneSign = '+';
     }
 
-    // TZ offset cannot be more than 14 hours.
-    BSLS_ASSERT(timezoneOffset <= 14 * 60);
+    // TZ offset cannot be more than 24 hours.
+    BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Datetime localDatetime = object.localDatetime();
 
@@ -507,8 +559,8 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
         timezoneSign = '+';
     }
 
-    // TZ offset cannot be more than 14 hours.
-    BSLS_ASSERT(timezoneOffset <= 14 * 60);
+    // TZ offset cannot be more than 24 hours.
+    BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Date localDate = object.localDate();
 
@@ -553,8 +605,8 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
         timezoneSign = '+';
     }
 
-    // TZ offset cannot be more than 14 hours.
-    BSLS_ASSERT(timezoneOffset <= 14 * 60);
+    // TZ offset cannot be more than 24 hours.
+    BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Time localTime = object.localTime();
 
@@ -656,6 +708,7 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
 
     if (end != begin) {
         // Parse timezone.
+
         if (0   != parseTimezoneOffset(&timezoneOffset, &begin, end)
          || end != begin) {
             return BDEPU_FAILURE;                                     // RETURN
