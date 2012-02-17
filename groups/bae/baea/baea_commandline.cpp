@@ -2566,11 +2566,11 @@ baea_CommandLineOption::baea_CommandLineOption(bslma_Allocator *basicAllocator)
 }
 
 baea_CommandLineOption::baea_CommandLineOption(
-                                 const baea_CommandLineOption&  optionInfo,
+                                 const baea_CommandLineOption&  original,
                                  bslma_Allocator               *basicAllocator)
 : d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
-    init(static_cast<const baea_CommandLineOptionInfo&>(optionInfo));
+    init(static_cast<const baea_CommandLineOptionInfo&>(original));
 }
 
 baea_CommandLineOption::baea_CommandLineOption(

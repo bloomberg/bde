@@ -201,13 +201,13 @@ BDES_IDENT("$Id: $")
 //  $ mysort -riuomyoutfile
 //  $ mysort -riuo=myoutfile
 //..
+//
 ///Multi-Valued Options and How to Specify Them
 ///--------------------------------------------
 // Options can have several values.  For example, in the command-line
 // specification described by the following usage string, '*' denotes a
 // multi-valued option, and '+' denotes a multivalued option that must occur
-// at least once.  Multivalued options are always surrounded by '[]'s,
-// required single valued options that are required have no '[]'s.
+// at least once.
 //..
 //  usage: mycompiler [-l|library <libName>]* [-o|out outFile] [<object>]+
 //..
@@ -648,11 +648,10 @@ BDES_IDENT("$Id: $")
 //..
 //  int main(int argc, const char *argv[]) {
 //..
-// Variables to be linked with options.  Note that it is important that unless
-// a default is specified via 'baea_CommandLineOccurrenceInfo', the variables
-// must be initialized to their default value since unless the option is
-// specified on the command line, the variable's value will be unmodified by
-// 'parse'.
+// Note that it is important that variables that will be bound to optional
+// command line arguments be initialized to their default value otherwise their
+// value will unspecified if a value isn't provided on the command line
+// (unless a default is specified via 'baea_CommandLineOccurrenceInfo'):
 //..
 //      bool isReverse = false;
 //      bool isCaseInsensitive = false;
@@ -1798,8 +1797,8 @@ class baea_CommandLineOption {
   private:
     // PRIVATE MANIPULATORS
     void init(const baea_CommandLineOptionInfo& info);
-       // Initialize the underlying option info from the value of the specified
-       // 'info' object.
+        // Initialize the underlying option info from the value of the
+        // specified 'info' object.
 
   public:
     // TRAITS
@@ -1817,13 +1816,18 @@ class baea_CommandLineOption {
     baea_CommandLineOption(
                         const baea_CommandLineOptionInfo&  optionInfo,
                         bslma_Allocator                   *basicAllocator = 0);
-    baea_CommandLineOption(
-                        const baea_CommandLineOption&      optionInfo,
-                        bslma_Allocator                   *basicAllocator = 0);
         // Create a command-line option containing the value of the specified
         // 'optionInfo'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
+
+    baea_CommandLineOption(
+                        const baea_CommandLineOption&      original,
+                        bslma_Allocator                   *basicAllocator = 0);
+        // Create a 'baetzo_LocalTimeDescriptor' object having the same value
+        // as the specified 'original' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     ~baea_CommandLineOption();
         // Destroy this command-line option object.
