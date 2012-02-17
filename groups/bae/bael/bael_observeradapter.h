@@ -1,6 +1,6 @@
-// bael_observer.h                 -*-C++-*-
-#ifndef INCLUDED_BAEL_OBSERVER
-#define INCLUDED_BAEL_OBSERVER
+// bael_observeradapter.h                                             -*-C++-*-
+#ifndef INCLUDED_BAEL_OBSERVERADAPTER
+#define INCLUDED_BAEL_OBSERVERADAPTER
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
@@ -9,31 +9,37 @@ BDES_IDENT("$Id: $")
 
 
 
-//@PURPOSE: Define a protocol for receiving and processing log records.
+//@PURPOSE: A basic asynchronous observer that adapts synchronous observer
 //
 //@CLASSES:
-//  bael_Observer: protocol class for receiving and processing log records
+//  bael_ObserverAdapter: class for synchronous observer adaption
 //
-//@SEE_ALSO: bael_record, bael_loggermanager
+//@SEE_ALSO: bael_observer, bael_record, bael_context
 //
-//@AUTHOR: Hong Shi (hshi2)
+//@AUTHOR: Shijin Kong (skong25)
 //
-//@DESCRIPTION: This component defines the base-level protocol for receiving
-// and processing log records.  Concrete types derived from this protocol,
-// receive log records, and process them in a manner defined by the derived
-// class author.
+//@DESCRIPTION: This component inherits from 'bael_Observer', implementing the
+// asynchronous 'publish(const sharedptr&)' method by calling the synchronous
+// 'public(const record&)' method.  This component proivdes a base class for
+// other observers which implement 'public(const record&)', and enables these
+// observers to receive log records through 'public(const sharedptr&)'.
+// Existing observers derived from this component do not need to change their
+// concrete implementations of 'public(const record&) while we can safely
+// deprecate the 'public(const record&)' interface in 'bael_Observer'.
 //
 ///USAGE
 ///-----
-// This example shows the definition and use of a simple concrete observer that
-// writes three of the log record's fields, timestamp, process ID, and thread
-// ID, to an 'ostream' that is provided to the observer at construction.  This
-// (trivial) functionality suffices to demonstrate the requisite steps for
-// having a working observer:
+// This example shows usage of a simple concrete observer that implements
+// 'publish(const record&)' to write three log records through
+// 'publish(const sharedptr&)' calls.  The log record's fields, timestamp,
+// process ID, and thread ID are written to an 'ostream' that is provided to
+// the observer at construction.  This (trivial) functionality suffices to
+// demonstrate the requisite steps for having a working observer:
 //..
-//     1. Define a concrete class derived from 'bael_Observer'.
-//     2. Implement the pure virtual 'publish' method.
-//     3. Instantiate and use an object of the concrete type.
+//     1. Define a concrete class derived from 'bael_ObserverAdapter'.
+//     2. Implement the virtual 'publish(const record&)' method.
+//     3. Instantiate and use an object of the concrete type to log records
+//        by calling 'bael_ObserverAdapter::publish(const sharedptr&)'.
 //..
 // Note that the "publish attributes" object provided to the 'publish' method
 // indicates, among other properties, whether the log record to be published is
@@ -49,10 +55,11 @@ BDES_IDENT("$Id: $")
 //..
 //     // my_ostreamobserver.h
 //
-//     class my_OstreamObserver : public bael_Observer {
+//     class my_OstreamObserver : public bael_ObserverAdapter {
 //         ostream& d_stream;
 //
 //       public:
+//         using bael_ObserverAdapter::publish; // to use the async 'publish'
 //         my_OstreamObserver(ostream& stream) : d_stream(stream) { }
 //         virtual ~my_OstreamObserver();
 //         virtual void publish(const bael_Record&  record,
@@ -69,13 +76,13 @@ BDES_IDENT("$Id: $")
 //
 //     my_OstreamObserver::~my_OstreamObserver() { }
 //..
-// We next implement the (virtual) 'publish' method, which incorporates the
-// "policy" of what it means for this observer to "publish" a log record.  In
-// this example, the policy is that three log record fields are written to an
-// 'ostream', along with an appropriate heading, and the rest of the log record
-// is ignored.  Note that, in this implementation, the zero-based 'index'
-// attribute is incremented by one before it is written, which produces a more
-// natural record count:
+// We next implement the (virtual) 'publish(const record&)' method, which
+// incorporates the "policy" of what it means for this observer to "publish"
+// a log record.  In this example, the policy is that three log record fields
+// are written to an 'ostream', along with an appropriate heading, and the
+// rest of the log record is ignored.  Note that, in this implementation,
+// the zero-based 'index' attribute is incremented by one before it is written,
+// which produces a more natural record count:
 //..
 //     // my_ostreamobserver.cpp
 //
@@ -118,19 +125,23 @@ BDES_IDENT("$Id: $")
 //                  << endl;
 //     }
 //..
-// We now want to use the 'my_OstreamObserver' object and its 'publish' method;
-// we illustrate this use in the body of the otherwise-unrealistic function
-// 'recordPublisher', which generates the relevant fields of four dummy
-// records.  The first record is published singly (i.e., as a "Pass-through"
-// record).  Note that we call the observer's 'publish' method with a
-// 'bael_Context' object appropriately initialized for a "Pass-through".
-// The last three records are published as a sequence of "Triggered" records.
-// Note that, in the sequenced output, the 'publish' method is called with a
-// zero-based 'index' attribute; in this example, the 'publish' implementation
-// will print a natural-number message count equal to index + 1:
+// We now want to use the 'my_OstreamObserver' object and its
+// 'publish(const record&)' method; we illustrate this use in the body of the
+// otherwise-unrealistic function 'recordPublisher', which generates the
+// relevant fields of four dummy records.  Then we call the
+// 'publish(const sharedptr&)' method to indirectly invoke
+// 'publish(const record&)' to log records.  The first record is
+// published singly (i.e., as a "Pass-through" record).  Note that we call the
+// observer's 'publish(const sharedptr&)' method with a 'bael_Context' object
+// appropriately initialized for a "Pass-through".  The last three records are
+// published as a sequence of "Triggered" records.  Note that, in the sequenced
+// output, the 'publish(const sharedptr&)' method is called with a zero-based
+// 'index' attribute; in this example, the 'publish' implementation will print
+// a natural-number message count equal to index + 1:
 //..
 //     void recordPublisher()
 //     {
+//         bslma_TestAllocator testAllocator(veryVeryVerbose);
 //         my_OstreamObserver    myObserver(bsl::cout);
 //         bdet_Datetime         now;
 //         bael_RecordAttributes fixed;
@@ -140,10 +151,18 @@ BDES_IDENT("$Id: $")
 //         fixed.setTimestamp(now);
 //         fixed.setProcessID(100);
 //         fixed.setThreadID(0);
-//         myObserver.publish(bael_Record(fixed, emptyList),
-//                            bael_Context(bael_Transmission::PASSTHROUGH,
-//                                         0,
-//                                         1));
+//
+//         {
+//             bcema_SharedPtr<const bael_Record> handle(
+//                            new (testAllocator) bael_Record(fixed,
+//                                                            emptyList,
+//                                                            &testAllocator),
+//                            &testAllocator);
+//             myObserver.publish(handle,
+//                                bael_Context(bael_Transmission::PASSTHROUGH,
+//                                             0,
+//                                             1));
+//         }
 //
 //         const int NUM_MESSAGES = 3;
 //         for (int n = 0; n < NUM_MESSAGES; ++n) {
@@ -151,7 +170,12 @@ BDES_IDENT("$Id: $")
 //             fixed.setTimestamp(now);
 //             fixed.setProcessID(201 + n);
 //             fixed.setThreadID(31 + n);
-//             myObserver.publish(bael_Record(fixed, emptyList),
+//             bcema_SharedPtr<const bael_Record> handle(
+//                           new (testAllocator) bael_Record(fixed,
+//                                                           emptyList,
+//                                                           &testAllocator),
+//                           &testAllocator);
+//             myObserver.publish(handle,
 //                                bael_Context(bael_Transmission::TRIGGER,
 //                                             n,
 //                                             NUM_MESSAGES));
@@ -185,6 +209,10 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
+#ifndef INCLUDED_BAEL_OBSERVER
+#include <bael_observer.h>
+#endif
+
 #ifndef INCLUDED_BCEMA_SHAREDPTR
 #include <bcema_sharedptr.h>
 #endif
@@ -194,17 +222,17 @@ namespace BloombergLP {
 class bael_Record;
 class bael_Context;
 
-                           // ===================
-                           // class bael_Observer
-                           // ===================
+                        // ==========================
+                        // class bael_ObserverAdapter
+                        // ==========================
 
-class bael_Observer {
-    // This class provides a protocol for receiving and processing log record
-    // output.
+class bael_ObserverAdapter : public bael_Observer {
+    // This class provides an adaption for existing concrete observers to
+    // receive and process log record through asynchronous 'publish'.
 
   public:
     // CREATORS
-    virtual ~bael_Observer();
+    virtual ~bael_ObserverAdapter();
         // Destroy this observer.
 
     // MANIPULATORS
@@ -213,17 +241,17 @@ class bael_Observer {
         // Process the specified log 'record' having the specified publishing
         // 'context'.
         //
-        // DEPRECATED: replaced by the publish method that takes in constant
-        //             reference of 'bael_Record' shared pointer
+        // DEPRECATED: replaced by 'publish(const sharedptr&, const context&)'.
 
     virtual void publish(const bcema_SharedPtr<const bael_Record>& record,
-                         const bael_Context& context);
+                         const bael_Context&                       context);
         // Process the record referred by the specified log shared pointer
         // 'record'.  The record has the specified publishing 'context'.
+
     virtual void clear();
         // Discard record shared pointers internally stored by this observer.
         // This method is called when the underlying resources referred by
-        // these shared pointers is being released or becoming invalid.
+        // these shared pointers are being released or becoming invalid.
 };
 
 }  // close namespace BloombergLP
@@ -232,7 +260,7 @@ class bael_Observer {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2004
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

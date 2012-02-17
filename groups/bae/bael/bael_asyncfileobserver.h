@@ -7,12 +7,10 @@
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide a thread-safe observer that logs to a file and to 'stdout'
-//          asynchronously.
+//@PURPOSE: Provide an asynchronous observer that logs to a file and 'stdout'
 //
 //@CLASSES:
-//  bael_AsyncFileObserver: observer that asynchronously outputs log records 
-//                          to a file and 'stdout'
+//  bael_AsyncFileObserver: observer that outputs logs to a file and 'stdout'
 //
 //@SEE_ALSO: bael_record, bael_context, bael_observer, bael_fileobserver,
 //           bael_fileobserver2
@@ -21,27 +19,23 @@ BDES_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'bael_Observer' protocol for publishing log records to a user-specified
-// file.  The following inheritance hierarchy diagram shows the classes
-// involved and their methods:
+// file in an asychronous manner.  The following inheritance hierarchy diagram
+// shows the classes involved and their methods:
 //..
 //             ,----------------------.
 //            ( bael_AsyncFileObserver )
 //             `----------------------'
 //                         |              ctor
 //                         |              disableFileLogging
-//                         |              disableLifetimeRotation
 //                         |              disableTimeIntervalRotation
 //                         |              disableSizeRotation
 //                         |              disableStdoutLoggingPrefix
-//                         |              disableUserFieldsLogging
 //                         |              disablePublishInLocalTime
 //                         |              enableFileLogging
 //                         |              enableStdoutLoggingPrefix
-//                         |              enableUserFieldsLogging
 //                         |              enablePublishInLocalTime
 //                         |              forceRotation
 //                         |              rotateOnSize
-//                         |              rotateOnLifetime
 //                         |              rotateOnTimeInterval
 //                         |              setStdoutThreshold
 //                         |              setLogFormat
@@ -64,12 +58,14 @@ BDES_IDENT("$Id: $")
 //..
 // A 'bael_AsyncFileObserver' object processes the log records received through
 // its 'publish' method by writing them asynchronously to a user-specified
-// file.  An async file observer uses a fixed queue to store up to a fixed 
-// number of shared pointers to log records and launches a publication thread 
-// dedicated to process log records in the fixed queue.  The format of 
-// published log records is user-configurable (see "Log Record Formatting" 
-// below).  In addition, an async file observer may be configured to perform 
-// automatic log file rotation (see "Log File Rotation" below).
+// file.  The 'publish' method pushes a record shared pointer into a fixed
+// queue and returns immediately before the record referred by the shared
+// pointer is actually written asynchronously to disk in the other publications
+// thread.  The publication thread is created by calling 'startThread' method
+// of the async file observer and belongs to the async file observer.  The
+// format of published log records is user-configurable (see "Log Record
+// Formatting" below).  In addition, an async file observer may be configured
+// to perform automatic log file rotation (see "Log File Rotation" below).
 //
 ///Log Record Formatting
 ///---------------------
@@ -137,7 +133,7 @@ BDES_IDENT("$Id: $")
 //
 ///Log File Rotation
 ///-----------------
-// A 'bael_AsyncFileObserver' may be configured to perform automatic rotation 
+// A 'bael_AsyncFileObserver' may be configured to perform automatic rotation
 // of log files based on simple file rotation conditions (or rules).
 //
 ///File Rotation Conditions
@@ -174,7 +170,7 @@ BDES_IDENT("$Id: $")
 //
 ///Thread-Safety
 ///-------------
-// All public methods of 'bael_AsyncFileObserver' are thread-safe, and can be 
+// All public methods of 'bael_AsyncFileObserver' are thread-safe, and can be
 // called concurrently by multiple threads.
 //
 ///Usage
@@ -250,18 +246,21 @@ BDES_IDENT("$Id: $")
 //..
 //  asyncFileObserver.disableSizeRotation();
 //..
-// Stop the publication thread before destroying an async file observer: 
+// The publication thread can be stopped explicitly by calling 'stopThread'
+// method:
 //..
 //  asyncFileObserver.stopThread();
 //..
+// The 'stopThread' is also invoked when the async file observer is destroyed.
+//
 // Note that the logger manager to which the async file observer is plugged
-// may get destroyed before the async file observer does.  In that case log 
-// record pointed by the shared pointers in the async file observer's fixed 
+// may get destroyed before the async file observer does.  In that case log
+// record pointed by the shared pointers in the async file observer's fixed
 // queue are no longer valid.  The logger manager calls 'clear' method of the
-// async file observer before releasing its log record buffers internally.  
+// async file observer before releasing its log record buffers internally.
 // The 'clear' method stops the publication thread, clears the fixed queue and
-// then restart the publication thread.  The 'clear' method can be used in 
-// similar situation besides the logger manager case when the underlying 
+// then restart the publication thread.  The 'clear' method can be used in
+// similar situation besides the logger manager case when the underlying
 // resources pointed by queued shared pointers need to be released in advance.
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -353,7 +352,7 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     bool                          d_clearing;        // flag that indicates
                                                      // queue in clearance
-                                                     
+
     bdef_Function<void (*)()>     d_publishThreadEntryPoint;
                                                      // functor that contains
                                                      // publication thread
@@ -386,7 +385,7 @@ class bael_AsyncFileObserver : public bael_Observer {
         // 'stdout' if their severity is at least as severe as the optionally
         // specified 'stdoutThreshold' level.  If 'stdoutThreshold' is not
         // specified, log records are published to 'stdout' if their severity
-        // is at least as severe as 'bael_Severity::BAEL_WARN'.  The timestamp 
+        // is at least as severe as 'bael_Severity::BAEL_WARN'.  The timestamp
         // attribute of published records is written in GMT time by default.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -408,20 +407,13 @@ class bael_AsyncFileObserver : public bael_Observer {
         // is initially disabled.
 
     ~bael_AsyncFileObserver();
-        // Close the log file of this async file observer if file logging is 
+        // Close the log file of this async file observer if file logging is
         // enabled, and destroy this async file observer.
 
     // MANIPULATORS
     void disableFileLogging();
-        // Disable file logging for this async file observer.  This method has 
+        // Disable file logging for this async file observer.  This method has
         // no effect if file logging is not enabled.
-
-    void disableLifetimeRotation();
-        // Disable log file rotation based on periodic time interval for this
-        // async file observer.  This method has no effect if
-        // rotation-on-time-interval is not enabled.
-        //
-        // DEPRECATED: Use 'disableTimeIntervalRotation' instead.
 
     void disableTimeIntervalRotation();
         // Disable log file rotation based on periodic time interval for this
@@ -434,28 +426,20 @@ class bael_AsyncFileObserver : public bael_Observer {
         // enabled.
 
     void disableStdoutLoggingPrefix();
-        // Disable this async file observer from using the default long output 
-        // format when logging to 'stdout'.  This method has no effect if the 
+        // Disable this async file observer from using the default long output
+        // format when logging to 'stdout'.  This method has no effect if the
         // default long output format for 'stdout' logging is not enabled.
-
-    void disableUserFieldsLogging();
-        // Disable the logging of user-defined fields by this async file 
-        // observer. This method has no effect if logging of user-defined 
-        // fields is not enabled, or if a format string other than the default 
-        // one is in effect.
-        //
-        // DEPRECATED: Use 'setLogFormat' instead.
 
     void disablePublishInLocalTime();
         // Disable publishing of the timestamp attribute of records in local
-        // time by this async file observer.  This method has no effect if 
+        // time by this async file observer.  This method has no effect if
         // publishing in local time is not enabled.
 
     int enableFileLogging(const char *logFilenamePattern);
-        // Enable logging of all messages published to this async file observer 
-        // to a file indicated by the specified 'logFilenamePattern'.  Return 0 
+        // Enable logging of all messages published to this async file observer
+        // to a file indicated by the specified 'logFilenamePattern'.  Return 0
         // on success, a positive value if file logging is already enabled, and
-        // a negative value otherwise.  The basename of 'logFilenamePattern' 
+        // a negative value otherwise.  The basename of 'logFilenamePattern'
         // may contain '%'-escape sequences that are interpreted as follows:
         //..
         //   %Y - current year (four digits with leading zeros)
@@ -476,82 +460,52 @@ class bael_AsyncFileObserver : public bael_Observer {
         // appending a timestamp of the form ".%Y%M%D_%h%m%s".  Then, the new
         // log file is opened for logging.
 
-    int enableFileLogging(const char *logFilenamePattern,
-                          bool        appendTimestampFlag);
-        // Enable logging of all messages published to this async file observer 
-        // to a file indicated by the specified 'logFilenamePattern' and append 
-        // a timestamp to the log filename if specified 'appendTimestampFlag' 
-        // is set to 'true'.  Return 0 on success, a positive value if file
-        // logging is already enabled, and a negative value otherwise.  If the
-        // 'appendTimestampFlag' is 'true' and 'logFilenamePattern' does not
-        // contain any '%'-escape sequence, this method behaves as if ".%T" is
-        // appended to 'logFilenamePattern'.
-        //
-        // DEPRECATED: Use 'enableFileLogging(logFilenamePattern)' instead (use
-        // the ".%T" pattern to replicate 'appendTimestampFlag' being enabled).
-
     void enableStdoutLoggingPrefix();
-        // Enable this async file observer to use the default long output 
-        // format when logging to 'stdout'.  This method has no effect if the 
+        // Enable this async file observer to use the default long output
+        // format when logging to 'stdout'.  This method has no effect if the
         // default long output format for 'stdout' logging is already enabled.
-
-    void enableUserFieldsLogging();
-        // Enable the logging of user-defined fields by this async file 
-        // observer. This method has no effect if logging of user-defined 
-        // fields is already enabled, or if a format string other than the 
-        // default one is in effect.
-        //
-        // DEPRECATED: Use 'setLogFormat' instead.
 
     void enablePublishInLocalTime();
         // Enable publishing of the timestamp attribute of records in local
-        // time by this async file observer.  This method has no effect if 
+        // time by this async file observer.  This method has no effect if
         // publishing in local time is already enabled.
 
     void publish(const bcema_SharedPtr<const bael_Record>& record,
-                 const bael_Context& context); 
-        // Process the record pointed by the specified shared pointer 'record' 
-        // by writing the record and the specified 'context' of the record to 
-        // a file if file logging is enabled for this async file observer, and 
-        // to 'stdout' if the severity of 'record' is at least as severe as 
+                 const bael_Context& context);
+        // Process the record pointed by the specified shared pointer 'record'
+        // by writing the record and the specified 'context' of the record to
+        // a file if file logging is enabled for this async file observer, and
+        // to 'stdout' if the severity of 'record' is at least as severe as
         // the severity level specified at construction.
 
     void clear();
         // Discard the shared pointers in the fixed queue of this async file
-        // observer without publishing the records pointed by these shared 
-        // pointers.  This method stops the publication thread before clearing 
-        // the queue and restarts the publication thread afterwards.  This 
-        // method has no effect if the publication thread has not started.  
-        // This method should be called by the owner of the records pointed by 
-        // the share pointers in the fixed queue when these records are no 
+        // observer without publishing the records pointed by these shared
+        // pointers.  This method stops the publication thread before clearing
+        // the queue and restarts the publication thread afterwards.  This
+        // method has no effect if the publication thread has not started.
+        // This method should be called by the owner of the records pointed by
+        // the share pointers in the fixed queue when these records are no
         // longer usable.
 
     void forceRotation();
-        // Forcefully perform a log file rotation by this async file observer.  
-        // Close the current log file, rename the log file if necessary, and 
+        // Forcefully perform a log file rotation by this async file observer.
+        // Close the current log file, rename the log file if necessary, and
         // open a new log file.  See the "Rotated File Naming" section under
         // @DESCRIPTION in the component-level documentation for details on
         // filenames of the rotated log files.  This method has no effect if
         // file logging is not enabled.
 
     void rotateOnSize(int size);
-        // Set this async file observer to perform log file rotation when the 
-        // size of the file exceeds the specified 'size' (in kilo-bytes).  
-        // This rule replaces any rotation-on-size rule currently in effect.  
+        // Set this async file observer to perform log file rotation when the
+        // size of the file exceeds the specified 'size' (in kilo-bytes).
+        // This rule replaces any rotation-on-size rule currently in effect.
         // The behavior is undefined unless 'size > 0'.
-
-    void rotateOnLifetime(const bdet_DatetimeInterval& timeInterval);
-        // Set this async file observer to perform a periodic log-file rotation 
-        // at multiples of the specified 'interval'.  The behavior is undefined
-        // unless '0 < interval.totalMilliseconds()'.  This rule replaces any
-        // rotation-on-time-interval rule currently in effect.
-        //
-        // DEPRECATED: Use 'rotateOnTimeInterval' instead.
 
     void rotateOnTimeInterval(const bdet_DatetimeInterval& interval);
     void rotateOnTimeInterval(const bdet_DatetimeInterval& interval,
                               const bdet_Datetime&         referenceStartTime);
-        // Set this async file observer to perform a periodic log-file rotation 
+        // Set this async file observer to perform a periodic log-file rotation
         // at multiples of the specified 'interval'.  Optionally, specify
         // 'referenceStartTime' indicating the *local* datetime to use as the
         // starting point for computing the periodic rotation schedule.  If
@@ -583,11 +537,11 @@ class bael_AsyncFileObserver : public bael_Observer {
         // respectively.  If this method is not called, default formats are
         // used when publishing log records.  See "Log Record Formatting" under
         // @DESCRIPTION for details of formatting syntax.
-        
+
     void startThread();
-        // Start the publication thread of this async file observer.  This 
+        // Start the publication thread of this async file observer.  This
         // method has no effect if the publication thread is already started.
-        
+
     void stopThread();
         // Stop the publication thread of this async file observer.  This
         // method has no effect if the publication thread has not started.
@@ -595,13 +549,13 @@ class bael_AsyncFileObserver : public bael_Observer {
     // ACCESSORS
     bool isFileLoggingEnabled() const;
     bool isFileLoggingEnabled(bsl::string *result) const;
-        // Return 'true' if file logging is enabled for this async file 
-        // observer, and 'false' otherwise.  Load the optionally-specified 
-        // 'result' with the name of the current log file if file logging is 
+        // Return 'true' if file logging is enabled for this async file
+        // observer, and 'false' otherwise.  Load the optionally-specified
+        // 'result' with the name of the current log file if file logging is
         // enabled, and leave 'result' uneffected otherwise.
 
     bool isStdoutLoggingPrefixEnabled() const;
-        // Return 'true' if this async file observer uses the default output 
+        // Return 'true' if this async file observer uses the default output
         // format when writing to 'stdout', and 'false' otherwise.
 
     bool isUserFieldsLoggingEnabled() const;
@@ -609,13 +563,13 @@ class bael_AsyncFileObserver : public bael_Observer {
         // this async file observer, and 'false' otherwise.
 
     bool isPublishInLocalTimeEnabled() const;
-        // Return 'true' if this async file observer writes the timestamp 
-        // attribute of records that it publishes in local time, and 'false' 
+        // Return 'true' if this async file observer writes the timestamp
+        // attribute of records that it publishes in local time, and 'false'
         // otherwise.
 
     bdet_DatetimeInterval rotationLifetime() const;
         // Return the lifetime of the log file that will trigger a file
-        // rotation by this async file observer if rotation-on-lifetime is in 
+        // rotation by this async file observer if rotation-on-lifetime is in
         // effect, and a 0 time interval otherwise.
 
     int rotationSize() const;
@@ -637,8 +591,8 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     void getLogFormat(const char **logFileFormat,
                       const char **stdoutFormat) const;
-        // Load the format of log records written by this async file observer 
-        // to the log file into the specified '*logFileFormat' address and the 
+        // Load the format of log records written by this async file observer
+        // to the log file into the specified '*logFileFormat' address and the
         // format of log records written to 'stdout' into the specified
         // '*stdoutFormat' address.  See "Log Record Formatting" under
         // @DESCRIPTION for details of formatting syntax.
@@ -651,18 +605,12 @@ class bael_AsyncFileObserver : public bael_Observer {
                           // ----------------------------
                           // class bael_AsyncFileObserver
                           // ----------------------------
-                          
+
 // MANIPULATORS
 inline
 void bael_AsyncFileObserver::disableFileLogging()
 {
     d_fileObserver.disableFileLogging();
-}
-
-inline
-void bael_AsyncFileObserver::disableLifetimeRotation()
-{
-    d_fileObserver.disableLifetimeRotation();
 }
 
 inline
@@ -684,14 +632,6 @@ int bael_AsyncFileObserver::enableFileLogging(const char *logFilenamePattern)
 }
 
 inline
-int bael_AsyncFileObserver::enableFileLogging(const char *logFilenamePattern,
-                                         bool        timestampFlag)
-{
-    return d_fileObserver.enableFileLogging(logFilenamePattern,
-                                             timestampFlag);
-}
-
-inline
 void bael_AsyncFileObserver::forceRotation()
 {
     d_fileObserver.forceRotation();
@@ -701,13 +641,6 @@ inline
 void bael_AsyncFileObserver::rotateOnSize(int size)
 {
     d_fileObserver.rotateOnSize(size);
-}
-
-inline
-void bael_AsyncFileObserver::rotateOnLifetime(
-                                     const bdet_DatetimeInterval& timeInterval)
-{
-    d_fileObserver.rotateOnLifetime(timeInterval);
 }
 
 inline
@@ -738,28 +671,16 @@ void bael_AsyncFileObserver::disableStdoutLoggingPrefix()
     d_fileObserver.disableStdoutLoggingPrefix();
 }
 
-inline 
-void bael_AsyncFileObserver::disableUserFieldsLogging()
-{
-    d_fileObserver.disableUserFieldsLogging();
-}
-
-inline 
+inline
 void bael_AsyncFileObserver::disablePublishInLocalTime()
 {
     d_fileObserver.disablePublishInLocalTime();
 }
 
-inline 
+inline
 void bael_AsyncFileObserver::enableStdoutLoggingPrefix()
 {
     d_fileObserver.enableStdoutLoggingPrefix();
-}
-
-inline 
-void bael_AsyncFileObserver::enableUserFieldsLogging()
-{
-    d_fileObserver.enableUserFieldsLogging();
 }
 
 inline
@@ -768,14 +689,14 @@ void bael_AsyncFileObserver::enablePublishInLocalTime()
     d_fileObserver.enablePublishInLocalTime();
 }
 
-inline 
+inline
 void bael_AsyncFileObserver::setStdoutThreshold(
                 bael_Severity::Level stdoutThreshold)
 {
     d_fileObserver.bael_FileObserver::setStdoutThreshold(stdoutThreshold);
 }
 
-inline 
+inline
 void bael_AsyncFileObserver::setLogFormat(const char *logFileFormat,
                                           const char *stdoutFormat)
 {
@@ -813,7 +734,7 @@ bdet_DatetimeInterval bael_AsyncFileObserver::localTimeOffset() const
     return d_fileObserver.localTimeOffset();
 }
 
-inline 
+inline
 bael_Severity::Level bael_AsyncFileObserver::stdoutThreshold() const
 {
     return d_fileObserver.stdoutThreshold();
@@ -836,8 +757,8 @@ bool bael_AsyncFileObserver::isPublishInLocalTimeEnabled() const
 {
     return d_fileObserver.isPublishInLocalTimeEnabled();
 }
-                
-inline 
+
+inline
 void bael_AsyncFileObserver::getLogFormat(const char **logFileFormat,
                                           const char **stdoutFormat) const
 {

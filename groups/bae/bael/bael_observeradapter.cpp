@@ -1,8 +1,8 @@
-// bael_observer.cpp            -*-C++-*-
-#include <bael_observer.h>
+// bael_observeradapter.cpp                                           -*-C++-*-
+#include <bael_observeradapter.h>
 
 #include <bdes_ident.h>
-BDES_IDENT_RCSID(bael_observer_cpp,"$Id$ $CSID$")
+BDES_IDENT_RCSID(bael_observeradapter_cpp,"$Id$ $CSID$")
 
 #ifdef BDE_FOR_TESTING_ONLY
 #include <bael_context.h>              // for testing only
@@ -13,29 +13,30 @@ BDES_IDENT_RCSID(bael_observer_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                           // -------------------
-                           // class bael_Observer
-                           // -------------------
+                        // --------------------------
+                        // class bael_ObserverAdapter
+                        // --------------------------
 
 // CREATORS
-bael_Observer::~bael_Observer()
+bael_ObserverAdapter::~bael_ObserverAdapter()
 {
 }
 
 // MANIPULATORS
-void bael_Observer::publish(const bael_Record&  record,
-                            const bael_Context& context)
+void bael_ObserverAdapter::publish(const bael_Record&  record,
+                                   const bael_Context& context) 
 {
     BSLS_ASSERT_OPT(false);  // Should not be called
 }
 
-void bael_Observer::publish(const bcema_SharedPtr<const bael_Record>& record,
-                            const bael_Context&                       context)
+void bael_ObserverAdapter::publish(
+                            const bcema_SharedPtr<const bael_Record>& record,
+                            const bael_Context&                       context) 
 {
     publish(*record, context);
 }
 
-void bael_Observer::clear()
+void bael_ObserverAdapter::clear()
 {
 }
 
@@ -43,7 +44,7 @@ void bael_Observer::clear()
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2007
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

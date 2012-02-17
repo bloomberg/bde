@@ -227,24 +227,21 @@ void bael_Logger::publish(bael_Transmission::Cause cause)
 
     if (1 == len) {  // for len == 1, order does not matter, so optimize it
         context.setRecordIndexRaw(0);
-        bcema_SharedPtr<bael_Record> handle(d_recordBuffer_p->back());
-        d_observer_p->publish(handle, context);
+        d_observer_p->publish(d_recordBuffer_p->back(), context);
         d_recordBuffer_p->popBack();
     }
     else {
         if (bael_LoggerManagerConfiguration::BAEL_LIFO == d_logOrder) {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
-                bcema_SharedPtr<bael_Record> handle(d_recordBuffer_p->back());
-                d_observer_p->publish(handle, context);
+                d_observer_p->publish(d_recordBuffer_p->back(), context);
                 d_recordBuffer_p->popBack();
             }
         }
         else {
             for (int i = 0; i < len; ++i) {
                 context.setRecordIndexRaw(i);
-                bcema_SharedPtr<bael_Record> handle(d_recordBuffer_p->front());
-                d_observer_p->publish(handle, context);
+                d_observer_p->publish(d_recordBuffer_p->front(), context);
                 d_recordBuffer_p->popFront();
             }
         }

@@ -68,19 +68,17 @@ using bsl::flush;
 // MANIPULATORS
 // [ 1] publish(const bael_Record& record, const bael_Context& context)
 // [ 1] void disableFileLogging()
-// [ 3] void disableLifetimeRotation()
+// [ 3] void disableTimeIntervalRotation()
 // [ 3] void disableSizeRotation()
 // [ 1] void disableStdoutLoggingPrefix()
-// [ 1] void disableUserFieldsLogging()
-// [ 1] int enableFileLogging(const char *fileName, bool timestampFlag = false)
+// [ 1] int enableFileLogging(const char *logFilenamePattern)
 // [ 1] void enableStdoutLoggingPrefix()
-// [ 1] void enableUserFieldsLogging()
-// [ 1] void publish(const bcemt_SharedPtr<const bael_Record>& record, 
+// [ 1] void publish(const bcemt_SharedPtr<const bael_Record>& record,
 //                   const bael_Context& context)
 // [ 2] void clear()
 // [ 3] void forceRotation()
 // [ 3] void rotateOnSize(int size)
-// [ 3] void rotateOnLifetime(bdet_DatetimeInterval timeInterval)
+// [ 3] void rotateOnTimeInterval(const bdet_DatetimeInterval timeInterval)
 // [ 1] void setStdoutThreshold(bael_Severity::Level stdoutThreshold)
 // [ 1] void setLogFormat(const char*, const char*)
 // [ 1] void startThread();
@@ -89,7 +87,6 @@ using bsl::flush;
 // ACCESSORS
 // [ 1] bool isFileLoggingEnabled() const
 // [ 1] bool isStdoutLoggingPrefixEnabled() const
-// [ 1] bool isUserFieldsLoggingEnabled() const
 // [ 1] void getLogFormat(const char**, const char**) const
 // [ 3] bdet_DatetimeInterval rotationLifetime() const
 // [ 3] int rotationSize() const
@@ -388,8 +385,8 @@ int main(int argc, char *argv[])
         //:   time such that the next rotation will occur soon.  Verify that
         //:   rotation occurs on the scheduled time.
         //:
-        //: 3 Call 'disableLifetimeRotation' and verify that no rotation occurs
-        //:   afterwards.
+        //: 3 Call 'disableTimeIntervalRotation' and verify that no rotation
+        //:   occurs afterwards.
         //
         // Testing:
         //  void rotateOnTimeInterval(const DtInterval& i, const Datetime& r);
@@ -455,11 +452,12 @@ int main(int argc, char *argv[])
                    bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
-        if (veryVerbose) cout << "Testing 'disableLifetimeRotation'" << endl;
+        if (veryVerbose) cout << "Testing 'disableTimeIntervalRotation'"
+                              << endl;
         {
             cb.reset();
 
-            mX.disableLifetimeRotation();
+            mX.disableTimeIntervalRotation();
             bcemt_ThreadUtil::microSleep(0, 3);
 
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
@@ -553,20 +551,21 @@ int main(int argc, char *argv[])
             // file.  We can't redirect it back; we'll have to use
             // 'ASSERT2' (which outputs to cout, not cerr) from now on
             // and report a summary to to cout at the end of this case.
-            
+
             bsl::string stderrFN = tempFileName(veryVerbose);
             ASSERT(stderr == freopen(stderrFN.c_str(), "w", stderr));
 
-            ASSERT2(0 == mX.enableFileLogging(fn.c_str(), true));
+            bsl::string fn_time = fn + bsl::string(".%T");
+            ASSERT2(0 == mX.enableFileLogging(fn_time.c_str()));
             ASSERT2(X.isFileLoggingEnabled());
-            ASSERT2(1 == mX.enableFileLogging(fn.c_str(), true));
+            ASSERT2(1 == mX.enableFileLogging(fn_time.c_str()));
 
             for (int i = 0 ; i < 40 ;  ++i) {
                 BAEL_LOG_TRACE << "log"  << BAEL_LOG_END;
             }
 
             // Wait some time for async writing to complete
-            
+
             bcemt_ThreadUtil::microSleep(0, 1);
 
             fflush(stderr);
@@ -591,8 +590,8 @@ int main(int argc, char *argv[])
         //   1. 'rotateOnSize' triggers a rotation when expected.
         //   2. 'disableSizeRotation' disables rotation on size
         //   3. 'forceRotation' triggers a rotation
-        //   4. 'rotateOnLifetime' triggers a rotation when expected
-        //   5. 'disableLifetimeRotation' disables rotation on lifetime
+        //   4. 'rotateOnTimeInterval' triggers a rotation when expected
+        //   5. 'disableTimeIntervalRotation' disables rotation on lifetime
         //
         // Test plan:
         //   We will exercise both rotation rules to verify that they work
@@ -605,11 +604,11 @@ int main(int argc, char *argv[])
         //   - Brute Force Implementation Technique
         //
         // Testing:
-        //   void disableLifetimeRotation()
+        //   void disableTimeIntervalRotation()
         //   void disableSizeRotation()
         //   void forceRotation()
         //   void rotateOnSize(int size)
-        //   void rotateOnLifetime(bdet_DatetimeInterval timeInterval)
+        //   void rotateOnTimeInterval(bdet_DatetimeInterval timeInterval)
         //   bdet_DatetimeInterval rotationLifetime() const
         //   int rotationSize() const
         // --------------------------------------------------------------------
@@ -651,9 +650,10 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing setup." << endl;
             {
-                ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
+                bsl::string fn_time = filename + bsl::string(".%T");
+                ASSERT(0 == mX.enableFileLogging(fn_time.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str(), true));
+                ASSERT(1 == mX.enableFileLogging(fn_time.c_str()));
 
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
 
@@ -689,7 +689,7 @@ int main(int argc, char *argv[])
                               << endl;
             {
                 ASSERT(bdet_DatetimeInterval(0) == X.rotationLifetime());
-                mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,3));
+                mX.rotateOnTimeInterval(bdet_DatetimeInterval(0,0,0,3));
                 ASSERT(bdet_DatetimeInterval(0,0,0,3) ==
                                                          X.rotationLifetime());
                 bcemt_ThreadUtil::microSleep(0, 4);
@@ -697,7 +697,7 @@ int main(int argc, char *argv[])
                 BAEL_LOG_DEBUG << "log 2" << BAEL_LOG_END;
 
                 // Wait up to 10 seconds for the rotation to complete
-                
+
                 loopCount = 0;
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
@@ -707,7 +707,7 @@ int main(int argc, char *argv[])
                     fileCount = globbuf.gl_pathc;
                     globfree(&globbuf);
                 } while (fileCount < 2 && loopCount++ < 10);
-               
+
                 // Check that a rotation occurred.
 
                 glob_t globbuf;
@@ -715,7 +715,7 @@ int main(int argc, char *argv[])
                 ASSERT(2 == globbuf.gl_pathc);
 
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 linesNum  = 0;
                 do {
@@ -740,7 +740,7 @@ int main(int argc, char *argv[])
                 fs.close();
                 ASSERT(4 == linesNum);
 
-                mX.disableLifetimeRotation();
+                mX.disableTimeIntervalRotation();
                 bcemt_ThreadUtil::microSleep(0, 4);
                 BAEL_LOG_FATAL << "log 3" << BAEL_LOG_END;
 
@@ -750,7 +750,7 @@ int main(int argc, char *argv[])
                 ASSERT(2 == globbuf.gl_pathc);
 
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 linesNum  = 0;
                 do {
@@ -879,9 +879,9 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "Testing setup." << endl;
             {
-                ASSERT(0 == mX.enableFileLogging(filename.c_str(), false));
+                ASSERT(0 == mX.enableFileLogging(filename.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str(), false));
+                ASSERT(1 == mX.enableFileLogging(filename.c_str()));
 
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
 
@@ -890,7 +890,7 @@ int main(int argc, char *argv[])
                 ASSERT(1 == globbuf.gl_pathc);
 
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 linesNum  = 0;
                 do {
@@ -920,14 +920,14 @@ int main(int argc, char *argv[])
                               << endl;
             {
                 ASSERT(bdet_DatetimeInterval(0)       == X.rotationLifetime());
-                mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,3));
+                mX.rotateOnTimeInterval(bdet_DatetimeInterval(0,0,0,3));
                 ASSERT(bdet_DatetimeInterval(0,0,0,3) == X.rotationLifetime());
                 bcemt_ThreadUtil::microSleep(0, 4);
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
                 BAEL_LOG_DEBUG << "log 2" << BAEL_LOG_END;
 
                 // Wait up to 10 seconds for the rotation to complete
-                
+
                 loopCount = 0;
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
@@ -945,7 +945,7 @@ int main(int argc, char *argv[])
                 ASSERT(2 == globbuf.gl_pathc);
 
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 do {
                     linesNum = 0;
@@ -969,7 +969,7 @@ int main(int argc, char *argv[])
                 fs.close();
                 ASSERT(4 == linesNum);
 
-                mX.disableLifetimeRotation();
+                mX.disableTimeIntervalRotation();
                 bcemt_ThreadUtil::microSleep(0, 4);
                 BAEL_LOG_FATAL << "log 3" << BAEL_LOG_END;
 
@@ -979,7 +979,7 @@ int main(int argc, char *argv[])
                 ASSERT(2 == globbuf.gl_pathc);
 
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 do {
                     linesNum = 0;
@@ -1012,7 +1012,7 @@ int main(int argc, char *argv[])
         // Clearance Test
         //
         // Concerns:
-        //   1. clear() is properly called by logger manager when it gets 
+        //   1. clear() is properly called by logger manager when it gets
         //      destroyed before the plugged async file observer does.
         //   2. clear() works properly to clear all shared pointers in async
         //      file observer's fixed queue without logging them
@@ -1024,10 +1024,10 @@ int main(int argc, char *argv[])
         //   and then let the scoped guard run out of scope before the async
         //   file observer.  The logger manager will be released and it should
         //   call the 'clear' method of async file observer before destruction.
-        //   We publish sufficient amount of records asynchronously right 
-        //   before the scoped guard running out of scope to ensure taht there 
-        //   are some shared pointers of records remained in the fixed queue 
-        //   when 'clear' is invoked.  We verify that the records pointed by 
+        //   We publish sufficient amount of records asynchronously right
+        //   before the scoped guard running out of scope to ensure taht there
+        //   are some shared pointers of records remained in the fixed queue
+        //   when 'clear' is invoked.  We verify that the records pointed by
         //   these shared pointers are not logged.
         //
         // Tactics:
@@ -1053,7 +1053,7 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_PLATFORM__OS_UNIX) && \
    (!defined(BSLS_PLATFORM__OS_SOLARIS) || BSLS_PLATFORM__OS_VER_MAJOR >= 10)
-        // For the localtime to be picked to avoid the all.pl env to 
+        // For the localtime to be picked to avoid the all.pl env to
         // pollute us.
         unsetenv("TZ");
 #endif
@@ -1085,7 +1085,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             // Throw some logs into the queue
-            
+
             for (int i = 0;i < logCount;++i)
                 BAEL_LOG_WARN <<  "Some will not be logged" << BAEL_LOG_END;
 
@@ -1093,7 +1093,7 @@ int main(int argc, char *argv[])
         }
 
         // Wait up to 10 seconds for the async logging to complete
-        
+
         loopCount = 0;
         do {
             bcemt_ThreadUtil::microSleep(0, 1);
@@ -1117,9 +1117,8 @@ int main(int argc, char *argv[])
         // Publishing Test
         //
         // Concerns:
-        //   1. publish() logs in the expected format:
-        //      a.using enable/disableUserFieldsLogging
-        //      b.using enable/disableStdoutLogging
+        //   1. publish() logs in the expected format using
+        //      enable/disableStdoutLogging
         //   2. publish() properly ignores the severities below the one
         //      specified at construction on 'stdout'
         //   3. publish() publishes all messages to a file if file logging
@@ -1158,15 +1157,12 @@ int main(int argc, char *argv[])
         //   publish(const bael_Record& record, const bael_Context& context)
         //   void disableFileLogging()
         //   void disableStdoutLoggingPrefix()
-        //   void disableUserFieldsLogging()
-        //   int enableFileLogging(const char *fileName, bool timestampFlag)
+        //   int enableFileLogging(const char *logFilenamePattern)
         //   void enableStdoutLoggingPrefix()
-        //   void enableUserFieldsLogging()
         //   void publish(const bael_Record&, const bael_Context&)
         //   void setStdoutThreshold(bael_Severity::Level stdoutThreshold)
         //   bool isFileLoggingEnabled() const
         //   bool isStdoutLoggingPrefixEnabled() const
-        //   bool isUserFieldsLoggingEnabled() const
         //   bael_Severity::Level stdoutThreshold() const
         //   bool isPublishInLocalTimeEnabled() const
         //   void setLogFormat(const char*, const char*)
@@ -1265,7 +1261,7 @@ int main(int argc, char *argv[])
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
@@ -1295,7 +1291,7 @@ int main(int argc, char *argv[])
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
@@ -1319,7 +1315,7 @@ int main(int argc, char *argv[])
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
@@ -1389,7 +1385,7 @@ int main(int argc, char *argv[])
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
@@ -1448,7 +1444,7 @@ int main(int argc, char *argv[])
                       " bael_AsyncFileObserverTest log WARN " << "\n";
             {
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
@@ -1465,7 +1461,7 @@ int main(int argc, char *argv[])
                       " bael_AsyncFileObserverTest log ERROR " << "\n";
             {
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
@@ -1495,7 +1491,7 @@ int main(int argc, char *argv[])
                 dos.str(temp);
 
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
@@ -1556,7 +1552,7 @@ int main(int argc, char *argv[])
                       " bael_AsyncFileObserverTest log WARN " << "\n";
             {
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
@@ -1573,7 +1569,7 @@ int main(int argc, char *argv[])
                       " bael_AsyncFileObserverTest log ERROR " << "\n";
             {
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
@@ -1604,7 +1600,7 @@ int main(int argc, char *argv[])
 
             {
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
@@ -1775,7 +1771,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_FATAL << "log 3" << BAEL_LOG_END;
 
             // Wait up to 10 seconds for the async logging to complete
-            
+
             loopCount = 0;
             do {
                 linesNum = 0;
@@ -1817,9 +1813,10 @@ int main(int argc, char *argv[])
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
             bsl::cout.rdbuf(os.rdbuf());
-            ASSERT(0 == mX.enableFileLogging(fn.c_str(), true));
+            bsl::string fn_time = fn + bsl::string(".%T");
+            ASSERT(0 == mX.enableFileLogging(fn_time.c_str()));
             ASSERT(X.isFileLoggingEnabled());
-            ASSERT(1 == mX.enableFileLogging(fn.c_str(), true));
+            ASSERT(1 == mX.enableFileLogging(fn_time.c_str()));
 
             BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
             BAEL_LOG_DEBUG << "log 2" << BAEL_LOG_END;
@@ -1833,7 +1830,7 @@ int main(int argc, char *argv[])
             ASSERT(1 == globbuf.gl_pathc);
 
             // Wait up to 10 seconds for the async logging to complete
-            
+
             loopCount = 0;
             do {
                 linesNum = 0;
@@ -1875,7 +1872,7 @@ int main(int argc, char *argv[])
 
             bdet_Datetime startDatetime, endDatetime;
 
-            mX.disableLifetimeRotation();
+            mX.disableTimeIntervalRotation();
             mX.disableSizeRotation();
             mX.disableFileLogging();
 
@@ -1883,9 +1880,9 @@ int main(int argc, char *argv[])
             do {
                 startDatetime = getCurrentTimestamp();
 
-                ASSERT(0 == mX.enableFileLogging(pattern.c_str(), false));
+                ASSERT(0 == mX.enableFileLogging(pattern.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(pattern.c_str(), false));
+                ASSERT(1 == mX.enableFileLogging(pattern.c_str()));
 
                 endDatetime = getCurrentTimestamp();
 
@@ -1913,7 +1910,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_INFO<< "log" << BAEL_LOG_END;
 
             // Construct the name of the log file from startDatetime
-            
+
             bsl::ostringstream fnOs;
             fnOs << baseName;
             fnOs << bsl::setw(4) << bsl::setfill('0')
@@ -1930,13 +1927,13 @@ int main(int argc, char *argv[])
                      << startDatetime.second();
 
             // Look for the file with the constructed name
-            
+
             glob_t globbuf;
             ASSERT(0 == glob(fnOs.str().c_str(), 0, 0, &globbuf));
             ASSERT(1 == globbuf.gl_pathc);
 
             // Wait up to 10 seconds for the async logging to complete
-            
+
             loopCount = 0;
             do {
                 linesNum = 0;
@@ -1949,7 +1946,7 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
 
             // Read the file to get the number of lines
-            
+
             fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
             fs.clear();
             globfree(&globbuf);
@@ -1997,8 +1994,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
 
-                LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(
-                                                  pattern.c_str(), false));
+                LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(pattern.c_str()));
                 LOOP_ASSERT(LINE, X.isFileLoggingEnabled(&actual));
 
                 if (veryVeryVerbose) {
@@ -2010,7 +2006,7 @@ int main(int argc, char *argv[])
                 mX.disableFileLogging();
 
                 // Look for the file with the expected name
-                
+
                 glob_t globbuf;
                 LOOP_ASSERT(LINE, 0 == glob(expected.c_str(),
                                             0, 0, &globbuf));
@@ -2035,13 +2031,13 @@ int main(int argc, char *argv[])
             BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             // Redirect 'stdout' to a string stream
-            
+
             {
                 bsl::string baseName = tempFileName(veryVerbose);
 
-                ASSERT(0 == mX.enableFileLogging(baseName.c_str(), false));
+                ASSERT(0 == mX.enableFileLogging(baseName.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(baseName.c_str(), false));
+                ASSERT(1 == mX.enableFileLogging(baseName.c_str()));
 
                 bsl::stringstream os;
                 bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
@@ -2049,20 +2045,20 @@ int main(int argc, char *argv[])
 
                 // For log file, use bdet_Datetime format
                 // For stdout, use ISO format
-                
+
                 mX.setLogFormat("%d %p %t %s %l %c %m %u",
                                 "%i %p %t %s %l %c %m %u");
 
                 BAEL_LOG_WARN << "log" << BAEL_LOG_END;
 
                 // Look for the file with the constructed name
-                
+
                 glob_t globbuf;
                 ASSERT(0 == glob(baseName.c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
                 // Wait up to 10 seconds for the async logging to complete
-                
+
                 loopCount = 0;
                 do {
                     linesNum = 0;
@@ -2073,7 +2069,7 @@ int main(int argc, char *argv[])
                 } while (!linesNum && loopCount++ < 10);
 
                 // Read the log file to get the record
-                
+
                 fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
                 fs.clear();
                 globfree(&globbuf);
@@ -2086,7 +2082,7 @@ int main(int argc, char *argv[])
                 bsl::string::size_type pos;
 
                 // Divide line into datetime and the rest
-                
+
                 pos = line.find(' ');
                 datetime1 = line.substr(0, pos);
                 log1 = line.substr(pos, line.length());
@@ -2097,7 +2093,7 @@ int main(int argc, char *argv[])
                 ASSERT("" == os.str());
 
                 // Divide os.str() into datetime and the rest
-                
+
                 pos = fStr.find(' ');
                 pos = fStr.find(' ',pos+1);
                 ASSERT(bsl::string::npos != pos);
@@ -2108,7 +2104,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(log1, log2, log1 == log2);
 
                 // Now we try to convert datetime2 from ISO to bdet_Datetime
-                
+
                 bsl::istringstream iss(datetime2);
                 int year, month, day, hour, minute, second;
                 char c;
@@ -2123,7 +2119,7 @@ int main(int argc, char *argv[])
 
                 // Ignore the millisecond field so don't compare the entire
                 // strings
-                
+
                 ASSERT(0 == oss.str().compare(0, 18, datetime1, 0, 18));
 
                 mX.disableFileLogging();
@@ -2142,9 +2138,9 @@ int main(int argc, char *argv[])
             {
                 bsl::string baseName = tempFileName(veryVerbose);
 
-                ASSERT(0 == mX.enableFileLogging(baseName.c_str(), false));
+                ASSERT(0 == mX.enableFileLogging(baseName.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(baseName.c_str(), false));
+                ASSERT(1 == mX.enableFileLogging(baseName.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
 
                 fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -2159,7 +2155,7 @@ int main(int argc, char *argv[])
                 BAEL_LOG_WARN << "log" << BAEL_LOG_END;
 
                 // Look for the file with the constructed name
-                
+
                 glob_t globbuf;
                 ASSERT(0 == glob(baseName.c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
@@ -2196,7 +2192,7 @@ int main(int argc, char *argv[])
                 log1 = soStr.substr(pos, soStr.length());
 
                 // Divide line into datetime and the rest
-                
+
                 pos = line.find(' ');
                 pos = line.find(' ', pos+1);
                 datetime2 = line.substr(0, pos);
@@ -2205,7 +2201,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(log1, log2, log1 == log2);
 
                 // Now we try to convert datetime2 from ISO to bdet_Datetime
-                
+
                 bsl::istringstream iss(datetime2);
                 int year, month, day, hour, minute, second;
                 char c;
@@ -2245,23 +2241,22 @@ int main(int argc, char *argv[])
             const char *logFileFormat;
             const char *stdoutFormat;
 
-            ASSERT(X.isUserFieldsLoggingEnabled());
             X.getLogFormat(&logFileFormat, &stdoutFormat);
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
 
-            mX.disableUserFieldsLogging();
-            ASSERT(!X.isUserFieldsLoggingEnabled());
+            mX.setLogFormat("\n%d %p:%t %s %f:%l %c %m\n",
+                            "\n%d %p:%t %s %f:%l %c %m\n");
             X.getLogFormat(&logFileFormat, &stdoutFormat);
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%d %p:%t %s %f:%l %c %m\n"));
 
-            mX.enableUserFieldsLogging();
-            ASSERT(X.isUserFieldsLoggingEnabled());
+            mX.setLogFormat("\n%d %p:%t %s %f:%l %c %m %u\n",
+                            "\n%d %p:%t %s %f:%l %c %m %u\n");
             X.getLogFormat(&logFileFormat, &stdoutFormat);
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
@@ -2279,28 +2274,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%s %f:%l %c %m %u\n"));
 
-            mX.disableUserFieldsLogging();
-            ASSERT(!X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat,
-                                    "\n%d %p:%t %s %f:%l %c %m\n"));
-            ASSERT(0 == bsl::strcmp(stdoutFormat,
-                                    "\n%s %f:%l %c %m\n"));
-
-            mX.enableUserFieldsLogging();
-            ASSERT(X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat,
-                                    "\n%d %p:%t %s %f:%l %c %m %u\n"));
-            ASSERT(0 == bsl::strcmp(stdoutFormat,
-                                    "\n%s %f:%l %c %m %u\n"));
-
             // Change back to long format for stdout.
-            
+
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
             mX.enableStdoutLoggingPrefix();
             ASSERT( X.isStdoutLoggingPrefixEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
@@ -2308,24 +2286,10 @@ int main(int argc, char *argv[])
 
             // Now see what happens with customized format.  Notice that
             // we intentionally use the default short format.
-            
+
             const char *newLogFileFormat = "\n%s %f:%l %c %m %u\n";
             const char *newStdoutFormat  = "\n%s %f:%l %c %m %u\n";
             mX.setLogFormat(newLogFileFormat, newStdoutFormat);
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
-            ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
-
-            // Toggling user fields logging should not change the formats.
-            
-            mX.disableUserFieldsLogging();
-            ASSERT(!X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
-            ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
-
-            mX.enableUserFieldsLogging();
-            ASSERT( X.isUserFieldsLoggingEnabled());
             X.getLogFormat(&logFileFormat, &stdoutFormat);
             ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
@@ -2342,18 +2306,6 @@ int main(int argc, char *argv[])
             // stdoutFormat should change, since even if we are now using
             // customized formats, the format happens to be the same as
             // the default short format.
-            
-            mX.disableUserFieldsLogging();
-            ASSERT(!X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
-            ASSERT(0 == bsl::strcmp(stdoutFormat, "\n%s %f:%l %c %m\n"));
-
-            mX.enableUserFieldsLogging();
-            ASSERT(X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
-            ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
         }
       } break;
       default: {

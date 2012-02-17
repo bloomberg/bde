@@ -20,6 +20,7 @@ bael_loggermanagerconfiguration
 bael_loggermanagerdefaults
 bael_multiplexobserver
 bael_observer
+bael_observeradapter
 bael_patternutil
 bael_predicate
 bael_predicateset
