@@ -395,7 +395,7 @@ unix-                       _   AR      = $(RETRY_ON_EXIT) ar -ruv
 unix-AIX-*-*-*-*           _   XLC_SPECIAL_BBINDER_FLAGS   = -bweaklocal -bbigtoc
 !! unix-AIX-*-*-xlc-9.0    _   XLC_SPECIAL_BBINDER_FLAGS   = -bbinder:$(XLC_PATCHED_LD_LOCATION)/exe/bind64 -bweaklocal -bbigtoc
 
-!! unix-AIX-*-*-*           shr AR      = $(CXX) -G $(XLC_SPECIAL_BBINDER_FLAGS) -bsvr4 -bernotok -bexpall -o
+!! unix-AIX-*-*-*           shr AR      = $(CXX) -G $(XLC_SPECIAL_BBINDER_FLAGS) -bsvr4 -bexpall -o
 !! unix-*-*-*-gcc           shr AR      = $(CXX) -shared -o
 !! unix-HP_UX-*-*-*         shr AR      = $(CXX) -b +nostl -o
 
