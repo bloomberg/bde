@@ -240,9 +240,6 @@ void Func::operator()()
 }  // close namespace BCEMT_CONFIGURATION_TEST_NAMESPACE
 
 
-
-
-
 extern "C"
 void *configurationTestFunction(void *stackToUse)
 {
@@ -276,7 +273,26 @@ struct Func {
             *pc = garbage;
         }
     }
+
+    static
+    void staticFunc()
+    {
+        Func func;
+        func();
+    }
 };
+
+typedef void (*CppFuncPtr)();
+
+extern "C"
+void *callCppFunction(void *function)
+{
+    CppFuncPtr funcPtr = (CppFuncPtr) function;
+
+    (*funcPtr)();
+
+    return 0;
+}
 
 template <int BUFFER_SIZE>
 void testStackSize()
@@ -299,6 +315,7 @@ void testStackSize()
     attr.setGuardSize(0);
 
     Obj::Handle handle;
+
     int cRc = Obj::create(&handle, attr, Func<BUFFER_SIZE>());
     LOOP_ASSERT(BUFFER_SIZE, 0 == cRc);
     int jRc = 0;
@@ -309,6 +326,22 @@ void testStackSize()
 
     if (verbose) {
         cout << "testStackSize<" << BUFFER_SIZE << ">() " <<
+                                    ((cRc | jRc) ? "failed\n" : "succeeded\n");
+    }
+
+    cRc = Obj::create(&handle,
+                      attr,
+                      &callCppFunction,
+                      (void *) &Func<BUFFER_SIZE>::staticFunc);
+    LOOP_ASSERT(BUFFER_SIZE, 0 == cRc);
+    jRc = 0;
+    if (0 == cRc) {
+        jRc = Obj::join(handle);
+        ASSERT(0 == jRc);
+    }
+
+    if (verbose) {
+        cout << "testStackSize<" << BUFFER_SIZE << ">::staticFunc() " <<
                                     ((cRc | jRc) ? "failed\n" : "succeeded\n");
     }
 }
@@ -1093,8 +1126,11 @@ int main(int argc, char *argv[])
         bcemt_Configuration::setDefaultThreadStackSize(
                      bcemt_Configuration::recommendedDefaultThreadStackSize());
 
+        bcemt_ThreadAttributes attr;
+        attr.setStackSize(1024 * 1024);
+
         bcemt_ThreadUtil::Handle handle;
-        int rc = bcemt_ThreadUtil::create(&handle, myThreadFunction, 0);
+        int rc = bcemt_ThreadUtil::create(&handle, attr, myThreadFunction, 0);
         ASSERT(0 == rc);                                          
         bcemt_ThreadUtil::yield();
         rc = bcemt_ThreadUtil::join(handle);
