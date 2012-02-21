@@ -697,6 +697,15 @@ BDES_IDENT("$Id: $")
 #include <bsl_utility.h>
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+// Robo code relying on transitively #including this deprecated component, but
+// should be requiring <bslma_newdeleteallocator.h> instead (non-transitively!)
+#ifndef INCLUDED_BDEMA_NEWDELETEALLOCATOR
+#include <bdema_newdeleteallocator.h>
+#endif
+
+#endif
 
 namespace BloombergLP {
 
@@ -907,15 +916,6 @@ class bdema_ManagedPtr {
 
   private:
     // NOT IMPLEMENTED
-    template <class FACTORY_TYPE>
-    bdema_ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *);
-        // It is an error to pass a null pointer literal along with a non-null
-        // factory.  If it is necessary create an empty managed pointer that
-        // ignores the passed factory, pass a variable (lvalue) holding a null
-        // pointer as the first argument.
-
-  private:
-    // NOT IMPLEMENTED
     template <class MANAGED_TYPE>
     bdema_ManagedPtr(MANAGED_TYPE *, bsl::nullptr_t);
         // It is never defined behavior to pass a null pointer literal as a
@@ -951,7 +951,7 @@ class bdema_ManagedPtr {
         // preferred.
 
     // FRIENDS
-    template <class OTHER_TYPE>
+    template <class ALIASED_TYPE>
     friend class bdema_ManagedPtr;  // required only for alias support
 
   public:
@@ -1027,6 +1027,11 @@ class bdema_ManagedPtr {
         // object.  Note that 'bslma_Allocator', and any class publicly and
         // unambiguously derived from 'bslma_Allocator', meets the requirements
         // for 'FACTORY_TYPE'.
+
+    template <class FACTORY_TYPE>
+    bdema_ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *factory);
+        // Create an empty managed pointer.  Note that the specified 'factory'
+        // is ignored, as an empty managed pointer does not call its deleter.
 
     bdema_ManagedPtr(TARGET_TYPE *ptr, void *cookie, DeleterFunc deleter);
         // Create a managed pointer having a target object referenced by the
@@ -1147,8 +1152,12 @@ class bdema_ManagedPtr {
         // 'TARGET_TYPE *' is defined, e.g., 'derived *' -> 'base *',
         // 'T *' -> 'const T *', or 'T *' -> 'void *'.
 
-    template <class OTHER_TYPE>
-    operator bdema_ManagedPtr_Ref<OTHER_TYPE>();
+    bdema_ManagedPtr& operator=(bsl::nullptr_t);
+        // Destroy the current managed object (if any) and reset this managed
+        // pointer as empty.
+
+    template <class REFERENCED_TYPE>
+    operator bdema_ManagedPtr_Ref<REFERENCED_TYPE>();
         // Return a managed pointer reference, referring to this object.  Note
         // that this conversion operator is used implicitly to allow the
         // construction of managed pointers from rvalues because temporaries
@@ -1196,6 +1205,12 @@ class bdema_ManagedPtr {
         // object.  Note that 'bslma_Allocator', and any class publicly and
         // unambiguously derived from 'bslma_Allocator', meets the requirements
         // for 'FACTORY_TYPE'.
+
+    template <class FACTORY_TYPE>
+    void load(bsl::nullptr_t, FACTORY_TYPE *factory);
+        // Destroy the current managed object (if any) and reset this managed
+        // pointer as empty.  Note that the specified 'factory' will be
+        // ignored, as empty managed pointers do not invoke a deleter.
 
 #if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
     template <class MANAGED_TYPE>
@@ -1456,6 +1471,14 @@ bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(bsl::nullptr_t, bsl::nullptr_t)
 }
 
 template <class TARGET_TYPE>
+template <class FACTORY_TYPE>
+inline
+bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(bsl::nullptr_t, FACTORY_TYPE *)
+: d_members()
+{
+}
+
+template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
 bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(MANAGED_TYPE *ptr)
@@ -1688,6 +1711,15 @@ bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr, FACTORY_TYPE *factory)
 }
 
 template <class TARGET_TYPE>
+template <class FACTORY_TYPE>
+inline
+void
+bdema_ManagedPtr<TARGET_TYPE>::load(bsl::nullptr_t, FACTORY_TYPE *)
+{
+    this->clear();
+}
+
+template <class TARGET_TYPE>
 template <class MANAGED_TYPE, class MANAGED_BASE>
 inline
 void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
@@ -1796,13 +1828,22 @@ bdema_ManagedPtr<TARGET_TYPE>::operator=(bdema_ManagedPtr_Ref<TARGET_TYPE> ref)
 }
 
 template <class TARGET_TYPE>
-template <class OTHER_TYPE>
 inline
-bdema_ManagedPtr<TARGET_TYPE>::operator bdema_ManagedPtr_Ref<OTHER_TYPE>()
+bdema_ManagedPtr<TARGET_TYPE>&
+bdema_ManagedPtr<TARGET_TYPE>::operator=(bsl::nullptr_t)
 {
-    BSLMF_ASSERT((bslmf_IsConvertible<TARGET_TYPE *, OTHER_TYPE *>::VALUE));
+    this->clear();
+}
 
-    return bdema_ManagedPtr_Ref<OTHER_TYPE>(&d_members);
+template <class TARGET_TYPE>
+template <class REFERENCED_TYPE>
+inline
+bdema_ManagedPtr<TARGET_TYPE>::operator bdema_ManagedPtr_Ref<REFERENCED_TYPE>()
+{
+    BSLMF_ASSERT((bslmf_IsConvertible<TARGET_TYPE *,
+                                      REFERENCED_TYPE *>::VALUE));
+
+    return bdema_ManagedPtr_Ref<REFERENCED_TYPE>(&d_members);
 }
 
 // ACCESSORS
