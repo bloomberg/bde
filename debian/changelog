@@ -1,0 +1,65 @@
+bde-core (2.13.0.RS201206v01.0) unstable; urgency=low
+
+  * Rebase to BSL 2.13.0
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 16 May 2012 17:21:41 -0500
+
+bde-core (2.13.0.RS201205v01.0) unstable; urgency=low
+
+  * Rebase to BSL 2.13.0
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 16 May 2012 17:21:41 -0500
+
+bde-core (2.12.2.RS201201v00.0) unstable; urgency=low
+
+  * Rebase to BSL 2.12.2
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 26 Apr 2012 17:21:41 -0500
+
+bde-core (2.12.0.10.RS201201v00) unstable; urgency=low
+
+  * Hard-code the UPLID to avoid weirdnes
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 26 Apr 2012 17:21:41 -0500
+
+bde-core (2.12.0.9.RS201201v00) unstable; urgency=low
+
+  * Attempt to prevent undefs in the shared object broke the build
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 12 Apr 2012 17:21:41 -0500
+
+bde-core (2.12.0.8.RS201201v00) unstable; urgency=low
+
+  * Fix list of packages that should not be installed
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 20 Mar 2012 17:21:41 -0500
+
+bde-core (2.12.0.7.RS201201v00) unstable; urgency=low
+
+  * Refactor header installation.
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 19 Mar 2012 17:21:41 -0500
+
+bde-core (2.12.0.6.RS201201v00) unstable; urgency=low
+
+  * Refuse unresolved symbols in the shared libraries
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 24 Feb 2012 17:21:41 -0500
+
+bde-core (2.12.0.5.RS201201v00) unstable; urgency=low
+
+  * Produces the libraries using producemake and also the RSSUITE
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 24 Feb 2012 17:21:41 -0500
+
+bde-core (2.12.0-4-gc4e17b7) unstable; urgency=low
+
+  * Produces the libraries using producemake and also the RSSUITE
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 24 Feb 2012 17:21:41 -0500
+
+bde-core (2.11.0-233-g54ba421) unstable; urgency=low
+
+  * Initial release
+
+ -- Daniel Ruoso <druoso@bloomberg.net>  Wed, 14 Dec 2011 15:42:22 -0500
