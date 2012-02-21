@@ -191,42 +191,57 @@ namespace BCEMT_CONFIGURATION_TEST_NAMESPACE {
 
 struct Func {
     int         d_stackToUse;
+    char       *d_lastBuf;
     static bool s_success;
 
-    void recurser(char *base)
-        // Consume greater than 'd_stackToUse' of stack depth
-    {
-        char buf[5 * 1000];
+    void recurser(char *base);
+        // Recurse to create depth on stack
 
-        char garbage = 0xa3;
-        for (char *pc = buf; pc < buf + sizeof(buf); ++pc) {
-            *pc = (garbage += 9);
-        }
-
-        if   (bsl::abs(buf - base) < d_stackToUse
-           && bsl::abs(buf + sizeof(buf) - base) < d_stackToUse) {
-            recurser(base);
-        }
-
-        garbage = 0xa3;
-        for (char *pc = buf; pc < buf + sizeof(buf); ++pc) {
-            ASSERT(*pc == (garbage += 9));
-        }
-    }
-
-    void operator()()
-    {
-        if (verbose) P(d_stackToUse);
-
-        char base;
-        recurser(&base);
-
-        s_success = true;
-    }
+    void operator()();
+        // Initialize, then call recurser, then set 'd_success'
 };
 bool Func::s_success;
 
+void Func::recurser(char *base)
+    // Consume greater than 'd_stackToUse' of stack depth
+{
+    char buf[5 * 1000];
+
+    ASSERT(buf != d_lastBuf);    // make sure optimizer didn't remove recursion
+    d_lastBuf = buf;
+
+    char garbage = 0xa3;
+    for (char *pc = buf; pc < buf + sizeof(buf); ++pc) {
+        *pc = (garbage += 9);
+    }
+
+    if   (bsl::abs(buf - base) < d_stackToUse
+       && bsl::abs(buf + sizeof(buf) - base) < d_stackToUse) {
+        recurser(base);
+    }
+
+    garbage = 0xa3;
+    for (char *pc = buf; pc < buf + sizeof(buf); ++pc) {
+        ASSERT(*pc == (garbage += 9));
+    }
+}
+
+void Func::operator()()
+{
+    if (verbose) P(d_stackToUse);
+
+    d_lastBuf = 0;
+    char base;
+    recurser(&base);
+
+    s_success = true;
+}
+
 }  // close namespace BCEMT_CONFIGURATION_TEST_NAMESPACE
+
+
+
+
 
 extern "C"
 void *configurationTestFunction(void *stackToUse)
