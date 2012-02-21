@@ -216,6 +216,8 @@ struct Func {
 
     void operator()()
     {
+        if (verbose) P(d_stackToUse);
+
         char base;
         recurser(&base);
 
@@ -225,6 +227,21 @@ struct Func {
 bool Func::s_success;
 
 }  // close namespace BCEMT_CONFIGURATION_TEST_NAMESPACE
+
+extern "C"
+void *configurationTestFunction(void *stackToUse)
+{
+    BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
+
+    func.d_stackToUse = (int) (bsls_Types::IntPtr) stackToUse;
+    func.s_success   = false;
+
+    func();
+
+    ASSERT(func.s_success);
+
+    return 0;
+}
 
 //-----------------------------------------------------------------------------
 //                             STACKSIZE TEST CASE
@@ -656,7 +673,7 @@ int main(int argc, char *argv[])
 
         bcemt_ThreadUtil::Handle handle;
 
-        if (verbose) Q(Test with no attributes);
+        if (verbose) Q(Test functor with no attributes);
         {
             BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
 
@@ -676,7 +693,7 @@ int main(int argc, char *argv[])
             ASSERT(func.d_stackToUse == stackSize - 20 * 1000);
         }
 
-        if (verbose) Q(Test with default attributes);
+        if (verbose) Q(Test functor with default attributes);
         {
             BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
 
@@ -691,6 +708,32 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
 
             ASSERT(func.s_success);
+        }
+
+        if (verbose) Q(Test C function with no attributes);
+        {
+            bsls_Types::IntPtr stackToUse = stackSize - 20 * 1000;
+            int rc = bcemt_ThreadUtil::create(&handle,
+                                              &configurationTestFunction,
+                                              (void *) stackToUse);
+            ASSERT(0 == rc);
+
+            rc = bcemt_ThreadUtil::join(handle);
+            ASSERT(0 == rc);
+        }
+
+        if (verbose) Q(Test C function with default attributes object);
+        {
+            bsls_Types::IntPtr stackToUse = stackSize - 20 * 1000;
+            bcemt_ThreadAttributes attr;
+            int rc = bcemt_ThreadUtil::create(&handle,
+                                              attr,
+                                              &configurationTestFunction,
+                                              (void *) stackToUse);
+            ASSERT(0 == rc);
+
+            rc = bcemt_ThreadUtil::join(handle);
+            ASSERT(0 == rc);
         }
       }  break;
       case 9: {
