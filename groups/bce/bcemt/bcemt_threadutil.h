@@ -105,7 +105,7 @@ BDES_IDENT("$Id: $")
 //      // Print to standard output "Another second has passed" every second
 //      // for five seconds, and return 0.
 //  {
-//      for (int i = 0; i < 5; ++i) {
+//      for (int i = 0; i < 3; ++i) {
 //          bcemt_ThreadUtil::microSleep(0, 1);
 //          bsl::cout << "Another second has passed." << bsl::endl;
 //      }
@@ -121,12 +121,21 @@ BDES_IDENT("$Id: $")
 //..
 //  int main()
 //  {
-//      bcemt_ThreadAttributes attributes;
-//      bcemt_ThreadUtil::Handle handle;
-//      bcemt_ThreadUtil::create(&handle, attributes, myThreadFunction, 0);
-//      bcemt_ThreadUtil::join(handle);
+//      bcemt_Configuration::setDefaultThreadStackSize(
+//                   bcemt_Configuration::recommendedDefaultThreadStackSize());
 //
-//      bsl::cout << "A five second interval has elapsed.\n";
+//      bcemt_ThreadUtil::Handle handle;
+//
+//      int rc = bcemt_ThreadUtil::create(&handle, myThreadFunction, 0);
+//      assert(0 == rc);                                          
+//
+//      bcemt_ThreadUtil::yield();
+//
+//      rc = bcemt_ThreadUtil::join(handle);
+//      assert(0 == rc);
+//
+//      bsl::cout << "A three second interval has elapsed\n";
+//
 //      return 0;
 //  }
 //..
@@ -135,9 +144,7 @@ BDES_IDENT("$Id: $")
 //  Another second has passed.
 //  Another second has passed.
 //  Another second has passed.
-//  Another second has passed.
-//  Another second has passed.
-//  A five second interval has elapsed.
+//  A three second interval has elapsed.
 //..
 ///Example 2: Creating a Simple Thread with User-Specified Attributes
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -339,22 +346,30 @@ struct bcemt_ThreadUtil {
         // invoking the 'detach' class method with 'handle') or the
         // 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
         // must be made once the thread terminates to reclaim any system
-        // resources associated with the newly-created thread.
+        // resources associated with the newly-created thread.  Note that the
+        // platform-specific values of default thread stack size vary wildly
+        // from one platform to the next; failure to specify a stack size,
+        // either through 'attributes' or 'bcemt_Configuration', can lead to
+        // non-portable code.
 
     static int create(Handle         *handle,
                       ThreadFunction  function,
                       void           *userData);
-        // Create a new thread of program control having platform-specific
-        // default attributes (i.e., "stack size", "scheduling priority", etc.)
-        // that invokes the specified 'function' with a single argument
-        // specified by 'userData', and load into the specified 'handle' an
-        // identifier that may be used to refer to this thread in calls to
-        // other 'bcemt_ThreadUtil' methods.  Return 0 on success, and a
-        // non-zero value otherwise.  The behavior is undefined unless
-        // 'handle != 0'.  Note that unless explicitly "detached" (by invoking
-        // 'detach(*handle)'), a call to 'join' must be made once the thread
-        // terminates to reclaim any system resources associated with the
-        // newly-created thread.
+        // Create a new thread of program control having configured (via
+        // 'bcemt_Configuration') or platform-specific default attributes
+        // (i.e., "stack size", "scheduling priority", etc.) that invokes the
+        // specified 'function' with a single argument specified by 'userData',
+        // and load into the specified 'handle' an identifier that may be used
+        // to refer to this thread in calls to other 'bcemt_ThreadUtil'
+        // methods.  Return 0 on success, and a non-zero value otherwise.  The
+        // behavior is undefined unless 'handle != 0'.  Note that unless
+        // explicitly "detached" (by invoking 'detach(*handle)'), a call to
+        // 'join' must be made once the thread terminates to reclaim any system
+        // resources associated with the newly-created thread.  Note that the
+        // platform-specific values of default thread stack size vary wildly
+        // from one platform to the next; failure to specify a stack size,
+        // either through a 'bcemt_ThreadAttributes' object or through
+        // 'bcemt_Configuration', can lead to non-portable code.
 
     static int create(Handle                        *handle,
                       const bcemt_ThreadAttributes&  attributes,
@@ -369,19 +384,28 @@ struct bcemt_ThreadUtil {
         // "detached" (by invoking 'detach(*handle)') or the
         // 'BCEMT_CREATE_DETACHED' attribute is specified, a call to 'join'
         // must be made once the thread terminates to reclaim any system
-        // resources associated with the newly-created thread.
+        // resources associated with the newly-created thread.  Note that the
+        // platform-specific values of default thread stack size vary wildly
+        // from one platform to the next; failure to specify a stack size,
+        // either through 'attributes' or 'bcemt_Configuration', can lead to
+        // non-portable code.
 
     static int create(Handle *handle, const Invokable& function);
-        // Create a new thread of program control having platform-specific
-        // default attributes (i.e., "stack size", "scheduling priority", etc.)
-        // that invokes the specified 'function' object, and load into the
-        // specified 'handle' an identifier that may be used to refer to this
-        // thread in calls to other 'bcemt_ThreadUtil' methods.  Return 0 on
-        // success, and a non-zero value otherwise.  The behavior is undefined
-        // unless 'handle != 0'.  Note that unless explicitly "detached" (by
-        // invoking 'detach(*handle)'), a call to 'join' must be made once the
-        // thread terminates to reclaim any system resources associated with
-        // the newly-created thread.
+        // Create a new thread of program control having configured (via
+        // 'bcemt_Configuration') or platform-specific default attributes
+        // (i.e., "stack size", "scheduling priority", etc.) that invokes the
+        // specified 'function' object, and load into the specified 'handle' an
+        // identifier that may be used to refer to this thread in calls to
+        // other 'bcemt_ThreadUtil' methods.  Return 0 on success, and a
+        // non-zero value otherwise.  The behavior is undefined unless
+        // 'handle != 0'.  Note that unless explicitly "detached" (by invoking
+        // 'detach(*handle)'), a call to 'join' must be made once the thread
+        // terminates to reclaim any system resources associated with the
+        // newly-created thread.  Note that the platform-specific values of
+        // default thread stack size vary wildly from one platform to the next;
+        // failure to specify a stack size, either through a
+        // 'bcemt_ThreadAttributes' object or through 'bcemt_Configuration',
+        // can lead to non-portable code.
 
     static int detach(Handle& handle);
         // "Detach" the thread identified by the specified 'handle' such that
@@ -428,7 +452,7 @@ struct bcemt_ThreadUtil {
         // specified 'microseconds' and the optionally specified 'seconds'
         // (relative time).  Note that the actual time suspended depends on
         // many factors including system scheduling and system timer
-        // resolution.
+        // resolution, one shouldn't expect a resolution below 50 microseconds.
 
     static void sleep(const bdet_TimeInterval& time);
         // Suspend execution of the current thread for a period of at least the
