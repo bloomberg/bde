@@ -33,13 +33,13 @@ BDES_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Concrete Observer Derived from 'bael_ObserverAdapter'
+///Example 1: Concrete Observer Derived From 'bael_ObserverAdapter'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following code fragments illustrate the essentials of defining and using
 // a concrete observer inherited from 'bael_ObserverAdapter'.
 //
-// First define a concrete observer 'my_OstreamObserver' inheriting from
-// 'bael_ObserverAdapter' and declaring the sync publish method:
+// First define a concrete observer 'my_OstreamObserver' derived from
+// 'bael_ObserverAdapter' and declare the sync publish method:
 //..
 //  class my_OstreamObserver : public bael_ObserverAdapter {
 //    ostream& d_stream;
@@ -83,7 +83,7 @@ BDES_IDENT("$Id: $")
 //      *d_stream << '\n' << bsl::flush;
 //  }
 //..
-// Now, create an 'my_OstreamObserver' object and assign the address of this
+// Now, create a 'my_OstreamObserver' object and assign the address of this
 // object to a 'bael_ObserverAdapter' pointer:
 //..
 //  char buf[2048];
@@ -120,7 +120,7 @@ BDES_IDENT("$Id: $")
 //  out << ends;
 //  cout << buf << endl;
 //..
-//  The above code fragments print to 'stdout' like this:
+// The above code fragments print to 'stdout' like this:
 //
 //     Publish a sequence of three messages.
 //

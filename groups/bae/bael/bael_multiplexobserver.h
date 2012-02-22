@@ -29,6 +29,7 @@ BDES_IDENT("$Id: $")
 //                    ( bael_Observer )
 //                                          dtor
 //                                          publish
+//                                          clear
 //..
 // 'bael_MultiplexObserver' is a concrete class derived from 'bael_Observer'
 // that processes the log records it receives through its 'publish' method
