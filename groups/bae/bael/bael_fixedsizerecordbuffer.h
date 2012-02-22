@@ -261,16 +261,16 @@ class bael_FixedSizeRecordBuffer: public bael_RecordBuffer {
 
     // ACCESSORS
     virtual const bcema_SharedPtr<bael_Record>& back() const;
-        // Return a reference to the non-modifiable log record positioned at
-        // the back end of this record buffer.  The behavior is undefined
-        // unless this record buffer has been locked by the 'beginSequence'
-        // method and unless '0 < length()'.
+        // Return a reference of the shared pointer referring to the record
+        // positioned at the back end of this record buffer.  The behavior is
+        // undefined unless this record buffer has been locked by the
+        // 'beginSequence' method and unless '0 < length()'.
 
     virtual const bcema_SharedPtr<bael_Record>& front() const;
-        // Return a reference to the non-modifiable log record positioned at
-        // the front end of this record buffer.  The behavior is undefined
-        // unless this record buffer has been locked by the 'beginSequence'
-        // method and unless '0 < length()'.
+        // Return a reference of the shared pointer referring to the record
+        // positioned at the front end of this record buffer.  The behavior is
+        // undefined unless this record buffer has been locked by the
+        // 'beginSequence' method and unless '0 < length()'.
 
     virtual int length() const;
         // Return the number of record handles in this record buffer.

@@ -39,8 +39,8 @@ BDES_IDENT("$Id: $")
 //                         |              rotateOnTimeInterval
 //                         |              setStdoutThreshold
 //                         |              setLogFormat
-//                         |              startThread
-//                         |              stopThread
+//                         |              startPublicationThread
+//                         |              stopPublicationThread
 //                         |              isFileLoggingEnabled
 //                         |              isStdoutLoggingPrefixEnabled
 //                         |              isUserFieldsLoggingEnabled
@@ -61,11 +61,12 @@ BDES_IDENT("$Id: $")
 // file.  The 'publish' method pushes a record shared pointer into a fixed
 // queue and returns immediately before the record referred by the shared
 // pointer is actually written asynchronously to disk in the other publications
-// thread.  The publication thread is created by calling 'startThread' method
-// of the async file observer and belongs to the async file observer.  The
-// format of published log records is user-configurable (see "Log Record
-// Formatting" below).  In addition, an async file observer may be configured
-// to perform automatic log file rotation (see "Log File Rotation" below).
+// thread.  The publication thread is created by calling
+// 'startPublicationThread' method of the async file observer and belongs to
+// the async file observer.  The format of published log records is
+// user-configurable (see "Log Record Formatting" below).  In addition, an
+// async file observer may be configured to perform automatic log file rotation
+// (see "Log File Rotation" below).
 //
 ///Log Record Formatting
 ///---------------------
@@ -173,8 +174,12 @@ BDES_IDENT("$Id: $")
 // All public methods of 'bael_AsyncFileObserver' are thread-safe, and can be
 // called concurrently by multiple threads.
 //
-///Usage Example: Use bael_AsyncFileObserver
-///--------------------------------------------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Publication through Logger Manager
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // The following code fragments illustrate the essentials of using a file
 // observer within a 'bael' logging system.
 //
@@ -182,39 +187,39 @@ BDES_IDENT("$Id: $")
 //..
 //  bael_AsyncFileObserver asyncFileObserver;
 //..
-// The async file observer does not automatically start the publication thread
-// upon construction.  To start the publication thread, invoke 'startThread'
-// method:
+// Then, start the publication thread by invoking 'startPublicationThread'
+// method and wait for one second for the publication thread to fully started:
 //..
-//  asyncFileObserver.startThread();
+//  asyncFileObserver.startPublicationThread();
+//  bcemt_ThreadUtil::microSleep(0, 1);
 //..
-// The async file observer must then be installed within a 'bael' logging
-// system.  This is done by passing the async file observer object to the
+// Next, the async file observer must then be installed within a 'bael' logging
+// system.  All messages that are published to the logging system will be
+// transmitted to the 'publish' method of 'asyncFileObserver'.  This is done by
+// passing the async file observer object to the
 // 'bael_LoggerManager::initSingleton' method:
 //..
 //  bael_LoggerManagerConfiguration configuration;
 //  bael_LoggerManager::initSingleton(&asyncFileObserver, configuration);
 //..
-// Optionally, the format can be changed by calling the 'setLogFormat'
-// method.  The statement below outputs timestamps in ISO 8601 format to a
-// log file and in 'bdet'-style (default) format to 'stdout':
+// Then, the logging format can be optionally changed by calling the
+// 'setLogFormat' method.  The statement below outputs timestamps in ISO 8601
+// format to a log file and in 'bdet'-style (default) format to 'stdout':
 //..
 //  observer.setLogFormat("%i %p:%t %s %f:%l %c %m",
 //                        "%d %p:%t %s %f:%l %c %m");
 //..
-// Henceforth, all messages that are published by the logging system will be
-// transmitted to the 'publish' method of 'asyncFileObserver'.  By default,
-// only the messages with a 'WARN', 'ERROR' or 'FATAL' severity will be logged
-// to 'stdout':
+// Next, log one message to log file and log one message to 'stdout' by
+// specifying different logging severity.  By default, only the messages with
+// 'WARN', 'ERROR' or 'FATAL' severity will be logged to 'stdout'.
 //..
 //  BAEL_LOG_INFO << "Will not be published on 'stdout'."
 //                << BAEL_LOG_END;
 //  BAEL_LOG_WARN << "This warning *will* be published on 'stdout'."
 //                << BAEL_LOG_END;
 //..
-// This default can be changed by specifying an optional argument to the
-// 'bael_AsyncFileObserver' constructor or by calling the 'setStdoutThreshold'
-// method:
+// Then, change the default severities for logging to 'stdout' by calling the
+// 'setStdoutThreshold' method:
 //..
 //  asyncFileObserver.setStdoutThreshold(bael_Severity::BAEL_INFO);
 //  BAEL_LOG_DEBUG << "This debug message is not published on 'stdout'."
@@ -224,8 +229,8 @@ BDES_IDENT("$Id: $")
 //  BAEL_LOG_WARN  << "This warning will be published on 'stdout'."
 //                 << BAEL_LOG_END;
 //..
-// The user can log all messages to a specified file and specify rotation rules
-// based on the size of the log file or its lifetime:
+// Next, the user can log all messages to a specified file and specify rotation
+// rules based on the size of the log file or its lifetime:
 //..
 //  asyncFileObserver.enableFileLogging("/var/log/task/task.log");
 //      // Create and log records to a file named "/var/log/task/task.log".
@@ -240,84 +245,93 @@ BDES_IDENT("$Id: $")
 //  asyncFileObserver.rotateOnTimeInterval(bdet_DatetimeInterval(1));
 //      // Rotate the file every 24 hours.
 //..
-// Note that in this configuration the user may end up with multiple log files
-// for a specific day (because of the rotation-on-size rule).  This feature can
-// be disabled dynamically later:
+// Notice that, in this configuration the user may end up with multiple log
+// files for a specific day (because of the rotation-on-size rule).
+//
+// Now, dynamically disable this feature:
 //..
 //  asyncFileObserver.disableSizeRotation();
 //..
-// The publication thread can be stopped explicitly by calling 'stopThread'
-// method:
+// Finally, stop the publication thread by explicitly calling the
+// 'stopPublicationThread' method.  The 'stopPublicationThread' is also
+// invoked when the async file observer is
+// destroyed.
 //..
-//  asyncFileObserver.stopThread();
+//  asyncFileObserver.stopPublicationThread();
 //..
-// The 'stopThread' is also invoked when the async file observer is destroyed.
-//
-// Note that the logger manager to which the async file observer is plugged
+// Notice that, the logger manager in which the async file observer is plugged
 // may get destroyed before the async file observer does.  In that case log
-// record pointed by the shared pointers in the async file observer's fixed
+// records referred by the shared pointers in the async file observer's fixed
 // queue are no longer valid.  The logger manager calls 'clear' method of the
 // async file observer before releasing its log record buffers internally.
 // The 'clear' method stops the publication thread, clears the fixed queue and
-// then restart the publication thread.  The 'clear' method can be used in
+// then restarts the publication thread.  The 'clear' method can be used in
 // similar situation besides the logger manager case when the underlying
 // resources pointed by queued shared pointers need to be released in advance.
 //
-///Usage Example: Asynchronous Logging
-///--------------------------------------------------
-// The following code fragments illustrate the asynchronous nature of
-// 'bael_AsyncFileObserver' publication.  The 'publish' method is non-blocking
-// and the actual log record writing can happen asynchronously.  In this
-// example, ten thousand records are written to a file in a for loop by calling
-// 'publish'.  All the ten thousand records are not completely written to the
-// file immediately after for loop by checking the file size.  The file size is
-// checked again after one second.  It can be told from the size difference
-// that publication thread was still working on writing file.  This example
-// indicates potential performance benefit given by async file observer to
-// deploy 'publish' and the actual file writing in separate concurrent threads.
+///Example 2: Asynchronous Logging Verification
+///- - - - - - - - - - - - - - - - - - - - - - - - -
+// The publish method of 'bael_AsyncFileObserver' is non-blocking
+// and usually returns before the actual records writing is done asynchronously
+// in the publication thread.  This is major advantage of the asynchronous file
+// observer over synchronous file observer.
+//
+// The following code fragments verify the asynchronous nature of
+// 'bael_AsyncFileObserver' publication.
+//
+// First, assign a file name used for verification:
 //..
-//     void asyncPublisher()
-//     {
-//         bsl::string fileName = "asyncOutput.txt";
-//
-//         bael_AsyncFileObserver asyncFileObserver;
-//         asyncFileObserver.startThread();
-//         bcemt_ThreadUtil::microSleep(0, 1);
-//
-//         bael_LoggerManagerConfiguration configuration;
-//         bael_LoggerManager::initSingleton(&asyncFileObserver,
-//                                           configuration);
-//
-//         BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
-//
-//         asyncFileObserver.enableFileLogging(fileName.c_str());
-//
-//         int fileOffset = bdesu_FileUtil::getFileSize(fileName);
-//
-//         bsl::cout << "Begin file offset: " << fileOffset << bsl::endl;
-//
-//         for (int i = 0;i < 10000; ++i) {
-//             BAEL_LOG_WARN << "bael_AsyncFileObserver Usage Example"
-//                           << BAEL_LOG_END;
-//         }
-//
-//         fileOffset = bdesu_FileUtil::getFileSize(fileName);
-//         bsl::cout << "FileOffset after publish: "
-//                   << fileOffset
-//                   << bsl::endl;
-//
-//         bcemt_ThreadUtil::microSleep(0, 1);
-//
-//         fileOffset = bdesu_FileUtil::getFileSize(fileName);
-//         bsl::cout << "End file offset: " << fileOffset << bsl::endl;
-//    }
+//  bsl::string fileName = "asyncOutput.txt";
 //..
-// 'asyncPublisher', when invoked, prints the following to 'stdout':
+// Then, create a 'bael_AsyncFileObserver' named 'asyncFileObserver' and start
+// its publication thread:
+//..
+//  bael_AsyncFileObserver asyncFileObserver;
+//  asyncFileObserver.startPublicationThread();
+//  bcemt_ThreadUtil::microSleep(0, 1);
+//..
+// Next, install the async file observer within a 'bael' logging system and
+// enable the async file observer to write logs to the file:
+//..
+//  bael_LoggerManagerConfiguration configuration;
+//  bael_LoggerManager::initSingleton(&asyncFileObserver,
+//                                    configuration);
+//  BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+//  asyncFileObserver.enableFileLogging(fileName.c_str());
+//..
+// Then, record the file offset of the file before writing anything to it:
+//..
+//  int beginFileOffset = bdesu_FileUtil::getFileSize(fileName);
+//..
+// Next, write ten thousand records the file in a for loop through the logging
+// system and check the file offset again:
+//..
+//  for (int i = 0;i < 10000; ++i) {
+//      BAEL_LOG_INFO << "bael_AsyncFileObserver Usage Example"
+//                    << BAEL_LOG_END;
+//  }
+//  int fileOffset = bdesu_FileUtil::getFileSize(fileName);
+//..
+// Notice that not all of the ten thousand records are completely written to
+// the file immediately after the for loop by checking the file size.
 //
-//      Begin file offset: 0
-//      FileOffset after publish: 1616440
-//      End file offset: 2300000
-
+// Now, wait one second for the asynchronous writing to complete in
+// the publication and check the file size the third time:
+//..
+//  bcemt_ThreadUtil::microSleep(0, 1);
+//  endFileOffset = bdesu_FileUtil::getFileSize(fileName);
+//..
+// Finally, stop the publication thread.  Verify by comparing 'fileOffset' to
+// 'beginFileOffset' that the 'publish' calls and the actual records file
+// writing can happen asynchronously.  On the other hand, the fact that
+// 'fileOffset' is smaller than 'endFileOffset' verifies that 'publish' calls
+// complete before all the records are asynchronously written to file.
+//..
+//  asyncFileObserver.stopPublicationThread();
+//
+//  ASSERT(beginFileOffset < fileOffset   );
+//  ASSERT(fileOffset      < endFileOffset);
+//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -426,11 +440,19 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     // PRIVATE MANIPULATORS
     void publishThreadEntryPoint();
-        // Entry point for the publication thread.
-    void startPublicationThread();
-        // Start publication thread, not thread-safe.
-    void stopPublicationThread();
-        // Stop publication thread, not thread-safe.
+        // Thread function of the publication thread.  The publication thread
+        // pops record shared pointers and contexts from fixed queue and writes
+        // the records referred by these shared pointers to files or 'stdout'.
+    void startThread();
+        // Create publication thread using the thread function
+        // 'publishThreadEntryPoint'.  This method is not thread-safe.  The
+        // behavior is undefined if more than two calls of this method occur
+        // concurrently.
+    void stopThread();
+        // Stop publication thread by pushing a record shared pointer referring
+        // a special 'bael_Record' object with the cause of its context set to
+        // 'BAEL_END'.  This method is not thread-safe.  The behavior is
+        // undefined if more than two calls of this method occur concurrently.
 
   public:
     // CREATORS
@@ -536,7 +558,7 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     void clear();
         // Discard the shared pointers in the fixed queue of this async file
-        // observer without publishing the records pointed by these shared
+        // observer without publishing the records referred by these shared
         // pointers.  This method stops the publication thread before clearing
         // the queue and restarts the publication thread afterwards.  This
         // method has no effect if the publication thread has not started.
@@ -594,11 +616,11 @@ class bael_AsyncFileObserver : public bael_Observer {
         // used when publishing log records.  See "Log Record Formatting" under
         // @DESCRIPTION for details of formatting syntax.
 
-    void startThread();
+    void startPublicationThread();
         // Start the publication thread of this async file observer.  This
         // method has no effect if the publication thread is already started.
 
-    void stopThread();
+    void stopPublicationThread();
         // Stop the publication thread of this async file observer.  This
         // method has no effect if the publication thread has not started.
 
@@ -621,6 +643,10 @@ class bael_AsyncFileObserver : public bael_Observer {
     bool isPublishInLocalTimeEnabled() const;
         // Return 'true' if this async file observer writes the timestamp
         // attribute of records that it publishes in local time, and 'false'
+        // otherwise.
+
+    bool isPublicationThreadRunning() const;
+        // Return 'true' if the publication thread is running, and 'false'
         // otherwise.
 
     bdet_DatetimeInterval rotationLifetime() const;
@@ -747,7 +773,7 @@ void bael_AsyncFileObserver::enablePublishInLocalTime()
 
 inline
 void bael_AsyncFileObserver::setStdoutThreshold(
-                bael_Severity::Level stdoutThreshold)
+                                          bael_Severity::Level stdoutThreshold)
 {
     d_fileObserver.bael_FileObserver::setStdoutThreshold(stdoutThreshold);
 }
@@ -812,6 +838,12 @@ inline
 bool bael_AsyncFileObserver::isPublishInLocalTimeEnabled() const
 {
     return d_fileObserver.isPublishInLocalTimeEnabled();
+}
+
+inline
+bool bael_AsyncFileObserver::isPublicationThreadRunning() const
+{
+    return bcemt_ThreadUtil::invalidHandle() != d_threadHandle;
 }
 
 inline

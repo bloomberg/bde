@@ -41,7 +41,7 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
     }
 }
 
-void bael_AsyncFileObserver::startPublicationThread()
+void bael_AsyncFileObserver::startThread()
 {
     if (bcemt_ThreadUtil::invalidHandle() == d_threadHandle)
     {
@@ -52,7 +52,7 @@ void bael_AsyncFileObserver::startPublicationThread()
     }
 }
 
-void bael_AsyncFileObserver::stopPublicationThread()
+void bael_AsyncFileObserver::stopThread()
 {
     if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle)
     {
@@ -108,7 +108,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 
 bael_AsyncFileObserver::~bael_AsyncFileObserver()
 {
-    stopThread();
+    stopPublicationThread();
 }
 
 // MANIPULATORS
@@ -116,10 +116,10 @@ void bael_AsyncFileObserver::clear()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_clearing = true;
-    stopPublicationThread();
+    stopThread();
     d_recordQueue.removeAll();
     d_clearing = false;
-    startPublicationThread();
+    startThread();
 }
 
 void bael_AsyncFileObserver::publish(
@@ -132,16 +132,16 @@ void bael_AsyncFileObserver::publish(
     d_recordQueue.pushBack(asyncRecord);
 }
 
-void bael_AsyncFileObserver::startThread()
+void bael_AsyncFileObserver::startPublicationThread()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    startPublicationThread();
+    startThread();
 }
 
-void bael_AsyncFileObserver::stopThread()
+void bael_AsyncFileObserver::stopPublicationThread()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    stopPublicationThread();
+    stopThread();
 }
 
 }  // close namespace BloombergLP

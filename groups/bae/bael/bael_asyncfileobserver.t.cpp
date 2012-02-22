@@ -81,8 +81,8 @@ using bsl::flush;
 // [ 3] void rotateOnTimeInterval(const bdet_DatetimeInterval timeInterval)
 // [ 1] void setStdoutThreshold(bael_Severity::Level stdoutThreshold)
 // [ 1] void setLogFormat(const char*, const char*)
-// [ 1] void startThread();
-// [ 1] void stopThread();
+// [ 1] void startPublicationThread();
+// [ 1] void stopPublicationThread();
 //
 // ACCESSORS
 // [ 1] bool isFileLoggingEnabled() const
@@ -92,7 +92,8 @@ using bsl::flush;
 // [ 3] int rotationSize() const
 // [ 1] bael_Severity::Level stdoutThreshold() const
 //-----------------------------------------------------------------------------
-// [ 7] Usage Example: Ensure main usage example compiles and works properly.
+// [ 1] BREATHING TEST
+// [ 7] USAGE EXAMPLE
 //
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
@@ -377,7 +378,7 @@ int main(int argc, char *argv[])
         // TESTING USAGE EXAMPLE 2
         //
         // Concerns:
-        //   The 'Usage Example: Asynchronous Logging' provided in the
+        //   The 'Example 2: Asynchronous Logging Verification' provided in the
         //   component header file must compile, link, and run on all
         //   platforms as shown.
         //
@@ -395,7 +396,7 @@ int main(int argc, char *argv[])
         bsl::string fileName = tempFileName(veryVerbose);
 
         Obj mX(bael_Severity::BAEL_WARN);
-        mX.startThread();
+        mX.startPublicationThread();
         bcemt_ThreadUtil::microSleep(0, 1);
 
         bael_LoggerManagerConfiguration configuration;
@@ -418,19 +419,19 @@ int main(int argc, char *argv[])
                             << BAEL_LOG_END;
         }
 
-        int asyncFileOffset = bdesu_FileUtil::getFileSize(fileName);
+        int fileOffset = bdesu_FileUtil::getFileSize(fileName);
         if (verbose)
-            cout << "FileOffset after publish: " << asyncFileOffset << endl;
-        ASSERT(asyncFileOffset > beginFileOffset);
+            cout << "FileOffset after publish: " << fileOffset << endl;
 
         bcemt_ThreadUtil::microSleep(0, 1);
 
         int endFileOffset = bdesu_FileUtil::getFileSize(fileName);
         if (verbose) cout << "End file offset: " << endFileOffset << endl;
-        ASSERT(endFileOffset > asyncFileOffset);
 
-        mX.stopThread();
+        mX.stopPublicationThread();
 
+        ASSERT(beginFileOffset < fileOffset   );
+        ASSERT(fileOffset      < endFileOffset);
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -467,7 +468,7 @@ int main(int argc, char *argv[])
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
         Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
-        mX.startThread();
+        mX.startPublicationThread();
         bcemt_ThreadUtil::microSleep(0, 1);
 
         // Set callback to monitor rotation.
@@ -527,7 +528,7 @@ int main(int argc, char *argv[])
 
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
-        mX.stopThread();
+        mX.stopPublicationThread();
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -600,7 +601,7 @@ int main(int argc, char *argv[])
 
             Obj mX(bael_Severity::BAEL_OFF, true, &ta);
             const Obj& X = mX;
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             bsl::stringstream os;
 
@@ -640,7 +641,7 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             removeFilesByPrefix(fn.c_str());
             multiplexObserver.deregisterObserver(&mX);
-            mX.stopThread();
+            mX.stopPublicationThread();
         }
 #endif
       } break;
@@ -704,7 +705,7 @@ int main(int argc, char *argv[])
             bsl::string filename = tempFileName(veryVerbose);
 
             Obj mX(bael_Severity::BAEL_OFF, &ta);  const Obj& X = mX;
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
 
@@ -923,7 +924,7 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             removeFilesByPrefix(filename.c_str());
             multiplexObserver.deregisterObserver(&mX);
-            mX.stopThread();
+            mX.stopPublicationThread();
         }
         {
             // Test with no timestamp.
@@ -933,7 +934,7 @@ int main(int argc, char *argv[])
             bsl::string filename = tempFileName(veryVerbose);
 
             Obj mX(bael_Severity::BAEL_OFF, &ta);  const Obj& X = mX;
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
 
@@ -1065,7 +1066,7 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             removeFilesByPrefix(filename.c_str());
             multiplexObserver.deregisterObserver(&mX);
-            mX.stopThread();
+            mX.stopPublicationThread();
         }
 #endif
       } break;
@@ -1074,10 +1075,8 @@ int main(int argc, char *argv[])
         // Clearance Test
         //
         // Concerns:
-        //   1. clear() is properly called by logger manager when it gets
-        //      destroyed before the plugged async file observer does.
-        //   2. clear() works properly to clear all shared pointers in async
-        //      file observer's fixed queue without logging them
+        //   The 'clear' method works properly to clear all shared pointers in
+        //   async file observer's fixed queue without logging them.
         //
         // Plan:
         //   We will first create:
@@ -1121,7 +1120,7 @@ int main(int argc, char *argv[])
 #endif
 
         Obj mX;  const Obj& X = mX;
-        mX.startThread();
+        mX.startPublicationThread();
         bcemt_ThreadUtil::microSleep(0, 1);
         ASSERT(bael_Severity::BAEL_WARN == X.stdoutThreshold());
 
@@ -1172,23 +1171,24 @@ int main(int argc, char *argv[])
 
         ASSERT(linesNum < 2 * logCount);
 
-        mX.stopThread();
+        mX.stopPublicationThread();
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // Publishing Test
         //
         // Concerns:
-        //   1. publish() logs in the expected format using
+        //   1. The publication thread starts and stops properly
+        //   2. publish() logs in the expected format using
         //      enable/disableStdoutLogging
-        //   2. publish() properly ignores the severities below the one
+        //   3. publish() properly ignores the severities below the one
         //      specified at construction on 'stdout'
-        //   3. publish() publishes all messages to a file if file logging
+        //   4. publish() publishes all messages to a file if file logging
         //      is enabled
-        //   4. the name of the log file should be in accordance with what is
+        //   5. the name of the log file should be in accordance with what is
         //      defined by the given pattern if file logging is enabled by a
         //      pattern
-        //   5. setLogFormat can change to the desired output format for both
+        //   6. setLogFormat can change to the desired output format for both
         //      'stdout' and the log file
         //
         // Plan:
@@ -1216,6 +1216,9 @@ int main(int argc, char *argv[])
         // Testing:
         //   bael_AsyncFileObserver(bael_Severity::Level, bslma_Allocator)
         //   ~bael_AsyncFileObserver()
+        //   void startPublicationThread()
+        //   void stopPublicationThread()
+        //   bool isPublicationThreadRunning()
         //   publish(const bael_Record& record, const bael_Context& context)
         //   void disableFileLogging()
         //   void disableStdoutLoggingPrefix()
@@ -1271,11 +1274,43 @@ int main(int argc, char *argv[])
         bael_MultiplexObserver multiplexObserver;
         bael_LoggerManagerScopedGuard guard(&multiplexObserver, configuration);
 
+        if (verbose) cerr << "Testing publication thread."
+                          << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+
+            // Start the publication thread, make sure the publication thread
+            // started
+
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(mX.isPublicationThreadRunning());
+
+            // Start the publication thread again, make sure nothing bad occurs
+
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(mX.isPublicationThreadRunning());
+
+            // Stop the publication thread, make sure the publication thread
+            // stopped
+
+            mX.stopPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(!mX.isPublicationThreadRunning());
+
+            // Stop the publication thread again, make sure nothing bad occurs
+
+            mX.stopPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(!mX.isPublicationThreadRunning());
+        }
+
         if (verbose) cerr << "Testing threshold and output format."
                           << endl;
         {
             Obj mX;  const Obj& X = mX;
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             ASSERT(bael_Severity::BAEL_WARN == X.stdoutThreshold());
             bsl::ostringstream os, dos;
@@ -1391,13 +1426,13 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
-            mX.stopThread();
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing constructor threshold." << endl;
         {
             Obj mX(bael_Severity::BAEL_FATAL, &ta);
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os, dos;
             int fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1464,13 +1499,13 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
-            mX.stopThread();
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing short format." << endl;
         {
             Obj mX;  const Obj& X = mX;
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             ASSERT(!X.isPublishInLocalTimeEnabled());
             ASSERT( X.isStdoutLoggingPrefixEnabled());
@@ -1570,7 +1605,7 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
-            mX.stopThread();
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing short format with local time "
@@ -1578,7 +1613,7 @@ int main(int argc, char *argv[])
                           << endl;
         {
             Obj mX(bael_Severity::BAEL_WARN, true, &ta); const Obj& X = mX;
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             ASSERT( X.isPublishInLocalTimeEnabled());
             ASSERT( X.isStdoutLoggingPrefixEnabled());
@@ -1726,7 +1761,7 @@ int main(int argc, char *argv[])
 
                 bsl::cout.rdbuf(coutSbuf);
                 multiplexObserver.deregisterObserver(&localMultiObserver);
-                mX.stopThread();
+                mX.stopPublicationThread();
             }
         }
 
@@ -1736,7 +1771,7 @@ int main(int argc, char *argv[])
             int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
             Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             Q(Ignore warning about /bogus/path/foo -- it is expected);
             ASSERT(-1 == mX.enableFileLogging("/bogus/path/foo"));
@@ -1855,7 +1890,7 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             removeFilesByPrefix(fn.c_str());
             multiplexObserver.deregisterObserver(&mX);
-            mX.stopThread();
+            mX.stopPublicationThread();
         }
 
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -1865,7 +1900,7 @@ int main(int argc, char *argv[])
             bsl::string fn = tempFileName(veryVerbose);
 
             Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os;
 
@@ -1916,7 +1951,7 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             removeFilesByPrefix(fn.c_str());
             multiplexObserver.deregisterObserver(&mX);
-            mX.stopThread();
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing log file name pattern." << endl;
@@ -1925,7 +1960,7 @@ int main(int argc, char *argv[])
             bsl::string pattern  = baseName + "%Y%M%D%h%m%s";
 
             Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
 
             multiplexObserver.registerObserver(&mX);
@@ -2022,7 +2057,7 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             removeFilesByPrefix(baseName.c_str());
             multiplexObserver.deregisterObserver(&mX);
-            mX.stopThread();
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing '%%' in file name pattern." << endl;
@@ -2083,7 +2118,7 @@ int main(int argc, char *argv[])
             int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
             Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
-            mX.startThread();
+            mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
 
             ASSERT(bael_Severity::BAEL_WARN == X.stdoutThreshold());
@@ -2292,7 +2327,7 @@ int main(int argc, char *argv[])
                 mX.disableFileLogging();
                 removeFilesByPrefix(baseName.c_str());
                 multiplexObserver.deregisterObserver(&mX);
-                mX.stopThread();
+                mX.stopPublicationThread();
             }
         }
 #endif

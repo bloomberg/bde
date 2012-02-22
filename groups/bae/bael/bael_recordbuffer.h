@@ -308,13 +308,13 @@ class bael_RecordBuffer {
 
     // ACCESSORS
     virtual const bcema_SharedPtr<bael_Record>& back() const = 0;
-        // Return a shared pointer object to the non-modifiable log record
+        // Return a reference of the shared pointer referring to the record
         // positioned at the back of this record buffer.  The behavior is
         // undefined unless this record buffer has been locked by the
         // 'beginSequence' method and '0 < length()'.
 
     virtual const bcema_SharedPtr<bael_Record>& front() const = 0;
-        // Return a shared pointer object to the non-modifiable log record
+        // Return a reference of the shared pointer referring to the record
         // positioned at the front of this record buffer.  The behavior is
         // undefined unless this record buffer has been locked by the
         // 'beginSequence' method and '0 < length()'.

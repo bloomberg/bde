@@ -35,7 +35,7 @@ void bael_MultiplexObserver::publish(const bael_Record&  record,
 
 void bael_MultiplexObserver::publish(
                 const bcema_SharedPtr<const bael_Record>&  record,
-                const bael_Context& context)
+                const bael_Context&                        context)
 {
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_rwMutex);
 

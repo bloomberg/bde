@@ -96,12 +96,10 @@ struct ObserverTest : bsls_ProtocolTestImp<bael_ObserverAdapter> {
 // my_ostreamobserver.h
 
 class my_OstreamObserver : public bael_ObserverAdapter {
-    ostream& d_stream;
+    ostream *d_stream;
 
   public:
-    using bael_ObserverAdapter::publish; // to use the async 'publish'
-
-    explicit my_OstreamObserver(ostream& stream) : d_stream(stream) { }
+    explicit my_OstreamObserver(ostream& stream) : d_stream(&stream) { }
     virtual ~my_OstreamObserver();
     virtual void publish(const bael_Record&  record,
                          const bael_Context& context);
@@ -116,33 +114,24 @@ my_OstreamObserver::~my_OstreamObserver()
 void my_OstreamObserver::publish(const bael_Record&  record,
                                  const bael_Context& context)
 {
+    const bael_RecordAttributes& fixedFields = record.fixedFields();
 
-    d_stream << endl;  // skip a line
+    *d_stream << '\n';
 
-    switch (context.transmissionCause()) {
-      case bael_Transmission::BAEL_PASSTHROUGH: {
-        d_stream << "Single Pass-through Message:" << endl;
-      } break;
-      case bael_Transmission::BAEL_TRIGGER_ALL: {
-        d_stream << "Remotely ";      // no 'break'; concatenated output
-      }
-      case bael_Transmission::BAEL_TRIGGER: {
-        d_stream << "Triggered Publication Sequence: Message "
-                 << context.recordIndex() + 1  // Account for 0-based index.
-                 << " of " << context.sequenceLength()
-                 << ':' << endl;
-      } break;
-      default: {
-        d_stream << "***ERROR*** Unknown Message Cause:" << endl;
-      } break;
+    *d_stream << fixedFields.timestamp()               << ' '
+              << fixedFields.processID()               << ' '
+              << fixedFields.threadID()                << ' '
+              << fixedFields.fileName()                << ' '
+              << fixedFields.lineNumber()              << ' '
+              << fixedFields.category()                << ' '
+              << fixedFields.message()                 << ' ';
+
+    const bdem_List& userFields = record.userFields();
+    const int numUserFields = userFields.length();
+    for (int i = 0; i < numUserFields; ++i) {
+        *d_stream << userFields[i] << ' ';
     }
-
-    d_stream << "\tTimestamp:  " << record.fixedFields().timestamp()
-             << endl;
-    d_stream << "\tProcess ID: " << record.fixedFields().processID()
-             << endl;
-    d_stream << "\tThread ID:  " << record.fixedFields().threadID()
-             << endl;
+    *d_stream << '\n' << bsl::flush;
 }
 
 //=============================================================================
@@ -185,33 +174,11 @@ int main(int argc, char *argv[])
             ostrstream out(buf, sizeof buf);
 
             my_OstreamObserver    myObserver(out);
+            bael_ObserverAdapter *adapter = &myObserver;
+
             bdet_Datetime         now;
             bael_RecordAttributes fixed;
             bdem_List             emptyList;
-
-            if (verbose)
-                cout << "Publish a single message (a sequence of 1)." << endl;
-            {
-                out.seekp(0);
-                bdetu_Datetime::convertFromTimeT(&now, time(0));
-                fixed.setTimestamp(now);
-                fixed.setProcessID(100);
-                fixed.setThreadID(0);
-
-                bcema_SharedPtr<const bael_Record> handle(
-                              new (testAllocator) bael_Record(fixed,
-                                                              emptyList,
-                                                              &testAllocator),
-                              &testAllocator);
-                myObserver.publish(
-                              handle,
-                              bael_Context(bael_Transmission::BAEL_PASSTHROUGH,
-                                           0,
-                                           1));
-                out << ends;
-
-                if (veryVerbose) cout << buf << endl;
-            }
 
             if (verbose)
                 cout << "Publish a sequence of three messages." << endl;
@@ -229,7 +196,7 @@ int main(int argc, char *argv[])
                                                               emptyList,
                                                               &testAllocator),
                               &testAllocator);
-                    myObserver.publish(
+                    adapter->publish(
                                   handle,
                                   bael_Context(bael_Transmission::BAEL_TRIGGER,
                                                n,

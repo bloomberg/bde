@@ -213,17 +213,17 @@ class bael_Observer {
         // Process the specified log 'record' having the specified publishing
         // 'context'.
         //
-        // DEPRECATED: replaced by the publish method that takes in constant
-        //             reference of 'bael_Record' shared pointer
+        // DEPRECATED: replaced by the publish method that takes a 
+        //             'const bcema_SharedPtr<const bael_Record>&'.
 
     virtual void publish(const bcema_SharedPtr<const bael_Record>& record,
-                         const bael_Context& context);
+                         const bael_Context&                       context);
         // Process the record referred by the specified log shared pointer
-        // 'record'.  The record has the specified publishing 'context'.
+        // 'record' having the specified publishing 'context'.
     virtual void clear();
-        // Discard record shared pointers internally stored by this observer.
-        // This method is called when the underlying resources referred by
-        // these shared pointers is being released or becoming invalid.
+        // Discard any reference to a record stored by this observer.  This
+        // method is called when the underlying resources of the records are
+        // being released or becoming invalid.
 };
 
 }  // close namespace BloombergLP
