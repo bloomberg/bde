@@ -1833,6 +1833,7 @@ bdema_ManagedPtr<TARGET_TYPE>&
 bdema_ManagedPtr<TARGET_TYPE>::operator=(bsl::nullptr_t)
 {
     this->clear();
+    return *this;
 }
 
 template <class TARGET_TYPE>
