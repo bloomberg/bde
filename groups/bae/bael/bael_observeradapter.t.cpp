@@ -37,7 +37,7 @@ using namespace bsl;  // automatically added by script
 // [ 1] virtual ~bael_ObserverAdapter();
 // [ 1] virtual void publish(const record&, const context&);
 // [ 1] virtual void publish(const sharedptr&, const context&);
-// [ 1] virtual void clear();
+// [ 1] virtual void releaseRecords(0;
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 // [ 2] USAGE TEST - Make sure main usage example compiles and works properly.
@@ -86,7 +86,7 @@ struct ObserverTest : bsls_ProtocolTestImp<bael_ObserverAdapter> {
     void publish(const bcema_SharedPtr<const bael_Record>&,
                  const bael_Context&)
     { markDone(); }
-    void clear() { markDone(); }
+    void releaseRecords() { markDone(); }
 };
 
 //=============================================================================
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
         //   virtual ~bael_ObserverAdapter();
         //   virtual void publish(const record&, const context&);
         //   virtual void publish(const sharedptr&, const context&);
-        //   virtual void clear();
+        //   virtual void releaseRecords();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
@@ -243,7 +243,7 @@ int main(int argc, char *argv[])
                              new (testAllocator) bael_Record(&testAllocator),
                              &testAllocator);
         BSLS_PROTOCOLTEST_ASSERT(t, publish(handle, bael_Context()));
-        BSLS_PROTOCOLTEST_ASSERT(t, clear());
+        BSLS_PROTOCOLTEST_ASSERT(t, releaseRecords());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

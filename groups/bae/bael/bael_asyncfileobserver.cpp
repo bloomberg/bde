@@ -112,7 +112,7 @@ bael_AsyncFileObserver::~bael_AsyncFileObserver()
 }
 
 // MANIPULATORS
-void bael_AsyncFileObserver::clear()
+void bael_AsyncFileObserver::releaseRecords()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_clearing = true;

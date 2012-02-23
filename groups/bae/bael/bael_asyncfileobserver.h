@@ -443,11 +443,13 @@ class bael_AsyncFileObserver : public bael_Observer {
         // Thread function of the publication thread.  The publication thread
         // pops record shared pointers and contexts from fixed queue and writes
         // the records referred by these shared pointers to files or 'stdout'.
+
     void startThread();
         // Create publication thread using the thread function
         // 'publishThreadEntryPoint'.  This method is not thread-safe.  The
         // behavior is undefined if more than two calls of this method occur
         // concurrently.
+
     void stopThread();
         // Stop publication thread by pushing a record shared pointer referring
         // a special 'bael_Record' object with the cause of its context set to
@@ -556,7 +558,7 @@ class bael_AsyncFileObserver : public bael_Observer {
         // to 'stdout' if the severity of 'record' is at least as severe as
         // the severity level specified at construction.
 
-    void clear();
+    void releaseRecords();
         // Discard the shared pointers in the fixed queue of this async file
         // observer without publishing the records referred by these shared
         // pointers.  This method stops the publication thread before clearing

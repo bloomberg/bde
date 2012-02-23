@@ -35,7 +35,7 @@ void bael_Observer::publish(const bcema_SharedPtr<const bael_Record>& record,
     publish(*record, context);
 }
 
-void bael_Observer::clear()
+void bael_Observer::releaseRecords()
 {
 }
 

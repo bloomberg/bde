@@ -835,7 +835,7 @@ bael_LoggerManager::~bael_LoggerManager()
     // to their default value.  (Note that this might not *be* the singleton,
     // so check for that)
 
-    d_observer_p->clear();
+    d_observer_p->releaseRecords();
 
     if (this == s_singleton_p) {
         s_singleton_p = 0;

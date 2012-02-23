@@ -29,7 +29,7 @@ BDES_IDENT("$Id: $")
 //                    ( bael_Observer )
 //                                          dtor
 //                                          publish
-//                                          clear
+//                                          releaseRecords
 //..
 // 'bael_MultiplexObserver' is a concrete class derived from 'bael_Observer'
 // that processes the log records it receives through its 'publish' method
@@ -188,17 +188,23 @@ class bael_MultiplexObserver : public bael_Observer {
         // Process the specified log 'record' having the specified publishing
         // 'context' by forwarding 'record' and 'context' to each of the
         // observers registered with this multiplexing observer.
+        //
+        // DEPRECATED: use the alternative 'publish' overload instead.
 
     virtual void publish(const bcema_SharedPtr<const bael_Record>&  record,
-                         const bael_Context& context);
-        // Process the log referred by the specified shared pointer 'record' by
-        // forwarding 'record' and the specified publishing 'context' of the
-        // log to each of the observers registered with this multiplexing
-        // observer.
+                         const bael_Context&                        context);
+        // Process the specified log 'record' having the specified publishing
+        // 'context'.  This concrete publish implementations processes the
+        // 'record' by forwarding 'record' and 'context' to each of the
+        // observers registered with this multiplexing observer.
 
-    virtual void clear();
-        // Call the 'clear' method of each of the observers registered with
-        // this multiplexing observer.
+    virtual void releaseRecords();
+        // Discard any shared reference to a 'bael_Record' object that was
+        // supplied to the 'publish' method, and is held by this observer.
+        // This implementation processes 'releaseRecords' by calling
+        // 'releaseRecords' on each of the registered observers.  Note that
+        // this operation should be called if resources underlying the
+        // previously provided shared-pointers must be released. 
 
     int registerObserver(bael_Observer *observer);
         // Add the specified 'observer' to the registry of this multiplexing

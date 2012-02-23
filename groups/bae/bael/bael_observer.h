@@ -7,8 +7,6 @@
 #endif
 BDES_IDENT("$Id: $")
 
-
-
 //@PURPOSE: Define a protocol for receiving and processing log records.
 //
 //@CLASSES:
@@ -201,7 +199,7 @@ class bael_Context;
 class bael_Observer {
     // This class provides a protocol for receiving and processing log record
     // output.
-
+    // 
   public:
     // CREATORS
     virtual ~bael_Observer();
@@ -211,19 +209,23 @@ class bael_Observer {
     virtual void publish(const bael_Record&  record,
                          const bael_Context& context);
         // Process the specified log 'record' having the specified publishing
-        // 'context'.
+        // 'context'.  
         //
-        // DEPRECATED: replaced by the publish method that takes a 
-        //             'const bcema_SharedPtr<const bael_Record>&'.
+        // DEPRECATED: use the alternative 'publish' overload instead.
 
     virtual void publish(const bcema_SharedPtr<const bael_Record>& record,
                          const bael_Context&                       context);
-        // Process the record referred by the specified log shared pointer
-        // 'record' having the specified publishing 'context'.
-    virtual void clear();
-        // Discard any reference to a record stored by this observer.  This
-        // method is called when the underlying resources of the records are
-        // being released or becoming invalid.
+        // Process the specified log 'record' having the specified publishing
+        // 'context'.  The exact definition of publish depends on the
+        // implementing class, though the intention is that the log 'record'
+        // (whose publication has occured according to 'context') be
+        // distributed in a human or machine readable form.
+
+    virtual void releaseRecords();
+        // Discard any shared reference to a 'bael_Record' object that was
+        // supplied to the 'publish' method, and is held by this observer. 
+        // Note that this operation should be called if resources underlying
+        // the previously provided shared-pointers must be released.
 };
 
 }  // close namespace BloombergLP

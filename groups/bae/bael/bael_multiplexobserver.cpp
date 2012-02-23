@@ -34,8 +34,8 @@ void bael_MultiplexObserver::publish(const bael_Record&  record,
 }
 
 void bael_MultiplexObserver::publish(
-                const bcema_SharedPtr<const bael_Record>&  record,
-                const bael_Context&                        context)
+                            const bcema_SharedPtr<const bael_Record>&  record,
+                            const bael_Context&                        context)
 {
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_rwMutex);
 
@@ -45,13 +45,13 @@ void bael_MultiplexObserver::publish(
     }
 }
 
-void bael_MultiplexObserver::clear()
+void bael_MultiplexObserver::releaseRecords()
 {
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_rwMutex);
 
     bsl::set<bael_Observer *>::const_iterator it = d_observerSet.begin();
     for (; it != d_observerSet.end(); ++it) {
-        (*it)->clear();
+        (*it)->releaseRecords();
     }
 }
 

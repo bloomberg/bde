@@ -7,27 +7,26 @@
 #endif
 BDES_IDENT("$Id: $")
 
-
-
-//@PURPOSE: Provide an adapter for existing observer implementation.
+//@PURPOSE: Provide a helper for implementing the 'bael_Observer' protocol.
 //
 //@CLASSES:
-//  bael_ObserverAdapter: class for adapting existing observer implementation.
+//  bael_ObserverAdapter: a helper for implementing 'bael_Observer'
 //
 //@SEE_ALSO: bael_observer, bael_record, bael_context
 //
 //@AUTHOR: Shijin Kong (skong25)
 //
-//@DESCRIPTION: This component inherits from 'bael_Observer', implementing the
-// async publish method:
-// 'publish(const bcema_SharedPtr<const bael_Record>&, const bael_Context&)'
-// by calling the sync publish method:
-// 'publish(const bael_Record&, const bael_Context&)'.  This component provides
-// a base class for existing observers which implement sync publish method, and
-// enables these observers to receive log records through the async publish
-// method.  Existing observers derived from this component do not need to
-// change their concrete implementations of sync publish method while we can
-// safely deprecate the sync publish interface in 'bael_Observer'.
+//@DESCRIPTION: This component provides a single class 'bael_ObserverAdatper'
+// that aids in the implementation of the 'bael_Observer' protocol by allowing
+// clients to implement that protocol by implementing a single method
+// signature: 'publish(const bael_Record&, const bael_Context&)'.  A primary
+// goal of this component is to simplify the transition for older
+// implementations of the 'bael_Observer' protocol (that accept
+// const-references to 'bael_Record' objects) to the updated protocol (that
+// accepts shared-pointers to 'bael_Record' objects).  'bael_ObserverAdapter'
+// inherits from 'bael_Observer', and implements the (newer) overload of the
+// 'publish' method in (accepting a shared-pointer to a record) by calling the
+// overload of the 'publish' method (accepting a reference to a record).
 //
 ///Usage
 ///-----
@@ -38,33 +37,32 @@ BDES_IDENT("$Id: $")
 // The following code fragments illustrate the essentials of defining and using
 // a concrete observer inherited from 'bael_ObserverAdapter'.
 //
-// First define a concrete observer 'my_OstreamObserver' derived from
-// 'bael_ObserverAdapter' and declare the sync publish method:
+// First define a concrete observer 'MyOstreamObserver' derived from
+// 'bael_ObserverAdapter' and declares a single publish method accepting a
+// const-reference to a 'bael_Record' object:
 //..
-//  class my_OstreamObserver : public bael_ObserverAdapter {
+//  class MyOstreamObserver : public bael_ObserverAdapter {
 //    ostream& d_stream;
 //
 //  public:
-//    explicit my_OstreamObserver(ostream& stream) : d_stream(stream) { }
-//    virtual ~my_OstreamObserver();
+//    explicit MyOstreamObserver(ostream& stream) : d_stream(stream) { }
+//    virtual ~MyOstreamObserver();
 //    virtual void publish(const bael_Record&  record,
 //                         const bael_Context& context);
 //  };
 //..
-// Then, define public methods of 'bael_OstreamObserver', including the sync
-// publish method.  The sync publish method simply prints out the content of
-// the record it receives.
+// Then, we implement the public methods of 'MyOstreamObserver', including the
+// 'publish' method.  This implementatino of 'publish' simply prints out the
+// content of the record it receives to the stream supplied at construction.
 //..
-//  my_OstreamObserver::~my_OstreamObserver()
+//  MyOstreamObserver::~MyOstreamObserver()
 //  {
 //  }
 //
-//  void my_OstreamObserver::publish(const bael_Record&  record,
-//                                   const bael_Context& context)
+//  void MyOstreamObserver::publish(const bael_Record&  record,
+//                                  const bael_Context& context)
 //  {
 //      const bael_RecordAttributes& fixedFields = record.fixedFields();
-//
-//      *d_stream << '\n';
 //
 //      *d_stream << fixedFields.timestamp()               << ' '
 //                << fixedFields.processID()               << ' '
@@ -83,17 +81,17 @@ BDES_IDENT("$Id: $")
 //      *d_stream << '\n' << bsl::flush;
 //  }
 //..
-// Now, create a 'my_OstreamObserver' object and assign the address of this
+// Now, create a 'MyOstreamObserver' object and assign the address of this
 // object to a 'bael_ObserverAdapter' pointer:
 //..
 //  char buf[2048];
 //  ostrstream out(buf, sizeof buf);
-//  my_OstreamObserver    myObserver(out);
+//  MyOstreamObserver    myObserver(out);
 //  bael_ObserverAdapter *adapter = &myObserver;
 //..
 // Finally, publish three messages by calling the async publish method in
 // 'bael_ObserverAdapter' which in turn calls the sync publish method defined
-// in 'my_OstreamObserver':
+// in 'MyOstreamObserver':
 //..
 //  bdet_Datetime         now;
 //  bael_RecordAttributes fixed;
@@ -121,14 +119,12 @@ BDES_IDENT("$Id: $")
 //  cout << buf << endl;
 //..
 // The above code fragments print to 'stdout' like this:
-//
-//     Publish a sequence of three messages.
-//
-//     22FEB2012_00:12:12.000 201 31  0
-//
-//     22FEB2012_00:12:12.000 202 32  0
-//
-//     22FEB2012_00:12:12.000 203 33  0
+//..
+//  Publish a sequence of three messages.
+//  22FEB2012_00:12:12.000 201 31  0
+//  22FEB2012_00:12:12.000 202 32  0
+//  22FEB2012_00:12:12.000 203 33  0
+//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -152,11 +148,9 @@ class bael_Context;
                         // ==========================
 
 class bael_ObserverAdapter : public bael_Observer {
-    // This class provides an adaptation for existing concrete observers which
-    // implement the deprecated
-    // 'publish(const bael_Record&, const bael_Context&)' to receive and
-    // process log record through
-    // 'publish(const bcema_SharedPtr<bael_Record>&, const bael_Context&)'.
+    // This class aids in the implementation of the 'bael_Observer' protocol
+    // by allowing clients to implement that protocol by implementing a single
+    // method signature: 'publish(const bael_Record&, const bael_Context&)'.
 
   public:
     // CREATORS
@@ -165,21 +159,23 @@ class bael_ObserverAdapter : public bael_Observer {
 
     // MANIPULATORS
     virtual void publish(const bael_Record&  record,
-                         const bael_Context& context);
+                         const bael_Context& context) = 0;
         // Process the specified log 'record' having the specified publishing
         // 'context'.
-        //
-        // DEPRECATED: replaced by 'publish(const sharedptr&, const context&)'.
 
     virtual void publish(const bcema_SharedPtr<const bael_Record>& record,
                          const bael_Context&                       context);
         // Process the record referred by the specified log shared pointer
-        // 'record'.  The record has the specified publishing 'context'.
+        // 'record'.  Note that classes that derive from
+        // 'bael_ObserverAdapter' should *not* implement this method.
 
-    virtual void clear();
-        // Discard any reference to a record stored by this observer.  This
-        // method is called when the underlying resources of the records are
-        // being released or becoming invalid.
+    virtual void releaseRecords();
+        // Discard any shared reference to a 'bael_Record' object that was
+        // supplied to the 'publish' method and is held by this observer. 
+        // Note that classes that derive from 'bael_ObserverAdapter' should
+        // *not* implement this method.  Also note that this operation should
+        // be called if resources underlying the previously provided
+        // shared-pointers must be released.
 };
 
 // ============================================================================
@@ -207,7 +203,7 @@ void bael_ObserverAdapter::publish(
 }
 
 inline
-void bael_ObserverAdapter::clear()
+void bael_ObserverAdapter::releaseRecords()
 {
 }
 
