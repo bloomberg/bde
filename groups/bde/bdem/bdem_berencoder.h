@@ -909,7 +909,7 @@ int bdem_BerEncoder::encodeImpl(const TYPE&                  value,
                                              tagClass,
                                              bdem_BerConstants::BDEM_PRIMITIVE,
                                              tagNumber);
-    rc |= bdem_BerUtil::putValue(d_streamBuf, value);
+    rc |= bdem_BerUtil::putValue(d_streamBuf, value, d_options);
 
     return rc;
 }

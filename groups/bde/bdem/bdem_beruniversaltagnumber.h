@@ -694,7 +694,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_Date&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    // TBD: Add options
+//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
 }
 
 inline
@@ -705,7 +707,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_DateTz&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    // TBD: Add options
+//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
 }
 
 inline
@@ -716,7 +720,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_Datetime&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    // TBD: Add options
+//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
 }
 
 inline
@@ -727,7 +733,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_DatetimeTz&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    // TBD: Add options
+//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
 }
 
 inline
@@ -738,7 +746,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_Time&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    // TBD: Add options
+//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
 }
 
 inline
@@ -749,7 +759,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_TimeTz&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    // TBD: Add options
+//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
+    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
 }
 
 inline

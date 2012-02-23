@@ -9887,7 +9887,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -9905,6 +9905,189 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // VOCABULARY TYPES TEST
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nVOCABULARY TYPES TEST"
+                               << "\n=====================" << bsl::endl;
+
+        if (verbose) bsl::cout << "\nTesting bdet_Date"
+                               << "\n=================" << bsl::endl;
+
+        {
+            const int YEAR = 2005, MONTH = 12, DAY = 15;
+
+            bdet_Date d(YEAR, MONTH, DAY);
+
+            bdem_BerEncoderOptions options;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+
+            bdesb_MemOutStreamBuf osb;
+            bdem_BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, d));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting bdet_DateTz"
+                               << "\n===================" << bsl::endl;
+
+        {
+            const int YEAR = 2005, MONTH = 12, DAY = 15, OFFSET = 45;
+
+            bdet_DateTz dt(bdet_Date(YEAR, MONTH, DAY), OFFSET);
+
+            bdem_BerEncoderOptions options;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+
+            bdesb_MemOutStreamBuf osb;
+            bdem_BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, dt));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting bdet_Time"
+                               << "\n=================" << bsl::endl;
+
+        {
+            const int HOUR = 12, MIN = 56, SECS = 9, MILLISECS = 134;
+
+            bdet_Time t(HOUR, MIN, SECS, MILLISECS);
+
+            bdem_BerEncoderOptions options;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+
+            bdesb_MemOutStreamBuf osb;
+            bdem_BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, t));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting bdet_TimeTz"
+                               << "\n===================" << bsl::endl;
+
+        {
+            const int HOUR   = 12, MIN = 56, SECS = 9, MILLISECS = 134,
+                      OFFSET = 45;
+
+            bdet_TimeTz t(bdet_Time(HOUR, MIN, SECS, MILLISECS), OFFSET);
+
+            bdem_BerEncoderOptions options;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+
+            bdesb_MemOutStreamBuf osb;
+            bdem_BerEncoder encoder(&options);
+
+            ASSERT(0 == encoder.encode(&osb, t));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting bdet_Datetime"
+                               << "\n=====================" << bsl::endl;
+
+        {
+            const int YEAR = 2005, MONTH = 12, DAY = 15;
+            const int HOUR = 12, MIN = 56, SECS = 9, MILLISECS = 134;
+
+            bdet_Datetime dt(YEAR, MONTH, DAY, HOUR, MIN, SECS, MILLISECS);
+
+            bdem_BerEncoderOptions options;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+
+            bdesb_MemOutStreamBuf osb;
+            bdem_BerEncoder encoder(&options);
+
+            ASSERT(0 == encoder.encode(&osb, dt));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting bdet_DatetimeTz"
+                               << "\n=======================" << bsl::endl;
+
+        {
+            const int YEAR   = 2005, MONTH = 12, DAY = 15;
+            const int HOUR   = 12, MIN = 56, SECS = 9, MILLISECS = 134;
+            const int OFFSET = 45;
+
+            bdet_DatetimeTz dt(bdet_Datetime(YEAR, MONTH, DAY,
+                                             HOUR, MIN, SECS, MILLISECS),
+                               OFFSET);
+
+            bdem_BerEncoderOptions options;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+
+            bdesb_MemOutStreamBuf osb;
+            bdem_BerEncoder encoder(&options);
+
+            ASSERT(0 == encoder.encode(&osb, dt));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting bdet_DatetimeTz"
+                               << "\n=======================" << bsl::endl;
+
+        {
+            const int YEAR   = 2012, MONTH = 3, DAY = 1;
+            const int HOUR   = 9, MIN = 0, SECS = 0, MILLISECS = 0;
+            const int OFFSET = -300;
+
+            bdet_DatetimeTz dt(bdet_Datetime(YEAR, MONTH, DAY,
+                                             HOUR, MIN, SECS, MILLISECS),
+                               OFFSET);
+
+            bdem_BerEncoderOptions options;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+
+            bdesb_MemOutStreamBuf osb;
+            bdem_BerEncoder encoder(&options);
+
+            ASSERT(0 == encoder.encode(&osb, dt));
+            printDiagnostic(encoder);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
