@@ -29,15 +29,14 @@ int parseUint(const char **nextPos,
               int         *result,
               const char  *begin,
               const char  *end)
-    // Parse the string beginning at 'begin' and ending at 'end' or the first
-    // non-digit character after 'begin', whichever comes first, as a decimal
-    // non-negative integer and store the result in '*result', setting
-    // '*nextPos' to after the last character parsed.  Return 0 on success and
-    // a non-zero value otherwise.  Failure will occur if there is not a string
-    // of digits starting at 'begin' before 'end', or if 'begin' begins a
-    // number that is too large to be represented in an integer.  The behavior
-    // is undefined unless 'nextPos', 'result', 'begin', and 'end' are all
-    // valid non-null pointers.
+    // Parse the unsigned integer described by the string starting at
+    // specified 'begin' and ending before the specified 'end', then load the
+    // integer value into the specified 'result' and load '*nextPos' with the
+    // address one past the last character parsed.  Return 0 on success and a
+    // non-zero value otherwise.  Failure will occur if there '*begin' is not a
+    // digit, or if the string of digits represents a value too large to
+    // represent in a signed integer.  The behavior is undefined unless 'begin'
+    // and 'end' describe a contiguous range of memory.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(result);
@@ -83,16 +82,16 @@ int parseDate(int         *year,
               int         *day,
               const char **begin,
               const char  *end)
-    // Read a date from a string starting at '*begin' and ending at or before
-    // 'end' of the form "YYYY-MM-DD" where 'YYYY', 'MM', and 'DD' are strings
-    // representing positive integers, '-' is literally a dash character,
-    // 'YYYY' is 4 chars long, and 'MM' and 'DD' are both 2 chars long.  Parse
-    // 'YYYY', 'MM' and 'DD' and store the results in '*year', '*month', and
-    // '*day' respectively.  Set '*begin' to the end of the parsed string,
-    // which will be at or before 'end'.  Return 0 on success and a non-zero
-    // value on failure, where failure will occur if the string beginning at
-    // '*begin' does not conform to the description above, or if it is not
-    // completed at or before 'end'.  Note that if the pattern is successfully
+    // Parse a date, represented in "YYYY-MM-DD" format, from the string
+    // starting at the specified '*begin' and ending before the specified 'end'
+    // then load the specified 'year', 'month' and 'day' with their respective
+    // parsed values, and set '*begin' to the location one past the last parsed
+    // character.  In the "YYYY-MM-DD" format accepted by this function,
+    // 'YYYY', 'MM', and 'DD' are strings representing positive integers, '-'
+    // is literally a dash character, 'YYYY' is 4 chars long, and 'MM' and 'DD'
+    // are both 2 chars long.  Return 0 on success and a non-zero value if the
+    // string being parsed does not match the specified format (including
+    // partial representations).  Note that if the pattern is successfully
     // completed before 'end' is reached, that is not an error.
 {
     BSLS_ASSERT(year);
@@ -152,19 +151,24 @@ int parseTime(int         *hour,
               int         *millisecond,
               const char **begin,
               const char  *end)
-    // Parse a time of the form 'hh:mm:ss<FRAC>' where 'hh', 'mm', 'ss' are all
-    // 2 digit integer (left padded with 0's if necessary) denoting hours,
-    // minutes, and seconds, and '<fRAC>' is the optional fraction of a seconds
-    // part, consisting of a '.' followed by one or more decimal digits.
-    // Assign 'hh' to '*hour', 'mm' to '*minute', and 'ss' to '*second', and
-    // the high order 3 digits of 'frac' to '*millisecond' (or set
-    // '*millisecond' to 0 if '<FRAC>' is not present.  If 'frac' contains 4
-    // digits or more, round it to the nearest value in milliseconds.  Note
-    // that a '<FRAC>' of '.9995' or more will get rounded to 1000
-    // milliseconds.  Digits past the first 4 digits of '<FRAC>' are skipped
-    // and ignored.  Return 0 on success and a non-zero value otherwise.  Note
-    // that extra trailing bytes after the time is successfully parsed is
-    // tolerated.
+    // Parse a time, represented in "hh:mm:ss[.d+]" format, from the string
+    // starting at the specified '*begin' and ending before the specified
+    // 'end', then load the specified 'hour', 'minute', 'second' and
+    // 'millisecond' with their respective parsed values, and set '*begin' to
+    // the location one past the last parsed character.  In the "hh:mm:ss[.d+]"
+    // format accepted by this function, 'hh', 'mm', 'ss' are all 2 digit
+    // integers (left padded with 0's if necessary) denoting hours, minutes,
+    // and seconds, ':' is literaly a colon character, and [.d+] is the
+    // optional fraction of a second, consisting of a '.' followed by one or
+    // more decimal digits.  If '[.d+]' contains more than 3 digits, the value
+    // will be rounded to the nearest value in milliseconds.  Return 0 on
+    // success and a non-zero value if the string being parsed does not match
+    // the specified format (including partial representations).  Note that a
+    // fractional second value of '.9995' or more will be rounded to 1000
+    // milliseconds (and higher level functions are responsible for
+    // incrementing the represented value of 'seconds' if necessary).  Also
+    // note that if the pattern is successfully completed before 'end' is
+    // reached, that is not an error.
 {
     BSLS_ASSERT(hour);
     BSLS_ASSERT(minute);
@@ -266,15 +270,18 @@ static
 int parseTimezoneOffset(int         *minuteOffset,
                         const char **begin,
                         const char  *end)
-    // Parse the string from '*begin' to 'end' as a time zone of the form
-    // 'Shh:mm' where 'S' is '+' or '-', 'hh' and 'mm' are 2 digit integers
+    // Parse a time zone offset, represented in "Shh:mm" format, from the
+    // string starting at the specified '*begin' and ending before the
+    // specified 'end' then load the specified 'minuteOffset' with the parsed
+    // time zone offset (in minutes), and set '*begin' to the location one past
+    // the last parsed character.  In the "Shh:mm" format accepted by this
+    // function, 'S' is either '+' or '-', 'hh' and 'mm' are 2 digit integers
     // (left padded with '0's if necessary).  'hh' must be in the range
     // '[ 00, 24 )' and 'mm' must be in the range '[ 0, 60 )'.  An alternate
-    // form of the string is 'Z' or 'z', signifying a zero offset.  Return 0 if
-    // the input string meets all the above conditions and set '*minuteOffset'
-    // to '('-' == S ?  -1 : 1) * (hh * 60 + mm)' and set '*begin' on success
-    // and return a non-zero value otherwise.  Note that trailing characters
-    // after the time zone is parsed are tolerated.
+    // form of the representation is 'Z' or 'z', signifying a zero offset.
+    // Return 0 on success and a non-zero value if the string being parsed does
+    // not match the specified format.  Note that if the pattern is
+    // successfully completed before 'end' is reached, that is not an error.
 {
     BSLS_ASSERT(minuteOffset);
     BSLS_ASSERT(begin);
