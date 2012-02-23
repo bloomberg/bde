@@ -75,6 +75,17 @@ typedef bcemt_ThreadUtil    Obj;
 int verbose;
 int veryVerbose;
 
+//=============================================================================
+//                  GLOBAL FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+bsls_Types::IntPtr intPtrAbs(bsls_Types::IntPtr a)
+{
+    return a >= 0 ? a : -a;
+}
+
+//=============================================================================
+
 namespace {
     // unnamed namespace for local resources
 
@@ -215,8 +226,8 @@ void Func::recurser(char *base)
         *pc = (garbage += 9);
     }
 
-    if   (bsl::abs(buf - base) < d_stackToUse
-       && bsl::abs(buf + sizeof(buf) - base) < d_stackToUse) {
+    if   (intPtrAbs(buf - base) < d_stackToUse
+       && intPtrAbs(buf + sizeof(buf) - base) < d_stackToUse) {
         recurser(base);
     }
 
