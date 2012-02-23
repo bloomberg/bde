@@ -10482,6 +10482,45 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) bsl::cout << "\nTesting bdet_DatetimeTz"
+                               << "\n=======================" << bsl::endl;
+
+        {
+            const int YEAR   = 2005, MONTH = 12, DAY = 15;
+            const int HOUR   = 12, MIN = 56, SECS = 9, MILLISECS = 134;
+            const int OFFSET = 45;
+
+            bdet_DatetimeTz datetime(bdet_Datetime(YEAR, MONTH, DAY,
+                                                   HOUR, MIN, SECS, MILLISECS),
+                                     OFFSET);
+            test::BasicRecord valueOut;
+            valueOut.dt() = datetime;
+
+            bdem_BerEncoderOptions options;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+
+            bdesb_MemOutStreamBuf osb;
+            bdem_BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, valueOut));
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+
+            test::BasicRecord valueIn;
+
+            ASSERT(valueOut != valueIn);
+            bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+            ASSERT(0 == decoder.decode(&isb, &valueIn));
+            printDiagnostic(decoder);
+            
+            ASSERT(valueOut == valueIn);
+            if (veryVerbose) {
+                P(valueOut);
+                P(valueIn);
+            }
+        }
 
       } break;
       case 14: {
