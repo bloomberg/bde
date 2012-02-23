@@ -3495,7 +3495,7 @@ int baea_CommandLine::missing(bool checkAlsoNonOptions) const
 // CREATORS
 baea_CommandLine::baea_CommandLine(
                               const baea_CommandLineOptionInfo *specTable,
-                              int                               size,
+                              int                               length,
                               bslma_Allocator                  *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
@@ -3508,8 +3508,8 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    d_options.reserve(size);
-    for (int i = 0; i < size; ++i) {
+    d_options.reserve(length);
+    for (int i = 0; i < length; ++i) {
         baea_CommandLineOption tmp(specTable[i]);
         d_options.push_back(tmp);
     }
@@ -3519,7 +3519,7 @@ baea_CommandLine::baea_CommandLine(
 
 baea_CommandLine::baea_CommandLine(
                               const baea_CommandLineOptionInfo *specTable,
-                              int                               size,
+                              int                               length,
                               bsl::ostream&                    stream,
                               bslma_Allocator                  *basicAllocator)
 : d_options(basicAllocator)
@@ -3533,8 +3533,8 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    d_options.reserve(size);
-    for (int i = 0; i < size; ++i) {
+    d_options.reserve(length);
+    for (int i = 0; i < length; ++i) {
         baea_CommandLineOption tmp(specTable[i]);
         d_options.push_back(tmp);
     }
