@@ -460,9 +460,11 @@ class bael_AsyncFileObserver : public bael_Observer {
     // CREATORS
     explicit bael_AsyncFileObserver(
               bael_Severity::Level  stdoutThreshold = bael_Severity::BAEL_WARN,
+              int                   fixedQueueSize  = 8192,
               bslma_Allocator      *basicAllocator  = 0);
-        // Create an asynchronous file observer that publishes log records to
-        // 'stdout' if their severity is at least as severe as the optionally
+        // Create an asynchronous file observer with a fixed queue size of the
+        // specified 'fixedQueueSize' that publishes log records to 'stdout' if
+        // their severity is at least as severe as the optionally
         // specified 'stdoutThreshold' level.  If 'stdoutThreshold' is not
         // specified, log records are published to 'stdout' if their severity
         // is at least as severe as 'bael_Severity::BAEL_WARN'.  The timestamp
@@ -474,9 +476,11 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     bael_AsyncFileObserver(bael_Severity::Level  stdoutThreshold,
                            bool                  publishInLocalTime,
+                           int                   fixedQueueSize = 8192,
                            bslma_Allocator      *basicAllocator = 0);
-        // Create an asynchronous file observer that publishes log records to
-        // 'stdout' if their severity is at least as severe as the specified
+        // Create an asynchronous file observer with a fixed queue size of the
+        // specified 'fixedQueueSize' that publishes log records to 'stdout' if
+        // their severity is at least as severe as the specified
         // 'stdoutThreshold' level.  If the specified 'publishInLocalTime' flag
         // is 'true', the timestamp attribute of published records is written
         // in local time; otherwise the timestamp attribute of published
@@ -551,15 +555,15 @@ class bael_AsyncFileObserver : public bael_Observer {
         // publishing in local time is already enabled.
 
     void publish(const bcema_SharedPtr<const bael_Record>& record,
-                 const bael_Context& context);
-        // Process the record pointed by the specified shared pointer 'record'
+                 const bael_Context&                       context);
+        // Process the record referred by the specified shared pointer 'record'
         // by writing the record and the specified 'context' of the record to
         // a file if file logging is enabled for this async file observer, and
         // to 'stdout' if the severity of 'record' is at least as severe as
         // the severity level specified at construction.
 
     void releaseRecords();
-        // Discard the shared pointers in the fixed queue of this async file
+        // Discard the shared references in the fixed queue of this async file
         // observer without publishing the records referred by these shared
         // pointers.  This method stops the publication thread before clearing
         // the queue and restarts the publication thread afterwards.  This

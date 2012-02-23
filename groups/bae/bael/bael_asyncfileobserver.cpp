@@ -72,11 +72,12 @@ void bael_AsyncFileObserver::stopThread()
 // CREATORS
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                 bael_Severity::Level  stdoutThreshold,
+                int                   fixedQueueSize,
                 bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_clearing(false)
-, d_recordQueue(8000, basicAllocator)
+, d_recordQueue(fixedQueueSize, basicAllocator)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -90,11 +91,12 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                 bael_Severity::Level  stdoutThreshold,
                 bool                  publishInLocalTime,
+                int                   fixedQueueSize,
                 bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_clearing(false)
-, d_recordQueue(8000, basicAllocator)
+, d_recordQueue(fixedQueueSize, basicAllocator)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 
 {
