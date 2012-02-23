@@ -554,7 +554,12 @@ int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
     bsls_Types::Int64 serialDatetime;
     getIntegerValue(streamBuf, &serialDatetime, length);
 
-    const bsls_Types::Int64 serialDate = serialDatetime / MILLISECS_PER_DAY;
+    bsls_Types::Int64 serialDate = serialDatetime / MILLISECS_PER_DAY;
+
+    if (serialDatetime < 0) {
+        --serialDate;
+    }
+
     int year, month, day;
     bdeimp_DateUtil::serial2ymd(&year, &month, &day,
                                 serialDate + JAN_01_2020_SERIAL_DATE);
@@ -587,36 +592,39 @@ int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
                                      bdet_DateTz    *value,
                                      int             length)
 {
-    int offset = 0;
+    short offset = 0;
     getTimezoneOffset(streamBuf, &offset);
 
     bdet_Date localDate;
-    getBinaryValue(&localDate);
+    getBinaryValue(streamBuf, &localDate, length - TIMEZONE_LENGTH);
     value->validateAndSetDateTz(localDate, offset);
+    return 0;
 }
 
 int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
                                      bdet_TimeTz    *value,
                                      int             length)
 {
-    int offset = 0;
+    short offset = 0;
     getTimezoneOffset(streamBuf, &offset);
 
     bdet_Time localTime;
-    getBinaryValue(&localTime);
+    getBinaryValue(streamBuf, &localTime, length - TIMEZONE_LENGTH);
     value->validateAndSetTimeTz(localTime, offset);
+    return 0;
 }
 
 int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf  *streamBuf,
                                      bdet_DatetimeTz *value,
                                      int              length)
 {
-    int offset = 0;
+    short offset = 0;
     getTimezoneOffset(streamBuf, &offset);
 
     bdet_Datetime localDatetime;
-    getBinaryValue(&localDatetime);
-    value->validateAndSetDateTz(localDatetime, offset);
+    getBinaryValue(streamBuf, &localDatetime, length - TIMEZONE_LENGTH);
+    value->validateAndSetDatetimeTz(localDatetime, offset);
+    return 0;
 }
 
 int bdem_BerUtil_Imp::putBinaryValue(bsl::streambuf   *streamBuf,
