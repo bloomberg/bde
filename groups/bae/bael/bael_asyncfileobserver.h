@@ -45,6 +45,7 @@ BDES_IDENT("$Id: $")
 //                         |              rotateOnTimeInterval
 //                         |              setStdoutThreshold
 //                         |              setLogFormat
+//                         |              shutdownPublicationThread
 //                         |              startPublicationThread
 //                         |              stopPublicationThread
 //                         |              isFileLoggingEnabled
@@ -185,11 +186,9 @@ BDES_IDENT("$Id: $")
 //..
 //  bael_AsyncFileObserver asyncFileObserver;
 //..
-// Then, start the publication thread by invoking 'startPublicationThread'
-// method and wait for one second for the publication thread to fully started:
+// Then, start the publication thread by invoking 'startPublicationThread':
 //..
 //  asyncFileObserver.startPublicationThread();
-//  bcemt_ThreadUtil::microSleep(0, 1);
 //..
 // Next, the async file observer must then be installed within a 'bael' logging
 // system.  All messages that are published to the logging system will be
@@ -620,6 +619,12 @@ class bael_AsyncFileObserver : public bael_Observer {
         // used when publishing log records.  See "Log Record Formatting" under
         // @DESCRIPTION for details of formatting syntax.
 
+    int shutdownPublicationThread();
+        // Immediately shutdown the publication thread and return to the
+        // caller.  Currently queue'd records will remain in the queue and
+        // un-published until either 'startPublicationThread' or
+        // 'releaseRecords' is called.
+
     int startPublicationThread();
         // Start the publication thread of this async file observer.  Return 0
         // on success or if the publication thread has already started, and a
@@ -627,8 +632,9 @@ class bael_AsyncFileObserver : public bael_Observer {
         // publication thread has already started.
 
     int stopPublicationThread();
-        // Stop the publication thread of this async file observer.  This
-        // method has no effect if the publication thread has not started.
+        // Disable queueing of published records and wait until all currently
+        // enqueued records are published, then shut down the publication
+        // thread and return to the caller.
 
     // ACCESSORS
     bool isFileLoggingEnabled() const;
