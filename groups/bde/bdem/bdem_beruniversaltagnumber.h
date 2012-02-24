@@ -240,12 +240,14 @@ struct bdem_BerUniversalTagNumber {
         // the modifiable 'stream'.
 
     template <typename TYPE>
-    static Value select(const TYPE& object, int formattingMode);
+    static Value select(const TYPE&                   object,
+                        int                           formattingMode,
+                        const bdem_BerEncoderOptions *options = 0);
         // Return the universal tag number for the specified 'object' with the
         // specified 'formattingMode'.  The behavior is undefined if the type
         // category of 'object' and the 'formattingMode' do not permit a
         // universal tag number (see component-level documentation for allowed
-        // type categories and formatting modes).
+        // type categories and formatting modes).  TBD:
 
     template <class STREAM>
     static STREAM& bdexStreamOut(STREAM&  stream,
@@ -281,10 +283,16 @@ class bdem_BerUniversalTagNumber_Imp {
     typedef bdeat_FormattingMode              FMode;   // shorthand
     typedef bdem_BerUniversalTagNumber::Value TagVal;  // shorthand
 
-    int d_formattingMode;
+    int                           d_formattingMode;
+    const bdem_BerEncoderOptions *d_options_p;   // options (held, not owned)
 
   public:
-    bdem_BerUniversalTagNumber_Imp(int fm) : d_formattingMode(fm) { }
+    bdem_BerUniversalTagNumber_Imp(int                           fm,
+                                   const bdem_BerEncoderOptions *options)
+    : d_formattingMode(fm)
+    , d_options_p(options)
+    {
+    }
 
     // --- By Type ------------------------------------------------------------
 
@@ -456,12 +464,23 @@ bsl::ostream& bdem_BerUniversalTagNumber::print(
 template <typename TYPE>
 inline
 bdem_BerUniversalTagNumber::Value
-bdem_BerUniversalTagNumber::select(const TYPE& object, int formattingMode)
+bdem_BerUniversalTagNumber::select(
+                                  const TYPE&                  object,
+                                  int                           formattingMode,
+                                  const bdem_BerEncoderOptions *options)
 {
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    bdem_BerUniversalTagNumber_Imp imp(formattingMode);
+    bdem_BerUniversalTagNumber_Imp imp(formattingMode, options);
     int retVal = bdeat_TypeCategoryUtil::accessByCategory(object, imp);
+
+    if (alternateTag) {
+        const int tag = imp.alternateTag();
+        if (-1 != tag) {
+            *alternateTag = tag;
+        }
+    }
+
     return (bdem_BerUniversalTagNumber::Value) retVal;
 }
 
@@ -694,9 +713,7 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_Date&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    // TBD: Add options
-//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+    return d_options_p && d_options_p->bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
 }
 
 inline
@@ -707,9 +724,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_DateTz&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    // TBD: Add options
-//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+    d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+
+    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
 }
 
 inline
@@ -720,9 +737,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_Datetime&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    // TBD: Add options
-//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+    d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+
+    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
 }
 
 inline
@@ -733,9 +750,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_DatetimeTz&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    // TBD: Add options
-//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+    d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+
+    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
 }
 
 inline
@@ -746,9 +763,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_Time&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    // TBD: Add options
-//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+    d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+
+    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
 }
 
 inline
@@ -759,9 +776,9 @@ bdem_BerUniversalTagNumber_Imp::select(const bdet_TimeTz&,
     BSLS_ASSERT_SAFE(
           FMode::BDEAT_DEFAULT == (d_formattingMode & FMode::BDEAT_TYPE_MASK));
 
-    // TBD: Add options
-//     return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
-    return bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+    d_alternateTag = bdem_BerUniversalTagNumber::BDEM_BER_OCTET_STRING;
+
+    return bdem_BerUniversalTagNumber::BDEM_BER_VISIBLE_STRING;
 }
 
 inline

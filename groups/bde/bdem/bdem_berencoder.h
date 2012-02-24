@@ -1069,7 +1069,8 @@ int bdem_BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
     bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     bdem_BerUniversalTagNumber::Value tagNumber
-           = bdem_BerUniversalTagNumber::select(value, d_formattingMode);
+           = bdem_BerUniversalTagNumber::select(value,
+                                                d_formattingMode);
 
     if (d_encoder->encodeImpl(value,
                               bdem_BerConstants::BDEM_UNIVERSAL,
