@@ -159,7 +159,7 @@ typedef baetzo_ErrorCode  Err;
 //-----------------------------------------------------------------------------
 
 static const char *AMERICA_NEW_YORK_ID = "America/New_York";
-static const char  AMERICA_NEW_YORK_DATA[] = {
+static const unsigned char  AMERICA_NEW_YORK_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04,
     0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xeb,
@@ -683,7 +683,7 @@ static const char  EUROPE_ROME_DATA[] = {
 
 // Asia/Saigon
 static const char *ASIA_SAIGON_ID = "Asia/Saigon";
-static const char  ASIA_SAIGON_DATA[] = {
+static const unsigned char  ASIA_SAIGON_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04,
     0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04,
@@ -707,7 +707,7 @@ static const char  ASIA_SAIGON_DATA[] = {
 };
 
 static const char *ASIA_BANGKOK_ID = "Asia/Bangkok";
-static const char  ASIA_BANGKOK_DATA[] = {
+static const unsigned char  ASIA_BANGKOK_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
     0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
@@ -1424,7 +1424,7 @@ int main(int argc, char *argv[])
         {
             int                       rc;
 
-            bdesb_FixedMemInStreamBuf bufNewYork(AMERICA_NEW_YORK_DATA,
+            bdesb_FixedMemInStreamBuf bufNewYork((char*) AMERICA_NEW_YORK_DATA,
                                                 sizeof(AMERICA_NEW_YORK_DATA));
             bsl::istream              streamNewYork(&bufNewYork);
             baetzo_Zoneinfo           newYork;
@@ -1432,7 +1432,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
             newYork.setIdentifier(AMERICA_NEW_YORK_ID);
 
-            bdesb_FixedMemInStreamBuf bufRome(EUROPE_ROME_DATA,
+            bdesb_FixedMemInStreamBuf bufRome((char*) EUROPE_ROME_DATA,
                                               sizeof(EUROPE_ROME_DATA));
             bsl::istream              streamRome(&bufRome);
             baetzo_Zoneinfo           rome;
@@ -1440,7 +1440,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
             rome.setIdentifier(EUROPE_ROME_ID);
 
-            bdesb_FixedMemInStreamBuf bufSaigon(ASIA_SAIGON_DATA,
+            bdesb_FixedMemInStreamBuf bufSaigon((char*) ASIA_SAIGON_DATA,
                                                 sizeof(ASIA_SAIGON_DATA));
             bsl::istream              streamSaigon(&bufSaigon);
             baetzo_Zoneinfo           saigon;
@@ -1466,7 +1466,7 @@ int main(int argc, char *argv[])
             ASSERT(baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(AMERICA_NEW_YORK_ID,
-                           AMERICA_NEW_YORK_DATA,
+                           (char *) AMERICA_NEW_YORK_DATA,
                            sizeof(AMERICA_NEW_YORK_DATA));
 
             rc = mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID);
@@ -1480,7 +1480,7 @@ int main(int argc, char *argv[])
             ASSERT(baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(EUROPE_ROME_ID,
-                           EUROPE_ROME_DATA,
+                           (char *) EUROPE_ROME_DATA,
                            sizeof(EUROPE_ROME_DATA));
 
             rc = mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID);
@@ -1495,7 +1495,7 @@ int main(int argc, char *argv[])
             ASSERT(baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(ASIA_SAIGON_ID,
-                           ASIA_SAIGON_DATA,
+                           (char *) ASIA_SAIGON_DATA,
                            sizeof(ASIA_SAIGON_DATA));
 
             rc = mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID);
@@ -1524,7 +1524,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_FAIL(obj.setTimeZone(
                                                0,
-                                               AMERICA_NEW_YORK_DATA,
+                                               (char *)AMERICA_NEW_YORK_DATA,
                                                sizeof(AMERICA_NEW_YORK_DATA)));
                 ASSERT_SAFE_FAIL(obj.setTimeZone(
                                                AMERICA_NEW_YORK_ID,
@@ -1532,11 +1532,11 @@ int main(int argc, char *argv[])
                                                sizeof(AMERICA_NEW_YORK_DATA)));
                 ASSERT_SAFE_FAIL(obj.setTimeZone(
                                                AMERICA_NEW_YORK_ID,
-                                               AMERICA_NEW_YORK_DATA,
+                                               (char *) AMERICA_NEW_YORK_DATA,
                                                -1));
                 ASSERT_SAFE_PASS(obj.setTimeZone(
                                                AMERICA_NEW_YORK_ID,
-                                               AMERICA_NEW_YORK_DATA,
+                                               (char *) AMERICA_NEW_YORK_DATA,
                                                sizeof(AMERICA_NEW_YORK_DATA)));
             }
 
@@ -1844,7 +1844,7 @@ int main(int argc, char *argv[])
             cout << "\tTest loading binary data." << endl;
         }
         ASSERT(0 == x.setTimeZone(ASIA_BANGKOK_ID,
-                                  ASIA_BANGKOK_DATA,
+                                  (char *) ASIA_BANGKOK_DATA,
                                   sizeof(ASIA_BANGKOK_DATA)));
         ASSERT(0 == x.loadTimeZone(&value, ASIA_BANGKOK_ID));
 
@@ -1855,7 +1855,7 @@ int main(int argc, char *argv[])
         {
             LogVerbosityGuard guard;
             ASSERT(0 != x.setTimeZone(ASIA_BANGKOK_ID,
-                                      ASIA_BANGKOK_DATA,
+                                      (char *) ASIA_BANGKOK_DATA,
                                       15));
         }
       } break;
