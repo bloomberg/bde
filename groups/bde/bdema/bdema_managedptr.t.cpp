@@ -33,9 +33,10 @@ using bsl::endl;
 //
 // [ 2]   Test machinery
 // [ 3]   imp. class bdema_ManagedPtr_Ref
-// [6-12] class bdema_ManagedPtr
-// [13]   class bdema_ManagedPtrNilDeleter   [DEPRECATED]
-// [14]   class bdema_ManagedPtrNoOpDeleter
+// [4-5]  (tested classes migrated to their own components)
+// [6-15] class bdema_ManagedPtr
+// [16]   class bdema_ManagedPtrNilDeleter   [DEPRECATED]
+// [17]   class bdema_ManagedPtrNoOpDeleter
 //
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -94,25 +95,25 @@ using bsl::endl;
 // [ 7] void load(TYPE *ptr, FACTORY *factory, void(*deleter)(TYPE *,FACTORY*))
 // [ 8] void loadAlias(bdema_ManagedPtr<OTHER> &alias, TYPE *ptr)
 // [13] void swap(bdema_ManagedPt& rhs);
-// [13] bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
-// [13] bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
-// [14] void clear();
-// [14] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
+// [14] bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
+// [14] bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+// [15] void clear();
+// [15] bsl::pair<TYPE*,bdema_ManagedPtrDeleter> release();
 // [ 9] operator BoolType() const;
 // [ 9] TYPE& operator*() const;
 // [ 9] TYPE *operator->() const;
 // [ 9] TYPE *ptr() const;
 // [ 9] const bdema_ManagedPtrDeleter& deleter() const;
 //
-// [15] class bdema_ManagedPtrNilDeleter
-// [16] class bdema_ManagedPtrNoOpDeleter
+// [16] class bdema_ManagedPtrNilDeleter
+// [17] class bdema_ManagedPtrNoOpDeleter
 //
 // [ 3] imp. class bdema_ManagedPtr_Ref
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TESTING TEST MACHINERY
-// [17] CASTING EXAMPLE
-// [18] USAGE EXAMPLE
+// [18] CASTING EXAMPLE
+// [19] USAGE EXAMPLE
 // [-1] VERIFYING FAILURES TO COMPILE
 
 namespace {
@@ -1299,7 +1300,7 @@ template<typename POINTER_TYPE>
 void doConstruct(int callLine, int testLine, int index,
             TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 1  > args->d_config);
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
 
     bdema_ManagedPtr<POINTER_TYPE> testObject;
 
@@ -1311,7 +1312,7 @@ template<typename POINTER_TYPE>
 void doConstructOnull(int callLine, int testLine, int index,
                  TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 1  > args->d_config);
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
 
     bdema_ManagedPtr<POINTER_TYPE> testObject(0);
 
@@ -1323,7 +1324,7 @@ template<typename POINTER_TYPE>
 void doConstructOnullFnull(int callLine, int testLine, int index,
                       TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 1  > args->d_config);
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
 
     bdema_ManagedPtr<POINTER_TYPE> testObject(0, 0);
 
@@ -1335,7 +1336,7 @@ template<typename POINTER_TYPE>
 void doConstructOnullFnullDnull(int callLine, int testLine, int index,
                            TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 1  > args->d_config);
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
 
 // A workaround for early GCC compilers
 #if defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR < 40000
@@ -1363,7 +1364,7 @@ template<class POINTER_TYPE, class ObjectPolicy>
 void doConstructObject(int callLine, int testLine, int index,
                        TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 2  > args->d_config);
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 2 > args->d_config);
 
     typedef typename ObjectPolicy::ObjectType ObjectType;
 
@@ -1406,13 +1407,34 @@ void doConstructObject(int callLine, int testLine, int index,
 // The following functions load a 'bdema_ManagedPtr' object using a factory.
 // We now require separate policies for Object and Factory types
 
+template<class POINTER_TYPE, class FactoryPolicy>
+void doConstructOnullFactory(int callLine, int testLine, int index,
+                             TestCtorArgs *args)
+{
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 1 > args->d_config);
+
+    typedef typename FactoryPolicy::FactoryType FactoryType;
+
+    // We need two factory pointers, 'pAlloc' is used for all necessary
+    // allocations and destructions within this function, while 'pF' is the
+    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // null.
+    bslma_TestAllocator ta("TestLoad 1", g_veryVeryVeryVerbose);
+    FactoryType *pAlloc = FactoryPolicy::factory(&ta);
+
+    const bdema_ManagedPtrDeleter del;
+
+    bdema_ManagedPtr<POINTER_TYPE> testObject(0, pAlloc);
+    validateManagedState(L_, testObject, 0, del);
+}
+
 template<class POINTER_TYPE, class ObjectPolicy, class FactoryPolicy>
 void doConstructObjectFactory(int callLine, int testLine, int,
-                         TestCtorArgs *args)
+                              TestCtorArgs *args)
 {
     BSLMF_ASSERT(FactoryPolicy::DELETER_USES_FACTORY);
 
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 4  > args->d_config);
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 4 > args->d_config);
 
     const bool nullObject  = args->d_config & 1;
     const bool nullFactory = args->d_config & 2;
@@ -1495,7 +1517,7 @@ template<class POINTER_TYPE, class ObjectPolicy, class FactoryPolicy>
 void doConstructObjectFactoryDzero(int callLine, int testLine, int,
                               TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 4  > args->d_config);
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 4 > args->d_config);
 
     bool nullObject  = args->d_config & 1;
     bool nullFactory = args->d_config & 2;
@@ -1573,7 +1595,7 @@ template<class POINTER_TYPE,
 void doConstructObjectFactoryDeleter(int callLine, int testLine, int index,
                                 TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 4  > args->d_config);
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 4 > args->d_config);
 
     bool nullObject  = args->d_config & 1;
     bool nullFactory = args->d_config & 2;
@@ -1644,7 +1666,7 @@ template<class POINTER_TYPE,
 void doConstructObjectFactoryDeleter2(int callLine, int testLine, int index,
                                       TestCtorArgs *args)
 {
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 8  > args->d_config);
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 8 > args->d_config);
 
     bool nullObject  = args->d_config & 1;
     bool nullFactory = args->d_config & 2;
@@ -1727,7 +1749,7 @@ void doConstructObjectFnullDeleter(int callLine, int testLine, int index,
 {
     BSLMF_ASSERT(!DeleterPolicy::DELETER_USES_FACTORY);
 
-    LOOP3_ASSERT(callLine, testLine, args->d_config, 4  > args->d_config);
+    LOOP3_ASSERT(callLine, testLine, args->d_config, 4 > args->d_config);
 
     bool nullObject  = args->d_config & 1;
 
@@ -1892,6 +1914,38 @@ void doLoadObject(int callLine, int testLine, int index,
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following functions load a 'bdema_ManagedPtr' object using a factory.
 // We now require separate policies for Object and Factory types
+
+template<class POINTER_TYPE, class FactoryPolicy>
+void doLoadOnullFactory(int callLine, int testLine, int index,
+                        TestLoadArgs<POINTER_TYPE> *args)
+{
+    validateTestLoadArgs(callLine, testLine, args); // Assert pre-conditions
+
+    const int expectedCount = args->d_deleteDelta;
+
+    typedef typename FactoryPolicy::FactoryType FactoryType;
+
+    // We need two factory pointers, 'pAlloc' is used for all necessary
+    // allocations and destructions within this function, while 'pF' is the
+    // factory pointer passed to load, which is either the same as 'pAlloc' or
+    // null.
+    FactoryType *pAlloc = FactoryPolicy::factory(args->d_ta);
+
+    if (FactoryPolicy::USE_DEFAULT) {
+        args->d_useDefault = true;
+    }
+
+    args->d_p->load(0, pAlloc);
+    args->d_deleteDelta = 0;
+
+    LOOP5_ASSERT(callLine, testLine, index, expectedCount, args->d_deleteCount,
+                 expectedCount == args->d_deleteCount);
+
+    POINTER_TYPE *ptr = args->d_p->ptr();
+    LOOP4_ASSERT(callLine, testLine, index, ptr, 0 == ptr);
+
+    // As 'd_p' is empty, none of its other properties have a defined state.
+}
 
 template<class POINTER_TYPE, class ObjectPolicy, class FactoryPolicy>
 void doLoadObjectFactory(int callLine, int testLine, int index,
@@ -2228,7 +2282,7 @@ void doLoadObjectFnullDeleter(int callLine, int testLine, int index,
 }
 
 //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-// One all the testing policies are composed into arrays of test functions, we
+// Once all the testing policies are composed into arrays of test functions, we
 // need some driver functions to iterate over each valid combination (stored
 // in separate test tables) and check that the behavior transitions correctly
 // in each case.
@@ -2253,7 +2307,7 @@ struct TestPolicy {
     {
     }
 
-    TestPolicy(NullPolicy)
+    explicit TestPolicy(NullPolicy)
     : testLoad(&doLoadOnull     <TARGET>)
     , testCtor(&doConstructOnull<TARGET>)
     , d_configs(1)
@@ -2275,10 +2329,18 @@ struct TestPolicy {
     }
 
     template<class ObjectPolicy>
-    explicit TestPolicy(const ObjectPolicy&)
+    explicit TestPolicy(ObjectPolicy)
     : testLoad(&doLoadObject     <TARGET, ObjectPolicy>)
     , testCtor(&doConstructObject<TARGET, ObjectPolicy>)
     , d_configs(2)
+    {
+    }
+
+    template<class FactoryPolicy>
+    TestPolicy(NullPolicy, FactoryPolicy)
+    : testLoad(&doLoadOnullFactory     <TARGET, FactoryPolicy>)
+    , testCtor(&doConstructOnullFactory<TARGET, FactoryPolicy>)
+    , d_configs(1)
     {
     }
 
@@ -3347,14 +3409,16 @@ static const TestPolicy<MyTestObject> TEST_POLICY_BASE_ARRAY[] = {
 
     // factory tests
 
-    TestPolicy<MyTestObject>( Obase(),   Ftst() ),
-    TestPolicy<MyTestObject>( Obase(),   Fbsl() ),
-    TestPolicy<MyTestObject>( Oderiv(),  Ftst() ),
-    TestPolicy<MyTestObject>( Oderiv(),  Fbsl() ),
-    //TestPolicy<MyTestObject>( OCbase(),  Ftst() ),
-    //TestPolicy<MyTestObject>( OCbase(),  Fbsl() ),
-    //TestPolicy<MyTestObject>( OCderiv(), Ftst() ),
-    //TestPolicy<MyTestObject>( OCderiv(), Fbsl() ),
+    TestPolicy<MyTestObject>( NullPolicy(), Ftst() ),
+    TestPolicy<MyTestObject>( NullPolicy(), Fbsl() ),
+    TestPolicy<MyTestObject>( Obase(),      Ftst() ),
+    TestPolicy<MyTestObject>( Obase(),      Fbsl() ),
+    TestPolicy<MyTestObject>( Oderiv(),     Ftst() ),
+    TestPolicy<MyTestObject>( Oderiv(),     Fbsl() ),
+    //TestPolicy<MyTestObject>( OCbase(),   Ftst() ),
+    //TestPolicy<MyTestObject>( OCbase(),   Fbsl() ),
+    //TestPolicy<MyTestObject>( OCderiv(),  Ftst() ),
+    //TestPolicy<MyTestObject>( OCderiv(),  Fbsl() ),
     // deleter tests
 
     // First test the non-deprecated interface, using the policy
@@ -3745,14 +3809,16 @@ static const TestPolicy<const MyTestObject> TEST_POLICY_CONST_BASE_ARRAY[] = {
     // factory tests
     TestPolicy<const MyTestObject>( NullPolicy(), NullPolicy() ),
 
-    TestPolicy<const MyTestObject>( Obase(),   Ftst() ),
-    TestPolicy<const MyTestObject>( Obase(),   Fbsl() ),
-    TestPolicy<const MyTestObject>( Oderiv(),  Ftst() ),
-    TestPolicy<const MyTestObject>( Oderiv(),  Fbsl() ),
-    TestPolicy<const MyTestObject>( OCbase(),  Ftst() ),
-    TestPolicy<const MyTestObject>( OCbase(),  Fbsl() ),
-    TestPolicy<const MyTestObject>( OCderiv(), Ftst() ),
-    TestPolicy<const MyTestObject>( OCderiv(), Fbsl() ),
+    TestPolicy<const MyTestObject>( NullPolicy(), Ftst() ),
+    TestPolicy<const MyTestObject>( NullPolicy(), Fbsl() ),
+    TestPolicy<const MyTestObject>( Obase(),      Ftst() ),
+    TestPolicy<const MyTestObject>( Obase(),      Fbsl() ),
+    TestPolicy<const MyTestObject>( Oderiv(),     Ftst() ),
+    TestPolicy<const MyTestObject>( Oderiv(),     Fbsl() ),
+    TestPolicy<const MyTestObject>( OCbase(),     Ftst() ),
+    TestPolicy<const MyTestObject>( OCbase(),     Fbsl() ),
+    TestPolicy<const MyTestObject>( OCderiv(),    Ftst() ),
+    TestPolicy<const MyTestObject>( OCderiv(),    Fbsl() ),
 
     // deleter tests
     TestPolicy<const MyTestObject>( NullPolicy(), NullPolicy(), NullPolicy() ),
@@ -6035,7 +6101,7 @@ int main(int argc, char *argv[])
     bslma_Default::setDefaultAllocator(&da);
 
     switch (test) { case 0:
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION EXAMPLES
         //
@@ -6086,7 +6152,7 @@ int main(int argc, char *argv[])
 
         LOOP_ASSERT(numdels, 20202 == numdels);
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -6111,7 +6177,7 @@ int main(int argc, char *argv[])
         USAGE_EXAMPLES::testCountedFactory();
 
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -6130,7 +6196,7 @@ int main(int argc, char *argv[])
         USAGE_EXAMPLES::testShapes();
         USAGE_EXAMPLES::testShapesToo();
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtrNilDeleter
         //
@@ -6182,7 +6248,7 @@ int main(int argc, char *argv[])
         ASSERT(dam.isInUseSame());
         ASSERT(gam.isInUseSame());
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING bdema_ManagedPtrNoOpDeleter
         //
@@ -6233,7 +6299,7 @@ int main(int argc, char *argv[])
         ASSERT(dam.isInUseSame());
         ASSERT(gam.isInUseSame());
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // CLEAR and RELEASE
         //
@@ -6362,12 +6428,12 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
-        // SWAP AND ASSIGN TEST
+        // TEST ASSIGNMENT OPERATORS
         //
         // Concerns:
-        //   Test all varieties of load, swap function and all assignments.
+        //   Test swap function and all assignments operators.
         //
         //   (AJM concerns, not yet confirmed to be tested)
         //
@@ -6383,13 +6449,6 @@ int main(int argc, char *argv[])
         //   any managed pointer can be assigned to 'bdema_ManagedPtr<void>'
         //   assign to/from an empty managed pointer, each of the cases above
         //   assigning incompatible pointers should fail to compile (hand test)
-        //
-        //   swap with self changes nothing
-        //   swap two simple pointer exchanged pointer values
-        //   swap two aliased pointer exchanges aliases as well as pointers
-        //   swap a simple managed pointer with an empty managed pointer
-        //   swap a simple managed pointer with an aliased managed pointer
-        //   swap an aliased managed pointer with an empty managed pointer
         //
         //   REFORMULATION
         //   want to be sure assignment works correctly for all combinations of
@@ -6427,26 +6486,34 @@ int main(int argc, char *argv[])
 
         using namespace CREATORS_TEST_NAMESPACE;
 
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\tTest operator bdema_ManagedPtr_Ref<OTHER>()\n";
+        if (verbose) cout << "\tTest operator=(bdema_ManagedPtr &rhs)\n";
 
         int numDeletes = 0;
         {
-            TObj *p =  new (da) MyTestObject(&numDeletes);
-            TObj *p2 = new (da) MyTestObject(&numDeletes);
+            Obj o;
+            Obj o2;
+            ASSERT(!o);
+            ASSERT(!o2);
 
-            Obj o(p);
-            Obj o2(p2);
+            o = o2;
 
-            o.swap(o2);
-
-            ASSERT(o.ptr() == p2);
-            ASSERT(o2.ptr() == p);
+            ASSERT(!o);
+            ASSERT(!o2);
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 2 == numDeletes);
+        ASSERT(0 == numDeletes);
 
-        if (verbose) cout << "\t\tswap with null pointer\n";
+        numDeletes = 0;
+        {
+            Obj o;
+            ASSERT(!o);
+
+            o = 0;
+
+            ASSERT(!o);
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        }
+        ASSERT(0 == numDeletes);
 
         numDeletes = 0;
         {
@@ -6455,95 +6522,42 @@ int main(int argc, char *argv[])
             Obj o(p);
             Obj o2;
 
-            o.swap(o2);
+            o = o2;
 
-            ASSERT(!o.ptr());
-            ASSERT(o2.ptr() == p);
+            ASSERT(!o);
+            ASSERT(!o2);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p =  new (da) MyTestObject(&numDeletes);
+
+            Obj o(p);
+
+            o = 0;
+
+            ASSERT(!o);
+            LOOP_ASSERT(numDeletes, 1 == numDeletes);
+        }
+        ASSERT(1 == numDeletes);
+
+        numDeletes = 0;
+        {
+            TObj *p =  new (da) MyTestObject(&numDeletes);
+
+            Obj o;
+            Obj o2(p);
+
+            o = o2;
+
+            ASSERT(!o2);
             LOOP_ASSERT(numDeletes, 0 == numDeletes);
-
-            o.swap(o2);
 
             ASSERT(o.ptr() == p);
-            ASSERT(!o2.ptr());
-            LOOP_ASSERT(numDeletes, 0 == numDeletes);
         }
-        LOOP_ASSERT(numDeletes, 1 == numDeletes);
-
-        if (verbose) cout << "\t\tswap deleters\n";
-
-        numDeletes = 0;
-        {
-            bslma_TestAllocator ta1("object1", veryVeryVeryVerbose);
-            bslma_TestAllocator ta2("object2", veryVeryVeryVerbose);
-
-            TObj *p =  new (ta1) MyTestObject(&numDeletes);
-            TObj *p2 = new (ta2) MyTestObject(&numDeletes);
-
-            Obj o(p, &ta1);
-            Obj o2(p2, &ta2);
-
-            o.swap(o2);
-
-            ASSERT(o.ptr() == p2);
-            ASSERT(o2.ptr() == p);
-
-            ASSERT(&ta2 == o.deleter().factory());
-            ASSERT(&ta1 == o2.deleter().factory());
-        }
-        LOOP_ASSERT(numDeletes, 2 == numDeletes);
-
-        if (verbose) cout << "\t\tswap aliases\n";
-
-        numDeletes = 0;
-        {
-            bslma_TestAllocator ta1("object1", veryVeryVeryVerbose);
-            bslma_TestAllocator ta2("object2", veryVeryVeryVerbose);
-
-            int * p3 = new (ta2) int;
-            *p3 = 42;
-
-            TObj *p =  new (ta1) MyTestObject(&numDeletes);
-            MyDerivedObject d2(&numDeletes);
-
-            bdema_ManagedPtr<int> o3(p3, &ta2);
-            Obj o(p, &ta1);
-            Obj o2(o3, &d2);
-
-            o.swap(o2);
-
-            ASSERT( o.ptr() == &d2);
-            ASSERT(o2.ptr() ==   p);
-
-            ASSERT(p3 ==  o.deleter().object());
-            ASSERT( p == o2.deleter().object());
-            ASSERT(&ta2 ==  o.deleter().factory());
-            ASSERT(&ta1 == o2.deleter().factory());
-        }
-        LOOP_ASSERT(numDeletes, 101 == numDeletes);
-
-//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES
-#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES)
-            {
-                // confirm that the various implicit conversions in this
-                // component do not accidentally introduce a dangerous 'swap'.
-                bdema_ManagedPtr<int> x;
-                bdema_ManagedPtr<double> y;
-                x.swap(y);  // should not compile
-                y.swap(x);  // should not compile
-
-                bdema_ManagedPtr<MyTestObject> b;
-                bdema_ManagedPtr<MyDerivedObject> d;
-                b.swap(d);  // should not compile
-                d.swap(b);  // should not compile
-
-                using std::swap;
-                swap(x, y);  // should not compile
-                swap(b, d);  // should not compile
-            }
-#endif
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        if (verbose) cout << "\tTest operator=(bdema_ManagedPtr &rhs)\n";
+        ASSERT(1 == numDeletes);
 
         numDeletes = 0;
         {
@@ -6639,6 +6653,182 @@ int main(int argc, char *argv[])
                 bdema_ManagedPtr<int> x;
                 bdema_ManagedPtr<double> y;
                 y = x;  // This should fail to compile.
+            }
+#endif
+      } break;
+       case 13: {
+        // --------------------------------------------------------------------
+        // TESTING SWAP
+        // 
+        // Concerns:
+        //   Test swap functions.
+        //
+        //   (AJM concerns, not yet confirmed to be tested)
+        //
+        //   assign clears the pointer being assigned from
+        //   self-assignment safe
+        //   assign destroys held pointer, does not merely swap
+        //   assign-with-null
+        //   assign with aliased pointer
+        //   assign from pointer with factory/deleter
+        //   assign to pointer with factory/deleter/aliased-pointer
+        //   assign from a compatible managed pointer type
+        //      (e.g., ptr-to-derived, to ptr-to-base, ptr to ptr-to-const)
+        //   any managed pointer can be assigned to 'bdema_ManagedPtr<void>'
+        //   assign to/from an empty managed pointer, each of the cases above
+        //   assigning incompatible pointers should fail to compile (hand test)
+        //
+        //   swap with self changes nothing
+        //   swap two simple pointer exchanged pointer values
+        //   swap two aliased pointer exchanges aliases as well as pointers
+        //   swap a simple managed pointer with an empty managed pointer
+        //   swap a simple managed pointer with an aliased managed pointer
+        //   swap an aliased managed pointer with an empty managed pointer
+        //
+        //   REFORMULATION
+        //   want to be sure assignment works correctly for all combinations of
+        //   assigning from and to a managed pointer with each of the following
+        //   states.  Similarly, want to swap with each possible combination of
+        //   each of the following states:
+        //     empty
+        //     simple
+        //     simple with factory
+        //     simple with factory and deleter
+        //     simple with null factory and deleter
+        //     aliased
+        //     aliased (original created with factory)
+        //     aliased (original created with factory and deleter)
+        //
+        //: X No 'bdema_ManagedPtr' method should allocate any memory.
+        // Plan:
+        //   TBD...
+        //
+        //   Test the functions in the order in which they are declared in
+        //   the ManagedPtr class.
+        //
+        // Tested:
+        //   [Just because a function is tested, we do not (yet) confirm that
+        //    the testing is adequate.]
+        //   void swap(bdema_ManagedPtr<BDEMA_TYPE>& rhs);
+        //   bdema_ManagedPtr& operator=(bdema_ManagedPtr &rhs);
+        //   bdema_ManagedPtr& operator=(bdema_ManagedPtr_Ref<BDEMA_TYPE> ref);
+        // --------------------------------------------------------------------
+
+        using namespace CREATORS_TEST_NAMESPACE;
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout <<
+                          "\tTest bdema_ManagedPtr::swap(bdema_ManagedPtr&)\n";
+
+        int numDeletes = 0;
+        {
+            TObj *p =  new (da) MyTestObject(&numDeletes);
+            TObj *p2 = new (da) MyTestObject(&numDeletes);
+
+            Obj o(p);
+            Obj o2(p2);
+
+            o.swap(o2);
+
+            ASSERT(o.ptr() == p2);
+            ASSERT(o2.ptr() == p);
+        }
+        LOOP_ASSERT(numDeletes, 2 == numDeletes);
+
+        if (verbose) cout << "\t\tswap with empty managed pointer\n";
+
+        numDeletes = 0;
+        {
+            TObj *p =  new (da) MyTestObject(&numDeletes);
+
+            Obj o(p);
+            Obj o2;
+
+            o.swap(o2);
+
+            ASSERT(!o.ptr());
+            ASSERT(o2.ptr() == p);
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+
+            o.swap(o2);
+
+            ASSERT(o.ptr() == p);
+            ASSERT(!o2.ptr());
+            LOOP_ASSERT(numDeletes, 0 == numDeletes);
+        }
+        LOOP_ASSERT(numDeletes, 1 == numDeletes);
+
+        if (verbose) cout << "\t\tswap deleters\n";
+
+        numDeletes = 0;
+        {
+            bslma_TestAllocator ta1("object1", veryVeryVeryVerbose);
+            bslma_TestAllocator ta2("object2", veryVeryVeryVerbose);
+
+            TObj *p =  new (ta1) MyTestObject(&numDeletes);
+            TObj *p2 = new (ta2) MyTestObject(&numDeletes);
+
+            Obj o(p, &ta1);
+            Obj o2(p2, &ta2);
+
+            o.swap(o2);
+
+            ASSERT(o.ptr() == p2);
+            ASSERT(o2.ptr() == p);
+
+            ASSERT(&ta2 == o.deleter().factory());
+            ASSERT(&ta1 == o2.deleter().factory());
+        }
+        LOOP_ASSERT(numDeletes, 2 == numDeletes);
+
+        if (verbose) cout << "\t\tswap aliases\n";
+
+        numDeletes = 0;
+        {
+            bslma_TestAllocator ta1("object1", veryVeryVeryVerbose);
+            bslma_TestAllocator ta2("object2", veryVeryVeryVerbose);
+
+            int * p3 = new (ta2) int;
+            *p3 = 42;
+
+            TObj *p =  new (ta1) MyTestObject(&numDeletes);
+            MyDerivedObject d2(&numDeletes);
+
+            bdema_ManagedPtr<int> o3(p3, &ta2);
+            Obj o(p, &ta1);
+            Obj o2(o3, &d2);
+
+            o.swap(o2);
+
+            ASSERT( o.ptr() == &d2);
+            ASSERT(o2.ptr() ==   p);
+
+            ASSERT(p3 ==  o.deleter().object());
+            ASSERT( p == o2.deleter().object());
+            ASSERT(&ta2 ==  o.deleter().factory());
+            ASSERT(&ta1 == o2.deleter().factory());
+        }
+        LOOP_ASSERT(numDeletes, 101 == numDeletes);
+
+//#define BDEMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES
+#if defined(BDEMA_MANAGEDPTR_COMPILE_FAIL_SWAP_FOR_DIFFERENT_TYPES)
+            {
+                // confirm that the various implicit conversions in this
+                // component do not accidentally introduce a dangerous 'swap'.
+                bdema_ManagedPtr<int> x;
+                bdema_ManagedPtr<double> y;
+                x.swap(y);  // should not compile
+                y.swap(x);  // should not compile
+
+                bdema_ManagedPtr<MyTestObject> b;
+                bdema_ManagedPtr<MyDerivedObject> d;
+                b.swap(d);  // should not compile
+                d.swap(b);  // should not compile
+
+                using std::swap;
+                swap(x, y);  // should not compile
+                swap(b, d);  // should not compile
             }
 #endif
       } break;
