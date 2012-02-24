@@ -16,6 +16,7 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
 

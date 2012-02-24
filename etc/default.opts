@@ -738,11 +738,14 @@ windows         dbg DBG_LIBSUFFIX   = d
 # Safe builds
 
 # Prevent ambiguity for operators in safe mode:
-!! unix-HP_UX-*-*-*     mt  MT_LDFLAGS      = -lpthread
 !! *                       safe    SAFE_CXXFLAGS   = -D_STLP_EXTRA_OPERATORS_FOR_DEBUG=1
 !! windows                 safe    SAFE_CXXFLAGS   = /D"_STLP_EXTRA_OPERATORS_FOR_DEBUG"
 !! *                       safe2   SAFE_CXXFLAGS   = -D_STLP_EXTRA_OPERATORS_FOR_DEBUG=1
 !! windows                 safe2   SAFE_CXXFLAGS   = /D"_STLP_EXTRA_OPERATORS_FOR_DEBUG"
+
+# Prevent transitive includes in safe mode (DRQS 30168600):
+*                          safe    SAFE_CXXFLAGS   = $(SWITCHCHAR)DBDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+*                          safe2   SAFE_CXXFLAGS   = $(SWITCHCHAR)DBDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #===
 
@@ -857,7 +860,7 @@ windows         _   MT_LIBTYPE  = L
 !! unix-*-*-*-gcc       mt  MT_LDFLAGS  = -lthread
 !! unix-SunOS-*-*-gcc   mt  MT_LDFLAGS  = -lthread
 !! unix-AIX-*-*-gcc     mt  MT_LDFLAGS  = -lpthread
-!! unix-HP_UX-*-*-gcc   mt  MT_LDFLAGS  = -lpthread
+!! unix-HP_UX-*-*-*     mt  MT_LDFLAGS  = -lpthread
 !! unix-Linux-*-*-*     mt  MT_LDFLAGS  = -lpthread
 !! unix-FreeBSD-*-*-*   mt  MT_LDFLAGS  = -lpthread
 !! unix-Cygwin-*-*-*    mt  MT_LDFLAGS  = -lpthread
