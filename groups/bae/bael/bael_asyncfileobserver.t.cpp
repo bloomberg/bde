@@ -1145,60 +1145,81 @@ int main(int argc, char *argv[])
         // pollute us.
         unsetenv("TZ");
 #endif
-
-        Obj mX;  const Obj& X = mX;
-        mX.startPublicationThread();
-        bcemt_ThreadUtil::microSleep(0, 1);
-        ASSERT(bael_Severity::BAEL_WARN == X.stdoutThreshold());
-
-        int logCount  = 8000;
-        int loopCount = 0;
-        int linesNum  = 0;
-        bsl::string line;
         {
-            bael_LoggerManagerConfiguration configuration;
+            Obj mX;  const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(bael_Severity::BAEL_WARN == X.stdoutThreshold());
 
-            // Publish synchronously all messages regardless of their severity.
-            // This configuration also guarantees that the observer will only
-            // see each message only once.
+            int logCount  = 8000;
+            int loopCount = 0;
+            int linesNum  = 0;
+            bsl::string line;
+            {
+                bael_LoggerManagerConfiguration configuration;
 
-            ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                        bael_Severity::BAEL_OFF,
-                        bael_Severity::BAEL_TRACE,
-                        bael_Severity::BAEL_OFF,
-                        bael_Severity::BAEL_OFF));
-            bael_LoggerManagerScopedGuard guard(&mX, configuration);
+                // Publish synchronously all messages regardless of their
+                // severity.  This configuration also guarantees that the
+                // observer will only see each message only once.
 
-            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+                ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                            bael_Severity::BAEL_OFF,
+                            bael_Severity::BAEL_TRACE,
+                            bael_Severity::BAEL_OFF,
+                            bael_Severity::BAEL_OFF));
+                bael_LoggerManagerScopedGuard guard(&mX, configuration);
 
-            // Throw some logs into the queue
+                BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
-            for (int i = 0;i < logCount;++i)
-                BAEL_LOG_WARN <<  "Some will not be logged" << BAEL_LOG_END;
+                // Throw some logs into the queue
 
-            // After this code block the logger manager will be destroyed
+                for (int i = 0;i < logCount;++i)
+                    BAEL_LOG_WARN <<  "Some will not be logged" << BAEL_LOG_END;
+
+                // After this code block the logger manager will be destroyed
+            }
+
+            // Wait up to 10 seconds for the async logging to complete
+
+            loopCount = 0;
+            do {
+                bcemt_ThreadUtil::microSleep(0, 1);
+                bsl::ifstream fs1;
+                fs1.open(fileName.c_str(), bsl::ifstream::in);
+                ASSERT(fs1.is_open());
+                linesNum = 0;
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
+            } while (linesNum <= 2 * logCount && loopCount++ < 10);
+
+            // We pushed in sufficient number of logs into queue before we
+            // destroy the logger manager, so some logs must have been cleared
+            // if clear() works properly
+
+            ASSERT(linesNum < 2 * logCount);
+
+            mX.stopPublicationThread();
         }
 
-        // Wait up to 10 seconds for the async logging to complete
+        if (verbose)
+                 cerr << "Testing 'releaseRecords' when thread is not running."
+                      << endl;
+        {
+            Obj mX;  const Obj& X = mX;
 
-        loopCount = 0;
-        do {
-            bcemt_ThreadUtil::microSleep(0, 1);
-            bsl::ifstream fs1;
-            fs1.open(fileName.c_str(), bsl::ifstream::in);
-            ASSERT(fs1.is_open());
-            linesNum = 0;
-            while (getline(fs1, line)) { ++linesNum; }
-            fs1.close();
-        } while (linesNum <= 2 * logCount && loopCount++ < 10);
+            bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
+                                                &ta);
+            bael_Context    context;
+            mX.publish(record, context);
+            ASSERT(2 == record.numReferences());
 
-        // We pushed in sufficient number of logs into queue before we destroy
-        // the logger manager, so some logs must have been cleared if clear()
-        // works properly
+            ASSERT(!mX.isPublicationThreadRunning());
 
-        ASSERT(linesNum < 2 * logCount);
+            mX.releaseRecords();
 
-        mX.stopPublicationThread();
+            ASSERT(1 == record.numReferences());
+            ASSERT(!mX.isPublicationThreadRunning());
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------

@@ -119,11 +119,16 @@ bael_AsyncFileObserver::~bael_AsyncFileObserver()
 void bael_AsyncFileObserver::releaseRecords()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    d_clearing = true;
-    stopThread();
-    d_recordQueue.removeAll();
-    d_clearing = false;
-    startThread();
+    if (isPublicationThreadRunning()) {
+        d_clearing = true;
+        stopThread();
+        d_recordQueue.removeAll();
+        d_clearing = false;
+        startThread();
+    }
+    else {
+        d_recordQueue.removeAll();
+    }
 }
 
 void bael_AsyncFileObserver::publish(

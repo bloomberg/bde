@@ -562,12 +562,11 @@ class bael_AsyncFileObserver : public bael_Observer {
     void releaseRecords();
         // Discard the shared references in the fixed queue of this async file
         // observer without publishing the records referred by these shared
-        // pointers.  This method stops the publication thread before clearing
-        // the queue and restarts the publication thread afterwards.  This
-        // method has no effect if the publication thread has not started.
-        // This method should be called by the owner of the records pointed by
-        // the share pointers in the fixed queue when these records are no
-        // longer usable.
+        // pointers.  If the publication thread is running, this method stops
+        // the publication thread before clearing the queue and restarts the
+        // publication thread afterwards.  This method should be called by the
+        // owner of the records pointed by the share pointers in the fixed
+        // queue when these records are no longer usable.
 
     void forceRotation();
         // Forcefully perform a log file rotation by this async file observer.
