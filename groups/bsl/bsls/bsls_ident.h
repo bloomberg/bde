@@ -17,7 +17,8 @@
 //   'man mcs'      (Solaris-only)
 //
 // Note that these SCM Ids are only present if the BSLS_IDENT_ON macro is
-// defined at compilation time.
+// defined at compilation time.  By default, this macro is *not* defined,
+// and ident strings are *not* added to object files.
 //
 // SCM systems may replace Ids with their expanded forms.  Note that we will
 // replace the key symbol '$' with '(DOLLAR)' to avoid any expansion within
