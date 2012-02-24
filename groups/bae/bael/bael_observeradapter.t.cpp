@@ -37,7 +37,7 @@ using namespace bsl;  // automatically added by script
 // [ 1] virtual ~bael_ObserverAdapter();
 // [ 1] virtual void publish(const record&, const context&);
 // [ 1] virtual void publish(const sharedptr&, const context&);
-// [ 1] virtual void releaseRecords(0;
+// [ 1] virtual void releaseRecords();
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 // [ 2] USAGE TEST - Make sure main usage example compiles and works properly.

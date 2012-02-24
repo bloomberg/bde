@@ -699,7 +699,6 @@ int main(int argc, char *argv[])
         int loopCount = 0;
         int fileCount = 0;
         int linesNum  = 0;
-        bsl::ifstream fs;
         bsl::string line(&ta);
 
         if (verbose) cout << "Test-case infrastructure setup." << endl;
@@ -731,23 +730,27 @@ int main(int argc, char *argv[])
                 linesNum  = 0;
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
-                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                    ASSERT(fs.is_open());
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
                     linesNum = 0;
-                    while (getline(fs, line)) { ++linesNum; }
-                    fs.close();
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
                 } while (linesNum < 2 && loopCount++ < 10);
 
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                linesNum = 0;
-                while (getline(fs, line)) {
-                    ++linesNum;
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    linesNum = 0;
+                    while (getline(fs, line)) {
+                        ++linesNum;
+                    }
+                    fs.close();
+                    ASSERT(2 == linesNum);
+                    ASSERT(X.isFileLoggingEnabled());
                 }
-                fs.close();
-                ASSERT(2 == linesNum);
-                ASSERT(X.isFileLoggingEnabled());
             }
 
             if (verbose) cout << "Testing lifetime-constrained rotation."
@@ -785,25 +788,29 @@ int main(int argc, char *argv[])
                 linesNum  = 0;
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
-                    fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
-                    ASSERT(fs.is_open());
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[1], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
                     linesNum = 0;
-                    while (getline(fs, line)) { ++linesNum; }
-                    fs.close();
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
                 } while (linesNum < 4 && loopCount++ < 10);
 
                 // Check the number of lines in the file.
 
-                fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                linesNum = 0;
-                while (getline(fs, line)) {
-                    ++linesNum;
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    linesNum = 0;
+                    while (getline(fs, line)) {
+                        ++linesNum;
+                    }
+                    fs.close();
+                    ASSERT(4 == linesNum);
                 }
-                fs.close();
-                ASSERT(4 == linesNum);
 
                 mX.disableTimeIntervalRotation();
                 bcemt_ThreadUtil::microSleep(0, 4);
@@ -820,23 +827,27 @@ int main(int argc, char *argv[])
                 linesNum  = 0;
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
-                    fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
-                    ASSERT(fs.is_open());
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[1], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
                     linesNum = 0;
-                    while (getline(fs, line)) { ++linesNum; }
-                    fs.close();
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
                 } while (linesNum < 6 && loopCount++ < 10);
 
-                fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                linesNum = 0;
-                while (getline(fs, line)) {
-                    ++linesNum;
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    linesNum = 0;
+                    while (getline(fs, line)) {
+                        ++linesNum;
+                    }
+                    fs.close();
+                    ASSERT(6 == linesNum);
                 }
-                fs.close();
-                ASSERT(6 == linesNum);
             }
 
             if (verbose) cout << "Testing forced rotation." << endl;
@@ -854,18 +865,20 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(3 == globbuf.gl_pathc);
 
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[2], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                int linesNum = 0;
-                bsl::string line(&ta);
-                while (getline(fs, line)) {
-                    ++linesNum;
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[2], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    int linesNum = 0;
+                    bsl::string line(&ta);
+                    while (getline(fs, line)) {
+                        ++linesNum;
+                    }
+                    fs.close();
+                    ASSERT(8 == linesNum);
                 }
-                fs.close();
-                ASSERT(8 == linesNum);
             }
 
             if (verbose) cout << "Testing size-constrained rotation." << endl;
@@ -890,8 +903,8 @@ int main(int argc, char *argv[])
                 // We are not checking the last one since we do not have any
                 // information on its size.
 
-                bsl::ifstream fs;
                 for (int i = 0; i < (int)globbuf.gl_pathc - 3; ++i) {
+                    bsl::ifstream fs;
                     fs.open(globbuf.gl_pathv[i + 2], bsl::ifstream::in);
                     fs.clear();
                     ASSERT(fs.is_open());
@@ -960,25 +973,28 @@ int main(int argc, char *argv[])
                 linesNum  = 0;
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
-                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                    ASSERT(fs.is_open());
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
                     linesNum = 0;
-                    while (getline(fs, line)) { ++linesNum; }
-                    fs.close();
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
                 } while (linesNum < 2 && loopCount++ < 10);
 
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                int linesNum = 0;
-                bsl::string line;
-                while (getline(fs, line)) {
-                    ++linesNum;
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    int linesNum = 0;
+                    bsl::string line;
+                    while (getline(fs, line)) {
+                        ++linesNum;
+                    }
+                    fs.close();
+                    ASSERT(2 == linesNum);
+                    ASSERT(X.isFileLoggingEnabled());
                 }
-                fs.close();
-                ASSERT(2 == linesNum);
-                ASSERT(X.isFileLoggingEnabled());
             }
 
             if (verbose) cout << "Testing lifetime-constrained rotation."
@@ -1013,26 +1029,29 @@ int main(int argc, char *argv[])
 
                 loopCount = 0;
                 do {
-                    linesNum = 0;
                     bcemt_ThreadUtil::microSleep(0, 1);
-                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                    ASSERT(fs.is_open());
-                    while (getline(fs, line)) { ++linesNum; }
-                    fs.close();
+                    linesNum = 0;
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
                 } while (linesNum < 4 && loopCount++ < 10);
 
                 // Check the number of lines in the file.
 
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                linesNum = 0;
-                bsl::string line(&ta);
-                while (getline(fs, line)) { ++linesNum; }
-                fs.close();
-                ASSERT(4 == linesNum);
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    linesNum = 0;
+                    bsl::string line(&ta);
+                    while (getline(fs, line)) { ++linesNum; }
+                    fs.close();
+                    ASSERT(4 == linesNum);
+                }
 
                 mX.disableTimeIntervalRotation();
                 bcemt_ThreadUtil::microSleep(0, 4);
@@ -1047,22 +1066,26 @@ int main(int argc, char *argv[])
 
                 loopCount = 0;
                 do {
-                    linesNum = 0;
                     bcemt_ThreadUtil::microSleep(0, 1);
-                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                    ASSERT(fs.is_open());
-                    while (getline(fs, line)) { ++linesNum; }
-                    fs.close();
+                    linesNum = 0;
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
                 } while (linesNum < 6 && loopCount++ < 10);
 
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                linesNum = 0;
-                while (getline(fs, line)) { ++linesNum; }
-                fs.close();
-                ASSERT(6 == linesNum);
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    linesNum = 0;
+                    while (getline(fs, line)) { ++linesNum; }
+                    fs.close();
+                    ASSERT(6 == linesNum);
+                }
             }
 
             mX.disableFileLogging();
@@ -1129,7 +1152,6 @@ int main(int argc, char *argv[])
         int logCount  = 8000;
         int loopCount = 0;
         int linesNum  = 0;
-        bsl::ifstream fs;
         bsl::string line;
         {
             bael_LoggerManagerConfiguration configuration;
@@ -1160,11 +1182,12 @@ int main(int argc, char *argv[])
         loopCount = 0;
         do {
             bcemt_ThreadUtil::microSleep(0, 1);
-            fs.open(fileName.c_str(), bsl::ifstream::in);
-            ASSERT(fs.is_open());
+            bsl::ifstream fs1;
+            fs1.open(fileName.c_str(), bsl::ifstream::in);
+            ASSERT(fs1.is_open());
             linesNum = 0;
-            while (getline(fs, line)) { ++linesNum; }
-            fs.close();
+            while (getline(fs1, line)) { ++linesNum; }
+            fs1.close();
         } while (linesNum <= 2 * logCount && loopCount++ < 10);
 
         // We pushed in sufficient number of logs into queue before we destroy
@@ -1243,7 +1266,6 @@ int main(int argc, char *argv[])
 
         int loopCount = 0;
         int linesNum  = 0;
-        bsl::ifstream fs;
         bsl::string line(&ta);
 
         bsl::string fileName = tempFileName(veryVerbose);
@@ -1807,32 +1829,36 @@ int main(int argc, char *argv[])
             do {
                 linesNum = 0;
                 bcemt_ThreadUtil::microSleep(0, 1);
-                fs.open(fn.c_str(), bsl::ifstream::in);
-                while (getline(fs, line)) { ++linesNum; }
-                fs.close();
+                bsl::ifstream fs1;
+                fs1.open(fn.c_str(), bsl::ifstream::in);
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
             } while (linesNum < 12 && loopCount++ < 10);
 
-            fs.open(fn.c_str(),           bsl::ifstream::in);
-            bsl::ifstream coutFs;
-            coutFs.open(fileName.c_str(), bsl::ifstream::in);
-            ASSERT(fs.is_open());
-            ASSERT(coutFs.is_open());
-            coutFs.seekg(fileOffset);
-            linesNum = 0;
-            while (getline(fs, line)) {
-                if (linesNum >= 6) {
-                    // check format
-                    bsl::string coutLine;
-                    getline(coutFs, coutLine);
-                    ASSERT(coutLine == line);
-                    //bsl::cerr << coutLine << endl << line << endl;
+            {
+                bsl::ifstream fs;
+                fs.open(fn.c_str(), bsl::ifstream::in);
+                bsl::ifstream coutFs;
+                coutFs.open(fileName.c_str(), bsl::ifstream::in);
+                ASSERT(fs.is_open());
+                ASSERT(coutFs.is_open());
+                coutFs.seekg(fileOffset);
+                linesNum = 0;
+                while (getline(fs, line)) {
+                    if (linesNum >= 6) {
+                        // check format
+                        bsl::string coutLine;
+                        getline(coutFs, coutLine);
+                        ASSERT(coutLine == line);
+                        //bsl::cerr << coutLine << endl << line << endl;
+                    }
+                    ++linesNum;
                 }
-                ++linesNum;
+                fs.close();
+                ASSERT(!getline(coutFs, line));
+                coutFs.close();
+                ASSERT(12 == linesNum);
             }
-            fs.close();
-            ASSERT(!getline(coutFs, line));
-            coutFs.close();
-            ASSERT(12 == linesNum);
 
             ASSERT(X.isFileLoggingEnabled());
             mX.disableFileLogging();
@@ -1848,20 +1874,24 @@ int main(int argc, char *argv[])
 
             loopCount = 0;
             do {
-                linesNum = 0;
                 bcemt_ThreadUtil::microSleep(0, 1);
-                fs.open(fn.c_str(), bsl::ifstream::in);
-                while (getline(fs, line)) { ++linesNum; }
-                fs.close();
+                linesNum = 0;
+                bsl::ifstream fs1;
+                fs1.open(fn.c_str(), bsl::ifstream::in);
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
             } while (linesNum < 12 && loopCount++ < 10);
 
-            fs.open(fn.c_str(), bsl::ifstream::in);
-            ASSERT(fs.is_open());
-            fs.clear();
-            linesNum = 0;
-            while (getline(fs, line)) { ++linesNum; }
-            fs.close();
-            ASSERT(12 == linesNum);
+            {
+                bsl::ifstream fs;
+                fs.open(fn.c_str(), bsl::ifstream::in);
+                ASSERT(fs.is_open());
+                fs.clear();
+                linesNum = 0;
+                while (getline(fs, line)) { ++linesNum; }
+                fs.close();
+                ASSERT(12 == linesNum);
+            }
 
             ASSERT(0 == mX.enableFileLogging(fn.c_str()));
             ASSERT(X.isFileLoggingEnabled());
@@ -1878,21 +1908,25 @@ int main(int argc, char *argv[])
 
             loopCount = 0;
             do {
-                linesNum = 0;
                 bcemt_ThreadUtil::microSleep(0, 1);
-                fs.open(fn.c_str(), bsl::ifstream::in);
-                while (getline(fs, line)) { ++linesNum; }
-                fs.close();
+                linesNum = 0;
+                bsl::ifstream fs1;
+                fs1.open(fn.c_str(), bsl::ifstream::in);
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
             } while (linesNum < 12 && loopCount++ < 10);
 
-            fs.open(fn.c_str(), bsl::ifstream::in);
-            ASSERT(fs.is_open());
-            fs.clear();
-            linesNum = 0;
-            while (getline(fs, line)) { ++linesNum; }
-            fs.close();
-            ASSERT(24 == linesNum);
-            bsl::cout.rdbuf(coutSbuf);
+            {
+                bsl::ifstream fs;
+                fs.open(fn.c_str(), bsl::ifstream::in);
+                ASSERT(fs.is_open());
+                fs.clear();
+                linesNum = 0;
+                while (getline(fs, line)) { ++linesNum; }
+                fs.close();
+                ASSERT(24 == linesNum);
+                bsl::cout.rdbuf(coutSbuf);
+            }
 
             mX.disableFileLogging();
             removeFilesByPrefix(fn.c_str());
@@ -1940,19 +1974,23 @@ int main(int argc, char *argv[])
             do {
                 linesNum = 0;
                 bcemt_ThreadUtil::microSleep(0, 1);
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                while (getline(fs, line)) { ++linesNum; }
-                fs.close();
+                bsl::ifstream fs1;
+                fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
             } while (linesNum < 12 && loopCount++ < 10);
 
-            fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-            ASSERT(fs.is_open());
-            linesNum = 0;
-            while (getline(fs, line)) { ++linesNum; }
-            fs.close();
-            ASSERT(12 == linesNum);
-            ASSERT(X.isFileLoggingEnabled());
-            bsl::cout.rdbuf(coutSbuf);
+            {
+                bsl::ifstream fs;
+                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                ASSERT(fs.is_open());
+                linesNum = 0;
+                while (getline(fs, line)) { ++linesNum; }
+                fs.close();
+                ASSERT(12 == linesNum);
+                ASSERT(X.isFileLoggingEnabled());
+                bsl::cout.rdbuf(coutSbuf);
+            }
 
             ASSERT("" == os.str());
 
@@ -2042,26 +2080,29 @@ int main(int argc, char *argv[])
 
             loopCount = 0;
             do {
-                linesNum = 0;
                 bcemt_ThreadUtil::microSleep(0, 1);
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                while (getline(fs, line)) { ++linesNum; }
-                fs.close();
+                linesNum = 0;
+                bsl::ifstream fs1;
+                fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
             } while (linesNum < 2 && loopCount++ < 10);
 
             mX.disableFileLogging();
 
             // Read the file to get the number of lines
 
-            fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-            fs.clear();
-            globfree(&globbuf);
-            ASSERT(fs.is_open());
-            linesNum = 0;
-            while (getline(fs, line)) { ++linesNum; }
-            fs.close();
-
-            ASSERT(2 == linesNum);
+            {
+                bsl::ifstream fs;
+                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                fs.clear();
+                globfree(&globbuf);
+                ASSERT(fs.is_open());
+                linesNum = 0;
+                while (getline(fs, line)) { ++linesNum; }
+                fs.close();
+                ASSERT(2 == linesNum);
+            }
 
             mX.disableFileLogging();
             removeFilesByPrefix(baseName.c_str());
@@ -2168,21 +2209,25 @@ int main(int argc, char *argv[])
 
                 loopCount = 0;
                 do {
-                    linesNum = 0;
                     bcemt_ThreadUtil::microSleep(0, 1);
-                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                    while (getline(fs, line)) { ++linesNum; }
-                    fs.close();
+                    linesNum = 0;
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
                 } while (!linesNum && loopCount++ < 10);
 
                 // Read the log file to get the record
 
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                ASSERT(getline(fs, line));
-                fs.close();
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    ASSERT(getline(fs, line));
+                    fs.close();
+                }
 
                 bsl::string datetime1, datetime2;
                 bsl::string log1, log2;
@@ -2271,21 +2316,25 @@ int main(int argc, char *argv[])
 
                 loopCount = 0;
                 do {
-                    linesNum = 0;
                     bcemt_ThreadUtil::microSleep(0, 1);
-                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                    while (getline(fs, line)) { ++linesNum; }
-                    fs.close();
+                    linesNum = 0;
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
                 } while (!linesNum && loopCount++ < 10);
 
                 // Read the log file to get the record
 
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                ASSERT(getline(fs, line));
-                fs.close();
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    ASSERT(getline(fs, line));
+                    fs.close();
+                }
 
                 bsl::string datetime1, datetime2;
                 bsl::string log1, log2;
