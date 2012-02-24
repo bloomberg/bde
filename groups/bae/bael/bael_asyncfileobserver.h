@@ -444,13 +444,14 @@ class bael_AsyncFileObserver : public bael_Observer {
         // pops record shared pointers and contexts from fixed queue and writes
         // the records referred by these shared pointers to files or 'stdout'.
 
-    void startThread();
+    int startThread();
         // Create publication thread using the thread function
-        // 'publishThreadEntryPoint'.  This method is not thread-safe.  The
-        // behavior is undefined if more than two calls of this method occur
-        // concurrently.
+        // 'publishThreadEntryPoint'.  Return 0 on success or if the
+        // publication thread has already started, and a non-zero value
+        // otherwise. This method is not thread-safe.  The behavior is
+        // undefined if more than two calls of this method occur concurrently.
 
-    void stopThread();
+    int stopThread();
         // Stop publication thread by pushing a record shared pointer referring
         // a special 'bael_Record' object with the cause of its context set to
         // 'BAEL_END'.  This method is not thread-safe.  The behavior is
@@ -460,7 +461,6 @@ class bael_AsyncFileObserver : public bael_Observer {
     // CREATORS
     explicit bael_AsyncFileObserver(
               bael_Severity::Level  stdoutThreshold = bael_Severity::BAEL_WARN,
-              int                   fixedQueueSize  = 8192,
               bslma_Allocator      *basicAllocator  = 0);
         // Create an asynchronous file observer with a fixed queue size of the
         // specified 'fixedQueueSize' that publishes log records to 'stdout' if
@@ -476,7 +476,7 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     bael_AsyncFileObserver(bael_Severity::Level  stdoutThreshold,
                            bool                  publishInLocalTime,
-                           int                   fixedQueueSize = 8192,
+                           int                   fixedQueueSize,
                            bslma_Allocator      *basicAllocator = 0);
         // Create an asynchronous file observer with a fixed queue size of the
         // specified 'fixedQueueSize' that publishes log records to 'stdout' if
@@ -622,11 +622,13 @@ class bael_AsyncFileObserver : public bael_Observer {
         // used when publishing log records.  See "Log Record Formatting" under
         // @DESCRIPTION for details of formatting syntax.
 
-    void startPublicationThread();
-        // Start the publication thread of this async file observer.  This
-        // method has no effect if the publication thread is already started.
+    int startPublicationThread();
+        // Start the publication thread of this async file observer.  Return 0
+        // on success or if the publication thread has already started, and a
+        // non-zero value otherwise.  This method has no effect if the
+        // publication thread has already started.
 
-    void stopPublicationThread();
+    int stopPublicationThread();
         // Stop the publication thread of this async file observer.  This
         // method has no effect if the publication thread has not started.
 

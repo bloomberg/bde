@@ -30,7 +30,7 @@ void bael_MultiplexObserver::publish(const bael_Record&  record,
 
     // Print warning once that this publish method is deprecated.
     
-    static int needWarning = true;
+    static bool needWarning = true;
     if (needWarning) {
         bsl::cerr << "*******************************************************"
                   << bsl::endl;

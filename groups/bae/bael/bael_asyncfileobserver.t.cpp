@@ -397,7 +397,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
-        Obj mX(bael_Severity::BAEL_WARN, 8192, &ta);
+        Obj mX(bael_Severity::BAEL_WARN, &ta);
         mX.startPublicationThread();
         bcemt_ThreadUtil::microSleep(0, 1);
 
@@ -469,7 +469,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
-        Obj mX(bael_Severity::BAEL_WARN, 8192, &ta);  const Obj& X = mX;
+        Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
         mX.startPublicationThread();
         bcemt_ThreadUtil::microSleep(0, 1);
 
@@ -549,7 +549,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         bcema_TestAllocator ta(veryVeryVeryVerbose);
-        Obj mX(bael_Severity::BAEL_WARN, 8192, &ta);
+        Obj mX(bael_Severity::BAEL_WARN, &ta);
         bsl::string filename = tempFileName(veryVerbose);
 
         RotCb cb(Z);
@@ -706,7 +706,7 @@ int main(int argc, char *argv[])
         {
             bsl::string filename = tempFileName(veryVerbose);
 
-            Obj mX(bael_Severity::BAEL_OFF, 8192, &ta);  const Obj& X = mX;
+            Obj mX(bael_Severity::BAEL_OFF, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
@@ -935,7 +935,7 @@ int main(int argc, char *argv[])
 
             bsl::string filename = tempFileName(veryVerbose);
 
-            Obj mX(bael_Severity::BAEL_OFF, 8192, &ta);  const Obj& X = mX;
+            Obj mX(bael_Severity::BAEL_OFF, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
@@ -1433,7 +1433,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing constructor threshold." << endl;
         {
-            Obj mX(bael_Severity::BAEL_FATAL, 8192, &ta);
+            Obj mX(bael_Severity::BAEL_FATAL, &ta);
             mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os, dos;
@@ -1749,7 +1749,10 @@ int main(int argc, char *argv[])
                     defaultObsHour - difference < 24) {
                     // UTC and local time are on the same day
                     if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
-                    ASSERT(dos.str() == coutS);
+
+                    // skong: This is a bug, you can not figure out if they
+                    // are on the same day with only two hour numbers.
+                    //ASSERT(dos.str() == coutS);
                 }
                 else if (coutS.length() >= 11) {
                     // UTC and local time are on different days.  Ignore
@@ -1773,7 +1776,7 @@ int main(int argc, char *argv[])
             bsl::string fn = tempFileName(veryVerbose);
             int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
-            Obj mX(bael_Severity::BAEL_WARN, 8192, &ta);
+            Obj mX(bael_Severity::BAEL_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
@@ -1903,7 +1906,7 @@ int main(int argc, char *argv[])
         {
             bsl::string fn = tempFileName(veryVerbose);
 
-            Obj mX(bael_Severity::BAEL_WARN, 8192, &ta);
+            Obj mX(bael_Severity::BAEL_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
@@ -1964,7 +1967,7 @@ int main(int argc, char *argv[])
             bsl::string baseName = tempFileName(veryVerbose);
             bsl::string pattern  = baseName + "%Y%M%D%h%m%s";
 
-            Obj mX(bael_Severity::BAEL_WARN, 8192, &ta);
+            Obj mX(bael_Severity::BAEL_WARN, &ta);
             const Obj& X = mX;
             mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
@@ -2095,7 +2098,7 @@ int main(int argc, char *argv[])
                 bsl::string expected(baseName);  expected += FILENAME;
                 bsl::string actual;
 
-                Obj mX(bael_Severity::BAEL_WARN, 8192, &ta);
+                Obj mX(bael_Severity::BAEL_WARN, &ta);
                 const Obj& X = mX;
 
                 LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(pattern.c_str()));
@@ -2124,7 +2127,7 @@ int main(int argc, char *argv[])
         {
             int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
-            Obj mX(bael_Severity::BAEL_WARN, 8192, &ta);  const Obj& X = mX;
+            Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
             mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
 
@@ -2341,7 +2344,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cerr << "Testing User-Defined Fields Toggling\n";
         {
-            Obj mX(bael_Severity::BAEL_WARN, 8192, &ta);  const Obj& X = mX;
+            Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
             const char *logFileFormat;
             const char *stdoutFormat;
 

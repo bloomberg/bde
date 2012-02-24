@@ -1539,7 +1539,9 @@ int main(int argc, char *argv[])
                     defaultObsHour - difference < 24) {
                     // UTC and local time are on the same day
                     if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
-                    ASSERT(dos.str() == coutS);
+                    // skong: This is a bug, you can not figure out if they
+                    // are on the same day with only two hour numbers.
+                    //ASSERT(dos.str() == coutS);
                 }
                 else if (coutS.length() >= 11) {
                     // UTC and local time are on different days.  Ignore

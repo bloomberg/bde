@@ -41,18 +41,19 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
     }
 }
 
-void bael_AsyncFileObserver::startThread()
+int bael_AsyncFileObserver::startThread()
 {
     if (bcemt_ThreadUtil::invalidHandle() == d_threadHandle)
     {
         bcemt_ThreadAttributes attr;
-        bcemt_ThreadUtil::create(&d_threadHandle,
-                                 attr,
-                                 d_publishThreadEntryPoint);
+        return bcemt_ThreadUtil::create(&d_threadHandle,
+                                        attr,
+                                        d_publishThreadEntryPoint);   // RETURN
     }
+    return 0;
 }
 
-void bael_AsyncFileObserver::stopThread()
+int bael_AsyncFileObserver::stopThread()
 {
     if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle)
     {
@@ -63,21 +64,22 @@ void bael_AsyncFileObserver::stopThread()
                 d_allocator_p);
         bael_Context context(bael_Transmission::BAEL_END, 0, 1);
         publish(record, context);
-        bcemt_ThreadUtil::join(d_threadHandle);
+        int ret = bcemt_ThreadUtil::join(d_threadHandle);
         d_threadHandle = bcemt_ThreadUtil::invalidHandle();
+        return ret;                                                   // RETURN
     }
+    return 0;
 }
 
 
 // CREATORS
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                 bael_Severity::Level  stdoutThreshold,
-                int                   fixedQueueSize,
                 bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_clearing(false)
-, d_recordQueue(fixedQueueSize, basicAllocator)
+, d_recordQueue(8192, basicAllocator)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -134,16 +136,16 @@ void bael_AsyncFileObserver::publish(
     d_recordQueue.pushBack(asyncRecord);
 }
 
-void bael_AsyncFileObserver::startPublicationThread()
+int bael_AsyncFileObserver::startPublicationThread()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    startThread();
+    return startThread();
 }
 
-void bael_AsyncFileObserver::stopPublicationThread()
+int bael_AsyncFileObserver::stopPublicationThread()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
-    stopThread();
+    return stopThread();
 }
 
 }  // close namespace BloombergLP
