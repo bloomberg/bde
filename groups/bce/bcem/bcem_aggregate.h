@@ -1,3 +1,4 @@
+
 // bcem_aggregate.h                  -*-C++-*-
 #ifndef INCLUDED_BCEM_AGGREGATE
 #define INCLUDED_BCEM_AGGREGATE
@@ -705,7 +706,6 @@ BDES_IDENT("$Id: $")
 namespace BloombergLP {
 
 class  bdem_ChoiceArrayItem;
-class  bcem_Aggregate;
 
 class bcem_Aggregate {
     // This class provides a reference to a fully-introspective data
@@ -758,26 +758,7 @@ class bcem_Aggregate {
                                                           // aggregate in bit
                                                           // 0
 
-    // PRIVATE CLASS METHODS
-    template <typename TYPE>
-    static bdem_ElemType::Type getBdemType(const TYPE& value);
-        // Return the 'bdem_ElemType::Type' corresponding to the parameterized
-        // 'value'.
-
     // PRIVATE MANIPULATORS
-    int assignToNillableScalarArrayImp(const bdem_ElemRef& value) const;
-    int assignToNillableScalarArrayImp(const bdem_ConstElemRef& value) const;
-    template <typename TYPE>
-    int assignToNillableScalarArray(const TYPE& value) const;
-    template <typename TYPE>
-    int assignToNillableScalarArray(const bsl::vector<TYPE>& value) const;
-        // Assign the specified 'value' to this aggregate.  Return 0 on
-        // success, and a non-zero value otherwise.  The behavior is undefined
-        // unless this aggregate refers to a nillable scalar array, and 'value'
-        // is a scalar array, or is convertible to one.  If value is null,
-        // then make this aggregate null.  Leave this aggregate unchanged if
-        // 'value' is not convertible to the type stored in this aggregate.
-
     const bcem_Aggregate fieldImp(
                                bool        makeNonNullFlag,
                                NameOrIndex fieldOrIdx1,
@@ -820,37 +801,6 @@ class bcem_Aggregate {
         // The behavior is undefined if this method is invoked on an
         // already-initialized Aggregate.
 
-    template <typename VALUETYPE>
-    bcem_Aggregate toEnum(const VALUETYPE& value) const;
-    template <typename VALUETYPE>
-    bcem_Aggregate toEnum(const VALUETYPE& value,
-                          bslmf_MetaInt<0> direct) const;
-    bcem_Aggregate toEnum(const int&, bslmf_MetaInt<0> direct) const;
-    bcem_Aggregate toEnum(const char *value, bslmf_MetaInt<1> direct) const;
-    bcem_Aggregate toEnum(const bsl::string& value,
-                          bslmf_MetaInt<1>   direct) const;
-    bcem_Aggregate toEnum(const bdem_ConstElemRef& value,
-                          bslmf_MetaInt<1>         direct) const;
-        // Set this enumeration to the specified value and return this
-        // aggregate on success or an error if the conversion to 'value'
-        // fails.  The 'direct' argument is to aid in overloading for
-        // those types that can be directly processed and those that must
-        // first be converted to 'int' using 'bdem_Convert'.  Reset the
-        // nullness flag if this aggregate is currently null and the
-        // function succeeds.
-
-    template <typename VALTYPE>
-    int setValueInPlace(const VALTYPE& value);
-        // Set the value referenced by this aggregate to the specified
-        // 'value', resetting its nullness flag if 'isNul2()' is 'true',
-        // converting 'value' as necessary (see "Extended Type Conversions" in
-        // the 'bcem_Aggregate' component-level documentation for a detailed
-        // definition of "is convertible") and return this aggregate.  If
-        // value is null then make this aggregate null.  Make this aggregate
-        // an error if 'value' is not convertible to the type stored in this
-        // aggregate.  The schema (dynamic type) of this aggregate is not
-        // changed.  Return 0 on success and a non-zero value otherwise.
-
     // PRIVATE ACCESSORS
     const bcem_Aggregate makeError(
                             const bcem_AggregateError& errorDescription) const;
@@ -876,16 +826,6 @@ class bcem_Aggregate {
         // error aggregate allocates its error record using the default
         // allocator.
 
-     const bcem_Aggregate makeSelectionByIndexRaw(int index) const;
-        // Change the selector in the referenced choice object to the one at
-        // the specified 'index' and return a reference to the new selection.
-        // The new selection will *not* be initialized as it would be by the 
-        // non-raw version of this method. If '-1 == index' then the selector
-        // value of this object is reset and an empty aggregate is returned.  
-        // Return an error object on failure (as described in the
-        // "Error Handling" section of the 'bcem_aggregate' component-level
-        // documentation).
-
     // PRIVATE CLASS METHODS
     static bcema_SharedPtr<void> makeValuePtr(
                                     bdem_ElemType::Type  type,
@@ -894,6 +834,13 @@ class bcem_Aggregate {
         // specified 'type'.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
+
+    template <typename TYPE>
+    static const TYPE&         valueRef(const TYPE& value);
+    static bdem_ElemRef        valueRef(const bcem_Aggregate& value);
+        // Return the specified 'value', unless 'value' is bcem_Aggregate, 
+        // in which case return 'value.asElemRef()'.  This method facilitates
+        // passing values to AggregateRaw template methods for assignment.
 
     // PRIVATE CREATORS
     bcem_Aggregate(const bcem_AggregateRaw&     rawData, 
@@ -2195,26 +2142,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bcem_Aggregate& rhs);
 
 // ---  Anything below this line is implementation specific.  Do not use.  ----
 
-// ===========================================================================
-//                      TEMPLATE SPECIALIZATIONS
-// ===========================================================================
-
-template <>
-inline
-const bcem_Aggregate
-bcem_Aggregate::setValue<bcem_Aggregate>(const bcem_Aggregate& value) const;
-    // Specialization of 'setValue<VALUETYPE>' for 'VALUETYPE = bcem_Aggregate'
-
-template <>
-inline
-int
-bcem_Aggregate::setValueInPlace<bcem_Aggregate>(const bcem_Aggregate& value);
-    // Specialization of 'setValueInPlace<VALUETYPE>' for
-    // 'VALUETYPE = bcem_Aggregate'
-
-                    // ======================================
+                    // =====================================
                     // local class bcem_Aggregate_RepProctor
-                    // ======================================
+                    // =====================================
 
 class bcem_Aggregate_RepProctor {
     // This "component-private" class is a proctor for managing
@@ -2247,128 +2177,6 @@ public:
                         // class bcem_Aggregate
                         //---------------------
 
-// PRIVATE CLASS METHODS
-template <typename TYPE>
-inline
-bdem_ElemType::Type bcem_Aggregate::getBdemType(const TYPE&)
-{
-    return (bdem_ElemType::Type) bdem_SelectBdemType<TYPE>::VALUE;
-}
-
-template <>
-inline
-bdem_ElemType::Type bcem_Aggregate::getBdemType(const bdem_ConstElemRef& value)
-{
-    return value.type();
-}
-
-template <>
-inline
-bdem_ElemType::Type bcem_Aggregate::getBdemType(const bdem_ElemRef& value)
-{
-    return value.type();
-}
-
-template <>
-inline
-bdem_ElemType::Type bcem_Aggregate::getBdemType(const bcem_Aggregate& value)
-{
-    return value.dataType();
-}
-
-// PRIVATE MANIPULATORS
-template <typename TYPE>
-inline
-int bcem_Aggregate::assignToNillableScalarArray(const TYPE&) const
-{
-    BSLS_ASSERT_OPT("Invalid Type for Nillable Type" && 0);
-    return -1;
-}
-
-template <>
-inline
-int bcem_Aggregate::assignToNillableScalarArray(const bdem_Table& value) const
-{
-    if (!bcem_AggregateRawUtil::isConformant(&value, recordConstraint())) {
-        return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT; 
-    }
-
-    *(bdem_Table *)data() = value;
-    return 0;
-}
-
-template <>
-inline
-int
-bcem_Aggregate::assignToNillableScalarArray(const bdem_ElemRef& value) const
-{
-    return assignToNillableScalarArrayImp(value);
-}
-
-template <>
-inline
-int bcem_Aggregate::assignToNillableScalarArray(
-                                          const bdem_ConstElemRef& value) const
-{
-    return assignToNillableScalarArrayImp(value);
-}
-
-template <typename TYPE>
-int bcem_Aggregate::assignToNillableScalarArray(
-                                          const bsl::vector<TYPE>& value) const
-{
-    bdem_ElemType::Type baseType  =
-                        (bdem_ElemType::Type) bdem_SelectBdemType<TYPE>::VALUE;
-
-    if (baseType != recordConstraint()->field(0).elemType()) {
-        return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;
-    }
-
-    const int length = static_cast<int>(value.size());
-    this->resize(length);
-    if (0 == length) {
-        return 0;
-    }
-
-    bdem_Table            *dstTable     = (bdem_Table *)data();
-    const bdem_Descriptor *baseTypeDesc =
-                                  bdem_ElemAttrLookup::lookupTable()[baseType];
-    typename bsl::vector<TYPE>::const_iterator iter = value.begin();
-    for (int i = 0; i < length; ++i, ++iter) {
-        baseTypeDesc->assign(dstTable->theModifiableRow(i)[0].data(),
-                             (const void *) &(*iter));
-    }
-    return 0;
-}
-
-template <typename VALUETYPE>
-inline
-bcem_Aggregate bcem_Aggregate::toEnum(const VALUETYPE& value) const
-{
-    static const int IS_DIRECT =
-              bslmf_IsConvertible<VALUETYPE, const char*>::VALUE
-           || bslmf_IsConvertible<VALUETYPE, bsl::string>::VALUE
-           || bslmf_IsConvertible<VALUETYPE, const bdem_ConstElemRef&>::VALUE;
-
-    return toEnum(value, bslmf_MetaInt<IS_DIRECT>());
-}
-
-template <typename VALUETYPE>
-inline
-bcem_Aggregate
-bcem_Aggregate::toEnum(const VALUETYPE& value, bslmf_MetaInt<0> direct) const
-{
-    int intVal;
-    if (bdem_Convert::convert(&intVal, value)) {
-        return makeError(
-              bcem_AggregateError::BCEM_ERR_BAD_CONVERSION,
-              "Invalid conversion to enumeration \"%s\" from \"%s\"",
-              bcem_AggregateRawUtil::enumerationName(enumerationConstraint()),
-              bdem_ElemType::toAscii(getBdemType(value)));
-    }
-    return toEnum(intVal, direct);
-}
-
 inline
 const bcem_Aggregate& bcem_Aggregate::makeNull()  const
 {
@@ -2383,72 +2191,18 @@ const bcem_Aggregate bcem_Aggregate::makeValue() const
     return *this;
 }
 
-inline
-bcem_Aggregate
-bcem_Aggregate::toEnum(const bsl::string& value, bslmf_MetaInt<1> direct) const
-{
-    return toEnum(value.c_str(), direct);
-}
-
-template <>
-inline
-int
-bcem_Aggregate::setValueInPlace<bcem_Aggregate>(const bcem_Aggregate& value)
-{
-    // Specialization for 'VALUETYPE = bcem_Aggregate'.
-    return setValueInPlace(value.asElemRef());
-}
-
-template <typename VALTYPE>
-int bcem_Aggregate::setValueInPlace(const VALTYPE& value)
-{
-    if (isError()) {
-        return 0;                                                     
-    }
-
-    if (bdem_SchemaUtil::isNillableScalarArrayDescription(dataType(), 
-                                                          recordConstraint())) {
-        if (isNul2()) {
-            makeValue();
-        }
-
-        if (assignToNillableScalarArray(value)) {
-            *this = makeError(
-                       bcem_AggregateError::BCEM_ERR_NON_CONFORMANT,
-                       "Value does not conform to record "
-                       "\"%s\" in schema",
-                       bcem_AggregateRawUtil::recordName(recordConstraint()));
-            return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;  
-        }
-        return 0;                                                     
-    }
-
-    if (! bcem_AggregateRawUtil::isConformant(&value, recordConstraint())) {
-        *this = makeError(
-                       bcem_AggregateError::BCEM_ERR_NON_CONFORMANT,
-                       "Value does not conform to record \"%s\" in schema",
-                       bcem_AggregateRawUtil::recordName(recordConstraint()));
-        return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;       
-    }
-
-    if (enumerationConstraint() && bdem_ElemType::isScalarType(dataType())) {
-        *this = toEnum(value);                                        
-    }
-    else {
-        bdem_ElemRef elemRef = asElemRef();
-        if (bdem_Convert::convert(&elemRef, value)) {
-            *this = makeError(bcem_AggregateError::BCEM_ERR_BAD_CONVERSION,
-                           "Invalid conversion when setting %s value from %s",
-                           bdem_ElemType::toAscii(dataType()),
-                           bdem_ElemType::toAscii(getBdemType(value)));
-            return bcem_AggregateError::BCEM_ERR_BAD_CONVERSION;
-        }
-    }
-
-    return 0;
-}
-
 // CLASS METHODS
+template <typename TYPE>
+inline 
+const TYPE& bcem_Aggregate::valueRef(const TYPE& value) {
+    return value;
+}
+
+inline 
+bdem_ElemRef bcem_Aggregate::valueRef(const bcem_Aggregate& value) {
+    return value.asElemRef();
+}
+
 inline
 bool bcem_Aggregate::areIdentical(const bcem_Aggregate& lhs,
                                   const bcem_Aggregate& rhs)
@@ -2489,12 +2243,14 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
     
     bcem_Aggregate_RepProctor valueRepProctor(d_valueRep_p);
 
-    int status = bdem_Convert::toBdemType(value_sp.ptr(), dataType, value);
+    int status = bdem_Convert::toBdemType(value_sp.ptr(), dataType, 
+                                          valueRef(value));
     if (status) {
         *this = makeError(bcem_AggregateError::BCEM_ERR_BAD_CONVERSION,
                           "Invalid conversion to %s from %s",
                           bdem_ElemType::toAscii(dataType),
-                          bdem_ElemType::toAscii(getBdemType(value)));
+                          bdem_ElemType::toAscii(
+                              bcem_AggregateRaw::getBdemType(valueRef(value))));
     }
     else {
         bcema_SharedPtr<int> null_sp;
@@ -2593,57 +2349,11 @@ const bcem_Aggregate bcem_Aggregate::setValue(const VALTYPE& value) const
         return *this;                                                 
     }
 
-    if (bdem_SchemaUtil::isNillableScalarArrayDescription(dataType(), 
-                                                          recordConstraint())) 
-    {
-        if (isNul2()) {
-            makeValue();
-        }
-
-        if (assignToNillableScalarArray(value)) {
-            return makeError(
-                       bcem_AggregateError::BCEM_ERR_NON_CONFORMANT,
-                       "Value does not conform to record "
-                       "\"%s\" in schema",
-                       bcem_AggregateRawUtil::recordName(recordConstraint()));
-                                                                      
-        }
-        return *this;                                                 
+    bcem_AggregateError errorDescription;
+    if (0 != d_rawData.setValue(&errorDescription, valueRef(value))) {
+        return makeError(errorDescription);
     }
-
-    if (! bcem_AggregateRawUtil::isConformant(&value, recordConstraint())) {
-        return makeError(
-                        bcem_AggregateError::BCEM_ERR_NON_CONFORMANT,
-                        "Value does not conform to record \"%s\" in schema",
-                        bcem_AggregateRawUtil::recordName(recordConstraint()));
-                                                                      
-    }
-
-    if (enumerationConstraint() && bdem_ElemType::isScalarType(dataType())) {
-        return toEnum(value);                                         
-    }
-    else {
-        bdem_ElemRef elemRef = asElemRef();
-        if (bdem_Convert::convert(&elemRef, value)) {
-            return makeError(bcem_AggregateError::BCEM_ERR_BAD_CONVERSION,
-                             "Invalid conversion when setting "
-                             "%s value from %s value",
-                             bdem_ElemType::toAscii(dataType()),
-                             bdem_ElemType::toAscii(getBdemType(value)));
-                                                                      
-        }
-    }
-
     return *this;
-}
-
-template <>
-inline
-const bcem_Aggregate
-bcem_Aggregate::setValue<bcem_Aggregate>(const bcem_Aggregate& value) const
-{
-    // Specialization for 'VALUETYPE = bcem_Aggregate'.
-    return setValue(value.asElemRef());
 }
 
 template <typename VALTYPE>
@@ -3048,26 +2758,18 @@ const bcem_Aggregate bcem_Aggregate::appendNull() const
 }
 
 template <typename VALTYPE>
+inline
 const bcem_Aggregate bcem_Aggregate::insert(int            pos,
                                             const VALTYPE& newItem) const
 {
     bcem_AggregateRaw field;
     bcem_AggregateError errorDescription;
-    bool wasNull = isNul2();
-    if (0 != d_rawData.insertItemRaw(&field, 
-                                     &errorDescription, 
-                                     pos)) {
+    if (0 != d_rawData.insertItem(&field, &errorDescription, 
+                                  pos, valueRef(newItem))) {
         return makeError(errorDescription);
     }
-    else {
-        bcem_Aggregate retval(field, d_schemaRep_p, 
-                              d_valueRep_p, d_isTopLevelAggregateNullRep_p);
-        if (0 != retval.setValueInPlace(newItem) &&
-            wasNull) {
-            makeNull();
-        }
-        return retval;
-    }
+    return bcem_Aggregate(field, d_schemaRep_p, d_valueRep_p, 
+                          d_isTopLevelAggregateNullRep_p);
 }
 
 inline
@@ -3223,25 +2925,6 @@ const bcem_Aggregate bcem_Aggregate::removeAllItems() const
 
 inline
 const bcem_Aggregate
-bcem_Aggregate::makeSelectionByIndex(int newSelectorIndex) const
-{
-    bool isAggNull = isNul2();
-    if (isAggNull) {
-        makeValue();
-    }
-
-    const bcem_Aggregate result =
-                         makeSelectionByIndexRaw(newSelectorIndex).makeValue();
-
-    if (result.isError() && isAggNull) {
-        makeNull();
-    }
-
-    return result;
-}
-
-inline
-const bcem_Aggregate
 bcem_Aggregate::makeSelection(const bsl::string& newSelector) const
 {
     return makeSelection(newSelector.c_str());
@@ -3257,13 +2940,20 @@ bcem_Aggregate::makeSelectionByIndex(int            newSelectorIndex,
         makeValue();
     }
 
-    const bcem_Aggregate result =
-         makeSelectionByIndexRaw(newSelectorIndex).makeValue().setValue(value);
-
-    if (result.isError() && isAggNull) {
-        makeNull();
+    bcem_AggregateError errorDescription;
+    bcem_AggregateRaw   result;
+    if (0 != d_rawData.makeSelectionByIndexRaw(&result, 
+                                               &errorDescription, 
+                                               newSelectorIndex) ||
+        0 != result.setValue(&errorDescription, valueRef(value))) {
+        if (isAggNull) {
+            makeNull();
+        }
+        return makeError(errorDescription);
     }
-    return result;
+
+    return bcem_Aggregate(result, d_schemaRep_p, d_valueRep_p, 
+                          d_isTopLevelAggregateNullRep_p);
 }
 
 template <typename VALTYPE>

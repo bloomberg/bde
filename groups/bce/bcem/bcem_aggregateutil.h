@@ -371,8 +371,8 @@ class bcem_AggregateUtil {
         // and a non-zero value otherwise.  Note that any non-zero result can
         // by converted to an 'bsl::string' using the 'errorString' method.
 
-    static int setValue(const bcem_Aggregate&   result,
-                        const bsl::string&      value);
+    static int setValue(const bcem_AggregateRaw&   result,
+                        const bsl::string&         value);
         // Store the specified 'value' into the specified 'result' aggregate.
         // Return 0 on success, and a non-zero value otherwise.  Note that any
         // non-zero result can by converted to an 'bsl::string' using the
@@ -1695,9 +1695,10 @@ int bcem_AggregateUtil::toAggregateImp(bcem_Aggregate *destination,
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_Aggregate field = destination->fieldById(fieldId);
-    if (field.isError()) {
-        return field.errorCode();
+    bcem_AggregateRaw field = destination->rawData();
+    bcem_AggregateError error;
+    if (0 != field.descendIntoFieldById(&error, fieldId)) {
+        return error.code();
     }
 
     return setValue(field, Wrapper::toString(source));
@@ -1745,14 +1746,15 @@ int bcem_AggregateUtil::toAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_Aggregate field = destination->fieldById(fieldId);
-    if (field.isError()) {
-        return field.errorCode();
+    bcem_AggregateRaw field = destination->rawData();
+    bcem_AggregateError error;
+    if (0 != field.descendIntoFieldById(&error, fieldId)) {
+        return error.code();
     }
 
     if (source.isNull()) {
         field.makeNull();
-        return field.errorCode();
+        return 0;
     }
 
     return setValue(field, Wrapper::toString(source.value()));
@@ -1801,14 +1803,15 @@ int bcem_AggregateUtil::toAggregateImp(
 {
     typedef typename bslalg_TypeTraits<TYPE>::Wrapper Wrapper;
 
-    bcem_Aggregate field = destination->fieldById(fieldId);
-    if (field.isError()) {
-        return field.errorCode();
+    bcem_AggregateRaw field = destination->rawData();
+    bcem_AggregateError error;
+    if (0 != field.descendIntoFieldById(&error, fieldId)) {
+        return error.code();
     }
 
     if (source.isNull()) {
         field.makeNull();
-        return field.errorCode();
+        return 0;
     }
 
     return setValue(field, Wrapper::toString(source.value()));
@@ -2071,7 +2074,7 @@ int bcem_AggregateUtil::fromAggregateImp(TYPE                  *destination,
     }
 
     if (0 != Wrapper::fromString(destination, field.asString())) {
-        return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
+        return bcem_AggregateError::BCEM_ERR_BAD_ENUMVALUE;
     }
 
     return 0;
@@ -2133,7 +2136,7 @@ int bcem_AggregateUtil::fromAggregateImp(
     else if (0 != (Wrapper::fromString(&destination->makeValue(),
                                        field.asString())))
     {
-        return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
+        return bcem_AggregateError::BCEM_ERR_BAD_ENUMVALUE;
     }
 
     return 0;
@@ -2196,7 +2199,7 @@ int bcem_AggregateUtil::fromAggregateImp(
     else if (0 != (Wrapper::fromString(&destination->makeValue(),
                                        field.asString())))
     {
-        return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
+        return bcem_AggregateError::BCEM_ERR_BAD_ENUMVALUE;
     }
 
     return 0;
@@ -2269,7 +2272,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         if (0 != (Wrapper::fromString(&(*destination)[i],
                                       field[i].asString())))
         {
-            return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
+            return bcem_AggregateError::BCEM_ERR_BAD_ENUMVALUE;
         }
     }
 
@@ -2353,7 +2356,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         else if (0 != (Wrapper::fromString(&(*destination)[i].makeValue(),
                                            fieldElement.asString())))
         {
-            return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
+            return bcem_AggregateError::BCEM_ERR_BAD_ENUMVALUE;
         }
     }
 
@@ -2436,7 +2439,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         else if (0 != (Wrapper::fromString(&(*destination)[i].makeValue(),
                                            fieldElement.asString())))
         {
-            return bcem_Aggregate::BCEM_ERR_BAD_ENUMVALUE;
+            return bcem_AggregateError::BCEM_ERR_BAD_ENUMVALUE;
         }
     }
 

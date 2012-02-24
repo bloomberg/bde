@@ -4834,7 +4834,8 @@ static void testCase32(bool verbose, bool veryVerbose, bool veryVeryVerbose)
 
             ASSERT(X.isError());
             ASSERT(Err::BCEM_ERR_BAD_CONVERSION == X.errorCode());
-            ASSERT(S1 == X.errorMessage());
+            LOOP2_ASSERT(S1, X.errorMessage(), 
+                         S1 == X.errorMessage());
 
             Obj mY(ET::BDEM_CHAR, AA);  const Obj& Y = mY;
             const Obj ERR = Y.setValue(BB);
@@ -16507,7 +16508,7 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 const Obj RET = mX.setField(name1, Y.field(name2));
                 ASSERT(RET.isError());
 
-                if (veryVerbose) { P(RET) };
+                if (veryVerbose) { P(RET); P(Y); P(name1); P(name2) }
             }
         }
 }
@@ -17262,7 +17263,8 @@ static void testCase1(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
             ASSERT(3 == agg1.length());
             ASSERT("Hello"    == agg1.field(0, "StringField").asString());
             ASSERT(1.2        == agg1.field(0, "DoubleField").asDouble());
-            ASSERT("New row"  == agg1.field(1, "StringField").asString());
+            LOOP_ASSERT(agg1.field(1, "StringField").asString(), 
+                        "New row" == agg1.field(1, "StringField").asString());
             ASSERT(99.99      == agg1.field(1, "DoubleField").asDouble());
             ASSERT("Goodbye"  == agg1.field(2, "StringField").asString());
             ASSERT(nullDouble == agg1.field(2, "DoubleField").asDouble());

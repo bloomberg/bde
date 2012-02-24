@@ -133,12 +133,20 @@ BDES_IDENT("$Id: $")
 #include <bdem_schema.h>
 #endif
 
+#ifndef INCLUDED_BDEM_TABLE
+#include <bdem_table.h>
+#endif
+
 #ifndef INCLUDED_BDEF_FUNCTION
 #include <bdef_function.h>
 #endif
 
 #ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
+#endif
+
+#ifndef INCLUDED_BSL_SSTREAM
+#include <bsl_sstream.h>
 #endif
 
 namespace BloombergLP {
@@ -239,6 +247,16 @@ class bcem_AggregateRaw_ArrayInserter {
     bool                 d_areValuesNull;  // are the values being inserted
                                            // null
 
+    // PRIVATE TYPES
+    template <typename TYPE>
+    struct SignChecker {
+        // TBD REMOVE
+
+        enum {
+            IS_SIGNED=1
+        };
+    };
+
     // NOT IMPLEMENTED
     bcem_AggregateRaw_ArrayInserter(const bcem_AggregateRaw_ArrayInserter&);
     bcem_AggregateRaw_ArrayInserter& operator=(
@@ -284,6 +302,35 @@ class bcem_AggregateRaw_ArrayInserter {
         // elements).  
 };
 
+template <>
+struct bcem_AggregateRaw_ArrayInserter::SignChecker<unsigned char> {
+    // TBD REMOVE
+        enum {
+            IS_SIGNED=0
+        };
+};
+
+template <>
+struct bcem_AggregateRaw_ArrayInserter::SignChecker<unsigned short> {
+    // TBD REMOVE
+        enum {
+            IS_SIGNED=0
+        };
+};
+template <>
+struct bcem_AggregateRaw_ArrayInserter::SignChecker<unsigned int> {
+    // TBD REMOVE
+        enum {
+            IS_SIGNED=0
+        };
+};
+template <>
+struct bcem_AggregateRaw_ArrayInserter::SignChecker<bsls_Types::Uint64> {
+    // TBD REMOVE
+        enum {
+            IS_SIGNED=0
+        };
+};
                       // ============================================
                       // local class bcem_AggregateRaw_ArrayCapacitor
                       // ============================================
@@ -320,24 +367,6 @@ class  bcem_AggregateRaw_ArrayCapacitor {
     }
 
 };
-
-                      // ========================================
-                      // local class bcem_AggregateRaw_ArraySizer
-                      // ========================================
-
-struct bcem_AggregateRaw_ArraySizer {
-    // This class defines a function object to return the size of a sequence 
-    // container.  The size of a sequence container is the number of elements 
-    // that it contains.
-
-    // ACCESSORS
-    template <typename ARRAYTYPE>
-    int operator()(ARRAYTYPE *array) const
-    {
-        return (int)array->size();
-    }
-};
-
                      // ==========================================
                      // local class bcem_AggregateRaw_ArrayIndexer
                      // ==========================================
@@ -475,6 +504,28 @@ class bcem_AggregateRaw {
                                             // 0
 
     // PRIVATE MANIPULATORS
+    template <typename TYPE>
+    int assignToNillableScalarArrayImp(const TYPE& value) const;
+        // Assign the specified 'value' to this aggregate.  Return 0 on
+        // success, and a non-zero value otherwise.  The behavior is undefined
+        // unless this aggregate refers to a nillable scalar array, and 'value'
+        // is a scalar array, or is convertible to one.  If value is null,
+        // then make this aggregate null.  Leave this aggregate unchanged if
+        // 'value' is not convertible to the type stored in this aggregate.
+        // The parameterized 'TYPE' shall be either bdem_ElemRef or 
+        // bdem_ConstElemRef.  
+
+    template <typename TYPE>
+    int assignToNillableScalarArray(const TYPE& value) const;
+    template <typename TYPE>
+    int assignToNillableScalarArray(const bsl::vector<TYPE>& value) const;
+        // Assign the specified 'value' to this aggregate.  Return 0 on
+        // success, and a non-zero value otherwise.  The behavior is undefined
+        // unless this aggregate refers to a nillable scalar array, and 'value'
+        // is a scalar array, or is convertible to one.  If value is null,
+        // then make this aggregate null.  Leave this aggregate unchanged if
+        // 'value' is not convertible to the type stored in this aggregate.
+
     int descendIntoArrayItem(bcem_AggregateError *errorDescription, 
                              int                  index, 
                              bool                 makeNonNullFlag);
@@ -487,15 +538,34 @@ class bcem_AggregateRaw {
         // success, with no effect on the specified 'errorDescription'; 
         // otherwise, load into 'errorDescription' a description of the 
         // failure and return a nonzero value.  
+
+    template <typename VALUETYPE>
+    int toEnum(bcem_AggregateError *errorDescription, 
+               const VALUETYPE&     value) const;
+    template <typename VALUETYPE>
+    int toEnum(bcem_AggregateError *errorDescription, 
+               const VALUETYPE&     value,
+               bslmf_MetaInt<0>     direct) const;
+    int toEnum(bcem_AggregateError *errorDescription, 
+               const int&, 
+               bslmf_MetaInt<0>     direct) const;
+    int toEnum(bcem_AggregateError *errorDescription, 
+               const char          *value, 
+               bslmf_MetaInt<1>     direct) const;
+    int toEnum(bcem_AggregateError *errorDescription, 
+               const bsl::string&   value,
+               bslmf_MetaInt<1>     direct) const;
+    int toEnum(bcem_AggregateError      *errorDescription, 
+               const bdem_ConstElemRef&  value,
+               bslmf_MetaInt<1>          direct) const;
+        // Set this enumeration to the specified 'value'.  The 'direct' 
+        // argument is to aid in template metaprogramming for overloading for 
+        // those types that can be directly processed and those that must
+        // first be converted to 'int' using 'bdem_Convert'.  Return 0 on
+        // success or a nonzero value with a description loaded into the 
+        // specified 'errorDescription' on failure.
     
     // PRIVATE ACCESSORS
-    template <typename TOTYPE>
-    TOTYPE convertScalar() const;
-        // Return the scalar value stored in this aggregate converted to the
-        // parameterized 'TOTYPE'.  Return a default-constructed 'TOTYPE' 
-        // object unless this aggregate holds a scalar value that is 
-        // convertible to 'TOTYPE'.
-
     void convertScalarToString(bsl::string *result) const;
         // Convert the scalar value stored in this aggregate to a string, and
         // load the resulting string into the specified 'result', or make
@@ -515,6 +585,11 @@ class bcem_AggregateRaw {
         // by this class.  See the BDE package-group-level documentation for
         // more information on 'bdex' streaming of container types.
 
+    template <typename TYPE>
+    static bdem_ElemType::Type getBdemType(const TYPE& value);
+        // Return the 'bdem_ElemType::Type' corresponding to the parameterized
+        // 'value'.
+
     // CREATORS
     bcem_AggregateRaw();  
         // Create an aggregate reference in an empty state.  
@@ -525,8 +600,14 @@ class bcem_AggregateRaw {
         // behavior is undefined unless the schema and data referred to by 
         // 'other' remain valid for the lifetime of this object.  
 
+#ifdef BDE_BUILD_TARGET_SAFE
     ~bcem_AggregateRaw(); 
         // Destroy this object.
+#else
+    //~bcem_AggregateRaw() = default;
+        // Destroy this object.  Note that the compiler-generated default 
+        // is used.  
+#endif
 
     // MANIPULATORS
     bcem_AggregateRaw& operator=(const bcem_AggregateRaw& rhs);
@@ -650,11 +731,23 @@ class bcem_AggregateRaw {
     bdet_Time asTime() const;
     bdet_TimeTz asTimeTz() const;
         // Convert the value referenced by this aggregate to the return type
-        // of specified conversion function using "Extended Type Conversions"
-        // as described in the 'bcem_Aggregate' component-level documentation
-        // (returning the enumerator ID when converting enumeration objects to
-        // numeric values).  Return the appropriate "null" value if conversion
-        // fails.
+        // using "Extended Type Conversions" as described in the 
+        // 'bcem_Aggregate' component-level documentation (returning the 
+        // enumerator ID when converting enumeration objects to numeric 
+        // values).  Return the appropriate "null" value if conversion fails.
+
+    template <typename TOTYPE>
+    TOTYPE convertScalar() const;
+        // Return the scalar value stored in this aggregate converted to the
+        // parameterized 'TOTYPE'.  Return an "unset" 'TOTYPE' value (see 
+        // 'bdetu_unset') unless this aggregate holds a scalar value that is 
+        // convertible to 'TOTYPE'.  'TOTYPE' shall be one of: 'bool', 'char', 
+        // 'short', 'int', 'bsls_Types::Int64', 'float', 'double', 
+        // 'bdet_Datetime', 'bdet_DatetimeTz', 'bdet_Date', 'bdet_DateTz', 
+        // 'bdet_Time', 'bdet_TimeTz'; or, unsigned versions of these.  But
+        // note that if TOTYPE is unsigned, and this aggregate is not 
+        // convertible to 'TOTYPE', then the unset value of the corresponding
+        // signed type is returned.  
 
     const bdem_ElemRef asElemRef() const;
         // Return a reference to the modifiable element value held by this
@@ -1048,6 +1141,17 @@ class bcem_AggregateRaw {
         // and choice array, this print function prepend's each field with the
         // name of the field.
 
+    template <typename VALTYPE>
+    int insertItem(bcem_AggregateRaw   *newItem, 
+                   bcem_AggregateError *description, 
+                   int                  index, 
+                   const VALTYPE&       value) const;
+        // Insert a copy of the specified 'value' before the specified 
+        // 'index' in the scalar array, table, or choice array referenced by
+        // this aggregate.  Return 0 on success and load a reference to the 
+        // new item into the specified 'newItem'; otherwise, return a nonzero 
+        // value and load a description into the specified 'errorDescription'.  
+
     int insertItemRaw(bcem_AggregateRaw   *newItem, 
                       bcem_AggregateError *errorDescription, 
                       int                  index) const;
@@ -1135,6 +1239,16 @@ class bcem_AggregateRaw {
         // empty record definition, then the entire list will still be null
         // after this function is called.
 
+    template <typename TYPE>
+    int setValue(bcem_AggregateError *errorDescription, 
+                 const TYPE&          value) const;
+        // Set the value referenced by this aggregate to the specified
+        // 'value', converting the specified 'value' as necessary.  If
+        // 'value' is null then make this aggregate null.  Return 0 on 
+        // success, with no effect on the specified 'errorDescription'; 
+        // otherwise, load into 'errorDescription' a description of the 
+        // failure and return a nonzero value.  
+
     int resize(bcem_AggregateError *errorDescription, 
                bsl::size_t          newSize) const;
         // Grow or shrink the scalar array, table, or choice array referenced
@@ -1149,6 +1263,14 @@ class bcem_AggregateRaw {
         // description of the error into 'errorDescription' and return a
         // nonzero value.  
 };
+
+template <>
+inline
+int bcem_AggregateRaw::setValue<bcem_AggregateRaw>(
+                                        bcem_AggregateError *errorDescription, 
+                                        const bcem_AggregateRaw& value) const;
+    // Specialization of 'setValue<VALUETYPE>' for 
+    // 'VALUETYPE = bcem_AggregateRaw'
 
                    // ============================
                    // struct bcem_AggregateRawUtil
@@ -2206,9 +2328,9 @@ int bcem_AggregateRawNameOrIndex::index() const
 }
 
 
-                   // ----------------------------------------
-                   // local class bcem_AggregateRaw_ArrayInserter
-                   // ----------------------------------------
+                 // -------------------------------------------
+                 // local class bcem_AggregateRaw_ArrayInserter
+                 // -------------------------------------------
 
 // CREATORS
 inline
@@ -2242,6 +2364,8 @@ int bcem_AggregateRaw_ArrayInserter::operator()(ARRAYTYPE *array)
 
     typedef typename ARRAYTYPE::value_type value_type;
     if (d_areValuesNull) {
+        BSLMF_ASSERT(SignChecker<value_type>::IS_SIGNED == 1);
+                     
         value_type nullValue(bdetu_Unset<value_type>::unsetValue());
 
         // Insert.
@@ -2281,6 +2405,149 @@ int bcem_AggregateRaw_ArrayInserter::length() const
                            // class bcem_AggregateRaw
                            //-------------------------
 
+// CLASS METHODS
+template <typename TYPE>
+inline
+bdem_ElemType::Type bcem_AggregateRaw::getBdemType(const TYPE&)
+{
+    return (bdem_ElemType::Type) bdem_SelectBdemType<TYPE>::VALUE;
+}
+
+template <>
+inline
+bdem_ElemType::Type bcem_AggregateRaw::getBdemType(
+                                                const bdem_ConstElemRef& value)
+{
+    return value.type();
+}
+
+template <>
+inline
+bdem_ElemType::Type bcem_AggregateRaw::getBdemType(const bdem_ElemRef& value)
+{
+    return value.type();
+}
+
+template <>
+inline
+bdem_ElemType::Type bcem_AggregateRaw::getBdemType(
+                                                const bcem_AggregateRaw& value)
+{
+    return value.dataType();
+}
+
+// PRIVATE MANIPULATORS
+template <typename VALUETYPE>
+inline
+int bcem_AggregateRaw::toEnum(bcem_AggregateError *errorDescription,
+                              const VALUETYPE&     value) const
+{
+    static const int IS_DIRECT =
+              bslmf_IsConvertible<VALUETYPE, const char*>::VALUE
+           || bslmf_IsConvertible<VALUETYPE, bsl::string>::VALUE
+           || bslmf_IsConvertible<VALUETYPE, const bdem_ConstElemRef&>::VALUE;
+
+    return toEnum(errorDescription, value, bslmf_MetaInt<IS_DIRECT>());
+}
+
+template <typename VALUETYPE>
+int bcem_AggregateRaw::toEnum(bcem_AggregateError *errorDescription, 
+                              const VALUETYPE&     value, 
+                              bslmf_MetaInt<0>     direct) const
+{
+    int intVal;
+    if (0 != bdem_Convert::convert(&intVal, value)) {
+        errorDescription->description().assign(
+                                       "Invalid conversion to enumeration \"");
+        errorDescription->description() += 
+            bcem_AggregateRawUtil::enumerationName(enumerationConstraint());
+        errorDescription->description() += "\" from \"";
+        errorDescription->description() += 
+            bdem_ElemType::toAscii(getBdemType(value));
+        errorDescription->description() += '\"';
+        errorDescription->code() = bcem_AggregateError::BCEM_ERR_BAD_CONVERSION;
+        return 1;
+    }
+    return toEnum(errorDescription, intVal, direct);
+}
+
+inline
+int bcem_AggregateRaw::toEnum(bcem_AggregateError *errorDescription, 
+                              const bsl::string&   value, 
+                              bslmf_MetaInt<1>     direct) const
+{
+    return toEnum(errorDescription, value.c_str(), direct);
+}
+
+template <typename TYPE>
+inline
+int bcem_AggregateRaw::assignToNillableScalarArray(const TYPE&) const
+{
+    BSLS_ASSERT_OPT("Invalid Type for Nillable Type" && 0);
+    return -1;
+}
+
+template <>
+inline 
+int bcem_AggregateRaw::assignToNillableScalarArray(
+                                                 const bdem_Table& value) const
+{
+    if (!bcem_AggregateRawUtil::isConformant(&value, recordConstraint())) {
+        return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT; 
+    }
+
+    *(bdem_Table *)data() = value;
+    return 0;
+}
+
+template <>
+inline
+int bcem_AggregateRaw::assignToNillableScalarArray(
+                                              const bdem_ElemRef& value) const
+{
+    return assignToNillableScalarArrayImp(value);
+}
+
+template <>
+inline
+int bcem_AggregateRaw::assignToNillableScalarArray(
+                                          const bdem_ConstElemRef& value) const
+{
+    return assignToNillableScalarArrayImp(value);
+}
+
+template <typename TYPE>
+int bcem_AggregateRaw::assignToNillableScalarArray(
+                                          const bsl::vector<TYPE>& value) const
+{
+    bdem_ElemType::Type baseType  =
+                        (bdem_ElemType::Type) bdem_SelectBdemType<TYPE>::VALUE;
+
+    if (baseType != recordConstraint()->field(0).elemType()) {
+        return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;
+    }
+
+    const int length = static_cast<int>(value.size());
+    bcem_AggregateError errorDescription;
+    if (0 != resize(&errorDescription, length)) {
+        return errorDescription.code();
+    }
+    if (0 == length) {
+        return 0;
+    }
+
+    bdem_Table            *dstTable     = (bdem_Table *)data();
+    const bdem_Descriptor *baseTypeDesc =
+                                  bdem_ElemAttrLookup::lookupTable()[baseType];
+    typename bsl::vector<TYPE>::const_iterator iter = value.begin();
+    for (int i = 0; i < length; ++i, ++iter) {
+        baseTypeDesc->assign(dstTable->theModifiableRow(i)[0].data(),
+                             (const void *) &(*iter));
+    }
+    return 0;
+}
+
+// MANIPULATORS
 inline
 void bcem_AggregateRaw::setDataType(bdem_ElemType::Type dataType)
 {
@@ -2315,6 +2582,74 @@ inline
 void bcem_AggregateRaw::setTopLevelAggregateNullnessPointer(int *pointer)
 {
     d_isTopLevelAggregateNull_p = pointer;
+}
+
+template <typename TYPE>
+int bcem_AggregateRaw::setValue(bcem_AggregateError* errorDescription, 
+                                const TYPE& value) const
+{
+    if (bdem_SchemaUtil::isNillableScalarArrayDescription(dataType(), 
+                                                          recordConstraint())) 
+    {
+        if (isNull()) {
+            makeValue();
+        }
+
+        if (0 != assignToNillableScalarArray(value)) {
+            errorDescription->description().assign(
+                                        "Value does not conform to record \"");
+            errorDescription->description() += 
+                bcem_AggregateRawUtil::recordName(recordConstraint());
+            errorDescription->description() += "\" in schema";
+            errorDescription->code() = 
+                bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;
+            return 1;
+        }
+        return 0;
+    }
+
+    if (! bcem_AggregateRawUtil::isConformant(&value, recordConstraint())) {
+        errorDescription->description().assign(
+                                        "Value does not conform to record \"");
+        errorDescription->description() += 
+            bcem_AggregateRawUtil::recordName(recordConstraint());
+        errorDescription->description() += "\" in schema";
+        errorDescription->code() = 
+            bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;
+        return 1;
+    }
+
+    if (enumerationConstraint() && bdem_ElemType::isScalarType(dataType())) {
+        return toEnum(errorDescription, value);
+    }
+    else {
+        bdem_ElemRef elemRef = asElemRef();
+        if (0 != bdem_Convert::convert(&elemRef, value)) {
+            errorDescription->description().assign(
+                                  "Invalid conversion when setting ");
+            errorDescription->description() += 
+                                  bdem_ElemType::toAscii(dataType());
+            errorDescription->description() += " value from ";
+            errorDescription->description() +=
+                                  bdem_ElemType::toAscii(getBdemType(value));
+            errorDescription->description() += " value";
+            errorDescription->code() = 
+                                  bcem_AggregateError::BCEM_ERR_BAD_CONVERSION;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+template <>
+inline
+int bcem_AggregateRaw::setValue<bcem_AggregateRaw>(
+                                   bcem_AggregateError *errorDescription, 
+                                   const bcem_AggregateRaw& value) const
+{
+    // Specialization for 'VALUETYPE = bcem_AggregateRaw'.
+    return setValue(errorDescription, value.asElemRef());
 }
 
 template <class STREAM>
@@ -2382,6 +2717,24 @@ STREAM& bcem_AggregateRaw::bdexStreamIn(STREAM& stream, int version) const
     }
 
     return stream;
+}
+
+template <typename VALTYPE>
+int bcem_AggregateRaw::insertItem(bcem_AggregateRaw   *newItem, 
+                                  bcem_AggregateError *description, 
+                                  int                  index, 
+                                  const VALTYPE&       value) const
+{
+    bool wasNull = isNull();
+    if (0 != insertItemRaw(newItem, description, index)) {
+        return 1;
+    }
+
+    int rc = newItem->setValue(description, value);
+    if (0 != rc && wasNull) {
+        makeNull();
+    }
+    return rc;
 }
 
 template <class STREAM>
