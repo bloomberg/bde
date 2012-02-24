@@ -116,6 +116,7 @@ using namespace bsl;  // automatically added by script
 
 // PRIVATE GEOMETRIC MEMORY GROWTH
 // [13] bdem_TableImp_enableGeometricMemoryGrowth()
+// [14] bdem_TableImp_disableGeometricMemoryGrowth()
 
 //=============================================================================
 //            STANDARD BDE ASSERT TEST MACRO
@@ -523,17 +524,30 @@ int main(int argc, char *argv[])
         //: 2 When geometric memory growth is enabled, memory actually grows
         //:   geometrically.
         //: 3 When geometric memory growth is disabled, memory grows linearly.
+        //: 4 Disabling geometric memory growth when enabled restores the
+        //:   original behavior.
+        //: 5 Disabling geometric memory growth when already disables has no
+        //:   effect on memory growth.
         //
         // Plan:
         //: 1 Insert rows and verify that, by default, capacity does not grow
         //:   geometrically.  [C-1,3]
-        //: 2 Turn on geometric growth with
+        //: 2 Disable geometric growth with
+        //:   'bdem_TableImp_enableGeometricMemoryGrowth' and verify that the
+        //:    memory does not grow geometrically for progressive insertions.
+        //:    [C-1,3,5]
+        //: 3 Enable geometric growth with
         //:   'bdem_TableImp_enableGeometricMemoryGrowth' and verify that
         //:   the capacity of the table grows geometrically for progressive
-        //:   insertions.
+        //:   insertions.  [C-2]
+        //: 4 Disable geometric growth with
+        //:   'bdem_TableImp_enableGeometricMemoryGrowth' and verify that the
+        //:    memory does not grow geometrically for progressive insertions.
+        //:    [C-1,3,4]
         //
         //  Testing:
         //    bdem_TableImp_enableGeometricMemoryGrowth();
+        //    bdem_TableImp_disableGeometricMemoryGrowth();
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING PRIVATE MEMORY GROWTH FLAG" << endl
@@ -591,7 +605,25 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (veryVerbose) cout << "\nEnabling geometric memory growth" << endl;
+        if (verbose) cout << "\nDisabling geometric memory growth" << endl;
+        {
+            bdem_TableImp_disableGeometricMemoryGrowth();
+            const int NUM_ROWS = 1024;
+
+            for (int i = 0; i < STRATEGY_LEN; ++i) {
+                bslma_TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
+                Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
+
+                for (int j = 0; j < NUM_ROWS; ++j) {
+                    mX.insertNullRows(j, 1);
+                    LOOP2_ASSERT(j,
+                                 X.capacityRaw(),
+                                 j + 1 == X.capacityRaw());
+                }
+            }
+        }
+
+        if (verbose) cout << "\nEnabling geometric memory growth" << endl;
         {
             bdem_TableImp_enableGeometricMemoryGrowth();
 
@@ -611,6 +643,40 @@ int main(int argc, char *argv[])
                                  EXP_CAPACITY == X.capacityRaw());
                 }
             }
+        }
+        if (verbose) cout << "\nTesting with reserve" << endl;
+        {
+            for (int i = 0; i < STRATEGY_LEN; ++i) {
+                for (int j = 0; j < DATA_LEN; j++) {
+                    bslma_TestAllocator ta("TestAllocator",
+                                           veryVeryVeryVerbose);
+                    Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
+                    mX.reserveRaw(j + 1);
+                    LOOP3_ASSERT(i,
+                                 j,
+                                 X.capacityRaw(),
+                                 j + 1 == X.capacityRaw());
+                }
+            }
+        }
+
+        if (verbose) cout << "\nDisabling geometric memory growth" << endl;
+        {
+            bdem_TableImp_disableGeometricMemoryGrowth();
+            const int NUM_ROWS = 1024;
+
+            for (int i = 0; i < STRATEGY_LEN; ++i) {
+                bslma_TestAllocator ta("TestAllocator", veryVeryVeryVerbose);
+                Obj mX(STRATEGY_DATA[i], &ta); const Obj& X = mX;
+
+                for (int j = 0; j < NUM_ROWS; ++j) {
+                    mX.insertNullRows(j, 1);
+                    LOOP2_ASSERT(j,
+                                 X.capacityRaw(),
+                                 j + 1 == X.capacityRaw());
+                }
+            }
+
         }
         if (verbose) cout << "\nTesting with reserve" << endl;
         {

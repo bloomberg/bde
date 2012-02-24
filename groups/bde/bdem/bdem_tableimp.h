@@ -664,7 +664,15 @@ bool operator!=(const bdem_TableImp& lhs, const bdem_TableImp& rhs);
 void bdem_TableImp_enableGeometricMemoryGrowth();
     // Enable geometric memory growth, upon insertion, for 'bdem_TableImp'
     // objects in the current process.  By default, memory is obtained on
-    // and "as needed" basis.  Note that this method is provided,
+    // an "as needed" basis.  Note that this method is provided,
+    // *temporarily*, as part of an overall transition strategy to move toward
+    // geometric memory growth being the default, and eventually the only
+    // option.  Also note that this method is *not* *thread-safe*,
+
+void bdem_TableImp_disableGeometricMemoryGrowth();
+    // Disable geometric memory growth, upon insertion, for 'bdem_TableImp'
+    // objects in the current process.  By default, memory is obtained on
+    // an "as needed" basis.  Note that this method is provided,
     // *temporarily*, as part of an overall transition strategy to move toward
     // geometric memory growth being the default, and eventually the only
     // option.  Also note that this method is *not* *thread-safe*,

@@ -1002,6 +1002,11 @@ void bdem_TableImp_enableGeometricMemoryGrowth()
     geometricMemoryGrowthFlag = true;
 }
 
+void bdem_TableImp_disableGeometricMemoryGrowth()
+{
+    geometricMemoryGrowthFlag = false;
+}
+
 bool bdem_TableImp_isGeometricMemoryGrowth()
 {
     return geometricMemoryGrowthFlag;
