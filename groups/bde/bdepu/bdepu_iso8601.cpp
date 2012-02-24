@@ -36,7 +36,9 @@ int parseUint(const char **nextPos,
     // non-zero value otherwise.  Failure will occur if there '*begin' is not a
     // digit, or if the string of digits represents a value too large to
     // represent in a signed integer.  The behavior is undefined unless 'begin'
-    // and 'end' describe a contiguous range of memory.
+    // and 'end' describe a contiguous range of memory.  Note that if a
+    // non-digit char is encountered at least one char after 'begin' but before
+    // 'end', it is not an error but merely terminates parsing.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(result);
