@@ -75,7 +75,8 @@ using bsl::flush;
 // [ 1] void enableStdoutLoggingPrefix()
 // [ 1] void publish(const bcemt_SharedPtr<const bael_Record>& record,
 //                   const bael_Context& context)
-// [ 2] void clear()
+// [ 2] void releaseRecords()
+// [ 2] void shutdownPublicationThread()
 // [ 3] void forceRotation()
 // [ 3] void rotateOnSize(int size)
 // [ 3] void rotateOnTimeInterval(const bdet_DatetimeInterval timeInterval)
@@ -416,8 +417,8 @@ int main(int argc, char *argv[])
         int beginFileOffset = bdesu_FileUtil::getFileSize(fileName);
         if (verbose) cout << "Begin file offset: " << beginFileOffset << endl;
 
-        for (int i = 0;i < 10000; ++i) {
-             BAEL_LOG_TRACE << "bael_AsyncFileObserver Usage Example 2"
+        for (int i = 0;i < 8000; ++i) {
+             BAEL_LOG_TRACE << "bael_AsyncFileObserver Usage Example Two"
                             << BAEL_LOG_END;
         }
 
@@ -1097,11 +1098,12 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // Clearance Test
+        // Release Records Test
         //
         // Concerns:
-        //   The 'clear' method works properly to clear all shared pointers in
-        //   async file observer's fixed queue without logging them.
+        //   The 'releaseRecords' method works properly to clear all shared
+        //   pointers in async file observer's fixed queue without logging
+        //   them.
         //
         // Plan:
         //   We will first create:
@@ -1121,7 +1123,7 @@ int main(int argc, char *argv[])
         //   - Brute Force Implementation Technique
         //
         // Testing:
-        //   void clear();
+        //   void releaseRecords();
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Testing Queue Clearance.\n"
@@ -1242,6 +1244,7 @@ int main(int argc, char *argv[])
         //   bael_AsyncFileObserver(bael_Severity::Level, bslma_Allocator)
         //   ~bael_AsyncFileObserver()
         //   void startPublicationThread()
+        //   void shutdownPublicationThread();
         //   void stopPublicationThread()
         //   bool isPublicationThreadRunning()
         //   publish(const bael_Record& record, const bael_Context& context)
@@ -1298,7 +1301,7 @@ int main(int argc, char *argv[])
         bael_MultiplexObserver multiplexObserver;
         bael_LoggerManagerScopedGuard guard(&multiplexObserver, configuration);
 
-        if (verbose) cerr << "Testing publication thread."
+        if (verbose) cerr << "Testing publication thread start and stop."
                           << endl;
         {
             Obj mX;  const Obj& X = mX;
@@ -2463,6 +2466,40 @@ int main(int argc, char *argv[])
             // customized formats, the format happens to be the same as
             // the default short format.
         }
+
+        if (verbose) cerr << "Testing publication shutdown."
+                          << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+
+            // Start the publication thread, make sure the publication thread
+            // started
+
+            mX.startPublicationThread();
+            ASSERT(mX.isPublicationThreadRunning());
+
+            bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
+                                                &ta);
+            bael_Context    context;
+            for (int i = 0;i < 8000; ++i)
+                mX.publish(record, context);
+            mX.shutdownPublicationThread();
+            ASSERT(!mX.isPublicationThreadRunning());
+
+            int numRecords = record.numReferences();
+            ASSERT(numRecords > 1);
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(record.numReferences() == numRecords);
+
+            // Re-start the publication thread
+
+            mX.startPublicationThread();
+            ASSERT(mX.isPublicationThreadRunning());
+
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(record.numReferences() == 1);
+        }
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -26,7 +26,7 @@ BDES_IDENT("$Id: $")
 // publication thread (started by calling 'startPublicationThread') reads the
 // log record from that queue and publishes it to the configured log file and
 // 'stdout'.  The following inheritance hierarchy diagram shows the classes
-// involved and their methods: 
+// involved and their methods:
 //..
 //             ,----------------------.
 //            ( bael_AsyncFileObserver )

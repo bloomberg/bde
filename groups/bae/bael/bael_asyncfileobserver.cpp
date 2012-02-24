@@ -152,10 +152,10 @@ int bael_AsyncFileObserver::shutdownPublicationThread()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_clearing = true;
-    return stopThread();
+    int ret =  stopThread();
     d_clearing = false;
+    return ret;
 }
-
 
 }  // close namespace BloombergLP
 
