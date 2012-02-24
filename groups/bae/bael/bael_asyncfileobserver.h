@@ -12,15 +12,21 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //  bael_AsyncFileObserver: observer that outputs logs to a file and 'stdout'
 //
-//@SEE_ALSO: bael_record, bael_context, bael_observer, bael_fileobserver,
-//           bael_fileobserver2
+//@SEE_ALSO: bael_record, bael_context, bael_observer, bael_fileobserver
 //
 //@AUTHOR: Shijin Kong (skong25)
 //
 //@DESCRIPTION: This component provides a concrete implementation of the
-// 'bael_Observer' protocol for publishing log records to a user-specified
-// file in an asynchronous manner.  The following inheritance hierarchy diagram
-// shows the classes involved and their methods:
+// 'bael_Observer' protocol for asynchronously publishing log records to a
+// user-specified file.  A 'bael_AsyncFileObserver' object processes the log
+// records received through its 'publish' method by writing them
+// asynchronously to a user-specified file.  The 'publish' method enqueues the
+// provided 'bael_Record' object into a fixed-size queue and returns
+// immediately.  The supplied record is finally published when an independent
+// publication thread (started by calling 'startPublicationThread') reads the
+// log record from that queue and publishes it to the configured log file and
+// 'stdout'.  The following inheritance hierarchy diagram shows the classes
+// involved and their methods: 
 //..
 //             ,----------------------.
 //            ( bael_AsyncFileObserver )
@@ -54,19 +60,11 @@ BDES_IDENT("$Id: $")
 //                  `-------------'
 //                                        dtor
 //                                        publish
-//                                        clear
+//                                        releaseRecords
 //..
-// A 'bael_AsyncFileObserver' object processes the log records received through
-// its 'publish' method by writing them asynchronously to a user-specified
-// file.  The 'publish' method pushes a record shared pointer into a fixed
-// queue and returns immediately before the record referred by the shared
-// pointer is actually written asynchronously to disk in the other publications
-// thread.  The publication thread is created by calling
-// 'startPublicationThread' method of the async file observer and belongs to
-// the async file observer.  The format of published log records is
-// user-configurable (see "Log Record Formatting" below).  In addition, an
-// async file observer may be configured to perform automatic log file rotation
-// (see "Log File Rotation" below).
+// The format of published log records is user-configurable (see "Log Record
+// Formatting" below).  In addition, an async file-observer may be configured
+// to perform automatic log file rotation (see "Log File Rotation" below).
 //
 ///Log Record Formatting
 ///---------------------
