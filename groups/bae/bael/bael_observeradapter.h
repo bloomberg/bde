@@ -16,7 +16,7 @@ BDES_IDENT("$Id: $")
 //
 //@AUTHOR: Shijin Kong (skong25)
 //
-//@DESCRIPTION: This component provides a single class 'bael_ObserverAdatper'
+//@DESCRIPTION: This component provides a single class 'bael_ObserverAdapter'
 // that aids in the implementation of the 'bael_Observer' protocol by allowing
 // clients to implement that protocol by implementing a single method
 // signature: 'publish(const bael_Record&, const bael_Context&)'.  A primary
@@ -33,12 +33,12 @@ BDES_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Concrete Observer Derived From 'bael_ObserverAdapter'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The following code fragments illustrate the essentials of defining and using
 // a concrete observer inherited from 'bael_ObserverAdapter'.
 //
 // First define a concrete observer 'MyOstreamObserver' derived from
-// 'bael_ObserverAdapter' and declares a single publish method accepting a
+// 'bael_ObserverAdapter' that declares a single publish method accepting a
 // const-reference to a 'bael_Record' object:
 //..
 //  class MyOstreamObserver : public bael_ObserverAdapter {
@@ -52,7 +52,7 @@ BDES_IDENT("$Id: $")
 //  };
 //..
 // Then, we implement the public methods of 'MyOstreamObserver', including the
-// 'publish' method.  This implementatino of 'publish' simply prints out the
+// 'publish' method.  This implementation of 'publish' simply prints out the
 // content of the record it receives to the stream supplied at construction.
 //..
 //  MyOstreamObserver::~MyOstreamObserver()
@@ -89,9 +89,9 @@ BDES_IDENT("$Id: $")
 //  MyOstreamObserver    myObserver(out);
 //  bael_ObserverAdapter *adapter = &myObserver;
 //..
-// Finally, publish three messages by calling the async publish method in
-// 'bael_ObserverAdapter' which in turn calls the sync publish method defined
-// in 'MyOstreamObserver':
+// Finally, publish three messages by calling 'publish' method accepting a
+// shared-pointer, provided by 'bael_ObserverAdapter', that in turn will call
+// the 'publish' method defined in 'MyOstreamObserver':
 //..
 //  bdet_Datetime         now;
 //  bael_RecordAttributes fixed;
@@ -115,6 +115,7 @@ BDES_IDENT("$Id: $")
 //                       bael_Context(bael_Transmission::BAEL_TRIGGER,
 //                                    n,
 //                                    NUM_MESSAGES));
+//  }
 //  out << ends;
 //  cout << buf << endl;
 //..
@@ -171,7 +172,7 @@ class bael_ObserverAdapter : public bael_Observer {
 
     virtual void releaseRecords();
         // Discard any shared reference to a 'bael_Record' object that was
-        // supplied to the 'publish' method and is held by this observer. 
+        // supplied to the 'publish' method and is held by this observer.
         // Note that classes that derive from 'bael_ObserverAdapter' should
         // *not* implement this method.  Also note that this operation should
         // be called if resources underlying the previously provided
@@ -187,13 +188,6 @@ class bael_ObserverAdapter : public bael_Observer {
                           // --------------------------
 
 // MANIPULATORS
-inline
-void bael_ObserverAdapter::publish(const bael_Record&  record,
-                                   const bael_Context& context)
-{
-    BSLS_ASSERT_OPT(false);  // Should not be called
-}
-
 inline
 void bael_ObserverAdapter::publish(
                             const bcema_SharedPtr<const bael_Record>& record,
