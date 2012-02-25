@@ -979,9 +979,7 @@ bcem_Aggregate::makeSelectionById(int newSelector) const
                                      &errorDescription,
                                      newSelector,
                                      "makeSelectionById")) {
-        bcem_Aggregate errorAggregate;
-        errorAggregate.makeError(errorDescription);
-        return errorAggregate;
+        return makeError(errorDescription);
     }
 
     return makeSelectionByIndex(newSelectorIndex);
