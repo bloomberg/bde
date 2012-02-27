@@ -1194,7 +1194,7 @@ int main(int argc, char *argv[])
 
             // We pushed in sufficient number of logs into queue before we
             // destroy the logger manager, so some logs must have been cleared
-            // if clear() works properly
+            // if 'releaseRecords' works properly
 
             ASSERT(linesNum < 2 * logCount);
 

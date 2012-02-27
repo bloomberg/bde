@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
         bcema_SharedPtr<const bael_Record> handle(
                               new (testAllocator) bael_Record(&testAllocator),
                               &testAllocator);
-        BSLS_PROTOCOLTEST_ASSERT(t, publish(record, bael_Context()));
+        BSLS_PROTOCOLTEST_ASSERT(t, publish(handle, bael_Context()));
 
         BSLS_PROTOCOLTEST_ASSERT(t, releaseRecords());
       } break;
