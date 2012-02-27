@@ -116,7 +116,7 @@ using namespace bsl;  // automatically added by script
 
 // PRIVATE GEOMETRIC MEMORY GROWTH
 // [13] bdem_TableImp_enableGeometricMemoryGrowth()
-// [14] bdem_TableImp_disableGeometricMemoryGrowth()
+// [13] bdem_TableImp_disableGeometricMemoryGrowth()
 
 //=============================================================================
 //            STANDARD BDE ASSERT TEST MACRO
@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
         //: 1 Insert rows and verify that, by default, capacity does not grow
         //:   geometrically.  [C-1,3]
         //: 2 Disable geometric growth with
-        //:   'bdem_TableImp_enableGeometricMemoryGrowth' and verify that the
+        //:   'bdem_TableImp_diableGeometricMemoryGrowth' and verify that the
         //:    memory does not grow geometrically for progressive insertions.
         //:    [C-1,3,5]
         //: 3 Enable geometric growth with
@@ -541,7 +541,7 @@ int main(int argc, char *argv[])
         //:   the capacity of the table grows geometrically for progressive
         //:   insertions.  [C-2]
         //: 4 Disable geometric growth with
-        //:   'bdem_TableImp_enableGeometricMemoryGrowth' and verify that the
+        //:   'bdem_TableImp_disableGeometricMemoryGrowth' and verify that the
         //:    memory does not grow geometrically for progressive insertions.
         //:    [C-1,3,4]
         //
