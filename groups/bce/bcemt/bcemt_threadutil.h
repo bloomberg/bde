@@ -130,7 +130,7 @@ BDES_IDENT("$Id: $")
 //      attr.setStackSize(1024 * 1024);
 //
 //      int rc = bcemt_ThreadUtil::create(&handle, attr, myThreadFunction, 0);
-//      assert(0 == rc);                                          
+//      assert(0 == rc);
 //
 //      bcemt_ThreadUtil::yield();
 //

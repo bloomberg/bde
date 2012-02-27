@@ -1146,7 +1146,7 @@ int main(int argc, char *argv[])
 
         bcemt_ThreadUtil::Handle handle;
         int rc = bcemt_ThreadUtil::create(&handle, attr, myThreadFunction, 0);
-        ASSERT(0 == rc);                                          
+        ASSERT(0 == rc);
         bcemt_ThreadUtil::yield();
         rc = bcemt_ThreadUtil::join(handle);
         ASSERT(0 == rc);
