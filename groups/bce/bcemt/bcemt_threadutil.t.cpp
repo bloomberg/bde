@@ -261,6 +261,7 @@ void *configurationTestFunction(void *stackToUse)
 
     func();
 
+    ASSERT(func.d_stackToUse == (int) (bsls_Types::IntPtr) stackToUse);
     ASSERT(func.s_success);
 
     return 0;
@@ -727,6 +728,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         const int stackSize =
+                       5 * bcemt_Configuration::nativeDefaultThreadStackSize();
+        const int stackToUse =
                        4 * bcemt_Configuration::nativeDefaultThreadStackSize();
         bcemt_Configuration::setDefaultThreadStackSize(stackSize);
 
@@ -736,7 +739,7 @@ int main(int argc, char *argv[])
         {
             BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
 
-            func.d_stackToUse = stackSize - 20 * 1000;
+            func.d_stackToUse = stackToUse;
             func.s_success    = false;
 
             ASSERT(func.d_stackToUse >
@@ -749,14 +752,14 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
 
             ASSERT(func.s_success);
-            ASSERT(func.d_stackToUse == stackSize - 20 * 1000);
+            ASSERT(func.d_stackToUse == stackToUse);
         }
 
         if (verbose) Q(Test functor with default attributes);
         {
             BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
 
-            func.d_stackToUse = stackSize - 20 * 1000;
+            func.d_stackToUse = stackToUse;
             func.s_success    = false;
 
             bcemt_ThreadAttributes attr;
@@ -767,14 +770,15 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
 
             ASSERT(func.s_success);
+            ASSERT(func.d_stackToUse == stackToUse);
         }
 
         if (verbose) Q(Test C function with no attributes);
         {
-            bsls_Types::IntPtr stackToUse = stackSize - 20 * 1000;
-            int rc = bcemt_ThreadUtil::create(&handle,
-                                              &configurationTestFunction,
-                                              (void *) stackToUse);
+            int rc = bcemt_ThreadUtil::create(
+                                     &handle,
+                                     &configurationTestFunction,
+                                     (void *) (bsls_Types::IntPtr) stackToUse);
             ASSERT(0 == rc);
 
             rc = bcemt_ThreadUtil::join(handle);
@@ -783,12 +787,12 @@ int main(int argc, char *argv[])
 
         if (verbose) Q(Test C function with default attributes object);
         {
-            bsls_Types::IntPtr stackToUse = stackSize - 20 * 1000;
             bcemt_ThreadAttributes attr;
-            int rc = bcemt_ThreadUtil::create(&handle,
-                                              attr,
-                                              &configurationTestFunction,
-                                              (void *) stackToUse);
+            int rc = bcemt_ThreadUtil::create(
+                                     &handle,
+                                     attr,
+                                     &configurationTestFunction,
+                                     (void *) (bsls_Types::IntPtr) stackToUse);
             ASSERT(0 == rc);
 
             rc = bcemt_ThreadUtil::join(handle);
