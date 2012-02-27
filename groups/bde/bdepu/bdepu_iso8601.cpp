@@ -16,7 +16,6 @@ BDES_IDENT_RCSID(bdepu_iso8601_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
@@ -104,9 +103,9 @@ int parseDate(int         *year,
 
     const char *expectedEnd = p + 4;
 
-    if   (0   != parseUint(&p, year, p, expectedEnd)
-       || p   != expectedEnd
-       || '-' != *p) {
+    if (0   != parseUint(&p, year, p, expectedEnd)
+     || p   != expectedEnd
+     || '-' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -116,9 +115,9 @@ int parseDate(int         *year,
 
     expectedEnd = p + 2;
 
-    if   (0   != parseUint(&p, month, p, expectedEnd)
-       || p   != expectedEnd
-       || '-' != *p) {
+    if (0   != parseUint(&p, month, p, expectedEnd)
+     || p   != expectedEnd
+     || '-' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -128,8 +127,7 @@ int parseDate(int         *year,
 
     expectedEnd = p + 2;
 
-    if   (0 != parseUint(&p, day, p, expectedEnd)
-       || p != expectedEnd) {
+    if (0 != parseUint(&p, day, p, expectedEnd) || p != expectedEnd) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -203,8 +201,8 @@ int parseTime(int         *hour,
 
     expectedEnd = p + 2;
 
-    if   (0 != parseUint(&p, second, p, expectedEnd)
-       || p != expectedEnd) {
+    if (0 != parseUint(&p, second, p, expectedEnd)
+     || p != expectedEnd) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -305,11 +303,11 @@ int parseTimezoneOffset(int         *minuteOffset,
     const char *expectedEnd = p + 2;
 
     int hourVal;
-    if   (0           != parseUint(&p, &hourVal, p, end)
-       || p           != expectedEnd
-       || hourVal     >= 24  // Max TZ offset is 24 hours.
-       || p           >= end
-       || ':' != *p) {
+    if (0           != parseUint(&p, &hourVal, p, end)
+     || p           != expectedEnd
+     || hourVal     >= 24  // Max TZ offset is 24 hours.
+     || p           >= end
+     || ':' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -318,9 +316,9 @@ int parseTimezoneOffset(int         *minuteOffset,
     expectedEnd = p + 2;
 
     int minuteVal;
-    if    (0 != parseUint(&p, &minuteVal, p, end)
-       ||  p != expectedEnd
-       ||  minuteVal > 59) {
+    if (0 != parseUint(&p, &minuteVal, p, end)
+     || p != expectedEnd
+     || minuteVal > 59) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
