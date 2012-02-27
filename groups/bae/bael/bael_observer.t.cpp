@@ -36,7 +36,9 @@ using namespace bsl;  // automatically added by script
 // obtains the behavior specified by the protocol from the concrete subclass.
 //-----------------------------------------------------------------------------
 // [ 1] virtual ~bael_Observer();
-// [ 1] virtual void publish(const record&, const context&) = 0;
+// [ 1] virtual void publish(const record&, const context&);
+// [ 1] virtual void publish(const sharedptr<record>&, const context&);
+// [ 1] virtual void releaseRecords();
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 // [ 2] USAGE TEST - Make sure main usage example compiles and works properly.
@@ -82,6 +84,7 @@ void aSsErT(int c, const char *s, int i)
 
 struct ObserverTest : bsls_ProtocolTestImp<bael_Observer> {
     void publish(const bael_Record&, const bael_Context&)  { markDone(); }
+    void releaseRecords() { markDone(); }
 };
 
 //=============================================================================
@@ -247,6 +250,13 @@ int main(int argc, char *argv[])
         ASSERT(t.testVirtualDestructor());
 
         BSLS_PROTOCOLTEST_ASSERT(t, publish(bael_Record(), bael_Context()));
+
+        bcema_SharedPtr<const bael_Record> handle(
+                              new (testAllocator) bael_Record(&testAllocator),
+                              &testAllocator);
+        BSLS_PROTOCOLTEST_ASSERT(t, publish(record, bael_Context()));
+
+        BSLS_PROTOCOLTEST_ASSERT(t, releaseRecords());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

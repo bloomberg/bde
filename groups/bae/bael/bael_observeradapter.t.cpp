@@ -30,7 +30,7 @@ using namespace bsl;  // automatically added by script
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
 //                              OVERVIEW
-// We are testing a base observer class.  We need to verify that (1) a
+// We are testing a observer adapter class.  We need to verify that (1) a
 // concrete derived class compiles and links, and (2) that a usage example
 // obtains the behavior specified by the protocol from the concrete subclass.
 //-----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ using namespace bsl;  // automatically added by script
 // [ 1] virtual void publish(const sharedptr&, const context&);
 // [ 1] virtual void releaseRecords();
 //-----------------------------------------------------------------------------
-// [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
+// [ 1] BREATHING TEST - Make sure derived class compiles and links.
 // [ 2] USAGE TEST - Make sure main usage example compiles and works properly.
 
 //=============================================================================
@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // PROTOCOL TEST:
+        // BREATHING TEST:
         // Concerns:
         //   We must ensure that (1) a subclass of the 'bael_ObserverAdapter'
         //   class compiles and links when all virtual functions are defined,
@@ -229,8 +229,8 @@ int main(int argc, char *argv[])
         //   virtual void releaseRecords();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "PROTOCOL TEST" << endl
-                                  << "=============" << endl;
+        if (verbose) cout << endl << "BREATHING TEST" << endl
+                                  << "==============" << endl;
 
         bsls_ProtocolTest<ObserverTest> t(veryVerbose);
 
