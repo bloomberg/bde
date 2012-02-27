@@ -152,7 +152,7 @@ int parseTime(int         *hour,
     // the location one past the last parsed character.  In the "hh:mm:ss[.d+]"
     // format accepted by this function, 'hh', 'mm', 'ss' are all 2 digit
     // integers (left padded with 0's if necessary) denoting hours, minutes,
-    // and seconds, ':' is literaly a colon character, and [.d+] is the
+    // and seconds, ':' is literally a colon character, and [.d+] is the
     // optional fraction of a second, consisting of a '.' followed by one or
     // more decimal digits.  If '[.d+]' contains more than 3 digits, the value
     // will be rounded to the nearest value in milliseconds.  Return 0 on

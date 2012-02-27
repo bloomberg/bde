@@ -199,7 +199,7 @@ struct bdepu_Iso8601 {
         // conformance with the number of days in the month specified by 'MM'.
         // In the "hh:mm:ss[.d+]" format, 'hh', 'mm', 'ss' are all 2 digit
         // integers (left padded with 0's if necessary) denoting hours,
-        // minutes, and seconds, ':' is literaly a colon character, and [.d+]
+        // minutes, and seconds, ':' is literally a colon character, and [.d+]
         // is the optional fraction of a second, consisting of a '.' followed
         // by one or more decimal digits.  'hh' must be in the range
         // '[ 00, 24 )', 'mm' must be in the range '[ 0, 60 )', and 'ss' must
@@ -223,7 +223,7 @@ struct bdepu_Iso8601 {
         // must be in the range [ 1, 31 ] and in conformance with the number of
         // days in the month specified by 'MM'.  In the "hh:mm:ss[.d+]" format,
         // 'hh', 'mm', 'ss' are all 2 digit integers (left padded with 0's if
-        // necessary) denoting hours, minutes, and seconds, ':' is literaly a
+        // necessary) denoting hours, minutes, and seconds, ':' is literally a
         // colon character, and [.d+] is the optional fraction of a second,
         // consisting of a '.' followed by one or more decimal digits.  If
         // '[.d+]' contains more than 3 digits, the value will be rounded to
@@ -265,7 +265,7 @@ struct bdepu_Iso8601 {
         // the specified 'result'.  In the "hh:mm:ss[.d+]" format accepted by
         // this function, 'hh', 'mm', 'ss' are all 2 digit integers (left
         // padded with 0's if necessary) denoting hours, minutes, and seconds,
-        // ':' is literaly a colon character, and [.d+] is the optional
+        // ':' is literally a colon character, and [.d+] is the optional
         // fraction of a second, consisting of a '.' followed by one or more
         // decimal digits.  'hh' must be in the range '[ 00, 24 )', 'mm' must
         // be in the range '[ 0, 60 )', and 'ss' must be in the range
@@ -282,7 +282,7 @@ struct bdepu_Iso8601 {
         // the specified 'result'.  In the "hh:mm:ss[.d+]" format accepted by
         // this function, 'hh', 'mm', 'ss' are all 2 digit integers (left
         // padded with 0's if necessary) denoting hours, minutes, and seconds,
-        // ':' is literaly a colon character, and [.d+] is the optional
+        // ':' is literally a colon character, and [.d+] is the optional
         // fraction of a second, consisting of a '.' followed by one or more
         // decimal digits.  'hh' must be in the range '[ 00, 24 )', 'mm' must
         // be in the range '[ 0, 60 )', and 'ss' must be in the range
