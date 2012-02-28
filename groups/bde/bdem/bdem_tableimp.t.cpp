@@ -533,7 +533,7 @@ int main(int argc, char *argv[])
         //: 1 Insert rows and verify that, by default, capacity does not grow
         //:   geometrically.  [C-1,3]
         //: 2 Disable geometric growth with
-        //:   'bdem_TableImp_diableGeometricMemoryGrowth' and verify that the
+        //:   'bdem_TableImp_disableGeometricMemoryGrowth' and verify that the
         //:    memory does not grow geometrically for progressive insertions.
         //:    [C-1,3,5]
         //: 3 Enable geometric growth with
