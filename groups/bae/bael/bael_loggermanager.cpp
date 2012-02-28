@@ -278,69 +278,86 @@ void bael_Logger::logMessage(const bael_Category&            category,
 
         // Publish this record.
 
-        d_observer_p->publish(*handle,
+        d_observer_p->publish(handle,
                               bael_Context(bael_Transmission::BAEL_PASSTHROUGH,
                                            0,                 // recordIndex
                                            1));               // sequenceLength
+
     }
 
     typedef bael_LoggerManagerConfiguration Config;
 
     if (levels.triggerLevel() >= severity) {
-        bael_Record *marker = 0;
-        bael_Context triggerContext(bael_Transmission::BAEL_TRIGGER, 0, 1);
 
         // Print markers around the trigger logs if configured.
 
         if (Config::BAEL_BEGIN_END_MARKERS == d_triggerMarkers) {
-            marker = getRecord(record->fixedFields().fileName(),
-                               record->fixedFields().lineNumber());
-            copyAttributesWithoutMessage(marker, record->fixedFields());
-            marker->fixedFields().setMessage(TRIGGER_BEGIN);
+            bael_Context triggerContext(bael_Transmission::BAEL_TRIGGER, 0, 1);
+            bael_Record *marker = getRecord(
+                                         record->fixedFields().fileName(),
+                                         record->fixedFields().lineNumber());
 
-            d_observer_p->publish(*marker, triggerContext);
-        }
-
-        // Publish all records archived by *this* logger.
-
-        publish(bael_Transmission::BAEL_TRIGGER);
-
-        if (Config::BAEL_BEGIN_END_MARKERS == d_triggerMarkers) {
             bcema_SharedPtr<bael_Record> handle(marker,
                                                 &d_recordPool,
                                                 d_allocator_p);
-            marker->fixedFields().setMessage(TRIGGER_END);
 
-            d_observer_p->publish(*marker, triggerContext);
+            copyAttributesWithoutMessage(handle.ptr(), record->fixedFields());
+
+            handle->fixedFields().setMessage(TRIGGER_BEGIN);
+
+            d_observer_p->publish(handle, triggerContext);
+
+            // Publish all records archived by *this* logger.
+
+            publish(bael_Transmission::BAEL_TRIGGER);
+
+            handle->fixedFields().setMessage(TRIGGER_END);
+
+            d_observer_p->publish(handle, triggerContext);
+        }
+        else {
+
+            // Publish all records archived by *this* logger.
+
+            publish(bael_Transmission::BAEL_TRIGGER);
+
         }
     }
 
     if (levels.triggerAllLevel() >= severity) {
-        bael_Record *marker = 0;
-        bael_Context triggerContext(bael_Transmission::BAEL_TRIGGER, 0, 1);
 
         // Print markers around the trigger logs if configured.
 
         if (Config::BAEL_BEGIN_END_MARKERS == d_triggerMarkers) {
-            marker = getRecord(record->fixedFields().fileName(),
-                               record->fixedFields().lineNumber());
-            copyAttributesWithoutMessage(marker, record->fixedFields());
-            marker->fixedFields().setMessage(TRIGGER_ALL_BEGIN);
+            bael_Context triggerContext(bael_Transmission::BAEL_TRIGGER, 0, 1);
+            bael_Record *marker = getRecord(
+                                         record->fixedFields().fileName(),
+                                         record->fixedFields().lineNumber());
 
-            d_observer_p->publish(*marker, triggerContext);
-        }
-
-        // Publish all records archived by *all* loggers.
-
-        d_publishAll(bael_Transmission::BAEL_TRIGGER_ALL);
-
-        if (Config::BAEL_BEGIN_END_MARKERS == d_triggerMarkers) {
             bcema_SharedPtr<bael_Record> handle(marker,
                                                 &d_recordPool,
                                                 d_allocator_p);
-            marker->fixedFields().setMessage(TRIGGER_ALL_END);
 
-            d_observer_p->publish(*marker, triggerContext);
+            copyAttributesWithoutMessage(handle.ptr(), record->fixedFields());
+
+            handle->fixedFields().setMessage(TRIGGER_ALL_BEGIN);
+
+            d_observer_p->publish(handle, triggerContext);
+
+            // Publish all records archived by *all* loggers.
+
+            d_publishAll(bael_Transmission::BAEL_TRIGGER_ALL);
+
+            handle->fixedFields().setMessage(TRIGGER_ALL_END);
+
+            d_observer_p->publish(handle, triggerContext);
+        }
+        else {
+
+            // Publish all records archived by *all* loggers.
+
+            d_publishAll(bael_Transmission::BAEL_TRIGGER_ALL);
+
         }
     }
 }
@@ -817,6 +834,8 @@ bael_LoggerManager::~bael_LoggerManager()
     // accessing the data members.  Then immediately reset all category holders
     // to their default value.  (Note that this might not *be* the singleton,
     // so check for that)
+
+    d_observer_p->releaseRecords();
 
     if (this == s_singleton_p) {
         s_singleton_p = 0;

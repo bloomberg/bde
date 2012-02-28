@@ -40,12 +40,15 @@ using namespace bsl;  // automatically added by script
 // [ 2] bael_MultiplexObserver(bslma_Allocator *ba = 0);
 // [ 2] ~bael_MultiplexObserver();
 // [ 4] void publish(const bael_Record& rec, const bael_Context& ctxt);
+// [ 5] void publish(const bcema_SharedPtr<const bael_Record>& rec,
+//                   const bael_Context&                       ctxt);
+// [ 5] void releaseRecords();
 // [ 3] int registerObserver(bael_Observer *observer);
 // [ 3] int deregisterObserver(bael_Observer *observer);
 // [ 3] int numRegisteredObservers() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -96,7 +99,7 @@ class my_OstreamObserver : public bael_Observer {
     ostream& d_stream;
 
   public:
-    my_OstreamObserver(ostream& stream) : d_stream(stream) { }
+    explicit my_OstreamObserver(ostream& stream) : d_stream(stream) { }
     ~my_OstreamObserver() { }
     void publish(const bael_Record&  record,
                  const bael_Context& context);
@@ -200,6 +203,98 @@ static int isNthContext(const bael_Context& context, int nth)
     }
 }
 
+// ============================================================================
+//                               TEST APPARATUS
+// ----------------------------------------------------------------------------
+// skong: REMOVE THIS after it is moved to the bael_TestObserver
+
+class TestAsyncObserver : public bael_Observer {
+    // DATA
+    bsl::ostream&       d_stream;       // target of 'publish' method
+    bael_Record         d_record;       // most-recently-published record
+    bael_Context        d_context;      // most-recently-published context
+    int                 d_numRecords;   // total number of published records
+    int                 d_numClears;    // total number of 'clear' called
+
+  public:
+    // CREATORS
+    explicit TestAsyncObserver(bsl::ostream&    stream,
+                               bslma_Allocator *basicAllocator = 0);
+
+    virtual ~TestAsyncObserver();
+
+    // MANIPULATORS
+    virtual void publish(const bcema_SharedPtr<const bael_Record>&  record,
+                         const bael_Context&                        context);
+
+    virtual void releaseRecords();
+
+    // ACCESSORS
+    int numPublishedRecords() const;
+
+    int numClears() const;
+
+    const bael_Record& lastPublishedRecord() const;
+
+    const bael_Context& lastPublishedContext() const;
+};
+
+// CREATORS
+inline
+TestAsyncObserver::TestAsyncObserver(bsl::ostream&    stream,
+                                     bslma_Allocator *basicAllocator)
+: d_stream(stream)
+, d_record(basicAllocator)
+, d_context(basicAllocator)
+, d_numRecords(0)
+, d_numClears(0)
+{
+}
+
+TestAsyncObserver::~TestAsyncObserver()
+{
+}
+
+// MANIPULATORS
+void TestAsyncObserver::publish(
+                             const bcema_SharedPtr<const bael_Record>& record,
+                             const bael_Context&                       context)
+{
+    d_record  = *record;
+    d_context = context;
+    ++d_numRecords;
+}
+
+void TestAsyncObserver::releaseRecords()
+{
+    ++d_numClears;
+}
+
+// ACCESSORS
+inline
+int TestAsyncObserver::numPublishedRecords() const
+{
+    return d_numRecords;
+}
+
+inline
+int TestAsyncObserver::numClears() const
+{
+    return d_numClears;
+}
+
+inline
+const bael_Record& TestAsyncObserver::lastPublishedRecord() const
+{
+    return d_record;
+}
+
+inline
+const bael_Context& TestAsyncObserver::lastPublishedContext() const
+{
+    return d_context;
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -217,7 +312,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator *Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -257,14 +352,376 @@ int main(int argc, char *argv[])
             //bael_LoggerManager::initSingleton(&multiplexor);
         }
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
-        // TESTING PUBLISH
+        // TESTING ASYNCHRONOUS PUBLISH AND RELEASE RECORDS
         //
         // Concerns:
-        //   The primary concern is that 'publish' correctly forwards records
-        //   and their corresponding publication contexts to all registered
-        //   observers that should received them.
+        //
+        //   The primary concerns are:
+        //   a. the async publish method
+        //      'publish(const bcema_SharedPtr<const bael_Record>&,
+        //               const bael_Context&)'
+        //      correctly forwards records and their corresponding publication
+        //      contexts to all registered observers that should received them.
+        //   b. the 'clear' method correctly calls the 'clear' method of all
+        //      registered observers.
+        //
+        // Plan:
+        //   Construct a pair of multiplex observers x and y, and a trio of
+        //   'TestAsyncObserver' o1, o2, and o3.  Arrange x, y, o1, o2, and o3
+        //   into various configurations with o1, o2, and o3 registered with at
+        //   most one of the multiplex observers.  Also register y with x for a
+        //   portion of the test.  Publish several distinct records to x and
+        //   y and verify that all registered observers correctly receive the
+        //   records and corresponding publication contexts.  Invoke 'clear'
+        //   method of x and y and verify that all registered observers
+        //   correctly have their 'clear' methods called.  The helper functions
+        //   'nextRecord', 'isNthRecord', and 'isNthContext' are used to
+        //   verify that the records and contexts are properly transmitted.
+        //
+        // Testing:
+        //   void publish(const bcema_SharedPtr<const bael_Record>& rec,
+        //                const bael_Context&                       ctxt);
+        //   void releaseRecords();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "Testing asynchronous 'publish'" << endl
+                                  << "==============================" << endl;
+
+        {
+            //  X
+            Obj mX;  const Obj& X = mX;
+            ASSERT(0 == X.numRegisteredObservers());
+
+            //  Y
+            Obj mY;  const Obj& Y = mY;
+            ASSERT(0 == Y.numRegisteredObservers());
+
+            TestAsyncObserver mO1(bsl::cout);
+            const TestAsyncObserver& O1 = mO1;
+
+            TestAsyncObserver mO2(bsl::cout);
+            const TestAsyncObserver& O2 = mO2;
+
+            TestAsyncObserver mO3(bsl::cout);
+            const TestAsyncObserver& O3 = mO3;
+
+            bcema_SharedPtr<bael_Record> mR(
+                               new (testAllocator) bael_Record(&testAllocator),
+                               &testAllocator);
+            const bcema_SharedPtr<bael_Record>& R = mR;
+
+            Ctxt mC(bael_Transmission::BAEL_TRIGGER, 0, SEQUENCE_LENGTH);
+            const Ctxt& C = mC;
+
+            //   X
+            //   |
+            //   O1
+            ASSERT(0 == mX.registerObserver(&mO1));
+            ASSERT(1 == X.numRegisteredObservers());
+            ASSERT(0 == O1.numPublishedRecords());
+
+            const int I1 = nextRecord(*mR);  ASSERT(1 == isNthRecord(*R, I1));
+            mC.setRecordIndexRaw(I1);        ASSERT(1 == isNthContext(C, I1));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(1 == O1.numPublishedRecords());
+            ASSERT(1 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I1));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I1));
+
+            //   X
+            ASSERT(0 == mX.deregisterObserver(&mO1));
+            ASSERT(0 == X.numRegisteredObservers());
+
+            const int I2 = nextRecord(*mR);  ASSERT(1 == isNthRecord(*R, I2));
+            mC.setRecordIndexRaw(I2);        ASSERT(1 == isNthContext(C, I2));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(1 == O1.numPublishedRecords());
+            ASSERT(1 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I1));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I1));
+
+            //   X
+            //   |
+            //   O1
+            ASSERT(0 == mX.registerObserver(&mO1));
+            ASSERT(1 == X.numRegisteredObservers());
+            ASSERT(1 == O1.numPublishedRecords());
+
+            const int I3 = nextRecord(*mR);  ASSERT(1 == isNthRecord(*R, I3));
+            mC.setRecordIndexRaw(I3);        ASSERT(1 == isNthContext(C, I3));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(2 == O1.numPublishedRecords());
+            ASSERT(2 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I3));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I3));
+
+            //     X
+            //    / |
+            //  O1  O2
+            ASSERT(0 == mX.registerObserver(&mO2));
+            ASSERT(2 == X.numRegisteredObservers());
+            ASSERT(0 == O2.numPublishedRecords());
+
+            const int I4 = nextRecord(*mR);  ASSERT(1 == isNthRecord(*R, I4));
+            mC.setRecordIndexRaw(I4);        ASSERT(1 == isNthContext(C, I4));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(3 == O1.numPublishedRecords());
+            ASSERT(3 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I4));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I4));
+            ASSERT(1 == O2.numPublishedRecords());
+            ASSERT(1 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I4));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I4));
+
+            //     --X--
+            //    /  |  |
+            //  O1   O2 Y
+            ASSERT(0 == mX.registerObserver(&mY));
+            ASSERT(3 == X.numRegisteredObservers());
+            ASSERT(0 == Y.numRegisteredObservers());
+
+            const int I5 = nextRecord(*mR);  ASSERT(1 == isNthRecord(*R, I5));
+            mC.setRecordIndexRaw(I5);        ASSERT(1 == isNthContext(C, I5));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(4 == O1.numPublishedRecords());
+            ASSERT(4 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I5));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I5));
+            ASSERT(2 == O2.numPublishedRecords());
+            ASSERT(2 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I5));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I5));
+
+            //     --X--
+            //    /  |  |
+            //  O1   O2 Y
+            //          |
+            //          O3
+            ASSERT(0 == mY.registerObserver(&mO3));
+            ASSERT(3 == X.numRegisteredObservers());
+            ASSERT(1 == Y.numRegisteredObservers());
+            ASSERT(0 == O3.numPublishedRecords());
+
+            const int I6 = nextRecord(*mR);  ASSERT(1 == isNthRecord(*R, I6));
+            mC.setRecordIndexRaw(I6);        ASSERT(1 == isNthContext(C, I6));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(5 == O1.numPublishedRecords());
+            ASSERT(5 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I6));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I6));
+            ASSERT(3 == O2.numPublishedRecords());
+            ASSERT(3 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I6));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I6));
+            ASSERT(1 == O3.numPublishedRecords());
+            ASSERT(1 == O3.numClears());
+            ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I6));
+            ASSERT(1 == isNthContext(O3.lastPublishedContext(), I6));
+
+            //     X
+            //    / |
+            //  O1  Y
+            //      |
+            //      O3
+            ASSERT(0 == mX.deregisterObserver(&mO2));
+            ASSERT(2 == X.numRegisteredObservers());
+            ASSERT(1 == Y.numRegisteredObservers());
+
+            const int I7 = nextRecord(*mR);  ASSERT(1 == isNthRecord(*R, I7));
+            mC.setRecordIndexRaw(I7);        ASSERT(1 == isNthContext(C, I7));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(6 == O1.numPublishedRecords());
+            ASSERT(6 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I7));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I7));
+            ASSERT(3 == O2.numPublishedRecords());
+            ASSERT(3 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I6));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I6));
+            ASSERT(2 == O3.numPublishedRecords());
+            ASSERT(2 == O3.numClears());
+            ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I7));
+            ASSERT(1 == isNthContext(O3.lastPublishedContext(), I7));
+
+            //     X
+            //    / |
+            //  O1  Y
+            //     / |
+            //   O3  O2
+            ASSERT(0 == mY.registerObserver(&mO2));
+            ASSERT(2 == X.numRegisteredObservers());
+            ASSERT(2 == Y.numRegisteredObservers());
+            ASSERT(3 == O2.numPublishedRecords());
+
+            const int I8 = nextRecord(*mR);  ASSERT(1 == isNthRecord(*R, I8));
+            mC.setRecordIndexRaw(I8);        ASSERT(1 == isNthContext(C, I8));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(7 == O1.numPublishedRecords());
+            ASSERT(7 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I8));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I8));
+            ASSERT(4 == O2.numPublishedRecords());
+            ASSERT(4 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I8));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I8));
+            ASSERT(3 == O3.numPublishedRecords());
+            ASSERT(3 == O3.numClears());
+            ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
+            ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
+
+            //     X
+            //    / |
+            //  O1  Y
+            //      |
+            //      O2
+            ASSERT(0 == mY.deregisterObserver(&mO3));
+            ASSERT(2 == X.numRegisteredObservers());
+            ASSERT(1 == Y.numRegisteredObservers());
+
+            const int I9 = nextRecord(*mR);  ASSERT(1 == isNthRecord(*R, I9));
+            mC.setRecordIndexRaw(I9);        ASSERT(1 == isNthContext(C, I9));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(8 == O1.numPublishedRecords());
+            ASSERT(8 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I9));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I9));
+            ASSERT(5 == O2.numPublishedRecords());
+            ASSERT(5 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I9));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I9));
+            ASSERT(3 == O3.numPublishedRecords());
+            ASSERT(3 == O3.numClears());
+            ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
+            ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
+
+            //   X   Y
+            //   |   |
+            //   O1  O2
+            ASSERT(0 == mX.deregisterObserver(&mY));
+            ASSERT(1 == X.numRegisteredObservers());
+            ASSERT(1 == Y.numRegisteredObservers());
+
+            const int I10 = nextRecord(*mR); ASSERT(1 == isNthRecord(*R, I10));
+            mC.setRecordIndexRaw(I10);       ASSERT(1 == isNthContext(C, I10));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(9 == O1.numPublishedRecords());
+            ASSERT(9 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I10));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I10));
+            ASSERT(5 == O2.numPublishedRecords());
+            ASSERT(5 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I9));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I9));
+            ASSERT(3 == O3.numPublishedRecords());
+            ASSERT(3 == O3.numClears());
+            ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
+            ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
+
+            const int I11 = nextRecord(*mR); ASSERT(1 == isNthRecord(*R, I11));
+            mC.setRecordIndexRaw(I11);       ASSERT(1 == isNthContext(C, I11));
+            mY.publish(R, C);
+            mY.releaseRecords();
+            ASSERT(9 == O1.numPublishedRecords());
+            ASSERT(9 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I10));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I10));
+            ASSERT(6 == O2.numPublishedRecords());
+            ASSERT(6 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I11));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I11));
+            ASSERT(3 == O3.numPublishedRecords());
+            ASSERT(3 == O3.numClears());
+            ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
+            ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
+
+            //   X   Y
+            //       |
+            //       O2
+            ASSERT(0 == mX.deregisterObserver(&mO1));
+            ASSERT(0 == X.numRegisteredObservers());
+            ASSERT(1 == Y.numRegisteredObservers());
+
+            const int I12 = nextRecord(*mR); ASSERT(1 == isNthRecord(*R, I12));
+            mC.setRecordIndexRaw(I12);       ASSERT(1 == isNthContext(C, I12));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            ASSERT(9 == O1.numPublishedRecords());
+            ASSERT(9 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I10));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I10));
+            ASSERT(6 == O2.numPublishedRecords());
+            ASSERT(6 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I11));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I11));
+            ASSERT(3 == O3.numPublishedRecords());
+            ASSERT(3 == O3.numClears());
+            ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
+            ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
+
+            const int I13 = nextRecord(*mR); ASSERT(1 == isNthRecord(*R, I13));
+            mC.setRecordIndexRaw(I13);       ASSERT(1 == isNthContext(C, I13));
+            mY.publish(R, C);
+            mY.releaseRecords();
+            ASSERT(9 == O1.numPublishedRecords());
+            ASSERT(9 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I10));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I10));
+            ASSERT(7 == O2.numPublishedRecords());
+            ASSERT(7 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I13));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I13));
+            ASSERT(3 == O3.numPublishedRecords());
+            ASSERT(3 == O3.numClears());
+            ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
+            ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
+
+            //   X   Y
+            ASSERT(0 == mY.deregisterObserver(&mO2));
+            ASSERT(0 == X.numRegisteredObservers());
+            ASSERT(0 == Y.numRegisteredObservers());
+
+            const int I14 = nextRecord(*mR); ASSERT(1 == isNthRecord(*R, I14));
+            mC.setRecordIndexRaw(I14);       ASSERT(1 == isNthContext(C, I14));
+            mX.publish(R, C);
+            mX.releaseRecords();
+            mY.publish(R, C);
+            mY.releaseRecords();
+            ASSERT(9 == O1.numPublishedRecords());
+            ASSERT(9 == O1.numClears());
+            ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I10));
+            ASSERT(1 == isNthContext(O1.lastPublishedContext(), I10));
+            ASSERT(7 == O2.numPublishedRecords());
+            ASSERT(7 == O2.numClears());
+            ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I13));
+            ASSERT(1 == isNthContext(O2.lastPublishedContext(), I13));
+            ASSERT(3 == O3.numPublishedRecords());
+            ASSERT(3 == O3.numClears());
+            ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
+            ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING SYNCHRONOUS (DEPRECATED) PUBLISH
+        //
+        // Concerns:
+        //   The primary concern is that the sync publish method
+        //   'publish(const bael_Record&, const bael_Context&)' correctly
+        //   forwards records and their corresponding publication contexts
+        //   to all registered observers that should received them.
         //
         // Plan:
         //   Construct a pair of multiplex observers x and y, and a trio of
@@ -282,8 +739,8 @@ int main(int argc, char *argv[])
         //   void publish(const bael_Record& rec, const bael_Context& ctxt);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl << "Testing 'publish'" << endl
-                                  << "=================" << endl;
+        if (verbose) cout << endl << "Testing synchronous 'publish'" << endl
+                                  << "=============================" << endl;
 
         {
             //  X

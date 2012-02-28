@@ -1,5 +1,5 @@
-// bael_fileobserver.t.cpp                                            -*-C++-*-
-#include <bael_fileobserver.h>
+// bael_asyncfileobserver.t.cpp                                       -*-C++-*-
+#include <bael_asyncfileobserver.h>
 
 #include <bael_context.h>
 #include <bael_defaultobserver.h>             // for testing only
@@ -62,44 +62,45 @@ using bsl::flush;
 //                                   TEST PLAN
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 1] bael_FileObserver(bael_Severity::Level, bslma_Allocator)
-// [ 1] ~bael_FileObserver()
+// [ 1] bael_AsyncFileObserver(bael_Severity::Level, bslma_Allocator)
+// [ 1] ~bael_AsyncFileObserver()
 //
 // MANIPULATORS
 // [ 1] publish(const bael_Record& record, const bael_Context& context)
 // [ 1] void disableFileLogging()
-// [ 2] void disableLifetimeRotation()
-// [ 2] void disableSizeRotation()
+// [ 3] void disableTimeIntervalRotation()
+// [ 3] void disableSizeRotation()
 // [ 1] void disableStdoutLoggingPrefix()
-// [ 1] void disableUserFieldsLogging()
-// [ 1] int enableFileLogging(const char *fileName, bool timestampFlag = false)
+// [ 1] int enableFileLogging(const char *logFilenamePattern)
 // [ 1] void enableStdoutLoggingPrefix()
-// [ 1] void enableUserFieldsLogging()
-// [ 1] void publish(const bael_Record& record, const bael_Context& context)
-// [ 2] void forceRotation()
-// [ 2] void rotateOnSize(int size)
-// [ 2] void rotateOnLifetime(bdet_DatetimeInterval timeInterval)
+// [ 1] void publish(const bcemt_SharedPtr<const bael_Record>& record,
+//                   const bael_Context& context)
+// [ 2] void releaseRecords()
+// [ 2] void shutdownPublicationThread()
+// [ 3] void forceRotation()
+// [ 3] void rotateOnSize(int size)
+// [ 3] void rotateOnTimeInterval(const bdet_DatetimeInterval timeInterval)
 // [ 1] void setStdoutThreshold(bael_Severity::Level stdoutThreshold)
 // [ 1] void setLogFormat(const char*, const char*)
-// [ 3] void setMaxLogFiles();
-// [ 3] int removeExcessLogFiles();
+// [ 1] void startPublicationThread();
+// [ 1] void stopPublicationThread();
 //
 // ACCESSORS
 // [ 1] bool isFileLoggingEnabled() const
 // [ 1] bool isStdoutLoggingPrefixEnabled() const
-// [ 1] bool isUserFieldsLoggingEnabled() const
 // [ 1] void getLogFormat(const char**, const char**) const
-// [ 2] bdet_DatetimeInterval rotationLifetime() const
-// [ 2] int rotationSize() const
+// [ 3] bdet_DatetimeInterval rotationLifetime() const
+// [ 3] int rotationSize() const
 // [ 1] bael_Severity::Level stdoutThreshold() const
-// [ 3] int maxLogFiles() const;
 //-----------------------------------------------------------------------------
-
+// [ 1] BREATHING TEST
+// [ 7] USAGE EXAMPLE
+//
 //=============================================================================
 //                        STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
 // Note assert and debug macros all output to cerr instead of cout, unlike
-// most other test drivers.  This is necessary because test case 1 plays
+// most other test drivers.  This is necessary because test case 2 plays
 // tricks with cout and examines what is written there.
 
 static int testStatus = 0;
@@ -165,7 +166,7 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-typedef bael_FileObserver Obj;
+typedef bael_AsyncFileObserver Obj;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -188,7 +189,8 @@ bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
     return index;
 }
 
-bdet_Datetime getCurrentTimestamp() {
+bdet_Datetime getCurrentTimestamp()
+{
     time_t currentTime = time(0);
     struct tm localtm;
 #ifdef BSLS_PLATFORM__OS_WINDOWS
@@ -259,23 +261,6 @@ bsl::string readPartialFile(bsl::string& fileName, int startOffset)
     fclose(fp);
 
     return result;
-}
-
-void publishRecord(Obj *mX, const char *message)
-{
-    bael_RecordAttributes attr(bdetu_SystemTime::nowAsDatetime(),
-                               1,
-                               2,
-                               "FILENAME",
-                               3,
-                               "CATEGORY",
-                               32,
-                               message);
-    bael_Record record(attr, bdem_List());
-
-    bael_Context context(bael_Transmission::BAEL_PASSTHROUGH, 0, 1);
-
-    mX->publish(record, context);
 }
 
 class LogRotationCallbackTester {
@@ -387,10 +372,70 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl << flush;
 
     bslma_TestAllocator allocator; bslma_TestAllocator *Z = &allocator;
-    bslma_TestAllocator defaultAllocator;
-    bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 2
+        //
+        // Concerns:
+        //   The 'Example 2: Asynchronous Logging Verification' provided in the
+        //   component header file must compile, link, and run on all
+        //   platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove leading
+        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE 2
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nUsage Example: Asynchronous Logging"
+                          << "\n===================================" << endl;
+
+        bsl::string fileName = tempFileName(veryVerbose);
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        Obj mX(bael_Severity::BAEL_WARN, &ta);
+        mX.startPublicationThread();
+        bcemt_ThreadUtil::microSleep(0, 1);
+
+        bael_LoggerManagerConfiguration configuration;
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_TRACE,
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_OFF));
+        bael_LoggerManager::initSingleton(&mX, configuration);
+
+        BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+
+        mX.enableFileLogging(fileName.c_str());
+
+        int beginFileOffset = bdesu_FileUtil::getFileSize(fileName);
+        if (verbose) cout << "Begin file offset: " << beginFileOffset << endl;
+
+        for (int i = 0;i < 8000; ++i) {
+             BAEL_LOG_TRACE << "bael_AsyncFileObserver Usage Example Two"
+                            << BAEL_LOG_END;
+        }
+
+        int fileOffset = bdesu_FileUtil::getFileSize(fileName);
+        if (verbose)
+            cout << "FileOffset after publish: " << fileOffset << endl;
+
+        bcemt_ThreadUtil::microSleep(0, 1);
+
+        int endFileOffset = bdesu_FileUtil::getFileSize(fileName);
+        if (verbose) cout << "End file offset: " << endFileOffset << endl;
+
+        mX.stopPublicationThread();
+
+        ASSERT(beginFileOffset < fileOffset   );
+        ASSERT(fileOffset      < endFileOffset);
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION
@@ -406,8 +451,8 @@ int main(int argc, char *argv[])
         //:   time such that the next rotation will occur soon.  Verify that
         //:   rotation occurs on the scheduled time.
         //:
-        //: 3 Call 'disableLifetimeRotation' and verify that no rotation occurs
-        //:   afterwards.
+        //: 3 Call 'disableTimeIntervalRotation' and verify that no rotation
+        //:   occurs afterwards.
         //
         // Testing:
         //  void rotateOnTimeInterval(const DtInterval& i, const Datetime& r);
@@ -426,6 +471,8 @@ int main(int argc, char *argv[])
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
         Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+        mX.startPublicationThread();
+        bcemt_ThreadUtil::microSleep(0, 1);
 
         // Set callback to monitor rotation.
 
@@ -440,7 +487,7 @@ int main(int argc, char *argv[])
         ASSERT(X.isFileLoggingEnabled());
         ASSERT(0 == cb.numInvocations());
 
-        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+        BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
         if (veryVerbose) cout << "Testing absolute time reference" << endl;
         {
@@ -458,26 +505,33 @@ int main(int argc, char *argv[])
             ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
 
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+            bcemt_ThreadUtil::microSleep(0, 1);
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
 
             bcemt_ThreadUtil::microSleep(0, 3);
+
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
-
-
+            bcemt_ThreadUtil::microSleep(0, 1);
             LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
+
             ASSERT(1 ==
                    bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
         }
 
-        if (veryVerbose) cout << "Testing 'disableLifetimeRotation'" << endl;
+        if (veryVerbose) cout << "Testing 'disableTimeIntervalRotation'"
+                              << endl;
         {
             cb.reset();
 
-            mX.disableLifetimeRotation();
+            mX.disableTimeIntervalRotation();
             bcemt_ThreadUtil::microSleep(0, 3);
+
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+            bcemt_ThreadUtil::microSleep(0, 1);
+
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
+        mX.stopPublicationThread();
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -548,29 +602,37 @@ int main(int argc, char *argv[])
             act.sa_flags = 0;
             ASSERT(0 == sigaction(SIGXFSZ, &act, &oact));
 
-            Obj mX(bael_Severity::BAEL_OFF, true, &ta);
+            Obj mX(bael_Severity::BAEL_OFF, true, 8192, &ta);
             const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
             bsl::stringstream os;
 
             multiplexObserver.registerObserver(&mX);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
-            // we want to capture the error message that will be
+            // We want to capture the error message that will be
             // written to stderr (not cerr).  Redirect stderr to a
             // file.  We can't redirect it back; we'll have to use
             // 'ASSERT2' (which outputs to cout, not cerr) from now on
             // and report a summary to to cout at the end of this case.
+
             bsl::string stderrFN = tempFileName(veryVerbose);
             ASSERT(stderr == freopen(stderrFN.c_str(), "w", stderr));
 
-            ASSERT2(0 == mX.enableFileLogging(fn.c_str(), true));
+            bsl::string fn_time = fn + bsl::string(".%T");
+            ASSERT2(0 == mX.enableFileLogging(fn_time.c_str()));
             ASSERT2(X.isFileLoggingEnabled());
-            ASSERT2(1 == mX.enableFileLogging(fn.c_str(), true));
+            ASSERT2(1 == mX.enableFileLogging(fn_time.c_str()));
 
             for (int i = 0 ; i < 40 ;  ++i) {
                 BAEL_LOG_TRACE << "log"  << BAEL_LOG_END;
             }
+
+            // Wait some time for async writing to complete
+
+            bcemt_ThreadUtil::microSleep(0, 1);
 
             fflush(stderr);
             bsl::fstream stderrFs;
@@ -582,193 +644,11 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             removeFilesByPrefix(fn.c_str());
             multiplexObserver.deregisterObserver(&mX);
-
-            if (testStatus > 0) {
-                cout << "Error, non-zero test status = " << testStatus
-                     << "." << endl;
-            }
+            mX.stopPublicationThread();
         }
 #endif
-
       } break;
       case 3: {
-        // --------------------------------------------------------------------
-        // TESTING LOG FILE ROTATION
-        //
-        // Concerns:
-        //   The number of existing log files should not exceed the value of
-        //   of 'd_maxLogFiles'.
-        //
-        // Plan:
-        //   Set up the file observer so that it would have generated many log
-        //   files if there were no limit.  Verify that the number of log
-        //   files that actually exist does not exceed 'd_maxLogFiles'.
-        //
-        // Testing:
-        //   void setMaxLogFiles();
-        //   int maxLogFiles() const;
-        //   int removeExcessLogFiles();
-        // --------------------------------------------------------------------
-
-        static bcema_TestAllocator ta(veryVeryVeryVerbose);
-        bael_LoggerManagerConfiguration configuration;
-
-        // Publish synchronously all messages regardless of their severity.
-        // This configuration also guarantees that the observer will only
-        // see each message only once.
-
-        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                  bael_Severity::BAEL_OFF,
-                                                  bael_Severity::BAEL_TRACE,
-                                                  bael_Severity::BAEL_OFF,
-                                                  bael_Severity::BAEL_OFF));
-
-        bael_MultiplexObserver multiplexObserver;
-        bael_LoggerManagerScopedGuard guard(&multiplexObserver,
-                                            configuration,
-                                            &ta);
-        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
-
-        if (verbose) cout << "Testing log file deletion." << endl;
-        {
-            if (verbose) cout << "\t log file opened with timestamp" << endl;
-
-            Obj mX(bael_Severity::BAEL_OFF, &ta);  const Obj& X = mX;
-            multiplexObserver.registerObserver(&mX);
-
-            ASSERT(bdet_DatetimeInterval(0)       == X.rotationLifetime());
-            mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
-            ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
-
-// TBD
-#if 0
-            ASSERT(0 == X.maxLogFiles());
-            mX.setMaxLogFiles(5);
-            ASSERT(5 == X.maxLogFiles());
-
-            bsl::string filename = tempFileName(veryVerbose);
-
-#ifdef BSLS_PLATFORM__OS_UNIX
-            ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
-            ASSERT(X.isFileLoggingEnabled());
-
-            for (int i = 0 ; i < 20; ++i) {
-                BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
-                bcemt_ThreadUtil::microSleep(1000 * 1000);
-            }
-
-            glob_t globbuf;
-            ASSERT(0 == glob((filename + ".*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            mX.disableFileLogging();
-
-            mX.setMaxLogFiles(2);
-            ASSERT(3 == mX.removeExcessLogFiles());
-            ASSERT(0 == glob((filename + ".*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            multiplexObserver.deregisterObserver(&mX);
-            globfree(&globbuf);
-            removeFilesByPrefix(filename.c_str());
-#endif
-#endif
-        }
-
-        if (verbose) cout << "\t log file opened without timestamp" << endl;
-        {
-
-            Obj mX(bael_Severity::BAEL_OFF, &ta);  const Obj& X = mX;
-            multiplexObserver.registerObserver(&mX);
-
-            ASSERT(bdet_DatetimeInterval(0)       == X.rotationLifetime());
-            mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
-            ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
-
-// TBD
-#if 0
-            ASSERT(0 == X.maxLogFiles());
-            mX.setMaxLogFiles(5);
-            ASSERT(5 == X.maxLogFiles());
-
-            bsl::string filename = tempFileName(veryVerbose);
-
-#ifdef BSLS_PLATFORM__OS_UNIX
-            ASSERT(0 == mX.enableFileLogging(filename.c_str(), false));
-            ASSERT(X.isFileLoggingEnabled());
-
-            for (int i = 0 ; i < 20; ++i) {
-                BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
-                bcemt_ThreadUtil::microSleep(1000 * 1000);
-            }
-
-            glob_t globbuf;
-            ASSERT(0 == glob((filename + ".*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            mX.disableFileLogging();
-
-            mX.setMaxLogFiles(2);
-            ASSERT(2 == mX.removeExcessLogFiles());
-            ASSERT(0 == glob((filename + ".*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            multiplexObserver.deregisterObserver(&mX);
-            globfree(&globbuf);
-            removeFilesByPrefix(filename.c_str());
-#endif
-#endif
-        }
-
-        if (verbose) cout << "\t log file name containing timestamp" << endl;
-        {
-
-            Obj mX(bael_Severity::BAEL_OFF, &ta);  const Obj& X = mX;
-            multiplexObserver.registerObserver(&mX);
-
-            ASSERT(bdet_DatetimeInterval(0)       == X.rotationLifetime());
-            mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
-            ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
-
-// TBD
-#if 0
-            ASSERT(0 == X.maxLogFiles());
-            mX.setMaxLogFiles(5);
-            ASSERT(5 == X.maxLogFiles());
-
-            bsl::string filename = tempFileName(veryVerbose);
-
-#ifdef BSLS_PLATFORM__OS_UNIX
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
-            ASSERT(0 == mX.enableFileLogging((filename + "%s").c_str(),
-                                             false));
-            ASSERT(X.isFileLoggingEnabled());
-
-            for (int i = 0 ; i < 20; ++i) {
-                BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
-                bcemt_ThreadUtil::microSleep(1000 * 1000);
-            }
-
-            glob_t globbuf;
-            ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            mX.disableFileLogging();
-
-            mX.setMaxLogFiles(2);
-            ASSERT(3 == mX.removeExcessLogFiles());
-            ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
-            ASSERT(X.maxLogFiles() >= (int)globbuf.gl_pathc);
-
-            multiplexObserver.deregisterObserver(&mX);
-            globfree(&globbuf);
-            removeFilesByPrefix(filename.c_str());
-#endif
-#endif
-        }
-
-      } break;
-      case 2: {
         // --------------------------------------------------------------------
         // Rotation functions test
         //
@@ -776,8 +656,8 @@ int main(int argc, char *argv[])
         //   1. 'rotateOnSize' triggers a rotation when expected.
         //   2. 'disableSizeRotation' disables rotation on size
         //   3. 'forceRotation' triggers a rotation
-        //   4. 'rotateOnLifetime' triggers a rotation when expected
-        //   5. 'disableLifetimeRotation' disables rotation on lifetime
+        //   4. 'rotateOnTimeInterval' triggers a rotation when expected
+        //   5. 'disableTimeIntervalRotation' disables rotation on lifetime
         //
         // Test plan:
         //   We will exercise both rotation rules to verify that they work
@@ -790,11 +670,11 @@ int main(int argc, char *argv[])
         //   - Brute Force Implementation Technique
         //
         // Testing:
-        //   void disableLifetimeRotation()
+        //   void disableTimeIntervalRotation()
         //   void disableSizeRotation()
         //   void forceRotation()
         //   void rotateOnSize(int size)
-        //   void rotateOnLifetime(bdet_DatetimeInterval timeInterval)
+        //   void rotateOnTimeInterval(bdet_DatetimeInterval timeInterval)
         //   bdet_DatetimeInterval rotationLifetime() const
         //   int rotationSize() const
         // --------------------------------------------------------------------
@@ -816,50 +696,86 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM__OS_UNIX
         bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        int loopCount = 0;
+        int fileCount = 0;
+        int linesNum  = 0;
+        bsl::string line(&ta);
+
         if (verbose) cout << "Test-case infrastructure setup." << endl;
         {
             bsl::string filename = tempFileName(veryVerbose);
 
             Obj mX(bael_Severity::BAEL_OFF, &ta);  const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             if (verbose) cout << "Testing setup." << endl;
             {
-                ASSERT(0 == mX.enableFileLogging(filename.c_str(), true));
+                bsl::string fn_time = filename + bsl::string(".%T");
+                ASSERT(0 == mX.enableFileLogging(fn_time.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str(), true));
+                ASSERT(1 == mX.enableFileLogging(fn_time.c_str()));
 
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
 
                 glob_t globbuf;
                 ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                int linesNum = 0;
-                bsl::string line;
-                while (getline(fs, line)) {
-                    ++linesNum;
+
+                // wait up to 10 seconds for the async logging to complete
+                loopCount = 0;
+                linesNum  = 0;
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
+                    linesNum = 0;
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
+                } while (linesNum < 2 && loopCount++ < 10);
+
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    linesNum = 0;
+                    while (getline(fs, line)) {
+                        ++linesNum;
+                    }
+                    fs.close();
+                    ASSERT(2 == linesNum);
+                    ASSERT(X.isFileLoggingEnabled());
                 }
-                fs.close();
-                ASSERT(2 == linesNum);
-                ASSERT(X.isFileLoggingEnabled());
             }
 
             if (verbose) cout << "Testing lifetime-constrained rotation."
                               << endl;
             {
                 ASSERT(bdet_DatetimeInterval(0) == X.rotationLifetime());
-                mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,3));
+                mX.rotateOnTimeInterval(bdet_DatetimeInterval(0,0,0,3));
                 ASSERT(bdet_DatetimeInterval(0,0,0,3) ==
                                                          X.rotationLifetime());
                 bcemt_ThreadUtil::microSleep(0, 4);
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
                 BAEL_LOG_DEBUG << "log 2" << BAEL_LOG_END;
+
+                // Wait up to 10 seconds for the rotation to complete
+
+                loopCount = 0;
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    glob_t globbuf;
+                    ASSERT(
+                       0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
+                    fileCount = globbuf.gl_pathc;
+                    globfree(&globbuf);
+                } while (fileCount < 2 && loopCount++ < 10);
 
                 // Check that a rotation occurred.
 
@@ -867,22 +783,37 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                linesNum  = 0;
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[1], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
+                    linesNum = 0;
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
+                } while (linesNum < 4 && loopCount++ < 10);
+
                 // Check the number of lines in the file.
 
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                int linesNum = 0;
-                bsl::string line(&ta);
-                while (getline(fs, line)) {
-                    ++linesNum;
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    linesNum = 0;
+                    while (getline(fs, line)) {
+                        ++linesNum;
+                    }
+                    fs.close();
+                    ASSERT(4 == linesNum);
                 }
-                fs.close();
-                ASSERT(4 == linesNum);
 
-                mX.disableLifetimeRotation();
+                mX.disableTimeIntervalRotation();
                 bcemt_ThreadUtil::microSleep(0, 4);
                 BAEL_LOG_FATAL << "log 3" << BAEL_LOG_END;
 
@@ -890,16 +821,34 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
-                fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                linesNum = 0;
-                while (getline(fs, line)) {
-                    ++linesNum;
+
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                linesNum  = 0;
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[1], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
+                    linesNum = 0;
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
+                } while (linesNum < 6 && loopCount++ < 10);
+
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[1], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    linesNum = 0;
+                    while (getline(fs, line)) {
+                        ++linesNum;
+                    }
+                    fs.close();
+                    ASSERT(6 == linesNum);
                 }
-                fs.close();
-                ASSERT(6 == linesNum);
             }
 
             if (verbose) cout << "Testing forced rotation." << endl;
@@ -917,18 +866,20 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(3 == globbuf.gl_pathc);
 
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[2], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                int linesNum = 0;
-                bsl::string line(&ta);
-                while (getline(fs, line)) {
-                    ++linesNum;
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[2], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    int linesNum = 0;
+                    bsl::string line(&ta);
+                    while (getline(fs, line)) {
+                        ++linesNum;
+                    }
+                    fs.close();
+                    ASSERT(8 == linesNum);
                 }
-                fs.close();
-                ASSERT(8 == linesNum);
             }
 
             if (verbose) cout << "Testing size-constrained rotation." << endl;
@@ -953,8 +904,8 @@ int main(int argc, char *argv[])
                 // We are not checking the last one since we do not have any
                 // information on its size.
 
-                bsl::ifstream fs;
                 for (int i = 0; i < (int)globbuf.gl_pathc - 3; ++i) {
+                    bsl::ifstream fs;
                     fs.open(globbuf.gl_pathv[i + 2], bsl::ifstream::in);
                     fs.clear();
                     ASSERT(fs.is_open());
@@ -989,6 +940,7 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
             removeFilesByPrefix(filename.c_str());
             multiplexObserver.deregisterObserver(&mX);
+            mX.stopPublicationThread();
         }
         {
             // Test with no timestamp.
@@ -998,67 +950,111 @@ int main(int argc, char *argv[])
             bsl::string filename = tempFileName(veryVerbose);
 
             Obj mX(bael_Severity::BAEL_OFF, &ta);  const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
             multiplexObserver.registerObserver(&mX);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             if (verbose) cout << "Testing setup." << endl;
             {
-                ASSERT(0 == mX.enableFileLogging(filename.c_str(), false));
+                ASSERT(0 == mX.enableFileLogging(filename.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(filename.c_str(), false));
+                ASSERT(1 == mX.enableFileLogging(filename.c_str()));
 
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
 
                 glob_t globbuf;
                 ASSERT(0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                int linesNum = 0;
-                bsl::string line;
-                while (getline(fs, line)) {
-                    ++linesNum;
+
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                linesNum  = 0;
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
+                    linesNum = 0;
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
+                } while (linesNum < 2 && loopCount++ < 10);
+
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    int linesNum = 0;
+                    bsl::string line;
+                    while (getline(fs, line)) {
+                        ++linesNum;
+                    }
+                    fs.close();
+                    ASSERT(2 == linesNum);
+                    ASSERT(X.isFileLoggingEnabled());
                 }
-                fs.close();
-                ASSERT(2 == linesNum);
-                ASSERT(X.isFileLoggingEnabled());
             }
 
             if (verbose) cout << "Testing lifetime-constrained rotation."
                               << endl;
             {
                 ASSERT(bdet_DatetimeInterval(0)       == X.rotationLifetime());
-                mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,3));
+                mX.rotateOnTimeInterval(bdet_DatetimeInterval(0,0,0,3));
                 ASSERT(bdet_DatetimeInterval(0,0,0,3) == X.rotationLifetime());
                 bcemt_ThreadUtil::microSleep(0, 4);
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
                 BAEL_LOG_DEBUG << "log 2" << BAEL_LOG_END;
 
+                // Wait up to 10 seconds for the rotation to complete
+
+                loopCount = 0;
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    glob_t globbuf;
+                    ASSERT(
+                       0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
+                    fileCount = globbuf.gl_pathc;
+                    globfree(&globbuf);
+                } while (fileCount < 2 && loopCount++ < 10);
+
                 // Check that a rotation occurred.
 
                 glob_t globbuf;
-                ASSERT(0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
+                ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
+
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    linesNum = 0;
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
+                } while (linesNum < 4 && loopCount++ < 10);
 
                 // Check the number of lines in the file.
 
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                int linesNum = 0;
-                bsl::string line(&ta);
-                while (getline(fs, line)) {
-                    ++linesNum;
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    linesNum = 0;
+                    bsl::string line(&ta);
+                    while (getline(fs, line)) { ++linesNum; }
+                    fs.close();
+                    ASSERT(4 == linesNum);
                 }
-                fs.close();
-                ASSERT(4 == linesNum);
 
-                mX.disableLifetimeRotation();
+                mX.disableTimeIntervalRotation();
                 bcemt_ThreadUtil::microSleep(0, 4);
                 BAEL_LOG_FATAL << "log 3" << BAEL_LOG_END;
 
@@ -1066,40 +1062,182 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                linesNum = 0;
-                while (getline(fs, line)) {
-                    ++linesNum;
+
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    linesNum = 0;
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    ASSERT(fs1.is_open());
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
+                } while (linesNum < 6 && loopCount++ < 10);
+
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    linesNum = 0;
+                    while (getline(fs, line)) { ++linesNum; }
+                    fs.close();
+                    ASSERT(6 == linesNum);
                 }
-                fs.close();
-                ASSERT(6 == linesNum);
             }
 
             mX.disableFileLogging();
             removeFilesByPrefix(filename.c_str());
             multiplexObserver.deregisterObserver(&mX);
+            mX.stopPublicationThread();
         }
 #endif
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // Release Records Test
+        //
+        // Concerns:
+        //   The 'releaseRecords' method works properly to clear all shared
+        //   pointers in async file observer's fixed queue without logging
+        //   them.
+        //
+        // Plan:
+        //   We will first create:
+        //     a. an async file observer
+        //     b. a logger manager through scoped guard
+        //   and then let the scoped guard run out of scope before the async
+        //   file observer.  The logger manager will be released and it should
+        //   call the 'clear' method of async file observer before destruction.
+        //   We publish sufficient amount of records asynchronously right
+        //   before the scoped guard running out of scope to ensure that there
+        //   are some shared pointers of records remained in the fixed queue
+        //   when 'clear' is invoked.  We verify that the records pointed by
+        //   these shared pointers are not logged.
+        //
+        // Tactics:
+        //   - Ad-Hoc Data Selection Method
+        //   - Brute Force Implementation Technique
+        //
+        // Testing:
+        //   void releaseRecords();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing Queue Clearance.\n"
+                             "====================================\n";
+
+        bcema_TestAllocator ta;
+
+        // redirect stdout to temporary file
+        bsl::string fileName = tempFileName(veryVerbose);
+        {
+            const FILE *out = stdout;
+            ASSERT(out == freopen(fileName.c_str(), "w", stdout));
+            fflush(stdout);
+        }
+
+#if defined(BSLS_PLATFORM__OS_UNIX) && \
+   (!defined(BSLS_PLATFORM__OS_SOLARIS) || BSLS_PLATFORM__OS_VER_MAJOR >= 10)
+        // For the localtime to be picked to avoid the all.pl env to
+        // pollute us.
+        unsetenv("TZ");
+#endif
+        {
+            Obj mX;  const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(bael_Severity::BAEL_WARN == X.stdoutThreshold());
+
+            int logCount  = 8000;
+            int loopCount = 0;
+            int linesNum  = 0;
+            bsl::string line;
+            {
+                bael_LoggerManagerConfiguration configuration;
+
+                // Publish synchronously all messages regardless of their
+                // severity.  This configuration also guarantees that the
+                // observer will only see each message only once.
+
+                ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                            bael_Severity::BAEL_OFF,
+                            bael_Severity::BAEL_TRACE,
+                            bael_Severity::BAEL_OFF,
+                            bael_Severity::BAEL_OFF));
+                bael_LoggerManagerScopedGuard guard(&mX, configuration);
+
+                BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+
+                // Throw some logs into the queue
+
+                for (int i = 0;i < logCount;++i)
+                    BAEL_LOG_WARN <<  "Some will not be logged"
+                                  << BAEL_LOG_END;
+
+                // After this code block the logger manager will be destroyed
+            }
+
+            // Wait up to 10 seconds for the async logging to complete
+
+            loopCount = 0;
+            do {
+                bcemt_ThreadUtil::microSleep(0, 1);
+                bsl::ifstream fs1;
+                fs1.open(fileName.c_str(), bsl::ifstream::in);
+                ASSERT(fs1.is_open());
+                linesNum = 0;
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
+            } while (linesNum <= 2 * logCount && loopCount++ < 10);
+
+            // We pushed in sufficient number of logs into queue before we
+            // destroy the logger manager, so some logs must have been cleared
+            // if 'releaseRecords' works properly
+
+            ASSERT(linesNum < 2 * logCount);
+
+            mX.stopPublicationThread();
+        }
+
+        if (verbose)
+                 cerr << "Testing 'releaseRecords' when thread is not running."
+                      << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+
+            bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
+                                                &ta);
+            bael_Context    context;
+            mX.publish(record, context);
+            ASSERT(2 == record.numReferences());
+
+            ASSERT(!mX.isPublicationThreadRunning());
+
+            mX.releaseRecords();
+
+            ASSERT(1 == record.numReferences());
+            ASSERT(!mX.isPublicationThreadRunning());
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // Publishing Test
         //
         // Concerns:
-        //   1. publish() logs in the expected format:
-        //      a.using enable/disableUserFieldsLogging
-        //      b.using enable/disableStdoutLogging
-        //   2. publish() properly ignores the severities below the one
+        //   1. The publication thread starts and stops properly
+        //   2. publish() logs in the expected format using
+        //      enable/disableStdoutLogging
+        //   3. publish() properly ignores the severities below the one
         //      specified at construction on 'stdout'
-        //   3. publish() publishes all messages to a file if file logging
+        //   4. publish() publishes all messages to a file if file logging
         //      is enabled
-        //   4. the name of the log file should be in accordance with what is
+        //   5. the name of the log file should be in accordance with what is
         //      defined by the given pattern if file logging is enabled by a
         //      pattern
-        //   5. setLogFormat can change to the desired output format for both
+        //   6. setLogFormat can change to the desired output format for both
         //      'stdout' and the log file
         //
         // Plan:
@@ -1125,20 +1263,21 @@ int main(int argc, char *argv[])
         //   compare it with the expected output.
         //
         // Testing:
-        //   bael_FileObserver(bael_Severity::Level, bslma_Allocator)
-        //   ~bael_FileObserver()
+        //   bael_AsyncFileObserver(bael_Severity::Level, bslma_Allocator)
+        //   ~bael_AsyncFileObserver()
+        //   void startPublicationThread()
+        //   void shutdownPublicationThread();
+        //   void stopPublicationThread()
+        //   bool isPublicationThreadRunning()
         //   publish(const bael_Record& record, const bael_Context& context)
         //   void disableFileLogging()
         //   void disableStdoutLoggingPrefix()
-        //   void disableUserFieldsLogging()
-        //   int enableFileLogging(const char *fileName, bool timestampFlag)
+        //   int enableFileLogging(const char *logFilenamePattern)
         //   void enableStdoutLoggingPrefix()
-        //   void enableUserFieldsLogging()
         //   void publish(const bael_Record&, const bael_Context&)
         //   void setStdoutThreshold(bael_Severity::Level stdoutThreshold)
         //   bool isFileLoggingEnabled() const
         //   bool isStdoutLoggingPrefixEnabled() const
-        //   bool isUserFieldsLoggingEnabled() const
         //   bael_Severity::Level stdoutThreshold() const
         //   bool isPublishInLocalTimeEnabled() const
         //   void setLogFormat(const char*, const char*)
@@ -1149,6 +1288,10 @@ int main(int argc, char *argv[])
                              "====================================\n";
 
         bcema_TestAllocator ta;
+
+        int loopCount = 0;
+        int linesNum  = 0;
+        bsl::string line(&ta);
 
         bsl::string fileName = tempFileName(veryVerbose);
         {
@@ -1178,12 +1321,46 @@ int main(int argc, char *argv[])
                                               bael_Severity::BAEL_OFF,
                                               bael_Severity::BAEL_OFF));
         bael_MultiplexObserver multiplexObserver;
-        bael_LoggerManager::initSingleton(&multiplexObserver, configuration);
+        bael_LoggerManagerScopedGuard guard(&multiplexObserver, configuration);
+
+        if (verbose) cerr << "Testing publication thread start and stop."
+                          << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+
+            // Start the publication thread, make sure the publication thread
+            // started
+
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(mX.isPublicationThreadRunning());
+
+            // Start the publication thread again, make sure nothing bad occurs
+
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(mX.isPublicationThreadRunning());
+
+            // Stop the publication thread, make sure the publication thread
+            // stopped
+
+            mX.stopPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(!mX.isPublicationThreadRunning());
+
+            // Stop the publication thread again, make sure nothing bad occurs
+
+            mX.stopPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(!mX.isPublicationThreadRunning());
+        }
 
         if (verbose) cerr << "Testing threshold and output format."
                           << endl;
         {
             Obj mX;  const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
             ASSERT(bael_Severity::BAEL_WARN == X.stdoutThreshold());
             bsl::ostringstream os, dos;
 
@@ -1193,7 +1370,7 @@ int main(int argc, char *argv[])
             localMultiObserver.registerObserver(&defaultObserver);
             multiplexObserver.registerObserver(&localMultiObserver);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
@@ -1229,7 +1406,14 @@ int main(int argc, char *argv[])
             }
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                bsl::string coutS = "";
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    coutS = readPartialFile(fileName, fileOffset);
+                } while (coutS == "" && loopCount++ < 10);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1252,7 +1436,14 @@ int main(int argc, char *argv[])
             }
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                bsl::string coutS = "";
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    coutS = readPartialFile(fileName, fileOffset);
+                } while (coutS == "" && loopCount++ < 10);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1269,7 +1460,14 @@ int main(int argc, char *argv[])
             }
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                bsl::string coutS = "";
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    coutS = readPartialFile(fileName, fileOffset);
+                } while (coutS == "" && loopCount++ < 10);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1277,11 +1475,14 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing constructor threshold." << endl;
         {
             Obj mX(bael_Severity::BAEL_FATAL, &ta);
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os, dos;
             int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
@@ -1291,7 +1492,7 @@ int main(int argc, char *argv[])
             localMultiObserver.registerObserver(&defaultObserver);
             multiplexObserver.registerObserver(&localMultiObserver);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
@@ -1329,7 +1530,14 @@ int main(int argc, char *argv[])
             }
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                bsl::string coutS = "";
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    coutS = readPartialFile(fileName, fileOffset);
+                } while (coutS == "" && loopCount++ < 10);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
             ASSERT(dos.str() == readPartialFile(fileName, fileOffset));
@@ -1340,11 +1548,14 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing short format." << endl;
         {
             Obj mX;  const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
             ASSERT(!X.isPublishInLocalTimeEnabled());
             ASSERT( X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
@@ -1359,7 +1570,7 @@ int main(int argc, char *argv[])
             localMultiObserver.registerObserver(&defaultObserver);
             multiplexObserver.registerObserver(&localMultiObserver);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
@@ -1376,9 +1587,16 @@ int main(int argc, char *argv[])
 
             BAEL_LOG_WARN << "log WARN" << BAEL_LOG_END;
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael_FileObserverTest log WARN " << "\n";
+                      " bael_AsyncFileObserverTest log WARN " << "\n";
             {
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                bsl::string coutS = "";
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    coutS = readPartialFile(fileName, fileOffset);
+                } while (coutS == "" && loopCount++ < 10);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1386,9 +1604,16 @@ int main(int argc, char *argv[])
 
             BAEL_LOG_ERROR << "log ERROR" << BAEL_LOG_END;
             testOs << "\nERROR " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael_FileObserverTest log ERROR " << "\n";
+                      " bael_AsyncFileObserverTest log ERROR " << "\n";
             {
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                bsl::string coutS = "";
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    coutS = readPartialFile(fileName, fileOffset);
+                } while (coutS == "" && loopCount++ < 10);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1402,7 +1627,7 @@ int main(int argc, char *argv[])
 
             BAEL_LOG_FATAL << "log FATAL" << BAEL_LOG_END;
             testOs << "\nFATAL " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael_FileObserverTest log FATAL " << "\n";
+                      " bael_AsyncFileObserverTest log FATAL " << "\n";
             {
                 // Replace the spaces after pid, __FILE__ to make dos match the
                 // file
@@ -1411,7 +1636,14 @@ int main(int argc, char *argv[])
                 replaceSecondSpace(&temp, ':');
                 dos.str(temp);
 
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                bsl::string coutS = "";
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    coutS = readPartialFile(fileName, fileOffset);
+                } while (coutS == "" && loopCount++ < 10);
                 if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
                 ASSERT(testOs.str() != coutS);
@@ -1422,13 +1654,17 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing short format with local time "
                           << "offset."
                           << endl;
         {
-            Obj mX(bael_Severity::BAEL_WARN, true, &ta); const Obj& X = mX;
+            Obj mX(bael_Severity::BAEL_WARN, true, 8192, &ta);
+            const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
             ASSERT( X.isPublishInLocalTimeEnabled());
             ASSERT( X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
@@ -1443,7 +1679,7 @@ int main(int argc, char *argv[])
             localMultiObserver.registerObserver(&defaultObserver);
             multiplexObserver.registerObserver(&localMultiObserver);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
 
@@ -1460,9 +1696,16 @@ int main(int argc, char *argv[])
 
             BAEL_LOG_WARN << "log WARN" << BAEL_LOG_END;
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael_FileObserverTest log WARN " << "\n";
+                      " bael_AsyncFileObserverTest log WARN " << "\n";
             {
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                bsl::string coutS = "";
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    coutS = readPartialFile(fileName, fileOffset);
+                } while (coutS == "" && loopCount++ < 10);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1470,9 +1713,16 @@ int main(int argc, char *argv[])
 
             BAEL_LOG_ERROR << "log ERROR" << BAEL_LOG_END;
             testOs << "\nERROR " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael_FileObserverTest log ERROR " << "\n";
+                      " bael_AsyncFileObserverTest log ERROR " << "\n";
             {
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                bsl::string coutS = "";
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    coutS = readPartialFile(fileName, fileOffset);
+                } while (coutS == "" && loopCount++ < 10);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1486,7 +1736,7 @@ int main(int argc, char *argv[])
 
             BAEL_LOG_FATAL << "log FATAL" << BAEL_LOG_END;
             testOs << "FATAL " << __FILE__ << ":" << __LINE__ - 1 <<
-                      " bael_FileObserverTest log FATAL " << "\n";
+                      " bael_AsyncFileObserverTest log FATAL " << "\n";
             // Replace the spaces after pid, __FILE__
             {
                 bsl::string temp = dos.str();
@@ -1496,7 +1746,14 @@ int main(int argc, char *argv[])
             }
 
             {
-                bsl::string coutS = readPartialFile(fileName, fileOffset);
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                bsl::string coutS = "";
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    coutS = readPartialFile(fileName, fileOffset);
+                } while (coutS == "" && loopCount++ < 10);
                 if (
                    0 == bdetu_SystemTime::localTimeOffset().totalSeconds()
                    ) {
@@ -1539,6 +1796,7 @@ int main(int argc, char *argv[])
                     defaultObsHour - difference < 24) {
                     // UTC and local time are on the same day
                     if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
+
                     // skong: This is a bug, you can not figure out if they
                     // are on the same day with only two hour numbers.
                     //ASSERT(dos.str() == coutS);
@@ -1556,6 +1814,7 @@ int main(int argc, char *argv[])
 
                 bsl::cout.rdbuf(coutSbuf);
                 multiplexObserver.deregisterObserver(&localMultiObserver);
+                mX.stopPublicationThread();
             }
         }
 
@@ -1564,14 +1823,17 @@ int main(int argc, char *argv[])
             bsl::string fn = tempFileName(veryVerbose);
             int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
-            Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+            Obj mX(bael_Severity::BAEL_WARN, &ta);
+            const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
             Q(Ignore warning about /bogus/path/foo -- it is expected);
             ASSERT(-1 == mX.enableFileLogging("/bogus/path/foo"));
             bsl::stringstream ss;
 
             multiplexObserver.registerObserver(&mX);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
             bsl::cout.rdbuf(ss.rdbuf());
@@ -1586,28 +1848,42 @@ int main(int argc, char *argv[])
             BAEL_LOG_ERROR << "log 5" << BAEL_LOG_END;
             BAEL_LOG_FATAL << "log 6" << BAEL_LOG_END;
 
-            bsl::ifstream fs, coutFs;
-            fs.open(fn.c_str(),           bsl::ifstream::in);
-            coutFs.open(fileName.c_str(), bsl::ifstream::in);
-            ASSERT(fs.is_open());
-            ASSERT(coutFs.is_open());
-            coutFs.seekg(fileOffset);
-            int linesNum = 0;
-            bsl::string line;
-            while (getline(fs, line)) {
-                if (linesNum >= 6) {
-                    // check format
-                    bsl::string coutLine;
-                    getline(coutFs, coutLine);
-                    ASSERT(coutLine == line);
-                    //bsl::cerr << coutLine << endl << line << endl;
+            // Wait up to 10 seconds for the async logging to complete
+
+            loopCount = 0;
+            do {
+                linesNum = 0;
+                bcemt_ThreadUtil::microSleep(0, 1);
+                bsl::ifstream fs1;
+                fs1.open(fn.c_str(), bsl::ifstream::in);
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
+            } while (linesNum < 12 && loopCount++ < 10);
+
+            {
+                bsl::ifstream fs;
+                fs.open(fn.c_str(), bsl::ifstream::in);
+                bsl::ifstream coutFs;
+                coutFs.open(fileName.c_str(), bsl::ifstream::in);
+                ASSERT(fs.is_open());
+                ASSERT(coutFs.is_open());
+                coutFs.seekg(fileOffset);
+                linesNum = 0;
+                while (getline(fs, line)) {
+                    if (linesNum >= 6) {
+                        // check format
+                        bsl::string coutLine;
+                        getline(coutFs, coutLine);
+                        ASSERT(coutLine == line);
+                        //bsl::cerr << coutLine << endl << line << endl;
+                    }
+                    ++linesNum;
                 }
-                ++linesNum;
+                fs.close();
+                ASSERT(!getline(coutFs, line));
+                coutFs.close();
+                ASSERT(12 == linesNum);
             }
-            fs.close();
-            ASSERT(!getline(coutFs, line));
-            coutFs.close();
-            ASSERT(12 == linesNum);
 
             ASSERT(X.isFileLoggingEnabled());
             mX.disableFileLogging();
@@ -1619,15 +1895,28 @@ int main(int argc, char *argv[])
             BAEL_LOG_ERROR << "log 5" << BAEL_LOG_END;
             BAEL_LOG_FATAL << "log 6" << BAEL_LOG_END;
 
-            fs.open(fn.c_str(), bsl::ifstream::in);
-            ASSERT(fs.is_open());
-            fs.clear();
-            linesNum = 0;
-            while (getline(fs, line)) {
-                ++linesNum;
+            // Wait up to 10 seconds for the async logging to complete
+
+            loopCount = 0;
+            do {
+                bcemt_ThreadUtil::microSleep(0, 1);
+                linesNum = 0;
+                bsl::ifstream fs1;
+                fs1.open(fn.c_str(), bsl::ifstream::in);
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
+            } while (linesNum < 12 && loopCount++ < 10);
+
+            {
+                bsl::ifstream fs;
+                fs.open(fn.c_str(), bsl::ifstream::in);
+                ASSERT(fs.is_open());
+                fs.clear();
+                linesNum = 0;
+                while (getline(fs, line)) { ++linesNum; }
+                fs.close();
+                ASSERT(12 == linesNum);
             }
-            fs.close();
-            ASSERT(12 == linesNum);
 
             ASSERT(0 == mX.enableFileLogging(fn.c_str()));
             ASSERT(X.isFileLoggingEnabled());
@@ -1640,20 +1929,34 @@ int main(int argc, char *argv[])
             BAEL_LOG_ERROR << "log 2" << BAEL_LOG_END;
             BAEL_LOG_FATAL << "log 3" << BAEL_LOG_END;
 
-            fs.open(fn.c_str(), bsl::ifstream::in);
-            ASSERT(fs.is_open());
-            fs.clear();
-            linesNum = 0;
-            while (getline(fs, line)) {
-                ++linesNum;
+            // Wait up to 10 seconds for the async logging to complete
+
+            loopCount = 0;
+            do {
+                bcemt_ThreadUtil::microSleep(0, 1);
+                linesNum = 0;
+                bsl::ifstream fs1;
+                fs1.open(fn.c_str(), bsl::ifstream::in);
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
+            } while (linesNum < 12 && loopCount++ < 10);
+
+            {
+                bsl::ifstream fs;
+                fs.open(fn.c_str(), bsl::ifstream::in);
+                ASSERT(fs.is_open());
+                fs.clear();
+                linesNum = 0;
+                while (getline(fs, line)) { ++linesNum; }
+                fs.close();
+                ASSERT(24 == linesNum);
+                bsl::cout.rdbuf(coutSbuf);
             }
-            fs.close();
-            ASSERT(24 == linesNum);
-            bsl::cout.rdbuf(coutSbuf);
 
             mX.disableFileLogging();
             removeFilesByPrefix(fn.c_str());
             multiplexObserver.deregisterObserver(&mX);
+            mX.stopPublicationThread();
         }
 
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -1662,19 +1965,22 @@ int main(int argc, char *argv[])
         {
             bsl::string fn = tempFileName(veryVerbose);
 
-            Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+            Obj mX(bael_Severity::BAEL_WARN, &ta);
+            const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
             bsl::ostringstream os;
-            int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
             multiplexObserver.registerObserver(&mX);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
             bsl::cout.rdbuf(os.rdbuf());
-            ASSERT(0 == mX.enableFileLogging(fn.c_str(), true));
+            bsl::string fn_time = fn + bsl::string(".%T");
+            ASSERT(0 == mX.enableFileLogging(fn_time.c_str()));
             ASSERT(X.isFileLoggingEnabled());
-            ASSERT(1 == mX.enableFileLogging(fn.c_str(), true));
+            ASSERT(1 == mX.enableFileLogging(fn_time.c_str()));
 
             BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
             BAEL_LOG_DEBUG << "log 2" << BAEL_LOG_END;
@@ -1686,24 +1992,37 @@ int main(int argc, char *argv[])
             glob_t globbuf;
             ASSERT(0 == glob((fn + ".2*").c_str(), 0, 0, &globbuf));
             ASSERT(1 == globbuf.gl_pathc);
-            bsl::ifstream fs;
-            fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-            ASSERT(fs.is_open());
-            int linesNum = 0;
-            bsl::string line;
-            while (getline(fs, line)) {
-                ++linesNum;
+
+            // Wait up to 10 seconds for the async logging to complete
+
+            loopCount = 0;
+            do {
+                linesNum = 0;
+                bcemt_ThreadUtil::microSleep(0, 1);
+                bsl::ifstream fs1;
+                fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
+            } while (linesNum < 12 && loopCount++ < 10);
+
+            {
+                bsl::ifstream fs;
+                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                ASSERT(fs.is_open());
+                linesNum = 0;
+                while (getline(fs, line)) { ++linesNum; }
+                fs.close();
+                ASSERT(12 == linesNum);
+                ASSERT(X.isFileLoggingEnabled());
+                bsl::cout.rdbuf(coutSbuf);
             }
-            fs.close();
-            ASSERT(12 == linesNum);
-            ASSERT(X.isFileLoggingEnabled());
-            bsl::cout.rdbuf(coutSbuf);
 
             ASSERT("" == os.str());
 
             mX.disableFileLogging();
             removeFilesByPrefix(fn.c_str());
             multiplexObserver.deregisterObserver(&mX);
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing log file name pattern." << endl;
@@ -1711,16 +2030,18 @@ int main(int argc, char *argv[])
             bsl::string baseName = tempFileName(veryVerbose);
             bsl::string pattern  = baseName + "%Y%M%D%h%m%s";
 
-            Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
-            int fileOffset = bdesu_FileUtil::getFileSize(fileName);
+            Obj mX(bael_Severity::BAEL_WARN, &ta);
+            const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
 
             multiplexObserver.registerObserver(&mX);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             bdet_Datetime startDatetime, endDatetime;
 
-            mX.disableLifetimeRotation();
+            mX.disableTimeIntervalRotation();
             mX.disableSizeRotation();
             mX.disableFileLogging();
 
@@ -1728,9 +2049,9 @@ int main(int argc, char *argv[])
             do {
                 startDatetime = getCurrentTimestamp();
 
-                ASSERT(0 == mX.enableFileLogging(pattern.c_str(), false));
+                ASSERT(0 == mX.enableFileLogging(pattern.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(pattern.c_str(), false));
+                ASSERT(1 == mX.enableFileLogging(pattern.c_str()));
 
                 endDatetime = getCurrentTimestamp();
 
@@ -1757,9 +2078,8 @@ int main(int argc, char *argv[])
 
             BAEL_LOG_INFO<< "log" << BAEL_LOG_END;
 
-            mX.disableFileLogging();
+            // Construct the name of the log file from startDatetime
 
-            // now construct the name of the log file from startDatetime
             bsl::ostringstream fnOs;
             fnOs << baseName;
             fnOs << bsl::setw(4) << bsl::setfill('0')
@@ -1775,29 +2095,44 @@ int main(int argc, char *argv[])
             fnOs << bsl::setw(2) << bsl::setfill('0')
                      << startDatetime.second();
 
-            // look for the file with the constructed name
+            // Look for the file with the constructed name
+
             glob_t globbuf;
             ASSERT(0 == glob(fnOs.str().c_str(), 0, 0, &globbuf));
             ASSERT(1 == globbuf.gl_pathc);
 
-            // read the file to get the number of lines
-            bsl::ifstream fs;
-            fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-            fs.clear();
-            globfree(&globbuf);
-            ASSERT(fs.is_open());
-            int linesNum = 0;
-            bsl::string line;
-            while (getline(fs, line)) {
-                ++linesNum;
-            }
-            fs.close();
+            // Wait up to 10 seconds for the async logging to complete
 
-            ASSERT(2 == linesNum);
+            loopCount = 0;
+            do {
+                bcemt_ThreadUtil::microSleep(0, 1);
+                linesNum = 0;
+                bsl::ifstream fs1;
+                fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                while (getline(fs1, line)) { ++linesNum; }
+                fs1.close();
+            } while (linesNum < 2 && loopCount++ < 10);
+
+            mX.disableFileLogging();
+
+            // Read the file to get the number of lines
+
+            {
+                bsl::ifstream fs;
+                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                fs.clear();
+                globfree(&globbuf);
+                ASSERT(fs.is_open());
+                linesNum = 0;
+                while (getline(fs, line)) { ++linesNum; }
+                fs.close();
+                ASSERT(2 == linesNum);
+            }
 
             mX.disableFileLogging();
             removeFilesByPrefix(baseName.c_str());
             multiplexObserver.deregisterObserver(&mX);
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing '%%' in file name pattern." << endl;
@@ -1829,10 +2164,10 @@ int main(int argc, char *argv[])
                 bsl::string expected(baseName);  expected += FILENAME;
                 bsl::string actual;
 
-                Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+                Obj mX(bael_Severity::BAEL_WARN, &ta);
+                const Obj& X = mX;
 
-                LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(
-                                                  pattern.c_str(), false));
+                LOOP_ASSERT(LINE, 0 == mX.enableFileLogging(pattern.c_str()));
                 LOOP_ASSERT(LINE, X.isFileLoggingEnabled(&actual));
 
                 if (veryVeryVerbose) {
@@ -1843,7 +2178,8 @@ int main(int argc, char *argv[])
 
                 mX.disableFileLogging();
 
-                // look for the file with the expected name
+                // Look for the file with the expected name
+
                 glob_t globbuf;
                 LOOP_ASSERT(LINE, 0 == glob(expected.c_str(),
                                             0, 0, &globbuf));
@@ -1858,52 +2194,72 @@ int main(int argc, char *argv[])
             int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
             Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
 
             ASSERT(bael_Severity::BAEL_WARN == X.stdoutThreshold());
 
             multiplexObserver.registerObserver(&mX);
 
-            BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
-            // redirect 'stdout' to a string stream
+            // Redirect 'stdout' to a string stream
+
             {
                 bsl::string baseName = tempFileName(veryVerbose);
 
-                ASSERT(0 == mX.enableFileLogging(baseName.c_str(), false));
+                ASSERT(0 == mX.enableFileLogging(baseName.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(baseName.c_str(), false));
+                ASSERT(1 == mX.enableFileLogging(baseName.c_str()));
 
                 bsl::stringstream os;
                 bsl::streambuf *coutSbuf = bsl::cout.rdbuf();
                 bsl::cout.rdbuf(os.rdbuf());
 
-                // for log file, use bdet_Datetime format
-                // for stdout, use ISO format
+                // For log file, use bdet_Datetime format
+                // For stdout, use ISO format
+
                 mX.setLogFormat("%d %p %t %s %l %c %m %u",
                                 "%i %p %t %s %l %c %m %u");
 
                 BAEL_LOG_WARN << "log" << BAEL_LOG_END;
 
-                // look for the file with the constructed name
+                // Look for the file with the constructed name
+
                 glob_t globbuf;
                 ASSERT(0 == glob(baseName.c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
-                // read the log file to get the record
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                bsl::string line;
-                ASSERT(getline(fs, line));
-                fs.close();
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    linesNum = 0;
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
+                } while (!linesNum && loopCount++ < 10);
+
+                // Read the log file to get the record
+
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    ASSERT(getline(fs, line));
+                    fs.close();
+                }
 
                 bsl::string datetime1, datetime2;
                 bsl::string log1, log2;
                 bsl::string::size_type pos;
 
-                // divide line into datetime and the rest
+                // Divide line into datetime and the rest
+
                 pos = line.find(' ');
                 datetime1 = line.substr(0, pos);
                 log1 = line.substr(pos, line.length());
@@ -1913,7 +2269,8 @@ int main(int argc, char *argv[])
 
                 ASSERT("" == os.str());
 
-                // divide os.str() into datetime and the rest
+                // Divide os.str() into datetime and the rest
+
                 pos = fStr.find(' ');
                 pos = fStr.find(' ',pos+1);
                 ASSERT(bsl::string::npos != pos);
@@ -1923,8 +2280,8 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(log1, log2, log1 == log2);
 
-                // now we try to convert datetime2 from ISO to
-                // bdet_Datetime
+                // Now we try to convert datetime2 from ISO to bdet_Datetime
+
                 bsl::istringstream iss(datetime2);
                 int year, month, day, hour, minute, second;
                 char c;
@@ -1936,8 +2293,10 @@ int main(int argc, char *argv[])
 
                 bsl::ostringstream oss;
                 oss << datetime3;
-                // ignore the millisecond field so don't compare the entire
+
+                // Ignore the millisecond field so don't compare the entire
                 // strings
+
                 ASSERT(0 == oss.str().compare(0, 18, datetime1, 0, 18));
 
                 mX.disableFileLogging();
@@ -1949,15 +2308,16 @@ int main(int argc, char *argv[])
                 mX.disableFileLogging();
                 removeFilesByPrefix(baseName.c_str());
             }
-            // now swap the two string formats
+
+            // Swap the two string formats
 
             if (verbose) cerr << "   .. customized format swapped.\n";
             {
                 bsl::string baseName = tempFileName(veryVerbose);
 
-                ASSERT(0 == mX.enableFileLogging(baseName.c_str(), false));
+                ASSERT(0 == mX.enableFileLogging(baseName.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
-                ASSERT(1 == mX.enableFileLogging(baseName.c_str(), false));
+                ASSERT(1 == mX.enableFileLogging(baseName.c_str()));
                 ASSERT(X.isFileLoggingEnabled());
 
                 fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1971,32 +2331,49 @@ int main(int argc, char *argv[])
 
                 BAEL_LOG_WARN << "log" << BAEL_LOG_END;
 
-                // look for the file with the constructed name
+                // Look for the file with the constructed name
+
                 glob_t globbuf;
                 ASSERT(0 == glob(baseName.c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
-                // read the log file to get the record
-                bsl::ifstream fs;
-                fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
-                fs.clear();
-                globfree(&globbuf);
-                ASSERT(fs.is_open());
-                bsl::string line;
-                ASSERT(getline(fs, line));
-                fs.close();
+                // Wait up to 10 seconds for the async logging to complete
+
+                loopCount = 0;
+                do {
+                    bcemt_ThreadUtil::microSleep(0, 1);
+                    linesNum = 0;
+                    bsl::ifstream fs1;
+                    fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    while (getline(fs1, line)) { ++linesNum; }
+                    fs1.close();
+                } while (!linesNum && loopCount++ < 10);
+
+                // Read the log file to get the record
+
+                {
+                    bsl::ifstream fs;
+                    fs.open(globbuf.gl_pathv[0], bsl::ifstream::in);
+                    fs.clear();
+                    globfree(&globbuf);
+                    ASSERT(fs.is_open());
+                    ASSERT(getline(fs, line));
+                    fs.close();
+                }
 
                 bsl::string datetime1, datetime2;
                 bsl::string log1, log2;
                 bsl::string::size_type pos;
 
-                // get datetime and the rest from stdout
+                // Get datetime and the rest from stdout
+
                 bsl::string soStr = readPartialFile(fileName, fileOffset);
                 pos = soStr.find(' ');
                 datetime1 = soStr.substr(0, pos);
                 log1 = soStr.substr(pos, soStr.length());
 
-                // divide line into datetime and the rest
+                // Divide line into datetime and the rest
+
                 pos = line.find(' ');
                 pos = line.find(' ', pos+1);
                 datetime2 = line.substr(0, pos);
@@ -2004,8 +2381,8 @@ int main(int argc, char *argv[])
 
                 LOOP2_ASSERT(log1, log2, log1 == log2);
 
-                // now we try to convert datetime2 from ISO to
-                // bdet_Datetime
+                // Now we try to convert datetime2 from ISO to bdet_Datetime
+
                 bsl::istringstream iss(datetime2);
                 int year, month, day, hour, minute, second;
                 char c;
@@ -2017,8 +2394,10 @@ int main(int argc, char *argv[])
 
                 bsl::ostringstream oss;
                 oss << datetime3;
-                // ignore the millisecond field so don't compare the entire
+
+                // Ignore the millisecond field so don't compare the entire
                 // strings
+
                 ASSERT(0 == oss.str().compare(0, 18, datetime1, 0, 18));
 
                 if (veryVerbose) {
@@ -2032,7 +2411,7 @@ int main(int argc, char *argv[])
                 mX.disableFileLogging();
                 removeFilesByPrefix(baseName.c_str());
                 multiplexObserver.deregisterObserver(&mX);
-
+                mX.stopPublicationThread();
             }
         }
 #endif
@@ -2042,25 +2421,23 @@ int main(int argc, char *argv[])
             Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
             const char *logFileFormat;
             const char *stdoutFormat;
-            int fileOffset = bdesu_FileUtil::getFileSize(fileName);
 
-            ASSERT(X.isUserFieldsLoggingEnabled());
             X.getLogFormat(&logFileFormat, &stdoutFormat);
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
 
-            mX.disableUserFieldsLogging();
-            ASSERT(!X.isUserFieldsLoggingEnabled());
+            mX.setLogFormat("\n%d %p:%t %s %f:%l %c %m\n",
+                            "\n%d %p:%t %s %f:%l %c %m\n");
             X.getLogFormat(&logFileFormat, &stdoutFormat);
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%d %p:%t %s %f:%l %c %m\n"));
 
-            mX.enableUserFieldsLogging();
-            ASSERT(X.isUserFieldsLoggingEnabled());
+            mX.setLogFormat("\n%d %p:%t %s %f:%l %c %m %u\n",
+                            "\n%d %p:%t %s %f:%l %c %m %u\n");
             X.getLogFormat(&logFileFormat, &stdoutFormat);
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
@@ -2068,6 +2445,7 @@ int main(int argc, char *argv[])
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
 
             // Now change to short format for stdout.
+
             ASSERT( X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
@@ -2077,27 +2455,11 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(stdoutFormat,
                                     "\n%s %f:%l %c %m %u\n"));
 
-            mX.disableUserFieldsLogging();
-            ASSERT(!X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat,
-                                    "\n%d %p:%t %s %f:%l %c %m\n"));
-            ASSERT(0 == bsl::strcmp(stdoutFormat,
-                                    "\n%s %f:%l %c %m\n"));
-
-            mX.enableUserFieldsLogging();
-            ASSERT(X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat,
-                                    "\n%d %p:%t %s %f:%l %c %m %u\n"));
-            ASSERT(0 == bsl::strcmp(stdoutFormat,
-                                    "\n%s %f:%l %c %m %u\n"));
-
             // Change back to long format for stdout.
+
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
             mX.enableStdoutLoggingPrefix();
             ASSERT( X.isStdoutLoggingPrefixEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
             ASSERT(0 == bsl::strcmp(logFileFormat,
                                     "\n%d %p:%t %s %f:%l %c %m %u\n"));
             ASSERT(0 == bsl::strcmp(stdoutFormat,
@@ -2105,6 +2467,7 @@ int main(int argc, char *argv[])
 
             // Now see what happens with customized format.  Notice that
             // we intentionally use the default short format.
+
             const char *newLogFileFormat = "\n%s %f:%l %c %m %u\n";
             const char *newStdoutFormat  = "\n%s %f:%l %c %m %u\n";
             mX.setLogFormat(newLogFileFormat, newStdoutFormat);
@@ -2112,20 +2475,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
 
-            // Toggling user fields logging should not change the formats.
-            mX.disableUserFieldsLogging();
-            ASSERT(!X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
-            ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
-
-            mX.enableUserFieldsLogging();
-            ASSERT( X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
-            ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
-
             // Now set short format for stdout.
+
             ASSERT(X.isStdoutLoggingPrefixEnabled());
             mX.disableStdoutLoggingPrefix();
             ASSERT(!X.isStdoutLoggingPrefixEnabled());
@@ -2136,18 +2487,41 @@ int main(int argc, char *argv[])
             // stdoutFormat should change, since even if we are now using
             // customized formats, the format happens to be the same as
             // the default short format.
-            mX.disableUserFieldsLogging();
-            ASSERT(!X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
-            ASSERT(0 == bsl::strcmp(stdoutFormat, "\n%s %f:%l %c %m\n"));
-
-            mX.enableUserFieldsLogging();
-            ASSERT(X.isUserFieldsLoggingEnabled());
-            X.getLogFormat(&logFileFormat, &stdoutFormat);
-            ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
-            ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
         }
+
+        if (verbose) cerr << "Testing publication shutdown."
+                          << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+
+            // Start the publication thread, make sure the publication thread
+            // started
+
+            mX.startPublicationThread();
+            ASSERT(mX.isPublicationThreadRunning());
+
+            bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
+                                                &ta);
+            bael_Context    context;
+            for (int i = 0;i < 8000; ++i)
+                mX.publish(record, context);
+            mX.shutdownPublicationThread();
+            ASSERT(!mX.isPublicationThreadRunning());
+
+            int numRecords = record.numReferences();
+            ASSERT(numRecords > 1);
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(record.numReferences() == numRecords);
+
+            // Re-start the publication thread
+
+            mX.startPublicationThread();
+            ASSERT(mX.isPublicationThreadRunning());
+
+            bcemt_ThreadUtil::microSleep(0, 1);
+            ASSERT(record.numReferences() == 1);
+        }
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
@@ -2164,7 +2538,7 @@ int main(int argc, char *argv[])
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

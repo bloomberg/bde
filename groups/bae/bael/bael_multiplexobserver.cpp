@@ -8,6 +8,7 @@ BDES_IDENT_RCSID(bael_multiplexobserver_cpp,"$Id$ $CSID$")
 #include <bael_defaultobserver.h>        // for testing only
 #include <bael_testobserver.h>           // for testing only
 #include <bsls_assert.h>
+#include <bsl_iostream.h>                // for warning print only
 
 namespace BloombergLP {
 
@@ -27,9 +28,46 @@ void bael_MultiplexObserver::publish(const bael_Record&  record,
 {
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_rwMutex);
 
+    // Print warning once that this publish method is deprecated.
+
+    static bool needWarning = true;
+    if (needWarning) {
+        bsl::cerr << "*******************************************************"
+                  << bsl::endl;
+        bsl::cerr << "WARNING: bael_MultiplexObserver: this publish method is "
+                  << bsl::endl;
+        bsl::cerr << "deprecated, please use the alternative publish."
+                  << bsl::endl;
+        bsl::cerr << "*******************************************************"
+                  << bsl::endl;
+        needWarning = false;
+    }
+
     bsl::set<bael_Observer *>::const_iterator it = d_observerSet.begin();
     for (; it != d_observerSet.end(); ++it) {
         (*it)->publish(record, context);
+    }
+}
+
+void bael_MultiplexObserver::publish(
+                            const bcema_SharedPtr<const bael_Record>&  record,
+                            const bael_Context&                        context)
+{
+    bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_rwMutex);
+
+    bsl::set<bael_Observer *>::const_iterator it = d_observerSet.begin();
+    for (; it != d_observerSet.end(); ++it) {
+        (*it)->publish(record, context);
+    }
+}
+
+void bael_MultiplexObserver::releaseRecords()
+{
+    bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_rwMutex);
+
+    bsl::set<bael_Observer *>::const_iterator it = d_observerSet.begin();
+    for (; it != d_observerSet.end(); ++it) {
+        (*it)->releaseRecords();
     }
 }
 

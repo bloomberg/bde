@@ -468,6 +468,19 @@ class bael_FileObserver2 : public bael_Observer {
         // logging is enabled for this file observer.  The method has no effect
         // if file logging is not enabled.
 
+    void publish(const bcema_SharedPtr<const bael_Record>& record,
+                 const bael_Context&                       context);
+        // Process the record referred by the specified shared pointer 'record'
+        // by writing the record and the specified 'context' of the record to
+        // a file if file logging is enabled for this file observer.  The
+        // method has no effect if file logging is not enabled.
+
+    void releaseRecords();
+        // Discard any shared reference to a 'bael_Record' object that was
+        // supplied to the 'publish' method, and is held by this observer.
+        // Note that this operation should be called if resources underlying
+        // the previously provided shared-pointers must be released.
+
     void forceRotation();
         // Forcefully perform a log file rotation by this file observer.  Close
         // the current log file, rename the log file if necessary, and open a
@@ -548,6 +561,28 @@ class bael_FileObserver2 : public bael_Observer {
         // UTC time changes (e.g., when transitioning into or out of daylight
         // savings time).
 };
+
+// ============================================================================
+//                          INLINE FUNCTION DEFINITIONS
+// ============================================================================
+
+                          // ------------------------
+                          // class bael_FileObserver2
+                          // ------------------------
+
+// MANIPULATORS
+inline
+void bael_FileObserver2::publish(
+                             const bcema_SharedPtr<const bael_Record>& record,
+                             const bael_Context&                       context)
+{
+    publish(*record, context);
+}
+
+inline
+void bael_FileObserver2::releaseRecords()
+{
+}
 
 }  // close namespace BloombergLP
 

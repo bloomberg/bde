@@ -22,6 +22,23 @@ bael_Observer::~bael_Observer()
 {
 }
 
+// MANIPULATORS
+void bael_Observer::publish(const bael_Record&  record,
+                            const bael_Context& context)
+{
+    BSLS_ASSERT_OPT(false);  // Should not be called
+}
+
+void bael_Observer::publish(const bcema_SharedPtr<const bael_Record>& record,
+                            const bael_Context&                       context)
+{
+    publish(*record, context);
+}
+
+void bael_Observer::releaseRecords()
+{
+}
+
 }  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 bael_administration
+bael_asyncfileobserver
 bael_attribute
 bael_attributecontainer
 bael_attributecontainerlist
@@ -19,6 +20,7 @@ bael_loggermanagerconfiguration
 bael_loggermanagerdefaults
 bael_multiplexobserver
 bael_observer
+bael_observeradapter
 bael_patternutil
 bael_predicate
 bael_predicateset
