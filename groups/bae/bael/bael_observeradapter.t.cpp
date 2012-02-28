@@ -82,8 +82,8 @@ void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 struct ConcreteObserver : public bael_ObserverAdapter {
-    void publish(const bael_Record&, const bael_Context&)  
-    {  
+    void publish(const bael_Record&, const bael_Context&)
+    {
         cout << "ConcreteObserver::publish(record&)" << endl;
     }
 };
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
                                   << "==============" << endl;
 
         ConcreteObserver concreteObserver;
-        bael_ObserverAdapter& adapter = 
+        bael_ObserverAdapter& adapter =
                         dynamic_cast<bael_ObserverAdapter&>(concreteObserver);
 
         adapter.publish(bael_Record(), bael_Context());

@@ -179,6 +179,8 @@ int main(int argc, char *argv[])
             ostrstream out(buf, sizeof buf);
 
             my_OstreamObserver    myObserver(out);
+            bael_Observer&        observer =
+                                      dynamic_cast<bael_Observer&>(myObserver);
             bdet_Datetime         now;
             bael_RecordAttributes fixed;
             bdem_List             emptyList;
@@ -191,8 +193,12 @@ int main(int argc, char *argv[])
                 fixed.setTimestamp(now);
                 fixed.setProcessID(100);
                 fixed.setThreadID(0);
-                myObserver.publish(
-                              bael_Record(fixed, emptyList),
+
+                bcema_SharedPtr<const bael_Record> handle(
+                             new (testAllocator) bael_Record(fixed, emptyList),
+                             &testAllocator);
+                observer.publish(
+                              handle,
                               bael_Context(bael_Transmission::BAEL_PASSTHROUGH,
                               0,
                               1));
@@ -211,14 +217,23 @@ int main(int argc, char *argv[])
                     fixed.setTimestamp(now);
                     fixed.setProcessID(201 + n);
                     fixed.setThreadID(31 + n);
-                    myObserver.publish(
-                                  bael_Record(fixed, emptyList),
+
+                    bcema_SharedPtr<const bael_Record> handle(
+                             new (testAllocator) bael_Record(fixed, emptyList),
+                             &testAllocator);
+                    observer.publish(
+                                  handle,
                                   bael_Context(bael_Transmission::BAEL_TRIGGER,
                                                n,
                                                NUM_MESSAGES));
                 }
                 out << ends;
                 if (veryVerbose) cout << buf << endl;
+            }
+            if (verbose)
+                cout << "Invoke 'releaseRecords' method." << endl;
+            {
+                observer.releaseRecords();
             }
         }
       } break;
