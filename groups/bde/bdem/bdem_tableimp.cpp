@@ -521,7 +521,7 @@ void bdem_TableImp::reserveRaw(bsl::size_t numRows)
 
     const int newSize = nullBitsArraySize(numRows);
 
-    // Reserve 2 times BSLS_MAX_ALIGNMENT initializaiton of the 'bdem_RowData'
+    // Reserve 2 times BSLS_MAX_ALIGNMENT initialization of the 'bdem_RowData'
     // when inserting a row (once for the (empty) data and once for the new
     // 'nullBits' vector).  Add the memory necessary for the new size of
     // 'd_nullBits'.  Note that this calculation leaves out the memory used by
@@ -893,7 +893,7 @@ bsl::ostream& bdem_TableImp::print(bsl::ostream& stream,
     int nestedLevel, nestedSpacesPerLevel;
     if (0 <= spacesPerLevel) {
 
-        // Newlines only if spacesPerLevel is non-negative
+        // Output a new line only if spacesPerLevel is non-negative
 
         stream << '\n';
         nestedLevel = level + 1;
@@ -902,7 +902,7 @@ bsl::ostream& bdem_TableImp::print(bsl::ostream& stream,
     else {
 
         // If 'spacesPerLevel' is negative, just put one space between rows
-        // and suppress newlines when formatting each row.
+        // and suppress new lines when formatting each row.
 
         nestedLevel = 1;
         nestedSpacesPerLevel = -1;
@@ -1000,6 +1000,11 @@ bool operator==(const bdem_TableImp& lhs, const bdem_TableImp& rhs)
 void bdem_TableImp_enableGeometricMemoryGrowth()
 {
     geometricMemoryGrowthFlag = true;
+}
+
+void bdem_TableImp_disableGeometricMemoryGrowth()
+{
+    geometricMemoryGrowthFlag = false;
 }
 
 bool bdem_TableImp_isGeometricMemoryGrowth()
