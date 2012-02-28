@@ -201,13 +201,15 @@ BDES_IDENT("$Id: $")
 //  $ mysort -riuomyoutfile
 //  $ mysort -riuo=myoutfile
 //..
+//
 ///Multi-Valued Options and How to Specify Them
 ///--------------------------------------------
 // Options can have several values.  For example, in the command-line
 // specification described by the following usage string, '*' denotes a
-// multi-valued option:
+// multi-valued option, and '+' denotes a multivalued option that must occur
+// at least once.
 //..
-//  usage: mycompiler [-l|library <libName>]* [-o|out outFile] objects...
+//  usage: mycompiler [-l|library <libName>]* [-o|out outFile] [<object>]+
 //..
 // multiple values can be given as follows:
 //..
@@ -233,7 +235,7 @@ BDES_IDENT("$Id: $")
 // Command-line arguments can appear in any order.  For example, given the
 // command-line specification described by the following usage string:
 //..
-//  usage: mysort [-r|reverse] [-o|outputfile <outfile>] files...
+//  usage: mysort [-r|reverse] [-o|outputfile <outfile>] [<file>]+
 //..
 // all the following command lines are valid:
 //..
@@ -593,8 +595,8 @@ BDES_IDENT("$Id: $")
 // following syntax:
 //..
 //  usage: mysort  [-r|reverse] [-i|insensitivetocase] [-u|uniq]
-//                 [-a|algorithm sortAlgo] <-o|outputfile outputFile>
-//                 fileList...
+//                 [-a|algorithm sortAlgo] -o|outputfile <outputFile>
+//                 [<file>]*
 //                            // Sort the specified files (in 'fileList'),
 //                            // using the specified sorting algorithm and
 //                            // write the output to the specified output file.
@@ -645,11 +647,15 @@ BDES_IDENT("$Id: $")
 // them as local variables inside 'main':
 //..
 //  int main(int argc, const char *argv[]) {
-//
-//      // variables to be linked to options
-//      bool isReverse;
-//      bool isCaseInsensitive;
-//      bool isUniq;
+//..
+// Note that it is important that variables that will be bound to optional
+// command line arguments be initialized to their default value, otherwise
+// their value will unspecified if a value isn't provided on the command line
+// (unless a default is specified via 'baea_CommandLineOccurrenceInfo'):
+//..
+//      bool isReverse = false;
+//      bool isCaseInsensitive = false;
+//      bool isUniq = false;
 //
 //      bsl::string outFile;
 //      bsl::string sortAlgo;
@@ -1791,8 +1797,8 @@ class baea_CommandLineOption {
   private:
     // PRIVATE MANIPULATORS
     void init(const baea_CommandLineOptionInfo& info);
-       // Initialize the underlying option info from the value of the specified
-       // 'info' object.
+        // Initialize the underlying option info from the value of the
+        // specified 'info' object.
 
   public:
     // TRAITS
@@ -1810,13 +1816,18 @@ class baea_CommandLineOption {
     baea_CommandLineOption(
                         const baea_CommandLineOptionInfo&  optionInfo,
                         bslma_Allocator                   *basicAllocator = 0);
-    baea_CommandLineOption(
-                        const baea_CommandLineOption&      optionInfo,
-                        bslma_Allocator                   *basicAllocator = 0);
         // Create a command-line option containing the value of the specified
         // 'optionInfo'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
+
+    baea_CommandLineOption(
+                        const baea_CommandLineOption&      original,
+                        bslma_Allocator                   *basicAllocator = 0);
+        // Create a 'baea_CommandLineOption' object having the same value
+        // as the specified 'original' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     ~baea_CommandLineOption();
         // Destroy this command-line option object.

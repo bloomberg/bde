@@ -412,8 +412,8 @@ class bcema_Pool {
         // geometrically up to 'blockSize * abs(maxBlocksPerChunk)' bytes.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless '1 <= blockSize' and '0 !=
-        // maxBlocksPerChunk'.
+        // used.  The behavior is undefined unless '1 <= blockSize' and
+        // '0 != maxBlocksPerChunk'.
 
     ~bcema_Pool();
         // Destroy this pool, releasing all associated memory back to the

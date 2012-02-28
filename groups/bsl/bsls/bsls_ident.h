@@ -16,6 +16,10 @@
 //   'man strings'  ('strings -a' produces more verbose output)
 //   'man mcs'      (Solaris-only)
 //
+// Note that these SCM Ids are only present if the 'BSLS_IDENT_ON' macro is
+// defined at compilation time.  By default, this macro is *not* defined, and
+// ident strings are *not* added to object files.
+//
 // SCM systems may replace Ids with their expanded forms.  Note that we will
 // replace the key symbol '$' with '(DOLLAR)' to avoid any expansion within
 // this header file's documentation.
@@ -94,6 +98,13 @@
 #define BSLS_IDENT_RCSID(tag,str)
 BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #endif
+
+// Enabling BSLS_IDENT by default causes too much bloat - DRQS 29644737.
+#ifndef BSLS_IDENT_ON
+#ifndef BSLS_IDENT_OFF
+#define BSLS_IDENT_OFF
+#endif // ndef BSLS_IDENT_OFF
+#endif // ndef BSLS_IDENT_ON
 
 
 #ifdef BSLS_IDENT_OFF
