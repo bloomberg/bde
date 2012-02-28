@@ -26,6 +26,9 @@
 windows             _       STL_DEFINES     = /D_STLP_USE_STATIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
 !! windows          shr     STL_DEFINES     = $(BSL_STD_FLAG) /D_STLP_USE_DYNAMIC_LIB /D_STLP_HAS_NATIVE_FLOAT_ABS
 
+# DRQS 29608792: Build windows with BSL_LEGACY=0 to match release process
+windows             _       STL_DEFINES     = /DBSL_LEGACY=0
+
 # enable/disable STLport debug
 !! unix-*-*-*-* 	_       STL_DBGDEFS     =
 !! unix-*-*-*-* 	dbg     STL_DBGDEFS     =

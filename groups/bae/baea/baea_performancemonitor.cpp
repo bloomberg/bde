@@ -99,7 +99,7 @@ MeasureData s_measureData[PM::BAEA_NUM_MEASURES] = {
   { PM::BAEA_RESIDENT_SIZE,
             "RESIDENT_SIZE",   "Resident Size",   "Mb", true  },
   { PM::BAEA_NUM_THREADS,
-            "NUM_THREADS",     "Thread Count",    "  ", true  }, 
+            "NUM_THREADS",     "Thread Count",    "  ", true  },
   { PM::BAEA_NUM_PAGEFAULTS,
             "NUM_PAGEFAULTS",  "Page Faults",     "  ", false },
   { PM::BAEA_VIRTUAL_SIZE,
@@ -112,9 +112,15 @@ bool nearlyEqual(double lhs, double rhs)
 }
 
 #if defined(BSLS_PLATFORM__OS_UNIX)
-int currentProcessPid() { return (int) getpid(); }
+int currentProcessPid()
+{
+    return (int) getpid();
+}
 #elif defined(BSLS_PLATFORM__OS_WINDOWS)
-int currentProcessPid() { return (int) GetCurrentProcessId(); }
+int currentProcessPid()
+{
+    return (int) GetCurrentProcessId();
+}
 #endif
 
 }  // close unnamed namespace
@@ -239,7 +245,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::readProcStat(
     if (!ifs) {
         BAEL_LOG_DEBUG << "Failed to open '" << filename.str() << "'"
                        << BAEL_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     bsl::string str((bsl::istreambuf_iterator<char>(ifs)),
@@ -297,22 +303,52 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::initialize(
                        << stats->d_pid
                        << " (" << stats->d_description << "), rc = " << rc
                        << BAEL_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
 
-    // TBD: system start time - procStats.d_starttime
+    static bsls_Types::Int64 bootTime = -1;
+    if (bootTime < 0) {
+        bsl::string line;
 
-    stats->d_startTime = bdet_TimeInterval(0, 0);
+        bsl::ifstream bootFile("/proc/stat");
 
+        while (getline(bootFile, line)) {
+            if (line.length() > 0) {
+                bsl::stringstream ss(line);
+                bsl::string s;
+                ss >> s;
+                if ("btime" == s) {
+                    if (ss >> bootTime) {
+                        break;
+                    }
+                    else {
+                        return -1;                                    // RETURN
+                    }
+                }
+            }
+        }
+
+        if (-1 == bootTime) {
+            // 'btime' not found
+
+            return -1;                                                // RETURN
+        }
+    }
+
+    int jiffiesPerSec = sysconf(_SC_CLK_TCK);
+    bsls_Types::Int64 procStartTime =
+                              bootTime + procStats.d_starttime / jiffiesPerSec;
+                                                      // seconds since 1970 UTC
+
+    stats->d_startTime = bdet_TimeInterval(procStartTime, 0);
     stats->d_startTimeUtc.setYearMonthDay(1970, 1, 1);
-    stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
+    stats->d_startTimeUtc.addSeconds(procStartTime);
 
     BAEL_LOG_DEBUG << "PID " << stats->d_pid << " started approximately "
                    << stats->d_startTimeUtc << " (UTC)"
                    << BAEL_LOG_END;
 
     return 0;
-
 }
 
 int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
@@ -328,14 +364,16 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
                        << stats->d_pid
                        << " (" << stats->d_description << ")"
                        << BAEL_LOG_END;
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     // Discover the duration of a jiffy.
+
     static const int clockTicksPerSec = sysconf(_SC_CLK_TCK);
 
     // Discover the number of threads by enumerating the directories in the
     // /proc/<pid>/task directory.
+
     bsl::stringstream taskFilename;
     taskFilename << "/proc/" << stats->d_pid << "/task";
     dirent **entry = 0;
@@ -349,7 +387,7 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
     }
     bsl::free(entry);
 
-    stats->d_lstData[BAEA_NUM_THREADS]   = numThreads;
+    stats->d_lstData[BAEA_NUM_THREADS] = numThreads;
 
     static const int pageSize = sysconf(_SC_PAGESIZE);
 
@@ -368,25 +406,22 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsLinux>::collect(
     double deltaCpuTimeU = cpuTimeU - stats->d_lstData[BAEA_CPU_TIME_USER];
     double deltaCpuTimeS = cpuTimeS - stats->d_lstData[BAEA_CPU_TIME_SYSTEM];
 
-    // Inaccurate for the first sample but this doesn't affect our results,
-    // as the CPU utilization is not calculated until the second sample is
-    // taken.
-    double elapsedTime = bdetu_SystemTime::now().totalSecondsAsDouble();
+    double elapsedTime = (bdetu_SystemTime::now() - stats->d_startTime).
+                                                        totalSecondsAsDouble();
 
     double dt = elapsedTime - stats->d_elapsedTime;
 
-    if ((stats->d_numSamples != 0) && (dt > 0)) {
-        stats->d_lstData[BAEA_CPU_UTIL] = (deltaCpuTimeU + deltaCpuTimeS)
-                                   / dt
-                                   * 100.0;
+    double deltaCpuTimeT = deltaCpuTimeU + deltaCpuTimeS;
 
+    if (0 != dt) {
+        stats->d_lstData[BAEA_CPU_UTIL]        = deltaCpuTimeT / dt * 100.0;
         stats->d_lstData[BAEA_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
         stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
     }
     else {
-        stats->d_lstData[BAEA_CPU_UTIL]        = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_USER]   = 0.0;
-        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = 0.0;
+        stats->d_lstData[BAEA_CPU_UTIL]        = 0;
+        stats->d_lstData[BAEA_CPU_UTIL_USER]   = 0;
+        stats->d_lstData[BAEA_CPU_UTIL_SYSTEM] = 0;
     }
 
     stats->d_lstData[BAEA_CPU_TIME_USER]   = cpuTimeU;
@@ -573,8 +608,10 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::initialize(
         return -1;
     }
 
-    bdet_TimeInterval startTime(procStats.d_processStartSecs,
-                                procStats.d_processStartMSecs * 1000);
+    //  bdet_TimeInterval startTime(procStats.d_processStartSecs,
+    //                              procStats.d_processStartMSecs * 1000);
+
+    stats->d_startTime = bdet_TimeInterval(procStats.d_processStartSecs, 0);
     stats->d_startTimeUtc.setYearMonthDay(1970, 1, 1);
     stats->d_startTimeUtc.addSeconds(stats->d_startTime.seconds());
 
@@ -877,40 +914,40 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsUnix>::collect(
                                            / (1024 * 1024);
 
 #if defined(BAEA_PERFORMANCE_MONITOR_DEBUG)
-    BAEL_LOG_TRACE<< "\nreal data                  = " 
+    BAEL_LOG_TRACE<< "\nreal data                  = "
                   << (double) (status.pst_dsize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nreal text                  = " 
+                  << "\nreal text                  = "
                   << (double) (status.pst_tsize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nreal stack                 = " 
+                  << "\nreal stack                 = "
                   << (double)(status.pst_ssize     * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nreal shared memory         = " 
+                  << "\nreal shared memory         = "
                   << (double)(status.pst_shmsize   * pstatic.page_size)
                                                         / (1024 * 1024)
                   << "\nreal memory mapped files   = "
                   << (double)(status.pst_mmsize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nreal U-area                = " 
+                  << "\nreal U-area                = "
                   << (double)(status.pst_usize     * pstatic.page_size)
                                                         / (1024 * 1024)
                   << "\nreal device mapping        = "
                   << (double)(status.pst_iosize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nvirt data                  = " 
+                  << "\nvirt data                  = "
                   << (double)(status.pst_vdsize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nvirt text                  = " 
+                  << "\nvirt text                  = "
                   << (double)(status.pst_vtsize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nvirt stack                 = " 
+                  << "\nvirt stack                 = "
                   << (double)(status.pst_vssize    * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nvirt shared memory         = " 
+                  << "\nvirt shared memory         = "
                   << (double)(status.pst_vshmsize  * pstatic.page_size)
                                                         / (1024 * 1024)
-                  << "\nvirt memory mapped files   = " 
+                  << "\nvirt memory mapped files   = "
                   << (double)(status.pst_vmmsize   * pstatic.page_size)
                                                         / (1024 * 1024)
                   << "\nvirt U-area                = "
@@ -1525,7 +1562,7 @@ void baea_PerformanceMonitor::Statistics::print(
     for (int measure = 0; measure < BAEA_NUM_MEASURES; ++measure) {
         if (0 == bsl::strcmp(measureIdentifier, s_measureData[measure].tag)) {
             print(os, (Measure)measure);
-            return;
+            return;                                                   // RETURN
         }
     }
 
@@ -1622,7 +1659,7 @@ int baea_PerformanceMonitor::registerPid(int                pid,
     collector.createInplace(d_allocator_p, d_allocator_p);
 
     if (0 != collector->initialize(stats.ptr(), pid, description)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     bcemt_WriteLockGuard<bcemt_RWMutex> guard(&d_mapGuard);

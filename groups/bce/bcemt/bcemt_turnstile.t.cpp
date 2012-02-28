@@ -1,11 +1,11 @@
 // bcemt_turnstile.t.cpp   -*-C++-*-
 
 #include <bcemt_turnstile.h>
-#include <bcemt_turnstile.h>
 
-#include <bces_atomictypes.h>
 #include <bcemt_barrier.h>
-#include <bcemt_thread.h>
+#include <bcemt_mutex.h>
+#include <bcemt_threadutil.h>
+#include <bces_atomictypes.h>
 
 #include <bdef_bind.h>
 #include <bsls_stopwatch.h>
@@ -197,7 +197,7 @@ void processorWithTurnstile(
     bsls_Stopwatch  timer;
     bcemt_Turnstile turnstile(rate);
     double          elapsed = 0.0;
-    int             numTurns = rate * duration;
+    int             numTurns = static_cast<int>(rate * duration);
 
     ASSERT(static_cast<double>(numTurns) == rate * duration);  // integral
 
@@ -222,9 +222,9 @@ void processorWithSleep(
     // 'duration'.
 
     bsls_Stopwatch timer;
-    int            sleepInterval = 1000000 / rate;  // microseconds
+    int            sleepInterval = static_cast<int>(1000000 / rate);  // usec
     double         elapsed = 0.0;
-    int            numTurns = rate * duration;
+    int            numTurns = static_cast<int>(rate * duration);
 
     ASSERT(static_cast<double>(numTurns) == rate * duration);  // integral
 
@@ -311,8 +311,8 @@ int main(int argc, char *argv[])
         const double RATE = 10;
         const double DURATION = 1.0;
 
-        const bsl::string MESSAGE  = "1234567890";
-        const int         MSGLEN   = MESSAGE.length();
+        const bsl::string MESSAGE = "1234567890";
+        const bsl::size_t MSGLEN  = MESSAGE.length();
 
         bsls_Stopwatch     timer;
         bsl::ostringstream oss;
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
                                RATE * DURATION * MSGLEN == oss.str().length());
 
         if (veryVerbose) {
-            P_(RATE);    P(RATE * DURATION * MESSAGE.length());
+            P_(RATE);    P(RATE * DURATION * (double) MESSAGE.length());
             P_(elapsed); P(oss.str().length());
         }
       }  break;
@@ -397,7 +397,7 @@ int main(int argc, char *argv[])
         barrier.wait();
 
         // Cleanup threads
-        for (int i = 0; i < handles.size(); ++i) {
+        for (int i = 0; i < (int) handles.size(); ++i) {
             ASSERT(0 == bcemt_ThreadUtil::join(handles[i]));
         }
 
@@ -466,7 +466,7 @@ int main(int argc, char *argv[])
         barrier.wait();
 
         // Cleanup threads
-        for (int i = 0; i < handles.size(); ++i) {
+        for (int i = 0; i < (int) handles.size(); ++i) {
             ASSERT(0 == bcemt_ThreadUtil::join(handles[i]));
         }
 
@@ -505,9 +505,11 @@ int main(int argc, char *argv[])
         const double            RATE = 1.0;
         const bdet_TimeInterval OFFSET(1.0);  // turnstile start offset (1 sec)
 
-        const double WT      = 1.0 / RATE;    // max wait time for each turn
-        const Int64  WTUB    = USPS * (WT + EPSILON);  // upper bound wait time
-        const Int64  WTLB    = USPS * (WT - EPSILON);  // lower bound wait time
+        const double WT   = 1.0 / RATE;    // max wait time for each turn
+        const Int64  WTUB = 
+           static_cast<Int64>(USPS * (WT + EPSILON));  // upper bound wait time
+        const Int64  WTLB =
+           static_cast<Int64>(USPS * (WT - EPSILON));  // lower bound wait time
 
         Obj        mX(RATE, OFFSET);
         const Obj& X = mX;
@@ -641,6 +643,10 @@ int main(int argc, char *argv[])
         const Int64  WTUB    = USPS * (WT + EPSILON);  // upper bound wait time
         const Int64  WTLB    = USPS * (WT - EPSILON);  // lower bound wait time
 
+        if (verbose) {
+            P_(RATE)   P_(WT)  P_(WTUB)  P(WTLB);
+        }
+
         Obj        mX(RATE);
         const Obj& X = mX;
 
@@ -666,14 +672,29 @@ int main(int argc, char *argv[])
 
         // Turns are taken more slowly than the specified rate
 
-        // Wait twice the maximum wait time, and take one turn.  After the next
-        // turn is taken, the "next" turn time will be '1 * WT' seconds prior
-        // to the current time, and the "last turn taken" will be the current
-        // time, so 'lagTime' should report a negative value.
-        bcemt_ThreadUtil::microSleep(2 * USPS * WT);
-        ASSERT(0 == mX.waitTurn());
-        ASSERT(0 <   X.lagTime());
+        // 'X.lagTime()' does not report negative values, but suppose it did.
+        // Call 'epsA' the amount of time we've spent doing stuff since the
+        // the last 'waitTurn'.  Then 'X.lagTime() == - USPS * WT + epsA' at
+        // this point.
 
+        // Wait 2.25 times the period time
+
+        int sleepTime = (int) (2.5 * USPS * WT);
+        bcemt_ThreadUtil::microSleep(sleepTime);
+
+        // At this point.  'X.lagTime() == 1.5 * USPS * WT + epsA'.  Take one
+        // turn.
+
+        ASSERT(0 == mX.waitTurn());
+
+        // Now, 'X.lagTime() == 0.5 * USPS * WT + epsA'.  Note that we can't
+        // rely on system clocks having a small enough resolution to notice
+        // 'epsA'.  Verify that lagTime is positive.
+
+        int lagTime = X.lagTime();
+        LOOP_ASSERT(lagTime, 0 < lagTime);
+
+        if (verbose) { P_(sleepTime) P(lagTime); }
       }  break;
       case 1: {
         // --------------------------------------------------------------------

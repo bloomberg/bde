@@ -388,16 +388,23 @@ unix-                       _   AR      = $(RETRY_ON_EXIT) ar -ruv
 !! unix-AIX-*-*-CC64        _   AR      = $(RETRY_ON_EXIT) ar -X64 -ruv
 #new flags for 64 bits
 
+unix-Linux-*-*-*         shr SHR_SONAME_ARGS = -Wl,-soname,$(SONAME)
+unix-HP-UX-*-*-*         shr SHR_SONAME_ARGS = +h $(SONAME)
+unix-SunOS-*-*-*         shr SHR_SONAME_ARGS = -h $(SONAME)
+*                        shr SHR_SONAME_SET  = $(if $(SONAME),$(SHR_SONAME_ARGS))
+
+*                        shr SHR_SHLIB_DEPS  =
+
 !! unix-AIX-*-*-xlc         64  AR      = $(RETRY_ON_EXIT) ar -X64 -ruv
 #done
-!! unix-                    shr AR      = $(CXX) -G -o
+!! unix-                    shr AR      = $(CXX) -G $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS) -o
 
 unix-AIX-*-*-*-*           _   XLC_SPECIAL_BBINDER_FLAGS   = -bweaklocal -bbigtoc
 !! unix-AIX-*-*-xlc-9.0    _   XLC_SPECIAL_BBINDER_FLAGS   = -bbinder:$(XLC_PATCHED_LD_LOCATION)/exe/bind64 -bweaklocal -bbigtoc
 
-!! unix-AIX-*-*-*           shr AR      = $(CXX) -G $(XLC_SPECIAL_BBINDER_FLAGS) -o
-!! unix-*-*-*-gcc           shr AR      = $(CXX) -shared -o
-!! unix-HP_UX-*-*-*         shr AR      = $(CXX) -b +nostl -o
+!! unix-AIX-*-*-*           shr AR      = $(CXX) -G $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS) $(XLC_SPECIAL_BBINDER_FLAGS) -o
+!! unix-*-*-*-gcc           shr AR      = $(CXX) -shared $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS) -o
+!! unix-HP_UX-*-*-*         shr AR      = $(CXX) -b +nostl $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS) -o
 
 !! unix-*-*-*-gcc-3.4.6     _   GCC_VER = 3.4.6
 !! unix-*-*-*-gcc-4.1.2     _   GCC_VER = 4.1.2
@@ -410,10 +417,10 @@ unix-AIX-*-*-*-*           _   XLC_SPECIAL_BBINDER_FLAGS   = -bweaklocal -bbigto
 !! unix-*-*-*-gcc-4.5.2     _   GCC_VER = 4.5.2
 !! unix-*-*-*-gcc-4.6.1     _   GCC_VER = 4.6.1
 
-!! unix-SunOS-*-*-gcc       shr AR      = $(RETRY_ON_EXIT) /bbs/opt/bin/gcc -shared -o
-!! unix-SunOS-*-*-gcc-4.*   shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-$(GCC_VER)/bin/g++ -shared -o
-!! unix-AIX-*-*-gcc         shr AR      = $(RETRY_ON_EXIT) /bbs/opt/bin/gcc -shared -o
-!! unix-AIX-*-*-gcc-4.*     shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-$(GCC_VER)/bin/g++ -shared -o
+!! unix-SunOS-*-*-gcc       shr AR      = $(RETRY_ON_EXIT) /bbs/opt/bin/gcc -shared $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS) -o
+!! unix-SunOS-*-*-gcc-4.*   shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-$(GCC_VER)/bin/g++ -shared $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS)  -o
+!! unix-AIX-*-*-gcc         shr AR      = $(RETRY_ON_EXIT) /bbs/opt/bin/gcc -shared $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS) -o
+!! unix-AIX-*-*-gcc-4.*     shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-$(GCC_VER)/bin/g++ -shared $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS) -o
 
 windows-                    _   AR      = $(RETRY_ON_EXIT) lib /nologo
 
@@ -425,7 +432,7 @@ windows-            _   AR_PACKAGE      = $(AR) /out:"$@"
 unix-           _   SERIALIZE   = $(BDE_BINDIR)serialize -l$(TMPDIR) -im $(LIB_EXT)$$
 
 unix-               _   AR_INSTALL      = $(SERIALIZE) $(AR) $@
-windows-                _       AR_INSTALL      = $(RETRY_ON_EXIT) perl -e "unshift @ARGV,'$@' if -f '$@'; system('lib','/NOLOGO','/OUT:$@',@ARGV)" --
+windows-                _       AR_INSTALL      = $(RETRY_ON_EXIT) perl -e "unshift @ARGV,'$@' if -f '$@'; system('lib','/OUT:$@',@ARGV)" --
 !! windows      shr AR_INSTALL  = $(AR) /out:"$@"
 
 #old flags
@@ -468,7 +475,8 @@ windows-        shr BDE_DCL_EXPORT  = " "
 !! unix-HP_UX-*-*-* _   DEF_CXXFLAGS    = -AA -z +W749 +Ovolatile=__unordered -Wc,--ignore_fptr_lang_linkage -D_SYS_SYSMACROS_INCLUDED -D__STDC_LIMIT_MACROS -D_HP_SOURCE -Wc,--no_nonconst_ref_anachronism
 
 # IMPORTANT: use of stat and utime to preserve timestamps on the processed file!
-!! windows-     _   PROCESS_INC = perl -e "$$d=pop(@ARGV); $$o=$$d; $$/=undef; while ($$i=shift @ARGV) { $$mtime=((stat $$i)[9]); open I,$$i; if (-d $$d) { $$i=~m|([\w.]+)$$| and $$o=$$d.'\\'.$$1 }; open O,'>'.$$o; $$c=<I>; $$c=~s/^    static ([^({;]+;)$$/    ::GROUP::_DCL static $$1/mg; print O $$c; close I; close O; utime $$mtime,$$mtime,$$o; }; print \"\tpreprocessed to $$d\n\"" --
+!! windows-     _   PROCESS_INC = perl -e "$$d=pop(@ARGV); $$o=$$d; $$/=undef; while ($$i=shift @ARGV) { $$mtime=((stat $$i)[9]); open I,$$i; if (-d $$d) { $$i=~m|([\w.]+)$$| and $$o=$$d.'/'.$$1 }; open O,'>'.$$o; $$c=<I>; $$c=~s/^    static ([^({;]+;)$$/    ::GROUP::_DCL static $$1/mg; print O $$c; close I; close O; utime $$mtime,$$mtime,$$o; }; print \"\tpreprocessed to $$d\n\"" --
+
 *           _   PROCESS_IMP     = $(CP)
 !! windows-     _   PROCESS_IMP = $(F2FCP)
 
@@ -534,6 +542,10 @@ unix-AIX-*-*-*      _   ENABLE_TLS      =
 
 !! unix-SunOS       _   F77_HASFLAG = -xhasi=yes
 !! unix-SunOS       _   DEF_F77FLAGS    = -u -vax=bslash -vax=param -Nq2000 -Qoption f77pass1 $(F77_HASFLAG)
+
+# DRQS 29544311 - some .so's linking against BCE and BAE fail unless the sources are built
+# with -xthreadvar=dynamic
+unix-SunOS-*-*-cc   mt  DEF_CXXFLAGS    = -xthreadvar=dynamic
 
 # For MSVC compiler, disable warning 4661 which warns of functions with no
 # bodies (e.g. private copy constructors) in explicitly instantiated class
@@ -734,11 +746,14 @@ windows         dbg DBG_LIBSUFFIX   = d
 # Safe builds
 
 # Prevent ambiguity for operators in safe mode:
-!! unix-HP_UX-*-*-*     mt  MT_LDFLAGS      = -lpthread
 !! *                       safe    SAFE_CXXFLAGS   = -D_STLP_EXTRA_OPERATORS_FOR_DEBUG=1
 !! windows                 safe    SAFE_CXXFLAGS   = /D"_STLP_EXTRA_OPERATORS_FOR_DEBUG"
 !! *                       safe2   SAFE_CXXFLAGS   = -D_STLP_EXTRA_OPERATORS_FOR_DEBUG=1
 !! windows                 safe2   SAFE_CXXFLAGS   = /D"_STLP_EXTRA_OPERATORS_FOR_DEBUG"
+
+# Prevent transitive includes in safe mode (DRQS 30168600):
+*                          safe    SAFE_CXXFLAGS   = $(SWITCHCHAR)DBDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+*                          safe2   SAFE_CXXFLAGS   = $(SWITCHCHAR)DBDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #===
 
@@ -853,7 +868,7 @@ windows         _   MT_LIBTYPE  = L
 !! unix-*-*-*-gcc       mt  MT_LDFLAGS  = -lthread
 !! unix-SunOS-*-*-gcc   mt  MT_LDFLAGS  = -lthread
 !! unix-AIX-*-*-gcc     mt  MT_LDFLAGS  = -lpthread
-!! unix-HP_UX-*-*-gcc   mt  MT_LDFLAGS  = -lpthread
+!! unix-HP_UX-*-*-*     mt  MT_LDFLAGS  = -lpthread
 !! unix-Linux-*-*-*     mt  MT_LDFLAGS  = -lpthread
 !! unix-FreeBSD-*-*-*   mt  MT_LDFLAGS  = -lpthread
 !! unix-Cygwin-*-*-*    mt  MT_LDFLAGS  = -lpthread
@@ -930,6 +945,9 @@ unix-SunOS-sparc-*-cc      pic  BDE_CXXFLAGS   = -xcode=pic32
 # default implementation of the Standard Library
 unix-SunOS-*-*-cc       stlport     BDE_CXXFLAGS    = -library=stlport4 -template=no%extdef
 unix-SunOS-*-*-cc       stlport     BDE_LDFLAGS     = -library=stlport4
+
+# DRQS 29644737 - disable BSLS_IDENT to save space in bigs
+*                   _   BDE_CXXFLAGS = $(SWITCHCHAR)DBSLS_IDENT_OFF
 
 #old flags
 unix-AIX-*-*-CC64   _   CC64FLAGS   = -q64

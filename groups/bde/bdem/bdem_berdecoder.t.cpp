@@ -10694,6 +10694,40 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) bsl::cout << "\nTesting with empty array and"
+                               << " 'encodeEmptyArrays' option set to 'false'"
+                               << bsl::endl;
+        {
+            bdem_BerEncoderOptions options;
+            options.setEncodeEmptyArrays(false);
+
+            bdesb_MemOutStreamBuf osb;
+            
+            test::MySequenceWithArray valueOut;
+            valueOut.attribute1() = 34;
+
+            bdem_BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, valueOut));
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+
+            test::MySequenceWithArray valueIn;
+            valueIn.attribute2().push_back("This");
+            valueIn.attribute2().push_back("is");
+            valueIn.attribute2().push_back("a");
+            valueIn.attribute2().push_back("test.");
+
+            ASSERT(valueOut != valueIn);
+            bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+            ASSERT(0 == decoder.decode(&isb, &valueIn));
+            printDiagnostic(decoder);
+
+            ASSERT(valueOut == valueIn);
+        }
+
         if (verbose) bsl::cout << "\nTesting with non-empty array."
                                << bsl::endl;
         {
