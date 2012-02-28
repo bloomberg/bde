@@ -180,11 +180,12 @@ struct bdepu_Iso8601 {
         // function, 'YYYY', 'MM', and 'DD' are strings representing positive
         // integers, '-' is literally a dash character, 'YYYY' is 4 chars long,
         // and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be in the
-        // range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12], and
-        // 'DD' must be in the range [ 01, 31 ], where 'YYYY-MM-DD' represents
-        // a valid date..  Return 0 on success, and non-zero otherwise.  Do not
-        // modify 'result' on failure.  Note that if 'inputLength' is longer
-        // than necessary, extra trailing characters are ignored.
+        // range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ], and
+        // 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
+        // represents a valid date.  Do not modify 'result' on failure.  Return
+        // 0 on success, and a non-zero value otherwise.  Note that if
+        // 'inputLength' is longer than necessary, extra trailing characters
+        // are ignored.
 
     static int parse(bdet_Datetime *result,
                      const char    *input,
@@ -196,19 +197,21 @@ struct bdepu_Iso8601 {
         // representing positive integers, '-' is literally a dash character,
         // 'YYYY' is 4 chars long, and 'MM' and 'DD' are both 2 chars long.
         // 'YYYY' must be in the range '[ 0001, 9999 ]', 'MM' must be in the
-        // range [ 01, 12], and 'DD' must be in the range [ 01, 31 ], where
-        // 'YYYY-MM-DD' represents a valid date.  'T' literally represents the
-        // 'T' character.  In the "hh:mm:ss[.d+]" format, 'hh', 'mm', 'ss' are
-        // all 2 digit integers (left padded with 0's if necessary) denoting
-        // hours, minutes, and seconds, ':' is literally a colon character, and
-        // [.d+] is the optional fraction of a second, consisting of a '.'
-        // followed by one or more decimal digits.  'hh' must be in the range
-        // '[ 00, 24 )', 'mm' must be in the range '[ 00, 60 )', and 'ss' must
-        // be in the range '[ 00, 60 )'.  If '[.d+]' contains more than 3
-        // digits, the value will be rounded to the nearest value in
-        // milliseconds, possibly resulting in time being rounded up a full
-        // second.  Return 0 on success, and non-zero otherwise.  Do not modify
-        // 'result' on failure.
+        // range [ 01, 12 ], and 'DD' must be in the range [ 01, 31 ], such
+        // that 'YYYY-MM-DD' represents a valid date.  'T' literally represents
+        // the 'T' character.  In the "hh:mm:ss[.d+]" format, 'hh', 'mm', 'ss'
+        // are all 2 digit integers (left padded with 0's if necessary)
+        // denoting hours, minutes, and seconds, ':' is literally a colon
+        // character, and [.d+] is the optional fraction of a second,
+        // consisting of a '.' followed by one or more decimal digits.  'hh'
+        // must be in the range '[ 00, 24 )', 'mm' must be in the range
+        // '[ 00, 60 )', and 'ss' must be in the range '[ 00, 60 )'.  If
+        // '[.d+]' contains more than 3 digits, the value will be rounded to
+        // the nearest value in milliseconds, possibly resulting in time being
+        // rounded up a full second.  Do not modify 'result' on failure.
+        // Return 0 on success, and a non-zero value otherwise.  Note that if
+        // 'inputLength' is longer than necessary, extra trailing characters
+        // are ignored.
 
     static int parse(bdet_DatetimeTz *result,
                      const char      *input,
@@ -220,11 +223,11 @@ struct bdepu_Iso8601 {
         // function, 'YYYY', 'MM', and 'DD' are strings representing positive
         // integers, '-' is literally a dash character, 'YYYY' is 4 chars long,
         // and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be in the
-        // range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12], and
-        // 'DD' must be in the range [ 01, 31 ], where 'YYYY-MM-DD' must
-        // represent a valid date.  'T' literally represents the 'T' character.
-        // In the "hh:mm:ss[.d+]" format, 'hh', 'mm', 'ss' are all 2 digit
-        // integers (left padded with 0's if necessary) denoting hours,
+        // range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ], and
+        // 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
+        // represents a valid date.  'T' literally represents the 'T'
+        // character.  In the "hh:mm:ss[.d+]" format, 'hh', 'mm', 'ss' are all
+        // 2 digit integers (left padded with 0's if necessary) denoting hours,
         // minutes, and seconds, ':' is literally a colon character, and [.d+]
         // is the optional fraction of a second, consisting of a '.' followed
         // by one or more decimal digits.  If '[.d+]' contains more than 3
@@ -237,8 +240,8 @@ struct bdepu_Iso8601 {
         // integers (left padded with '0's if necessary).  'hh' must be in the
         // range '[ 00, 24 )' and 'mm' must be in the range '[ 00, 60 )'.  An
         // alternate form of representing the time zone is 'Z' or 'z',
-        // signifying a zero offset.  Return 0 on success, and non-zero
-        // otherwise.  Do not modify 'result' on failure.  Note that if
+        // signifying a zero offset.  Do not modify 'result' on failure.
+        // Return 0 on success, and a non-zero value otherwise.  Note that if
         // 'inputLength' is longer than necessary, extra trailing characters
         // are ignored.
 
@@ -251,16 +254,16 @@ struct bdepu_Iso8601 {
         // by this function, 'YYYY', 'MM', and 'DD' are strings representing
         // positive integers, '-' is literally a dash character, 'YYYY' is 4
         // chars long, and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be
-        // in the range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12],
-        // and 'DD' must be in the range [ 01, 31 ], where 'YYYY-MM-DD'
+        // in the range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ],
+        // and 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
         // represents a valid date.  The time zone information is optional but
         // if it is provided then in the "Shh:mm" format accepted by this
         // function, 'S' is either '+' or '-', 'hh' and 'mm' are 2 digit
         // integers (left padded with '0's if necessary).  'hh' must be in the
         // range '[ 00, 24 )' and 'mm' must be in the range '[ 00, 60 )'.  An
         // alternate form of the representation for the time zone is 'Z' or
-        // 'z', signifying a zero offset.  Return 0 on success, and non-zero
-        // otherwise.  Do not modify 'result' on failure.  Note that if
+        // 'z', signifying a zero offset.  Do not modify 'result' on failure.
+        // Return 0 on success, and a non-zero value otherwise.  Note that if
         // 'inputLength' is longer than necessary, extra trailing characters
         // are ignored.
 
@@ -278,35 +281,34 @@ struct bdepu_Iso8601 {
         // be in the range '[ 00, 60 )', and 'ss' must be in the range
         // '[ 00, 60 )'.  If '[.d+]' contains more than 3 digits, the value
         // will be rounded to the nearest value in milliseconds, possibly
-        // rounding 'result' up a full second.  Return 0 on success, and
-        // non-zero otherwise.  Do not modify 'result' on failure.  Note that
+        // rounding 'result' up a full second.  Do not modify 'result' on
+        // failure.  Return 0 on success, and a non-zero otherwise.  Note that
         // if 'inputLength' is longer than necessary, extra trailing characters
         // are ignored.
 
     static int parse(bdet_TimeTz *result,
                      const char  *input,
                      int          inputLength);
-        // Parse a time, represented in the
-        // "hh:mm:ss[.d+][Shh:mm|Z|z]" format, from the
-        // specified 'input' of the specified 'inputLength' and load it into
-        // the specified 'result'.  In the "hh:mm:ss[.d+]" format accepted by
-        // this function, 'hh', 'mm', 'ss' are all 2 digit integers (left
-        // padded with 0's if necessary) denoting hours, minutes, and seconds,
-        // ':' is literally a colon character, and [.d+] is the optional
-        // fraction of a second, consisting of a '.' followed by one or more
-        // decimal digits.  'hh' must be in the range '[ 00, 24 )', 'mm' must
-        // be in the range '[ 00, 60 )', and 'ss' must be in the range
-        // '[ 00, 60 )'.  If '[.d+]' contains more than 3 digits, the value
-        // will be rounded to the nearest value in milliseconds, possibly
+        // Parse a time, represented in the "hh:mm:ss[.d+][Shh:mm|Z|z]" format,
+        // from the specified 'input' of the specified 'inputLength' and load
+        // it into the specified 'result'.  In the "hh:mm:ss[.d+]" format
+        // accepted by this function, 'hh', 'mm', 'ss' are all 2 digit integers
+        // (left padded with 0's if necessary) denoting hours, minutes, and
+        // seconds, ':' is literally a colon character, and [.d+] is the
+        // optional fraction of a second, consisting of a '.' followed by one
+        // or more decimal digits.  'hh' must be in the range '[ 00, 24 )',
+        // 'mm' must be in the range '[ 00, 60 )', and 'ss' must be in the
+        // range '[ 00, 60 )'.  If '[.d+]' contains more than 3 digits, the
+        // value will be rounded to the nearest value in milliseconds, possibly
         // rounding the result up a full second.  The time zone information is
         // optional but if it is provided then in the "Shh:mm" format accepted
         // by this function, 'S' is either '+' or '-', 'hh' and 'mm' are 2
         // digit integers (left padded with '0's if necessary).  'hh' must be
         // in the range '[ 00, 24 )' and 'mm' must be in the range '[ 0, 60 )'.
         // An alternate form of the representation for the time zone is 'Z' or
-        // 'z', signifying a zero offset.  Return 0 on success, and non-zero
-        // otherwise.  Do not modify 'result' on failure.  Note that
-        // if 'inputLength' is longer than necessary, extra trailing characters
+        // 'z', signifying a zero offset.  Do not modify 'result' on failure.
+        // Return 0 on success, and a non-zero value otherwise.  Note that if
+        // 'inputLength' is longer than necessary, extra trailing characters
         // are ignored.
 };
 
