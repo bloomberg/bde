@@ -76,6 +76,17 @@ typedef bcemt_ThreadUtil    Obj;
 int verbose;
 int veryVerbose;
 
+//=============================================================================
+//                  GLOBAL FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+bsls_Types::IntPtr intPtrAbs(bsls_Types::IntPtr a)
+{
+    return a >= 0 ? a : -a;
+}
+
+//=============================================================================
+
 namespace {
     // unnamed namespace for local resources
 
@@ -114,10 +125,11 @@ extern "C" void *myThreadFunction(void *)
     // Print to standard output "Another second has passed"
     // every second for five seconds.
 {
-    for(int i = 0; i < 5; ++i) {
-        bcemt_ThreadUtil::microSleep(1000);  // 1 msec used for efficiency
-        if (verbose) bsl::cout << "Another millisecond has passed\n";
+    for(int i = 0; i < 3; ++i) {
+        bcemt_ThreadUtil::microSleep(0, 1);
+        if (verbose) bsl::cout << "Another second has passed\n";
     }
+
     return 0;
 }
 
@@ -184,10 +196,83 @@ struct LeastUrgentThreadFunctor {
 }  // close namespace MULTIPRIORITY_USAGE_TEST_CASE
 
 //-----------------------------------------------------------------------------
-//                                    TEST CASE 7
+//                          CONFIGURATION TEST CASE
 //-----------------------------------------------------------------------------
 
-namespace TEST_CASE_7 {
+namespace BCEMT_CONFIGURATION_TEST_NAMESPACE {
+
+struct Func {
+    int         d_stackToUse;
+    char       *d_lastBuf;
+    static bool s_success;
+
+    void recurser(char *base);
+        // Recurse to create depth on stack
+
+    void operator()();
+        // Initialize, then call recurser, then set 'd_success'
+};
+bool Func::s_success;
+
+void Func::recurser(char *base)
+    // Consume greater than 'd_stackToUse' of stack depth
+{
+    char buf[5 * 1000];
+
+    ASSERT(buf != d_lastBuf);    // make sure optimizer didn't remove recursion
+    d_lastBuf = buf;
+
+    char garbage = 0xa3;
+    for (char *pc = buf; pc < buf + sizeof(buf); ++pc) {
+        *pc = (garbage += 9);
+    }
+
+    if   (intPtrAbs(buf - base) < d_stackToUse
+       && intPtrAbs(buf + sizeof(buf) - base) < d_stackToUse) {
+        recurser(base);
+    }
+
+    garbage = 0xa3;
+    for (char *pc = buf; pc < buf + sizeof(buf); ++pc) {
+        ASSERT(*pc == (garbage += 9));
+    }
+}
+
+void Func::operator()()
+{
+    if (verbose) P(d_stackToUse);
+
+    d_lastBuf = 0;
+    char base;
+    recurser(&base);
+
+    s_success = true;
+}
+
+}  // close namespace BCEMT_CONFIGURATION_TEST_NAMESPACE
+
+
+extern "C"
+void *configurationTestFunction(void *stackToUse)
+{
+    BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
+
+    func.d_stackToUse = (int) (bsls_Types::IntPtr) stackToUse;
+    func.s_success   = false;
+
+    func();
+
+    ASSERT(func.d_stackToUse == (int) (bsls_Types::IntPtr) stackToUse);
+    ASSERT(func.s_success);
+
+    return 0;
+}
+
+//-----------------------------------------------------------------------------
+//                             STACKSIZE TEST CASE
+//-----------------------------------------------------------------------------
+
+namespace STACKSIZE_TEST_CASE_NAMESPACE {
 
 template <int BUFFER_SIZE>
 struct Func {
@@ -196,11 +281,31 @@ struct Func {
         char buffer[BUFFER_SIZE == 0 ? 1 : BUFFER_SIZE];
         static char *pc;
 
-        for (pc = buffer; pc < buffer + BUFFER_SIZE; ++pc) {
-            *pc = (char) 0xa3;    // assign garbage
+        char garbage = 0xa3;
+        for (pc = buffer; pc < buffer + BUFFER_SIZE; ++pc, garbage += 9) {
+            *pc = garbage;
         }
     }
+
+    static
+    void staticFunc()
+    {
+        Func func;
+        func();
+    }
 };
+
+typedef void (*CppFuncPtr)();
+
+extern "C"
+void *callCppFunction(void *function)
+{
+    CppFuncPtr funcPtr = (CppFuncPtr) function;
+
+    (*funcPtr)();
+
+    return 0;
+}
 
 template <int BUFFER_SIZE>
 void testStackSize()
@@ -223,6 +328,7 @@ void testStackSize()
     attr.setGuardSize(0);
 
     Obj::Handle handle;
+
     int cRc = Obj::create(&handle, attr, Func<BUFFER_SIZE>());
     LOOP_ASSERT(BUFFER_SIZE, 0 == cRc);
     int jRc = 0;
@@ -235,9 +341,25 @@ void testStackSize()
         cout << "testStackSize<" << BUFFER_SIZE << ">() " <<
                                     ((cRc | jRc) ? "failed\n" : "succeeded\n");
     }
+
+    cRc = Obj::create(&handle,
+                      attr,
+                      &callCppFunction,
+                      (void *) &Func<BUFFER_SIZE>::staticFunc);
+    LOOP_ASSERT(BUFFER_SIZE, 0 == cRc);
+    jRc = 0;
+    if (0 == cRc) {
+        jRc = Obj::join(handle);
+        ASSERT(0 == jRc);
+    }
+
+    if (verbose) {
+        cout << "testStackSize<" << BUFFER_SIZE << ">::staticFunc() " <<
+                                    ((cRc | jRc) ? "failed\n" : "succeeded\n");
+    }
 }
 
-}  // close namespace TEST_CASE_7
+}  // close namespace STACKSIZE_TEST_CASE_NAMESPACE
 
 //-----------------------------------------------------------------------------
 //                                    TEST CASE 6
@@ -536,9 +658,9 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 9: {
+      case 11: {
         // --------------------------------------------------------------------
-        // MULTIPLE PRIORITY THREADS
+        // Usgae Example 3: MULTIPLE PRIORITY THREADS
         //
         // Concern:
         //   Need to demonstrate setting priorities for threads.  Note that we
@@ -593,7 +715,92 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
         }
       }  break;
-      case 8: {
+      case 10: {
+        // --------------------------------------------------------------------
+        // BCEMT_CONFIGURATION TEST
+        //
+        // Concern:
+        //   That bcemt_Configuration can really affect stack size.
+        //
+        // Plan:
+        //   Configure a stack size several times the native default, then
+        //   verify the stack is at least about that size.  If the stack is
+        //   only about the native size, we should get a stack overflow.
+        // --------------------------------------------------------------------
+
+        const int stackSize =
+                       5 * bcemt_Configuration::nativeDefaultThreadStackSize();
+        const int stackToUse =
+                       4 * bcemt_Configuration::nativeDefaultThreadStackSize();
+        bcemt_Configuration::setDefaultThreadStackSize(stackSize);
+
+        bcemt_ThreadUtil::Handle handle;
+
+        if (verbose) Q(Test functor with no attributes);
+        {
+            BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
+
+            func.d_stackToUse = stackToUse;
+            func.s_success    = false;
+
+            ASSERT(func.d_stackToUse >
+                      3 * bcemt_Configuration::nativeDefaultThreadStackSize());
+
+            int rc = bcemt_ThreadUtil::create(&handle, func);
+            ASSERT(0 == rc);
+
+            rc = bcemt_ThreadUtil::join(handle);
+            ASSERT(0 == rc);
+
+            ASSERT(func.s_success);
+            ASSERT(func.d_stackToUse == stackToUse);
+        }
+
+        if (verbose) Q(Test functor with default attributes);
+        {
+            BCEMT_CONFIGURATION_TEST_NAMESPACE::Func func;
+
+            func.d_stackToUse = stackToUse;
+            func.s_success    = false;
+
+            bcemt_ThreadAttributes attr;
+            int rc = bcemt_ThreadUtil::create(&handle, attr, func);
+            ASSERT(0 == rc);
+
+            rc = bcemt_ThreadUtil::join(handle);
+            ASSERT(0 == rc);
+
+            ASSERT(func.s_success);
+            ASSERT(func.d_stackToUse == stackToUse);
+        }
+
+        if (verbose) Q(Test C function with no attributes);
+        {
+            int rc = bcemt_ThreadUtil::create(
+                                     &handle,
+                                     &configurationTestFunction,
+                                     (void *) (bsls_Types::IntPtr) stackToUse);
+            ASSERT(0 == rc);
+
+            rc = bcemt_ThreadUtil::join(handle);
+            ASSERT(0 == rc);
+        }
+
+        if (verbose) Q(Test C function with default attributes object);
+        {
+            bcemt_ThreadAttributes attr;
+            int rc = bcemt_ThreadUtil::create(
+                                     &handle,
+                                     attr,
+                                     &configurationTestFunction,
+                                     (void *) (bsls_Types::IntPtr) stackToUse);
+            ASSERT(0 == rc);
+
+            rc = bcemt_ThreadUtil::join(handle);
+            ASSERT(0 == rc);
+        }
+      }  break;
+      case 9: {
         // --------------------------------------------------------------------
         // CONVERTTOSCHEDULINGPRIORITY
         //
@@ -649,7 +856,7 @@ int main(int argc, char *argv[])
             }
         }
       }  break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // STACK SIZE
         //
@@ -666,7 +873,7 @@ int main(int argc, char *argv[])
         //   it will just abuse the heap but not result in a crash.
         // --------------------------------------------------------------------
 
-        namespace TC = TEST_CASE_7;
+        namespace TC = STACKSIZE_TEST_CASE_NAMESPACE;
 
         enum { K = 1024 };
 
@@ -751,7 +958,7 @@ int main(int argc, char *argv[])
         TC::testStackSize<16384 * K>();
         TC::testStackSize<16385 * K>();
       }  break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // DELETEKEY, THREAD-SPECIFICITY OF DATA TEST ON TLS
         //
@@ -809,7 +1016,7 @@ int main(int argc, char *argv[])
         // check 'parentKey2; is unaffected
         ASSERT((void *) 2 == Obj::getSpecific(TC::parentKey2));
       }  break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING CREATEKEY, SETSPECIFIC, AND GETSPECIFIC
         //
@@ -873,7 +1080,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == Obj::getSpecific(TC::childKey1));
         ASSERT(0 == Obj::getSpecific(TC::childKey2));
       }  break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING MICROSLEEP
         //
@@ -911,9 +1118,18 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(overshoot, TOLERANCE, overshoot < TOLERANCE);
         }
     }  break;
+    case 4: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE Example 2
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nSmall stack usage example" << endl;
+
+        createSmallStackSizeThread();    // usage example 2
+    }  break;
     case 3: {
         // --------------------------------------------------------------------
-        // TESTING usage examples
+        // TESTING USAGE Example 1
         //
         // Concern: that the usage examples (including those that were
         // previously in the 'bcemt_thread' component) compile and work
@@ -923,16 +1139,20 @@ int main(int argc, char *argv[])
         // BASIC EXAMPLE
         if (verbose) cout << "\nBasic thread utilities example" << endl;
 
-        bcemt_ThreadAttributes attributes;
+        bcemt_Configuration::setDefaultThreadStackSize(
+                     bcemt_Configuration::recommendedDefaultThreadStackSize());
+
+        bcemt_ThreadAttributes attr;
+        attr.setStackSize(1024 * 1024);
+
         bcemt_ThreadUtil::Handle handle;
-        bcemt_ThreadUtil::create(&handle, attributes, myThreadFunction, 0);
+        int rc = bcemt_ThreadUtil::create(&handle, attr, myThreadFunction, 0);
+        ASSERT(0 == rc);
         bcemt_ThreadUtil::yield();
-        bcemt_ThreadUtil::join(handle);
-        if (verbose) bsl::cout << "A five second interval has elapsed\n";
+        rc = bcemt_ThreadUtil::join(handle);
+        ASSERT(0 == rc);
 
-        if (verbose) cout << "\nSmall stack example" << endl;
-
-        createSmallStackSizeThread();
+        if (verbose) bsl::cout << "A three second interval has elapsed\n";
     }  break;
     case 2: {
         // --------------------------------------------------------------------
@@ -1109,7 +1329,13 @@ int main(int argc, char *argv[])
         }
 
         bcemt_ThreadUtil::Handle handle;
-        bcemt_ThreadUtil::create(&handle, attr, &testCaseMinus1ThreadMain, 0);
+        if (stackSizeString) {
+            bcemt_ThreadUtil::create(&handle, attr, &testCaseMinus1ThreadMain,
+                                     0);
+        }
+        else {
+            bcemt_ThreadUtil::create(&handle, &testCaseMinus1ThreadMain, 0);
+        }
 
         bcemt_ThreadUtil::join(handle);
       }  break;
