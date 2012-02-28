@@ -1590,6 +1590,7 @@ int main(int argc, char *argv[])
             mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
             ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
 
+            multiplexObserver.deregisterObserver(&mX);
 // TBD
 #if 0
             ASSERT(0 == X.maxLogFiles());
@@ -1634,6 +1635,7 @@ int main(int argc, char *argv[])
             mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
             ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
 
+            multiplexObserver.deregisterObserver(&mX);
 // TBD
 #if 0
             ASSERT(0 == X.maxLogFiles());
@@ -1678,6 +1680,7 @@ int main(int argc, char *argv[])
             mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
             ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
 
+            multiplexObserver.deregisterObserver(&mX);
 // TBD
 #if 0
             ASSERT(0 == X.maxLogFiles());
