@@ -29,7 +29,7 @@ void bael_MultiplexObserver::publish(const bael_Record&  record,
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_rwMutex);
 
     // Print warning once that this publish method is deprecated.
-    
+
     static bool needWarning = true;
     if (needWarning) {
         bsl::cerr << "*******************************************************"

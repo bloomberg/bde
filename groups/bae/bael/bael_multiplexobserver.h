@@ -204,7 +204,7 @@ class bael_MultiplexObserver : public bael_Observer {
         // This implementation processes 'releaseRecords' by calling
         // 'releaseRecords' on each of the registered observers.  Note that
         // this operation should be called if resources underlying the
-        // previously provided shared-pointers must be released. 
+        // previously provided shared-pointers must be released.
 
     int registerObserver(bael_Observer *observer);
         // Add the specified 'observer' to the registry of this multiplexing

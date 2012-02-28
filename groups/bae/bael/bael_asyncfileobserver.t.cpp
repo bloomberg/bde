@@ -1174,7 +1174,8 @@ int main(int argc, char *argv[])
                 // Throw some logs into the queue
 
                 for (int i = 0;i < logCount;++i)
-                    BAEL_LOG_WARN <<  "Some will not be logged" << BAEL_LOG_END;
+                    BAEL_LOG_WARN <<  "Some will not be logged"
+                                  << BAEL_LOG_END;
 
                 // After this code block the logger manager will be destroyed
             }

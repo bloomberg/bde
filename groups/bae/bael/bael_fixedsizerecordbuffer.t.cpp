@@ -1390,7 +1390,7 @@ int main(int argc, char *argv[])
             cout << "\tinvoking 'back' on a buffer with one record"
                  << endl;
         ASSERT(*rb.back() == *R1);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R1==>\n\t\t" << *R1 << endl;
 
@@ -1398,7 +1398,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\tinvoking 'back' on a buffer with two record" << endl;
         ASSERT(*rb.back() == *R2);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R2==>\n\t\t" << *R2 << endl;
 
@@ -1407,7 +1407,7 @@ int main(int argc, char *argv[])
             cout << "\tinvoking 'back' on a buffer with three record"
                  << endl;
         ASSERT(*rb.back() == *R3);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R3==>\n\t\t" << *R3 << endl;
 
@@ -1682,7 +1682,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 1);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R2);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R2==>\n\t\t" << *R2 << endl;
 
@@ -1698,7 +1698,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 2);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R5);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R5==>\n\t\t" << *R5 << endl;
       } break;
@@ -1818,7 +1818,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 1);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R1);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      <<  "\t*R1==>\n\t\t" << *R1 << endl;
 
@@ -1833,7 +1833,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 2);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R3);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      <<  "\t*R3==>\n\t\t" << *R3 << endl;
 
@@ -1841,7 +1841,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 1);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R2);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R2==>\n\t\t" << *R2 << endl;
 
@@ -1857,7 +1857,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 3);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R6);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R6==>\n\t\t" << *R6 << endl;
 
@@ -1865,7 +1865,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 2);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R5);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R5==>\n\t\t" << *R5 << endl;
 
@@ -1873,7 +1873,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 1);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R4);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R4==>\n\t\t" << *R4 << endl;
 
@@ -1998,7 +1998,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 3);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R3);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R3==>\n\t\t" << *R3 << endl;
 
@@ -2007,7 +2007,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 2);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R2);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R2==>\n\t\t" << *R2 << endl;
 
@@ -2016,7 +2016,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 1);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R1);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      << "\t*R1==>\n\t\t" << *R1 << endl;
 
@@ -2039,7 +2039,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 3);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R6);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      <<  "\t*R6==>\n\t\t" << *R6 << endl;
 
@@ -2048,7 +2048,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 2);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R5);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      <<  "\t*R5==>\n\t\t" << *R5 << endl;
 
@@ -2057,7 +2057,7 @@ int main(int argc, char *argv[])
         LOOP_ASSERT(rb.length(), rb.length() == 1);
         if (veryVerbose) cout << "\trb.length() = " << rb.length() << endl;
         ASSERT(*rb.back() == *R4);
-        if (veryVerbose) 
+        if (veryVerbose)
                 cout << "\t*rb.back()==>\n\t\t" << *rb.back() << "\n\n"
                      <<  "\t*R4==>\n\t\t" << *R4 << endl;
 
