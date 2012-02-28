@@ -320,7 +320,7 @@ class bteso_DefaultEventManager<bteso_Platform::POLLSET>
 
     int                          d_fdCount;      // Number of file descriptors
                                                  // tracked by this event
-                                                 // manager
+                                                 // manager.
 
     CallbackMap                  d_callbacks;    // container of registered
                                                  // socket events and

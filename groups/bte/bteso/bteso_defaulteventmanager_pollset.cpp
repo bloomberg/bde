@@ -58,8 +58,9 @@ namespace BloombergLP {
 
 int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatchCallbacks(
                                                          int numSignaled) const
-    // using bitwise '|'s between bools rather than '||' for speed
 {
+    BSLS_ASSERT(numSignaled <= d_fdCount);
+
     int numCallbacks = 0;
 
     const CallbackMap::const_iterator cbEnd = d_callbacks.end();
@@ -71,32 +72,46 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatchCallbacks(
         // READ/ACCEPT.
 
         enum { DEFAULT_MASK = POLLERR | POLLHUP | POLLNVAL };
-        if (currData.revents & (POLLIN | DEFAULT_MASK)) {
-            if      (cbEnd != (cbIt = d_callbacks.find(
-                    bteso_Event(currData.fd, bteso_EventType::BTESO_READ)))) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                 currData.revents & (POLLIN | DEFAULT_MASK))) {
+            if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                     cbEnd != (cbIt = d_callbacks.find(
+                                 bteso_Event(currData.fd, 
+                                             bteso_EventType::BTESO_READ))))) {
                 (cbIt->second)();
                 ++numCallbacks;
             }
-            else if (cbEnd != (cbIt = d_callbacks.find(
-                    bteso_Event(currData.fd, bteso_EventType::BTESO_ACCEPT)))){
-                (cbIt->second)();
-                ++numCallbacks;
+            else {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+                if (cbEnd != (cbIt = d_callbacks.find(
+                                bteso_Event(currData.fd, 
+                                            bteso_EventType::BTESO_ACCEPT)))) {
+                    (cbIt->second)();
+                    ++numCallbacks;
+                }
             }
         }
 
         // WRITE/CONNECT.
 
         if (currData.revents & (POLLOUT | DEFAULT_MASK)) {
-
-            if      (cbEnd != (cbIt = d_callbacks.find(
-                   bteso_Event(currData.fd, bteso_EventType::BTESO_WRITE)))) {
+            if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                     cbEnd != (cbIt = d_callbacks.find(
+                                bteso_Event(currData.fd,
+                                            bteso_EventType::BTESO_WRITE))))) {
                 (cbIt->second)();
                 ++numCallbacks;
             }
-            else if (cbEnd != (cbIt = d_callbacks.find(
-                   bteso_Event(currData.fd, bteso_EventType::BTESO_CONNECT)))){
-                (cbIt->second)();
-                ++numCallbacks;
+            else {
+                BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+                if (cbEnd != (cbIt = d_callbacks.find(
+                               bteso_Event(currData.fd,
+                                           bteso_EventType::BTESO_CONNECT)))) {
+                    (cbIt->second)();
+                    ++numCallbacks;
+                }
             }
         }
     }
@@ -327,7 +342,9 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::registerSocketEvent(
         ctl.cmd = PS_ADD;
 
         ++d_fdCount;
-        d_signaled.resize(d_fdCount);
+        if (d_fdCount > d_signaled.size()) {
+            d_signaled.resize(d_fdCount);
+        }
     }
 
     switch (eventType) {
@@ -358,14 +375,6 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::registerSocketEvent(
         BSLS_ASSERT_SAFE(!eventMask || !d_callbacks.count(
                     bteso_Event(socketHandle, bteso_EventType::BTESO_ACCEPT)));
         eventMask |= POLLOUT;
-
-        //#ifdef BDES_PLATFORM__OS_FREEBSD
-        //bteso_SocketOptUtil::setOption(socketHandle,
-        //                            bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
-        //                            bteso_SocketOptUtil::BTESO_SENDLOWATER,
-        //                            1);
-        //#endif
-
       } break;
       default: {
         BSLS_ASSERT("Invalid event type (must be unreachable by design)" && 0);
@@ -375,7 +384,9 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::registerSocketEvent(
 
     ctl.events = eventMask;
     rc = ::pollset_ctl(d_ps, &ctl, 1);
-    BSLS_ASSERT_OPT(0 == rc && "rc = ::pollset_ctl(d_ps, &ctl, 1);");
+    if (0 != rc) {
+        return -1;                                                    // RETURN
+    }
 
     return 0;
 }
@@ -396,7 +407,11 @@ void bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterSocketEvent(
     ::pollfd queryPollfd;
     queryPollfd.fd = socketHandle;
     rc = ::pollset_query(d_ps, &queryPollfd);
-    BSLS_ASSERT(1 == rc);
+    if (1 != rc) {
+        // perhaps the fd was closed.
+
+        return;
+    }
 
     // Translate the type of event.
 
@@ -424,7 +439,9 @@ void bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterSocketEvent(
     ctl.fd = socketHandle;
 
     rc = ::pollset_ctl(d_ps, &ctl, 1);
-    BSLS_ASSERT(0 == rc);
+    if (0 != rc) {
+        return;
+    }
 
     if (queryPollfd.events) {
         // still some events on this fd, have to add it back
@@ -433,13 +450,16 @@ void bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterSocketEvent(
         ctl.events = queryPollfd.events;
 
         rc = ::pollset_ctl(d_ps, &ctl, 1);
-        BSLS_ASSERT(0 == rc);
+        BSLS_ASSERT(0 == rc);    // if this fails right after the last
+                                 // ::pollset_ctl succeeded, that's just weird
     }
     else {
         --d_fdCount;
 
-        // d_signaled.resize(d_fdCount);  -- no point in this, we just need
-        // to make sure d_signaled.size() >= d_fdCount
+        // It is important not to do 'd_signaled.resize(d_fdCount)', because
+        // we might be within a dispatch event, and the last element(s) of
+        // 'd_signaled' may contain valid events which must be processed by
+        // this call to 'dispatch'.
     }
 }
 

@@ -149,7 +149,7 @@ class bteso_DefaultEventManager : public bteso_EventManager {
     // a given platform.  The generic class (this one) is NOT implemented.  All
     // specialized event managers must adhere to this interface.
     //
-    // Note that 'POLLING_MECHNISM' is specified in the forward declaration in
+    // Note that 'POLLING_MECHANISM' is specified in the forward declaration in
     // 'bteso_defaulteventmanagerimpl.h' to default to
     // 'bteso_Platform::DEFAULT_POLLING_MECHANISM'.
 
