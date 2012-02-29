@@ -1325,7 +1325,7 @@ int main(int argc, char *argv[])
         //   publication thread starts and stops as expected.
         //
         //   Then, we directly call 'publish' method to verify the publication
-        //   is indeed asychronous.  This is done by checking records being
+        //   is indeed asynchronous.  This is done by checking records being
         //   written even after the 'publish' methods are done invoked.
         //
         //   Last, we will set up the observer and check if logged messages are
