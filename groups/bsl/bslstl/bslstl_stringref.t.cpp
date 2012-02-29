@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <iomanip>
 
 #include <stdio.h>       // sprintf()
 #include <stdlib.h>      // atoi()
@@ -402,8 +403,8 @@ int main(int argc, char *argv[])
             { L_,  "111111"                     },
             // Some personal names.  In this case, current and
             // former BDE team members, captured via
-            // cat /etc/passwd| grep -i bde | \
-            //  'BEGIN{FS=":"} {print $5}'  | \
+            // cat /etc/passwd| grep -i bde | \$
+            //  'BEGIN{FS=":"} {print $5}'  | \$
             //   awk '{print $1; print $2; print $1,$2}'|sort -u
             // .
             { L_,  "Case"                       },
@@ -2218,7 +2219,6 @@ int main(int argc, char *argv[])
           const int SIZE = 1000;        // max length of output string
           const char XX = (char) 0xFF;  // value representing an unset 'char'
           char mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
-          const char *CTRL_BUF = mCtrlBuf; // used for extra character check
 
           Obj es(EMPTY_STRING);  const Obj& ES = es;
 
@@ -2276,6 +2276,51 @@ int main(int argc, char *argv[])
           ASSERT(NESSSZ < SIZE);          // Check buffer is large enough.
           ASSERT(nessOut.str() == NESS);
           ASSERT(nessOut.good());
+
+          // test formatting features
+          std::ostringstream fmtOut;
+          fmtOut << std::left << ES;
+          ASSERT(fmtOut.str() == ES);
+
+          fmtOut.str(bsl::string());
+          fmtOut << std::right << ES;
+          ASSERT(fmtOut.str() == ES);
+
+          fmtOut.str(bsl::string());
+          fmtOut << std::left << NES;
+          ASSERT(fmtOut.str() == NES);
+
+          fmtOut.str(bsl::string());
+          fmtOut << std::right << NES;
+          ASSERT(fmtOut.str() == NES);
+
+          fmtOut.str(bsl::string());
+          fmtOut << std::left
+                 << std::setfill('-')
+                 << std::setw(10)
+                 << ES;
+          ASSERT(fmtOut.str() == bsl::string(10, '-'));
+
+          fmtOut.str(bsl::string());
+          fmtOut << std::right
+                 << std::setfill('*')
+                 << std::setw(10)
+                 << ES;
+          ASSERT(fmtOut.str() == bsl::string(10, '*'));
+
+          fmtOut.str(bsl::string());
+          fmtOut << std::left
+                 << std::setfill(' ')
+                 << std::setw(NES.length() + 10)
+                 << NES;
+          ASSERT(fmtOut.str() == NES + bsl::string(10, ' '));
+
+          fmtOut.str(bsl::string());
+          fmtOut << std::right
+                 << std::setfill('?')
+                 << std::setw(NES.length() + 10)
+                 << NES;
+          ASSERT(fmtOut.str() == bsl::string(10, '?') + NES);
         }
       } break;
       case 3: {
@@ -2328,7 +2373,7 @@ int main(int argc, char *argv[])
 
           // NON-EMPTY STRING
           Obj nes(NON_EMPTY_STRING);  const Obj& NES = nes;
-          int LEN = std::strlen(NON_EMPTY_STRING);
+          std::size_t LEN = std::strlen(NON_EMPTY_STRING);
 
           ASSERT(NES.begin()   == NON_EMPTY_STRING);
           ASSERT(NES.data()    == NON_EMPTY_STRING);
