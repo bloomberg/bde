@@ -311,9 +311,9 @@ void executeInParallel(int numThreads, bcemt_ThreadUtil::ThreadFunction func)
 }
 
 //=============================================================================
-//                         CASE 29 RELATED ENTITIES
+//                         CASE 32 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BAEL_LOGGERMANAGER_TEST_CASE_29 {
+namespace BAEL_LOGGERMANAGER_TEST_CASE_32 {
 class Information {
   private:
     bsl::string d_heading;
@@ -367,6 +367,28 @@ void logInformation(bael_Logger *logger,
     os << information;
     logger->logMessage(category, severity, record);
 }
+}  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_32
+
+// ============================================================================
+//                         CASE 29 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+namespace BAEL_LOGGERMANAGER_TEST_CASE_29 {
+class TestDestroyObserver : public bael_Observer {
+    int d_releaseCnt;
+public:
+    explicit TestDestroyObserver() : d_releaseCnt(0)
+    {
+    }
+
+    virtual void releaseRecords()
+    {
+        d_releaseCnt++;
+    }
+    int getReleaseCnt()
+    {
+        return d_releaseCnt;
+    }
+};
 }  // close namespace BAEL_LOGGERMANAGER_TEST_CASE_29
 
 //=============================================================================
@@ -802,7 +824,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #4
         //
@@ -821,7 +843,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Testing Usage Example 4" << endl
                                   << "=======================" << endl;
 
-        using namespace BAEL_LOGGERMANAGER_TEST_CASE_29;
+        using namespace BAEL_LOGGERMANAGER_TEST_CASE_32;
 
         bael_DefaultObserver observer(cout);
         bael_LoggerManagerConfiguration configuration;
@@ -847,7 +869,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #2
         //
@@ -929,7 +951,7 @@ int main(int argc, char *argv[])
         ASSERT(  50 == cat3->triggerAllLevel());
 
       } break;
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #1
         //
@@ -985,6 +1007,43 @@ int main(int argc, char *argv[])
             cout << observer.lastPublishedRecord() << endl;
         }
 
+      } break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING: 'bael_LoggerManager' calls 'bael_Observer::releaseRecords'
+        //          on destruction.
+        //
+        // Concerns:
+        //   We want to demonstrate that a logger manager correctly invokes
+        //   'releaseRecords' of its observer when the logger manager is being
+        //   destroyed.
+        //
+        // Plan:
+        //   Create a 'TestDestroyObserver' which has a count of its
+        //   'releaseRecords' called.  Install the observer to a logger manager
+        //   object with limited life time.  When the logger manager gets
+        //   destroyed, check that the count in the observer increases by one.
+        //
+        // Testing:
+        //   This test exercises '~bael_LoggerManager()', but does not test
+        //   that function.
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "Testing 'releaseRecords' calling on destruction" << endl
+                 << "===============================================" << endl;
+
+        using namespace BAEL_LOGGERMANAGER_TEST_CASE_29;
+        TestDestroyObserver testObserver;
+
+        ASSERT(0 == testObserver.getReleaseCnt());
+        {
+            bael_LoggerManagerConfiguration mLMC;
+            bael_LoggerManagerScopedGuard lmg(&testObserver, mLMC);
+            bael_LoggerManager& mLM = Obj::singleton();
+        }
+        ASSERT(1 == testObserver.getReleaseCnt());
       } break;
       case 28: {
         // --------------------------------------------------------------------
@@ -2438,7 +2497,7 @@ int main(int argc, char *argv[])
             bael_LoggerManagerConfiguration mLMC;
             mLMC.setTriggerMarkers(
                BloombergLP::bael_LoggerManagerConfiguration::BAEL_NO_MARKERS);
-        
+
             const int MAX_LIMIT = 1000000;
             mLMC.setDefaultRecordBufferSizeIfValid(MAX_LIMIT);
 
