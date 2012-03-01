@@ -1470,10 +1470,6 @@ int main(int argc, char *argv[])
             ASSERT(record.numReferences() > 1);
             int afterFileOffset = bdesu_FileUtil::getFileSize(fileName);
 
-            // Verify writing was in process.
-
-            ASSERT(afterFileOffset > beginFileOffset);
-
             // Verify writing is in process even after all 'publish' calls
             // are finished
 

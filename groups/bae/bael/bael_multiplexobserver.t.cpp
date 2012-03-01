@@ -350,6 +350,11 @@ int main(int argc, char *argv[])
             // Do *not* do this.  It significantly increases the level #
             // of this component.
             //bael_LoggerManager::initSingleton(&multiplexor);
+
+            ASSERT(0 == multiplexor.deregisterObserver(&defaultObserver));
+            ASSERT(0 == multiplexor.deregisterObserver(&logfileObserver));
+            ASSERT(0 == multiplexor.deregisterObserver(&encryptingObserver));
+            ASSERT(0 == multiplexor.numRegisteredObservers());
         }
       } break;
       case 5: {
@@ -1408,26 +1413,26 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //  1 Verify that we log a message to 'stderr' if a registered
-        //    observer is destroyed before the mutiplex observer is destroyed.
+        //    observer is destroyed before the multiplex observer is destroyed.
         //
         //  2 Verify that we log a message to 'stderr' if a registered
-        //    observer is destroyed before a call to 'releaseRecords'. 
+        //    observer is destroyed before a call to 'releaseRecords'.
         //
         // Plan:
-        //  1 Create an observer, and supply it multiplex observerr, then
+        //  1 Create an observer, and supply it multiplex observer, then
         //    destroy the observer prior to calling 'releaseRecords' and the
         //    destructor of the multiplex observer.  Visually verify that
-        //    output is written to stderr. 
+        //    output is written to stderr.
         //
         //  Note that this is a test of undefined behavior and must be run,
         //  and verified, manually.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl 
+        if (verbose) cout << endl
                           << "Warning about destroyed observer." << endl
                           << "================================" << endl;
 
-        { 
+        {
             Obj x;
             {
                 bael_TestObserver testObserver(cout);
