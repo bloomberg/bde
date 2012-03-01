@@ -15,7 +15,8 @@
 #if defined(BSLS_PLATFORM__CMP_SUN)  \
  || defined(BSLS_PLATFORM__CMP_MSVC) \
  || defined(BSLS_PLATFORM__CMP_HP)   \
- || defined(BSLS_PLATFORM__CMP_HP)
+ || defined(BSLS_PLATFORM__CMP_HP)   \
+ || defined(BSLS_PLATFORM__CMP_CLANG)
     #define BSLMF_ODD_COMPILER_CONST_OR_VOLATILE_CONVERSION_RULES
 #endif
 
