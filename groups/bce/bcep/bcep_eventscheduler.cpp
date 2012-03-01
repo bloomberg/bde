@@ -89,7 +89,7 @@ void bcep_EventScheduler::dispatchEvents()
         // Now proceed with the next iteration.
 
         if (!d_running) {
-            return;
+            return;                                                   // RETURN
         }
 
         BSLS_ASSERT(0 == d_currentRecurringEvent);
@@ -193,7 +193,7 @@ int bcep_EventScheduler::start(const bcemt_Attribute& threadAttributes)
 {
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
     if (d_running || bcemt_ThreadUtil::invalidHandle() != d_dispatcherThread) {
-        return 0;
+        return 0;                                                     // RETURN
     }
 
     bcemt_Attribute modAttr(threadAttributes);
@@ -203,7 +203,7 @@ int bcep_EventScheduler::start(const bcemt_Attribute& threadAttributes)
             &d_dispatcherThread,
             modAttr,
             bdef_BindUtil::bind(&bcep_EventScheduler::dispatchEvents, this))) {
-        return -1;
+        return -1;                                                    // RETURN
     }
 
     d_running = true;
@@ -217,7 +217,7 @@ void bcep_EventScheduler::stop()
 
     bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
     if (!d_running) {
-        return;
+        return;                                                       // RETURN
     }
 
     d_running = false;
@@ -325,24 +325,22 @@ bcep_EventScheduler::scheduleRecurringEventRaw(
 
 int bcep_EventScheduler::cancelEvent(EventHandle *handle)
 {
-    int ret = cancelEvent((const Event *) *handle);
-    if (EventQueue::BCEC_INVALID == ret) {
-        // handle is already released
-
-        return ret;
+    if (0 == handle) {
+        return EventQueue::BCEC_INVALID;                              // RETURN
     }
+
+    int ret = cancelEvent((const Event *) *handle);
     handle->release();
     return ret;
 }
 
 int bcep_EventScheduler::cancelEvent(RecurringEventHandle *handle)
 {
-    int ret = cancelEvent((const RecurringEvent *) *handle);
-    if (RecurringEventQueue::BCEC_INVALID == ret) {
-        // handle is already released
-
-        return ret;
+    if (0 == handle) {
+        return RecurringEventQueue::BCEC_INVALID;                     // RETURN
     }
+
+    int ret = cancelEvent((const RecurringEvent *) *handle);
     handle->release();
     return ret;
 }
@@ -361,7 +359,7 @@ int bcep_EventScheduler::cancelEventAndWait(const RecurringEvent *handle)
     // be the currently executing event even if it's still in the queue.
 
     if (RecurringEventQueue::BCEC_INVALID == ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     bsls_PlatformUtil::Int64 eventTime = itemPtr->key();
@@ -393,7 +391,7 @@ int bcep_EventScheduler::cancelEventAndWait(const Event *handle)
 
     int ret = d_eventQueue.remove(itemPtr);
     if (EventQueue::BCEC_NOT_FOUND != ret) {
-        return ret;
+        return ret;                                                   // RETURN
     }
 
     // At this point, we know we could not remove the item because it was not
@@ -416,24 +414,22 @@ int bcep_EventScheduler::cancelEventAndWait(const Event *handle)
 
 int bcep_EventScheduler::cancelEventAndWait(EventHandle *handle)
 {
-    int ret = cancelEventAndWait((const Event *) *handle);
-    if (EventQueue::BCEC_INVALID == ret) {
-        // handle is already released
-
-        return ret;
+    if (0 == handle) {
+        return EventQueue::BCEC_INVALID;                              // RETURN
     }
+
+    int ret = cancelEventAndWait((const Event *) *handle);
     handle->release();
     return ret;
 }
 
 int bcep_EventScheduler::cancelEventAndWait(RecurringEventHandle *handle)
 {
-    int ret = cancelEventAndWait((const RecurringEvent *) *handle);
-    if (RecurringEventQueue::BCEC_INVALID == ret) {
-        // handle is already released
-
-        return ret;
+    if (0 == handle) {
+        return RecurringEventQueue::BCEC_INVALID;                     // RETURN
     }
+
+    int ret = cancelEventAndWait((const RecurringEvent *) *handle);
     handle->release();
     return ret;
 }
@@ -476,7 +472,7 @@ int bcep_EventScheduler::rescheduleEventAndWait(
                 d_queueCondition.signal();
             }
             if (d_currentEvent != h) {
-                return 0;
+                return 0;                                             // RETURN
             }
         }
     }
