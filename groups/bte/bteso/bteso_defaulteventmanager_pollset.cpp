@@ -147,7 +147,6 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::
                                               int                      flags)
 {
     bdet_TimeInterval now(bdetu_SystemTime::now());
-    errno = 0;             // note that on all Unix, 'errno' is thread-specific
 
     if (!numEvents()) {
         if (timeout <= now) {
@@ -258,11 +257,11 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(int flags)
     }
 
     int numCallbacks = 0;                    // number of callbacks dispatched
-    errno = 0;             // note that on all Unix, 'errno' is thread-specific
 
     while  (0 == numCallbacks) {
         int rfds;                    // number of returned fds
-        int savedErrno = 0;          // saved errno value set by 'poll'
+        int savedErrno = 0;          // saved errno value set by 'pollset_poll'
+                                     // in case 'now()' writes over errno later
         do {
             if (d_timeMetric_p) {
                 d_timeMetric_p->switchTo(bteso_TimeMetrics::BTESO_IO_BOUND);
@@ -282,13 +281,26 @@ int bteso_DefaultEventManager<bteso_Platform::POLLSET>::dispatch(int flags)
                  && !(bteso_Flag::BTESO_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
-            return 0 == rfds
-                   ? 0
-                   : -1 == rfds && EINTR == savedErrno
-                     ? -1
-                     : savedErrno < 2
-                       ? -10000
-                       : -savedErrno;                                 // RETURN
+            if (0 == rfds) {
+                // No events.  We weren't interrupted.  Shouldn't happen.
+                // the POLL event manager returns 0 in this case.
+
+                return 0;                                             // RETURN
+            }
+            else if (-1 == rfds && EINTR == savedErrno) {
+                // interrupted
+
+                return -1;                                            // RETURN
+            }
+            else {
+                // According to the contract, we are to return any negative
+                // number other than -1.  We might as well return '-savedErrno'
+                // to aid in debugging, except in the case where
+                // '-savedErrno >= -1', in which case it would be mistaken to
+                // have another meaning, so in that case, we return -10000.
+
+                return -savedErrno >= -1 ? -10000 : -savedErrno;      // RETURN
+            }
         }
 
         numCallbacks += dispatchCallbacks(rfds);
