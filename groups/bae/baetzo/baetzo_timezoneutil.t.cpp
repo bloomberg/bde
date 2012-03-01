@@ -895,30 +895,33 @@ int main(int argc, char *argv[])
 
     baetzo_TestLoader     testLoader(Z);
     baetzo_ZoneinfoCache  testCache(&testLoader, Z);
-    ASSERT(0 == testLoader.setTimeZone("GMT", GMT_DATA, sizeof(GMT_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                                      "GMT", 
+                                      reinterpret_cast<const char *>(GMT_DATA),
+                                      sizeof(GMT_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Etc/GMT",
-                                       ETC_GMT_DATA,
+                                       reinterpret_cast<const char *>(ETC_GMT_DATA),
                                        sizeof(ETC_GMT_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Etc/GMT+1",
-                                       ETC_GMTP1_DATA,
+                                       reinterpret_cast<const char *>(ETC_GMTP1_DATA),
                                        sizeof(ETC_GMTP1_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Etc/GMT+2",
-                                       ETC_GMTP2_DATA,
+                                       reinterpret_cast<const char *>(ETC_GMTP2_DATA),
                                        sizeof(ETC_GMTP2_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Etc/GMT-1",
-                                       ETC_GMTM1_DATA,
+                                       reinterpret_cast<const char *>(ETC_GMTM1_DATA),
                                        sizeof(ETC_GMTM1_DATA)));
     ASSERT(0 == testLoader.setTimeZone("America/New_York",
-                                       AMERICA_NEW_YORK_DATA,
+                                       reinterpret_cast<const char *>(AMERICA_NEW_YORK_DATA),
                                        sizeof(AMERICA_NEW_YORK_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Asia/Riyadh",
-                                       ASIA_RIYADH_DATA,
+                                       reinterpret_cast<const char *>(ASIA_RIYADH_DATA),
                                        sizeof(ASIA_RIYADH_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Asia/Saigon",
-                                       ASIA_SAIGON_DATA,
+                                       reinterpret_cast<const char *>(ASIA_SAIGON_DATA),
                                        sizeof(ASIA_SAIGON_DATA)));
     ASSERT(0 == testLoader.setTimeZone("Europe/Rome",
-                                       EUROPE_ROME_DATA,
+                                       reinterpret_cast<const char *>(EUROPE_ROME_DATA),
                                        sizeof(EUROPE_ROME_DATA)));
 
     baetzo_DefaultZoneinfoCache::setDefaultCache(&testCache);

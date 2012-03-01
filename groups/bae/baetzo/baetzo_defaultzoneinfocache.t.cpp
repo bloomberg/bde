@@ -535,7 +535,7 @@ static const char *GMT_ID              = "GMT";
 static const char *ETC_UTC_ID          = "Etc/UTC";
 static const char *AMERICA_NEW_YORK_ID = "America/New_York";
 
-void writeData(const char *fileName, const unsigned char *data, int numBytes)
+void writeData(const char *fileName, const char *data, int numBytes)
 {
     int rc = bdesu_FileUtil::createDirectories(fileName, false);
     ASSERT(0 == rc);
@@ -545,7 +545,7 @@ void writeData(const char *fileName, const unsigned char *data, int numBytes)
 //..
     bsl::ofstream outputFile(fileName, bsl::ofstream::binary);
     ASSERT(outputFile.is_open());
-    outputFile.write(data, numBytes);
+    outputFile.write(reinterpret_cast<const char *>(data), numBytes);
     outputFile.close();
 }
 
@@ -582,19 +582,19 @@ int main(int argc, char *argv[])
 
     if (!bdesu_FileUtil::exists(AMERICA_NEW_YORK_FILE)) {
         writeData(AMERICA_NEW_YORK_FILE,
-                  AMERICA_NEW_YORK_DATA,
+                  reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
                   sizeof(AMERICA_NEW_YORK_DATA));
     }
 
     if (!bdesu_FileUtil::exists(ETC_UTC_FILE)) {
         writeData(ETC_UTC_FILE,
-                  ETC_UTC_DATA,
+                  reinterpret_cast<const char  *>(ETC_UTC_DATA),
                   sizeof(ETC_UTC_DATA));
     }
 
     if (!bdesu_FileUtil::exists(GMT_FILE)) {
         writeData(GMT_FILE,
-                  GMT_DATA,
+                  reinterpret_cast<const char  *>(GMT_DATA),
                   sizeof(GMT_DATA));
     }
 

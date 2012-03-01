@@ -1,4 +1,4 @@
-(char *) // baetzo_timezoneutilimp.t.cpp                                       -*-C++-*-
+// baetzo_timezoneutilimp.t.cpp                                       -*-C++-*-
 #include <baetzo_timezoneutilimp.h>
 
 #include <baetzo_datafileloader.h>
@@ -961,33 +961,42 @@ int main(int argc, char *argv[])
         addTransitions(&oldDstTimeZone, DESC, NUM_TRANSITIONS);
     }
 
-    ASSERT(0 == testLoader.setTimeZone("GMT", 
-                                       (char *) GMT_DATA, 
-                                       sizeof(GMT_DATA)));
-    ASSERT(0 == testLoader.setTimeZone(GMT,
-                                       (char *) ETC_GMT_DATA,
-                                       sizeof(ETC_GMT_DATA)));
-    ASSERT(0 == testLoader.setTimeZone(GP1,
-                                       (char *) ETC_GMTP1_DATA,
-                                       sizeof(ETC_GMTP1_DATA)));
-    ASSERT(0 == testLoader.setTimeZone(GP2,
-                                       (char *) ETC_GMTP2_DATA,
-                                       sizeof(ETC_GMTP2_DATA)));
-    ASSERT(0 == testLoader.setTimeZone(GM1,
-                                       (char *) ETC_GMTM1_DATA,
-                                       sizeof(ETC_GMTM1_DATA)));
-    ASSERT(0 == testLoader.setTimeZone(NY,
-                                       (char *) AMERICA_NEW_YORK_DATA,
-                                       sizeof(AMERICA_NEW_YORK_DATA)));
-    ASSERT(0 == testLoader.setTimeZone(RY,
-                                       (char *) ASIA_RIYADH_DATA,
-                                       sizeof(ASIA_RIYADH_DATA)));
-    ASSERT(0 == testLoader.setTimeZone(SA,
-                                       (char *) ASIA_SAIGON_DATA,
-                                       sizeof(ASIA_SAIGON_DATA)));
-    ASSERT(0 == testLoader.setTimeZone(RM,
-                                       (char *) EUROPE_ROME_DATA,
-                                       sizeof(EUROPE_ROME_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                                     "GMT", 
+                                     reinterpret_cast<const char  *>(GMT_DATA),
+                                     sizeof(GMT_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                                 GMT,
+                                 reinterpret_cast<const char  *>(ETC_GMT_DATA),
+                                 sizeof(ETC_GMT_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                               GP1,
+                               reinterpret_cast<const char  *>(ETC_GMTP1_DATA),
+                               sizeof(ETC_GMTP1_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                               GP2,
+                               reinterpret_cast<const char  *>(ETC_GMTP2_DATA),
+                               sizeof(ETC_GMTP2_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                               GM1,
+                               reinterpret_cast<const char  *>(ETC_GMTM1_DATA),
+                               sizeof(ETC_GMTM1_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                        NY,
+                        reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
+                        sizeof(AMERICA_NEW_YORK_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                             RY,
+                             reinterpret_cast<const char  *>(ASIA_RIYADH_DATA),
+                             sizeof(ASIA_RIYADH_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                             SA,
+                             reinterpret_cast<const char  *>(ASIA_SAIGON_DATA),
+                             sizeof(ASIA_SAIGON_DATA)));
+    ASSERT(0 == testLoader.setTimeZone(
+                             RM,
+                             reinterpret_cast<const char  *>(EUROPE_ROME_DATA),
+                             sizeof(EUROPE_ROME_DATA)));
 
     // Synthetic
     testLoader.setTimeZone(allDstTimeZone);

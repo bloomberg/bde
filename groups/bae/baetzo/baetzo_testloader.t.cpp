@@ -457,7 +457,7 @@ static const unsigned char  AMERICA_NEW_YORK_DATA[] = {
 };
 
 static const char *EUROPE_ROME_ID = "Europe/Rome";
-static const char  EUROPE_ROME_DATA[] = {
+static const unsigned char  EUROPE_ROME_DATA[] = {
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06,
     0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xaa,
@@ -1465,9 +1465,10 @@ int main(int argc, char *argv[])
             rc = mX.loadTimeZone(&timeZone, BAD_ID);
             ASSERT(baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
 
-            mX.setTimeZone(AMERICA_NEW_YORK_ID,
-                           (char *) AMERICA_NEW_YORK_DATA,
-                           sizeof(AMERICA_NEW_YORK_DATA));
+            mX.setTimeZone(
+                        AMERICA_NEW_YORK_ID,
+                        reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
+                        sizeof(AMERICA_NEW_YORK_DATA));
 
             rc = mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID);
             ASSERT(0                                       == rc);
@@ -1480,7 +1481,7 @@ int main(int argc, char *argv[])
             ASSERT(baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(EUROPE_ROME_ID,
-                           (char *) EUROPE_ROME_DATA,
+                           reinterpret_cast<const char  *>(EUROPE_ROME_DATA),
                            sizeof(EUROPE_ROME_DATA));
 
             rc = mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID);
@@ -1495,7 +1496,7 @@ int main(int argc, char *argv[])
             ASSERT(baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID == rc);
 
             mX.setTimeZone(ASIA_SAIGON_ID,
-                           (char *) ASIA_SAIGON_DATA,
+                           reinterpret_cast<const char  *>(ASIA_SAIGON_DATA),
                            sizeof(ASIA_SAIGON_DATA));
 
             rc = mX.loadTimeZone(&timeZone, AMERICA_NEW_YORK_ID);
@@ -1523,21 +1524,21 @@ int main(int argc, char *argv[])
             {
 
                 ASSERT_SAFE_FAIL(obj.setTimeZone(
-                                               0,
-                                               (char *)AMERICA_NEW_YORK_DATA,
-                                               sizeof(AMERICA_NEW_YORK_DATA)));
+                        0,
+                        reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
+                        sizeof(AMERICA_NEW_YORK_DATA)));
                 ASSERT_SAFE_FAIL(obj.setTimeZone(
                                                AMERICA_NEW_YORK_ID,
                                                0,
                                                sizeof(AMERICA_NEW_YORK_DATA)));
                 ASSERT_SAFE_FAIL(obj.setTimeZone(
-                                               AMERICA_NEW_YORK_ID,
-                                               (char *) AMERICA_NEW_YORK_DATA,
-                                               -1));
+                        AMERICA_NEW_YORK_ID,
+                        reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
+                        -1));
                 ASSERT_SAFE_PASS(obj.setTimeZone(
-                                               AMERICA_NEW_YORK_ID,
-                                               (char *) AMERICA_NEW_YORK_DATA,
-                                               sizeof(AMERICA_NEW_YORK_DATA)));
+                        AMERICA_NEW_YORK_ID,
+                        reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
+                        sizeof(AMERICA_NEW_YORK_DATA)));
             }
 
             if (veryVerbose) cout << "\t'loadTimeZone'" << endl;
@@ -1844,7 +1845,7 @@ int main(int argc, char *argv[])
             cout << "\tTest loading binary data." << endl;
         }
         ASSERT(0 == x.setTimeZone(ASIA_BANGKOK_ID,
-                                  (char *) ASIA_BANGKOK_DATA,
+                                  reinterpret_cast<const char  *>(ASIA_BANGKOK_DATA),
                                   sizeof(ASIA_BANGKOK_DATA)));
         ASSERT(0 == x.loadTimeZone(&value, ASIA_BANGKOK_ID));
 
@@ -1855,7 +1856,7 @@ int main(int argc, char *argv[])
         {
             LogVerbosityGuard guard;
             ASSERT(0 != x.setTimeZone(ASIA_BANGKOK_ID,
-                                      (char *) ASIA_BANGKOK_DATA,
+                                      reinterpret_cast<const char  *>(ASIA_BANGKOK_DATA),
                                       15));
         }
       } break;
