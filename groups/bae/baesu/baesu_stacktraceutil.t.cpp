@@ -649,9 +649,14 @@ ENDNS07  // close namespace
                                 // case 5
                                 // ------
 
-void case_5_top(bool demangle)
+void case_5_top(bool demangle, bool useTestAllocator)
 {
-    ST st;
+    bslma_TestAllocator ta;
+    ST stTest(&ta);
+    ST stHeapBypass;
+
+    ST& st = useTestAllocator ? stTest : stHeapBypass;
+
     bsls_Stopwatch sw;
     sw.start(true);
     int rc = Util::loadStackTraceFromStack(&st, 2000, demangle);
@@ -753,14 +758,14 @@ void case_5_top(bool demangle)
 }
 
 static
-void case_5_bottom(bool demangle, int *depth)
+void case_5_bottom(bool demangle, bool useTestAllocator, int *depth)
 {
     if (--*depth <= 0) {
-        bdef_Function<void(*)(bool)> func = &case_5_top;
-        func(demangle);
+        bdef_Function<void(*)(bool, bool)> func = &case_5_top;
+        func(demangle, useTestAllocator);
     }
     else {
-        case_5_bottom(demangle, depth);
+        case_5_bottom(demangle, useTestAllocator, depth);
     }
 
     ++*depth;
@@ -1563,12 +1568,12 @@ int main(int argc, char *argv[])
             startDepth = bsl::atoi(argv[2]);
         }
         int depth = startDepth;
-        case_5_bottom(false, &depth);    // no demangle
+        case_5_bottom(false, false, &depth);    // no demangle
         ASSERT(startDepth  == depth);
 
         depth *= 2;
         startDepth *= 2;
-        case_5_bottom(true,  &depth);    // demangle
+        case_5_bottom(true,  false, &depth);    // demangle
         ASSERT(startDepth  == depth);
 
         CASE_4::bottomCalled = false;
@@ -1607,10 +1612,16 @@ int main(int argc, char *argv[])
         }
         int depth = startDepth;
 
-        case_5_bottom(false, &depth);    // no demangle
+        case_5_bottom(false, false, &depth);    // no demangle, hbpa
         ASSERT(startDepth == depth);
 
-        case_5_bottom(true,  &depth);    // demangle
+        case_5_bottom(true,  false, &depth);    // demangle, hbpa
+        ASSERT(startDepth == depth);
+
+        case_5_bottom(false, true,  &depth);    // no demangle, test alloc
+        ASSERT(startDepth == depth);
+
+        case_5_bottom(true,  true,  &depth);    // demangle, test alloc
         ASSERT(startDepth == depth);
       } break;
       case 4: {
