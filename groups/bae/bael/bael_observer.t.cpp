@@ -185,6 +185,7 @@ int main(int argc, char *argv[])
             bael_RecordAttributes fixed;
             bdem_List             emptyList;
 
+
             if (verbose)
                 cout << "Publish a single message (a sequence of 1)." << endl;
             {

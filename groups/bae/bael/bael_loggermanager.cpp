@@ -42,6 +42,7 @@ BDES_IDENT_RCSID(bael_loggermanager_cpp,"$Id$ $CSID$")
 #include <bsl_new.h>            // placement 'new' syntax
 #include <bsl_string.h>
 #include <bsl_sstream.h>
+#include <bsl_iostream.h>                // for warning print only
 
 //=============================================================================
 //                           IMPLEMENTATION NOTES
@@ -835,7 +836,17 @@ bael_LoggerManager::~bael_LoggerManager()
     // to their default value.  (Note that this might not *be* the singleton,
     // so check for that)
 
-    d_observer_p->releaseRecords();
+    if (0xdeadbeef == *((unsigned int*)(d_observer_p))){
+        bsl::cerr << "****************************************************"
+                  << bsl::endl;
+        bsl::cerr << "ERROR: Observer is destroyed but still being used."
+                  << bsl::endl;
+        bsl::cerr << "****************************************************"
+                  << bsl::endl;
+    }
+    else {
+        d_observer_p->releaseRecords();
+    }
 
     if (this == s_singleton_p) {
         s_singleton_p = 0;

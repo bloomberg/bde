@@ -67,7 +67,19 @@ void bael_MultiplexObserver::releaseRecords()
 
     bsl::set<bael_Observer *>::const_iterator it = d_observerSet.begin();
     for (; it != d_observerSet.end(); ++it) {
-        (*it)->releaseRecords();
+        if (0xdeadbeef == *((unsigned int*)(*it))){
+            bsl::cerr << "****************************************************"
+                      << bsl::endl;
+            bsl::cerr << "ERROR: bael_MultiplexObserver: Registered observer"
+                      << bsl::endl;
+            bsl::cerr << "is destroyed before being deregistered."
+                      << bsl::endl;
+            bsl::cerr << "****************************************************"
+                      << bsl::endl;
+        }
+        else {
+            (*it)->releaseRecords();
+        }
     }
 }
 
@@ -93,6 +105,7 @@ int bael_MultiplexObserver::deregisterObserver(bael_Observer *observer)
 
     if (isRegistered) {
         d_observerSet.erase(observer);
+        observer->releaseRecords();
     }
 
     return !isRegistered;

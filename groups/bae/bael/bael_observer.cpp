@@ -20,6 +20,7 @@ namespace BloombergLP {
 // CREATORS
 bael_Observer::~bael_Observer()
 {
+    *((unsigned int*)this) = 0xdeadbeef;
 }
 
 // MANIPULATORS
