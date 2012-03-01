@@ -1407,13 +1407,17 @@ int main(int argc, char *argv[])
         // TESTING: Warning about destroyed observer.
         //
         // Concerns:
-        //  1 Verify that we log a message to 'stderr' if the registered
-        //    observer is destroyed before the logger manager.
+        //  1 Verify that we log a message to 'stderr' if a registered
+        //    observer is destroyed before the mutiplex observer is destroyed.
+        //
+        //  2 Verify that we log a message to 'stderr' if a registered
+        //    observer is destroyed before a call to 'releaseRecords'. 
         //
         // Plan:
-        //  1 Create an observer, and supply it to a logger manager, then
-        //    destroy the observer prior to destroying the logger manager.
-        //    Visually verify that output is written to stderr.
+        //  1 Create an observer, and supply it multiplex observerr, then
+        //    destroy the observer prior to calling 'releaseRecords' and the
+        //    destructor of the multiplex observer.  Visually verify that
+        //    output is written to stderr. 
         //
         //  Note that this is a test of undefined behavior and must be run,
         //  and verified, manually.

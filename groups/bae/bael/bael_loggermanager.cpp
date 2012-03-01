@@ -839,7 +839,8 @@ bael_LoggerManager::~bael_LoggerManager()
     // TBD: Remove this test once the observer changes in BDE 2.12 have
     // stabilized.
     if (0xdeadbeef == *((unsigned int*)(d_observer_p))){
-        bsl::cerr << "ERROR: Observer is destroyed but still being used."
+        bsl::cerr << "ERROR: bael_LoggerManager: "
+                  << "Observer is destroyed but still being used."
                   << bsl::endl;
     }
     else {
