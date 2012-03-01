@@ -597,9 +597,12 @@ unix-Linux-*-*-gcc-4.*          _  RPATH_FLAGS = -Wl,-rpath -Wl,/opt/swt/install
 
 unix-Linux-*-*-*        _   DEF_ENDLDFLAGS = $(RPATH_FLAGS)
 
-unix-Linux-*-*-gcc-clang     _  DEF_LDFLAGS = -B/usr/lib/gcc/x86_64-redhat-linux6E/4.4.0/32 -L/usr/lib/gcc/x86_64-redhat-linux6E/4.4.0/32
+# tell Clang where GCC libraries are located
+!! unix-Linux-*-*-gcc-clang     _  CLANG_GCC_VER = 4.4.6
+!! unix-Linux-*-*-gcc-clang     _  CLANG_GCC_VER_CPP = -D__CLANG_GNUC__=4 -D__CLANG_GNUC_MINOR__=4 -D__CLANG_GNUC_PATCHLEVEL__=6
 
-unix-Linux-*-*-gcc-clang     64  DEF_LDFLAGS = -B/usr/lib/gcc/x86_64-redhat-linux6E/4.4.0 -L/usr/lib/gcc/x86_64-redhat-linux6E/4.4.0
+!! unix-Linux-*-*-gcc-clang     _  DEF_LDFLAGS = -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER)/32 -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER)/32 -Wl,-rpath -Wl,/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib
+!! unix-Linux-*-*-gcc-clang    64  DEF_LDFLAGS = -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib64 -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib64 -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER) -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER) -Wl,-rpath -Wl,/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib64
 
 # Flags for shared memory access compatibility on HP
 unix-HP_UX-*-*-*       _   DEF_LDFLAGS    = $(LINKARGSCOMMON) -AA -ext
@@ -1035,7 +1038,12 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 !! unix-Linux-*-*-gcc-def              _  CXX          = g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
 # for development only; use Clang instead of gcc
-!! unix-Linux-*-*-gcc-clang            _  CXX          = /opt/swt/install/llvm-2.9-64/bin/clang++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS) -D__CLANG_GNUC__=4 -D__CLANG_GNUC_MINOR__=4 -D__CLANG_GNUC_PATCHLEVEL__=0 -isystem /usr/include/c++/4.4.0 -isystem /usr/include/c++/4.4.0/x86_64-redhat-linux6E -isystem /usr/include/c++/4.4.0/backward -isystem /usr/include/c++/4.4.0/i386-redhat-linux6E
+!! unix-Linux-*-*-gcc-clang            _  COMPILERPATH = /opt/swt/install/llvm-2.9-64/bin
+
+!! unix-Linux-*-*-gcc-clang            _  CXX          = $(COMPILERPATH)/clang++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS) $(CLANG_GCC_VER_CPP) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/x86_64-unknown-linux-gnu/32 -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/backward
+
+!! unix-Linux-*-*-gcc-clang           64  CXX          = $(COMPILERPATH)/clang++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS) $(CLANG_GCC_VER_CPP) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/x86_64-unknown-linux-gnu -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/backward
+
 
 !! unix-Cygwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__cygwin -D__linux $(CXX64FLAGS)
 
