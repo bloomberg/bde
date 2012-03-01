@@ -907,6 +907,14 @@ windows         _   MT_LIBTYPE  = L
 *-*-*-*-gcc-4 _  GCCEXTRAWFLAGS  = -Wlogical-op -Wstrict-overflow -Wvla \
     -Wvolatile-register-var -fdiagnostics-show-option
 
+!! *-*-*-*-gcc-clang _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
+    -Wall -Wextra -Wformat-security -Wformat-y2k -Winit-self \
+    -Wno-long-long -Wno-unknown-pragmas \
+    -Wpacked -Wpointer-arith \
+    -Wwrite-strings -Wno-unused-value -Wno-char-subscripts -Wsign-compare \
+    -Wparentheses -Wstrict-overflow -Wvla \
+    -Wvolatile-register-var -fdiagnostics-show-option
+
 # Once the DRQS 22615679 warnings are cleaned up, we can reconsider making this
 # error= to force these 64-bit portability warnings to be treated as errors.
 #unix-SunOS-*-*-gcc  64  GCCEXTRAWERROR  = error=

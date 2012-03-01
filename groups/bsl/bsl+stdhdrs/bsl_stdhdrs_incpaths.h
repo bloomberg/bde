@@ -144,6 +144,7 @@ BSLS_IDENT("$Id: $")
 #   define BSL_NATIVE_CISO646_HEADER(filename) \
             <../__CLANG_GNUC__.__CLANG_GNUC_MINOR__.__CLANG_GNUC_PATCHLEVEL__/filename>
 #   define BSL_NATIVE_C_LIB_HEADER(filename) <../include/filename>
+#   define BSL_NATIVE_SYS_TIME_HEADER(filename) <../include/filename>
 
 #elif defined(BSLS_PLATFORM__CMP_GNU)
   // gcc 4.1 or above
