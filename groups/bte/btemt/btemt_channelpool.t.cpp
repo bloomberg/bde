@@ -7900,7 +7900,7 @@ int main(int argc, char *argv[])
 
         const char *TEXT = "Hello World";
         const int   LEN  = strlen(TEXT);
-        const int   NUM_TIMES = 1000;
+        const int   NUM_TIMES = 10000;
         const int   TIMEOUT = 3;
 
         for (int i = 0; i < NUM_TIMES; ++i) {
