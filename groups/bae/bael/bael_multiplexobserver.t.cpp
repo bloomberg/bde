@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator *Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -352,17 +352,6 @@ int main(int argc, char *argv[])
             //bael_LoggerManager::initSingleton(&multiplexor);
         }
       } break;
-      case 6: {
-          {
-            bael_MultiplexObserver multiplexor;
-            {
-                bael_DefaultObserver   defaultObserver(bsl::cout);
-                ASSERT(0 == multiplexor.registerObserver(&defaultObserver));
-                ASSERT(1 == multiplexor.numRegisteredObservers());
-            }
-            multiplexor.releaseRecords();
-          }
-      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING ASYNCHRONOUS PUBLISH AND RELEASE RECORDS
@@ -401,14 +390,6 @@ int main(int argc, char *argv[])
                                   << "==============================" << endl;
 
         {
-            //  X
-            Obj mX;  const Obj& X = mX;
-            ASSERT(0 == X.numRegisteredObservers());
-
-            //  Y
-            Obj mY;  const Obj& Y = mY;
-            ASSERT(0 == Y.numRegisteredObservers());
-
             TestAsyncObserver mO1(bsl::cout);
             const TestAsyncObserver& O1 = mO1;
 
@@ -417,6 +398,14 @@ int main(int argc, char *argv[])
 
             TestAsyncObserver mO3(bsl::cout);
             const TestAsyncObserver& O3 = mO3;
+
+            //  X
+            Obj mX;  const Obj& X = mX;
+            ASSERT(0 == X.numRegisteredObservers());
+
+            //  Y
+            Obj mY;  const Obj& Y = mY;
+            ASSERT(0 == Y.numRegisteredObservers());
 
             bcema_SharedPtr<bael_Record> mR(
                                new (testAllocator) bael_Record(&testAllocator),
@@ -754,6 +743,10 @@ int main(int argc, char *argv[])
                                   << "=============================" << endl;
 
         {
+            TestObs mO1(bsl::cout);  const TestObs& O1 = mO1;
+            TestObs mO2(bsl::cout);  const TestObs& O2 = mO2;
+            TestObs mO3(bsl::cout);  const TestObs& O3 = mO3;
+
             //  X
             Obj mX;  const Obj& X = mX;
             ASSERT(0 == X.numRegisteredObservers());
@@ -762,9 +755,6 @@ int main(int argc, char *argv[])
             Obj mY;  const Obj& Y = mY;
             ASSERT(0 == Y.numRegisteredObservers());
 
-            TestObs mO1(bsl::cout);  const TestObs& O1 = mO1;
-            TestObs mO2(bsl::cout);  const TestObs& O2 = mO2;
-            TestObs mO3(bsl::cout);  const TestObs& O3 = mO3;
 
             Rec mR;  const Rec& R = mR;
 
@@ -1224,11 +1214,12 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numRegisteredObservers());
         }
         {
+            TestObs mO1(bsl::cout);
+            TestObs mO2(bsl::cout);
+
             Obj mX;  const Obj& X = mX;
             ASSERT(0 == X.numRegisteredObservers());
 
-            TestObs mO1(bsl::cout);
-            TestObs mO2(bsl::cout);
             ASSERT(0 == mX.registerObserver(&mO1));
             ASSERT(0 == mX.registerObserver(&mO2));
             ASSERT(2 == X.numRegisteredObservers());
@@ -1245,11 +1236,12 @@ int main(int argc, char *argv[])
         ASSERT(NUM_BYTES_IN_USE  == testAllocator.numBytesInUse());
 
         {
+            TestObs mO1(bsl::cout);
+            TestObs mO2(bsl::cout);
+
             Obj mX(&testAllocator);  const Obj& X = mX;
             ASSERT(0 == X.numRegisteredObservers());
 
-            TestObs mO1(bsl::cout);
-            TestObs mO2(bsl::cout);
             ASSERT(0 == mX.registerObserver(&mO1));
             ASSERT(0 == mX.registerObserver(&mO2));
             ASSERT(2 == X.numRegisteredObservers());
@@ -1270,14 +1262,15 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
+            TestObs mO1(bsl::cout);
+            TestObs mO2(bsl::cout);
+
             char memory[2048];
             bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             Obj *doNotDelete = new(a.allocate(sizeof(Obj))) Obj(&a);
             Obj& mX = *doNotDelete;  const Obj& X = mX;
             ASSERT(0 == X.numRegisteredObservers());
 
-            TestObs mO1(bsl::cout);
-            TestObs mO2(bsl::cout);
             ASSERT(0 == mX.registerObserver(&mO1));
             ASSERT(0 == mX.registerObserver(&mO2));
             ASSERT(2 == X.numRegisteredObservers());
@@ -1409,6 +1402,38 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t8.  Destroy x." << endl;
         }
       } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // TESTING: Warning about destroyed observer.
+        //
+        // Concerns:
+        //  1 Verify that we log a message to 'stderr' if the registered
+        //    observer is destroyed before the logger manager.
+        //
+        // Plan:
+        //  1 Create an observer, and supply it to a logger manager, then
+        //    destroy the observer prior to destroying the logger manager.
+        //    Visually verify that output is written to stderr.
+        //
+        //  Note that this is a test of undefined behavior and must be run,
+        //  and verified, manually.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl 
+                          << "Warning about destroyed observer." << endl
+                          << "================================" << endl;
+
+        { 
+            Obj x;
+            {
+                bael_TestObserver testObserver(cout);
+                x.registerObserver(&testObserver);
+            }
+            x.releaseRecords();
+        }
+
+      } break;
+
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

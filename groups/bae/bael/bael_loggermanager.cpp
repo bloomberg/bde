@@ -836,12 +836,10 @@ bael_LoggerManager::~bael_LoggerManager()
     // to their default value.  (Note that this might not *be* the singleton,
     // so check for that)
 
+    // TBD: Remove this test once the observer changes in BDE 2.12 have
+    // stabilized.
     if (0xdeadbeef == *((unsigned int*)(d_observer_p))){
-        bsl::cerr << "****************************************************"
-                  << bsl::endl;
         bsl::cerr << "ERROR: Observer is destroyed but still being used."
-                  << bsl::endl;
-        bsl::cerr << "****************************************************"
                   << bsl::endl;
     }
     else {

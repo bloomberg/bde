@@ -20,6 +20,19 @@ namespace BloombergLP {
 bael_MultiplexObserver::~bael_MultiplexObserver()
 {
     BSLS_ASSERT(0 <= numRegisteredObservers());
+
+    // TBD: Remove this test once the observer changes in BDE 2.12 have
+    // stabilized.
+
+    bsl::set<bael_Observer *>::const_iterator it = d_observerSet.begin();
+    for (; it != d_observerSet.end(); ++it) {
+        if (0xdeadbeef == *((unsigned int*)(*it))){
+            bsl::cerr << "ERROR: bael_MultiplexObserver: Registered observer "
+                      << "is destroyed before being deregistered."
+                      << " [~bael_MultiplexObserver]" << bsl::endl;
+        }
+    }
+
 }
 
 // MANIPULATORS
@@ -29,16 +42,11 @@ void bael_MultiplexObserver::publish(const bael_Record&  record,
     bcemt_ReadLockGuard<bcemt_RWMutex> guard(&d_rwMutex);
 
     // Print warning once that this publish method is deprecated.
-    
+
     static bool needWarning = true;
     if (needWarning) {
-        bsl::cerr << "*******************************************************"
-                  << bsl::endl;
         bsl::cerr << "WARNING: bael_MultiplexObserver: this publish method is "
-                  << bsl::endl;
-        bsl::cerr << "deprecated, please use the alternative publish."
-                  << bsl::endl;
-        bsl::cerr << "*******************************************************"
+                  << "deprecated, please use the alternative publish overload."
                   << bsl::endl;
         needWarning = false;
     }
@@ -67,15 +75,13 @@ void bael_MultiplexObserver::releaseRecords()
 
     bsl::set<bael_Observer *>::const_iterator it = d_observerSet.begin();
     for (; it != d_observerSet.end(); ++it) {
-        if (0xdeadbeef == *((unsigned int*)(*it))){
-            bsl::cerr << "****************************************************"
-                      << bsl::endl;
-            bsl::cerr << "ERROR: bael_MultiplexObserver: Registered observer"
-                      << bsl::endl;
-            bsl::cerr << "is destroyed before being deregistered."
-                      << bsl::endl;
-            bsl::cerr << "****************************************************"
-                      << bsl::endl;
+        // TBD: Remove this test once the observer changes in BDE 2.12 have
+        // stabilized.
+
+        if (0xdeadbeef == *((unsigned int*)(*it))) {
+            bsl::cerr << "ERROR: bael_MultiplexObserver: Registered observer "
+                      << "is destroyed before being deregistered."
+                      << " [releaseRecords]" << bsl::endl;
         }
         else {
             (*it)->releaseRecords();

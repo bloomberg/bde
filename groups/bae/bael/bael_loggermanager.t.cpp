@@ -4756,6 +4756,36 @@ int main(int argc, char *argv[])
                        "Second attempt to log to cat4.");
 
       } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // TESTING: Warning about destroyed observer.
+        //
+        // Concerns:
+        //  1 Verify that we log a message to 'stderr' if the registered
+        //    observer is destroyed before the logger manager.
+        //
+        // Plan:
+        //  1 Create an observer, and supply it to a logger manager, then
+        //    destroy the observer prior to destroying the logger manager.
+        //    Visually verify that output is written to stderr.
+        //
+        //  Note that this is a test of undefined behavior and must be run,
+        //  and verified, manually.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl 
+                          << "Warning about destroyed observer." << endl
+                          << "================================" << endl;
+
+        {
+            bael_TestObserver testObserver(cout);
+            bael_LoggerManagerConfiguration lmc;
+
+            bael_LoggerManager::initSingleton(&testObserver, lmc);
+        }
+        bael_LoggerManager::shutDownSingleton();
+
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

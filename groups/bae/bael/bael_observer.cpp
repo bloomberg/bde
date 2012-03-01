@@ -20,6 +20,11 @@ namespace BloombergLP {
 // CREATORS
 bael_Observer::~bael_Observer()
 {
+    BSLMF_ASSERT(sizeof(bael_Observer) >= sizeof(int));
+
+    // TBD: Remove this test once the observer changes in BDE 2.12 have
+    // stabilized.
+
     *((unsigned int*)this) = 0xdeadbeef;
 }
 
