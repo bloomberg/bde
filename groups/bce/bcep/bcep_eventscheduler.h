@@ -122,7 +122,7 @@ BDES_IDENT("$Id: $")
 //     ++g_data;
 //   }
 //   scheduler.stop();
-//   ASSERT(values.size() >= 4);
+//   assert(values.size() >= 4);
 //   for (int i = 0; i < values.size(); ++i) {
 //     bsl::cout << "At " << values[i].first << " g_data was "
 //               << values[i].second << bsl::endl;
@@ -237,7 +237,7 @@ BDES_IDENT("$Id: $")
 // {
 //     // If connection has already timed out and closed, simply return.
 //     if (d_scheduler.cancelEvent(connection->d_timerId)) {
-//         return;                                                // RETURN
+//         return;                                                    // RETURN
 //     }
 //
 //     // process the data
@@ -329,8 +329,8 @@ class bcep_EventScheduler {
     // PUBLIC TYPES
     struct Event {};
     struct RecurringEvent {};
-       // Pointers to the opaque structures 'Event' and 'RecurringEvent' are
-       // populated by the "Raw" API of 'bcep_EventScheduler'.
+        // Pointers to the opaque structures 'Event' and 'RecurringEvent' are
+        // populated by the "Raw" API of 'bcep_EventScheduler'.
 
     typedef bcep_EventSchedulerEventHandle          EventHandle;
 
@@ -341,8 +341,8 @@ class bcep_EventScheduler {
 
   private:
     // NOT IMPLEMENTED
-    bcep_EventScheduler(const bcep_EventScheduler& original);
-    bcep_EventScheduler& operator=(const bcep_EventScheduler& rhs);
+    bcep_EventScheduler(const bcep_EventScheduler&);
+    bcep_EventScheduler& operator=(const bcep_EventScheduler&);
 
   private:
     // PRIVATE DATA
@@ -646,29 +646,30 @@ class bcep_EventSchedulerEventHandle
 
     // CREATORS
     bcep_EventSchedulerEventHandle();
-       // Create a new handle object that does not refer to an event.
+        // Create a new handle object that does not refer to an event.
 
-    bcep_EventSchedulerEventHandle(const bcep_EventSchedulerEventHandle& rhs);
-       // Create a new handle object referring to the same event as the
-       // specified 'rhs' handle.
+    bcep_EventSchedulerEventHandle(
+                               const bcep_EventSchedulerEventHandle& original);
+        // Create a new handle object referring to the same event as the
+        // specified 'rhs' handle.
 
     ~bcep_EventSchedulerEventHandle();
-       // Destroy this object and release the managed reference, if any.
+        // Destroy this object and release the managed reference, if any.
 
     // MANIPULATORS
     bcep_EventSchedulerEventHandle& operator=(
                                     const bcep_EventSchedulerEventHandle& rhs);
-       // Release this handle's reference, if any; then make this handle
-       // refer to the same event as the specified 'rhs' handle.
-       // Return a modifiable reference to this handle.
+        // Release this handle's reference, if any; then make this handle
+        // refer to the same event as the specified 'rhs' handle.
+        // Return a modifiable reference to this handle.
 
     void release();
-       // Release the reference (if any) held by this object.
+        // Release the reference (if any) held by this object.
 
     // ACCESSORS
     operator const Event*() const;
-       // Return a "raw" pointer to the event managed by this handle, or 0
-       // if this handle does not manage a reference.
+        // Return a "raw" pointer to the event managed by this handle, or 0
+        // if this handle does not manage a reference.
 };
 
                  // =============================================
@@ -700,30 +701,30 @@ class bcep_EventSchedulerRecurringEventHandle
 
     // CREATORS
     bcep_EventSchedulerRecurringEventHandle();
-       // Create a new handle object.
+        // Create a new handle object.
 
     bcep_EventSchedulerRecurringEventHandle(
-                           const bcep_EventSchedulerRecurringEventHandle& rhs);
-       // Create a new handle object referring to the same recurring event
-       // as the specified 'rhs' handle.
+                      const bcep_EventSchedulerRecurringEventHandle& original);
+        // Create a new handle object referring to the same recurring event
+        // as the specified 'rhs' handle.
 
     ~bcep_EventSchedulerRecurringEventHandle();
-       // Destroy this object and release the managed reference, if any.
+        // Destroy this object and release the managed reference, if any.
 
     // MANIPULATORS
     bcep_EventSchedulerRecurringEventHandle& operator=(
                            const bcep_EventSchedulerRecurringEventHandle& rhs);
-       // Release the reference managed by this handle, if any; then make
-       // this handle refer to the same recurring event as the specified
-       // 'rhs' handle.  Return a modifiable reference to this event handle.
+        // Release the reference managed by this handle, if any; then make
+        // this handle refer to the same recurring event as the specified
+        // 'rhs' handle.  Return a modifiable reference to this event handle.
 
     void release();
-       // Release the reference managed by this handle, if any.
+        // Release the reference managed by this handle, if any.
 
     // ACCESSORS
     operator const RecurringEvent*() const;
-       // Return a "raw" pointer to the recurring event managed by this
-       // handle, or 0 if this handle does not manage a reference.
+        // Return a "raw" pointer to the recurring event managed by this
+        // handle, or 0 if this handle does not manage a reference.
 
 };
 

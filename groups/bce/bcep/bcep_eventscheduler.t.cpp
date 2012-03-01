@@ -277,7 +277,7 @@ void makeSureTestObjectIsExecuted(TESTCLASS& testObject,
 {
     for (int i = 0; i < numAttempts; ++i) {
         if (numExecuted + 1 <= testObject.numExecuted()) {
-            return;
+            return;                                                   // RETURN
         }
         bcemt_ThreadUtil::microSleep(microSeconds);
         bcemt_ThreadUtil::yield();
@@ -353,8 +353,8 @@ class TestClass {
     bces_AtomicInt     d_failures;               // timing failures
 
     // FRIENDS
-    friend bsl::ostream& operator << (bsl::ostream& os,
-                                      const TestClass& testObject);
+    friend bsl::ostream& operator << (bsl::ostream&,
+                                      const TestClass&);
 
   public:
     // CREATORS
@@ -397,17 +397,17 @@ class TestClass {
     {
     }
 
-    TestClass(const TestClass& rhs):
-      d_isClock(rhs.d_isClock),
-      d_periodicInterval(rhs.d_periodicInterval),
-      d_expectedTimeAtExecution(rhs.d_expectedTimeAtExecution),
-      d_numExecuted(rhs.d_numExecuted),
-      d_executionTime(rhs.d_executionTime),
-      d_line(rhs.d_line),
-      d_delayed(rhs.d_delayed),
-      d_referenceTime(rhs.d_referenceTime),
-      d_globalLastExecutionTime(rhs.d_globalLastExecutionTime),
-      d_assertOnFailure(rhs.d_assertOnFailure),
+    TestClass(const TestClass& original):
+      d_isClock(original.d_isClock),
+      d_periodicInterval(original.d_periodicInterval),
+      d_expectedTimeAtExecution(original.d_expectedTimeAtExecution),
+      d_numExecuted(original.d_numExecuted),
+      d_executionTime(original.d_executionTime),
+      d_line(original.d_line),
+      d_delayed(original.d_delayed),
+      d_referenceTime(original.d_referenceTime),
+      d_globalLastExecutionTime(original.d_globalLastExecutionTime),
+      d_assertOnFailure(original.d_assertOnFailure),
       d_failures(0)
     {
     }
@@ -519,6 +519,7 @@ struct TestClass1 {
     {
     }
 
+    explicit
     TestClass1(int executionTime) :
     d_numExecuted(0),
     d_executionTime(executionTime)
@@ -663,30 +664,32 @@ static void cancelAllEventsCallback(Obj *scheduler, int wait)
 //                         USAGE EXAMPLE RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE {
+
+bces_AtomicInt  g_data;  // Some global data we want to track
+typedef pair<bdet_Datetime, int> Value;
+
+void saveData(vector<Value> *array)
 {
-   bces_AtomicInt  g_data;  // Some global data we want to track
-   typedef pair<bdet_Datetime, int> Value;
+    array->push_back(Value(bdetu_SystemTime::nowAsDatetimeGMT(), g_data));
+}
 
-   void saveData(vector<Value> *array)
-   {
-      array->push_back(Value(bdetu_SystemTime::nowAsDatetimeGMT(), g_data));
-   }
+class my_Session{
+    // This class encapsulates the data and state associated with a
+    // connection and provides a method 'processData' to process the
+    // incoming data for the connection.
 
-   class my_Session{
-       // This class encapsulates the data and state associated with a
-       // connection and provides a method 'processData' to process the
-       // incoming data for the connection.
-     public:
-       int processData(void *, int)
-           // Process the data of length given by 'int' pointed at by 'void *'
-       {
-           // (undefined in usage example...no-op here)
-           return 0;
-       }
-   };
+  public:
+    int processData(void *, int)
+        // Process the data of length given by 'int' pointed at by 'void *'
+    {
+        // (undefined in usage example...no-op here)
 
-   class my_Server {
+        return 0;
+    }
+};
+
+class my_Server {
     // This class implements a server maintaining several connections.
     // A connection is closed if the data for it does not arrive
     // before a timeout (specified at the server creation time).
@@ -719,8 +722,9 @@ namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE
         // the data does not arrive before the timeout.
 
   public:
-    my_Server(const bdet_TimeInterval& ioTimeout,
-                                            bslma_Allocator *allocator = 0);
+    explicit
+    my_Server(const bdet_TimeInterval&  ioTimeout,
+              bslma_Allocator          *allocator = 0);
         // Construct a 'my_Server' object with a timeout value of
         // 'ioTimeout' seconds.  Optionally specify a 'allocator' used to
         // supply memory.  If 'allocator' is 0, the currently installed
@@ -769,7 +773,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
 {
     // If connection has already timed out and closed, simply return.
     if (d_scheduler.cancelEvent(connection->d_timerId)) {
-        return;                                                // RETURN
+        return;                                                       // RETURN
     }
 
     // process the data
@@ -781,14 +785,13 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
         bdef_BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
-}
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE
 
 //=============================================================================
 //                         CASE 17 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_17
-{
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_17 {
 
 enum { BUFSIZE = 40 * 1000 };
 
@@ -800,11 +803,14 @@ struct Recurser {
     // pseudoUse() was added to prevent the recursion of 'deepRecurser()' from
     // being tail recursion, which the optimizer on windows was turning into
     // a loop, which was an infinite loop.
-    void pseudoUse(volatile char *buffer) {
+
+    void pseudoUse(volatile char *buffer)
+    {
         buffer[0] = 0;
     }
 
-    void deepRecurser() {
+    void deepRecurser()
+    {
         volatile char buffer[BUFSIZE];
 
         int curDepth = abs((int)(buffer - d_topPtr));
@@ -817,13 +823,15 @@ struct Recurser {
 
         if (curDepth < d_recurseDepth) {
             // recurse
+
             this->deepRecurser();
         }
 
         pseudoUse(buffer);
     }
 
-    void operator()() {
+    void operator()()
+    {
         char topRef;
 
         microSleep(600 * 1000, 0);
@@ -836,7 +844,7 @@ struct Recurser {
 };
 bool Recurser::s_finished = false;
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_17
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_17
 
 //=============================================================================
 //                         CASE 15 & 16 RELATED ENTITIES
@@ -860,11 +868,13 @@ struct SlowFunctor {
     // DATA
     DateTimeList d_timeList;
 
-    DateTimeList& timeList() {
+    DateTimeList& timeList()
+    {
         return d_timeList;
     }
 
-    static TimeElement timeOfDay(bsls_PlatformUtil::Int64 warnAfter) {
+    static TimeElement timeOfDay(bsls_PlatformUtil::Int64 warnAfter)
+    {
         bdet_TimeInterval now = bdetu_SystemTime::now();
         bsls_PlatformUtil::Int64 interval = now.totalMicroseconds();
         if (0 < warnAfter && warnAfter < interval) {
@@ -875,13 +885,15 @@ struct SlowFunctor {
         return TimeElement(now.totalSecondsAsDouble(), interval);
     }
 
-    void callback(bsls_PlatformUtil::Int64 warnAfter) {
+    void callback(bsls_PlatformUtil::Int64 warnAfter)
+    {
         d_timeList.push_back(timeOfDay(warnAfter));
         bcemt_ThreadUtil::microSleep(SLEEP_MICROSECONDS);
         d_timeList.push_back(timeOfDay(0));
     }
 
-    double tolerance(int i) {
+    double tolerance(int i)
+    {
         return SlowFunctor::SLEEP_SECONDS * (0.2 * i + 2);
     }
 };
@@ -900,15 +912,18 @@ struct FastFunctor {
     // DATA
     DateTimeList d_timeList;
 
-    DateTimeList& timeList() {
+    DateTimeList& timeList()
+    {
         return d_timeList;
     }
 
-    static double timeOfDay() {
+    static double timeOfDay()
+    {
         return bdetu_SystemTime::now().totalSecondsAsDouble();
     }
 
-    void callback(bool verbose) {
+    void callback(bool verbose)
+    {
         if (verbose) {
             cout << "...FastFunctor invoked at "
                  << bdetu_SystemTime::now().totalMicroseconds()
@@ -920,7 +935,7 @@ struct FastFunctor {
 const double FastFunctor::TOLERANCE_AHEAD  = 0.015;
 const double FastFunctor::TOLERANCE_BEHIND = 0.300;
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_15
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_15
 
 //-----------------------------------------------------------------------------
 //                          CASE 13 & 14 RELATED ENTITIES
@@ -980,20 +995,21 @@ int maxNodeIndex(int numBits)
     return (1 << numBits) - 2;
 }
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_13
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_13
 
 //=============================================================================
 //                         CASE 12 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_12
-{
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_12
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_12 {
+
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_12
+
 //=============================================================================
 //                         CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_11
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_11 {
 
 enum {
     NUM_THREADS    = 8,    // number of threads
@@ -1065,12 +1081,13 @@ void *workerThread11(void *arg)
 }
 } // extern "C"
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_11
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_11
+
 //=============================================================================
 //                         CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_10
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_10 {
 
 enum {
     NUM_THREADS    = 8,    // number of threads
@@ -1163,19 +1180,20 @@ void *workerThread10(void *arg)
 }
 } // extern "C"
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_10
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_10
 //=============================================================================
 //                         CASE 9 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_9
-{
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_9
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_9 {
+
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_9
+
 //=============================================================================
 //                         CASE 8 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_8
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_8 {
 
 void dispatcherFunction(bdef_Function<void(*)()> functor)
     // This is a dispatcher function that simply executes the
@@ -1184,12 +1202,13 @@ void dispatcherFunction(bdef_Function<void(*)()> functor)
     functor();
 }
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_8
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_8
+
 //=============================================================================
 //                          CASE 7 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_7
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_7 {
 
 void schedulingCallback(Obj        *scheduler,
                         TestClass1 *event,
@@ -1210,12 +1229,13 @@ void schedulingCallback(Obj        *scheduler,
                                                         clock));
 }
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_7
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_7
+
 //=============================================================================
 //                         CASE 6 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_6
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_6 {
 
 bcema_TestAllocator *pta;
 
@@ -1399,12 +1419,13 @@ void Test6_2::operator()()
     x.stop();
 }
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_6
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_6
+
 //=============================================================================
 //                         CASE 5 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_5
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_5 {
 
 bcema_TestAllocator *pta;
 
@@ -1573,12 +1594,13 @@ struct Test5_3 {
     }
 };
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_5
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_5
+
 //=============================================================================
 //                         CASE 4 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_4
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_4 {
 
 bcema_TestAllocator *pta;
 
@@ -1739,19 +1761,21 @@ struct Test4_2 {
     }
 };
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_4
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_4
+
 //=============================================================================
 //                         CASE 3 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_3
-{
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_3
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_3 {
+
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_3
+
 //=============================================================================
 //                         CASE 2 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_2
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_2 {
 
 struct TestCase2Data {
     int               d_line;
@@ -1873,14 +1897,15 @@ bool testCallbacks(int                  *failures,
     return result;
 }
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_2
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_2
+
 //=============================================================================
 //                         CASE 1 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_1
-{
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_1
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_1 {
+
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_1
 
 //=============================================================================
 //                      CASE -100 RELATED ENTITIES
@@ -1973,7 +1998,7 @@ void run()
     scheduler.stop();
 }
 
-} // close namespace TEST_CASE_MINUS_100
+}  // close namespace TEST_CASE_MINUS_100
 
 //=============================================================================
 //                              MAIN PROGRAM
