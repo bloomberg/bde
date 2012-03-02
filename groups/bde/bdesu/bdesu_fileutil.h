@@ -19,22 +19,6 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a platform-independent interface to
 // filesystem utility methods.
 //
-///LOCKING CAVEATS
-///---------------
-// Locking has the following caveats for the following operating systems:
-//: o On Unix, you can't lock for write a file opened for read only.  On
-//:   Windows, you can.
-//: o On Posix, closing a file releases ALL locks on ALL file descriptors
-//:   referring to that file within the current process.
-//: o On Unix, the child of a fork does not inherit the locks of the parent
-//:   process.
-//: o On Windows, opening a file for write does an implicit lock on the file.
-//:   This implicit lock is, by nature, different from the explicit locks done
-//:   by the 'lock' and 'tryLock' methods.  'open' calls check for such
-//:   implicit locks, it is not possible for another process to open a file
-//:   already opened for write.  On Unix, many processes can open the same file
-//:   for write.
-//
 ///Usage
 ///-----
 ///Example 1: General Usage
@@ -396,8 +380,7 @@ struct bdesu_FileUtil {
         // use by the current *process*, but the behavior is unspecified (and
         // platform-dependent) when either attempting to lock 'fd' multiple
         // times, or attempting to lock another descriptor referring to the
-        // same file, within a single process.  Also see 'LOCKING CAVEATS' in
-        // the component doc.
+        // same file, within a single process.
 
     static int tryLock(FileDescriptor fd, bool lockWrite);
         // Acquire a lock for the file with the specified 'fd' if it is
@@ -405,19 +388,18 @@ struct bdesu_FileUtil {
         // write lock unless another process has any type of lock on the file.
         // If 'lockWrite' is false, acquire a shared read lock unless a process
         // has a write lock.  This method will not block.  Return 0 on success,
-        // 'BDESU_ERROR_LOCKING_CONFLICT' if the lock could not be acquired
-        // because another process holds a conflicting lock, and a negative
-        // value for any other kind of error.  Note that this operation locks
-        // the indicated file for use by the current *process*, but the
-        // behavior is unspecified (and platform-dependent) when either
-        // attempting to lock 'fd' multiple times, or attempting to lock
-        // another descriptor referring to the same file, within a single
-        // process.  Also see 'LOCKING CAVEATS' in the component doc.
+        // 'BDESU_ERROR_LOCKING_CONFLICT' if the platform reports the lock
+        // could not be acquired because another process holds a conflicting
+        // lock, and a negative value for any other kind of error.  Note that
+        // this operation locks the indicated file for use by the current
+        // *process*, but the behavior is unspecified (and platform-dependent)
+        // when either attempting to lock 'fd' multiple times, or attempting
+        // to lock another descriptor referring to the same file, within a
+        // single process.
 
     static int unlock(FileDescriptor fd);
         // Release any lock this process holds on the file with the specified
-        // 'fd'.  Return 0 on success, and a non-zero value otherwise.  Also
-        // see 'LOCKING CAVEATS' in the component doc.
+        // 'fd'.  Return 0 on success, and a non-zero value otherwise.
 
     static int map(FileDescriptor   fd,
                    void           **addr,

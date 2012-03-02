@@ -395,8 +395,8 @@ int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
                               0, 1, 0, &overlapped);
     return success ? 0
                    : ERROR_LOCK_VIOLATION == GetLastError()
-                   ? BDESU_ERROR_LOCKING_CONFLICT
-                   : -1;
+                     ? BDESU_ERROR_LOCKING_CONFLICT
+                     : -1;
 }
 
 int bdesu_FileUtil::unlock(FileDescriptor fd)
@@ -848,15 +848,15 @@ int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
     int rc = localFcntlLock(fd, F_SETLK, lockWrite ? F_WRLCK : F_RDLCK);
     return -1 != rc ? 0
                     : EAGAIN == errno || EACCES == errno
-                    ? BDESU_ERROR_LOCKING_CONFLICT
-                    : -1;
+                      ? BDESU_ERROR_LOCKING_CONFLICT
+                      : -1;
 }
 
 int bdesu_FileUtil::lock(FileDescriptor fd, bool lockWrite)
 {
     return localFcntlLock(fd, F_SETLKW, lockWrite ? F_WRLCK : F_RDLCK) == -1
-    ? -1
-    : 0;
+           ? -1
+           : 0;
 }
 
 int bdesu_FileUtil::unlock(FileDescriptor fd)
@@ -1063,7 +1063,7 @@ int bdesu_FileUtil::createDirectories(const char *nativePath,
     }
 
     while (!directoryStack.empty()) {
-        bdesu_PathUtil::appendRaw(&path, 
+        bdesu_PathUtil::appendRaw(&path,
                                   directoryStack.back().c_str(),
                                   static_cast<int>(
                                       directoryStack.back().length()));
