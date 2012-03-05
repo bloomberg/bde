@@ -1286,9 +1286,11 @@ bdem_BerDecoder_UniversalElementVisitor(bdem_BerDecoder *decoder)
 template <typename TYPE>
 int bdem_BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
 {
+    int alternateTag = -1;
     bdem_BerUniversalTagNumber::Value expectedTagNumber =
             bdem_BerUniversalTagNumber::select(*variable,
-                                               d_node.formattingMode());
+                                               d_node.formattingMode(),
+                                               &alternateTag);
 
 //    d_node.setType(variable);
 
@@ -1302,7 +1304,9 @@ int bdem_BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
     }
 
     if (d_node.tagNumber() != static_cast<int>(expectedTagNumber)) {
-        return d_node.logError("Unexpected tag number");
+        if (-1 == alternateTag || d_node.tagNumber() != alternateTag) {
+            return d_node.logError("Unexpected tag number");
+        }
     }
 
     rc = d_node(variable);
