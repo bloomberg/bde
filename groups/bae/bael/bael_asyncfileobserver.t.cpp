@@ -206,7 +206,8 @@ bdet_Datetime getCurrentTimestamp()
 
 void removeFilesByPrefix(const char *prefix)
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+#else
     glob_t globbuf;
     bsl::string filename = prefix;
     filename += "*";
@@ -472,6 +473,8 @@ int main(int argc, char *argv[])
 
         ASSERT(beginFileOffset < fileOffset   );
         ASSERT(fileOffset      < endFileOffset);
+
+        removeFilesByPrefix(fileName.c_str());
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -629,6 +632,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
         mX.stopPublicationThread();
+        removeFilesByPrefix(BASENAME.c_str());
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -659,6 +663,7 @@ int main(int argc, char *argv[])
         mX.forceRotation();
 
         ASSERT(1 == cb.numInvocations());
+        removeFilesByPrefix(filename.c_str());
       } break;
       case 4: {
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -739,9 +744,11 @@ int main(int argc, char *argv[])
             ASSERT2(getline(stderrFs, line)); // we caught an error
 
             mX.disableFileLogging();
-            removeFilesByPrefix(fn.c_str());
             multiplexObserver.deregisterObserver(&mX);
             mX.stopPublicationThread();
+
+            removeFilesByPrefix(stderrFN.c_str());
+            removeFilesByPrefix(fn.c_str());
         }
 #endif
       } break;
@@ -2650,6 +2657,7 @@ int main(int argc, char *argv[])
             ASSERT(record.numReferences() == 1);
         }
 
+        removeFilesByPrefix(fileName.c_str());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -478,6 +478,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
+        removeFilesByPrefix(BASENAME.c_str());
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -508,6 +509,7 @@ int main(int argc, char *argv[])
         mX.forceRotation();
 
         ASSERT(1 == cb.numInvocations());
+        removeFilesByPrefix(filename.c_str());
       } break;
       case 4: {
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -580,6 +582,7 @@ int main(int argc, char *argv[])
             ASSERT2(getline(stderrFs, line)); // we caught an error
 
             mX.disableFileLogging();
+            removeFilesByPrefix(stderrFN.c_str());
             removeFilesByPrefix(fn.c_str());
             multiplexObserver.deregisterObserver(&mX);
 
@@ -640,6 +643,7 @@ int main(int argc, char *argv[])
             mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
             ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
 
+            multiplexObserver.deregisterObserver(&mX);
 // TBD
 #if 0
             ASSERT(0 == X.maxLogFiles());
@@ -685,6 +689,7 @@ int main(int argc, char *argv[])
             mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
             ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
 
+            multiplexObserver.deregisterObserver(&mX);
 // TBD
 #if 0
             ASSERT(0 == X.maxLogFiles());
@@ -730,6 +735,7 @@ int main(int argc, char *argv[])
             mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
             ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
 
+            multiplexObserver.deregisterObserver(&mX);
 // TBD
 #if 0
             ASSERT(0 == X.maxLogFiles());
@@ -2148,6 +2154,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
         }
+        removeFilesByPrefix(fileName.c_str());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
