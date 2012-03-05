@@ -1210,7 +1210,7 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
 {
     BSLS_ASSERT_SAFE(options);
 
-    return options->encodeDateAndTimeTypesAsBinary()
+    return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
 }
@@ -1221,7 +1221,7 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
 {
     BSLS_ASSERT_SAFE(options);
 
-    return options->encodeDateAndTimeTypesAsBinary()
+    return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
 }
@@ -1232,7 +1232,7 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
 {
     BSLS_ASSERT_SAFE(options);
 
-    return options->encodeDateAndTimeTypesAsBinary()
+    return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
 }
@@ -1243,7 +1243,7 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
 {
     BSLS_ASSERT_SAFE(options);
 
-    return options->encodeDateAndTimeTypesAsBinary()
+    return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
 }
@@ -1254,7 +1254,7 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
 {
     BSLS_ASSERT_SAFE(options);
 
-    return options->encodeDateAndTimeTypesAsBinary()
+    return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
 }
@@ -1265,7 +1265,7 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
 {
     BSLS_ASSERT_SAFE(options);
 
-    return options->encodeDateAndTimeTypesAsBinary()
+    return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
 }
