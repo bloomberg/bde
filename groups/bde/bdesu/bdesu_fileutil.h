@@ -19,6 +19,21 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a platform-independent interface to
 // filesystem utility methods.
 //
+///Platform Specific File Locking Caveats
+///--------------------------------------
+// Locking has the following caveats for the following operating systems:
+//
+//: o On Posix, closing a file releases ALL locks on ALL file descriptors
+//:   referring to that file within the current process.  [Doc 1] [Doc 2]
+//: o On Posix, the child of a fork does not inherit the locks of the parent
+//:   process.  [Doc 1] [Doc 2]
+//: o On at least some flavors of Unix, you can't lock for write a file
+//:   descriptor opened for readonly.
+//
+// Documents
+//: 1 POSIX:http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
+//: 2 BSD: http://www.manpagez.com/man/2/fcntl
+//
 ///Usage
 ///-----
 ///Example 1: General Usage
@@ -391,11 +406,11 @@ struct bdesu_FileUtil {
         // 'BDESU_ERROR_LOCKING_CONFLICT' if the platform reports the lock
         // could not be acquired because another process holds a conflicting
         // lock, and a negative value for any other kind of error.  Note that
-        // this operation locks the indicated file for use by the current
-        // *process*, but the behavior is unspecified (and platform-dependent)
-        // when either attempting to lock 'fd' multiple times, or attempting
-        // to lock another descriptor referring to the same file, within a
-        // single process.
+        // this operation locks the indicated file for the current *process*,
+        // but the behavior is unspecified (and platform-dependent) when either
+        // attempting to lock 'fd' multiple times, or attempting to lock
+        // another descriptor referring to the same file, within a single
+        // process.
 
     static int unlock(FileDescriptor fd);
         // Release any lock this process holds on the file with the specified
