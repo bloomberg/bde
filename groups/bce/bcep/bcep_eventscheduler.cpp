@@ -325,7 +325,7 @@ bcep_EventScheduler::scheduleRecurringEventRaw(
 
 int bcep_EventScheduler::cancelEvent(EventHandle *handle)
 {
-    if (0 == handle) {
+    if (0 == (const Event *) *handle) {
         return EventQueue::BCEC_INVALID;                              // RETURN
     }
 
@@ -336,7 +336,7 @@ int bcep_EventScheduler::cancelEvent(EventHandle *handle)
 
 int bcep_EventScheduler::cancelEvent(RecurringEventHandle *handle)
 {
-    if (0 == handle) {
+    if (0 == (const RecurringEvent *) *handle) {
         return RecurringEventQueue::BCEC_INVALID;                     // RETURN
     }
 
@@ -414,7 +414,7 @@ int bcep_EventScheduler::cancelEventAndWait(const Event *handle)
 
 int bcep_EventScheduler::cancelEventAndWait(EventHandle *handle)
 {
-    if (0 == handle) {
+    if (0 == (const Event *) *handle) {
         return EventQueue::BCEC_INVALID;                              // RETURN
     }
 
@@ -425,7 +425,7 @@ int bcep_EventScheduler::cancelEventAndWait(EventHandle *handle)
 
 int bcep_EventScheduler::cancelEventAndWait(RecurringEventHandle *handle)
 {
-    if (0 == handle) {
+    if (0 == (const RecurringEvent *) *handle) {
         return RecurringEventQueue::BCEC_INVALID;                     // RETURN
     }
 
