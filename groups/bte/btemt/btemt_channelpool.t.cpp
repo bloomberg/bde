@@ -879,10 +879,14 @@ void blobBasedReadCb(int             *needed,
                   << " of length: "  << msg->length() << bsl::endl;
     }
 
-    d_pool_p->disableRead(channelId);
-
-    *needed = 1;
     *numTimesCbCalled = *numTimesCbCalled + 1;
+
+    if (*numTimesCbCalled <= 2) {
+        *needed = -1;
+    }
+    else {
+        *needed = 1;
+    }
 
     msg->removeAll();
 }
@@ -7898,13 +7902,17 @@ int main(int argc, char *argv[])
 
         d_pool_p = &pool;
 
-        const char *TEXT = "Hello World";
-        const int   LEN  = strlen(TEXT);
-        const int   NUM_TIMES = 10000;
-        const int   TIMEOUT = 3;
+        const int  LEN  = 1024 * 10;
+        const char TEXT[LEN] = { 'A' };
+        const int  NUM_TIMES = 100;
+        const int  TIMEOUT = 3;
 
+        socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
         for (int i = 0; i < NUM_TIMES; ++i) {
-            socket->write(TEXT, LEN);
+            int rc = socket->write(TEXT, LEN);
+            if (rc < 0) {
+                break;
+            }
         }
 
         // Wait for the dispatcher thread to process the deregister the READ
@@ -7913,6 +7921,19 @@ int main(int argc, char *argv[])
         bcemt_ThreadUtil::microSleep(0, 3);
 
         LOOP_ASSERT(numTimesDataCbCalled, 1 == numTimesDataCbCalled);
+
+        pool.enableRead(channelId);
+
+        bcemt_ThreadUtil::microSleep(0, 3);
+
+        LOOP_ASSERT(numTimesDataCbCalled, 2 == numTimesDataCbCalled);
+
+        pool.enableRead(channelId);
+
+        bcemt_ThreadUtil::microSleep(0, 3);
+
+        LOOP_ASSERT(numTimesDataCbCalled, numTimesDataCbCalled > 2);
+
       } break;
       case 37: {
         // --------------------------------------------------------------------

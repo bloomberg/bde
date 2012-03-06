@@ -1108,7 +1108,8 @@ void btemt_Channel::processReadData(int numBytes,
     // since the 'numBytesConsumed' returned would be zero anyway.
 
     if (numBytesAvailable >= d_currentMsg.userDataField2()) {
-        int minAdditional = -1;
+        int minAdditional    = 0;    // Set to an invalid value, -1 is used to
+                                     // signal that reading should be stopped.
         int numBytesConsumed = -1;
 
         // Invariant (must be verified prior to callback): this can shed
@@ -1121,8 +1122,8 @@ void btemt_Channel::processReadData(int numBytes,
                                        &minAdditional,
                                        d_currentMsg,
                                        d_userData);
-        BSLS_ASSERT(0 <= numBytesConsumed);
-        BSLS_ASSERT(0 <  minAdditional);
+        BSLS_ASSERT(0  <= numBytesConsumed);
+        BSLS_ASSERT(0 < minAdditional || -1 == minAdditional);
 
         if (0 != numBytesConsumed) {
             bcema_PooledBufferChain *newChain = d_chainFactory_p->allocate(0);
@@ -1144,7 +1145,14 @@ void btemt_Channel::processReadData(int numBytes,
         // 'minAdditional' bytes, as this could be overly large (all we
         // need is the buffers for the next iovec read; see DRQS 12198484).
 
-        const int newLength = chain->length() + minAdditional;
+        int newLength = chain->length();
+        if (-1 != minAdditional) {
+            newLength += minAdditional;
+        }
+        else {
+            d_enableReadFlag = false;
+        }
+
         d_currentMsg.setUserDataField2(newLength);
     }
     BSLS_ASSERT(0 < d_currentMsg.userDataField2());
@@ -1158,7 +1166,8 @@ void btemt_Channel::processReadData(int numBytes,
     int blobDataLen = d_blobReadData.length() + numBytes;
     d_blobReadData.setLength(blobDataLen);
     if (blobDataLen >= d_minBytesBeforeNextCb) {
-        int minAdditional = -1;
+        int minAdditional    = 0;    // Set to an invalid value, -1 is used to
+                                     // signal that reading should be stopped.
 
         // Invariant (must be verified prior to callback): this can
         // shed additional unused buffers in 'blob', but they are
@@ -1168,12 +1177,12 @@ void btemt_Channel::processReadData(int numBytes,
                           &d_blobReadData,
                           d_channelId,
                           d_userData);
-        // TBD: can minAdditional be 0 ? PooledBufferChain based reads don't
-        // allow it but why not ?
-        //         BSLS_ASSERT(0 <= minAdditional);
-        BSLS_ASSERT(0 < minAdditional);
+        BSLS_ASSERT(0 < minAdditional || -1 == minAdditional);
 
         d_minBytesBeforeNextCb = minAdditional;
+        if (-1 == minAdditional) {
+            d_enableReadFlag = false;
+        }
     }
 }
 
@@ -1501,6 +1510,11 @@ void btemt_Channel::readCb(ChannelHandle self)
         }
 
         processReadData(readRet, HINT_OBJ);
+        if (!d_enableReadFlag) {
+            disableRead(self, true);
+            return;                                                   // RETURN
+        }
+
         allocateNextReadBuffers(readRet, totalBufferSize, HINT_OBJ);
 
         if (readRet != totalBufferSize) {
