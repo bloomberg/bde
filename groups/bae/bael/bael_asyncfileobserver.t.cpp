@@ -206,7 +206,8 @@ bdet_Datetime getCurrentTimestamp()
 
 void removeFilesByPrefix(const char *prefix)
 {
-#ifdef BSLS_PLATFORM__OS_UNIX
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+#else
     glob_t globbuf;
     bsl::string filename = prefix;
     filename += "*";
@@ -357,6 +358,43 @@ typedef LogRotationCallbackTester RotCb;
 
 }  // close unnamed namespace
 
+namespace BAEL_ASYNCFILEOBSERVER_TEST_CONCURRENCY {
+
+void executeInParallel(int                               numThreads,
+                       bcemt_ThreadUtil::ThreadFunction  func)
+   // Create the specified 'numThreads', each executing the specified 'func'.
+{
+    bcemt_ThreadUtil::Handle *threads =
+                                      new bcemt_ThreadUtil::Handle[numThreads];
+    ASSERT(threads);
+
+    int *threadIds = new int[numThreads];
+    ASSERT(threadIds);
+
+    for (int i = 0; i < numThreads; ++i) {
+        threadIds[i] = i;
+        bcemt_ThreadUtil::create(&threads[i], func, &threadIds[i]);
+    }
+    for (int i = 0; i < numThreads; ++i) {
+        bcemt_ThreadUtil::join(threads[i]);
+    }
+
+    delete [] threadIds;
+    delete [] threads;
+}
+
+extern "C" void *workerThread(void *arg)
+{
+    BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+    int threadId = *((int*)arg);
+    for (int i = 0;i < 100000; ++i) {
+        BAEL_LOG_TRACE << "bael_AsyncFileObserver Concurrency Test "
+                       << threadId << BAEL_LOG_END;
+    }
+    return 0;
+}
+}  // close namespace BAEL_ASYNCFILEOBSERVER_TEST_CONCURRENCY
+
 //=============================================================================
 //                                 MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -374,9 +412,9 @@ int main(int argc, char *argv[])
     bslma_TestAllocator allocator; bslma_TestAllocator *Z = &allocator;
 
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
+        // TESTING USAGE EXAMPLE #2
         //
         // Concerns:
         //   The 'Example 2: Asynchronous Logging Verification' provided in the
@@ -391,7 +429,7 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE 2
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nUsage Example: Asynchronous Logging"
+        if (verbose) cout << "\nUsage Example #2: Asynchronous Logging"
                           << "\n===================================" << endl;
 
         bsl::string fileName = tempFileName(veryVerbose);
@@ -418,7 +456,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Begin file offset: " << beginFileOffset << endl;
 
         for (int i = 0;i < 8000; ++i) {
-             BAEL_LOG_TRACE << "bael_AsyncFileObserver Usage Example Two"
+             BAEL_LOG_TRACE << "bael_AsyncFileObserver Usage Example #2"
                             << BAEL_LOG_END;
         }
 
@@ -435,7 +473,69 @@ int main(int argc, char *argv[])
 
         ASSERT(beginFileOffset < fileOffset   );
         ASSERT(fileOffset      < endFileOffset);
+
+        removeFilesByPrefix(fileName.c_str());
       } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING CONCURRENT PUBLICATION
+        //
+        // Concerns:
+        //   Concurrent calls to 'publish' should work correctly that writes
+        //   records from different threads into same log file in defined
+        //   format.
+        //
+        // Plan:
+        //   Concurrently invoke 'publish' of a fair large amount of records
+        //   from threads.  Verify that all the records from all threads are
+        //   written into log file and the format is not broken.
+        //
+        // Testing:
+        //   This test invokes the 'publish' method, but doesn't test it.
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << endl << "Testing Concurrent Publication" << endl
+                         << "==============================" << endl;
+
+        using namespace BAEL_ASYNCFILEOBSERVER_TEST_CONCURRENCY;
+
+        bsl::string fileName = tempFileName(veryVerbose);
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        Obj mX(bael_Severity::BAEL_WARN, &ta);
+        mX.startPublicationThread();
+        bcemt_ThreadUtil::microSleep(0, 1);
+
+        bael_LoggerManagerConfiguration configuration;
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_TRACE,
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_OFF));
+        bael_LoggerManager::initSingleton(&mX, configuration);
+
+        mX.enableFileLogging(fileName.c_str());
+
+        ASSERT(0 == bdesu_FileUtil::getFileSize(fileName));
+
+        int numThreads = 4;
+        executeInParallel(numThreads, workerThread);
+
+        mX.stopPublicationThread();
+
+        bsl::string line(&ta);
+        int linesNum = 0;
+        bsl::ifstream fs;
+        fs.open(fileName.c_str(), bsl::ifstream::in);
+        while (getline(fs, line)) { ++linesNum; }
+        fs.close();
+
+        ASSERT(linesNum == 200000 * numThreads);
+        removeFilesByPrefix(fileName.c_str());
+
+      } break;
+
       case 6: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION
@@ -532,6 +632,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
         mX.stopPublicationThread();
+        removeFilesByPrefix(BASENAME.c_str());
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -562,6 +663,7 @@ int main(int argc, char *argv[])
         mX.forceRotation();
 
         ASSERT(1 == cb.numInvocations());
+        removeFilesByPrefix(filename.c_str());
       } break;
       case 4: {
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -642,9 +744,11 @@ int main(int argc, char *argv[])
             ASSERT2(getline(stderrFs, line)); // we caught an error
 
             mX.disableFileLogging();
-            removeFilesByPrefix(fn.c_str());
             multiplexObserver.deregisterObserver(&mX);
             mX.stopPublicationThread();
+
+            removeFilesByPrefix(stderrFN.c_str());
+            removeFilesByPrefix(fn.c_str());
         }
 #endif
       } break;
@@ -1098,63 +1202,60 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // Release Records Test
+        // TESTING RELEASING RECORDS
         //
         // Concerns:
-        //   The 'releaseRecords' method works properly to clear all shared
-        //   pointers in async file observer's fixed queue without logging
-        //   them.
+        //   The 'releaseRecords' method clears all shared pointers in async
+        //   file observer's fixed queue without logging them.
         //
         // Plan:
-        //   We will first create:
-        //     a. an async file observer
-        //     b. a logger manager through scoped guard
-        //   and then let the scoped guard run out of scope before the async
-        //   file observer.  The logger manager will be released and it should
-        //   call the 'clear' method of async file observer before destruction.
-        //   We publish sufficient amount of records asynchronously right
-        //   before the scoped guard running out of scope to ensure that there
-        //   are some shared pointers of records remained in the fixed queue
-        //   when 'clear' is invoked.  We verify that the records pointed by
-        //   these shared pointers are not logged.
+        //   We will first create an async file observer and a logger manager
+        //   with limited life-time through scoped guard.  Then publish a fair
+        //   large amount of records after which let the scoped guard run out
+        //   of scope immediately.  The logger manager will be released and it
+        //   should call the 'releaseRecords' method of async file observer
+        //   before destruction.  We verify the 'releaseRecords' being called
+        //   and clears the fixed queue immediately.
         //
         // Tactics:
+        //   - Helper Function -1 (see paragraph below)
         //   - Ad-Hoc Data Selection Method
         //   - Brute Force Implementation Technique
+        //
+        // Helper Function:
+        //   The helper function is run as a child task with stdout redirected
+        //   to a file.  This captures stdout in the file so it can be
+        //   compared to output to the stringstream passed to the file
+        //   observer.  The name of the file is generated here and put into
+        //   an environment variable so the child process can read it and
+        //   compare it with the expected output.
         //
         // Testing:
         //   void releaseRecords();
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing Queue Clearance.\n"
-                             "====================================\n";
-
         bcema_TestAllocator ta;
 
-        // redirect stdout to temporary file
+        // Redirect stdout to temporary file
+
         bsl::string fileName = tempFileName(veryVerbose);
         {
             const FILE *out = stdout;
             ASSERT(out == freopen(fileName.c_str(), "w", stdout));
             fflush(stdout);
         }
-
-#if defined(BSLS_PLATFORM__OS_UNIX) && \
-   (!defined(BSLS_PLATFORM__OS_SOLARIS) || BSLS_PLATFORM__OS_VER_MAJOR >= 10)
-        // For the localtime to be picked to avoid the all.pl env to
-        // pollute us.
-        unsetenv("TZ");
-#endif
+        if (verbose)
+            cerr << "Testing 'releaseRecords'.\n"
+                 << "=========================\n" << endl;
         {
             Obj mX;  const Obj& X = mX;
             mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             ASSERT(bael_Severity::BAEL_WARN == X.stdoutThreshold());
 
+            bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
+                                                &ta);
             int logCount  = 8000;
-            int loopCount = 0;
-            int linesNum  = 0;
-            bsl::string line;
             {
                 bael_LoggerManagerConfiguration configuration;
 
@@ -1171,56 +1272,40 @@ int main(int argc, char *argv[])
 
                 BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
-                // Throw some logs into the queue
+                // Throw fair large amount of logs into the queue
 
                 for (int i = 0;i < logCount;++i)
-                    BAEL_LOG_WARN <<  "Some will not be logged"
-                                  << BAEL_LOG_END;
+                {
+                    bael_Context context;
+                    mX.publish(record, context);
+                }
+
+                ASSERT(record.numReferences() > 1);
 
                 // After this code block the logger manager will be destroyed
+
             }
 
-            // Wait up to 10 seconds for the async logging to complete
+            // The 'releaseRecord' method should clear the queue immediately
 
-            loopCount = 0;
-            do {
-                bcemt_ThreadUtil::microSleep(0, 1);
-                bsl::ifstream fs1;
-                fs1.open(fileName.c_str(), bsl::ifstream::in);
-                ASSERT(fs1.is_open());
-                linesNum = 0;
-                while (getline(fs1, line)) { ++linesNum; }
-                fs1.close();
-            } while (linesNum <= 2 * logCount && loopCount++ < 10);
-
-            // We pushed in sufficient number of logs into queue before we
-            // destroy the logger manager, so some logs must have been cleared
-            // if 'releaseRecords' works properly
-
-            ASSERT(linesNum < 2 * logCount);
+            ASSERT(record.numReferences() == 1);
 
             mX.stopPublicationThread();
+
+            // Check that the records cleared by the 'releaseRecord' do not
+            // get published.
+
+            bsl::ifstream fs;
+            bsl::string line(&ta);
+            int linesNum = 0;
+            fs.open(fileName.c_str(), bsl::ifstream::in);
+            ASSERT(fs.is_open());
+            while (getline(fs, line)) { ++linesNum; }
+            fs.close();
+
+            ASSERT(linesNum < 2 * logCount);
         }
-
-        if (verbose)
-                 cerr << "Testing 'releaseRecords' when thread is not running."
-                      << endl;
-        {
-            Obj mX;  const Obj& X = mX;
-
-            bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
-                                                &ta);
-            bael_Context    context;
-            mX.publish(record, context);
-            ASSERT(2 == record.numReferences());
-
-            ASSERT(!mX.isPublicationThreadRunning());
-
-            mX.releaseRecords();
-
-            ASSERT(1 == record.numReferences());
-            ASSERT(!mX.isPublicationThreadRunning());
-        }
+        removeFilesByPrefix(fileName.c_str());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1228,22 +1313,31 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1. The publication thread starts and stops properly
-        //   2. publish() logs in the expected format using
+        //   2. Records are published asynchronously
+        //   3. The 'publish' method logs in the expected format using
         //      enable/disableStdoutLogging
-        //   3. publish() properly ignores the severities below the one
-        //      specified at construction on 'stdout'
-        //   4. publish() publishes all messages to a file if file logging
+        //   4. The 'publish' method properly ignores the severities below the
+        //      one specified at construction on 'stdout'
+        //   5. The 'publish' publishes all messages to a file if file logging
         //      is enabled
-        //   5. the name of the log file should be in accordance with what is
+        //   6. The name of the log file should be in accordance with what is
         //      defined by the given pattern if file logging is enabled by a
         //      pattern
-        //   6. setLogFormat can change to the desired output format for both
-        //      'stdout' and the log file
+        //   7. The 'setLogFormat' method can change to the desired output
+        //      format for both 'stdout' and the log file
         //
         // Plan:
-        //   We will set up the observer and check if logged messages are in
-        //   the expected format and contain the expected data by comparing the
-        //   output of this observer with 'bael_DefaultObserver', that we
+        //   First, we setup up an observer and call 'startPublicationThread'
+        //   and 'stopPublicationThread' a couple of times to verify the
+        //   publication thread starts and stops as expected.
+        //
+        //   Then, we directly call 'publish' method to verify the publication
+        //   is indeed asynchronous.  This is done by checking records being
+        //   written even after the 'publish' methods are done invoked.
+        //
+        //   Last, we will set up the observer and check if logged messages are
+        //   in the expected format and contain the expected data by comparing
+        //   the output of this observer with 'bael_DefaultObserver', that we
         //   slightly modify.  Then, we will configure the observer to ignore
         //   different severities and test if only the expected messages are
         //   published.  We will use different manipulators to affect output
@@ -1284,8 +1378,8 @@ int main(int argc, char *argv[])
         //   void getLogFormat(const char**, const char**) const
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing threshold and output format.\n"
-                             "====================================\n";
+        if (verbose) cout << "BREATHING TEST.\n"
+                             "===============\n";
 
         bcema_TestAllocator ta;
 
@@ -1353,6 +1447,44 @@ int main(int argc, char *argv[])
             mX.stopPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
             ASSERT(!mX.isPublicationThreadRunning());
+        }
+
+        if (verbose) cerr << "Testing asynchronous publication."
+                          << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            mX.startPublicationThread();
+            bcemt_ThreadUtil::microSleep(0, 1);
+
+            bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
+                                                &ta);
+
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+
+            int beginFileOffset = bdesu_FileUtil::getFileSize(fileName);
+
+            // Throw fair large amount of logs into the queue
+
+            int logCount  = 8000;
+            for (int i = 0;i < logCount;++i)
+            {
+                bael_Context context;
+                mX.publish(record, context);
+            }
+
+            // Verify there are still records left not published
+
+            ASSERT(record.numReferences() > 1);
+            int afterFileOffset = bdesu_FileUtil::getFileSize(fileName);
+
+            // Verify writing is in process even after all 'publish' calls
+            // are finished
+
+            bcemt_ThreadUtil::microSleep(0, 1);
+            int endFileOffset = bdesu_FileUtil::getFileSize(fileName);
+            ASSERT(afterFileOffset < endFileOffset);
+
+            mX.stopPublicationThread();
         }
 
         if (verbose) cerr << "Testing threshold and output format."
@@ -2502,18 +2634,21 @@ int main(int argc, char *argv[])
 
             bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
                                                 &ta);
-            bael_Context    context;
+            bael_Context context;
             for (int i = 0;i < 8000; ++i)
                 mX.publish(record, context);
             mX.shutdownPublicationThread();
             ASSERT(!mX.isPublicationThreadRunning());
+
+            // Verify the records in fixed queue are not cleared after shutdown
 
             int numRecords = record.numReferences();
             ASSERT(numRecords > 1);
             bcemt_ThreadUtil::microSleep(0, 1);
             ASSERT(record.numReferences() == numRecords);
 
-            // Re-start the publication thread
+            // Re-start the publication thread, these remained records should
+            // get processed shortly
 
             mX.startPublicationThread();
             ASSERT(mX.isPublicationThreadRunning());
@@ -2522,6 +2657,7 @@ int main(int argc, char *argv[])
             ASSERT(record.numReferences() == 1);
         }
 
+        removeFilesByPrefix(fileName.c_str());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
