@@ -188,7 +188,8 @@ bsl::string::size_type replaceSecondSpace(bsl::string *s, char value)
     return index;
 }
 
-bdet_Datetime getCurrentTimestamp() {
+bdet_Datetime getCurrentTimestamp()
+{
     time_t currentTime = time(0);
     struct tm localtm;
 #ifdef BSLS_PLATFORM__OS_WINDOWS
@@ -212,11 +213,11 @@ void removeFilesByPrefix(const char *prefix)
     bsl::vector<bsl::string> fileNames;
     HANDLE hFind = FindFirstFile(filename.c_str(), &findFileData);
     if (hFind != INVALID_HANDLE_VALUE) {
-	fileNames.push_back(findFileData.cFileName);
-	while(FindNextFile(hFind, &findFileData)) {
-	fileNames.push_back(findFileData.cFileName);
-	}
-	FindClose(hFind);
+        fileNames.push_back(findFileData.cFileName);
+        while(FindNextFile(hFind, &findFileData)) {
+            fileNames.push_back(findFileData.cFileName);
+        }
+        FindClose(hFind);
     }
 
     char tmpPathBuf[MAX_PATH];
@@ -229,7 +230,7 @@ void removeFilesByPrefix(const char *prefix)
         if (!DeleteFile(fn.c_str()))
         {
             LPVOID lpMsgBuf;
-	    FormatMessage(
+            FormatMessage(
                 FORMAT_MESSAGE_ALLOCATE_BUFFER |
                 FORMAT_MESSAGE_FROM_SYSTEM |
                 FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -1324,6 +1325,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
         }
 
         if (verbose) cerr << "Testing constructor threshold." << endl;
@@ -1387,6 +1390,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
         }
 
         if (verbose) cerr << "Testing short format." << endl;
@@ -1469,6 +1474,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
         }
 
         if (verbose) cerr << "Testing short format with local time "
@@ -1603,6 +1610,8 @@ int main(int argc, char *argv[])
 
                 bsl::cout.rdbuf(coutSbuf);
                 multiplexObserver.deregisterObserver(&localMultiObserver);
+                localMultiObserver.deregisterObserver(&defaultObserver);
+                localMultiObserver.deregisterObserver(&mX);
             }
         }
 
