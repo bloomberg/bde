@@ -52,9 +52,7 @@ int baenet_HttpMessageGenerator::startEntity(
     }
 
     if (d_transferEncoding == baenet_HttpTransferEncoding::BAENET_CHUNKED) {
-        if (header.basicFields().contentLength().isNull() ||
-            header.basicFields().contentLength().value()  != 0)
-        {
+        if (!header.basicFields().contentLength().isNull()) {
             return -2;                                                // RETURN
         }
     }
@@ -92,9 +90,7 @@ int baenet_HttpMessageGenerator::startEntity(
     }
 
     if (d_transferEncoding == baenet_HttpTransferEncoding::BAENET_CHUNKED) {
-        if (header.basicFields().contentLength().isNull() ||
-            header.basicFields().contentLength().value()  != 0)
-        {
+        if (!header.basicFields().contentLength().isNull()) {
             return -2;                                                // RETURN
         }
     }

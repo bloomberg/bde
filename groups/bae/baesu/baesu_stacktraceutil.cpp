@@ -96,8 +96,8 @@ int baesu_StackTraceUtil::loadStackTraceFromStack(
 
     void **addresses = (void **)
                      result->allocator()->allocate(maxFrames * sizeof(void *));
-    bslma_DeallocatorGuard<bslma_Allocator>(addresses,
-                                            result->allocator());
+    bslma_DeallocatorGuard<bslma_Allocator> guard(addresses,
+                                                  result->allocator());
 
     int numAddresses = baesu_StackAddressUtil::getStackAddresses(addresses,
                                                                  maxFrames);

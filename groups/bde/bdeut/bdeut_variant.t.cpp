@@ -7729,8 +7729,7 @@ int main(int argc, char *argv[])
         {
             typedef bdeut_VariantImp<bslmf_TypeList<bslmf_Nil, int> > Obj;
 
-            bslmf_Nil nil;
-            Obj variant(nil);
+            Obj variant = Obj(bslmf_Nil());
 
             ASSERT(false == variant.isUnset());
         }

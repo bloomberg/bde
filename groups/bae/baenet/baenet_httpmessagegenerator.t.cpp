@@ -10,6 +10,7 @@
 #include <bcema_blob.h>
 #include <bcema_blobutil.h>
 #include <bcema_pooledblobbufferfactory.h>
+#include <bcema_testallocator.h>
 
 #include <bsl_cstring.h>     // strlen()
 #include <bsl_cstdlib.h>     // atoi()
@@ -90,6 +91,10 @@ void printBlob(const bcema_Blob& data)
     bcema_BlobUtil::hexDump(bsl::cout, data);
 }
 
+void ignoreCallBack(const bcema_Blob& data)
+{
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -100,10 +105,132 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+    int veryVeryVeryVerbose = argc > 5;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 3: {
+        // --------------------------------------------------------------------
+        //  TESTING Content-Length in 'startEntity'
+        //
+        //  Concerns:
+        //    -'startEntity' must reject chunked responses/requests with
+        //     Content-Length explicitly specified.
+        //    -'startEntity' must accept chunked responses/requests with
+        //     Content-Length not defined.
+        //
+        //  Plan:
+        //    Start generating a chunked-encoded HTTP entity that does not
+        //    define Content-Length and assert that 'startEntity' succeeds.
+        //    Then, start generating a chunked-encoded HTTP entity that does
+        //    define Content-Length and assert that 'startEntity' fails.
+        //    Repeat the test for both requests and responses.
+        //
+        //  See Also:
+        //    RFC 2616, section 4.4 ("Message Length")
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            bsl::cout << "TESTING Content-Length in 'startEntity'"
+                      << bsl::endl
+                      << "======================================="
+                      << bsl::endl;
+        }
+
+        int rc;
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+        {
+            bcema_PooledBlobBufferFactory factory(5);
+
+            {
+                if (veryVerbose) {
+                    bsl::cout << "a) request w/ null Content-Length"
+                              << bsl::endl
+                              << "================================="
+                              << bsl::endl;
+                }
+
+                baenet_HttpRequestLine   requestLine;
+                baenet_HttpRequestHeader header;
+
+                requestLine.majorVersion() = 1;
+                requestLine.minorVersion() = 1;
+                requestLine.method()       = baenet_HttpRequestMethod::
+                                             BAENET_GET;
+                requestLine.requestUri()   = "/";
+
+                header.basicFields().transferEncoding().push_back(
+                                 baenet_HttpTransferEncoding::BAENET_CHUNKED);
+
+                baenet_HttpMessageGenerator messageGenerator(&factory, &ta);
+
+                rc = messageGenerator.startEntity(requestLine,
+                                                  header,
+                                                  &ignoreCallBack);
+                ASSERT(0 == rc);
+
+                if (veryVerbose) {
+                    bsl::cout << "a) request w/ non-null Content-Length"
+                              << bsl::endl
+                              << "====================================="
+                              << bsl::endl;
+                }
+
+                header.basicFields().contentLength() = 0;
+
+                rc = messageGenerator.startEntity(requestLine,
+                                                  header,
+                                                  &ignoreCallBack);
+                ASSERT(0 != rc);
+            }
+
+            {
+                if (veryVerbose) {
+                    bsl::cout << "a) response w/ null Content-Length"
+                              << bsl::endl
+                              << "=================================="
+                              << bsl::endl;
+                }
+
+                baenet_HttpStatusLine     startLine;
+                baenet_HttpResponseHeader header;
+
+                startLine.majorVersion() = 1;
+                startLine.minorVersion() = 1;
+                startLine.statusCode()   = baenet_HttpStatusCode::BAENET_OK;
+                startLine.reasonPhrase() = "OK";
+
+                header.basicFields().transferEncoding().push_back(
+                                 baenet_HttpTransferEncoding::BAENET_CHUNKED);
+
+                baenet_HttpMessageGenerator messageGenerator(&factory, &ta);
+
+                rc = messageGenerator.startEntity(startLine,
+                                                  header,
+                                                  &ignoreCallBack);
+                ASSERT(0 == rc);
+
+                if (veryVerbose) {
+                    bsl::cout << "a) response w/ non-null Content-Length"
+                              << bsl::endl
+                              << "======================================"
+                              << bsl::endl;
+                }
+
+                header.basicFields().contentLength() = 0;
+
+                rc = messageGenerator.startEntity(startLine,
+                                                  header,
+                                                  &ignoreCallBack);
+                ASSERT(0 != rc);
+            }
+        }
+        ASSERT(0 <= ta.numAllocation());
+        ASSERT(0 == ta.numBytesInUse());
+
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // RESPONSE BREATHING TEST

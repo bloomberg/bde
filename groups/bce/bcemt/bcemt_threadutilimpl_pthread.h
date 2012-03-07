@@ -291,7 +291,8 @@ int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::create(
            bcemt_ThreadFunction                                       function,
            void                                                      *userData)
 {
-    return pthread_create(handle, 0, function, userData);
+    bcemt_ThreadAttributes attr;
+    return create(handle, attr, function, userData);
 }
 
 inline

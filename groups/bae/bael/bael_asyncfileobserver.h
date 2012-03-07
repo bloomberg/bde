@@ -177,8 +177,8 @@ BDES_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Publication through Logger Manager
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Publication Through Logger Manager
+///- - - - - - - - - - - - - - - - - - - - - - -
 // The following code fragments illustrate the essentials of using a file
 // observer within a 'bael' logging system.
 //
@@ -267,7 +267,7 @@ BDES_IDENT("$Id: $")
 // resources pointed by queued shared pointers need to be released in advance.
 //
 ///Example 2: Asynchronous Logging Verification
-///- - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - -
 // The publish method of 'bael_AsyncFileObserver' is non-blocking
 // and usually returns before the actual records writing is done asynchronously
 // in the publication thread.  This is major advantage of the asynchronous file
@@ -445,7 +445,7 @@ class bael_AsyncFileObserver : public bael_Observer {
         // Create publication thread using the thread function
         // 'publishThreadEntryPoint'.  Return 0 on success or if the
         // publication thread has already started, and a non-zero value
-        // otherwise. This method is not thread-safe.  The behavior is
+        // otherwise.  This method is not thread-safe.  The behavior is
         // undefined if more than two calls of this method occur concurrently.
 
     int stopThread();

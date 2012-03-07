@@ -338,10 +338,10 @@ struct RecordBufferTest : bsls_ProtocolTestImp<bael_RecordBuffer> {
     void beginSequence()                               { markDone(); }
     void endSequence()                                 { markDone(); }
     const bcema_SharedPtr<bael_Record>& back() const
-                                                       { return markDoneRef(); }
-    const bcema_SharedPtr<bael_Record>& front() const                   
-                                                       { return markDoneRef(); }
-    int length() const                                 { return markDone(); }
+                                                      { return markDoneRef(); }
+    const bcema_SharedPtr<bael_Record>& front() const
+                                                      { return markDoneRef(); }
+    int length() const                                { return markDone(); }
 };
 
 //=============================================================================
