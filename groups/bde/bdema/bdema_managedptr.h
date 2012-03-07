@@ -799,8 +799,11 @@ class bdema_ManagedPtr_Ref {
     bdema_ManagedPtr_Members *d_base_p;  // non-null pointer to the managed
                                          // state of a 'bdema_ManagedPtr'
                                          // object.
+    TARGET_TYPE              *d_cast_p;  // safely-cast pointer to the
+                                         // referencd object.
+
   public:
-    explicit bdema_ManagedPtr_Ref(bdema_ManagedPtr_Members *base);
+    bdema_ManagedPtr_Ref(bdema_ManagedPtr_Members *base, TARGET_TYPE *target);
         // Create a 'bdema_ManagedPtr_Ref' object having the specified 'base'
         // value for its 'base' attribute.  Behavior is undefined unless
         // '0 != base'.
@@ -828,6 +831,9 @@ class bdema_ManagedPtr_Ref {
     // ACCESSORS
     bdema_ManagedPtr_Members *base() const;
         // Return a pointer to the managed state of a 'bdema_SharedPtr' object.
+
+    TARGET_TYPE *target() const;
+        // Return a pointer to the referenced object.
 };
 
                            // ======================
@@ -1405,8 +1411,10 @@ struct bdema_ManagedPtr_FactoryDeleterType
 template <class TARGET_TYPE>
 inline
 bdema_ManagedPtr_Ref<TARGET_TYPE>::bdema_ManagedPtr_Ref(
-                                                bdema_ManagedPtr_Members *base)
+                                              bdema_ManagedPtr_Members *base,
+                                              TARGET_TYPE              *target)
 : d_base_p(base)
+, d_cast_p(target)
 {
     BSLS_ASSERT_SAFE(0 != base);
 }
@@ -1428,6 +1436,12 @@ bdema_ManagedPtr_Members *bdema_ManagedPtr_Ref<TARGET_TYPE>::base() const
     return d_base_p;
 }
 
+template <class TARGET_TYPE>
+inline
+TARGET_TYPE *bdema_ManagedPtr_Ref<TARGET_TYPE>::target() const
+{
+    return d_cast_p;
+}
                            // ----------------------
                            // class bdema_ManagedPtr
                            // ----------------------
@@ -1497,6 +1511,7 @@ bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(
                                          bdema_ManagedPtr_Ref<TARGET_TYPE> ref)
 : d_members(*ref.base())
 {
+    d_members.setAliasPtr(stripBasePointerType(ref.target()));
 }
 
 template <class TARGET_TYPE>
@@ -1824,6 +1839,7 @@ bdema_ManagedPtr<TARGET_TYPE>&
 bdema_ManagedPtr<TARGET_TYPE>::operator=(bdema_ManagedPtr_Ref<TARGET_TYPE> ref)
 {
     d_members.moveAssign(ref.base());
+    d_members.setAliasPtr(stripBasePointerType(ref.target()));
     return *this;
 }
 
@@ -1844,7 +1860,9 @@ bdema_ManagedPtr<TARGET_TYPE>::operator bdema_ManagedPtr_Ref<REFERENCED_TYPE>()
     BSLMF_ASSERT((bslmf_IsConvertible<TARGET_TYPE *,
                                       REFERENCED_TYPE *>::VALUE));
 
-    return bdema_ManagedPtr_Ref<REFERENCED_TYPE>(&d_members);
+    return bdema_ManagedPtr_Ref<REFERENCED_TYPE>(&d_members,
+                             static_cast<REFERENCED_TYPE *>(
+                             static_cast<TARGET_TYPE *>(d_members.pointer())));
 }
 
 // ACCESSORS

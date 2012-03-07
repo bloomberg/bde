@@ -8669,33 +8669,33 @@ int main(int argc, char *argv[])
 
                 if (verbose) cout << "\tTest value constructor\n";
 
-                const bdema_ManagedPtr_Ref<MyTestObject> ref(&empty);
-                bdema_ManagedPtr_Members * target = ref.base();
-                LOOP2_ASSERT(&empty, target, &empty == target);
+                const bdema_ManagedPtr_Ref<MyTestObject> ref(&empty, 0);
+                bdema_ManagedPtr_Members * base = ref.base();
+                LOOP2_ASSERT(&empty, base, &empty == base);
 
                 if (verbose) cout << "\tTest copy constructor\n";
 
                 bdema_ManagedPtr_Ref<MyTestObject> other = ref;
-                target = ref.base();
-                LOOP2_ASSERT(&empty, target, &empty == target);
-                target = other.base();
-                LOOP2_ASSERT(&empty, target, &empty == target);
+                base = ref.base();
+                LOOP2_ASSERT(&empty, base, &empty == base);
+                base = other.base();
+                LOOP2_ASSERT(&empty, base, &empty == base);
 
                 if (verbose) cout << "\tTest assignment\n";
 
-                const bdema_ManagedPtr_Ref<MyTestObject> second(&simple);
-                target = second.base();
-                LOOP2_ASSERT(&simple, target, &simple == target);
+                const bdema_ManagedPtr_Ref<MyTestObject> second(&simple, &x);
+                base = second.base();
+                LOOP2_ASSERT(&simple, base, &simple == base);
 
 
                 other = second;
 
-                target = ref.base();
-                LOOP2_ASSERT(&empty, target, &empty == target);
-                target = other.base();
-                LOOP2_ASSERT(&simple, target, &simple == target);
-                target = second.base();
-                LOOP2_ASSERT(&simple, target, &simple == target);
+                base = ref.base();
+                LOOP2_ASSERT(&empty, base, &empty == base);
+                base = other.base();
+                LOOP2_ASSERT(&simple, base, &simple == base);
+                base = second.base();
+                LOOP2_ASSERT(&simple, base, &simple == base);
 
                 if (verbose) cout << "\tTest destructor\n";
             }
@@ -8708,7 +8708,7 @@ int main(int argc, char *argv[])
 
         {
             bsls_AssertTestHandlerGuard guard;
-            ASSERT_SAFE_FAIL_RAW(bdema_ManagedPtr_Ref<MyTestObject> null(0));
+            ASSERT_SAFE_FAIL_RAW(bdema_ManagedPtr_Ref<MyTestObject> nil(0, 0));
         }
 #else
         if (verbose) cout << "\tNegative testing disabled due to lack of "
