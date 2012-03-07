@@ -625,6 +625,8 @@ int main(int argc, char *argv[])
                             << "\n============================================"
                             << bsl::endl;
 
+        bdem_BerEncoderOptions options;
+
         if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
         {
             typedef bdet_Date Type;
@@ -634,7 +636,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
@@ -675,7 +677,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
@@ -716,7 +718,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
@@ -758,7 +760,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
@@ -798,7 +800,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
@@ -839,7 +841,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
