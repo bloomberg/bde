@@ -537,10 +537,12 @@ int main(int argc, char *argv[])
             ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
             rc = bdesu_FileUtil::write(fdWrite, "woof", 4);
             ASSERT(4 == rc);
+#if 0
             rc = bdesu_FileUtil::close(fdWrite);
             ASSERT(0 == rc);
             fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
+#endif
 
             fdRead  = bdesu_FileUtil::open(fileNameRead,  true, false);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
@@ -616,7 +618,7 @@ int main(int argc, char *argv[])
             // read and locked for write, you can open it for read, but you
             // can't actually read from it.
 
-            fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
+            fdWrite = bdesu_FileUtil::open(fileNameWrite,  true, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
 
             fdRead  = bdesu_FileUtil::open(fileNameRead,  false, true);

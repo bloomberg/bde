@@ -226,7 +226,7 @@ bdesu_FileUtil::open(const char *pathName,
 
     return CreateFile(pathName,
                       accessMode,
-                      FILE_SHARE_READ,       // share for reading??
+                      FILE_SHARE_READ | FILE_SHARE_WRITE, // no implicit locks
                       NULL,                  // default security
                       creationInfo,          // existing file only
                       FILE_ATTRIBUTE_NORMAL, // normal file
