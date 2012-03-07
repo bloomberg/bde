@@ -548,10 +548,12 @@ int main(int argc, char *argv[])
             ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
             rc = bdesu_FileUtil::write(fdRead , "woof", 4);
             ASSERT(4 == rc);
+#if 0
             rc = bdesu_FileUtil::close(fdRead);
             ASSERT(0 == rc);
             fdRead  = bdesu_FileUtil::open(fileNameRead, false, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
+#endif
 
             // Unix can only lock a writable file for write
 
