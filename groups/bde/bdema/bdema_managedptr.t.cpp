@@ -309,6 +309,55 @@ struct Composite : Base1, Base2 {
 };
 #endif
 
+// The next three types are used for more general testing of types using
+// multiple inheritance, and vtables.  They specifically support test case 11,
+// and to not currently need to support the policy-driven generative testing
+// framework.
+
+class BaseInt1 {
+  public:
+    int d_data;  // public data as we want to inspect object layouts
+
+    BaseInt1()
+    : d_data(1)
+    {
+    }
+
+    virtual int data1() const { return d_data; }
+    virtual int data()  const { return d_data; }
+};
+
+class BaseInt2 {
+  public:
+    int d_data;  // public data as we want to inspect object layouts
+
+    BaseInt2()
+    : d_data(2)
+    {
+    }
+
+    virtual int data()  const { return d_data; }
+    virtual int data2() const { return d_data; }
+};
+
+class CompositeInt3 : public BaseInt1, public BaseInt2 {
+  public:
+    int d_data;  // public data as we want to inspect object layouts
+
+    CompositeInt3()
+    : d_data(3)
+    {
+    }
+
+    virtual int data2() const { return d_data + d_data; }
+    virtual int data1() const { return d_data * d_data; }
+    virtual int data()  const { return d_data; }
+};
+
+
+// The next set of types are the primary test types used within the policy
+// driven generative testing framework.
+
 class MyTestObject {
     // This test-class serves three purposes.  It provides a base class for the
     // test classes in this test driver, so that derived -> base conversions
@@ -7038,6 +7087,10 @@ int main(int argc, char *argv[])
         //:
         //: 7 A 'bdema_ManagedPtr' object is left in an empty state after being
         //:   supplied as the source to a move operation.
+        //:
+        //: 8 A 'bdema_ManagedPtr' object holding an object of a most-derived
+        //:   class can correclty move to a 'bdema_ManagedPtr' holding one of
+        //:   its non-lefmost base classes.
         //
         // Plan:
         //   First we test the conversion operator, including compile-fail test
@@ -7251,6 +7304,54 @@ int main(int argc, char *argv[])
             ASSERT(0 == d.ptr());
         }
         LOOP_ASSERT(numDeletes, 100 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) cout << "\tTesting moving to non-leftmost base\n";
+        {
+            CompositeInt3 derived;
+            bdema_ManagedPtr<CompositeInt3> pD(
+                                           &derived,
+                                            0,
+                                           &bdema_ManagedPtrUtil::noOpDeleter);
+            int testVal  = pD->data();
+            int testVal2 = pD->data2();
+            LOOP_ASSERT(testVal,  3 == testVal);  // pD->data()
+            LOOP_ASSERT(testVal2, 6 == testVal2); // pD->data2()
+            LOOP_ASSERT(pD->d_data, 3 == pD->d_data);
+
+            bdema_ManagedPtr<BaseInt2> pB(pD);  // cannot use '=' form
+            ASSERT(0 == pD.ptr());
+
+            testVal  = pB->data();
+            testVal2 = pB->data2();
+            LOOP_ASSERT(testVal,  3 == testVal);  // pB->data()
+            LOOP_ASSERT(testVal2, 6 == testVal2); // pB->data2()
+            LOOP_ASSERT(pB->d_data, 2 == pB->d_data);
+
+            // After testing construction, test assignment
+            bdema_ManagedPtr<CompositeInt3> pD2(
+                                           &derived,
+                                            0,
+                                           &bdema_ManagedPtrUtil::noOpDeleter);
+            // sanity checks only
+            testVal  = pD2->data();
+            testVal2 = pD2->data2();
+            LOOP_ASSERT(testVal,  3 == testVal);  // pD2->data()
+            LOOP_ASSERT(testVal2, 6 == testVal2); // pD2->data2()
+            LOOP_ASSERT(pD2->d_data, 3 == pD2->d_data);
+
+            pB = pD2;
+            ASSERT(0 == pD2.ptr());
+
+            testVal  = pB->data();
+            testVal2 = pB->data2();
+            LOOP_ASSERT(testVal,  3 == testVal);  // pB->data()
+            LOOP_ASSERT(testVal2, 6 == testVal2); // pB->data2()
+            LOOP_ASSERT(pB->d_data, 2 == pB->d_data);
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 // examples to demonstrate:
         // Moving from lvalues:
