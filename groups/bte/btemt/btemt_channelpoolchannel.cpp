@@ -160,9 +160,9 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
                            int                             channelId,
                            btemt_ChannelPool              *channelPool,
                            bcema_PooledBufferChainFactory *bufferFactory,
+                           bcema_PooledBlobBufferFactory  *blobBufferFactory,
                            bcema_PoolAllocator            *spAllocator,
                            bslma_Allocator                *allocator,
-                           bcema_PooledBlobBufferFactory  *blobBufferFactory,
                            bool                            useBlobForDataReads)
 : d_pooledBufferChainPendingData()
 , d_useBlobForDataReads(useBlobForDataReads)
@@ -170,9 +170,9 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
 , d_callbackInProgress(false)
 , d_closed(false)
 , d_readQueue(allocator)
-, d_bufferChainFactory_p(bufferFactory, 0, 
+, d_bufferChainFactory_p(bufferFactory, 0,
            bdema_ManagedPtrNilDeleter<bcema_PooledBufferChainFactory>::deleter)
-, d_blobBufferFactory_p(blobBufferFactory, 0, 
+, d_blobBufferFactory_p(blobBufferFactory, 0,
            bdema_ManagedPtrNilDeleter<bcema_PooledBlobBufferFactory>::deleter)
 , d_spAllocator_p(spAllocator)
 , d_channelPool_p(channelPool)
@@ -188,21 +188,20 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
     d_channelPool_p->getLocalAddress(&d_localAddress, d_channelId);
     d_channelPool_p->getPeerAddress(&d_peerAddress, d_channelId);
 
-    if (!d_useBlobForDataReads) {
-        if (!d_blobBufferFactory_p) {
-            d_blobBufferFactory_p.load(new (*d_allocator_p)
-                                            bcema_PooledBlobBufferFactory(
+    if (!d_blobBufferFactory_p) {
+        d_blobBufferFactory_p.load(new (*d_allocator_p)
+                                        bcema_PooledBlobBufferFactory(
                                           d_bufferChainFactory_p->bufferSize(),
-                                          d_allocator_p), d_allocator_p);
-        }
-    } else {
-        if (!d_bufferChainFactory_p) {
-            d_bufferChainFactory_p.load(new (*d_allocator_p)
-                                            bcema_PooledBufferChainFactory(
-                                          d_blobBufferFactory_p->bufferSize(),
-                                          d_allocator_p), d_allocator_p);
-	}
+                                          d_allocator_p),
+                                        d_allocator_p);
     }
+    if (!d_bufferChainFactory_p) {
+        d_bufferChainFactory_p.load(new (*d_allocator_p)
+                                        bcema_PooledBufferChainFactory(
+                                           d_blobBufferFactory_p->bufferSize(),
+                                           d_allocator_p),
+                                        d_allocator_p);
+	}
 }
 
 btemt_ChannelPoolChannel::~btemt_ChannelPoolChannel()
