@@ -151,7 +151,7 @@ void localForkExec(const char *command)
         // child process
 
         char buf[1000];
-        const int cmdLen = bsl::strlen(command);
+        const unsigned cmdLen = bsl::strlen(command);
         BSLS_ASSERT(sizeof(buf) >= cmdLen + 1);
         bsl::strcpy(buf, command);
 
