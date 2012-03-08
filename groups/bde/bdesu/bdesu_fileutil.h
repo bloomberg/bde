@@ -258,6 +258,10 @@ struct bdesu_FileUtil {
         // otherwise.  Note that two calls are necessary to open a file which
         // may or may not exist.  Also note that if 'writableFlag' and
         // 'existFlag' are both 'false', this function will necessarily fail.
+        // Also note that when a file is opened in 'append' mode, all writes
+        // will go to the end of the file, even if there has been seeking on
+        // the file descriptor or another process has changed the length of
+        // the file, though append-mode writes are not guaranteed to be atomic.
 
     static int close(FileDescriptor descriptor);
         // Close the specified 'descriptor'.  Return 0 on success and a
