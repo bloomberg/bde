@@ -799,6 +799,7 @@ class bdema_ManagedPtr_Ref {
     bdema_ManagedPtr_Members *d_base_p;  // non-null pointer to the managed
                                          // state of a 'bdema_ManagedPtr'
                                          // object.
+
     TARGET_TYPE              *d_cast_p;  // safely-cast pointer to the
                                          // referencd object.
 
