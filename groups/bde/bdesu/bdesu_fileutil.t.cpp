@@ -146,14 +146,14 @@ void localSleep(int seconds)
 static
 void localForkExec(const char *command)
 {
+    char buf[1000];
+    const unsigned cmdLen = bsl::strlen(command);
+    BSLS_ASSERT(sizeof(buf) >= cmdLen + 1);
+    bsl::strcpy(buf, command);
+
 #ifdef BSLS_PLATFORM__OS_UNIX
     if (0 == fork()) {
         // child process
-
-        char buf[1000];
-        const unsigned cmdLen = bsl::strlen(command);
-        BSLS_ASSERT(sizeof(buf) >= cmdLen + 1);
-        bsl::strcpy(buf, command);
 
         bsl::vector<char *> argvec;
         const char *endp = buf + cmdLen;
@@ -548,7 +548,7 @@ int main(int argc, char *argv[])
 
         const char *testFile = "tmp.bdesu_fileutil_12.append.txt.";
         const char *tag1     = "tmp.bdesu_fileUtil_12.tag.1.txt";
-        const char *tag2     = "tmp.bdesu_fileUtil_12.tag.2.txt";
+        const char *success  = "tmp.bdesu_fileUtil_12.success.txt";
 
         const char testString[] = { "123456789" };
 
@@ -564,7 +564,7 @@ int main(int argc, char *argv[])
 
             Obj::remove(testFile);
             Obj::remove(tag1);
-            Obj::remove(tag2);
+            Obj::remove(success);
 
             // First, test with lseek on one file desc
 
@@ -624,12 +624,13 @@ int main(int argc, char *argv[])
             off = Obj::seek(fd, 0, Obj::BDESU_SEEK_FROM_CURRENT);
             LOOP_ASSERT(off, 6 * SZ10 == off);
 
-            localTouch(tag2);
+            ASSERT(Obj::exists(success));
 
             Obj::close(fd);
             Obj::close(fd2);
             Obj::remove(testFile);
             Obj::remove(tag1);
+            Obj::remove(success);
 
             if (verbose) Q(Parent finished);
 
@@ -656,16 +657,13 @@ int main(int argc, char *argv[])
             int rc = Obj::write(fdChild, testString, SZ10);
             ASSERT(SZ10 == rc);
 
+            if (0 == testStatus) {
+                localTouch(success);
+            }
+
             localTouch(tag1);
 
-            while (!Obj::exists(tag2)) {
-                if (veryVerbose) Q(Child sleeping);
-                localSleep(1);
-            }
-            if (verbose) Q(Child detected tag2);
-
             Obj::close(fdChild);
-            Obj::remove(tag2);
 
             if (verbose) Q(Child finished);
         }
