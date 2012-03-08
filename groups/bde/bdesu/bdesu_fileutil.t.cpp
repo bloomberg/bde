@@ -148,15 +148,29 @@ void localForkExec(const char *command)
 {
 #ifdef BSLS_PLATFORM__OS_UNIX
     if (0 == fork()) {
-	// child process
+        // child process
 
-        exec(command);
+        char buf[1000];
+        const int cmdLen = bsl::strlen(command);
+        BSLS_ASSERT(sizeof(buf) >= cmdLen + 1);
+        bsl::strcpy(buf, command);
+
+        bsl::vector<char *> argvec;
+        const char *endp = buf + cmdLen;
+        for (char *pc = buf; pc < endp; ) {
+            char *start = pc;
+            while (*pc && ' ' != *pc) {
+                ++pc;
+            }
+            *pc = 0;
+            argvec.push_back(start);
+            ++pc;
+        }
+        argvec.push_back(0);
+
+        execv(argvec[0], &argvec[0]);
     }
 #else
-    char buf[1000];
-    BSLS_ASSERT(sizeof(buf) >= bsl::strlen(command) + 3);
-    bsl::strcpy(buf, command);
-
     STARTUPINFO sui;
     GetStartupInfo(&sui);
 
@@ -620,7 +634,7 @@ int main(int argc, char *argv[])
             if (verbose) Q(Parent finished);
 
 #ifdef BSLS_PLATFORM__OS_UNIX
-	    wait();
+            wait(0);
 #endif
         }
         else {
