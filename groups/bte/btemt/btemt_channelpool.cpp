@@ -1179,9 +1179,12 @@ void btemt_Channel::processReadData(int numBytes,
                           d_userData);
         BSLS_ASSERT(0 < minAdditional || -1 == minAdditional);
 
-        d_minBytesBeforeNextCb = minAdditional;
         if (-1 == minAdditional) {
             d_enableReadFlag = false;
+            d_minBytesBeforeNextCb = 0;
+        }
+        else {
+            d_minBytesBeforeNextCb = minAdditional;
         }
     }
 }

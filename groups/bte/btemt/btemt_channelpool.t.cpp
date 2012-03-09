@@ -836,6 +836,7 @@ namespace CASE38 {
 btemt_ChannelPool *d_pool_p = 0;
 int                numRead = 0;
 bcemt_Mutex        dataMutex;
+ostringstream      dataStream;
 
 void poolStateCb(int state, int source, int severity)
 {
@@ -888,7 +889,23 @@ void blobBasedReadCb(int             *needed,
         *needed = 1;
     }
 
+    bcema_BlobUtil::asciiDump(dataStream, *msg);
     msg->removeAll();
+}
+
+void populateText(char *text, int length)
+{
+    const char *data = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const int   dataLength = strlen(data);
+
+          char *curr = text;
+    const char *end  = text + length;
+
+    while (end - curr > dataLength) {
+        bsl::memcpy(curr, data, dataLength);
+        curr += dataLength;
+    }
+    memset(curr, 'A', end - curr);
 }
 
 }  // namespace TEST_CASE_38_NAMESPACE
@@ -7903,9 +7920,12 @@ int main(int argc, char *argv[])
         d_pool_p = &pool;
 
         const int  LEN  = 1024 * 10;
-        const char TEXT[LEN] = { 'A' };
-        const int  NUM_TIMES = 100;
-        const int  TIMEOUT = 3;
+        char       TEXT[LEN];
+
+        populateText(TEXT, LEN);
+
+        const int NUM_TIMES = 100;
+        const int TIMEOUT = 3;
 
         socket->setBlockingMode(bteso_Flag::BTESO_NONBLOCKING_MODE);
         for (int i = 0; i < NUM_TIMES; ++i) {
@@ -7933,7 +7953,11 @@ int main(int argc, char *argv[])
         bcemt_ThreadUtil::microSleep(0, 3);
 
         LOOP_ASSERT(numTimesDataCbCalled, numTimesDataCbCalled > 2);
+        ASSERT(0 == memcmp(TEXT, dataStream.str().c_str(), LEN));
 
+        if (veryVerbose) {
+            P(dataStream.str())
+        }
       } break;
       case 37: {
         // --------------------------------------------------------------------
