@@ -1586,7 +1586,7 @@ bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(MANAGED_TYPE *ptr,
                                          void                *cookie,
                                          void (*deleter)(MANAGED_BASE*, void*))
 : d_members(stripCompletePointerType(ptr),
-            0,
+            cookie,
             reinterpret_cast<DeleterFunc>(deleter),
             stripBasePointerType(ptr))
 {
@@ -1594,7 +1594,6 @@ bdema_ManagedPtr<TARGET_TYPE>::bdema_ManagedPtr(MANAGED_TYPE *ptr,
     BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *,
                                       const MANAGED_BASE *>::VALUE));
 
-    BSLS_ASSERT_SAFE(0 == cookie);
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 }
 
@@ -1747,12 +1746,9 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
     BSLMF_ASSERT((!bslmf_IsVoid<MANAGED_BASE>::VALUE));
     BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, MANAGED_BASE *>::VALUE));
 #endif
-    BSLS_ASSERT_SAFE(0 == cookie);
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);
 
-    this->loadImp(ptr,
-                  static_cast<void *>(0),
-                  reinterpret_cast<DeleterFunc>(deleter));
+    this->loadImp(ptr, cookie, reinterpret_cast<DeleterFunc>(deleter));
 }
 
 template <class TARGET_TYPE>
