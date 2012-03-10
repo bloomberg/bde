@@ -6128,6 +6128,19 @@ namespace TYPE_CASTING_TEST_NAMESPACE {
 }  // close namespace TYPE_CASTING_TEST_NAMESPACE
 
 //=============================================================================
+//                  DRQS 30670366
+//-----------------------------------------------------------------------------
+namespace DRQS_30670366_NAMESPACE { 
+
+
+void testDeleter(int *expectedCookieValue, void *cookie)
+{
+    ASSERT(expectedCookieValue == cookie);
+}
+
+}  // close namespace TYPE_CASTING_TEST_NAMESPACE
+
+//=============================================================================
 //                  TEST PROGRAM
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
@@ -6150,6 +6163,37 @@ int main(int argc, char *argv[])
     bslma_Default::setDefaultAllocator(&da);
 
     switch (test) { case 0:
+      case 21: {
+        // --------------------------------------------------------------------
+        // DRQS 30670366
+        //
+        // Concerns
+        //   Suppling a cookie of type 'void *' and a deletion functor of type
+        //   void deleter(DERIVED_TYPE *, void *) supplies the correct cookie
+        //   to the deletion functor.
+        //
+        // Plan:
+        //   Replicated the .
+        //
+        // Testing:
+        //   
+        // --------------------------------------------------------------------
+        using namespace DRQS_30670366_NAMESPACE;
+        if (verbose) cout << "\nDRQS 30670366"
+                          << "\n-------------" << endl;
+          
+        {
+            int cookie = 100;
+            bdema_ManagedPtr<int> test(&cookie, 
+                                       (void *)&cookie, 
+                                       &testDeleter);
+        }
+        {
+            int cookie = 100;
+            bdema_ManagedPtr<int> test;
+            test.load(&cookie, (void *)&cookie, &testDeleter);
+        }
+      } break;
       case 20: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION EXAMPLES
