@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
                 const int   LINE  = DATA[ti].d_lineNum;
                 const Enum  VALUE = DATA[ti].d_value;
                 const char *EXP   = DATA[ti].d_exp;
-            
+
                 const char *result = Obj::toString(VALUE);
 
                 if (veryVerbose) { T_; P_(ti); P_(VALUE); P_(EXP); P(result); }
