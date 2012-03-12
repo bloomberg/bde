@@ -89,6 +89,45 @@ int baexml_EncodingStyle::fromString(baexml_EncodingStyle::Value *result,
                 return 0;
             }
         } break;
+        case 13: {
+            if ((string[0]|0x20)=='b'
+             && (string[1]|0x20)=='a'
+             && (string[2]|0x20)=='e'
+             && (string[3]|0x20)=='x'
+             && (string[4]|0x20)=='m'
+             && (string[5]|0x20)=='l'
+             &&  string[6]      =='_'
+             && (string[7]|0x20)=='p'
+             && (string[8]|0x20)=='r'
+             && (string[9]|0x20)=='e'
+             && (string[10]|0x20)=='t'
+             && (string[11]|0x20)=='t'
+             && (string[12]|0x20)=='y')
+            {
+                *result = baexml_EncodingStyle::BAEXML_PRETTY;
+                return 0;
+            }
+        } break;
+        case 14: {
+            if ((string[0]|0x20)=='b'
+             && (string[1]|0x20)=='a'
+             && (string[2]|0x20)=='e'
+             && (string[3]|0x20)=='x'
+             && (string[4]|0x20)=='m'
+             && (string[5]|0x20)=='l'
+             &&  string[6]      =='_'
+             && (string[7]|0x20)=='c'
+             && (string[8]|0x20)=='o'
+             && (string[9]|0x20)=='m'
+             && (string[10]|0x20)=='p'
+             && (string[11]|0x20)=='a'
+             && (string[12]|0x20)=='c'
+             && (string[13]|0x20)=='t')
+            {
+                *result = baexml_EncodingStyle::BAEXML_COMPACT;
+                return 0;
+            }
+        } break;
     }
     
     return -1;

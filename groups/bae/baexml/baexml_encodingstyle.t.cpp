@@ -10,6 +10,7 @@ BDES_IDENT_RCSID(baexml_encodingstyle_t_cpp,"$Id$ $CSID$")
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -66,7 +67,13 @@ static void aSsErT(int c, const char *s, int i)
                                               // P(X) without '\n'
 #define L_ __LINE__                           // current Line number
 #define NL "\n"
-#define T_() bsl::cout << '\t' << bsl::flush; // Print tab w/o newline.
+#define T_ cout << "\t" << flush;             // Print tab w/o newline.
+
+// =========================================================================
+//                       GLOBAL CONSTANTS FOR TESTING
+// -------------------------------------------------------------------------
+
+#define UNKNOWN_FORMAT "(* UNKNOWN *)"
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -93,6 +100,101 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 2: {
+        // -------------------------------------------------------------------
+        // TESTING 'toString' and 'fromString'
+        //
+        // Concerns:
+        //: 1 The 'toString' method returns the expected string representation
+        //:   for each enumerator.
+        //: 2 The 'fromString' method returns the right enumeration value.
+        //
+        // Plan:
+        //: 1 Test 'toString' with different enumerator values and checking
+        //:   against the expected string representation.
+        //: 2 Test 'fromString' with different string values and checking
+        //:   against the expected enumerator value.
+        //
+        // Testing:
+        //   const char *toString(Value val);
+        //   int fromString(Value *result, const char *str, int len);
+        // -------------------------------------------------------------------
+
+        if (verbose) cout << endl << "Testing 'toString' and 'fromString'"
+                          << endl << "==================================="
+                          << endl;
+
+        typedef baexml_EncodingStyle::Value Enum;
+        typedef baexml_EncodingStyle        Obj;
+
+        if (verbose) cout << "\nTesting 'toString'." << endl;
+
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                Enum        d_value;    // enumerator value
+                const char *d_exp;      // expected result
+            } DATA[] = {
+                // line         enumerator value        expected result
+                // ----    -----------------------      -----------------
+                {  L_,     Obj::BAEXML_COMPACT,         "COMPACT"         },
+                {  L_,     Obj::COMPACT,                "COMPACT"         },
+                {  L_,     Obj::BAEXML_PRETTY,          "PRETTY"          },
+                {  L_,     Obj::PRETTY,                 "PRETTY"          },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE  = DATA[ti].d_lineNum;
+                const Enum  VALUE = DATA[ti].d_value;
+                const char *EXP   = DATA[ti].d_exp;
+
+                const char *result = Obj::toString(VALUE);
+
+                if (veryVerbose) { T_; P_(ti); P_(VALUE); P_(EXP); P(result); }
+
+                LOOP2_ASSERT(LINE, ti, strlen(EXP) == strlen(result));
+                LOOP2_ASSERT(LINE, ti,           0 == strcmp(EXP, result));
+            }
+        }
+
+        if (verbose) cout << "\nTesting 'fromString'." << endl;
+
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                Enum        d_expValue; // expected enumerator value
+                const char *d_inputStr; // input string
+            } DATA[] = {
+                // line         enumerator value        expected result
+                // ----    -----------------------      -----------------
+                {  L_,     Obj::BAEXML_COMPACT,         "COMPACT"         },
+                {  L_,     Obj::BAEXML_COMPACT,         "compact"         },
+                {  L_,     Obj::BAEXML_COMPACT,         "BAEXML_COMPACT"  },
+                {  L_,     Obj::BAEXML_COMPACT,         "baexml_compact"  },
+                {  L_,     Obj::BAEXML_PRETTY,          "PRETTY"          },
+                {  L_,     Obj::BAEXML_PRETTY,          "pretty"          },
+                {  L_,     Obj::BAEXML_PRETTY,          "BAEXML_PRETTY"   },
+                {  L_,     Obj::BAEXML_PRETTY,          "baexml_pretty"   },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE      = DATA[ti].d_lineNum;
+                const Enum  EXP_VALUE = DATA[ti].d_expValue;
+                const char *STR       = DATA[ti].d_inputStr;
+
+                Enum value;
+                int rc = Obj::fromString(&value, STR, strlen(STR));
+
+                if (veryVerbose) { T_; P_(ti); P_(value); P_(STR); P(rc); }
+
+                LOOP_ASSERT(LINE, !rc);
+                LOOP_ASSERT(LINE, EXP_VALUE == value);
+            }
+        }
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // Basic Attribute Test:
