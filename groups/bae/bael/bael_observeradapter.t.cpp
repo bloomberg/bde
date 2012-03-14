@@ -82,6 +82,7 @@ void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 
 struct ConcreteObserver : public bael_ObserverAdapter {
+    using bael_ObserverAdapter::publish;
     void publish(const bael_Record&, const bael_Context&)
     {
         cout << "ConcreteObserver::publish(record&)" << endl;
@@ -98,6 +99,7 @@ class my_OstreamObserver : public bael_ObserverAdapter {
     ostream *d_stream;
 
   public:
+    using bael_ObserverAdapter::publish;
     explicit my_OstreamObserver(ostream& stream) : d_stream(&stream) { }
     virtual ~my_OstreamObserver();
     virtual void publish(const bael_Record&  record,
