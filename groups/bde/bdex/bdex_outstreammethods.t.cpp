@@ -5,6 +5,7 @@
 #include <bsls_platformutil.h>
 
 #include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstring.h>     // memcpy()
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;

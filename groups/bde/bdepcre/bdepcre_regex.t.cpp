@@ -6,6 +6,7 @@
 #include <bslma_testallocator.h>            // for testing only
 
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_utility.h>
