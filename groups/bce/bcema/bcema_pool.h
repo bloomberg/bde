@@ -285,6 +285,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_BCEMT_LOCKGUARD
@@ -297,10 +301,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISPOLYMORPHIC
 #include <bslmf_ispolymorphic.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
-#include <bsl_cstddef.h>
 #endif
 
 #endif
