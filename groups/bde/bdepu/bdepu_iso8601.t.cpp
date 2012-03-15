@@ -1055,7 +1055,7 @@ int main(int argc, char *argv[])
         static const int UTC_LCZ_OFFSET   = UTC_EMPTY_OFFSET + 'z';
 
         static const int UTC_OFFSETS[] = {
-            0, -90, -240, -720, 90, 240, 720,
+            0, -90, -240, -720, -1439, 90, 240, 720, 1439,
             UTC_EMPTY_OFFSET, UTC_UCZ_OFFSET, UTC_LCZ_OFFSET
         };
         static const int NUM_UTC_OFFSETS =
