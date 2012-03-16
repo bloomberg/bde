@@ -7,6 +7,7 @@
 #include <bdet_datetimetz.h>
 #include <bdet_datetz.h>
 #include <bdet_time.h>
+#include <bdeu_chartype.h>
 
 #include <bsls_stopwatch.h>
 
@@ -997,7 +998,7 @@ int main(int argc, char *argv[])
 
             { L_, 2005,  1,  1, 24,   1,   0,     0, "",           1,  0 },
             { L_, 2005,  1,  1, 24,   0,   1,     0, "",           1,  0 },
-            { L_, 2005,  1,  1, 24,   0,   0,  1000, ".9991",      1,  0 },
+            { L_, 2005,  1,  1, 24,   0,   0,   999, ".9991",      1,  0 },
 
             // Valid dates and times
             { L_, 2005,  1,  1, 24,   0,   0,     0, "",           1,  1 },
@@ -1059,11 +1060,11 @@ int main(int argc, char *argv[])
             UTC_EMPTY_OFFSET, UTC_UCZ_OFFSET, UTC_LCZ_OFFSET
         };
         static const int NUM_UTC_OFFSETS =
-            sizeof UTC_OFFSETS / sizeof *UTC_OFFSETS;
+                                      sizeof UTC_OFFSETS / sizeof *UTC_OFFSETS;
 
-        static const char *JUNK[] = { "", ".99", "xyz" };
+        static const char *JUNK[] = { "xyz", "?1234", "*zbc", "*", "01", "+",
+                                                                         "-" };
         static const int NUM_JUNK = sizeof JUNK / sizeof *JUNK;
-        int junkIndex = 0;
 
         const bdet_Date       initDate( 3,  3,  3);
         const bdet_Time       initTime(11, 11, 11);
@@ -1091,6 +1092,12 @@ int main(int argc, char *argv[])
                 P_(FRAC_SECOND); P_(DATE_VALID); P(TIME_VALID);
             }
 
+            const bool carrySecond = bsl::strlen(FRAC_SECOND) >= 5
+                                      && !bsl::strncmp(FRAC_SECOND, ".999", 4)
+                                      && bdeu_CharType::isDigit(FRAC_SECOND[4])
+                                      && FRAC_SECOND[4] - '0' >= 5;
+            LOOP_ASSERT(LINE, carrySecond == (MILLISECOND == 1000));
+
             bdet_Date theDate;
             const bool isValidDate =
                 0 == theDate.setYearMonthDayIfValid(YEAR, MONTH, DAY);
@@ -1102,236 +1109,359 @@ int main(int argc, char *argv[])
                 const int UTC_OFFSET = (UTC_OFFSETS[j] >= UTC_EMPTY_OFFSET ?
                                         0 : UTC_OFFSETS[j]);
 
-                bdet_DateTz     theDateTz;
-                if (isValidDate) {
-                    theDateTz.setDateTz(theDate, UTC_OFFSET);
-                }
+                for (int k = 0; k < NUM_JUNK; ++k) {
+                    // Select a semi-random piece of junk to append to the
+                    // end of the string.
 
-                bdet_Time theTime;
-                bool isValidTime =
-                         0 == theTime.setTimeIfValid(HOUR, MINUTE, SECOND);
-                if (isValidTime && MILLISECOND) {
-                    if (HOUR >= 24) {
-                        isValidTime = false;
-                        theTime = bdet_Time();
+                    const char* const JUNK_STR = JUNK[k];
+
+                    bdet_DateTz     theDateTz;
+                    if (isValidDate) {
+                        theDateTz.setDateTz(theDate, UTC_OFFSET);
                     }
-                    else {
-                        theTime.addMilliseconds(MILLISECOND);
+
+                    bdet_Time theTime;
+                    bool isValidTime =
+                             0 == theTime.setTimeIfValid(HOUR, MINUTE, SECOND);
+                    if (isValidTime && MILLISECOND) {
+                        if (HOUR >= 24) {
+                            isValidTime = false;
+                            theTime = bdet_Time();
+                        }
+                        else {
+                            theTime.addMilliseconds(MILLISECOND);
+                        }
                     }
-                }
-                LOOP_ASSERT(LINE, TIME_VALID == isValidTime);
-                isValidTime &= !(24 == HOUR && UTC_OFFSET);
+                    LOOP_ASSERT(LINE, TIME_VALID == isValidTime);
+                    isValidTime &= !(24 == HOUR && UTC_OFFSET);
 
-                bdet_TimeTz     theTimeTz;
-                bool isValidTimeTz = isValidTime
-                   && 0 == theTimeTz.validateAndSetTimeTz(theTime, UTC_OFFSET);
+                    bdet_TimeTz     theTimeTz;
+                    bool isValidTimeTz = isValidTime
+                       && 0 == theTimeTz.validateAndSetTimeTz(theTime,
+                                                                   UTC_OFFSET);
 
-                bool isValidDatetime = (isValidDate && isValidTime);
-                bdet_Datetime theDatetime;
-                if (isValidDatetime) {
-                    theDatetime.setDatetime(YEAR, MONTH, DAY,
-                                            HOUR, MINUTE, SECOND);
-                    if (MILLISECOND) {
-                        theDatetime.addMilliseconds(MILLISECOND);
+                    bool isValidDatetime = (isValidDate && isValidTime);
+                    bdet_Datetime theDatetime;
+                    if (isValidDatetime) {
+                        theDatetime.setDatetime(YEAR, MONTH, DAY,
+                                                HOUR, MINUTE, SECOND);
+                        if (MILLISECOND) {
+                            theDatetime.addMilliseconds(MILLISECOND);
+                        }
                     }
-                }
 
-                bdet_DatetimeTz theDatetimeTz;
-                bool isValidDatetimeTz = isValidDatetime
+                    bdet_DatetimeTz theDatetimeTz;
+                    bool isValidDatetimeTz = isValidDatetime
                                 && 0 == theDatetimeTz.validateAndSetDatetimeTz(
                                                       theDatetime, UTC_OFFSET);
 
-                char dateStr[25], timeStr[25], offsetStr[10];
-                bsl::sprintf(dateStr, "%04d-%02d-%02d", YEAR, MONTH, DAY);
-                bsl::sprintf(timeStr, "%02d:%02d:%02d%s",
-                             HOUR, MINUTE, SECOND, FRAC_SECOND);
-                if (UTC_OFFSETS[j] >= UTC_EMPTY_OFFSET) {
-                    // Create empty string, "Z", or "z"
-                    offsetStr[0] = UTC_OFFSETS[j] - UTC_EMPTY_OFFSET;
-                    offsetStr[1] = '\0';
-                }
-                else {
-                    bsl::sprintf(offsetStr, "%+03d:%02d",
-                                 UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
-                }
-
-                // Select a semi-random piece of junk to append to the
-                // end of the string.
-                const char* const JUNK_STR = JUNK[junkIndex];
-                junkIndex = (junkIndex + 1) % NUM_JUNK;
-
-                char input[200];
-                int ret;
-
-                {
-                    bdet_DatetimeTz datetime = initDatetimeTz;
-                    bsl::strcpy(input, dateStr);
-                    bsl::strcat(input, "T");
-                    bsl::strcat(input, timeStr);
-                    bsl::strcat(input, offsetStr);
-                    int inputLen = bsl::strlen(input);
-                    bsl::strcat(input, JUNK_STR); // not included in length
-                    ret = Util::parse(&datetime, input, inputLen);
-                    LOOP5_ASSERT(LINE, input, ret, isValidDatetimeTz,
-                                        UTC_OFFSET, isValidDatetimeTz == !ret);
-                    if (isValidDatetimeTz) {
-                        LOOP3_ASSERT(LINE, input, datetime,
-                                                    datetime == theDatetimeTz);
-                        if (bsl::strncmp(FRAC_SECOND, ".999", 4)) {
-                            LOOP3_ASSERT(LINE, datetime, SECOND,
-                                  datetime.localDatetime().second() == SECOND);
-                            LOOP3_ASSERT(LINE, datetime, MINUTE,
-                                  datetime.localDatetime().minute() == MINUTE);
-                            LOOP3_ASSERT(LINE, datetime, HOUR,
-                                  datetime.localDatetime().hour() == HOUR);
-                            LOOP3_ASSERT(LINE, datetime, DAY,
-                                  datetime.localDatetime().day() == DAY);
-                            LOOP3_ASSERT(LINE, datetime, MONTH,
-                                  datetime.localDatetime().month() == MONTH);
-                            LOOP4_ASSERT(LINE, input, datetime, YEAR,
-                                  datetime.localDatetime().year() == YEAR);
-                        }
+                    char dateStr[25], timeStr[25], offsetStr[10];
+                    bsl::sprintf(dateStr, "%04d-%02d-%02d", YEAR, MONTH, DAY);
+                    bsl::sprintf(timeStr, "%02d:%02d:%02d%s",
+                                 HOUR, MINUTE, SECOND, FRAC_SECOND);
+                    if (UTC_OFFSETS[j] >= UTC_EMPTY_OFFSET) {
+                        // Create empty string, "Z", or "z"
+                        offsetStr[0] = UTC_OFFSETS[j] - UTC_EMPTY_OFFSET;
+                        offsetStr[1] = '\0';
                     }
                     else {
-                        LOOP_ASSERT(LINE, initDatetimeTz == datetime);
+                        bsl::sprintf(offsetStr, "%+03d:%02d",
+                                   UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
                     }
-                    if (veryVerbose) { T_; P(datetime); }
-                }
 
-                {
-                    const bdet_Datetime EXP_DATETIME = isValidDatetime ?
+                    const bool trailFrac = bsl::strlen(FRAC_SECOND) > 1
+                                          && 0 == bsl::strlen(offsetStr)
+                                          && bdeu_CharType::isDigit(*JUNK_STR);
+    
+                    char input[200];
+                    int ret;
+
+                    {
+                        bdet_DatetimeTz datetime = initDatetimeTz;
+                        bsl::strcpy(input, dateStr);
+                        bsl::strcat(input, "T");
+                        bsl::strcat(input, timeStr);
+                        bsl::strcat(input, offsetStr);
+                        int inputLen = bsl::strlen(input);
+                        bsl::strcat(input, JUNK_STR); // not included in length
+                        ret = Util::parse(&datetime, input, inputLen);
+                        LOOP5_ASSERT(LINE, input, ret, isValidDatetimeTz,
+                                        UTC_OFFSET, isValidDatetimeTz == !ret);
+                        if (ret) {
+                            LOOP_ASSERT(datetime, initDatetimeTz == datetime);
+                        }
+                        else {
+                            LOOP3_ASSERT(LINE, input, datetime,
+                                                    datetime == theDatetimeTz);
+                            if (carrySecond) {
+                                LOOP3_ASSERT(LINE, datetime, SECOND,
+                                      datetime.localDatetime().second() ==
+                                                            (SECOND + 1) % 60);
+                                LOOP3_ASSERT(LINE, datetime, SECOND,
+                                  datetime.localDatetime().millisecond() == 0);
+                            }
+                            else {
+                                const bdet_Datetime& dt =
+                                                      datetime.localDatetime();
+
+                                LOOP3_ASSERT(LINE, datetime, MILLISECOND,
+                                              dt.millisecond() == MILLISECOND);
+                                LOOP3_ASSERT(LINE, datetime, SECOND,
+                                                        dt.second() == SECOND);
+                                LOOP3_ASSERT(LINE, datetime, MINUTE,
+                                                        dt.minute() == MINUTE);
+                                LOOP3_ASSERT(LINE, datetime, HOUR,
+                                                            dt.hour() == HOUR);
+                                LOOP3_ASSERT(LINE, datetime, DAY,
+                                                             dt.day() == DAY);
+                                LOOP3_ASSERT(LINE, datetime, MONTH,
+                                                          dt.month() == MONTH);
+                                LOOP4_ASSERT(LINE, input, datetime, YEAR,
+                                                            dt.year() == YEAR);
+                            }
+                        }
+                        if (veryVerbose) { T_; P(datetime); }
+
+                        // with junk on end should fail
+
+                        if (!trailFrac) {
+                            datetime = initDatetimeTz;
+                            ret = Util::parse(&datetime, input,
+                                                           bsl::strlen(input));
+                            LOOP5_ASSERT(LINE, input, ret, isValidDatetimeTz,
+                                                         UTC_OFFSET, 0 != ret);
+                            LOOP_ASSERT(datetime, initDatetimeTz == datetime);
+                        }
+                    }
+
+                    {
+                        const bdet_Datetime EXP_DATETIME = isValidDatetime ?
                                  theDatetimeTz.gmtDatetime() : bdet_Datetime();
 
-                    bdet_Datetime datetime = initDatetime;
-                    bsl::strcpy(input, dateStr);
-                    bsl::strcat(input, "T");
-                    bsl::strcat(input, timeStr);
-                    bsl::strcat(input, offsetStr);
-                    int inputLen = bsl::strlen(input);
-                    bsl::strcat(input, JUNK_STR); // not included in length
-                    ret = Util::parse(&datetime, input, inputLen);
-                    LOOP3_ASSERT(LINE, input, ret, isValidDatetime == !ret);
-                    if (isValidDatetime) {
-                        LOOP4_ASSERT(LINE, input, datetime, EXP_DATETIME,
+                        bdet_Datetime datetime = initDatetime;
+                        bsl::strcpy(input, dateStr);
+                        bsl::strcat(input, "T");
+                        bsl::strcat(input, timeStr);
+                        bsl::strcat(input, offsetStr);
+                        int inputLen = bsl::strlen(input);
+                        bsl::strcat(input, JUNK_STR); // not included in length
+                        ret = Util::parse(&datetime, input, inputLen);
+                        LOOP3_ASSERT(LINE, input, ret,
+                                                      isValidDatetime == !ret);
+                        if (ret) {
+                            LOOP_ASSERT(datetime, initDatetime == datetime);
+                        }
+                        if (isValidDatetime) {
+                            LOOP4_ASSERT(LINE, input, datetime, EXP_DATETIME,
                                                      EXP_DATETIME == datetime);
-                        if (bsl::strncmp(FRAC_SECOND, ".999", 4) && 0 == j) {
-                            LOOP3_ASSERT(LINE, datetime, SECOND,
+                            if (carrySecond) {
+                                LOOP3_ASSERT(LINE, datetime, SECOND,
+                                       datetime.second() == (SECOND + 1) % 60);
+                                LOOP3_ASSERT(LINE, datetime, SECOND,
+                                                  datetime.millisecond() == 0);
+                            }
+                            else {
+                                LOOP3_ASSERT(LINE, datetime, SECOND,
                                                   datetime.second() == SECOND);
-                            LOOP3_ASSERT(LINE, datetime, MINUTE,
+                                if (0 == UTC_OFFSET % 60) {
+                                    LOOP3_ASSERT(LINE, datetime, MINUTE,
                                                   datetime.minute() == MINUTE);
-                            LOOP3_ASSERT(LINE, datetime, HOUR,
-                                                  datetime.hour() == HOUR);
-                            LOOP3_ASSERT(LINE, datetime, DAY,
-                                                  datetime.day() == DAY);
-                            LOOP3_ASSERT(LINE, datetime, MONTH,
-                                                  datetime.month() == MONTH);
-                            LOOP3_ASSERT(LINE, datetime, YEAR,
-                                                  datetime.year() == YEAR);
+                                }
+                                if (0 == UTC_OFFSET) {
+                                    LOOP3_ASSERT(LINE, datetime, HOUR,
+                                                      datetime.hour() == HOUR);
+                                    LOOP3_ASSERT(LINE, datetime, DAY,
+                                                        datetime.day() == DAY);
+                                    LOOP3_ASSERT(LINE, datetime, MONTH,
+                                                    datetime.month() == MONTH);
+                                    LOOP3_ASSERT(LINE, datetime, YEAR,
+                                                      datetime.year() == YEAR);
+                                }
+                            }
+                        }
+                        else {
+                            LOOP_ASSERT(LINE, initDatetime == datetime);
+                        }
+                        if (veryVerbose) { T_; P(datetime); }
+
+                        // with junk on end should fail
+
+                        if (!trailFrac) {
+                            datetime = initDatetime;
+                            ret = Util::parse(&datetime, input,
+                                                           bsl::strlen(input));
+                            LOOP3_ASSERT(LINE, input, ret, 0 != ret);
+                            LOOP_ASSERT(initDatetime,initDatetime == datetime);
                         }
                     }
-                    else {
-                        LOOP_ASSERT(LINE, initDatetime == datetime);
-                    }
-                    if (veryVerbose) { T_; P(datetime); }
-                }
 
-                {
-                    bdet_DateTz date = initDateTz;
-                    bsl::strcpy(input, dateStr);
-                    bsl::strcat(input, offsetStr);
-                    int inputLen = bsl::strlen(input);
-                    bsl::strcat(input, JUNK_STR); // not included in length
-                    ret = Util::parse(&date, input, inputLen);
-                    LOOP3_ASSERT(LINE, input, ret, isValidDate == !ret);
-                    if (isValidDate) {
-                        LOOP3_ASSERT(LINE, input, date, date == theDateTz);
-                        LOOP3_ASSERT(LINE, date, DAY,
-                                            date.localDate().day() == DAY);
-                        LOOP3_ASSERT(LINE, date, MONTH,
+                    {
+                        bdet_DateTz date = initDateTz;
+                        bsl::strcpy(input, dateStr);
+                        bsl::strcat(input, offsetStr);
+                        int inputLen = bsl::strlen(input);
+                        bsl::strcat(input, JUNK_STR); // not included in length
+                        ret = Util::parse(&date, input, inputLen);
+                        LOOP3_ASSERT(LINE, input, ret, isValidDate == !ret);
+                        if (ret) {
+                            LOOP_ASSERT(date, initDateTz == date);
+                        }
+                        if (isValidDate) {
+                            LOOP3_ASSERT(LINE, input, date, date == theDateTz);
+                            LOOP3_ASSERT(LINE, date, DAY,
+                                                date.localDate().day() == DAY);
+                            LOOP3_ASSERT(LINE, date, MONTH,
                                             date.localDate().month() == MONTH);
-                        LOOP3_ASSERT(LINE, date, YEAR,
-                                            date.localDate().year() == YEAR);
-                    }
-                    else {
-                        LOOP_ASSERT(LINE, initDateTz == date);
-                    }
-                    if (veryVerbose) { T_; P(date); }
-                }
+                            LOOP3_ASSERT(LINE, date, YEAR,
+                                              date.localDate().year() == YEAR);
+                        }
+                        else {
+                            LOOP_ASSERT(LINE, initDateTz == date);
+                        }
+                        if (veryVerbose) { T_; P(date); }
 
-                {
-                    bdet_Date date = initDate;
-                    bsl::strcpy(input, dateStr);
-                    bsl::strcat(input, offsetStr);
-                    int inputLen = bsl::strlen(input);
-                    bsl::strcat(input, JUNK_STR); // not included in length
-                    ret = Util::parse(&date, input, inputLen);
-                    LOOP3_ASSERT(LINE, input, ret, isValidDate == !ret);
-                    if (isValidDate) {
-                        LOOP3_ASSERT(LINE, input, date, date == theDate);
-                        LOOP3_ASSERT(LINE, date, DAY,   date.day()   == DAY);
-                        LOOP3_ASSERT(LINE, date, MONTH, date.month() == MONTH);
-                        LOOP3_ASSERT(LINE, date, YEAR,  date.year()  == YEAR);
+                        // with junk on end should fail
 
-                    }
-                    else {
-                        LOOP_ASSERT(LINE, initDate == date);
-                    }
-                    if (veryVerbose) { T_; P(date); }
-                }
-
-                {
-                    bdet_TimeTz time = initTimeTz;
-                    bsl::strcpy(input, timeStr);
-                    bsl::strcat(input, offsetStr);
-                    int inputLen = bsl::strlen(input);
-                    bsl::strcat(input, JUNK_STR); // not included in length
-                    ret = Util::parse(&time, input, inputLen);
-                    LOOP5_ASSERT(LINE, input, ret, isValidTimeTz, UTC_OFFSET,
-                                                        isValidTimeTz == !ret);
-                    if (isValidTimeTz) {
-                        LOOP3_ASSERT(LINE, input, time, time == theTimeTz);
-                        if (bsl::strncmp(FRAC_SECOND, ".999", 4)) {
-                            LOOP3_ASSERT(LINE, time, SECOND,
-                                          time.localTime().second() == SECOND);
-                            LOOP3_ASSERT(LINE, time, MINUTE,
-                                          time.localTime().minute() == MINUTE);
-                            LOOP3_ASSERT(LINE, time, HOUR,
-                                              time.localTime().hour() == HOUR);
+                        if (!trailFrac) {
+                            date = initDateTz;
+                            ret = Util::parse(&date, input,
+                                                           bsl::strlen(input));
+                            LOOP3_ASSERT(LINE, input, ret, 0 != ret);
+                            LOOP_ASSERT(date, initDateTz == date);
                         }
                     }
-                    else if (! isValidTimeTz) {
-                        LOOP_ASSERT(LINE, initTimeTz == time);
-                    }
-                    if (veryVerbose) { T_; P(time); }
-                }
 
-                {
-                    const bdet_Time EXP_TIME = isValidTime ?
+                    {
+                        bdet_Date date = initDate;
+                        bsl::strcpy(input, dateStr);
+                        bsl::strcat(input, offsetStr);
+                        int inputLen = bsl::strlen(input);
+                        bsl::strcat(input, JUNK_STR); // not included in length
+                        ret = Util::parse(&date, input, inputLen);
+                        LOOP3_ASSERT(LINE, input, ret, isValidDate == !ret);
+                        if (ret) {
+                            LOOP_ASSERT(date, initDate == date);
+                        }
+                        if (isValidDate) {
+                            LOOP3_ASSERT(LINE, input, date, date == theDate);
+                            LOOP3_ASSERT(LINE, date, DAY, date.day() == DAY);
+                            LOOP3_ASSERT(LINE, date, MONTH,
+                                                        date.month() == MONTH);
+                            LOOP3_ASSERT(LINE, date, YEAR,
+                                                         date.year()  == YEAR);
+                        }
+                        else {
+                            LOOP_ASSERT(LINE, initDate == date);
+                        }
+                        if (veryVerbose) { T_; P(date); }
+
+                        // with junk on end should fail
+
+                        if (!trailFrac) {
+                            date = initDate;
+                            ret = Util::parse(&date, input,bsl::strlen(input));
+                            LOOP3_ASSERT(LINE, input, ret, 0 != ret);
+                            LOOP_ASSERT(date, initDate == date);
+                        }
+                    }
+
+                    {
+                        bdet_TimeTz time = initTimeTz;
+                        bsl::strcpy(input, timeStr);
+                        bsl::strcat(input, offsetStr);
+                        int inputLen = bsl::strlen(input);
+                        bsl::strcat(input, JUNK_STR); // not included in length
+                        ret = Util::parse(&time, input, inputLen);
+                        LOOP5_ASSERT(LINE, input, ret, isValidTimeTz,
+                                            UTC_OFFSET, isValidTimeTz == !ret);
+                        if (ret) {
+                            LOOP_ASSERT(time, initTimeTz == time);
+                        }
+                        if (isValidTimeTz) {
+                            LOOP3_ASSERT(LINE, input, time, time == theTimeTz);
+                            if (carrySecond) {
+                                LOOP3_ASSERT(LINE, time, SECOND,
+                                            time.localTime().second() ==
+                                                            (SECOND + 1) % 60);
+                                LOOP3_ASSERT(LINE, time, SECOND,
+                                          time.localTime().millisecond() == 0);
+                            }
+                            else {
+                                LOOP3_ASSERT(LINE, time, SECOND,
+                                          time.localTime().second() == SECOND);
+                                LOOP3_ASSERT(LINE, time, MINUTE,
+                                          time.localTime().minute() == MINUTE);
+                                LOOP3_ASSERT(LINE, time, HOUR,
+                                              time.localTime().hour() == HOUR);
+                            }
+                        }
+                        else if (! isValidTimeTz) {
+                            LOOP_ASSERT(LINE, initTimeTz == time);
+                        }
+                        if (veryVerbose) { T_; P(time); }
+
+                        // with junk on end should fail
+
+                        if (!trailFrac) {
+                            time = initTimeTz;
+                            ret = Util::parse(&time, input,bsl::strlen(input));
+                            LOOP5_ASSERT(LINE, input, ret, isValidTimeTz,
+                                                         UTC_OFFSET, 0 != ret);
+                            LOOP_ASSERT(time, initTimeTz == time);
+                        }
+                    }
+
+                    {
+                        const bdet_Time EXP_TIME = isValidTime ?
                                              theTimeTz.gmtTime() : bdet_Time();
 
-                    bdet_Time time = initTime;
-                    bsl::strcpy(input, timeStr);
-                    bsl::strcat(input, offsetStr);
-                    int inputLen = bsl::strlen(input);
-                    bsl::strcat(input, JUNK_STR); // not included in length
-                    ret = Util::parse(&time, input, inputLen);
-                    LOOP3_ASSERT(LINE, input, ret, isValidTime == !ret);
-                    if (isValidTime) {
-                        LOOP4_ASSERT(LINE, input, time, EXP_TIME,
+                        bdet_Time time = initTime;
+                        bsl::strcpy(input, timeStr);
+                        bsl::strcat(input, offsetStr);
+                        int inputLen = bsl::strlen(input);
+                        bsl::strcat(input, JUNK_STR); // not included in length
+                        ret = Util::parse(&time, input, inputLen);
+                        LOOP3_ASSERT(LINE, input, ret, isValidTime == !ret);
+                        if (ret) {
+                            LOOP_ASSERT(time, initTime == time);
+                        }
+                        if (isValidTime) {
+                            LOOP4_ASSERT(LINE, input, time, EXP_TIME,
                                                              EXP_TIME == time);
-                        if (bsl::strncmp(FRAC_SECOND, ".999", 4) && 0 == j) {
-                            LOOP3_ASSERT(LINE, time, SECOND,
+                            if (carrySecond) {
+                                LOOP3_ASSERT(LINE, time, SECOND,
+                                           time.second() == (SECOND + 1) % 60);
+                                LOOP3_ASSERT(LINE, time, SECOND,
+                                                      time.millisecond() == 0);
+                            }
+                            else {
+                                LOOP3_ASSERT(LINE, time, SECOND,
                                                       time.second() == SECOND);
-                            LOOP3_ASSERT(LINE, time, MINUTE,
+                                if (0 == UTC_OFFSET % 60) {
+                                    LOOP3_ASSERT(LINE, time, MINUTE,
                                                       time.minute() == MINUTE);
-                            LOOP3_ASSERT(LINE, time, HOUR,
-                                                      time.hour() == HOUR);
+                                }
+                                if (0 == UTC_OFFSET) {
+                                    LOOP3_ASSERT(LINE, time, HOUR,
+                                                          time.hour() == HOUR);
+                                }
+                            }
+                        }
+                        else if (! isValidTime) {
+                            LOOP_ASSERT(LINE, initTime == time);
+                        }
+                        if (veryVerbose) { T_; P(time); }
+
+                        // with junk on end should fail
+
+                        if (!trailFrac) {
+                            time = initTime;
+                            ret = Util::parse(&time, input,
+                                                           bsl::strlen(input));
+                            LOOP3_ASSERT(LINE, input, ret, 0 != ret);
+                            LOOP_ASSERT(time, initTime == time);
                         }
                     }
-                    else if (! isValidTime) {
-                        LOOP_ASSERT(LINE, initTime == time);
-                    }
-                    if (veryVerbose) { T_; P(time); }
                 }
             }
         }
