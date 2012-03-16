@@ -400,15 +400,15 @@ struct allocator_traits {
     // does not deduce data types that are not specified in the allocator.
 
   private:
-    typedef BloombergLP::bslmf_MetaInt<0> FalseType;
-    typedef BloombergLP::bslmf_MetaInt<1> TrueType;
+    typedef BloombergLP::bslmf::MetaInt<0> FalseType;
+    typedef BloombergLP::bslmf::MetaInt<1> TrueType;
 
     // 'IsBslma' is 'TrueType' if the parameterized 'ALLOCATOR_TYPE' is
     // constructible from 'bslma_Allocator*'.  In other words, its 'VALUE' is
     // true if 'ALLOCATOR_TYPE' is a wrapper around 'bslma_Allocator*'.
     typedef
-    typename BloombergLP::bslmf_IsConvertible<BloombergLP::bslma_Allocator*,
-                                              ALLOCATOR_TYPE>::Type IsBslma;
+    typename BloombergLP::bslmf::IsConvertible<BloombergLP::bslma::Allocator*,
+                                               ALLOCATOR_TYPE>::Type IsBslma;
 
     static
     ALLOCATOR_TYPE selectOnCopyConstruct(const ALLOCATOR_TYPE& allocator,
@@ -427,8 +427,8 @@ struct allocator_traits {
         // 'ALLOCATOR_TYPE' is not a bslma allocator.
 
     static
-    BloombergLP::bslma_Allocator *mechanism(const ALLOCATOR_TYPE& allocator,
-                                            TrueType);
+    BloombergLP::bslma::Allocator *mechanism(const ALLOCATOR_TYPE& allocator,
+                                             TrueType);
         // Return the address of the 'bslma_Allocator' that implements the
         // mechanism for the specified 'allocator', i.e.,
         // 'allocator.mechanism()'. Note that this function is called only
@@ -680,7 +680,7 @@ allocator_traits<ALLOCATOR_TYPE>::mechanism(const ALLOCATOR_TYPE&,
 
 template <class ALLOCATOR_TYPE>
 inline
-BloombergLP::bslma_Allocator *
+BloombergLP::bslma::Allocator *
 allocator_traits<ALLOCATOR_TYPE>::mechanism(const ALLOCATOR_TYPE& allocator,
                                             TrueType)
 {
@@ -725,7 +725,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  allocator,
                                    ELEMENT_TYPE             *elementAddr,
                                    CTOR_ARGS&&...            ctorArgs)
 {
-    BloombergLP::bslalg_ScalarPrimitives::construct(
+    BloombergLP::bslalg::ScalarPrimitives::construct(
                                           elementAddr,
                                           std::forward<CTOR_ARGS>(ctorArgs)...,
                                           mechanism(allocator, IsBslma()));
@@ -738,7 +738,7 @@ void
 allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  allocator,
                                             ELEMENT_TYPE    *elementAddr)
 {
-    BloombergLP::bslalg_ScalarPrimitives::defaultConstruct(
+    BloombergLP::bslalg::ScalarPrimitives::defaultConstruct(
         elementAddr, mechanism(allocator, IsBslma()));
 }
 
@@ -749,7 +749,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&   allocator,
                                             ELEMENT_TYPE     *elementAddr,
                                             const CTOR_ARG1&  ctorArg1)
 {
-    BloombergLP::bslalg_ScalarPrimitives::construct(
+    BloombergLP::bslalg::ScalarPrimitives::construct(
                        elementAddr, ctorArg1, mechanism(allocator, IsBslma()));
 }
 
@@ -762,7 +762,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&   allocator,
                                             const CTOR_ARG1&  ctorArg1,
                                             const CTOR_ARG2&  ctorArg2)
 {
-    BloombergLP::bslalg_ScalarPrimitives::construct(
+    BloombergLP::bslalg::ScalarPrimitives::construct(
              elementAddr, ctorArg1, ctorArg2, mechanism(allocator, IsBslma()));
 }
 
@@ -779,7 +779,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&   allocator,
                                             const CTOR_ARG2&  ctorArg2,
                                             const CTOR_ARG3&  ctorArg3)
 {
-    BloombergLP::bslalg_ScalarPrimitives::construct(
+    BloombergLP::bslalg::ScalarPrimitives::construct(
                                               elementAddr,
                                               ctorArg1,
                                               ctorArg2,
@@ -802,7 +802,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&   allocator,
                                             const CTOR_ARG3&  ctorArg3,
                                             const CTOR_ARG4&  ctorArg4)
 {
-    BloombergLP::bslalg_ScalarPrimitives::construct(
+    BloombergLP::bslalg::ScalarPrimitives::construct(
                                               elementAddr,
                                               ctorArg1,
                                               ctorArg2,
@@ -828,7 +828,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&   allocator,
                                             const CTOR_ARG4&  ctorArg4,
                                             const CTOR_ARG5&  ctorArg5)
 {
-    BloombergLP::bslalg_ScalarPrimitives::construct(
+    BloombergLP::bslalg::ScalarPrimitives::construct(
                                               elementAddr,
                                               ctorArg1,
                                               ctorArg2,
@@ -847,7 +847,7 @@ void
 allocator_traits<ALLOCATOR_TYPE>::destroy(ALLOCATOR_TYPE&  allocator,
                                           ELEMENT_TYPE    *elementAddr)
 {
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(elementAddr);
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(elementAddr);
 }
 
 template <class ALLOCATOR_TYPE>
