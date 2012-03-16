@@ -67,10 +67,34 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+             // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+// Microsoft VC2010 always supports the feature (it cannot be disabled).
+#if defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR >= 1600
+#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+
+// GCC 4.3 has support with '-std=c++0x'.
+#elif defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40300\
+   && defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#endif
+
              // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 
 #if defined(BSLS_PLATFORM__CMP_IBM)
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+#endif
+
+             // BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+
+// Microsoft VC2010 always supports the feature (it cannot be disabled).
+#if defined(BSLS_PLATFORM__CMP_MSVC) && BSLS_PLATFORM__CMP_VER_MAJOR >= 1600
+#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+
+// GCC 4.6 has support with '-std=c++0x'.
+#elif defined(BSLS_PLATFORM__CMP_GNU) && BSLS_PLATFORM__CMP_VER_MAJOR >= 40600\
+   && defined(__GXX_EXPERIMENTAL_CXX0X__)
+#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #endif
 
              // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT

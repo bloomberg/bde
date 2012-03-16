@@ -681,12 +681,16 @@ BDES_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISVOID
+#include <bslmf_isvoid.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
+#ifndef INCLUDED_BSLS_NULLPTR
+#include <bsls_nullptr.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
@@ -706,74 +710,6 @@ BDES_IDENT("$Id: $")
 #endif
 
 #endif
-
-namespace BloombergLP {
-
-// The following two classes are intended to reside in the 'bsl'
-// package-group.  They are duplicated inside this component temporarily, and
-// will be migrated to public components in 'bsl' in a future BDE release.
-// These classes should *not* be used directly by clients.
-
-                       // ==================
-                       // class bsls_Nullptr
-                       // ==================
-
-struct bsls_Nullptr {
-    // This class should *not* be used directly by clients.
-    // It will be migrated to a public component in 'bsl' in a future release.
-    //
-    // This 'struct' provides an alias for a type that can match a null pointer
-    // literal, but is not a pointer itself.  It is a limited emulation of the
-    // C++11 'std::nullptr_t' type.
-
-  private:
-    struct Nullptr_ProxyType { int dummy; }; // private class to supply a
-                                             // unique pointer-to-member type.
-
-  public:
-    typedef int Nullptr_ProxyType::* Type;   // alias to an "unspecified" null
-                                             // pointer type.
-};
-
-             // =======================================
-             // private metafunction class bslmf_IsVoid
-             // =======================================
-
-template <class BDEMA_TYPE>
-struct bslmf_IsVoid : bslmf_MetaInt<0> { };
-    // This class should *not* be used directly by clients.
-    // It will be migrated to a public component in 'bsl' in a future release.
-    //
-    // This metafunction struct contains a nested 'VALUE' which converts to
-    // 'true' if 'BDEMA_TYPE' is type 'void' and to 'false' otherwise.
-
-
-template <>
-struct bslmf_IsVoid<void>  : bslmf_MetaInt<1> { };
-    // This specialization implements the metafunction when 'BDEMA_TYPE' is
-    // 'void'.
-
-template <>
-struct bslmf_IsVoid<const void>  : bslmf_MetaInt<1> { };
-    // This specialization implements the metafunction when 'BDEMA_TYPE' is
-    // 'const void'.
-
-template <>
-struct bslmf_IsVoid<volatile void>  : bslmf_MetaInt<1> { };
-    // This specialization implements the metafunction when 'BDEMA_TYPE' is
-    // 'volatile void'.
-
-template <>
-struct bslmf_IsVoid<const volatile void>  : bslmf_MetaInt<1> { };
-    // This specialization implements the metafunction when 'BDEMA_TYPE' is
-    // 'const volatile void'.
-
-}  // close namespace BloombergLP
-
-namespace bsl
-{
-    typedef BloombergLP::bsls_Nullptr::Type nullptr_t;
-}
 
 namespace BloombergLP {
 
@@ -1743,7 +1679,7 @@ void bdema_ManagedPtr<TARGET_TYPE>::load(MANAGED_TYPE *ptr,
 {
     BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, TARGET_TYPE *>::VALUE));
 #if !defined(BSLS_PLATFORM__CMP_GNU) || BSLS_PLATFORM__CMP_VER_MAJOR >= 40000
-    BSLMF_ASSERT((!bslmf_IsVoid<MANAGED_BASE>::VALUE));
+    BSLMF_ASSERT((!bslmf::IsVoid<MANAGED_BASE>::VALUE));
     BSLMF_ASSERT((bslmf_IsConvertible<MANAGED_TYPE *, MANAGED_BASE *>::VALUE));
 #endif
     BSLS_ASSERT_SAFE(0 != deleter || 0 == ptr);

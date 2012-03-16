@@ -18,6 +18,7 @@ bsls_ident
 bsls_int64
 bsls_macroincrement
 bsls_nativestd
+bsls_nullptr
 bsls_objectbuffer
 bsls_performancehint
 bsls_platform
