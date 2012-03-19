@@ -123,6 +123,26 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 typedef bdeimp_DateUtil Util;
 
+namespace TestUtil {
+
+static const int db[2][13] =
+    {{-1, 30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333, 364},
+     {-1, 30, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365}};
+
+bool isLeap(int year)
+{
+    return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+}
+
+unsigned int ymdToSerial(int y, int m, int d)
+{
+    const int* year_data = db[isLeap(y)];
+    unsigned int by = y + 32799;
+    return by*365 + by/4 - by/100 + by/400 + year_data[m-1] + d;
+}
+
+}  // close namespace TestUtil
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -457,7 +477,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST
         //
@@ -561,6 +581,49 @@ if (veryVerbose)
 //  10JUL1776
 //..
 
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // Prolepic Date calculations
+        // --------------------------------------------------------------------
+
+          cout << "\nTesting: proleptic " << endl;
+
+//           int x = Util::ymd2ProlepticSerial(9999, 12, 31);
+//           P(x)
+
+          int ey, em, ed;
+          Util::prolepticSerial2ymd(&ey, &em, &ed, 366);
+
+          int serialDate = 0;
+          for (int year = 1; year <= 9999; ++year) {
+              for (int month = 1; month <= 12; ++month) {
+                  for (int day = 1; day <= 31; ++day) {
+                      if (Util::isValidProlepticCalendarDate(year,
+                                                             month,
+                                                             day)) {
+                          if (veryVerbose) { P_(year) P_(month) P(day) }
+
+                          ++serialDate;
+
+                          int x = Util::ymd2ProlepticSerial(year, month, day);
+                          LOOP5_ASSERT(year, month, day, serialDate, x,
+                                       serialDate == x);
+                          int y = TestUtil::ymdToSerial(year, month, day);
+                          LOOP5_ASSERT(year, month, day, x, y - 11979953,
+                                       x == (y - 11979953));
+
+                          if (veryVerbose) { P(serialDate) }
+
+                          int ey, em, ed;
+                          Util::prolepticSerial2ymd(&ey, &em, &ed, serialDate);
+                          LOOP3_ASSERT(serialDate, ey, year,  ey == year);
+                          LOOP3_ASSERT(serialDate, em, month, em == month);
+                          LOOP3_ASSERT(serialDate, ed, day,   ed == day);
+                      }
+                  }
+              }
+          }
       } break;
       case 17: {
         // --------------------------------------------------------------------

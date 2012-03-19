@@ -53,6 +53,7 @@ enum {
     MIN_YEAR                    = 1,
     MAX_YEAR                    = 9999,
     MAX_SERIAL_DAY              = 3652061,
+    MAX_PROLEPTIC_SERIAL_DAY    = 3652059,
     YEAR_1752_FIRST_MISSING_DAY = 3,
     YEAR_1752_LAST_MISSING_DAY  = 13,
     YEAR_1752_NUM_MISSING_DAYS  = 11,
@@ -175,6 +176,27 @@ int numDaysInPreviousYears(int year)
                         // ----------------------
 
 // CLASS METHODS
+bool bdeimp_DateUtil::isValidProlepticCalendarDate(int year,
+                                                   int month,
+                                                   int day)
+{
+    if (year < 1 || year > 9999
+     || month < 1 || month > 12
+     || day < 1) {
+        return false;                                                 // RETURN
+    }
+
+    const int daysInMonth = isProlepticLeapYear(year)
+                          ? leapDaysPerMonth[month]
+                          : normDaysPerMonth[month];
+    return day <= daysInMonth;
+}
+
+bool bdeimp_DateUtil::isValidProlepticSerialDate(int serialDay)
+{
+    return 1 <= serialDay && serialDay <= MAX_PROLEPTIC_SERIAL_DAY;
+}
+
 int bdeimp_DateUtil::numLeapYears(int year1, int year2)
 {
     BSLS_ASSERT(year1 <= year2);
@@ -287,6 +309,22 @@ int bdeimp_DateUtil::ymd2serialNoCache(int year, int month, int day)
     return result;
 }
 
+int bdeimp_DateUtil::ymd2ProlepticSerial(int year, int month, int day)
+{
+    BSLS_ASSERT(isValidProlepticCalendarDate(year, month, day));
+
+    const int y = year - 1;
+
+    // TBD: Add doc
+    return y * 365
+         + y / 4
+         - y / 100
+         + y / 400
+         + normDaysThroughMonth[month - 1]
+         + day
+         + (isProlepticLeapYear(year) && month > 2);
+}
+
 int bdeimp_DateUtil::yd2serial(int year, int dayOfYear)
 {
     BSLS_ASSERT(isValidYearDayDate(year, dayOfYear));
@@ -397,6 +435,45 @@ void bdeimp_DateUtil::serial2ymd(int *year,
     else {
         serial2ymdNoCache(year, month, day, serialDay);
     }
+}
+
+void bdeimp_DateUtil::prolepticSerial2ymd(int *year,
+                                          int *month,
+                                          int *day,
+                                          int  serialDay)
+{
+    BSLS_ASSERT(year);
+    BSLS_ASSERT(month);
+    BSLS_ASSERT(day);
+    BSLS_ASSERT(isValidProlepticSerialDate(serialDay));
+
+    const int num400years = serialDay / DAYS_IN_400_YEARS;
+
+    serialDay -= num400years * DAYS_IN_400_YEARS;
+    const int num100years = serialDay / DAYS_IN_100_YEARS;
+
+    serialDay -= num100years * DAYS_IN_100_YEARS;
+    const int num4years = serialDay / DAYS_IN_4_YEARS;
+
+    serialDay -= num4years * DAYS_IN_4_YEARS;
+    int num1years = serialDay / DAYS_IN_NON_LEAP_YEAR;
+    if (!(serialDay % DAYS_IN_NON_LEAP_YEAR)) {
+        --num1years;
+    }
+
+    serialDay -= num1years * DAYS_IN_NON_LEAP_YEAR;
+
+    const int y = num400years * 400 + num100years * 100 + num4years * 4 + num1years;
+
+    const int *daysThroughMonth = getArrayDaysThroughMonth(y + 1);
+
+    int m = 0;
+
+    while (daysThroughMonth[++m] < serialDay);
+
+    *year  = y + 1;
+    *month = m;
+    *day   = serialDay - daysThroughMonth[m - 1];
 }
 
 int bdeimp_DateUtil::serial2year(int serialDay)

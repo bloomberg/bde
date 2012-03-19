@@ -293,6 +293,112 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING 'putValue' & 'getValue' for date/time components
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout
+                            << "\nTESTING 'putValue', 'getValue' for date/time"
+                            << "\n============================================"
+                            << bsl::endl;
+
+        bdem_BerEncoderOptions options;
+        options.setEncodeDateAndTimeTypesAsBinary(true);
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
+        {
+            typedef bdet_Date Type;
+
+            const Type  VALUE(1800, 12, 31);
+            const char *EXP    = "03 fe c7 8b";
+            const int   LENGTH = numOctets(EXP);
+
+            bdesb_MemOutStreamBuf osb;
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+            ASSERT(LENGTH == osb.length());
+            ASSERT(0      == compareBuffers(osb.data(), EXP));
+
+            if (veryVerbose) {
+                P(EXP)
+                cout << "Output Buffer:";
+                printBuffer(osb.data(), osb.length());
+            }
+
+            bdet_DateTz value;
+            int  numBytesConsumed = 0;
+
+            bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+            ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
+            ASSERT(0       == isb.length());
+            ASSERT(LENGTH  == numBytesConsumed);
+            P(value)
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
+        {
+            typedef bdet_Date Type;
+
+            const Type  VALUE(1, 1, 1);
+            const char *EXP    = "03 f4 bf 6e";
+            const int   LENGTH = numOctets(EXP);
+
+            bdesb_MemOutStreamBuf osb;
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+            ASSERT(LENGTH == osb.length());
+            ASSERT(0      == compareBuffers(osb.data(), EXP));
+
+            if (veryVerbose) {
+                P(EXP)
+                cout << "Output Buffer:";
+                printBuffer(osb.data(), osb.length());
+            }
+
+            bdet_DateTz value;
+            int  numBytesConsumed = 0;
+
+            bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+            ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
+            ASSERT(0       == isb.length());
+            ASSERT(LENGTH  == numBytesConsumed);
+            P(value)
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
+        {
+            typedef bdet_Date Type;
+
+            const Type  VALUE(9999, 12, 31);
+            const char *EXP    = "03 2c 79 4a";
+            const int   LENGTH = numOctets(EXP);
+
+            bdesb_MemOutStreamBuf osb;
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+            ASSERT(LENGTH == osb.length());
+            ASSERT(0      == compareBuffers(osb.data(), EXP));
+
+            if (veryVerbose) {
+                P(EXP)
+                cout << "Output Buffer:";
+                printBuffer(osb.data(), osb.length());
+            }
+
+            bdet_DateTz value;
+            int  numBytesConsumed = 0;
+
+            bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+            ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
+            ASSERT(0       == isb.length());
+            ASSERT(LENGTH  == numBytesConsumed);
+            P(value)
+        }
+      } break;
       case 18: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE

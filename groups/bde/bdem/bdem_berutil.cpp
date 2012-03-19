@@ -199,7 +199,8 @@ enum {
     REAL_BASE_SHIFT                    = 4,
     REAL_SCALE_FACTOR_SHIFT            = 2,
 
-    JAN_01_2020_SERIAL_DATE            = 737427,
+    JAN_01_2020_SERIAL_DATE            = 737427,  // TBD: Should be based on
+                                                  // proleptic serial date
 
     HOURS_PER_DAY                      = 24,
     MINUTES_PER_HOUR                   = 60,
@@ -352,12 +353,13 @@ bsls_Types::Int64 getSerialValue(const bdet_Date& value)
 
 bsls_Types::Int64 getSerialValue(const bdet_Time& value)
 {
-    const bsls_Types::Int64 serialTime = value.hour() * MILLISECS_PER_HOUR
-                                       + value.minute() * MILLISECS_PER_MIN
-                                       + value.second() * MILLISECS_PER_SEC
-                                       + value.millisecond();
+//     const bsls_Types::Int64 serialTime = value.hour() * MILLISECS_PER_HOUR
+//                                        + value.minute() * MILLISECS_PER_MIN
+//                                        + value.second() * MILLISECS_PER_SEC
+//                                        + value.millisecond();
 
-    return serialTime;
+    const bdet_Time defaultTime;
+    return (value - defaultTime).totalMilliseconds();
 }
 
 bsls_Types::Int64 getSerialValue(const bdet_Datetime& value)
@@ -521,8 +523,7 @@ int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
     bdeimp_DateUtil::serial2ymd(&year, &month, &day,
                                 serialDate + JAN_01_2020_SERIAL_DATE);
 
-    value->setYearMonthDayIfValid(year, month, day);
-    return 0;
+    return value->setYearMonthDayIfValid(year, month, day);
 }
 
 int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
@@ -543,8 +544,7 @@ int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
                        - minute * MILLISECS_PER_MIN
                        - second * MILLISECS_PER_SEC;
 
-    value->setTimeIfValid(hour, minute, second, millisec);
-    return 0;
+    return value->setTimeIfValid(hour, minute, second, millisec);
 }
 
 int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
@@ -578,14 +578,13 @@ int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
                        - minute * MILLISECS_PER_MIN
                        - second * MILLISECS_PER_SEC;
 
-    value->setDatetimeIfValid(year,
-                              month,
-                              day,
-                              hour,
-                              minute,
-                              second,
-                              millisec);
-    return 0;
+    return value->setDatetimeIfValid(year,
+                                     month,
+                                     day,
+                                     hour,
+                                     minute,
+                                     second,
+                                     millisec);
 }
 
 int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
@@ -595,10 +594,16 @@ int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
     short offset = 0;
     getTimezoneOffset(streamBuf, &offset);
 
+    // TBD: Keep or remove?
+//     if (offset < -1440 || offset > 1440) {
+//         *value = bdet_DateTz();
+//         return -1;                                                    // RETURN
+//     }
+
     bdet_Date localDate;
     getBinaryValue(streamBuf, &localDate, length - TIMEZONE_LENGTH);
-    value->validateAndSetDateTz(localDate, offset);
-    return 0;
+
+    return value->validateAndSetDateTz(localDate, offset);
 }
 
 int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
@@ -608,10 +613,16 @@ int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf *streamBuf,
     short offset = 0;
     getTimezoneOffset(streamBuf, &offset);
 
+    // TBD: Keep or remove?
+//     if (offset < -1440 || offset > 1440) {
+//         *value = bdet_TimeTz();
+//         return -1;                                                    // RETURN
+//     }
+
     bdet_Time localTime;
     getBinaryValue(streamBuf, &localTime, length - TIMEZONE_LENGTH);
-    value->validateAndSetTimeTz(localTime, offset);
-    return 0;
+
+    return value->validateAndSetTimeTz(localTime, offset);
 }
 
 int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf  *streamBuf,
@@ -621,10 +632,15 @@ int bdem_BerUtil_Imp::getBinaryValue(bsl::streambuf  *streamBuf,
     short offset = 0;
     getTimezoneOffset(streamBuf, &offset);
 
+    // TBD: Keep or remove?
+//     if (offset < -1440 || offset > 1440) {
+//         *value = bdet_DatetimeTz();
+//         return -1;                                                    // RETURN
+//     }
+
     bdet_Datetime localDatetime;
     getBinaryValue(streamBuf, &localDatetime, length - TIMEZONE_LENGTH);
-    value->validateAndSetDatetimeTz(localDatetime, offset);
-    return 0;
+    return value->validateAndSetDatetimeTz(localDatetime, offset);
 }
 
 int bdem_BerUtil_Imp::putBinaryValue(bsl::streambuf   *streamBuf,

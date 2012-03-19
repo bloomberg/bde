@@ -498,6 +498,11 @@ struct bdeimp_DateUtil {
         // Return 'true' if the specified 'year' is a leap year, and 'false'
         // otherwise.  The behavior is undefined unless '1 <= year <= 9999'.
 
+    static bool isProlepticLeapYear(int year);
+        // Return 'true' if the specified 'year' is a proleptic leap year, and
+        // 'false' otherwise.  The behavior is undefined unless
+        // '1 <= year <= 9999'.
+
     static int numLeapYears(int year1, int year2);
         // Return the number of leap years occurring between the specified
         // 'year1' and 'year2' (inclusive).  The behavior is undefined unless
@@ -541,6 +546,17 @@ struct bdeimp_DateUtil {
         // fully defined in the component-level documentation) in the range
         // '[ 1 .. 3652061 ]'.
 
+    static bool isValidProlepticCalendarDate(int year, int month, int day);
+        // Return 'true' if the specified 'year', 'month', and 'day' represents
+        // a valid proleptic date value, and 'false' otherwise.  Note that
+        // valid date values are in the range '[ 0001/01/01 .. 9999/12/31 ]'.
+
+    static bool isValidProlepticSerialDate(int serialDay);
+        // Return 'true' if the specified 'serialDay' represents a valid
+        // proleptic date value, and 'false' otherwise.  Note that valid date
+        // values are (as fully defined in the component-level documentation)
+        // in the range '[ 1 .. 3652061 ]'.  TBD: Update values
+
                         // To Serial Date (s)
 
     static int ymd2serial(int year, int month, int day);
@@ -554,6 +570,12 @@ struct bdeimp_DateUtil {
         // undefined unless 'true == isValidCalendarDate(year, month, day)'.
         // Note that this function is guaranteed not to use any date-cache
         // optimizations.
+
+    static int ymd2ProlepticSerial(int year, int month, int day);
+        // Return the serial date representation of the date value indicated by
+        // the specified 'year', 'month', and 'day' using the proleptic
+        // calendar.  The behavior is undefined unless
+        // 'true == isValidProlepticCalendarDate(year, month, day)'.
 
     static int yd2serial(int year, int dayOfYear);
         // Return the serial date representation of the date value indicated
@@ -593,6 +615,14 @@ struct bdeimp_DateUtil {
         // indicated by the specified 'serialDay'.  The behavior is undefined
         // unless 'true == isValidSerialDate(serialDay)'.  Note that this
         // function is guaranteed not to use any date-cache-optimizations.
+
+    static void prolepticSerial2ymd(int *year,
+                                    int *month,
+                                    int *day,
+                                    int  serialDay);
+        // Load, into the specified 'year', 'month', and 'day', the
+        // date value indicated by the specified proleptic 'serialDay'.  The
+        // behavior is undefined unless 'true == isValidSerialDate(serialDay)'.
 
     static int serial2year(int serialDay);
         // Return the year of the date value indicated by the specified
@@ -792,6 +822,14 @@ bool bdeimp_DateUtil::isLeapYear(int year)
 
     return 0 == year % 4
         && (0 != year % 100 || 0 == year % 400 || year <= 1752);
+}
+
+inline
+bool bdeimp_DateUtil::isProlepticLeapYear(int year)
+{
+    BSLS_ASSERT_SAFE(1 <= year);  BSLS_ASSERT_SAFE(year <= 9999);
+
+    return 0 == year % 4 && (0 != year % 100 || 0 == year % 400);
 }
 
 inline
