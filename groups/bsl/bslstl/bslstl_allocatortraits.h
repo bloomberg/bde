@@ -446,7 +446,7 @@ struct allocator_traits {
     typedef typename ALLOCATOR_TYPE::difference_type  difference_type;
     typedef typename ALLOCATOR_TYPE::size_type        size_type;
 
-#ifdef BDE_CXX11_TEMPLATE_ALIASES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     template <class ELEMENT_TYPE>
     using rebind_alloc =
            typename ALLOCATOR_TYPE::template rebind<Alloc,ELEMENT_TYPE>::other;
@@ -483,7 +483,8 @@ struct allocator_traits {
         // and has not yet been passed to a 'deallocate' call of the same
         // object.
 
-#ifdef BDE_CXX11_VARIADIC_TEMPLATES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class ELEMENT_TYPE, class... CTOR_ARGS>
     static void construct(ALLOCATOR_TYPE&  allocator,
                           ELEMENT_TYPE    *elementAddr,
@@ -496,6 +497,20 @@ struct allocator_traits {
         // additional constructor argument (at the end of the argument list).
         // The behavior is undefined unless 'elementAddr' refers to valid,
         // uninitialized storage.
+#  else
+    template <class ELEMENT_TYPE, class...     CTOR_ARGS>
+    static void construct(ALLOCATOR_TYPE&      allocator,
+                          ELEMENT_TYPE        *elementAddr,
+                          const CTOR_ARGS&...  ctorArgs);
+        // Construct an object of the parameterized 'ELEMENT_TYPE' at the
+        // specified 'elementAddr' using the specified 'ctorArgs'.  If the
+        // parameterized 'ALLOCATOR_TYPE' is bslma-compatible and
+        // 'ELEMENT_TYPE' has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+        // then pass the mechanism from the specified 'allocator' as an
+        // additional constructor argument (at the end of the argument list).
+        // The behavior is undefined unless 'elementAddr' refers to valid,
+        // uninitialized storage.
+#  endif
 #else
     template <class ELEMENT_TYPE>
     static void construct(ALLOCATOR_TYPE&   allocator,
@@ -716,7 +731,8 @@ allocator_traits<ALLOCATOR_TYPE>::deallocate(ALLOCATOR_TYPE& allocator,
     allocator.deallocate(elementAddr, n);
 }
 
-#ifdef BDE_CXX11_VARIADIC_TEMPLATES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE, class... CTOR_ARGS>
 inline
@@ -730,6 +746,21 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  allocator,
                                           std::forward<CTOR_ARGS>(ctorArgs)...,
                                           mechanism(allocator, IsBslma()));
 }
+#  else
+template <class ALLOCATOR_TYPE>
+template <class ELEMENT_TYPE, class... CTOR_ARGS>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&  allocator,
+                                   ELEMENT_TYPE             *elementAddr,
+                                   const CTOR_ARGS&...       ctorArgs)
+{
+    BloombergLP::bslalg::ScalarPrimitives::construct(
+                                              elementAddr,
+                                              ctorArgs...,
+                                              mechanism(allocator, IsBslma()));
+}
+#  endif
 #else
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE>
@@ -838,7 +869,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&   allocator,
                                               mechanism(allocator, IsBslma()));
 }
 
-#endif // ! BDE_CXX11_VARIADIC_TEMPLATES
+#endif // ! BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE>
