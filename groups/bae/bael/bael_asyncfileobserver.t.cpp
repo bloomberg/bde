@@ -207,6 +207,44 @@ bdet_Datetime getCurrentTimestamp()
 void removeFilesByPrefix(const char *prefix)
 {
 #ifdef BSLS_PLATFORM__OS_WINDOWS
+    bsl::string filename = prefix;
+    filename += "*";
+    WIN32_FIND_DATA findFileData;
+
+    bsl::vector<bsl::string> fileNames;
+    HANDLE hFind = FindFirstFile(filename.c_str(), &findFileData);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        fileNames.push_back(findFileData.cFileName);
+        while(FindNextFile(hFind, &findFileData)) {
+            fileNames.push_back(findFileData.cFileName);
+        }
+        FindClose(hFind);
+    }
+
+    char tmpPathBuf[MAX_PATH];
+    GetTempPath(MAX_PATH, tmpPathBuf);
+    bsl::string tmpPath(tmpPathBuf);
+
+    bsl::vector<bsl::string>::iterator itr;
+    for (itr = fileNames.begin(); itr != fileNames.end(); ++itr) {
+        bsl::string fn = tmpPath + (*itr);
+        if (!DeleteFile(fn.c_str()))
+        {
+            LPVOID lpMsgBuf;
+            FormatMessage(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL,
+                GetLastError(),
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                (LPTSTR) &lpMsgBuf,
+                0,
+                NULL);
+            cerr << "Error, " << (char*)lpMsgBuf << endl;
+            LocalFree(lpMsgBuf);
+        }
+    }
 #else
     glob_t globbuf;
     bsl::string filename = prefix;
@@ -361,6 +399,7 @@ typedef LogRotationCallbackTester RotCb;
 namespace BAEL_ASYNCFILEOBSERVER_TEST_CONCURRENCY {
 
 void executeInParallel(int                               numThreads,
+                       Obj                              *mX,
                        bcemt_ThreadUtil::ThreadFunction  func)
    // Create the specified 'numThreads', each executing the specified 'func'.
 {
@@ -368,31 +407,51 @@ void executeInParallel(int                               numThreads,
                                       new bcemt_ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
-    int *threadIds = new int[numThreads];
-    ASSERT(threadIds);
-
     for (int i = 0; i < numThreads; ++i) {
-        threadIds[i] = i;
-        bcemt_ThreadUtil::create(&threads[i], func, &threadIds[i]);
+        bcemt_ThreadUtil::create(&threads[i], func, mX);
     }
     for (int i = 0; i < numThreads; ++i) {
         bcemt_ThreadUtil::join(threads[i]);
     }
 
-    delete [] threadIds;
     delete [] threads;
 }
 
 extern "C" void *workerThread(void *arg)
 {
     BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
-    int threadId = *((int*)arg);
     for (int i = 0;i < 100000; ++i) {
         BAEL_LOG_TRACE << "bael_AsyncFileObserver Concurrency Test "
-                       << threadId << BAEL_LOG_END;
+                       << BAEL_LOG_END;
     }
     return 0;
 }
+
+extern "C" void *workerThread2(void *arg)
+{
+    BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+    Obj *mX = (Obj*)arg;
+    int ret;
+    for (int i = 0;i < 100; ++i) {
+        ret = mX->startPublicationThread();
+        ASSERT(0 == ret);
+        for (int j = 0; j < 1000; ++j)
+            BAEL_LOG_TRACE << "bael_AsyncFileObserver Concurrency Test "
+                           << BAEL_LOG_END;
+
+        // Test both stopPublicationThread and shutdownPublicationThread
+
+        if (i % 2)
+            ret = mX->stopPublicationThread();
+        else
+            ret = mX->shutdownPublicationThread();
+        ASSERT(0 == ret);
+        ret = mX->startPublicationThread();
+        ASSERT(0 == ret);
+    }
+    return 0;
+}
+
 }  // close namespace BAEL_ASYNCFILEOBSERVER_TEST_CONCURRENCY
 
 //=============================================================================
@@ -460,9 +519,9 @@ int main(int argc, char *argv[])
                             << BAEL_LOG_END;
         }
 
-        int fileOffset = bdesu_FileUtil::getFileSize(fileName);
+        int afterFileOffset = bdesu_FileUtil::getFileSize(fileName);
         if (verbose)
-            cout << "FileOffset after publish: " << fileOffset << endl;
+            cout << "FileOffset after publish: " << afterFileOffset << endl;
 
         bcemt_ThreadUtil::microSleep(0, 1);
 
@@ -471,8 +530,9 @@ int main(int argc, char *argv[])
 
         mX.stopPublicationThread();
 
-        ASSERT(beginFileOffset < fileOffset   );
-        ASSERT(fileOffset      < endFileOffset);
+        mX.disableFileLogging();
+
+        ASSERT(afterFileOffset < endFileOffset);
 
         removeFilesByPrefix(fileName.c_str());
       } break;
@@ -520,7 +580,13 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_FileUtil::getFileSize(fileName));
 
         int numThreads = 4;
-        executeInParallel(numThreads, workerThread);
+
+        // First test if concurrent publish is correct, check the total
+        // number of lines afterwards
+
+        if (verbose)
+            cout << "Running first concurrency test." << endl;
+        executeInParallel(numThreads, &mX, workerThread);
 
         mX.stopPublicationThread();
 
@@ -532,6 +598,17 @@ int main(int argc, char *argv[])
         fs.close();
 
         ASSERT(linesNum == 200000 * numThreads);
+
+        // Next test if all thread-safe public methods can be called
+        // concurrently without crash
+
+        if (verbose)
+            cout << "Running second concurrency test." << endl;
+        executeInParallel(numThreads, &mX, workerThread2);
+
+        mX.stopPublicationThread();
+
+        mX.disableFileLogging();
         removeFilesByPrefix(fileName.c_str());
 
       } break;
@@ -632,6 +709,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
         }
         mX.stopPublicationThread();
+        mX.disableFileLogging();
         removeFilesByPrefix(BASENAME.c_str());
       } break;
       case 5: {
@@ -663,6 +741,7 @@ int main(int argc, char *argv[])
         mX.forceRotation();
 
         ASSERT(1 == cb.numInvocations());
+        mX.disableFileLogging();
         removeFilesByPrefix(filename.c_str());
       } break;
       case 4: {
@@ -1305,6 +1384,7 @@ int main(int argc, char *argv[])
 
             ASSERT(linesNum < 2 * logCount);
         }
+        fclose(stdout);
         removeFilesByPrefix(fileName.c_str());
       } break;
       case 1: {
@@ -1420,7 +1500,7 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing publication thread start and stop."
                           << endl;
         {
-            Obj mX;  const Obj& X = mX;
+            Obj mX;
 
             // Start the publication thread, make sure the publication thread
             // started
@@ -1452,7 +1532,7 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing asynchronous publication."
                           << endl;
         {
-            Obj mX;  const Obj& X = mX;
+            Obj mX;
             mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
 
@@ -1462,6 +1542,8 @@ int main(int argc, char *argv[])
             BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             int beginFileOffset = bdesu_FileUtil::getFileSize(fileName);
+            if (verbose)
+                cout << "Begin file offset: " << beginFileOffset << endl;
 
             // Throw fair large amount of logs into the queue
 
@@ -1476,12 +1558,17 @@ int main(int argc, char *argv[])
 
             ASSERT(record.numReferences() > 1);
             int afterFileOffset = bdesu_FileUtil::getFileSize(fileName);
+            if (verbose)
+                cout << "FileOffset after publish: " << afterFileOffset
+                     << endl;
 
             // Verify writing is in process even after all 'publish' calls
             // are finished
 
             bcemt_ThreadUtil::microSleep(0, 1);
             int endFileOffset = bdesu_FileUtil::getFileSize(fileName);
+            if (verbose) cout << "End file offset: " << endFileOffset << endl;
+
             ASSERT(afterFileOffset < endFileOffset);
 
             mX.stopPublicationThread();
@@ -1607,6 +1694,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
             mX.stopPublicationThread();
         }
 
@@ -1680,6 +1769,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
             mX.stopPublicationThread();
         }
 
@@ -1786,6 +1877,8 @@ int main(int argc, char *argv[])
 
             bsl::cout.rdbuf(coutSbuf);
             multiplexObserver.deregisterObserver(&localMultiObserver);
+            localMultiObserver.deregisterObserver(&defaultObserver);
+            localMultiObserver.deregisterObserver(&mX);
             mX.stopPublicationThread();
         }
 
@@ -1946,6 +2039,8 @@ int main(int argc, char *argv[])
 
                 bsl::cout.rdbuf(coutSbuf);
                 multiplexObserver.deregisterObserver(&localMultiObserver);
+                localMultiObserver.deregisterObserver(&defaultObserver);
+                localMultiObserver.deregisterObserver(&mX);
                 mX.stopPublicationThread();
             }
         }
@@ -2624,7 +2719,7 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing publication shutdown."
                           << endl;
         {
-            Obj mX;  const Obj& X = mX;
+            Obj mX;
 
             // Start the publication thread, make sure the publication thread
             // started
@@ -2639,24 +2734,9 @@ int main(int argc, char *argv[])
                 mX.publish(record, context);
             mX.shutdownPublicationThread();
             ASSERT(!mX.isPublicationThreadRunning());
-
-            // Verify the records in fixed queue are not cleared after shutdown
-
-            int numRecords = record.numReferences();
-            ASSERT(numRecords > 1);
-            bcemt_ThreadUtil::microSleep(0, 1);
-            ASSERT(record.numReferences() == numRecords);
-
-            // Re-start the publication thread, these remained records should
-            // get processed shortly
-
-            mX.startPublicationThread();
-            ASSERT(mX.isPublicationThreadRunning());
-
-            bcemt_ThreadUtil::microSleep(0, 1);
-            ASSERT(record.numReferences() == 1);
         }
 
+        fclose(stdout);
         removeFilesByPrefix(fileName.c_str());
       } break;
       default: {
