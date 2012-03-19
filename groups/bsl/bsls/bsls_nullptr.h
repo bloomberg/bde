@@ -10,13 +10,48 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a distinct type for null pointer literals.
 //
 //@CLASSES:
-//   bsls_Nullptr: namespace for a type matching only null pointer literals
+//   bsls::Nullptr: namespace for a type matching only null pointer literals
 //
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides a limited emulation of the C++11 type,
 // 'std::nullptr_t', which can be used as a function parameter type to help
-// overload sets treat null pointer literals specially.
+// overload sets treat null pointer literals specially.  Note that this
+// component will be deprecated, and ultimately removed, once BDE code can
+// assume support for a C++11 compiler. 
+//
+///Limitations
+//------------
+// This component provides a simple emulation of the C++11 facility, which
+// cannot be expressd with a pure library solution.  As such it comes with a
+// number of limitations.  The most obvious is that C++11 provides a new
+// null pointer literal, 'nullptr', which is not emulated by this component.
+// The new null pointer literal is an object of a new type, expressed by the
+// alias 'nullptr_t', which this component emulates.  However, as this is a
+// library-only emulation, it does not have any preference in the overloading
+// rules, so will be an equal-rank ambiguous match.  For example, given the
+// following overload set, a call to 'myFunction' with a null pointer literal
+// would be ambiguous:
+//..
+//  void myFunction(void *p);
+//  void myFunction(bsl::nullptr_t);
+//
+//  int main() {
+//     myFunction(0);  // ERROR, ambiguous function call
+//  }
+//..
+// However, if the pointer-argument is a pointer whose type is deduced from the
+// function call, then no pointer type can be deduced from the null pointer and
+// this component becomes necessary.
+//..
+//  template<typename T>
+//  void myFunction(T *p);
+//  void myFunction(bsl::nullptr_t);
+//
+//  int main() {
+//     myFunction(0);  // call the 'bsl::nullptr_t' method
+//  }
+//..
 //
 ///Usage
 ///-----

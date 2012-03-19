@@ -16,8 +16,8 @@ using namespace BloombergLP;
 //                                  --------
 //
 //-----------------------------------------------------------------------------
-// [ 2] Simulated null pointer type
-// [ 3] Standard null pointer type alias
+// [ 2] class bsls::NullPtr
+// [ 3] typedef bsl::nullptr_t
 //-----------------------------------------------------------------------------
 // [ 1] Breathing test
 // [ 4] Usage example
@@ -117,41 +117,61 @@ int main(int argc, char *argv[]) {
         // Plan:
         //
         // Testing:
-        //   bsl::nullptr_t
+        //   alias bsl::nullptr_t
         // --------------------------------------------------------------------
 
         struct local {
-            static int test(bsl::nullptr_t) { return 1; }
-            static int test(...)            { return 0; }
+            // This local utility 'struct' provides a namespace for testing
+            // overload resolution for the type under test, 'bsl::nullptr_t'.
+
+            static bool isNullPointer(bsl::nullptr_t) { return true;  }
+            static bool isNullPointer(...)            { return false; }
+                // Return 'true' is the argument is a null pointer literal, and
+                // 'false' otherwise.
         };
 
-        ASSERT(1 == local::test(0) );
+        ASSERT(local::isNullPointer(0));
+        ASSERT(local::isNullPointer(NULL));
 
         void *ptr = 0;
-        ASSERT(0 == local::test(ptr) );
+        ASSERT(!local::isNullPointer(ptr));
+        ASSERT(!local::isNullPointer(1));
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING COMPONENT TYPEDEF:
         // Concerns:
-        //
+        //: 1 The metafunction struct 'bsls::Nullptr' contains a nested alias
+        //:   named 'Type'.
+        //: 2 Functions having parameters of type 'bsls::Nullptr::Type' can be
+        //:   invoked only with null pointer literals, '0' and 'NULL'.
+        //: 3 Functions having parameters of type 'bsls::Nullptr::Type' cannot
+        //:   be invoked .
+        //: 3 Fu
         // Plan:
         //
         // Testing:
-        //   bsls::Nullptr
+        //   class bsls::Nullptr
         // --------------------------------------------------------------------
 
 #if !defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T)
         struct local {
-            static int test(bsls::Nullptr::Type) { return 1; }
-            static int test(...)                 { return 0; }
+            // This local utility 'struct' provides a namespace for testing
+            // overload resolution for the type under test, 'bsl::nullptr_t'.
+
+            static bool isNullPointer(bsls::Nullptr::Type) { return true;  }
+            static bool isNullPointer(...)                 { return false; }
+                // Return 'true' is the argument is a null pointer literal, and
+                // 'false' otherwise.
         };
 
-        ASSERT(1 == local::test(0) );
+        ASSERT(local::isNullPointer(0));
+        ASSERT(local::isNullPointer(NULL));
 
         void *ptr = 0;
-        ASSERT(0 == local::test(ptr) );
+        ASSERT(!local::isNullPointer(ptr));
+        ASSERT(!local::isNullPointer(1));
 #endif
       } break;
       case 1: {

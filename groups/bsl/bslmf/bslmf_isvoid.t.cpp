@@ -1,5 +1,4 @@
 // bslmf_isvoid.t.cpp                                                 -*-C++-*-
-
 #include <bslmf_isvoid.h>
 
 #include <bsls_bsltestutil.h>
@@ -15,7 +14,10 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_IsVoid
+// [ 2] class bslmf::IsVoid
+//-----------------------------------------------------------------------------
+// [ 1] BREATHING TEST
+// [ 3] USAGE EXAMPLE
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -64,8 +66,24 @@ bool globalVeryVeryVerbose = false;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+namespace
+{
+struct Empty {
+};
 
+template<class TYPE>
+struct Identity {
+    typedef TYPE Type;
+};
 
+struct Incomplete;
+
+template<class TYPE>
+bool typeDependentTest() {
+    return bslmf::IsVoid<typename Identity<TYPE>::Type >::VALUE;
+}
+
+}  // close anonymous namespace
 //=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -104,8 +122,11 @@ int main(int argc, char *argv[]) {
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING bslmf_IsVoid metafunction:
+        // TESTING bslmf::IsVoid metafunction:
         // Concerns:
+        //: 1 The metafunction returns 'true' for any 'void' type, regardless
+        //:   of its cv-qualification.
+        //: 2 The metafunction returns 'false' for every other type
         //
         // Plan:
         //
@@ -113,14 +134,47 @@ int main(int argc, char *argv[]) {
         //   bslmf::IsVoid
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING bslmf_IsVoid metafunction"
-                            "\n=================================\n");
+        if (verbose) printf("\nTESTING bslmf::IsVoid metafunction"
+                            "\n==================================\n");
 
+        // Basic test dataset
         ASSERT(bslmf::IsVoid<void>::VALUE);
         ASSERT(bslmf::IsVoid<const void>::VALUE);
         ASSERT(bslmf::IsVoid<volatile void>::VALUE);
         ASSERT(bslmf::IsVoid<const volatile void>::VALUE);
         ASSERT(!bslmf::IsVoid<void *>::VALUE);
+        ASSERT(!bslmf::IsVoid<void *&>::VALUE);
+        ASSERT(!bslmf::IsVoid<void()>::VALUE);
+        ASSERT(!bslmf::IsVoid<void(*)()>::VALUE);
+        ASSERT(!bslmf::IsVoid<void *Empty::*>::VALUE);
+        ASSERT(!bslmf::IsVoid<bslmf::IsVoid<void> >::VALUE);
+        ASSERT(!bslmf::IsVoid<Incomplete>::VALUE);
+
+        // Test nested template typenames with the same dataset
+        ASSERT(bslmf::IsVoid<Identity<void>::Type>::VALUE);
+        ASSERT(bslmf::IsVoid<Identity<const void>::Type>::VALUE);
+        ASSERT(bslmf::IsVoid<Identity<volatile void>::Type>::VALUE);
+        ASSERT(bslmf::IsVoid<Identity<const volatile void>::Type>::VALUE);
+        ASSERT(!bslmf::IsVoid<Identity<void *>::Type>::VALUE);
+        ASSERT(!bslmf::IsVoid<Identity<void *&>::Type>::VALUE);
+        ASSERT(!bslmf::IsVoid<Identity<void()>::Type>::VALUE);
+        ASSERT(!bslmf::IsVoid<Identity<void(*)()>::Type>::VALUE);
+        ASSERT(!bslmf::IsVoid<Identity<void *Empty::*>::Type>::VALUE);
+        ASSERT(!bslmf::IsVoid<Identity<bslmf::IsVoid<void> >::Type>::VALUE);
+        ASSERT(!bslmf::IsVoid<Identity<Incomplete>::Type>::VALUE);
+
+        // Test type-dependant typenames with the same dataset
+        ASSERT(typeDependentTest<void>());
+        ASSERT(typeDependentTest<const void>());
+        ASSERT(typeDependentTest<volatile void>());
+        ASSERT(typeDependentTest<const volatile void>());
+        ASSERT(!typeDependentTest<void *>());
+        ASSERT(!typeDependentTest<void *&>());
+        ASSERT(!typeDependentTest<void()>());
+        ASSERT(!typeDependentTest<void(*)()>());
+        ASSERT(!typeDependentTest<void *Empty::*>());
+        ASSERT(!typeDependentTest<bslmf::IsVoid<void> >());
+        ASSERT(!typeDependentTest<Incomplete>());
 
       } break;
       case 1: {
