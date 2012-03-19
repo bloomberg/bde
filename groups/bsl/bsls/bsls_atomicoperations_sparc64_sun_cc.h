@@ -5,7 +5,7 @@
 //@PURPOSE: Provide implentations of atomic operations for Sparc/Sun (64bit).
 //
 //@CLASSES:
-//  bsls_AtomicOperations_SPARC64_SUN_CC: atomics for Sparc64/Sun.
+//  bsls::AtomicOperations_SPARC64_SUN_CC: atomics for Sparc64/Sun.
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //
@@ -40,49 +40,51 @@ extern "C"
 {
     // *** 64 bit operations ***
 
-    bsls_Types::Int64 bsls_AtomicOperations_Sparc64_GetInt64(
-            const volatile bsls_Types::Int64 *atomicInt);
+    bsls::Types::Int64 bsls_AtomicOperations_Sparc64_GetInt64(
+            const volatile bsls::Types::Int64 *atomicInt);
 
     void bsls_AtomicOperations_Sparc64_SetInt64(
-            volatile bsls_Types::Int64 *atomicInt,
-            bsls_Types::Int64 value);
+            volatile bsls::Types::Int64 *atomicInt,
+            bsls::Types::Int64 value);
 
-    bsls_Types::Int64 bsls_AtomicOperations_Sparc64_SwapInt64(
-            volatile bsls_Types::Int64 *atomicInt,
-            bsls_Types::Int64 swapValue);
+    bsls::Types::Int64 bsls_AtomicOperations_Sparc64_SwapInt64(
+            volatile bsls::Types::Int64 *atomicInt,
+            bsls::Types::Int64 swapValue);
 
-    bsls_Types::Int64 bsls_AtomicOperations_Sparc64_SwapInt64AcqRel(
-            volatile bsls_Types::Int64 *atomicInt,
-            bsls_Types::Int64 swapValue);
+    bsls::Types::Int64 bsls_AtomicOperations_Sparc64_SwapInt64AcqRel(
+            volatile bsls::Types::Int64 *atomicInt,
+            bsls::Types::Int64 swapValue);
 
-    bsls_Types::Int64 bsls_AtomicOperations_Sparc64_TestAndSwapInt64(
-            volatile bsls_Types::Int64 *atomicInt,
-            bsls_Types::Int64 compareValue,
-            bsls_Types::Int64 swapValue);
+    bsls::Types::Int64 bsls_AtomicOperations_Sparc64_TestAndSwapInt64(
+            volatile bsls::Types::Int64 *atomicInt,
+            bsls::Types::Int64 compareValue,
+            bsls::Types::Int64 swapValue);
 
-    bsls_Types::Int64 bsls_AtomicOperations_Sparc64_TestAndSwapInt64AcqRel(
-            volatile bsls_Types::Int64 *atomicInt,
-            bsls_Types::Int64 compareValue,
-            bsls_Types::Int64 swapValue);
+    bsls::Types::Int64 bsls_AtomicOperations_Sparc64_TestAndSwapInt64AcqRel(
+            volatile bsls::Types::Int64 *atomicInt,
+            bsls::Types::Int64 compareValue,
+            bsls::Types::Int64 swapValue);
 
-    bsls_Types::Int64 bsls_AtomicOperations_Sparc64_AddInt64(
-            volatile bsls_Types::Int64 *atomicInt,
-            bsls_Types::Int64 value);
+    bsls::Types::Int64 bsls_AtomicOperations_Sparc64_AddInt64(
+            volatile bsls::Types::Int64 *atomicInt,
+            bsls::Types::Int64 value);
 
-    bsls_Types::Int64 bsls_AtomicOperations_Sparc64_AddInt64Relaxed(
-            volatile bsls_Types::Int64 *atomicInt,
-            bsls_Types::Int64 value);
+    bsls::Types::Int64 bsls_AtomicOperations_Sparc64_AddInt64Relaxed(
+            volatile bsls::Types::Int64 *atomicInt,
+            bsls::Types::Int64 value);
 }
 
-struct bsls_AtomicOperations_SPARC64_SUN_CC;
-typedef bsls_AtomicOperations_SPARC64_SUN_CC  bsls_AtomicOperations_Imp;
+namespace bsls {
 
-     // ===================================================================
-     // struct bsls_Atomic_TypeTraits<bsls_AtomicOperations_SPARC64_SUN_CC>
-     // ===================================================================
+struct AtomicOperations_SPARC64_SUN_CC;
+typedef AtomicOperations_SPARC64_SUN_CC  AtomicOperations_Imp;
+
+          // =========================================================
+          // struct Atomic_TypeTraits<AtomicOperations_SPARC64_SUN_CC>
+          // =========================================================
 
 template <>
-struct bsls_Atomic_TypeTraits<bsls_AtomicOperations_SPARC64_SUN_CC>
+struct Atomic_TypeTraits<AtomicOperations_SPARC64_SUN_CC>
 {
     struct Int
     {
@@ -97,11 +99,11 @@ struct bsls_Atomic_TypeTraits<bsls_AtomicOperations_SPARC64_SUN_CC>
     struct Int64
     {
 #ifdef BSLS_PLATFORM__CMP_GNU
-        volatile bsls_Types::Int64 d_value
-                       __attribute__((__aligned__(sizeof(bsls_Types::Int64))));
+        volatile Types::Int64 d_value
+                       __attribute__((__aligned__(sizeof(Types::Int64))));
 #else
 #       pragma align 8 (d_value)
-        volatile bsls_Types::Int64 d_value;
+        volatile Types::Int64 d_value;
 #endif
     };
 
@@ -117,112 +119,109 @@ struct bsls_Atomic_TypeTraits<bsls_AtomicOperations_SPARC64_SUN_CC>
     };
 };
 
-                 // ===========================================
-                 // struct bsls_AtomicOperations_SPARC64_SUN_CC
-                 // ===========================================
+                   // ======================================
+                   // struct AtomicOperations_SPARC64_SUN_CC
+                   // ======================================
 
-struct bsls_AtomicOperations_SPARC64_SUN_CC
-    : bsls_AtomicOperations_SPARC_SUN_CC_Default64<
-                                          bsls_AtomicOperations_SPARC64_SUN_CC>
+struct AtomicOperations_SPARC64_SUN_CC
+    : AtomicOperations_SPARC_SUN_CC_Default64<AtomicOperations_SPARC64_SUN_CC>
 {
-    typedef bsls_Atomic_TypeTraits<bsls_AtomicOperations_SPARC64_SUN_CC> Types;
+    typedef Atomic_TypeTraits<AtomicOperations_SPARC64_SUN_CC> AtomicTypes;
 
         // *** atomic functions for Int64 ***
 
-    static bsls_Types::Int64 getInt64(const Types::Int64 *atomicInt);
+    static Types::Int64 getInt64(const AtomicTypes::Int64 *atomicInt);
 
-    static bsls_Types::Int64 getInt64Acquire(const Types::Int64 *atomicInt);
+    static Types::Int64 getInt64Acquire(const AtomicTypes::Int64 *atomicInt);
 
-    static void setInt64(Types::Int64 *atomicInt, bsls_Types::Int64 value);
+    static void setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value);
 
-    static void setInt64Release(Types::Int64 *atomicInt,
-                                bsls_Types::Int64 value);
+    static void setInt64Release(AtomicTypes::Int64 *atomicInt,
+                                Types::Int64 value);
 
-    static bsls_Types::Int64 swapInt64(Types::Int64       *atomicInt,
-                                       bsls_Types::Int64   swapValue);
+    static Types::Int64 swapInt64(AtomicTypes::Int64  *atomicInt,
+                                  Types::Int64   swapValue);
 
-    static bsls_Types::Int64 swapInt64AcqRel(Types::Int64       *atomicInt,
-                                             bsls_Types::Int64   swapValue);
+    static Types::Int64 swapInt64AcqRel(AtomicTypes::Int64  *atomicInt,
+                                        Types::Int64 swapValue);
 
-    static bsls_Types::Int64 testAndSwapInt64(
-                                            Types::Int64        *atomicInt,
-                                            bsls_Types::Int64    compareValue,
-                                            bsls_Types::Int64    swapValue);
+    static Types::Int64 testAndSwapInt64(AtomicTypes::Int64 *atomicInt,
+                                         Types::Int64 compareValue,
+                                         Types::Int64 swapValue);
 
-    static bsls_Types::Int64 testAndSwapInt64AcqRel(
-                                            Types::Int64        *atomicInt,
-                                            bsls_Types::Int64    compareValue,
-                                            bsls_Types::Int64    swapValue);
+    static Types::Int64 testAndSwapInt64AcqRel(AtomicTypes::Int64 *atomicInt,
+                                              Types::Int64 compareValue,
+                                              Types::Int64 swapValue);
 
-    static bsls_Types::Int64 addInt64Nv(Types::Int64      *atomicInt,
-                                        bsls_Types::Int64  value);
+    static Types::Int64 addInt64Nv(AtomicTypes::Int64 *atomicInt,
+                                   Types::Int64 value);
 
-    static bsls_Types::Int64 addInt64NvRelaxed(Types::Int64      *atomicInt,
-                                               bsls_Types::Int64  value);
+    static Types::Int64 addInt64NvRelaxed(AtomicTypes::Int64 *atomicInt,
+                                          Types::Int64 value);
 
-    static bsls_Types::Int64 addInt64NvAcqRel(Types::Int64      *atomicInt,
-                                              bsls_Types::Int64  value);
+    static Types::Int64 addInt64NvAcqRel(AtomicTypes::Int64 *atomicInt,
+                                         Types::Int64 value);
 };
 
 // ===========================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                 // -------------------------------------------
-                 // struct bsls_AtomicOperations_SPARC64_SUN_CC
-                 // -------------------------------------------
+                   // --------------------------------------
+                   // struct AtomicOperations_SPARC64_SUN_CC
+                   // --------------------------------------
 
 inline
-bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
-    getInt64(const Types::Int64 *atomicInt)
+Types::Int64 AtomicOperations_SPARC64_SUN_CC::
+    getInt64(const AtomicTypes::Int64 *atomicInt)
 {
     return bsls_AtomicOperations_Sparc64_GetInt64(&atomicInt->d_value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
-    getInt64Acquire(const Types::Int64 *atomicInt)
+Types::Int64 AtomicOperations_SPARC64_SUN_CC::
+    getInt64Acquire(const AtomicTypes::Int64 *atomicInt)
 {
     return getInt64Relaxed(atomicInt);
 }
 
 inline
-void bsls_AtomicOperations_SPARC64_SUN_CC::
-    setInt64(Types::Int64 *atomicInt, bsls_Types::Int64 value)
+void AtomicOperations_SPARC64_SUN_CC::
+    setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
     bsls_AtomicOperations_Sparc64_SetInt64(&atomicInt->d_value, value);
 }
 
 inline
-void bsls_AtomicOperations_SPARC64_SUN_CC::
-    setInt64Release(Types::Int64 *atomicInt, bsls_Types::Int64 value)
+void AtomicOperations_SPARC64_SUN_CC::
+    setInt64Release(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
     setInt64Relaxed(atomicInt, value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
-    swapInt64(Types::Int64       *atomicInt,
-              bsls_Types::Int64   swapValue)
+Types::Int64 AtomicOperations_SPARC64_SUN_CC::
+    swapInt64(AtomicTypes::Int64 *atomicInt,
+              Types::Int64 swapValue)
 {
     return bsls_AtomicOperations_Sparc64_SwapInt64(&atomicInt->d_value,
                                                    swapValue);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
-    swapInt64AcqRel(Types::Int64       *atomicInt,
-                    bsls_Types::Int64   swapValue)
+Types::Int64 AtomicOperations_SPARC64_SUN_CC::
+    swapInt64AcqRel(AtomicTypes::Int64 *atomicInt,
+                    Types::Int64 swapValue)
 {
     return bsls_AtomicOperations_Sparc64_SwapInt64AcqRel(&atomicInt->d_value,
                                                          swapValue);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
-    testAndSwapInt64(Types::Int64        *atomicInt,
-                     bsls_Types::Int64    compareValue,
-                     bsls_Types::Int64    swapValue)
+Types::Int64 AtomicOperations_SPARC64_SUN_CC::
+    testAndSwapInt64(AtomicTypes::Int64 *atomicInt,
+                     Types::Int64 compareValue,
+                     Types::Int64 swapValue)
 {
     return bsls_AtomicOperations_Sparc64_TestAndSwapInt64(&atomicInt->d_value,
                                                           compareValue,
@@ -230,10 +229,10 @@ bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
-    testAndSwapInt64AcqRel(Types::Int64        *atomicInt,
-                           bsls_Types::Int64    compareValue,
-                           bsls_Types::Int64    swapValue)
+Types::Int64 AtomicOperations_SPARC64_SUN_CC::
+    testAndSwapInt64AcqRel(AtomicTypes::Int64 *atomicInt,
+                           Types::Int64 compareValue,
+                           Types::Int64 swapValue)
 {
     return bsls_AtomicOperations_Sparc64_TestAndSwapInt64AcqRel(
                                                     &atomicInt->d_value,
@@ -242,29 +241,31 @@ bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
-    addInt64Nv(Types::Int64      *atomicInt,
-               bsls_Types::Int64  value)
+Types::Int64 AtomicOperations_SPARC64_SUN_CC::
+    addInt64Nv(AtomicTypes::Int64 *atomicInt,
+               Types::Int64 value)
 {
     return bsls_AtomicOperations_Sparc64_AddInt64(&atomicInt->d_value, value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
-    addInt64NvRelaxed(Types::Int64      *atomicInt,
-                      bsls_Types::Int64  value)
+Types::Int64 AtomicOperations_SPARC64_SUN_CC::
+    addInt64NvRelaxed(AtomicTypes::Int64 *atomicInt,
+                      Types::Int64 value)
 {
     return bsls_AtomicOperations_Sparc64_AddInt64Relaxed(&atomicInt->d_value,
                                                          value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicOperations_SPARC64_SUN_CC::
-    addInt64NvAcqRel(Types::Int64      *atomicInt,
-                     bsls_Types::Int64  value)
+Types::Int64 AtomicOperations_SPARC64_SUN_CC::
+    addInt64NvAcqRel(AtomicTypes::Int64 *atomicInt,
+                     Types::Int64 value)
 {
     return addInt64NvRelaxed(atomicInt, value);
 }
+
+}  // close package namespace
 
 }  // close enterprise namespace
 

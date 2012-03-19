@@ -21,21 +21,23 @@ struct Int64_Words
     int hi;
     int lo;
 
-    const bsls_Types::Int64& value() const
+    const bsls::Types::Int64& value() const
     {
-        return reinterpret_cast<const bsls_Types::Int64&>(*this);
+        return reinterpret_cast<const bsls::Types::Int64&>(*this);
     }
 };
 
 // static assert, can't use bslmf here
 typedef char Int64Size_StaticAssert[
-                            sizeof(Int64_Words) == sizeof(bsls_Types::Int64)
+                            sizeof(Int64_Words) == sizeof(bsls::Types::Int64)
                             ? 1 : -1];
 
 }
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_GetInt64(
-                                  const volatile bsls_Types::Int64 *atomicInt)
+namespace bsls {
+
+Types::Int64 AtomicOperations_Powerpc32_GetInt64(
+                                  const volatile Types::Int64 *atomicInt)
 {
     Int64_Words result;
 
@@ -61,8 +63,8 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_GetInt64(
     return result.value();
 }
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_GetInt64Relaxed(
-                                  const volatile bsls_Types::Int64 *atomicInt)
+Types::Int64 AtomicOperations_Powerpc32_GetInt64Relaxed(
+                                  const volatile Types::Int64 *atomicInt)
 {
     Int64_Words result;
 
@@ -81,8 +83,8 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_GetInt64Relaxed(
     return result.value();
 }
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_GetInt64Acquire(
-                                  const volatile bsls_Types::Int64 *atomicInt)
+Types::Int64 AtomicOperations_Powerpc32_GetInt64Acquire(
+                                  const volatile Types::Int64 *atomicInt)
 {
     Int64_Words result;
 
@@ -106,12 +108,14 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_GetInt64Acquire(
     return result.value();
 }
 
+}  // close package namespace
+
 extern "C"
 void bsls_AtomicOperations_Powerpc32_SetInt64(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        // bsls_Types::Int64        value
-                                        int                         valueHi,
-                                        int                         valueLo)
+                                        volatile bsls::Types::Int64 *atomicInt,
+                                        // bsls::Types::Int64        value
+                                        int                          valueHi,
+                                        int                          valueLo)
 {
     // Receiving a single 'Int64' 'val' argument as a 'valHi'/'valLo' pair of
     // arguments in order to be able to map the 'val' argument to a register
@@ -132,10 +136,10 @@ void bsls_AtomicOperations_Powerpc32_SetInt64(
 
 extern "C"
 void bsls_AtomicOperations_Powerpc32_SetInt64Relaxed(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        // bsls_Types::Int64        value
-                                        int                         valueHi,
-                                        int                         valueLo)
+                                        volatile bsls::Types::Int64 *atomicInt,
+                                        // bsls::Types::Int64        value
+                                        int                          valueHi,
+                                        int                          valueLo)
 {
     asm volatile (
         "       rldimi %[valLo], %[valHi], 32, 64   \n\t"   // %[valLo] has now
@@ -150,10 +154,10 @@ void bsls_AtomicOperations_Powerpc32_SetInt64Relaxed(
 
 extern "C"
 void bsls_AtomicOperations_Powerpc32_SetInt64Release(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        // bsls_Types::Int64        value
-                                        int                         valueHi,
-                                        int                         valueLo)
+                                        volatile bsls::Types::Int64 *atomicInt,
+                                        // bsls::Types::Int64        value
+                                        int                          valueHi,
+                                        int                          valueLo)
 {
     // Receiving a single 'Int64' 'val' argument as a 'valHi'/'valLo' pair of
     // arguments in order to be able to map the 'val' argument to a register
@@ -173,11 +177,11 @@ void bsls_AtomicOperations_Powerpc32_SetInt64Release(
 }
 
 extern "C"
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_SwapInt64(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        // bsls_Types::Int64        value
-                                        int                         valueHi,
-                                        int                         valueLo)
+bsls::Types::Int64 bsls_AtomicOperations_Powerpc32_SwapInt64(
+                                        volatile bsls::Types::Int64 *atomicInt,
+                                        // bsls::Types::Int64        value
+                                        int                          valueHi,
+                                        int                          valueLo)
 {
     Int64_Words result;
 
@@ -214,11 +218,11 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_SwapInt64(
 }
 
 extern "C"
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_SwapInt64AcqRel(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        // bsls_Types::Int64        value
-                                        int                         valueHi,
-                                        int                         valueLo)
+bsls::Types::Int64 bsls_AtomicOperations_Powerpc32_SwapInt64AcqRel(
+                                        volatile bsls::Types::Int64 *atomicInt,
+                                        // bsls::Types::Int64        value
+                                        int                          valueHi,
+                                        int                          valueLo)
 {
     Int64_Words result;
 
@@ -255,14 +259,14 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_SwapInt64AcqRel(
 }
 
 extern "C"
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_testAndSwapInt64(
-                                      volatile bsls_Types::Int64 *atomicInt,
-                                      // bsls_Types::Int64        compareValue
-                                      int                         compareHi,
-                                      int                         compareLo,
-                                      // bsls_Types::Int64        swapValue
-                                      int                         swapHi,
-                                      int                         swapLo)
+bsls::Types::Int64 bsls_AtomicOperations_Powerpc32_testAndSwapInt64(
+                                      volatile bsls::Types::Int64 *atomicInt,
+                                      // bsls::Types::Int64        compareValue
+                                      int                          compareHi,
+                                      int                          compareLo,
+                                      // bsls::Types::Int64        swapValue
+                                      int                          swapHi,
+                                      int                          swapLo)
 {
     Int64_Words result;
 
@@ -306,14 +310,14 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_testAndSwapInt64(
 }
 
 extern "C"
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_testAndSwapInt64AcqRel(
-                                      volatile bsls_Types::Int64 *atomicInt,
-                                      // bsls_Types::Int64        compareValue
-                                      int                         compareHi,
-                                      int                         compareLo,
-                                      // bsls_Types::Int64        swapValue
-                                      int                         swapHi,
-                                      int                         swapLo)
+bsls::Types::Int64 bsls_AtomicOperations_Powerpc32_testAndSwapInt64AcqRel(
+                                      volatile bsls::Types::Int64 *atomicInt,
+                                      // bsls::Types::Int64        compareValue
+                                      int                          compareHi,
+                                      int                          compareLo,
+                                      // bsls::Types::Int64        swapValue
+                                      int                          swapHi,
+                                      int                          swapLo)
 {
     Int64_Words result;
 
@@ -357,11 +361,11 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_testAndSwapInt64AcqRel(
 }
 
 extern "C"
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_AddInt64(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        // bsls_Types::Int64        value
-                                        int                         valueHi,
-                                        int                         valueLo)
+bsls::Types::Int64 bsls_AtomicOperations_Powerpc32_AddInt64(
+                                        volatile bsls::Types::Int64 *atomicInt,
+                                        // bsls::Types::Int64        value
+                                        int                          valueHi,
+                                        int                          valueLo)
 {
     Int64_Words result;
 
@@ -397,11 +401,11 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_AddInt64(
 }
 
 extern "C"
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_AddInt64Relaxed(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        // bsls_Types::Int64        value
-                                        int                         valueHi,
-                                        int                         valueLo)
+bsls::Types::Int64 bsls_AtomicOperations_Powerpc32_AddInt64Relaxed(
+                                        volatile bsls::Types::Int64 *atomicInt,
+                                        // bsls::Types::Int64        value
+                                        int                          valueHi,
+                                        int                          valueLo)
 {
     Int64_Words result;
 
@@ -434,11 +438,11 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_AddInt64Relaxed(
 }
 
 extern "C"
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_AddInt64AcqRel(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        // bsls_Types::Int64        value
-                                        int                         valueHi,
-                                        int                         valueLo)
+bsls::Types::Int64 bsls_AtomicOperations_Powerpc32_AddInt64AcqRel(
+                                        volatile bsls::Types::Int64 *atomicInt,
+                                        // bsls::Types::Int64        value
+                                        int                          valueHi,
+                                        int                          valueLo)
 {
     Int64_Words result;
 
@@ -473,7 +477,7 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc32_AddInt64AcqRel(
     return result.value();
 }
 
-}
+}  // close enterprise namespace
 
 #endif
 

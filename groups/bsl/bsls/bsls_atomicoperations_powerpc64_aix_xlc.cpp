@@ -4,6 +4,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_types.h>
+
 #include <bsls_atomicoperations_powerpc64_aix_xlc.h>
 
 #if defined(BSLS_PLATFORM__CPU_POWERPC) && defined(BSLS_PLATFORM__CMP_IBM) \
@@ -11,15 +12,17 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace bsls {
+
 // For reference on atomic operations on the PowerPC platform see:
 // http://www.rdrop.com/users/paulmck/scalability/paper/N2745r.2011.03.04a.html
 // http://www.rdrop.com/users/paulmck/scalability/paper/
 //                                                    N2745rP5.2010.02.19a.html
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_GetInt64(
-                                  const volatile bsls_Types::Int64 *atomicInt)
+Types::Int64 AtomicOperations_Powerpc64_GetInt64(
+                                  const volatile Types::Int64 *atomicInt)
 {
-    bsls_Types::Int64 result;
+    Types::Int64 result;
 
     asm volatile (
         "       sync                                \n\t"
@@ -38,10 +41,10 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_GetInt64(
     return result;
 }
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_GetInt64Acquire(
-                                  const volatile bsls_Types::Int64 *atomicInt)
+Types::Int64 AtomicOperations_Powerpc64_GetInt64Acquire(
+                                  const volatile Types::Int64 *atomicInt)
 {
-    bsls_Types::Int64 result;
+    Types::Int64 result;
 
     asm volatile (
         "1:     ld %[res], %[obj]                   \n\t"
@@ -58,9 +61,8 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_GetInt64Acquire(
     return result;
 }
 
-void bsls_AtomicOperations_Powerpc64_SetInt64(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        bsls_Types::Int64           value)
+void AtomicOperations_Powerpc64_SetInt64(volatile Types::Int64 *atomicInt,
+                                         Types::Int64           value)
 {
     asm volatile (
         "       sync                        \n\t"
@@ -69,9 +71,9 @@ void bsls_AtomicOperations_Powerpc64_SetInt64(
                 : [val] "b"  (value));
 }
 
-void bsls_AtomicOperations_Powerpc64_SetInt64Release(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        bsls_Types::Int64           value)
+void AtomicOperations_Powerpc64_SetInt64Release(
+                                        volatile Types::Int64 *atomicInt,
+                                        Types::Int64           value)
 {
     asm volatile (
         "       lwsync                      \n\t"
@@ -80,11 +82,11 @@ void bsls_AtomicOperations_Powerpc64_SetInt64Release(
                 : [val] "b"  (value));
 }
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_SwapInt64(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        bsls_Types::Int64           value)
+Types::Int64 AtomicOperations_Powerpc64_SwapInt64(
+                                        volatile Types::Int64 *atomicInt,
+                                        Types::Int64           value)
 {
-    bsls_Types::Int64 result;
+    Types::Int64 result;
 
     asm volatile (
         "       sync                                \n\t"
@@ -103,11 +105,11 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_SwapInt64(
     return result;
 }
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_SwapInt64AcqRel(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        bsls_Types::Int64           value)
+Types::Int64 AtomicOperations_Powerpc64_SwapInt64AcqRel(
+                                        volatile Types::Int64 *atomicInt,
+                                        Types::Int64           value)
 {
-    bsls_Types::Int64 result;
+    Types::Int64 result;
 
     asm volatile (
         "       lwsync                              \n\t"
@@ -126,12 +128,12 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_SwapInt64AcqRel(
     return result;
 }
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_testAndSwapInt64(
-                                    volatile bsls_Types::Int64 *atomicInt,
-                                    bsls_Types::Int64           compareValue,
-                                    bsls_Types::Int64           swapValue)
+Types::Int64 AtomicOperations_Powerpc64_testAndSwapInt64(
+                                    volatile Types::Int64 *atomicInt,
+                                    Types::Int64           compareValue,
+                                    Types::Int64           swapValue)
 {
-    bsls_Types::Int64 result;
+    Types::Int64 result;
 
     asm volatile (
         "       sync                            \n\t"
@@ -154,12 +156,12 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_testAndSwapInt64(
     return result;
 }
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_testAndSwapInt64AcqRel(
-                                    volatile bsls_Types::Int64 *atomicInt,
-                                    bsls_Types::Int64           compareValue,
-                                    bsls_Types::Int64           swapValue)
+Types::Int64 AtomicOperations_Powerpc64_testAndSwapInt64AcqRel(
+                                    volatile Types::Int64 *atomicInt,
+                                    Types::Int64           compareValue,
+                                    Types::Int64           swapValue)
 {
-    bsls_Types::Int64 result;
+    Types::Int64 result;
 
     asm volatile (
         "       lwsync                          \n\t"
@@ -182,11 +184,11 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_testAndSwapInt64AcqRel(
     return result;
 }
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_AddInt64(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        bsls_Types::Int64           value)
+Types::Int64 AtomicOperations_Powerpc64_AddInt64(
+                                        volatile Types::Int64 *atomicInt,
+                                        Types::Int64           value)
 {
-    bsls_Types::Int64 result;
+    Types::Int64 result;
 
     asm volatile (
         "       sync                            \n\t"
@@ -208,11 +210,11 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_AddInt64(
     return result;
 }
 
-bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_AddInt64AcqRel(
-                                        volatile bsls_Types::Int64 *atomicInt,
-                                        bsls_Types::Int64           value)
+Types::Int64 AtomicOperations_Powerpc64_AddInt64AcqRel(
+                                        volatile Types::Int64 *atomicInt,
+                                        Types::Int64           value)
 {
-    bsls_Types::Int64 result;
+    Types::Int64 result;
 
     asm volatile (
         "       lwsync                          \n\t"
@@ -233,6 +235,8 @@ bsls_Types::Int64 bsls_AtomicOperations_Powerpc64_AddInt64AcqRel(
 
     return result;
 }
+
+}  // close package namespace
 
 }
 

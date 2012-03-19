@@ -648,18 +648,18 @@ template <typename PLATFORM> struct bces_AtomicUtilImpl;
 struct bces_AtomicUtil {
     // This 'struct' provides a namespace for a suite of atomic operations.
     // Each operation is guaranteed to execute atomically on the current
-    // architecture (as defined by bsls_Platform::Cpu).
+    // architecture (as defined by bsls::Platform::Cpu).
 
   private:
       enum { SPIN_UNLOCKED = 0, SPIN_LOCKED = 1 };
 
   public:
     // TYPES
-    typedef bsls_AtomicOperations::Imp              Impl;
-    typedef bsls_AtomicOperations::Types::Int       Int;
-    typedef bsls_AtomicOperations::Types::Int64     Int64;
-    typedef bsls_AtomicOperations::Types::Pointer   Pointer;
-    typedef bsls_AtomicOperations::Types::Int       SpinLock;
+    typedef bsls::AtomicOperations::Imp                     Impl;
+    typedef bsls::AtomicOperations::AtomicTypes::Int        Int;
+    typedef bsls::AtomicOperations::AtomicTypes::Int64      Int64;
+    typedef bsls::AtomicOperations::AtomicTypes::Pointer    Pointer;
+    typedef bsls::AtomicOperations::AtomicTypes::Int        SpinLock;
 
     // CLASS METHODS
     static void initInt(bces_AtomicUtil::Int *atomicInt, int initalValue = 0);
@@ -670,7 +670,7 @@ struct bces_AtomicUtil {
         // DEPRECATED: use '= { <value> };' instead.
 
     static void initInt64(bces_AtomicUtil::Int64   *atomicInt,
-                          bsls_PlatformUtil::Int64  initialValue = 0LL );
+                          bsls::PlatformUtil::Int64  initialValue = 0LL );
         // Initialize the specified 'atomicInt' and set its value to the
         // specified 'initialValue'.  Note that a 'bces_AtomicUtil::Int' may
         // also be initialized through aggregate initialization.
@@ -751,7 +751,7 @@ struct bces_AtomicUtil {
         // resulting value.  The behavior is undefined if 'atomicInt' is 0.
 
     static void addInt64(bces_AtomicUtil::Int64   *atomicInt,
-                         bsls_PlatformUtil::Int64  value);
+                         bsls::PlatformUtil::Int64 value);
         // Atomically add to the specified 'atomicInt' the specified 'value'.
         // The behavior is undefined if 'atomicInt' is 0.
 
@@ -763,63 +763,63 @@ struct bces_AtomicUtil {
         // Atomically decrement the value of the specified 'atomicInt' by 1.
         // The behavior is undefined if 'atomicInt' is 0.
 
-    static bsls_PlatformUtil::Int64
+    static bsls::PlatformUtil::Int64
                                 swapInt64(bces_AtomicUtil::Int64   *atomicInt,
-                                          bsls_PlatformUtil::Int64  swapValue);
+                                          bsls::PlatformUtil::Int64 swapValue);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value' and return its previous value.  The behavior is
         // undefined if 'atomicInt' is 0.
 
-    static bsls_PlatformUtil::Int64 testAndSwapInt64(
+    static bsls::PlatformUtil::Int64 testAndSwapInt64(
                                         bces_AtomicUtil::Int64   *atomicInt,
-                                        bsls_PlatformUtil::Int64  compareValue,
-                                        bsls_PlatformUtil::Int64  swapValue);
+                                        bsls::PlatformUtil::Int64 compareValue,
+                                        bsls::PlatformUtil::Int64 swapValue);
         // Conditionally set the value of the specified 'atomicInt' to the
         // specified 'swapValue' if and only if the value of 'atomicInt' equals
         // the value of the specified 'compareValue', and return the initial
         // value of 'atomicInt'.  The whole operation is performed atomically.
         // The behavior is undefined if 'atomicInt' is 0.
 
-    static bsls_PlatformUtil::Int64 addInt64Nv(
+    static bsls::PlatformUtil::Int64 addInt64Nv(
                                             bces_AtomicUtil::Int64  *atomicInt,
-                                            bsls_PlatformUtil::Int64 value);
+                                            bsls::PlatformUtil::Int64 value);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value.  The behavior is undefined if
         // 'atomicInt' is 0.
 
-    static bsls_PlatformUtil::Int64 addInt64NvRelaxed(
+    static bsls::PlatformUtil::Int64 addInt64NvRelaxed(
                                             bces_AtomicUtil::Int64  *atomicInt,
-                                            bsls_PlatformUtil::Int64 value);
+                                            bsls::PlatformUtil::Int64 value);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value, without additional ordering
         // constraints.  The behavior is undefined if 'atomicInt' is 0.
 
-    static bsls_PlatformUtil::Int64 incrementInt64Nv(
+    static bsls::PlatformUtil::Int64 incrementInt64Nv(
                                             bces_AtomicUtil::Int64 *atomicInt);
         // Atomically increment the specified 'atomicInt' by 1 and return the
         // resulting value.  The behavior is undefined if 'atomicInt' is 0.
 
-    static bsls_PlatformUtil::Int64 decrementInt64Nv(
+    static bsls::PlatformUtil::Int64 decrementInt64Nv(
                                             bces_AtomicUtil::Int64 *atomicInt);
         // Atomically decrement the specified 'atomicInt' by 1 and return the
         // resulting value.  The behavior is undefined if 'atomicInt' is 0.
 
     static void setInt64(bces_AtomicUtil::Int64   *atomicInt,
-                         bsls_PlatformUtil::Int64  val);
+                         bsls::PlatformUtil::Int64 val);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value'.  The behavior is undefined if 'atomicInt' is 0.
 
-    static bsls_PlatformUtil::Int64 getInt64(
+    static bsls::PlatformUtil::Int64 getInt64(
                                       const bces_AtomicUtil::Int64& atomicInt);
         // Atomically retrieve the value of the specified 'atomicInt'.
 
     static void setInt64Relaxed(bces_AtomicUtil::Int64   *atomicInt,
-                                bsls_PlatformUtil::Int64  val);
+                                bsls::PlatformUtil::Int64 val);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value' without additional ordering constraints.  The
         // behavior is undefined if 'atomicInt' is 0.
 
-    static bsls_PlatformUtil::Int64 getInt64Relaxed(
+    static bsls::PlatformUtil::Int64 getInt64Relaxed(
                                       const bces_AtomicUtil::Int64& atomicInt);
         // Atomically retrieve the value of the specified 'atomicInt' without
         // additional ordering constraints.
@@ -888,7 +888,7 @@ void bces_AtomicUtil::initInt(bces_AtomicUtil::Int *atomicInt,
 
 inline
 void bces_AtomicUtil::initInt64(bces_AtomicUtil::Int64   *atomicInt,
-                                bsls_PlatformUtil::Int64  initialValue)
+                                bsls::PlatformUtil::Int64 initialValue)
 {
     Impl::initInt64(atomicInt,initialValue);
 }
@@ -989,7 +989,7 @@ int bces_AtomicUtil::decrementIntNv(bces_AtomicUtil::Int *atomicInt)
 
 inline
 void bces_AtomicUtil::addInt64(bces_AtomicUtil::Int64   *atomicInt,
-                               bsls_PlatformUtil::Int64  value)
+                               bsls::PlatformUtil::Int64 value)
 {
     Impl::addInt64(atomicInt, value);
 }
@@ -1007,47 +1007,47 @@ void bces_AtomicUtil::decrementInt64(bces_AtomicUtil::Int64 *atomicInt)
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicUtil::swapInt64(
+bsls::PlatformUtil::Int64 bces_AtomicUtil::swapInt64(
                                            bces_AtomicUtil::Int64   *atomicInt,
-                                           bsls_PlatformUtil::Int64  value)
+                                           bsls::PlatformUtil::Int64 value)
 {
     return Impl::swapInt64(atomicInt, value);
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicUtil::testAndSwapInt64(
+bsls::PlatformUtil::Int64 bces_AtomicUtil::testAndSwapInt64(
                                         bces_AtomicUtil::Int64   *atomicInt,
-                                        bsls_PlatformUtil::Int64  compareValue,
-                                        bsls_PlatformUtil::Int64  swapValue)
+                                        bsls::PlatformUtil::Int64 compareValue,
+                                        bsls::PlatformUtil::Int64 swapValue)
 {
     return Impl::testAndSwapInt64(atomicInt, compareValue, swapValue);
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicUtil::addInt64Nv(
+bsls::PlatformUtil::Int64 bces_AtomicUtil::addInt64Nv(
                                            bces_AtomicUtil::Int64   *atomicInt,
-                                           bsls_PlatformUtil::Int64  value)
+                                           bsls::PlatformUtil::Int64 value)
 {
     return Impl::addInt64Nv(atomicInt,value);
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicUtil::addInt64NvRelaxed(
+bsls::PlatformUtil::Int64 bces_AtomicUtil::addInt64NvRelaxed(
                                            bces_AtomicUtil::Int64   *atomicInt,
-                                           bsls_PlatformUtil::Int64  value)
+                                           bsls::PlatformUtil::Int64 value)
 {
     return Impl::addInt64NvRelaxed(atomicInt,value);
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicUtil::incrementInt64Nv(
+bsls::PlatformUtil::Int64 bces_AtomicUtil::incrementInt64Nv(
                                              bces_AtomicUtil::Int64 *atomicInt)
 {
     return Impl::incrementInt64Nv(atomicInt);
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicUtil::decrementInt64Nv(
+bsls::PlatformUtil::Int64 bces_AtomicUtil::decrementInt64Nv(
                                              bces_AtomicUtil::Int64 *atomicInt)
 {
     return Impl::decrementInt64Nv(atomicInt);
@@ -1055,27 +1055,27 @@ bsls_PlatformUtil::Int64 bces_AtomicUtil::decrementInt64Nv(
 
 inline
 void bces_AtomicUtil::setInt64(bces_AtomicUtil::Int64 *atomicInt,
-                               bsls_PlatformUtil::Int64 value)
+                               bsls::PlatformUtil::Int64 value)
 {
     Impl::setInt64(atomicInt, value);
 }
 
 inline
 void bces_AtomicUtil::setInt64Relaxed(bces_AtomicUtil::Int64 *atomicInt,
-                                      bsls_PlatformUtil::Int64 value)
+                                      bsls::PlatformUtil::Int64 value)
 {
     Impl::setInt64Relaxed(atomicInt, value);
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicUtil::getInt64(
+bsls::PlatformUtil::Int64 bces_AtomicUtil::getInt64(
                                        const bces_AtomicUtil::Int64& atomicInt)
 {
     return Impl::getInt64(&atomicInt);
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicUtil::getInt64Relaxed(
+bsls::PlatformUtil::Int64 bces_AtomicUtil::getInt64Relaxed(
                                        const bces_AtomicUtil::Int64& atomicInt)
 {
     return Impl::getInt64Relaxed(&atomicInt);

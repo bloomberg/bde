@@ -52,7 +52,7 @@ namespace BloombergLP {
                                // class bces_AtomicInt
                                // ====================
 
-class bces_AtomicInt : private bsls_AtomicInt {
+class bces_AtomicInt : private bsls::AtomicInt {
     // This class is a wrapper for an integer, supporting common integer
     // operations in a way that is guaranteed to be atomic.
 
@@ -142,7 +142,7 @@ class bces_AtomicInt : private bsls_AtomicInt {
                        // class bces_AtomicInt64
                        // ======================
 
-class bces_AtomicInt64 : private bsls_AtomicInt64 {
+class bces_AtomicInt64 : private bsls::AtomicInt64 {
     // This class is a wrapper for a 64-bit integer, supporting common integer
     // operations in a way that is guaranteed to be atomic.
 
@@ -151,7 +151,7 @@ class bces_AtomicInt64 : private bsls_AtomicInt64 {
     bces_AtomicInt64();
         // Construct an atomic 64-bit integer object and initialize it to 0.
 
-    bces_AtomicInt64(bsls_PlatformUtil::Int64 value);
+    bces_AtomicInt64(bsls::PlatformUtil::Int64 value);
         // Construct an atomic 64-bit integer object and initialize it to the
         // specified 'value'.
 
@@ -168,52 +168,53 @@ class bces_AtomicInt64 : private bsls_AtomicInt64 {
         // Atomically assign to this atomic 64-bit integer object the value of
         // the specified 'rhs' object.
 
-    bces_AtomicInt64& operator=(bsls_PlatformUtil::Int64 value);
+    bces_AtomicInt64& operator=(bsls::PlatformUtil::Int64 value);
         // Atomically assign to this atomic 64-bit integer object the
         // specified 'value'.
 
-    void operator+=(bsls_PlatformUtil::Int64 value);
+    void operator+=(bsls::PlatformUtil::Int64 value);
         // Atomically add to this atomic 64-bit integer the specified 'value'.
 
-    void operator-=(bsls_PlatformUtil::Int64 value);
+    void operator-=(bsls::PlatformUtil::Int64 value);
         // Atomically subtract from this atomic 64-bit integer the specified
         // 'value'.
 
-    bsls_PlatformUtil::Int64 operator++();
+    bsls::PlatformUtil::Int64 operator++();
         // Atomically increment the value of this atomic 64-bit integer by 1
         // and return the resulting value.
 
-    bsls_PlatformUtil::Int64 operator++(int);
+    bsls::PlatformUtil::Int64 operator++(int);
         // Atomically increment the value of this atomic 64-bit integer by 1
         // and return the value prior to being incremented.
 
-    bsls_PlatformUtil::Int64 operator--();
+    bsls::PlatformUtil::Int64 operator--();
         // Atomically decrement the value of this atomic 64-bit integer by 1
         // and return the resulting value.
 
-    bsls_PlatformUtil::Int64 operator--(int);
+    bsls::PlatformUtil::Int64 operator--(int);
         // Atomically decrement the value of this atomic 64-bit integer by 1
         // and return the value prior to being decremented.
 
-    bsls_PlatformUtil::Int64 add(bsls_PlatformUtil::Int64 value);
+    bsls::PlatformUtil::Int64 add(bsls::PlatformUtil::Int64 value);
         // Atomically add to this atomic 64-bit integer the specified 'value'
         // and return the result value.
 
-    bsls_PlatformUtil::Int64 relaxedAdd(bsls_PlatformUtil::Int64 value);
+    bsls::PlatformUtil::Int64 relaxedAdd(bsls::PlatformUtil::Int64 value);
         // Atomically add to this atomic 64-bit integer the specified 'value'
         // and return the result value, without additional ordering
         // constraints.
 
-    void relaxedStore(bsls_PlatformUtil::Int64 value);
+    void relaxedStore(bsls::PlatformUtil::Int64 value);
         // Atomically assign to this atomic 64-bit integer object the
         // specified 'value', without additional ordering constraints.
 
-    bsls_PlatformUtil::Int64 swap(bsls_PlatformUtil::Int64 swapValue);
+    bsls::PlatformUtil::Int64 swap(bsls::PlatformUtil::Int64 swapValue);
         // Atomically set the value of this atomic 64-bit integer to the
         // specified 'swapValue' and return its previous value.
 
-    bsls_PlatformUtil::Int64 testAndSwap(bsls_PlatformUtil::Int64 compareValue,
-                                         bsls_PlatformUtil::Int64 swapValue);
+    bsls::PlatformUtil::Int64 testAndSwap(
+                                        bsls::PlatformUtil::Int64 compareValue,
+                                        bsls::PlatformUtil::Int64 swapValue);
         // Compare the value of this atomic 64-bit integer to the specified
         // 'compareValue'.  If they are equal, set the value of this atomic
         // 64-bit integer to the specified 'swapValue', otherwise leave this
@@ -222,10 +223,10 @@ class bces_AtomicInt64 : private bsls_AtomicInt64 {
         // test-and-swap operation is performed atomically.
 
     // ACCESSORS
-    operator bsls_PlatformUtil::Int64() const;
+    operator bsls::PlatformUtil::Int64() const;
         // Return the value of this atomic 64-bit integer.
 
-    bsls_PlatformUtil::Int64 relaxedLoad() const;
+    bsls::PlatformUtil::Int64 relaxedLoad() const;
         // Return the current value of this atomic 64-bit integer without
         // additional ordering constraints.
 };
@@ -235,12 +236,12 @@ class bces_AtomicInt64 : private bsls_AtomicInt64 {
                      // ========================
 
 template <class TYPE>
-class bces_AtomicPointer : private bsls_AtomicPointer<TYPE> {
+class bces_AtomicPointer : private bsls::AtomicPointer<TYPE> {
     // This class provides a wrapper for pointers to a parameterized 'TYPE',
     // supporting pointer operations in a way that is guaranteed to be atomic.
 
     // TYPES
-    typedef bsls_AtomicPointer<TYPE> AtomicPointer;
+    typedef bsls::AtomicPointer<TYPE> AtomicPointer;
 
   public:
     // CREATORS
@@ -356,13 +357,13 @@ class bces_SpinLock {
 inline
 bces_AtomicInt::operator int() const
 {
-    return bsls_AtomicInt::operator int();
+    return bsls::AtomicInt::operator int();
 }
 
 inline
-bces_AtomicInt64::operator bsls_PlatformUtil::Int64() const
+bces_AtomicInt64::operator bsls::PlatformUtil::Int64() const
 {
-    return bsls_AtomicInt64::operator bsls_Types::Int64();
+    return bsls::AtomicInt64::operator bsls::Types::Int64();
 }
 
 template <class TYPE>
@@ -384,13 +385,13 @@ bces_AtomicInt::bces_AtomicInt()
 
 inline
 bces_AtomicInt::bces_AtomicInt(int value)
-    : bsls_AtomicInt(value)
+    : bsls::AtomicInt(value)
 {
 }
 
 inline
 bces_AtomicInt::bces_AtomicInt(const bces_AtomicInt& original)
-    : bsls_AtomicInt(original.loadRelaxed())
+    : bsls::AtomicInt(original.loadRelaxed())
 {
 }
 
@@ -398,88 +399,88 @@ bces_AtomicInt::bces_AtomicInt(const bces_AtomicInt& original)
 inline
 bces_AtomicInt& bces_AtomicInt::operator=(const bces_AtomicInt& rhs)
 {
-    bsls_AtomicInt::operator=(rhs.loadRelaxed());
+    bsls::AtomicInt::operator=(rhs.loadRelaxed());
     return *this;
 }
 
 inline
 bces_AtomicInt& bces_AtomicInt::operator=(int value)
 {
-    bsls_AtomicInt::operator=(value);
+    bsls::AtomicInt::operator=(value);
     return *this;
 }
 
 inline
 void bces_AtomicInt::operator+=(int value)
 {
-    bsls_AtomicInt::operator+=(value);
+    bsls::AtomicInt::operator+=(value);
 }
 
 inline
 void bces_AtomicInt::operator-=(int value)
 {
-    bsls_AtomicInt::operator-=(value);
+    bsls::AtomicInt::operator-=(value);
 }
 
 inline
 int bces_AtomicInt::operator++()
 {
-    return bsls_AtomicInt::operator++();
+    return bsls::AtomicInt::operator++();
 }
 
 inline
 int bces_AtomicInt::operator++(int)
 {
-    return bsls_AtomicInt::operator++(int());
+    return bsls::AtomicInt::operator++(int());
 }
 
 inline
 int bces_AtomicInt::operator--()
 {
-    return bsls_AtomicInt::operator--();
+    return bsls::AtomicInt::operator--();
 }
 
 inline
 int bces_AtomicInt::operator--(int)
 {
-    return bsls_AtomicInt::operator--(int());
+    return bsls::AtomicInt::operator--(int());
 }
 
 inline
 int bces_AtomicInt::add(int value)
 {
-    return bsls_AtomicInt::add(value);
+    return bsls::AtomicInt::add(value);
 }
 
 inline
 int bces_AtomicInt::relaxedAdd(int value)
 {
-    return bsls_AtomicInt::addRelaxed(value);
+    return bsls::AtomicInt::addRelaxed(value);
 }
 
 inline
 void bces_AtomicInt::relaxedStore(int value)
 {
-    bsls_AtomicInt::storeRelaxed(value);
+    bsls::AtomicInt::storeRelaxed(value);
 }
 
 inline
 int bces_AtomicInt::swap(int value)
 {
-    return bsls_AtomicInt::swap(value);
+    return bsls::AtomicInt::swap(value);
 }
 
 inline
 int bces_AtomicInt::testAndSwap(int compareValue, int swapValue)
 {
-    return bsls_AtomicInt::testAndSwap(compareValue, swapValue);
+    return bsls::AtomicInt::testAndSwap(compareValue, swapValue);
 }
 
 // ACCESSORS
 inline
 int bces_AtomicInt::relaxedLoad() const
 {
-    return bsls_AtomicInt::loadRelaxed();
+    return bsls::AtomicInt::loadRelaxed();
 }
 
                        // ----------------------
@@ -493,14 +494,14 @@ bces_AtomicInt64::bces_AtomicInt64()
 }
 
 inline
-bces_AtomicInt64::bces_AtomicInt64(bsls_PlatformUtil::Int64 value)
-    : bsls_AtomicInt64(value)
+bces_AtomicInt64::bces_AtomicInt64(bsls::PlatformUtil::Int64 value)
+    : bsls::AtomicInt64(value)
 {
 }
 
 inline
 bces_AtomicInt64::bces_AtomicInt64(const bces_AtomicInt64& original)
-    : bsls_AtomicInt64(original.loadRelaxed())
+    : bsls::AtomicInt64(original.loadRelaxed())
 {
 }
 
@@ -508,91 +509,93 @@ bces_AtomicInt64::bces_AtomicInt64(const bces_AtomicInt64& original)
 inline
 bces_AtomicInt64& bces_AtomicInt64::operator=(const bces_AtomicInt64& rhs)
 {
-    bsls_AtomicInt64::operator=(rhs.loadRelaxed());
+    bsls::AtomicInt64::operator=(rhs.loadRelaxed());
     return *this;
 }
 
 inline
-bces_AtomicInt64& bces_AtomicInt64::operator=(bsls_PlatformUtil::Int64 value)
+bces_AtomicInt64& bces_AtomicInt64::operator=(bsls::PlatformUtil::Int64 value)
 {
-    bsls_AtomicInt64::operator=(value);
+    bsls::AtomicInt64::operator=(value);
     return *this;
 }
 
 inline
-void bces_AtomicInt64::operator+=(bsls_PlatformUtil::Int64 value)
+void bces_AtomicInt64::operator+=(bsls::PlatformUtil::Int64 value)
 {
-    bsls_AtomicInt64::operator+=(value);
+    bsls::AtomicInt64::operator+=(value);
 }
 
 inline
-void bces_AtomicInt64::operator-=(bsls_PlatformUtil::Int64 value)
+void bces_AtomicInt64::operator-=(bsls::PlatformUtil::Int64 value)
 {
-    bsls_AtomicInt64::operator-=(value);
+    bsls::AtomicInt64::operator-=(value);
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicInt64::operator++()
+bsls::PlatformUtil::Int64 bces_AtomicInt64::operator++()
 {
-    return bsls_AtomicInt64::operator++();
+    return bsls::AtomicInt64::operator++();
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicInt64::operator++(int)
+bsls::PlatformUtil::Int64 bces_AtomicInt64::operator++(int)
 {
-    return bsls_AtomicInt64::operator++(int());
+    return bsls::AtomicInt64::operator++(int());
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicInt64::operator--()
+bsls::PlatformUtil::Int64 bces_AtomicInt64::operator--()
 {
-    return bsls_AtomicInt64::operator--();
+    return bsls::AtomicInt64::operator--();
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicInt64::operator--(int)
+bsls::PlatformUtil::Int64 bces_AtomicInt64::operator--(int)
 {
-    return bsls_AtomicInt64::operator--(int());
+    return bsls::AtomicInt64::operator--(int());
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicInt64::add(bsls_PlatformUtil::Int64 value)
+bsls::PlatformUtil::Int64 bces_AtomicInt64::add(
+                                               bsls::PlatformUtil::Int64 value)
 {
-    return bsls_AtomicInt64::add(value);
+    return bsls::AtomicInt64::add(value);
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicInt64::relaxedAdd(
-                                                bsls_PlatformUtil::Int64 value)
+bsls::PlatformUtil::Int64 bces_AtomicInt64::relaxedAdd(
+                                               bsls::PlatformUtil::Int64 value)
 {
-    return bsls_AtomicInt64::addRelaxed(value);
+    return bsls::AtomicInt64::addRelaxed(value);
 }
 
 inline
-void bces_AtomicInt64::relaxedStore(bsls_PlatformUtil::Int64 value)
+void bces_AtomicInt64::relaxedStore(bsls::PlatformUtil::Int64 value)
 {
-    bsls_AtomicInt64::storeRelaxed(value);
+    bsls::AtomicInt64::storeRelaxed(value);
 }
 
 inline
-bsls_PlatformUtil::Int64 bces_AtomicInt64::swap(bsls_PlatformUtil::Int64 value)
+bsls::PlatformUtil::Int64 bces_AtomicInt64::swap(
+                                               bsls::PlatformUtil::Int64 value)
 {
-    return bsls_AtomicInt64::swap(value);
+    return bsls::AtomicInt64::swap(value);
 }
 
 inline
-bsls_PlatformUtil::Int64
- bces_AtomicInt64::testAndSwap(bsls_PlatformUtil::Int64 compareValue,
-                               bsls_PlatformUtil::Int64 swapValue)
+bsls::PlatformUtil::Int64
+ bces_AtomicInt64::testAndSwap(bsls::PlatformUtil::Int64 compareValue,
+                               bsls::PlatformUtil::Int64 swapValue)
 {
-    return bsls_AtomicInt64::testAndSwap(compareValue, swapValue);
+    return bsls::AtomicInt64::testAndSwap(compareValue, swapValue);
 }
 
 // ACCESSORS
 inline
-bsls_PlatformUtil::Int64 bces_AtomicInt64::relaxedLoad() const
+bsls::PlatformUtil::Int64 bces_AtomicInt64::relaxedLoad() const
 {
-    return bsls_AtomicInt64::loadRelaxed();
+    return bsls::AtomicInt64::loadRelaxed();
 }
 
                      // ------------------------

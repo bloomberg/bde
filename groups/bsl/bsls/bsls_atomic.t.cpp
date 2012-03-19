@@ -31,12 +31,12 @@ using namespace std;
 // and operation.
 //
 //-----------------------------------------------------------------------------
-// bsls_AtomicInt
-// --------------
-// [ 2] bsls_AtomicInt();
-// [ 3] bsls_AtomicInt(const bsls_AtomicInt& rhs);
-// [ 3] bsls_AtomicInt(int value);
-// [ 2] ~bsls_AtomicInt();
+// bsls::AtomicInt
+// ---------------
+// [ 2] bsls::AtomicInt();
+// [ 3] bsls::AtomicInt(const bsls::AtomicInt& rhs);
+// [ 3] bsls::AtomicInt(int value);
+// [ 2] ~bsls::AtomicInt();
 // [ 5] int swap(int swapValue);
 // [ 5] int testAndSwap(int compareValue,int swapValue);
 // [ 4] int add(int value);
@@ -44,41 +44,41 @@ using namespace std;
 // [ 6] int operator ++(int);
 // [ 6] int operator --();
 // [ 6] int operator --(int);
-// [ 3] bsls_AtomicInt& operator= (const bsls_AtomicInt& rhs);
-// [ 2] bsls_AtomicInt& operator= (int value);
+// [ 3] bsls::AtomicInt& operator= (const bsls::AtomicInt& rhs);
+// [ 2] bsls::AtomicInt& operator= (int value);
 // [ 4] void operator +=(int value);
 // [ 4] void operator -=(int value);
 // [ 2] operator int() const;
 //
-// bsls_AtomicInt64
-// ----------------
-// [ 2] bsls_AtomicInt64();
-// [ 3] bsls_AtomicInt64(const bsls_AtomicInt64& original);
-// [ 3] bsls_AtomicInt64(bsls_Types::Int64 value);
-// [ 2] ~bsls_AtomicInt64();
-// [ 4] bsls_Types::Int64 add(bsls_Types::Int64 value);
-// [ 5] bsls_Types::Int64 swap(bsls_Types::Int64 swapValue);
-// [ 5] bsls_Types::Int64 testAndSwap(bsls_Types::Int64 ...
-// [ 6] bsls_Types::Int64 operator ++();
-// [ 6] bsls_Types::Int64 operator ++(int);
-// [ 6] bsls_Types::Int64 operator --();
-// [ 6] bsls_Types::Int64 operator --(int);
-// [ 3] bsls_AtomicInt64& operator= (const bsls_AtomicInt64& rhs);
-// [ 2] bsls_AtomicInt64& operator= (bsls_Types::Int64 value);
-// [ 4] void operator +=(bsls_Types::Int64 value);
-// [ 4] void operator -=(bsls_Types::Int64 value);
-// [ 2] operator bsls_Types::Int64() const;
+// bsls::AtomicInt64
+// -----------------
+// [ 2] bsls::AtomicInt64();
+// [ 3] bsls::AtomicInt64(const bsls::AtomicInt64& original);
+// [ 3] bsls::AtomicInt64(bsls::Types::Int64 value);
+// [ 2] ~bsls::AtomicInt64();
+// [ 4] bsls::Types::Int64 add(bsls::Types::Int64 value);
+// [ 5] bsls::Types::Int64 swap(bsls::Types::Int64 swapValue);
+// [ 5] bsls::Types::Int64 testAndSwap(bsls::Types::Int64 ...
+// [ 6] bsls::Types::Int64 operator ++();
+// [ 6] bsls::Types::Int64 operator ++(int);
+// [ 6] bsls::Types::Int64 operator --();
+// [ 6] bsls::Types::Int64 operator --(int);
+// [ 3] bsls::AtomicInt64& operator= (const bsls::AtomicInt64& rhs);
+// [ 2] bsls::AtomicInt64& operator= (bsls::Types::Int64 value);
+// [ 4] void operator +=(bsls::Types::Int64 value);
+// [ 4] void operator -=(bsls::Types::Int64 value);
+// [ 2] operator bsls::Types::Int64() const;
 //
-// bsls_AtomicPointer
-// ------------------
-// [ 2] bsls_AtomicPointer();
-// [ 3] bsls_AtomicPointer(const bsls_AtomicPointer<T>& original);
-// [ 3] bsls_AtomicPointer(const T* value);
-// [ 2] ~bsls_AtomicPointer();
+// bsls::AtomicPointer
+// -------------------
+// [ 2] bsls::AtomicPointer();
+// [ 3] bsls::AtomicPointer(const bsls::AtomicPointer<T>& original);
+// [ 3] bsls::AtomicPointer(const T* value);
+// [ 2] ~bsls::AtomicPointer();
 // [ 5] T* swap(const T* swapValue);
 // [ 5] T* testAndSwap(const T* compareValue, const T* swapValue);
-// [ 3] bsls_AtomicPointer<T>& operator= (const bsls_AtomicPointer<T>& rhs);
-// [ 2] bsls_AtomicPointer<T>& operator= (const T *value);
+// [ 3] bsls::AtomicPointer<T>& operator= (const bsls::AtomicPointer<T>& rhs);
+// [ 2] bsls::AtomicPointer<T>& operator= (const T *value);
 // [ 2] T& operator*() const;
 // [ 3] T* operator->() const;
 // [ 2] operator T*() const;
@@ -149,12 +149,12 @@ struct APTestObj
         // Return a pointer to this object.
 };
 
-typedef bsls_AtomicInt                      AI;
-typedef bsls_AtomicInt64                    AI64;
-typedef bsls_AtomicPointer<APTestObj>       AP;
-typedef bsls_AtomicPointer<const APTestObj> CAP;
+typedef bsls::AtomicInt                      AI;
+typedef bsls::AtomicInt64                    AI64;
+typedef bsls::AtomicPointer<APTestObj>       AP;
+typedef bsls::AtomicPointer<const APTestObj> CAP;
 
-typedef bsls_Types::Int64            Int64;
+typedef bsls::Types::Int64            Int64;
 
 //=============================================================================
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -275,9 +275,9 @@ struct Guard
     LOCK& d_lock;
 };
 
-bsls_AtomicInt s_data1(0);
-bsls_AtomicInt s_data2(0);
-bsls_AtomicInt s_data3(1);
+bsls::AtomicInt s_data1(0);
+bsls::AtomicInt s_data2(0);
+bsls::AtomicInt s_data3(1);
 
 template <typename LOCK>
 void testAtomicLocking(LOCK& lock, int iterations)
@@ -378,8 +378,8 @@ void testCaseMemOrder()
 
 
 void testSharedCountWrite(int& data,
-                          bsls_AtomicInt& shared,
-                          bsls_AtomicInt& done)
+                          bsls::AtomicInt& shared,
+                          bsls::AtomicInt& done)
 {
     while (!done.loadRelaxed()) {
         while (shared.loadRelaxed() > 1) {
@@ -390,8 +390,8 @@ void testSharedCountWrite(int& data,
 }
 
 void testSharedCountRead(int& data,
-                         bsls_AtomicInt& shared,
-                         bsls_AtomicInt& done)
+                         bsls::AtomicInt& shared,
+                         bsls::AtomicInt& done)
 {
     for (int i = 0; i < 10000000; ++i) {
         shared.storeRelease(10);
@@ -413,11 +413,11 @@ void testSharedCountRead(int& data,
 
 struct SharedCountThreadParam
 {
-    typedef void (*ThreadFunc)(int&, bsls_AtomicInt&, bsls_AtomicInt&);
+    typedef void (*ThreadFunc)(int&, bsls::AtomicInt&, bsls::AtomicInt&);
 
     SharedCountThreadParam(int& data,
-                           bsls_AtomicInt& shared,
-                           bsls_AtomicInt& done,
+                           bsls::AtomicInt& shared,
+                           bsls::AtomicInt& done,
                            ThreadFunc func)
         : d_data(data)
         , d_shared(shared)
@@ -425,10 +425,10 @@ struct SharedCountThreadParam
         , d_func(func)
     {}
 
-    int&            d_data;
-    bsls_AtomicInt& d_shared;
-    bsls_AtomicInt& d_done;
-    ThreadFunc      d_func;
+    int&             d_data;
+    bsls::AtomicInt& d_shared;
+    bsls::AtomicInt& d_done;
+    ThreadFunc       d_func;
 };
 
 void *testSharedCountThreadFunc(void *arg)
@@ -442,8 +442,8 @@ void *testSharedCountThreadFunc(void *arg)
 
 void testCaseSharedPtr()
 {
-    bsls_AtomicInt shared;
-    bsls_AtomicInt done;
+    bsls::AtomicInt shared;
+    bsls::AtomicInt done;
     int data = 0;
 
     SharedCountThreadParam paramReader(data, shared, done,
@@ -484,9 +484,9 @@ void waitAllThreads()
 {
 }
 
-static bsls_AtomicInt64 transactionCount;
-static bsls_AtomicInt64 successCount;
-static bsls_AtomicInt64 failureCount;
+static bsls::AtomicInt64 transactionCount;
+static bsls::AtomicInt64 successCount;
+static bsls::AtomicInt64 failureCount;
 
 void serverMain()
 {
@@ -528,10 +528,10 @@ void serverMain()
 //
 // The class declaration for 'my_CountedHandleRep' is identical to the same
 // class in component 'bsls_atomicoperations', with a single exception: member
-// 'd_count' is of type 'bsls_AtomicInt', rather than
-// 'bsls_AtomicOperations::Int'.  Whereas 'bsls_AtomicOperations::Int' is
+// 'd_count' is of type 'bsls::AtomicInt', rather than
+// 'bsls::AtomicOperations::Int'.  Whereas 'bsls::AtomicOperations::Int' is
 // merely a 'typedef' for a platform-specific data type to be used in atomic
-// integer operations, 'bsls_AtomicInt' encapsulates those atomic operations as
+// integer operations, 'bsls::AtomicInt' encapsulates those atomic operations as
 // member functions and operator overloads.  Class 'my_CountedHandleRep' will
 // benefit from this encapsulation: Its method implementations will be able to
 // operate on 'd_count' as if it were a standard integer.
@@ -552,7 +552,7 @@ template <class INSTANCE>
 class my_CountedHandleRep {
 
     // DATA
-    bsls_AtomicInt   d_count;        // number of active references
+    bsls::AtomicInt  d_count;        // number of active references
     INSTANCE        *d_instance_p;   // address of managed instance
 
     // FRIENDS
@@ -634,7 +634,7 @@ void my_CountedHandleRep<INSTANCE>::deleteObject(
 // class.  Member 'd_count' is initialized to 1, reflecting the fact that this
 // constructor will be called by a new instance of 'my_CountedHandle', which
 // instance is our first and only handle when this constructor is called:
-// notice that 'd_count' (of type 'bsls_AtomicInt') is initialized as if it
+// notice that 'd_count' (of type 'bsls::AtomicInt') is initialized as if it
 // were a simple integer; its constructor guarantees that the initialization is
 // done atomically.
 //..
@@ -669,7 +669,7 @@ void my_CountedHandleRep<INSTANCE>::increment()
 }
 //..
 // The above operation must be done atomically in a multi-threaded context;
-// class 'bsls_AtomicInt' provides this guarantee for all its overloaded
+// class 'bsls::AtomicInt' provides this guarantee for all its overloaded
 // operators, and 'my_CountedHandleRep' relies upon this guarantee.
 //
 // Then, we implement method 'decrement', which is called by 'my_CountedHandle'
@@ -775,9 +775,9 @@ int my_CountedHandle<INSTANCE>::numReferences() const
 // 'bsls_atomicoperations', presenting a different implementation of
 // 'my_PtrStack<T>', with an identical public interface.  Note that, where the
 // 'bsls_atomicoperations' example uses the basic data type
-// 'bsls_AtomicOperations::Types::Pointer' for members 'd_list' and
+// 'bsls::AtomicOperations::Types::Pointer' for members 'd_list' and
 // 'd_freeList', this implementation uses instead the higher-level type
-// 'bsls_AtomicPointer<T>'.
+// 'bsls::AtomicPointer<T>'.
 //
 // First, we create class template, 'my_PtrStack', parameterized by 'TYPE'.
 // Instances of this template maintain a list of nodes and a free-node list.
@@ -792,12 +792,12 @@ class my_PtrStack {
     typedef struct Node {
         TYPE                 *d_item_p;
         Node                 *d_next_p;
-        bsls_AtomicInt        d_inUseFlag; // used to lock this node
+        bsls::AtomicInt       d_inUseFlag; // used to lock this node
     };
 
     // DATA
-    bsls_AtomicPointer<Node>  d_list;
-    bsls_AtomicPointer<Node>  d_freeList;
+    bsls::AtomicPointer<Node>  d_list;
+    bsls::AtomicPointer<Node>  d_freeList;
 
     // PRIVATE MANIPULATORS
     Node *allocateNode();
@@ -817,7 +817,7 @@ class my_PtrStack {
 // Then, we write a constructor that default-initializes the stack.  In the
 // corresponding example in 'bsls_atomicoperations', the constructor must also
 // initialize the atomic pointer 'd_freeList'.  Since this example uses the
-// encapsulated type 'bsls_AtomicPointer', initialization of these member
+// encapsulated type 'bsls::AtomicPointer', initialization of these member
 // variables is done in their default constructors.  Hence, no explicit code is
 // required in this constructor:
 //..
@@ -1058,19 +1058,19 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tTesting sequencial consistency" << endl;
 
-        if (verbose) cout << "\t\twith bsls_AtomicInt" << endl;
-        testCaseMemOrder<PetersonsLockSeqCst, bsls_AtomicInt>();
+        if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
+        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt>();
 
-        if (verbose) cout << "\t\twith bsls_AtomicInt64" << endl;
-        testCaseMemOrder<PetersonsLockSeqCst, bsls_AtomicInt64>();
+        if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
+        testCaseMemOrder<PetersonsLockSeqCst, bsls::AtomicInt64>();
 
         if (verbose) cout << "\tTesting acquire/release" << endl;
 
-        if (verbose) cout << "\t\twith bsls_AtomicInt" << endl;
-        testCaseMemOrder<PetersonsLock, bsls_AtomicInt>();
+        if (verbose) cout << "\t\twith bsls::AtomicInt" << endl;
+        testCaseMemOrder<PetersonsLock, bsls::AtomicInt>();
 
-        if (verbose) cout << "\t\twith bsls_AtomicInt64" << endl;
-        testCaseMemOrder<PetersonsLock, bsls_AtomicInt64>();
+        if (verbose) cout << "\t\twith bsls::AtomicInt64" << endl;
+        testCaseMemOrder<PetersonsLock, bsls::AtomicInt64>();
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1095,10 +1095,10 @@ int main(int argc, char *argv[])
         //  int operator ++(int);
         //  int operator --();
         //  int operator --(int);
-        //  bsls_Types::Int64 operator ++();
-        //  bsls_Types::Int64 operator ++(int);
-        //  bsls_Types::Int64 operator --();
-        //  bsls_Types::Int64 operator --(int);
+        //  bsls::Types::Int64 operator ++();
+        //  bsls::Types::Int64 operator ++(int);
+        //  bsls::Types::Int64 operator --();
+        //  bsls::Types::Int64 operator --(int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Increment/Decrement Manipulators"
@@ -1365,8 +1365,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   int swap(int swapValue);
         //   int testAndSwap(int compareValue,int swapValue);
-        //   bsls_Types::Int64 swap(bsls_Types::Int64 swapValue);
-        //   bsls_Types::Int64 testAndSwap(bsls_Types::Int64 ...
+        //   bsls::Types::Int64 swap(bsls::Types::Int64 swapValue);
+        //   bsls::Types::Int64 testAndSwap(bsls::Types::Int64 ...
         //   T* swap(const T* swapValue);
         //   T* testAndSwap(const T* compareValue, const T* swapValue);
         // --------------------------------------------------------------------
@@ -1656,9 +1656,9 @@ int main(int argc, char *argv[])
         //   int add(int value);
         //   void operator +=(int value);
         //   void operator -=(int value);
-        //   bsls_Types::Int64 add(bsls_Types::Int64 value);
-        //   void operator +=(bsls_Types::Int64 value);
-        //   void operator -=(bsls_Types::Int64 value);
+        //   bsls::Types::Int64 add(bsls::Types::Int64 value);
+        //   void operator +=(bsls::Types::Int64 value);
+        //   void operator -=(bsls::Types::Int64 value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1923,15 +1923,15 @@ int main(int argc, char *argv[])
         //   Verify that the value of 'x', 'y', and 'z' are correct.
         //
         // Testing:
-        //   bsls_AtomicInt(const bsls_AtomicInt& rhs);
-        //   bsls_AtomicInt(int value);
-        //   bsls_AtomicInt& operator= (const bsls_AtomicInt& rhs);
-        //   bsls_AtomicInt64(const bsls_AtomicInt64& original);
-        //   bsls_AtomicInt64(bsls_Types::Int64 value);
-        //   bsls_AtomicInt64& operator= (const bsls_AtomicInt64& rhs);
-        //   bsls_AtomicPointer(const bsls_AtomicPointer<T>& original);
-        //   bsls_AtomicPointer(const T* value);
-        //   bsls_AtomicPointer<T>& operator=(const bsls_AtomicPointer<T>&);
+        //   bsls::AtomicInt(const bsls::AtomicInt& rhs);
+        //   bsls::AtomicInt(int value);
+        //   bsls::AtomicInt& operator= (const bsls::AtomicInt& rhs);
+        //   bsls::AtomicInt64(const bsls::AtomicInt64& original);
+        //   bsls::AtomicInt64(bsls::Types::Int64 value);
+        //   bsls::AtomicInt64& operator= (const bsls::AtomicInt64& rhs);
+        //   bsls::AtomicPointer(const bsls::AtomicPointer<T>& original);
+        //   bsls::AtomicPointer(const T* value);
+        //   bsls::AtomicPointer<T>& operator=(const bsls::AtomicPointer<T>&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Primary Manipulators"
@@ -2008,7 +2008,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                          "\nTesting 'bsls_AtomicPointer' Primary Manipulators"
+                          "\nTesting 'bsls::AtomicPointer' Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -2057,20 +2057,20 @@ int main(int argc, char *argv[])
         //   sequence independent test values, set the value using the basic
         //   manipulator('operator=').  Verify that the value is correct using
         //   the respective direct accessor('operator int',
-        //   'operator bsls_Types::Int64', 'operator T*').
+        //   'operator bsls::Types::Int64', 'operator T*').
         //
         // Testing:
-        //   bsls_AtomicInt();
-        //   ~bsls_AtomicInt()
-        //   bsls_AtomicInt& operator= (int value);
+        //   bsls::AtomicInt();
+        //   ~bsls::AtomicInt()
+        //   bsls::AtomicInt& operator= (int value);
         //   operator int() const;;
-        //   bsls_AtomicInt64();
-        //   ~bsls_AtomicInt64();
-        //   bsls_AtomicInt64& operator= (bsls_Types::Int64 value);
-        //   operator bsls_Types::Int64() const;
-        //   bsls_AtomicPointer();
-        //   bsls_AtomicPointer<T>& operator= (const T *value);
-        //   ~bsls_AtomicPointer();
+        //   bsls::AtomicInt64();
+        //   ~bsls::AtomicInt64();
+        //   bsls::AtomicInt64& operator= (bsls::Types::Int64 value);
+        //   operator bsls::Types::Int64() const;
+        //   bsls::AtomicPointer();
+        //   bsls::AtomicPointer<T>& operator= (const T *value);
+        //   ~bsls::AtomicPointer();
         //   T& operator*() const;
         //   T* operator->() const;
         //   operator T*() const;
@@ -2079,7 +2079,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Primary Manipulators"
                           << "\n============================" << endl;
 
-        if (verbose) cout << "\nTesting 'bsls_AtomicInt' Primary Manipulators"
+        if (verbose) cout << "\nTesting 'bsls::AtomicInt' Primary Manipulators"
                           << endl;
         {
             static const struct {
@@ -2112,7 +2112,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'bsls_AtomicInt64' Primary Manipulators"
+            cout << "\nTesting 'bsls::AtomicInt64' Primary Manipulators"
                  << endl;
         {
             static const struct {
@@ -2145,7 +2145,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-                          "\nTesting 'bsls_AtomicPointer' Primary Manipulators"
+                          "\nTesting 'bsls::AtomicPointer' Primary Manipulators"
                           << endl;
         {
             static const struct {

@@ -43,16 +43,16 @@ using namespace std;
 // [3 ] addIntNv(Int *aInt, int val);
 // [5 ] incrementIntNv(Int *aInt);
 // [5 ] decrementIntNv(Int *aInt);
-// [3 ] addInt64(Int64 *, bsls_Types::Int64);
+// [3 ] addInt64(Int64 *, bsls::Types::Int64);
 // [5 ] incrementInt64(Int64 *aInt);
 // [5 ] decrementInt64(Int64 *aInt);
-// [4 ] swapInt64(Int64 *, bsls_Types::Int64);
-// [4 ] testAndSwapInt64(Int64 *, bsls_Types::Int64,
-//                       bsls_Types::Int64);
-// [3 ] addInt64Nv(Int64 *, bsls_Types::Int64);
+// [4 ] swapInt64(Int64 *, bsls::Types::Int64);
+// [4 ] testAndSwapInt64(Int64 *, bsls::Types::Int64,
+//                       bsls::Types::Int64);
+// [3 ] addInt64Nv(Int64 *, bsls::Types::Int64);
 // [5 ] incrementInt64Nv(Int64 *);
 // [5 ] decrementInt64Nv(Int64 *);
-// [2 ] setInt64(Int64 *, bsls_Types::Int64);
+// [2 ] setInt64(Int64 *, bsls::Types::Int64);
 // [2 ] getInt64(const Int64 &aInt);
 // [2 ] getPtr(const Pointer &aPointer);
 // [2 ] setPtr(Pointer *aPointer, void *value);
@@ -108,14 +108,14 @@ static int testStatus = 0;
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_AtomicOperations        Obj;
-typedef bsls_AtomicOperations::Types Types;
+typedef bsls::AtomicOperations              Obj;
+typedef bsls::AtomicOperations::AtomicTypes Types;
 
 const int INT_SWAPTEST_VALUE1 = 0x33ff33ff;
 const int INT_SWAPTEST_VALUE2 = 0xff33ff33;
 
-const bsls_Types::Int64 INT64_SWAPTEST_VALUE1 = 0x33ff33ff33ff33ffLL;
-const bsls_Types::Int64 INT64_SWAPTEST_VALUE2 = 0xff33ff33ff33ff33LL;
+const bsls::Types::Int64 INT64_SWAPTEST_VALUE1 = 0x33ff33ff33ff33ffLL;
+const bsls::Types::Int64 INT64_SWAPTEST_VALUE2 = 0xff33ff33ff33ff33LL;
 
 const void* POINTER_SWAPTEST_VALUE1 = (void*)0x33ff33ff;
 const void* POINTER_SWAPTEST_VALUE2 = (void*)0xff33ff33;
@@ -125,7 +125,7 @@ typedef void* (*THREAD_ENTRY)(void *arg);
 }
 
 
-const bsls_Types::Int64 OFFSET_64 = 0xA00000000LL;
+const bsls::Types::Int64 OFFSET_64 = 0xA00000000LL;
 
 //=============================================================================
 //                         HELPER CLASSES AND FUNCTIONS  FOR TESTING
@@ -214,7 +214,7 @@ struct IntTestThreadArgs {
     volatile int   d_countStarted;
     int            d_iterations;
     int            d_addVal;
-    Types::Int      *d_int_p;
+    Types::Int    *d_int_p;
 };
 
 struct Int64TestThreadArgs {
@@ -223,7 +223,7 @@ struct Int64TestThreadArgs {
     my_Mutex       d_mutex;
     volatile int   d_countStarted;
     int            d_iterations;
-    bsls_Types::Int64 d_addVal;
+    bsls::Types::Int64 d_addVal;
     Types::Int64    *d_int_p;
 };
 
@@ -236,7 +236,7 @@ struct IntSwapTestThreadArgs {
     volatile int   d_value1Count;
     volatile int   d_value2Count;
     volatile int   d_errorCount;
-    Types::Int      *d_int_p;
+    Types::Int    *d_int_p;
 };
 
 struct Int64SwapTestThreadArgs {
@@ -248,7 +248,7 @@ struct Int64SwapTestThreadArgs {
     volatile int   d_value1Count;
     volatile int   d_value2Count;
     volatile int   d_errorCount;
-    Types::Int64     *d_int_p;
+    Types::Int64  *d_int_p;
 };
 
 struct PointerTestThreadArgs {
@@ -260,7 +260,7 @@ struct PointerTestThreadArgs {
     volatile int   d_value1Count;
     volatile int   d_value2Count;
     volatile int   d_errorCount;
-    Types::Pointer   *d_ptr_p;
+    Types::Pointer *d_ptr_p;
 };
 
 inline
@@ -407,17 +407,17 @@ static void  myJoinThread(my_thread_t aHandle)
 
 struct Case9
 {
-    Types::Int  *d_value_p;
-    int        d_n;
-    int        d_m;
+    Types::Int *d_value_p;
+    int         d_n;
+    int         d_m;
 };
 
 struct Case9_64
 {
-    Types::Int64   *d_value_p;
+    Types::Int64  *d_value_p;
     Types::Pointer d_termPtr;
-    int          d_n;
-    int          d_m;
+    int            d_n;
+    int            d_m;
 };
 
 static void* case9Thread(void* ptr)
@@ -440,12 +440,12 @@ static void* case9Thread64(void* ptr)
     while (args == Obj::getPtrAcquire(&args->d_termPtr))
         ;
 
-    bsls_Types::Int64 limit = args->d_m * args->d_n + OFFSET_64;
+    bsls::Types::Int64 limit = args->d_m * args->d_n + OFFSET_64;
 
     for (int i = 0; i < args->d_m; ++i) {
-        bsls_Types::Int64 value =
+        bsls::Types::Int64 value =
             Obj::getInt64Acquire(args->d_value_p);
-        bsls_Types::Int64 newValue =
+        bsls::Types::Int64 newValue =
             Obj::addInt64NvAcqRel(args->d_value_p, 1);
         LOOP3_ASSERT(value, newValue, limit,
                      newValue > value && value <= limit);
@@ -457,17 +457,17 @@ static void* case9Thread64(void* ptr)
 
 struct Case8
 {
-    Types::Int  *d_value_p;
-    int        d_n;
-    int        d_m;
+    Types::Int *d_value_p;
+    int         d_n;
+    int         d_m;
 };
 
 struct Case8_64
 {
     Types::Int64   *d_value_p;
-    Types::Pointer d_termPtr;
-    int          d_n;
-    int          d_m;
+    Types::Pointer  d_termPtr;
+    int             d_n;
+    int             d_m;
 };
 
 extern "C" {
@@ -492,12 +492,12 @@ static void* case8Thread64(void* ptr)
     while (args == Obj::getPtrRelaxed(&args->d_termPtr))
         ;
 
-    bsls_Types::Int64 limit = args->d_m * args->d_n + OFFSET_64;
+    bsls::Types::Int64 limit = args->d_m * args->d_n + OFFSET_64;
 
     for (int i = 0; i < args->d_m; ++i) {
-        bsls_Types::Int64 value =
+        bsls::Types::Int64 value =
             Obj::getInt64Relaxed(args->d_value_p);
-        bsls_Types::Int64 newValue =
+        bsls::Types::Int64 newValue =
             Obj::addInt64NvRelaxed(args->d_value_p, 1);
         LOOP3_ASSERT(value, newValue, limit,
                      newValue > value && value <= limit);
@@ -829,7 +829,7 @@ static void* swapInt64TestThread(void *ptr)
     args->d_barrier.wait();
 
     for(int i=0; i < args->d_iterations; ++i) {
-        bsls_Types::Int64 oldValue=
+        bsls::Types::Int64 oldValue=
             Obj::swapInt64(args->d_int_p,INT64_SWAPTEST_VALUE2);
         if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
         else if (oldValue == INT64_SWAPTEST_VALUE2) ++value2Count;
@@ -891,7 +891,7 @@ static void* testAndSwapInt64TestThread(void *ptr)
     args->d_barrier.wait();
 
     for(int i=0; i < args->d_iterations; ++i) {
-        bsls_Types::Int64 oldValue=
+        bsls::Types::Int64 oldValue=
             Obj::testAndSwapInt64(args->d_int_p,INT64_SWAPTEST_VALUE1,
                                   INT64_SWAPTEST_VALUE2);
         if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
@@ -1013,7 +1013,7 @@ static void* swapInt64AcqRelTestThread(void *ptr)
     args->d_barrier.wait();
 
     for(int i=0; i < args->d_iterations; ++i) {
-        bsls_Types::Int64 oldValue=
+        bsls::Types::Int64 oldValue=
             Obj::swapInt64AcqRel(args->d_int_p,INT64_SWAPTEST_VALUE2);
         if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
         else if (oldValue == INT64_SWAPTEST_VALUE2) ++value2Count;
@@ -1075,7 +1075,7 @@ static void* testAndSwapInt64AcqRelTestThread(void *ptr)
     args->d_barrier.wait();
 
     for(int i=0; i < args->d_iterations; ++i) {
-        bsls_Types::Int64 oldValue=
+        bsls::Types::Int64 oldValue=
             Obj::testAndSwapInt64AcqRel(args->d_int_p,INT64_SWAPTEST_VALUE1,
                                   INT64_SWAPTEST_VALUE2);
         if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
@@ -1234,7 +1234,7 @@ template <class INSTANCE>
 class my_CountedHandleRep {
 
     // DATA
-    bsls_AtomicOperations::Types::Int
+    bsls::AtomicOperations::AtomicTypes::Int
                          d_count;        // number of active references
     INSTANCE            *d_instance_p;   // address of managed instance
 
@@ -1311,7 +1311,7 @@ void my_CountedHandleRep<INSTANCE>::deleteObject(
 //..
 // Then, we write the constructor for the 'my_CountedHandleRep<INSTANCE>'
 // class.  We initialize the atomic reference counter to one reference using
-// 'bsls_AtomicOperations::initInt'.  This reflects the fact that this
+// 'bsls::AtomicOperations::initInt'.  This reflects the fact that this
 // constructor will be called by a new instance of 'my_CountedHandle'.  That
 // instance is our first and only handle when this constructor is called:
 //..
@@ -1321,7 +1321,7 @@ my_CountedHandleRep<INSTANCE>::
                         my_CountedHandleRep(INSTANCE        *instance)
 : d_instance_p(instance)
 {
-    bsls_AtomicOperations::initInt(&d_count, 1);
+    bsls::AtomicOperations::initInt(&d_count, 1);
 }
 //..
 // Then, we define the destructor, which just deletes 'my_CountedHandle'
@@ -1344,7 +1344,7 @@ template <class INSTANCE>
 inline
 void my_CountedHandleRep<INSTANCE>::increment()
 {
-    bsls_AtomicOperations::incrementInt(&d_count);
+    bsls::AtomicOperations::incrementInt(&d_count);
 }
 //..
 // Then, we implement method 'decrement', which atomically decrements the
@@ -1356,7 +1356,7 @@ template <class INSTANCE>
 inline
 int my_CountedHandleRep<INSTANCE>::decrement()
 {
-    return bsls_AtomicOperations::decrementIntNv(&d_count);
+    return bsls::AtomicOperations::decrementIntNv(&d_count);
 }
 //..
 ///Function Definitions for 'my_CountedHandle'
@@ -1423,7 +1423,7 @@ template <class INSTANCE>
 inline
 int my_CountedHandle<INSTANCE>::numReferences() const
 {
-    return d_rep_p ? bsls_AtomicOperations::getInt(d_rep_p->d_count) : 0;
+    return d_rep_p ? bsls::AtomicOperations::getInt(d_rep_p->d_count) : 0;
 }
 //..
 // Note that, while class 'my_CountedHandleRep' is itself fully thread-safe, it
@@ -1457,8 +1457,8 @@ class my_PtrStack {
     };
 
     // DATA
-    bsls_AtomicOperations::Types::Pointer  d_list_p;
-    bsls_AtomicOperations::Types::Pointer  d_freeList_p;
+    bsls::AtomicOperations::AtomicTypes::Pointer  d_list_p;
+    bsls::AtomicOperations::AtomicTypes::Pointer  d_freeList_p;
 
     // PRIVATE MANIPULATORS
     Node *allocateNode();
@@ -1482,8 +1482,8 @@ class my_PtrStack {
 template <class TYPE>
 inline my_PtrStack<TYPE>::my_PtrStack()
 {
-    bsls_AtomicOperations::initPointer(&d_freeList_p, 0);
-    bsls_AtomicOperations::initPointer(&d_list_p, 0);
+    bsls::AtomicOperations::initPointer(&d_freeList_p, 0);
+    bsls::AtomicOperations::initPointer(&d_list_p, 0);
 }
 //..
 // Next, we define the 'deleteNodes' and the destructor function to delete
@@ -1505,9 +1505,9 @@ template <class TYPE>
 inline my_PtrStack<TYPE>::~my_PtrStack()
 {
     deleteNodes(
-       (Node *) bsls_AtomicOperations::getPtrRelaxed(&d_list_p));
+       (Node *) bsls::AtomicOperations::getPtrRelaxed(&d_list_p));
     deleteNodes(
-       (Node *) bsls_AtomicOperations::getPtrRelaxed(&d_freeList_p));
+       (Node *) bsls::AtomicOperations::getPtrRelaxed(&d_freeList_p));
 }
 //..
 // Then, we define method 'allocateNode' to get a node from the free list in
@@ -1528,11 +1528,11 @@ inline typename my_PtrStack<TYPE>::Node *my_PtrStack<TYPE>::allocateNode()
 // 'testAndSwapPtr'.  If the list head has changed, then try again:
 //..
     do {
-        node = (Node*)bsls_AtomicOperations::getPtr(&d_freeList_p);
+        node = (Node*) bsls::AtomicOperations::getPtr(&d_freeList_p);
         if (!node) break;
-    } while (bsls_AtomicOperations::testAndSwapPtr(&d_freeList_p,
-                                                   node,
-                                                   node->d_next_p) != node);
+    } while (bsls::AtomicOperations::testAndSwapPtr(&d_freeList_p,
+                                                    node,
+                                                    node->d_next_p) != node);
 //..
 // Next, we allocate a new node if there are no nodes in the free node list:
 //..
@@ -1552,10 +1552,10 @@ template <class TYPE>
 inline void my_PtrStack<TYPE>::freeNode(Node *node)
 {
     do {
-       node->d_next_p = (Node*)bsls_AtomicOperations::getPtr(&d_freeList_p);
-    } while (bsls_AtomicOperations::testAndSwapPtr(&d_freeList_p,
-                                                   node->d_next_p,
-                                                   node)!= node->d_next_p);
+       node->d_next_p = (Node*) bsls::AtomicOperations::getPtr(&d_freeList_p);
+    } while (bsls::AtomicOperations::testAndSwapPtr(&d_freeList_p,
+                                                    node->d_next_p,
+                                                    node)!= node->d_next_p);
 }
 //..
 // Now, we begin to define the public "stack-like" interface for 'my_PtrStack'.
@@ -1569,10 +1569,10 @@ inline void my_PtrStack<TYPE>::push(TYPE *item)
     Node *node = allocateNode();
     node->d_item_p = item;
     do {
-        node->d_next_p = (Node*)bsls_AtomicOperations::getPtr(&d_list_p);
-    } while (bsls_AtomicOperations::testAndSwapPtr(&d_list_p,
-                                                   node->d_next_p,
-                                                   node)!= node->d_next_p);
+        node->d_next_p = (Node*) bsls::AtomicOperations::getPtr(&d_list_p);
+    } while (bsls::AtomicOperations::testAndSwapPtr(&d_list_p,
+                                                    node->d_next_p,
+                                                    node)!= node->d_next_p);
 }
 //..
 // Finally, we define the 'pop' method which removes the node from the top
@@ -1584,11 +1584,11 @@ inline TYPE *my_PtrStack<TYPE>::pop()
 {
     Node *node;
     do {
-        node = (Node*)bsls_AtomicOperations::getPtr(&d_list_p);
+        node = (Node*) bsls::AtomicOperations::getPtr(&d_list_p);
         if (!node) break;
-    } while (bsls_AtomicOperations::testAndSwapPtr(&d_freeList_p,
-                                                   node,
-                                                   node->d_next_p)!= node);
+    } while (bsls::AtomicOperations::testAndSwapPtr(&d_freeList_p,
+                                                    node,
+                                                    node->d_next_p)!= node);
     TYPE *item = node ? node->d_item_p : 0;
     if (node)
         freeNode(node);
@@ -1635,7 +1635,7 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   setIntRelease(Obj::Int *aInt, int value);
         //   getIntAcquire(const Obj::Int &aInt);
-        //   setInt64Release(Obj::Int64 *, bsls_Types::Int64);
+        //   setInt64Release(Obj::Int64 *, bsls::Types::Int64);
         //   getInt64Acquire(const Obj::Int64 &aInt);
         //   getPtrAcquire(const Obj::Pointer &aPointer);
         //   setPtrRelease(Obj::Pointer *aPointer, void *value);
@@ -1682,7 +1682,7 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
-                bsls_Types::Int64 d_value;       // Input value
+                bsls::Types::Int64 d_value;       // Input value
             } VALUES[] = {
                 //line value
                 //---- -----
@@ -1696,7 +1696,7 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -1770,9 +1770,9 @@ int main(int argc, char *argv[]) {
         //   threads.
         // Testing:
         //   addIntAcqRel(Obj::Int *aInt, int value);
-        //   addInt64AcqRel(Obj::Int64 *, bsls_Types::Int64);
+        //   addInt64AcqRel(Obj::Int64 *, bsls::Types::Int64);
         //   addIntNvAcqRel(Obj::Int *aInt, int value);
-        //   addInt64NvAcqRel(Obj::Int64 *, bsls_Types::Int64);
+        //   addInt64NvAcqRel(Obj::Int64 *, bsls::Types::Int64);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1904,7 +1904,7 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
-                bsls_Types::Int64 d_value;       // Input value
+                bsls::Types::Int64 d_value;       // Input value
             } VALUES[] = {
                 //line d_x
                 //---- ----
@@ -1918,7 +1918,7 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -1932,8 +1932,8 @@ int main(int argc, char *argv[]) {
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL  = VALUES[i].d_value;
-                bsls_Types::Int64       result;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
+                bsls::Types::Int64       result;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -1952,9 +1952,9 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int  d_lineNum;      // Source line number
-                bsls_Types::Int64 d_base;    // Base value
-                bsls_Types::Int64 d_amount;  // Amount to add
-                bsls_Types::Int64 d_expected; // Expected value
+                bsls::Types::Int64 d_base;    // Base value
+                bsls::Types::Int64 d_amount;  // Amount to add
+                bsls::Types::Int64 d_expected; // Expected value
             } VALUES[] = {
                 //line d_base        d_amount d_expected
                 //---- ------------- -------- ----------
@@ -1968,9 +1968,9 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 BASE = VALUES[i].d_base;
-                const bsls_Types::Int64 AMT  = VALUES[i].d_amount;
-                const bsls_Types::Int64 EXP  = VALUES[i].d_expected;
+                const bsls::Types::Int64 BASE = VALUES[i].d_base;
+                const bsls::Types::Int64 AMT  = VALUES[i].d_amount;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -1988,10 +1988,10 @@ int main(int argc, char *argv[]) {
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 BASE = VALUES[i].d_base;
-                const bsls_Types::Int64 AMT  = VALUES[i].d_amount;
-                const bsls_Types::Int64 EXP  = VALUES[i].d_expected;
-                bsls_Types::Int64       result;
+                const bsls::Types::Int64 BASE = VALUES[i].d_base;
+                const bsls::Types::Int64 AMT  = VALUES[i].d_amount;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
+                bsls::Types::Int64       result;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -2058,8 +2058,8 @@ int main(int argc, char *argv[]) {
             const int NTHREADS=4;
             const int NITERATIONS=10000;
             const int ADDVAL = 33;
-            const bsls_Types::Int64 STARTVALUE=0xfffff000;
-            const bsls_Types::Int64 EXPTOTAL=(NTHREADS*NITERATIONS*
+            const bsls::Types::Int64 STARTVALUE=0xfffff000;
+            const bsls::Types::Int64 EXPTOTAL=(NTHREADS*NITERATIONS*
                                                      ADDVAL * 2) + STARTVALUE;
             Types::Int64 mInt;
 
@@ -2133,9 +2133,9 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   swapInt64AcqRel(Obj::Int *aInt, int value);
         //   testAndSwapIntAcqRel(Obj::Int *, int, int);
-        //   swapInt64AcqRel(Obj::Int64 *, bsls_Types::Int64);
-        //   testAndSwapInt64AcqRel(Obj::Int64 *, bsls_Types::Int6
-        //                          bsls_Types::Int64 );
+        //   swapInt64AcqRel(Obj::Int64 *, bsls::Types::Int64);
+        //   testAndSwapInt64AcqRel(Obj::Int64 *, bsls::Types::Int6
+        //                          bsls::Types::Int64 );
         //   swapPtrAcqRel(Obj::Pointer *aPointer, void *value);
         //   testAndSwapPtrAcqRel(Obj::Pointer *, void *, void *);
         // --------------------------------------------------------------------
@@ -2233,8 +2233,8 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
-                bsls_Types::Int64 d_value;       // Initial value
-                bsls_Types::Int64 d_swapValue;   // Swap value
+                bsls::Types::Int64 d_value;       // Initial value
+                bsls::Types::Int64 d_swapValue;   // Swap value
             } VALUES[] = {
                 //line value swap
                 //---- ----- -------
@@ -2248,9 +2248,9 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL    = VALUES[i].d_value;
-                const bsls_Types::Int64 SWPVAL = VALUES[i].d_swapValue;
-                bsls_Types::Int64       result = 0;
+                const bsls::Types::Int64 VAL    = VALUES[i].d_value;
+                const bsls::Types::Int64 SWPVAL = VALUES[i].d_swapValue;
+                bsls::Types::Int64       result = 0;
 
                 Types::Int64 x; const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -2271,12 +2271,12 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
-                bsls_Types::Int64 d_value;       // Initial value
-                bsls_Types::Int64 d_swapValue;   // Swap value
-                bsls_Types::Int64 d_cmpValue;    // Compare value
-                bsls_Types::Int64 d_expValue;    // Expected value
+                bsls::Types::Int64 d_value;       // Initial value
+                bsls::Types::Int64 d_swapValue;   // Swap value
+                bsls::Types::Int64 d_cmpValue;    // Compare value
+                bsls::Types::Int64 d_expValue;    // Expected value
                                                         // after the operation
-                bsls_Types::Int64 d_expResult;   // Expected result
+                bsls::Types::Int64 d_expResult;   // Expected result
             } VALUES[] = {
                 //line value swapVal      cmpVal  expValue      expResult
                 //---- ----- ------------ ------- ------------- ---------
@@ -2290,12 +2290,12 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL    = VALUES[i].d_value;
-                const bsls_Types::Int64 CMPVAL = VALUES[i].d_cmpValue;
-                const bsls_Types::Int64 SWPVAL = VALUES[i].d_swapValue;
-                const bsls_Types::Int64 EXPVAL = VALUES[i].d_expValue;
-                const bsls_Types::Int64 EXPRES = VALUES[i].d_expResult;
-                bsls_Types::Int64       result = 0;
+                const bsls::Types::Int64 VAL    = VALUES[i].d_value;
+                const bsls::Types::Int64 CMPVAL = VALUES[i].d_cmpValue;
+                const bsls::Types::Int64 SWPVAL = VALUES[i].d_swapValue;
+                const bsls::Types::Int64 EXPVAL = VALUES[i].d_expValue;
+                const bsls::Types::Int64 EXPRES = VALUES[i].d_expResult;
+                bsls::Types::Int64       result = 0;
 
                 Types::Int64 x; const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -2501,7 +2501,7 @@ int main(int argc, char *argv[]) {
             int value1Count=0;
             int value2Count=0;
             for (int i=0; i < NITERATIONS; ++i) {
-                bsls_Types::Int64 oldValue =
+                bsls::Types::Int64 oldValue =
                     Obj::swapInt64AcqRel( &mInt,
                                                 INT64_SWAPTEST_VALUE1);
                 if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
@@ -2622,7 +2622,7 @@ int main(int argc, char *argv[]) {
             int value1Count=0;
             int value2Count=0;
             for (int i=0; i < NITERATIONS; ++i) {
-                bsls_Types::Int64 oldValue =
+                bsls::Types::Int64 oldValue =
                     Obj::swapInt64AcqRel( &mInt,
                                                 INT64_SWAPTEST_VALUE1);
                 if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
@@ -2829,7 +2829,7 @@ int main(int argc, char *argv[]) {
             myJoinThread(threadHandles[i]);
         }
 
-        bsls_Types::Int64 expected = OFFSET_64 + N * M;
+        bsls::Types::Int64 expected = OFFSET_64 + N * M;
 
         LOOP2_ASSERT(expected, Obj::getInt64(&value64),
                      expected == Obj::getInt64(&value64));
@@ -2899,7 +2899,7 @@ int main(int argc, char *argv[]) {
             myJoinThread(threadHandles[i]);
         }
 
-        bsls_Types::Int64 expected = OFFSET_64 + N * M;
+        bsls::Types::Int64 expected = OFFSET_64 + N * M;
 
         LOOP2_ASSERT(expected, Obj::getInt64(&value64),
                      expected == Obj::getInt64(&value64));
@@ -3196,9 +3196,9 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
-                bsls_Types::Int64 d_expected; // Expected resulting
+                bsls::Types::Int64 d_expected; // Expected resulting
                                                      // value of decrement
-                bsls_Types::Int64 d_value; // Input value
+                bsls::Types::Int64 d_value; // Input value
 
             } VALUES[] = {
                 //line expected             value
@@ -3213,8 +3213,8 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL  = VALUES[i].d_value;
-                const bsls_Types::Int64 EXP  = VALUES[i].d_expected;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -3233,9 +3233,9 @@ int main(int argc, char *argv[]) {
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL  = VALUES[i].d_value;
-                const bsls_Types::Int64 EXP  = VALUES[i].d_expected;
-                bsls_Types::Int64       result;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
+                bsls::Types::Int64       result;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -3257,8 +3257,8 @@ int main(int argc, char *argv[]) {
         {
             const int NTHREADS=4;
             const int NITERATIONS=10000;
-            const bsls_Types::Int64 STARTVALUE=0xfffffff0LL;
-            const bsls_Types::Int64 EXPTOTAL=NTHREADS*NITERATIONS*2+
+            const bsls::Types::Int64 STARTVALUE=0xfffffff0LL;
+            const bsls::Types::Int64 EXPTOTAL=NTHREADS*NITERATIONS*2+
                                            STARTVALUE;
             Types::Int64 mInt;
 
@@ -3297,8 +3297,8 @@ int main(int argc, char *argv[]) {
         {
             const int NTHREADS=4;
             const int NITERATIONS=10000;
-            const bsls_Types::Int64 EXPTOTAL=0xfffffff0;
-            const bsls_Types::Int64 STARTVALUE=(NTHREADS*NITERATIONS*2)+
+            const bsls::Types::Int64 EXPTOTAL=0xfffffff0;
+            const bsls::Types::Int64 STARTVALUE=(NTHREADS*NITERATIONS*2)+
                                            EXPTOTAL;
             Types::Int64 mInt;
 
@@ -3605,9 +3605,9 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
-                bsls_Types::Int64 d_expected; // Expected resulting
+                bsls::Types::Int64 d_expected; // Expected resulting
                                                      // value of decrement
-                bsls_Types::Int64 d_value; // Input value
+                bsls::Types::Int64 d_value; // Input value
 
             } VALUES[] = {
                 //line expected             value
@@ -3622,8 +3622,8 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL  = VALUES[i].d_value;
-                const bsls_Types::Int64 EXP  = VALUES[i].d_expected;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -3642,9 +3642,9 @@ int main(int argc, char *argv[]) {
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL  = VALUES[i].d_value;
-                const bsls_Types::Int64 EXP  = VALUES[i].d_expected;
-                bsls_Types::Int64       result;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
+                bsls::Types::Int64       result;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -3666,8 +3666,8 @@ int main(int argc, char *argv[]) {
         {
             const int NTHREADS=4;
             const int NITERATIONS=10000;
-            const bsls_Types::Int64 STARTVALUE=0xfffffff0LL;
-            const bsls_Types::Int64 EXPTOTAL=NTHREADS*NITERATIONS*2+
+            const bsls::Types::Int64 STARTVALUE=0xfffffff0LL;
+            const bsls::Types::Int64 EXPTOTAL=NTHREADS*NITERATIONS*2+
                                            STARTVALUE;
             Types::Int64 mInt;
 
@@ -3705,8 +3705,8 @@ int main(int argc, char *argv[]) {
         {
             const int NTHREADS=4;
             const int NITERATIONS=10000;
-            const bsls_Types::Int64 EXPTOTAL=0xfffffff0;
-            const bsls_Types::Int64 STARTVALUE=(NTHREADS*NITERATIONS*2)+
+            const bsls::Types::Int64 EXPTOTAL=0xfffffff0;
+            const bsls::Types::Int64 STARTVALUE=(NTHREADS*NITERATIONS*2)+
                                            EXPTOTAL;
             Types::Int64 mInt;
 
@@ -3779,9 +3779,9 @@ int main(int argc, char *argv[]) {
         // Testing:
         //   swapInt64(Obj::Int *aInt, int value);
         //   testAndSwapInt(Obj::Int *, int, int);
-        //   swapInt64(Obj::Int64 *, bsls_Types::Int64);
-        //   testAndSwapInt64(Obj::Int64 *, bsls_Types::Int6
-        //                    bsls_Types::Int64 );
+        //   swapInt64(Obj::Int64 *, bsls::Types::Int64);
+        //   testAndSwapInt64(Obj::Int64 *, bsls::Types::Int6
+        //                    bsls::Types::Int64 );
         //   swapPtr(Obj::Pointer *aPointer, void *value);
         //   testAndSwapPtr(Obj::Pointer *, void *, void *);
         // --------------------------------------------------------------------
@@ -3879,8 +3879,8 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
-                bsls_Types::Int64 d_value;       // Initial value
-                bsls_Types::Int64 d_swapValue;   // Swap value
+                bsls::Types::Int64 d_value;       // Initial value
+                bsls::Types::Int64 d_swapValue;   // Swap value
             } VALUES[] = {
                 //line value swap
                 //---- ----- -------
@@ -3894,9 +3894,9 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL    = VALUES[i].d_value;
-                const bsls_Types::Int64 SWPVAL = VALUES[i].d_swapValue;
-                bsls_Types::Int64       result = 0;
+                const bsls::Types::Int64 VAL    = VALUES[i].d_value;
+                const bsls::Types::Int64 SWPVAL = VALUES[i].d_swapValue;
+                bsls::Types::Int64       result = 0;
 
                 Types::Int64 x; const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -3917,12 +3917,12 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
-                bsls_Types::Int64 d_value;       // Initial value
-                bsls_Types::Int64 d_swapValue;   // Swap value
-                bsls_Types::Int64 d_cmpValue;    // Compare value
-                bsls_Types::Int64 d_expValue;    // Expected value
+                bsls::Types::Int64 d_value;       // Initial value
+                bsls::Types::Int64 d_swapValue;   // Swap value
+                bsls::Types::Int64 d_cmpValue;    // Compare value
+                bsls::Types::Int64 d_expValue;    // Expected value
                                                         // after the operation
-                bsls_Types::Int64 d_expResult;   // Expected result
+                bsls::Types::Int64 d_expResult;   // Expected result
             } VALUES[] = {
                 //line value swapVal      cmpVal  expValue      expResult
                 //---- ----- ------------ ------- ------------- ---------
@@ -3936,12 +3936,12 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL    = VALUES[i].d_value;
-                const bsls_Types::Int64 CMPVAL = VALUES[i].d_cmpValue;
-                const bsls_Types::Int64 SWPVAL = VALUES[i].d_swapValue;
-                const bsls_Types::Int64 EXPVAL = VALUES[i].d_expValue;
-                const bsls_Types::Int64 EXPRES = VALUES[i].d_expResult;
-                bsls_Types::Int64       result = 0;
+                const bsls::Types::Int64 VAL    = VALUES[i].d_value;
+                const bsls::Types::Int64 CMPVAL = VALUES[i].d_cmpValue;
+                const bsls::Types::Int64 SWPVAL = VALUES[i].d_swapValue;
+                const bsls::Types::Int64 EXPVAL = VALUES[i].d_expValue;
+                const bsls::Types::Int64 EXPRES = VALUES[i].d_expResult;
+                bsls::Types::Int64       result = 0;
 
                 Types::Int64 x; const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -4147,7 +4147,7 @@ int main(int argc, char *argv[]) {
             int value1Count=0;
             int value2Count=0;
             for (int i=0; i < NITERATIONS; ++i) {
-                bsls_Types::Int64 oldValue =
+                bsls::Types::Int64 oldValue =
                     Obj::swapInt64( &mInt,
                                                 INT64_SWAPTEST_VALUE1);
                 if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
@@ -4266,7 +4266,7 @@ int main(int argc, char *argv[]) {
             int value1Count=0;
             int value2Count=0;
             for (int i=0; i < NITERATIONS; ++i) {
-                bsls_Types::Int64 oldValue =
+                bsls::Types::Int64 oldValue =
                     Obj::swapInt64( &mInt,
                                                 INT64_SWAPTEST_VALUE1);
                 if (oldValue == INT64_SWAPTEST_VALUE1) ++value1Count;
@@ -4434,9 +4434,9 @@ int main(int argc, char *argv[]) {
         //   threads.
         // Testing:
         //   addInt(Obj::Int *aInt, int value);
-        //   addInt64(Obj::Int64 *, bsls_Types::Int64);
+        //   addInt64(Obj::Int64 *, bsls::Types::Int64);
         //   addIntNv(Obj::Int *aInt, int value);
-        //   addInt64Nv(Obj::Int64 *, bsls_Types::Int64);
+        //   addInt64Nv(Obj::Int64 *, bsls::Types::Int64);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Arithmetic Manipulators"
@@ -4567,7 +4567,7 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
-                bsls_Types::Int64 d_value;       // Input value
+                bsls::Types::Int64 d_value;       // Input value
             } VALUES[] = {
                 //line d_x
                 //---- ----
@@ -4581,7 +4581,7 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -4595,8 +4595,8 @@ int main(int argc, char *argv[]) {
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL  = VALUES[i].d_value;
-                bsls_Types::Int64       result;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
+                bsls::Types::Int64       result;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -4615,9 +4615,9 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int  d_lineNum;      // Source line number
-                bsls_Types::Int64 d_base;    // Base value
-                bsls_Types::Int64 d_amount;  // Amount to add
-                bsls_Types::Int64 d_expected; // Expected value
+                bsls::Types::Int64 d_base;    // Base value
+                bsls::Types::Int64 d_amount;  // Amount to add
+                bsls::Types::Int64 d_expected; // Expected value
             } VALUES[] = {
                 //line d_base        d_amount d_expected
                 //---- ------------- -------- ----------
@@ -4631,9 +4631,9 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 BASE = VALUES[i].d_base;
-                const bsls_Types::Int64 AMT  = VALUES[i].d_amount;
-                const bsls_Types::Int64 EXP  = VALUES[i].d_expected;
+                const bsls::Types::Int64 BASE = VALUES[i].d_base;
+                const bsls::Types::Int64 AMT  = VALUES[i].d_amount;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -4651,10 +4651,10 @@ int main(int argc, char *argv[]) {
             }
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 BASE = VALUES[i].d_base;
-                const bsls_Types::Int64 AMT  = VALUES[i].d_amount;
-                const bsls_Types::Int64 EXP  = VALUES[i].d_expected;
-                bsls_Types::Int64       result;
+                const bsls::Types::Int64 BASE = VALUES[i].d_base;
+                const bsls::Types::Int64 AMT  = VALUES[i].d_amount;
+                const bsls::Types::Int64 EXP  = VALUES[i].d_expected;
+                bsls::Types::Int64       result;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -4719,8 +4719,8 @@ int main(int argc, char *argv[]) {
             const int NTHREADS=4;
             const int NITERATIONS=10000;
             const int ADDVAL = 33;
-            const bsls_Types::Int64 STARTVALUE=0xfffff000;
-            const bsls_Types::Int64 EXPTOTAL=(NTHREADS*NITERATIONS*
+            const bsls::Types::Int64 STARTVALUE=0xfffff000;
+            const bsls::Types::Int64 EXPTOTAL=(NTHREADS*NITERATIONS*
                                                      ADDVAL * 2) + STARTVALUE;
             Types::Int64 mInt;
 
@@ -4777,7 +4777,7 @@ int main(int argc, char *argv[]) {
         //   initPointer(Obj::Pointer *aPointer);
         //   setInt(Obj::Int *aInt, int value);
         //   getInt(const Obj::Int &aInt);
-        //   setInt64(Obj::Int64 *, bsls_Types::Int64);
+        //   setInt64(Obj::Int64 *, bsls::Types::Int64);
         //   getInt64(const Obj::Int64 &aInt);
         //   getPtr(const Obj::Pointer &aPointer);
         //   setPtr(Obj::Pointer *aPointer, void *value);
@@ -4823,7 +4823,7 @@ int main(int argc, char *argv[]) {
         {
             static const struct {
                 int       d_lineNum;     // Source line number
-                bsls_Types::Int64 d_value;       // Input value
+                bsls::Types::Int64 d_value;       // Input value
             } VALUES[] = {
                 //line value
                 //---- -----
@@ -4837,7 +4837,7 @@ int main(int argc, char *argv[]) {
             const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
 
             for (int i = 0; i < NUM_VALUES; ++i) {
-                const bsls_Types::Int64 VAL  = VALUES[i].d_value;
+                const bsls::Types::Int64 VAL  = VALUES[i].d_value;
 
                 Types::Int64 x;  const Types::Int64& X = x;
                 Obj::initInt64(&x,0);
@@ -4908,16 +4908,16 @@ int main(int argc, char *argv[]) {
         const int XVB=2;
         const int XVC=-2;
 
-        const bsls_Types::Int64 YVA=1LL;
-        const bsls_Types::Int64 YVB=-1LL;
-        const bsls_Types::Int64 YVC=0xFFFFFFFFLL;
+        const bsls::Types::Int64 YVA=1LL;
+        const bsls::Types::Int64 YVB=-1LL;
+        const bsls::Types::Int64 YVC=0xFFFFFFFFLL;
 
         const void *PVA=(void*)0xffff8888;
         const void *PVB=(void*)0xffffffff;
         const void *PVC=(void*)0x78888888;
 
         int lresult;
-        bsls_Types::Int64 llresult;
+        bsls::Types::Int64 llresult;
         void *presult;
 
         if (veryVerbose) cout << endl

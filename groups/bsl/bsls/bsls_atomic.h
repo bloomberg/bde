@@ -10,9 +10,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide types with atomic operations.
 //
 //@CLASSES:
-//  bsls_AtomicInt: atomic 32-bit integer type
-//  bsls_AtomicInt64: atomic 64-bit integer types
-//  bsls_AtomicPointer: parameterized atomic pointer type
+//  bsls::AtomicInt: atomic 32-bit integer type
+//  bsls::AtomicInt64: atomic 64-bit integer types
+//  bsls::AtomicPointer: parameterized atomic pointer type
 //
 //@SEE_ALSO: bsls_atomicoperations
 //
@@ -21,9 +21,9 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides classes with atomic operations for
 // 'int', 'Int64', and pointer types.  These classes are based on atomic
 // operations supplied by the 'bsls_atomicoperations' component.  The
-// 'bsls_AtomicInt' and 'bsls_AtomicInt64' classes represent the corresponding
+// 'bsls::AtomicInt' and 'bsls::AtomicInt64' classes represent the corresponding
 // atomic integer types, and provide overloaded operators and functions for
-// common arithmetic operations.  The 'bsls_AtomicPointer' class represents the
+// common arithmetic operations.  The 'bsls::AtomicPointer' class represents the
 // atomic pointer type, and provides atomic operations to manipulate and
 // dereference a pointer.
 //
@@ -98,8 +98,8 @@ BSLS_IDENT("$Id: $")
 // process.  To illustrate the total order, let's consider the so-called
 // "independent reads of independent writes" example:
 //..
-//  bsls_AtomicInt x(0);
-//  bsls_AtomicInt y(0);
+//  bsls::AtomicInt x(0);
+//  bsls::AtomicInt y(0);
 //  int r1, r2, r3, r4;
 //
 //  void thread1() {
@@ -147,9 +147,9 @@ BSLS_IDENT("$Id: $")
 // types defined in 'bsls_atomicoperations', these atomic types are
 // zero-initialized at construction):
 //..
-//  static bsls_AtomicInt64 transactionCount;
-//  static bsls_AtomicInt64 successCount;
-//  static bsls_AtomicInt64 failureCount;
+//  static bsls::AtomicInt64 transactionCount;
+//  static bsls::AtomicInt64 successCount;
+//  static bsls::AtomicInt64 failureCount;
 //..
 // Next, for each transaction processed, we atomically increment either the
 // success or the failure counter as well as the total transaction count:
@@ -214,10 +214,10 @@ BSLS_IDENT("$Id: $")
 //
 // The class declaration for 'my_CountedHandleRep' is identical to the same
 // class in component 'bsls_atomicoperations', with a single exception: member
-// 'd_count' is of type 'bsls_AtomicInt', rather than
-// 'bsls_AtomicOperations::Int'.  Whereas 'bsls_AtomicOperations::Int' is
+// 'd_count' is of type 'bsls::AtomicInt', rather than
+// 'bsls::AtomicOperations::Int'.  Whereas 'bsls::AtomicOperations::Int' is
 // merely a 'typedef' for a platform-specific data type to be used in atomic
-// integer operations, 'bsls_AtomicInt' encapsulates those atomic operations as
+// integer operations, 'bsls::AtomicInt' encapsulates those atomic operations as
 // member functions and operator overloads.  Class 'my_CountedHandleRep' will
 // benefit from this encapsulation: Its method implementations will be able to
 // operate on 'd_count' as if it were a standard integer.
@@ -238,7 +238,7 @@ BSLS_IDENT("$Id: $")
 //  class my_CountedHandleRep {
 //
 //      // DATA
-//      bsls_AtomicInt   d_count;        // number of active references
+//      bsls::AtomicInt  d_count;        // number of active references
 //      INSTANCE        *d_instance_p;   // address of managed instance
 //
 //      // FRIENDS
@@ -320,7 +320,7 @@ BSLS_IDENT("$Id: $")
 // class.  Member 'd_count' is initialized to 1, reflecting the fact that this
 // constructor will be called by a new instance of 'my_CountedHandle', which
 // instance is our first and only handle when this constructor is called:
-// notice that 'd_count' (of type 'bsls_AtomicInt') is initialized as if it
+// notice that 'd_count' (of type 'bsls::AtomicInt') is initialized as if it
 // were a simple integer; its constructor guarantees that the initialization is
 // done atomically.
 //..
@@ -355,7 +355,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // The above operation must be done atomically in a multi-threaded context;
-// class 'bsls_AtomicInt' provides this guarantee for all its overloaded
+// class 'bsls::AtomicInt' provides this guarantee for all its overloaded
 // operators, and 'my_CountedHandleRep' relies upon this guarantee.
 //
 // Then, we implement method 'decrement', which is called by 'my_CountedHandle'
@@ -461,9 +461,9 @@ BSLS_IDENT("$Id: $")
 // 'bsls_atomicoperations', presenting a different implementation of
 // 'my_PtrStack<T>', with an identical public interface.  Note that, where the
 // 'bsls_atomicoperations' example uses the basic data type
-// 'bsls_AtomicOperations::Types::Pointer' for members 'd_list' and
+// 'bsls::AtomicOperations::AtomicTypes::Pointer' for members 'd_list' and
 // 'd_freeList', this implementation uses instead the higher-level type
-// 'bsls_AtomicPointer<T>'.
+// 'bsls::AtomicPointer<T>'.
 //
 // First, we create class template, 'my_PtrStack', parameterized by 'TYPE'.
 // Instances of this template maintain a list of nodes and a free-node list.
@@ -478,12 +478,12 @@ BSLS_IDENT("$Id: $")
 //      typedef struct Node {
 //          TYPE                 *d_item_p;
 //          Node                 *d_next_p;
-//          bsls_AtomicInt        d_inUseFlag; // used to lock this node
+//          bsls::AtomicInt       d_inUseFlag; // used to lock this node
 //      };
 //
 //      // DATA
-//      bsls_AtomicPointer<Node>  d_list;
-//      bsls_AtomicPointer<Node>  d_freeList;
+//      bsls::AtomicPointer<Node> d_list;
+//      bsls::AtomicPointer<Node> d_freeList;
 //
 //      // PRIVATE MANIPULATORS
 //      Node *allocateNode();
@@ -503,7 +503,7 @@ BSLS_IDENT("$Id: $")
 // Then, we write a constructor that default-initializes the stack.  In the
 // corresponding example in 'bsls_atomicoperations', the constructor must also
 // initialize the atomic pointer 'd_freeList'.  Since this example uses the
-// encapsulated type 'bsls_AtomicPointer', initialization of these member
+// encapsulated type 'bsls::AtomicPointer', initialization of these member
 // variables is done in their default constructors.  Hence, no explicit code is
 // required in this constructor:
 //..
@@ -675,11 +675,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                            // ====================
-                            // class bsls_AtomicInt
-                            // ====================
+namespace bsls {
 
-class bsls_AtomicInt {
+                               // ===============
+                               // class AtomicInt
+                               // ===============
+
+class AtomicInt {
     // This class implements an atomic integer, which supports common integer
     // operations in a way that is guaranteed to be atomic.  Operations on
     // objects of this class provide the sequential consistency memory ordering
@@ -687,28 +689,28 @@ class bsls_AtomicInt {
     // guarantee suffix (i.e., Acquire, Release, AcqRel or Relaxed).
 
     // DATA
-    bsls_AtomicOperations::Types::Int d_value;
+    AtomicOperations::AtomicTypes::Int d_value;
 
   private:
     // NOT IMPLEMENTED
-    bsls_AtomicInt(const bsls_AtomicInt&);               // = delete
-    bsls_AtomicInt& operator=(const bsls_AtomicInt& );   // = delete
+    AtomicInt(const AtomicInt&);               // = delete
+    AtomicInt& operator=(const AtomicInt& );   // = delete
         // Note that the copy constructor and the copy-assignment operator
         // are not implemented because they cannot be done atomically.
 
   public:
     // CREATORS
-    bsls_AtomicInt();
+    AtomicInt();
         // Create an atomic integer object having the default value 0.
 
-    bsls_AtomicInt(int value);
+    AtomicInt(int value);
         // Create an atomic integer object having the specified 'value'.
 
-    //! ~bsls_AtomicInt() = default;
+    //! ~AtomicInt() = default;
         // Destroy this atomic integer object.
 
     // MANIPULATORS
-    bsls_AtomicInt& operator=(int value);
+    AtomicInt& operator=(int value);
         // Atomically assign the specified 'value' to this object, and return a
         // modifiable reference to 'this' object.
 
@@ -799,11 +801,11 @@ class bsls_AtomicInt {
         // memory ordering guarantee.
 };
 
-                           // ======================
-                           // class bsls_AtomicInt64
-                           // ======================
+                              // =================
+                              // class AtomicInt64
+                              // =================
 
-class bsls_AtomicInt64 {
+class AtomicInt64 {
     // This class is implements an atomic 64-bit integer, which supports common
     // integer operations in a way that is guaranteed to be atomic.  Operations
     // on objects of this class provide the sequential consistency memory
@@ -812,87 +814,87 @@ class bsls_AtomicInt64 {
     // Relaxed).
 
     // DATA
-    bsls_AtomicOperations::Types::Int64 d_value;
+    AtomicOperations::AtomicTypes::Int64 d_value;
 
   private:
     // NOT IMPLEMENTED
-    bsls_AtomicInt64(const bsls_AtomicInt64&);              // = delete
-    bsls_AtomicInt64& operator=(const bsls_AtomicInt64&);   // = delete
+    AtomicInt64(const AtomicInt64&);              // = delete
+    AtomicInt64& operator=(const AtomicInt64&);   // = delete
         // Note that the copy constructor and the copy-assignment operator
         // are not implemented because they cannot be done atomically.
 
   public:
     // CREATORS
-    bsls_AtomicInt64();
+    AtomicInt64();
         // Create an atomic 64-bit integer object having the default value 0.
 
-    bsls_AtomicInt64(bsls_Types::Int64 value);
+    AtomicInt64(Types::Int64 value);
         // Create an atomic 64-bit integer object having the specified 'value'.
 
-    //! ~bsls_AtomicInt64() = default;
+    //! ~AtomicInt64() = default;
         // Destroy this atomic 64-bit integer object.
 
     // MANIPULATORS
-    bsls_AtomicInt64& operator=(bsls_Types::Int64 value);
+    AtomicInt64& operator=(Types::Int64 value);
         // Atomically assign the specified 'value' to this object, and return a
         // modifiable reference to 'this' object.
 
-    bsls_Types::Int64 operator+=(bsls_Types::Int64 value);
+    Types::Int64 operator+=(Types::Int64 value);
         // Atomically add the specified 'value' to this object, and return the
         // resulting value.
 
-    bsls_Types::Int64 operator-=(bsls_Types::Int64 value);
+    Types::Int64 operator-=(Types::Int64 value);
         // Atomically subtract the specified 'value' from this object, and
         // return the resulting value.
 
-    bsls_Types::Int64 operator++();
+    Types::Int64 operator++();
         // Atomically increment the value of this object by 1 and return the
         // resulting value.
 
-    bsls_Types::Int64 operator++(int);
+    Types::Int64 operator++(int);
         // Atomically increment the value of this object by 1 and return the
         // value prior to being incremented.
 
-    bsls_Types::Int64 operator--();
+    Types::Int64 operator--();
         // Atomically decrement the value of this object by 1 and return the
         // resulting value.
 
-    bsls_Types::Int64 operator--(int);
+    Types::Int64 operator--(int);
         // Atomically decrement the value of this object by 1 and return the
         // value prior to being decremented.
 
-    bsls_Types::Int64 add(bsls_Types::Int64 value);
+    Types::Int64 add(Types::Int64 value);
         // Atomically add the specified 'value' to this object and return the
         // resulting value.
 
-    bsls_Types::Int64 addRelaxed(bsls_Types::Int64 value);
+    Types::Int64 addRelaxed(Types::Int64 value);
         // Atomically add the specified 'value' to this object and return the
         // resulting value, providing the relaxed memory ordering guarantee.
 
-    bsls_Types::Int64 addAcqRel(bsls_Types::Int64 value);
+    Types::Int64 addAcqRel(Types::Int64 value);
         // Atomically add the specified 'value' to this object and return the
         // resulting value, providing the acquire/release memory ordering
         // guarantee.
 
-    void storeRelaxed(bsls_Types::Int64 value);
+    void storeRelaxed(Types::Int64 value);
         // Atomically assign the specified 'value' to this object, providing
         // the relaxed memory ordering guarantee.
 
-    void storeRelease(bsls_Types::Int64 value);
+    void storeRelease(Types::Int64 value);
         // Atomically assign the specified 'value' to this object, providing
         // the release memory ordering guarantee.
 
-    bsls_Types::Int64 swap(bsls_Types::Int64 swapValue);
+    Types::Int64 swap(Types::Int64 swapValue);
         // Atomically set the value of this object to the specified 'swapValue'
         // and return its previous value.
 
-    bsls_Types::Int64 swapAcqRel(bsls_Types::Int64 swapValue);
+    Types::Int64 swapAcqRel(Types::Int64 swapValue);
         // Atomically set the value of this object to the specified 'swapValue'
         // and return its previous value, providing the acquire/release memory
         // ordering guarantee.
 
-    bsls_Types::Int64 testAndSwap(bsls_Types::Int64 compareValue,
-                                  bsls_Types::Int64 swapValue);
+    Types::Int64 testAndSwap(Types::Int64 compareValue,
+                             Types::Int64 swapValue);
         // Compare the value of this object to the specified 'compareValue'.
         // If they are equal, set the value of this atomic integer to the
         // specified 'swapValue', otherwise leave this value unchanged.  Return
@@ -900,8 +902,8 @@ class bsls_AtomicInt64 {
         // occurred.  Note that the entire test-and-swap operation is performed
         // atomically.
 
-    bsls_Types::Int64 testAndSwapAcqRel(bsls_Types::Int64 compareValue,
-                                        bsls_Types::Int64 swapValue);
+    Types::Int64 testAndSwapAcqRel(Types::Int64 compareValue,
+                                   Types::Int64 swapValue);
         // Compare the value of this object to the specified 'compareValue'.
         // If they are equal, set the value of this atomic integer to the
         // specified 'swapValue', otherwise leave this value unchanged.  Return
@@ -911,27 +913,27 @@ class bsls_AtomicInt64 {
         // guarantee.
 
     // ACCESSORS
-    operator bsls_Types::Int64() const;
+    operator Types::Int64() const;
         // Return the current value of this object.
 
-    bsls_Types::Int64 load() const;
+    Types::Int64 load() const;
         // Return the current value of this object.
 
-    bsls_Types::Int64 loadRelaxed() const;
+    Types::Int64 loadRelaxed() const;
         // Return the current value of this object, providing the relaxed
         // memory ordering guarantee.
 
-    bsls_Types::Int64 loadAcquire() const;
+    Types::Int64 loadAcquire() const;
         // Return the current value of this object, providing the acquire
         // memory ordering guarantee.
 };
 
-                          // ========================
-                          // class bsls_AtomicPointer
-                          // ========================
+                             // ===================
+                             // class AtomicPointer
+                             // ===================
 
 template <class TYPE>
-class bsls_AtomicPointer {
+class AtomicPointer {
     // This class implements an atomic pointer to a parameterized 'TYPE', which
     // supports common pointer operations in a way that is guaranteed to be
     // atomic.  Operations on objects of this class provide the sequential
@@ -940,29 +942,28 @@ class bsls_AtomicPointer {
     // AcqRel or Relaxed).
 
     // DATA
-    bsls_AtomicOperations::Types::Pointer d_value;
+    AtomicOperations::AtomicTypes::Pointer d_value;
 
   private:
     // NOT IMPLEMENTED
-    bsls_AtomicPointer(const bsls_AtomicPointer<TYPE>&);            // = delete
-    bsls_AtomicPointer<TYPE>& operator=(const bsls_AtomicPointer<TYPE>&);
-                                                                    // = delete
+    AtomicPointer(const AtomicPointer<TYPE>&);                  // = delete
+    AtomicPointer<TYPE>& operator=(const AtomicPointer<TYPE>&); // = delete
         // Note that the copy constructor and the copy-assignment operator
         // are not implemented because they cannot be done atomically.
 
   public:
     // CREATORS
-    bsls_AtomicPointer();
+    AtomicPointer();
         // Create an atomic pointer object having the default value NULL.
 
-    bsls_AtomicPointer(TYPE *value);
+    AtomicPointer(TYPE *value);
         // Create an atomic pointer object having the specified 'value'.
 
-    //! ~bsls_AtomicPointer() = default;
+    //! ~AtomicPointer() = default;
         // Destroy this atomic pointer.
 
     // MANIPULATORS
-    bsls_AtomicPointer<TYPE>& operator=(TYPE *value);
+    AtomicPointer<TYPE>& operator=(TYPE *value);
         // Atomically assign the specified 'value' to this object, and return a
         // modifiable reference to 'this' object.
 
@@ -1023,6 +1024,10 @@ class bsls_AtomicPointer {
         // memory ordering guarantee.
 };
 
+}  // close package namespace
+
+namespace bsls {
+
 // ===========================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -1032,417 +1037,419 @@ class bsls_AtomicPointer {
                 // ---------------------------------------------
 
 inline
-bsls_AtomicInt::operator int() const
+AtomicInt::operator int() const
 {
-    return bsls_AtomicOperations_Imp::getInt(&d_value);
+    return AtomicOperations_Imp::getInt(&d_value);
 }
 
 inline
-int bsls_AtomicInt::load() const
+int AtomicInt::load() const
 {
     return this->operator int();
 }
 
 inline
-bsls_AtomicInt64::operator bsls_Types::Int64() const
+AtomicInt64::operator Types::Int64() const
 {
-    return bsls_AtomicOperations_Imp::getInt64(&d_value);
+    return AtomicOperations_Imp::getInt64(&d_value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::load() const
+Types::Int64 AtomicInt64::load() const
 {
-    return this->operator bsls_Types::Int64();
-}
-
-template <class TYPE>
-inline
-bsls_AtomicPointer<TYPE>::operator TYPE*() const
-{
-    return (TYPE*)bsls_AtomicOperations_Imp::getPtr(&d_value);
+    return this->operator Types::Int64();
 }
 
 template <class TYPE>
 inline
-TYPE *bsls_AtomicPointer<TYPE>::load() const
+AtomicPointer<TYPE>::operator TYPE*() const
+{
+    return (TYPE*) AtomicOperations_Imp::getPtr(&d_value);
+}
+
+template <class TYPE>
+inline
+TYPE *AtomicPointer<TYPE>::load() const
 {
     return this->operator TYPE*();
 }
 
-                            // --------------------
-                            // class bsls_AtomicInt
-                            // --------------------
+                               // ---------------
+                               // class AtomicInt
+                               // ---------------
 
 // CREATORS
 inline
-bsls_AtomicInt::bsls_AtomicInt()
+AtomicInt::AtomicInt()
 {
-    bsls_AtomicOperations_Imp::initInt(&d_value, 0);
+    AtomicOperations_Imp::initInt(&d_value, 0);
 }
 
 inline
-bsls_AtomicInt::bsls_AtomicInt(int value)
+AtomicInt::AtomicInt(int value)
 {
-    bsls_AtomicOperations_Imp::initInt(&d_value, value);
+    AtomicOperations_Imp::initInt(&d_value, value);
 }
 
 // MANIPULATORS
 inline
-bsls_AtomicInt& bsls_AtomicInt::operator=(int value)
+AtomicInt& AtomicInt::operator=(int value)
 {
-    bsls_AtomicOperations_Imp::setInt(&d_value, value);
+    AtomicOperations_Imp::setInt(&d_value, value);
     return *this;
 }
 
 inline
-int bsls_AtomicInt::operator+=(int value)
+int AtomicInt::operator+=(int value)
 {
-    return bsls_AtomicOperations_Imp::addIntNv(&d_value, value);
+    return AtomicOperations_Imp::addIntNv(&d_value, value);
 }
 
 inline
-int bsls_AtomicInt::operator-=(int value)
+int AtomicInt::operator-=(int value)
 {
-    return bsls_AtomicOperations_Imp::addIntNv(&d_value, -value);
+    return AtomicOperations_Imp::addIntNv(&d_value, -value);
 }
 
 inline
-int bsls_AtomicInt::operator++()
+int AtomicInt::operator++()
 {
-    return bsls_AtomicOperations_Imp::incrementIntNv(&d_value);
+    return AtomicOperations_Imp::incrementIntNv(&d_value);
 }
 
 inline
-int bsls_AtomicInt::operator++(int)
+int AtomicInt::operator++(int)
 {
-    return bsls_AtomicOperations_Imp::incrementIntNv(&d_value) - 1;
+    return AtomicOperations_Imp::incrementIntNv(&d_value) - 1;
 }
 
 inline
-int bsls_AtomicInt::operator--()
+int AtomicInt::operator--()
 {
-    return bsls_AtomicOperations_Imp::decrementIntNv(&d_value);
+    return AtomicOperations_Imp::decrementIntNv(&d_value);
 }
 
 inline
-int bsls_AtomicInt::operator--(int)
+int AtomicInt::operator--(int)
 {
-    return bsls_AtomicOperations_Imp::decrementIntNv(&d_value) + 1;
+    return AtomicOperations_Imp::decrementIntNv(&d_value) + 1;
 }
 
 inline
-int bsls_AtomicInt::add(int value)
+int AtomicInt::add(int value)
 {
-    return bsls_AtomicOperations_Imp::addIntNv(&d_value, value);
+    return AtomicOperations_Imp::addIntNv(&d_value, value);
 }
 
 inline
-int bsls_AtomicInt::addRelaxed(int value)
+int AtomicInt::addRelaxed(int value)
 {
-    return bsls_AtomicOperations_Imp::addIntNvRelaxed(&d_value, value);
+    return AtomicOperations_Imp::addIntNvRelaxed(&d_value, value);
 }
 
 inline
-int bsls_AtomicInt::addAcqRel(int value)
+int AtomicInt::addAcqRel(int value)
 {
-    return bsls_AtomicOperations_Imp::addIntNvAcqRel(&d_value, value);
+    return AtomicOperations_Imp::addIntNvAcqRel(&d_value, value);
 }
 
 inline
-void bsls_AtomicInt::storeRelaxed(int value)
+void AtomicInt::storeRelaxed(int value)
 {
-    bsls_AtomicOperations_Imp::setIntRelaxed(&d_value, value);
+    AtomicOperations_Imp::setIntRelaxed(&d_value, value);
 }
 
 inline
-void bsls_AtomicInt::storeRelease(int value)
+void AtomicInt::storeRelease(int value)
 {
-    bsls_AtomicOperations_Imp::setIntRelease(&d_value, value);
+    AtomicOperations_Imp::setIntRelease(&d_value, value);
 }
 
 inline
-int bsls_AtomicInt::swap(int value)
+int AtomicInt::swap(int value)
 {
-    return bsls_AtomicOperations_Imp::swapInt(&d_value, value);
+    return AtomicOperations_Imp::swapInt(&d_value, value);
 }
 
 inline
-int bsls_AtomicInt::swapAcqRel(int value)
+int AtomicInt::swapAcqRel(int value)
 {
-    return bsls_AtomicOperations_Imp::swapIntAcqRel(&d_value, value);
+    return AtomicOperations_Imp::swapIntAcqRel(&d_value, value);
 }
 
 inline
-int bsls_AtomicInt::testAndSwap(int compareValue, int swapValue)
+int AtomicInt::testAndSwap(int compareValue, int swapValue)
 {
-    return bsls_AtomicOperations_Imp::testAndSwapInt(&d_value,
+    return AtomicOperations_Imp::testAndSwapInt(&d_value,
                                                      compareValue,
                                                      swapValue);
 }
 
 inline
-int bsls_AtomicInt::testAndSwapAcqRel(int compareValue, int swapValue)
+int AtomicInt::testAndSwapAcqRel(int compareValue, int swapValue)
 {
-    return bsls_AtomicOperations_Imp::testAndSwapIntAcqRel(&d_value,
-                                                           compareValue,
-                                                           swapValue);
+    return AtomicOperations_Imp::testAndSwapIntAcqRel(&d_value,
+                                                      compareValue,
+                                                      swapValue);
 }
 
 // ACCESSORS
 inline
-int bsls_AtomicInt::loadRelaxed() const
+int AtomicInt::loadRelaxed() const
 {
-    return bsls_AtomicOperations_Imp::getIntRelaxed(&d_value);
+    return AtomicOperations_Imp::getIntRelaxed(&d_value);
 }
 
 inline
-int bsls_AtomicInt::loadAcquire() const
+int AtomicInt::loadAcquire() const
 {
-    return bsls_AtomicOperations_Imp::getIntAcquire(&d_value);
+    return AtomicOperations_Imp::getIntAcquire(&d_value);
 }
 
-                           // ----------------------
-                           // class bsls_AtomicInt64
-                           // ----------------------
+                              // -----------------
+                              // class AtomicInt64
+                              // -----------------
 
 // CREATORS
 inline
-bsls_AtomicInt64::bsls_AtomicInt64()
+AtomicInt64::AtomicInt64()
 {
-    bsls_AtomicOperations_Imp::initInt64(&d_value, 0);
+    AtomicOperations_Imp::initInt64(&d_value, 0);
 }
 
 inline
-bsls_AtomicInt64::bsls_AtomicInt64(bsls_Types::Int64 value)
+AtomicInt64::AtomicInt64(Types::Int64 value)
 {
-    bsls_AtomicOperations_Imp::initInt64(&d_value, value);
+    AtomicOperations_Imp::initInt64(&d_value, value);
 }
 
 // MANIPULATORS
 inline
-bsls_AtomicInt64& bsls_AtomicInt64::operator=(bsls_Types::Int64 value)
+AtomicInt64& AtomicInt64::operator=(Types::Int64 value)
 {
-    bsls_AtomicOperations_Imp::setInt64(&d_value, value);
+    AtomicOperations_Imp::setInt64(&d_value, value);
     return *this;
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::operator+=(bsls_Types::Int64 value)
+Types::Int64 AtomicInt64::operator+=(Types::Int64 value)
 {
-    return bsls_AtomicOperations_Imp::addInt64Nv(&d_value, value);
+    return AtomicOperations_Imp::addInt64Nv(&d_value, value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::operator-=(bsls_Types::Int64 value)
+Types::Int64 AtomicInt64::operator-=(Types::Int64 value)
 {
-    return bsls_AtomicOperations_Imp::addInt64Nv(&d_value, -value);
+    return AtomicOperations_Imp::addInt64Nv(&d_value, -value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::operator++()
+Types::Int64 AtomicInt64::operator++()
 {
-    return bsls_AtomicOperations_Imp::incrementInt64Nv(&d_value);
+    return AtomicOperations_Imp::incrementInt64Nv(&d_value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::operator++(int)
+Types::Int64 AtomicInt64::operator++(int)
 {
-    return bsls_AtomicOperations_Imp::incrementInt64Nv(&d_value) - 1;
+    return AtomicOperations_Imp::incrementInt64Nv(&d_value) - 1;
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::operator--()
+Types::Int64 AtomicInt64::operator--()
 {
-    return bsls_AtomicOperations_Imp::decrementInt64Nv(&d_value);
+    return AtomicOperations_Imp::decrementInt64Nv(&d_value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::operator--(int)
+Types::Int64 AtomicInt64::operator--(int)
 {
-    return bsls_AtomicOperations_Imp::decrementInt64Nv(&d_value) + 1;
+    return AtomicOperations_Imp::decrementInt64Nv(&d_value) + 1;
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::add(bsls_Types::Int64 value)
+Types::Int64 AtomicInt64::add(Types::Int64 value)
 {
-    return bsls_AtomicOperations_Imp::addInt64Nv(&d_value, value);
+    return AtomicOperations_Imp::addInt64Nv(&d_value, value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::addRelaxed(bsls_Types::Int64 value)
+Types::Int64 AtomicInt64::addRelaxed(Types::Int64 value)
 {
-    return bsls_AtomicOperations_Imp::addInt64NvRelaxed(&d_value, value);
+    return AtomicOperations_Imp::addInt64NvRelaxed(&d_value, value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::addAcqRel(bsls_Types::Int64 value)
+Types::Int64 AtomicInt64::addAcqRel(Types::Int64 value)
 {
-    return bsls_AtomicOperations_Imp::addInt64NvAcqRel(&d_value, value);
+    return AtomicOperations_Imp::addInt64NvAcqRel(&d_value, value);
 }
 
 inline
-void bsls_AtomicInt64::storeRelaxed(bsls_Types::Int64 value)
+void AtomicInt64::storeRelaxed(Types::Int64 value)
 {
-    bsls_AtomicOperations_Imp::setInt64Relaxed(&d_value, value);
+    AtomicOperations_Imp::setInt64Relaxed(&d_value, value);
 }
 
 inline
-void bsls_AtomicInt64::storeRelease(bsls_Types::Int64 value)
+void AtomicInt64::storeRelease(Types::Int64 value)
 {
-    bsls_AtomicOperations_Imp::setInt64Release(&d_value, value);
+    AtomicOperations_Imp::setInt64Release(&d_value, value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::swap(bsls_Types::Int64 value)
+Types::Int64 AtomicInt64::swap(Types::Int64 value)
 {
-    return bsls_AtomicOperations_Imp::swapInt64(&d_value, value);
+    return AtomicOperations_Imp::swapInt64(&d_value, value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::swapAcqRel(bsls_Types::Int64 value)
+Types::Int64 AtomicInt64::swapAcqRel(Types::Int64 value)
 {
-    return bsls_AtomicOperations_Imp::swapInt64AcqRel(&d_value, value);
+    return AtomicOperations_Imp::swapInt64AcqRel(&d_value, value);
 }
 
 inline
-bsls_Types::Int64
-bsls_AtomicInt64::testAndSwap(bsls_Types::Int64 compareValue,
-                              bsls_Types::Int64 swapValue)
+Types::Int64
+AtomicInt64::testAndSwap(Types::Int64 compareValue,
+                              Types::Int64 swapValue)
 {
-    return bsls_AtomicOperations_Imp::testAndSwapInt64(&d_value,
+    return AtomicOperations_Imp::testAndSwapInt64(&d_value,
                                                        compareValue,
                                                        swapValue);
 }
 
 inline
-bsls_Types::Int64
-bsls_AtomicInt64::testAndSwapAcqRel(bsls_Types::Int64 compareValue,
-                                    bsls_Types::Int64 swapValue)
+Types::Int64
+AtomicInt64::testAndSwapAcqRel(Types::Int64 compareValue,
+                                    Types::Int64 swapValue)
 {
-    return bsls_AtomicOperations_Imp::testAndSwapInt64AcqRel(&d_value,
-                                                             compareValue,
-                                                             swapValue);
+    return AtomicOperations_Imp::testAndSwapInt64AcqRel(&d_value,
+                                                        compareValue,
+                                                        swapValue);
 }
 
 // ACCESSORS
 inline
-bsls_Types::Int64 bsls_AtomicInt64::loadRelaxed() const
+Types::Int64 AtomicInt64::loadRelaxed() const
 {
-    return bsls_AtomicOperations_Imp::getInt64Relaxed(&d_value);
+    return AtomicOperations_Imp::getInt64Relaxed(&d_value);
 }
 
 inline
-bsls_Types::Int64 bsls_AtomicInt64::loadAcquire() const
+Types::Int64 AtomicInt64::loadAcquire() const
 {
-    return bsls_AtomicOperations_Imp::getInt64Acquire(&d_value);
+    return AtomicOperations_Imp::getInt64Acquire(&d_value);
 }
 
-                          // ------------------------
-                          // class bsls_AtomicPointer
-                          // ------------------------
+                             // -------------------
+                             // class AtomicPointer
+                             // -------------------
 
 // CREATORS
 template <class TYPE>
 inline
-bsls_AtomicPointer<TYPE>::bsls_AtomicPointer()
+AtomicPointer<TYPE>::AtomicPointer()
 {
-    bsls_AtomicOperations_Imp::initPointer(&d_value, 0);
+    AtomicOperations_Imp::initPointer(&d_value, 0);
 }
 
 template <class TYPE>
 inline
-bsls_AtomicPointer<TYPE>::bsls_AtomicPointer(TYPE *value)
+AtomicPointer<TYPE>::AtomicPointer(TYPE *value)
 {
-    bsls_AtomicOperations_Imp::initPointer(&d_value, value);
+    AtomicOperations_Imp::initPointer(&d_value, value);
 }
 
 // MANIPULATORS
 template <class TYPE>
 inline
-bsls_AtomicPointer<TYPE>&
-bsls_AtomicPointer<TYPE>::operator=(TYPE *value)
+AtomicPointer<TYPE>&
+AtomicPointer<TYPE>::operator=(TYPE *value)
 {
-    bsls_AtomicOperations_Imp::setPtr(&d_value, value);
+    AtomicOperations_Imp::setPtr(&d_value, value);
     return *this;
 }
 
 template <class TYPE>
 inline
-void bsls_AtomicPointer<TYPE>::storeRelaxed(TYPE *value)
+void AtomicPointer<TYPE>::storeRelaxed(TYPE *value)
 {
-    bsls_AtomicOperations_Imp::setPtrRelaxed(&d_value, value);
+    AtomicOperations_Imp::setPtrRelaxed(&d_value, value);
 }
 
 template <class TYPE>
 inline
-void bsls_AtomicPointer<TYPE>::storeRelease(TYPE *value)
+void AtomicPointer<TYPE>::storeRelease(TYPE *value)
 {
-    bsls_AtomicOperations_Imp::setPtrRelease(&d_value, value);
+    AtomicOperations_Imp::setPtrRelease(&d_value, value);
 }
 
 template <class TYPE>
 inline
-TYPE *bsls_AtomicPointer<TYPE>::swap(TYPE *swapValue)
+TYPE *AtomicPointer<TYPE>::swap(TYPE *swapValue)
 {
-    return (TYPE*)bsls_AtomicOperations_Imp::swapPtr(&d_value, swapValue);
+    return (TYPE*)AtomicOperations_Imp::swapPtr(&d_value, swapValue);
 }
 
 template <class TYPE>
 inline
-TYPE *bsls_AtomicPointer<TYPE>::swapAcqRel(TYPE *swapValue)
+TYPE *AtomicPointer<TYPE>::swapAcqRel(TYPE *swapValue)
 {
-    return (TYPE*)bsls_AtomicOperations_Imp::swapPtrAcqRel(&d_value,
-                                                           swapValue);
+    return (TYPE*)AtomicOperations_Imp::swapPtrAcqRel(&d_value,
+                                                      swapValue);
 }
 
 template <class TYPE>
 inline
-TYPE *bsls_AtomicPointer<TYPE>::testAndSwap(const TYPE *compareValue,
+TYPE *AtomicPointer<TYPE>::testAndSwap(const TYPE *compareValue,
                                             TYPE       *swapValue)
 {
-    return (TYPE*)bsls_AtomicOperations_Imp::testAndSwapPtr(&d_value,
-                                                            compareValue,
-                                                            swapValue);
+    return (TYPE*)AtomicOperations_Imp::testAndSwapPtr(&d_value,
+                                                       compareValue,
+                                                       swapValue);
 }
 
 template <class TYPE>
 inline
-TYPE *bsls_AtomicPointer<TYPE>::testAndSwapAcqRel(const TYPE *compareValue,
-                                                  TYPE       *swapValue)
+TYPE *AtomicPointer<TYPE>::testAndSwapAcqRel(const TYPE *compareValue,
+                                             TYPE       *swapValue)
 {
-    return (TYPE*)bsls_AtomicOperations_Imp::testAndSwapPtrAcqRel(&d_value,
-                                                                  compareValue,
-                                                                  swapValue);
+    return (TYPE*)AtomicOperations_Imp::testAndSwapPtrAcqRel(&d_value,
+                                                             compareValue,
+                                                             swapValue);
 }
 
 // ACCESSORS
 template <class TYPE>
 inline
-TYPE& bsls_AtomicPointer<TYPE>::operator*() const
+TYPE& AtomicPointer<TYPE>::operator*() const
 {
-    return *((TYPE*)bsls_AtomicOperations_Imp::getPtr(&d_value));
+    return *((TYPE*)AtomicOperations_Imp::getPtr(&d_value));
 }
 
 template <class TYPE>
 inline
-TYPE *bsls_AtomicPointer<TYPE>::operator->() const
+TYPE *AtomicPointer<TYPE>::operator->() const
 {
-    return (TYPE*)bsls_AtomicOperations_Imp::getPtr(&d_value);
+    return (TYPE*)AtomicOperations_Imp::getPtr(&d_value);
 }
 
 template <class TYPE>
 inline
-TYPE *bsls_AtomicPointer<TYPE>::loadRelaxed() const
+TYPE *AtomicPointer<TYPE>::loadRelaxed() const
 {
-    return (TYPE*)bsls_AtomicOperations_Imp::getPtrRelaxed(&d_value);
+    return (TYPE*)AtomicOperations_Imp::getPtrRelaxed(&d_value);
 }
 
 template <class TYPE>
 inline
-TYPE *bsls_AtomicPointer<TYPE>::loadAcquire() const
+TYPE *AtomicPointer<TYPE>::loadAcquire() const
 {
-    return (TYPE*)bsls_AtomicOperations_Imp::getPtrAcquire(&d_value);
+    return (TYPE*)AtomicOperations_Imp::getPtrAcquire(&d_value);
 }
+
+}  // close package namespace
 
 }  // close enterprise namespace
 

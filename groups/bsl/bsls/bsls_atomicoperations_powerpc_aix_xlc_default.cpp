@@ -9,12 +9,14 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
+namespace bsls {
+
 // For reference on atomic operations on the PowerPC platform see:
 // http://www.rdrop.com/users/paulmck/scalability/paper/N2745r.2011.03.04a.html
 // http://www.rdrop.com/users/paulmck/scalability/paper/
 //                                                    N2745rP5.2010.02.19a.html
 
-int bsls_AtomicOperations_Powerpc_GetInt(const volatile int *atomicInt)
+int AtomicOperations_Powerpc_GetInt(const volatile int *atomicInt)
 {
     int result;
 
@@ -35,7 +37,7 @@ int bsls_AtomicOperations_Powerpc_GetInt(const volatile int *atomicInt)
     return result;
 }
 
-int bsls_AtomicOperations_Powerpc_GetIntAcquire(const volatile int *atomicInt)
+int AtomicOperations_Powerpc_GetIntAcquire(const volatile int *atomicInt)
 {
     int result;
 
@@ -54,7 +56,7 @@ int bsls_AtomicOperations_Powerpc_GetIntAcquire(const volatile int *atomicInt)
     return result;
 }
 
-void bsls_AtomicOperations_Powerpc_SetInt(volatile int *atomicInt, int value)
+void AtomicOperations_Powerpc_SetInt(volatile int *atomicInt, int value)
 {
     asm volatile (
         "       sync                    \n\t"
@@ -63,18 +65,18 @@ void bsls_AtomicOperations_Powerpc_SetInt(volatile int *atomicInt, int value)
                 : [val]  "b"  (value));
 }
 
-void bsls_AtomicOperations_Powerpc_SetIntRelease(volatile int *atomicInt,
-                                                 int value)
+void AtomicOperations_Powerpc_SetIntRelease(volatile int *atomicInt,
+                                            int value)
 {
     asm volatile (
-        "       lwsync                   \n\t"
+        "       lwsync                  \n\t"
         "       stw %[val], %[obj]      \n\t"
                 : [obj] "=m" (*atomicInt)
                 : [val]  "b"  (value));
 }
 
-int bsls_AtomicOperations_Powerpc_SwapInt(volatile int *atomicInt,
-                                          int swapValue)
+int AtomicOperations_Powerpc_SwapInt(volatile int *atomicInt,
+                                     int swapValue)
 {
     int result;
 
@@ -95,8 +97,8 @@ int bsls_AtomicOperations_Powerpc_SwapInt(volatile int *atomicInt,
     return result;
 }
 
-int bsls_AtomicOperations_Powerpc_SwapIntAcqRel(volatile int *atomicInt,
-                                                int swapValue)
+int AtomicOperations_Powerpc_SwapIntAcqRel(volatile int *atomicInt,
+                                           int swapValue)
 {
     int result;
 
@@ -117,9 +119,9 @@ int bsls_AtomicOperations_Powerpc_SwapIntAcqRel(volatile int *atomicInt,
     return result;
 }
 
-int bsls_AtomicOperations_Powerpc_TestAndSwapInt(volatile int *atomicInt,
-                                                 int compareValue,
-                                                 int swapValue)
+int AtomicOperations_Powerpc_TestAndSwapInt(volatile int *atomicInt,
+                                            int compareValue,
+                                            int swapValue)
 {
     int result;
 
@@ -144,9 +146,9 @@ int bsls_AtomicOperations_Powerpc_TestAndSwapInt(volatile int *atomicInt,
     return result;
 }
 
-int bsls_AtomicOperations_Powerpc_TestAndSwapIntAcqRel(volatile int *atomicInt,
-                                                       int compareValue,
-                                                       int swapValue)
+int AtomicOperations_Powerpc_TestAndSwapIntAcqRel(volatile int *atomicInt,
+                                                  int compareValue,
+                                                  int swapValue)
 {
     int result;
 
@@ -171,7 +173,7 @@ int bsls_AtomicOperations_Powerpc_TestAndSwapIntAcqRel(volatile int *atomicInt,
     return result;
 }
 
-int bsls_AtomicOperations_Powerpc_AddInt(volatile int *atomicInt, int value)
+int AtomicOperations_Powerpc_AddInt(volatile int *atomicInt, int value)
 {
     int result;
 
@@ -193,8 +195,8 @@ int bsls_AtomicOperations_Powerpc_AddInt(volatile int *atomicInt, int value)
     return result;
 }
 
-int bsls_AtomicOperations_Powerpc_AddIntAcqRel(volatile int *atomicInt,
-                                               int value)
+int AtomicOperations_Powerpc_AddIntAcqRel(volatile int *atomicInt,
+                                          int value)
 {
     int result;
 
@@ -215,6 +217,8 @@ int bsls_AtomicOperations_Powerpc_AddIntAcqRel(volatile int *atomicInt,
 
     return result;
 }
+
+}  // close package namespace
 
 }
 
