@@ -68,16 +68,6 @@ int bael_AsyncFileObserver::stopThread()
     return 0;
 }
 
-int bael_AsyncFileObserver::shutdownThread()
-{
-    if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle) {
-        int ret = bcemt_ThreadUtil::join(d_threadHandle);
-        d_threadHandle = bcemt_ThreadUtil::invalidHandle();
-        return ret;                                                   // RETURN
-    }
-    return 0;
-}
-
 // CREATORS
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                 bael_Severity::Level  stdoutThreshold,
@@ -163,7 +153,7 @@ int bael_AsyncFileObserver::shutdownPublicationThread()
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_clearing = true;
-    int ret =  shutdownThread();
+    int ret =  stopThread();
     d_recordQueue.removeAll();
     d_clearing = false;
     return ret;

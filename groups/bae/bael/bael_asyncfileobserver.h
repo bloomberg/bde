@@ -454,12 +454,6 @@ class bael_AsyncFileObserver : public bael_Observer {
         // 'BAEL_END'.  This method is not thread-safe.  The behavior is
         // undefined if more than two calls of this method occur concurrently.
 
-    int shutdownThread();
-        // Immediately shutdown the publication thread and return to the
-        // caller.  The records in the queue are cleared without publication.
-        // This method is not thread-safe.  The behavior is undefined if more
-        // than two calls of this method occur concurrently.
-
   public:
     // CREATORS
     explicit bael_AsyncFileObserver(
