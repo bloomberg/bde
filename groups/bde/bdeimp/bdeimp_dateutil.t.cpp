@@ -593,7 +593,7 @@ if (veryVerbose)
 //           P(x)
 
           int ey, em, ed;
-          Util::prolepticSerial2ymd(&ey, &em, &ed, 366);
+          Util::prolepticSerial2ymd(&ey, &em, &ed, 1461);
 
           int serialDate = 0;
           for (int year = 1; year <= 9999; ++year) {

@@ -312,34 +312,34 @@ int main(int argc, char *argv[])
         bdem_BerEncoderOptions options;
         options.setEncodeDateAndTimeTypesAsBinary(true);
 
-        if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
-        {
-            typedef bdet_Date Type;
+//         if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
+//         {
+//             typedef bdet_Date Type;
 
-            const Type  VALUE(1800, 12, 31);
-            const char *EXP    = "03 fe c7 8b";
-            const int   LENGTH = numOctets(EXP);
+//             const Type  VALUE(1800, 12, 31);
+//             const char *EXP    = "03 fe c7 8b";
+//             const int   LENGTH = numOctets(EXP);
 
-            bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
-            ASSERT(LENGTH == osb.length());
-            ASSERT(0      == compareBuffers(osb.data(), EXP));
+//             bdesb_MemOutStreamBuf osb;
+//             ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+//             ASSERT(LENGTH == osb.length());
+//             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
-            if (veryVerbose) {
-                P(EXP)
-                cout << "Output Buffer:";
-                printBuffer(osb.data(), osb.length());
-            }
+//             if (veryVerbose) {
+//                 P(EXP)
+//                 cout << "Output Buffer:";
+//                 printBuffer(osb.data(), osb.length());
+//             }
 
-            bdet_DateTz value;
-            int  numBytesConsumed = 0;
+//             bdet_DateTz value;
+//             int  numBytesConsumed = 0;
 
-            bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-            ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
-            ASSERT(0       == isb.length());
-            ASSERT(LENGTH  == numBytesConsumed);
-            P(value)
-        }
+//             bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+//             ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
+//             ASSERT(0       == isb.length());
+//             ASSERT(LENGTH  == numBytesConsumed);
+//             P(value)
+//         }
 
         if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
         {
@@ -355,19 +355,19 @@ int main(int argc, char *argv[])
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
-                P(EXP)
+                P(EXP) P(VALUE)
                 cout << "Output Buffer:";
                 printBuffer(osb.data(), osb.length());
             }
 
-            bdet_DateTz value;
-            int  numBytesConsumed = 0;
+//             bdet_DateTz value;
+//             int  numBytesConsumed = 0;
 
-            bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-            ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
-            ASSERT(0       == isb.length());
-            ASSERT(LENGTH  == numBytesConsumed);
-            P(value)
+//             bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+//             ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
+//             ASSERT(0       == isb.length());
+//             ASSERT(LENGTH  == numBytesConsumed);
+//             P(value)
         }
 
         if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
@@ -384,19 +384,135 @@ int main(int argc, char *argv[])
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
             if (veryVerbose) {
+                P(EXP) P(VALUE)
+                cout << "Output Buffer:";
+                printBuffer(osb.data(), osb.length());
+            }
+
+//             bdet_DateTz value;
+//             int  numBytesConsumed = 0;
+
+//             bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+//             ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
+//             ASSERT(0       == isb.length());
+//             ASSERT(LENGTH  == numBytesConsumed);
+//             P(value)
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Time'." << bsl::endl;
+        {
+            typedef bdet_Time Type;
+
+            const Type  VALUE(0, 0, 0, 0);
+            const char *EXP    = "01 00";
+            const int   LENGTH = numOctets(EXP);
+
+            bdesb_MemOutStreamBuf osb;
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+            ASSERT(LENGTH == osb.length());
+            ASSERT(0      == compareBuffers(osb.data(), EXP));
+
+            if (veryVerbose) {
+                P(EXP) P(VALUE)
+                cout << "Output Buffer:";
+                printBuffer(osb.data(), osb.length());
+            }
+
+//             bdet_DateTz value;
+//             int  numBytesConsumed = 0;
+
+//             bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+//             ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
+//             ASSERT(0       == isb.length());
+//             ASSERT(LENGTH  == numBytesConsumed);
+//             P(value)
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Time'." << bsl::endl;
+        {
+            typedef bdet_Time Type;
+
+            const Type  VALUE(23, 59, 59, 999);
+            const char *EXP    = "04 05 26 5b ff";
+            const int   LENGTH = numOctets(EXP);
+
+            bdesb_MemOutStreamBuf osb;
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+            ASSERT(LENGTH == osb.length());
+            ASSERT(0      == compareBuffers(osb.data(), EXP));
+
+            if (veryVerbose) {
+                P(EXP) P(VALUE)
+                cout << "Output Buffer:";
+                printBuffer(osb.data(), osb.length());
+            }
+
+//             bdet_DateTz value;
+//             int  numBytesConsumed = 0;
+
+//             bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+//             ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
+//             ASSERT(0       == isb.length());
+//             ASSERT(LENGTH  == numBytesConsumed);
+//             P(value)
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Datetime'." << bsl::endl;
+        {
+            typedef bdet_Datetime Type;
+
+            const Type  VALUE(1, 1, 1, 0, 0, 0, 0);
+            const char *EXP    = "01 00";
+            const int   LENGTH = numOctets(EXP);
+
+            bdesb_MemOutStreamBuf osb;
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+            ASSERT(LENGTH == osb.length());
+            ASSERT(0      == compareBuffers(osb.data(), EXP));
+
+            if (veryVerbose) {
                 P(EXP)
                 cout << "Output Buffer:";
                 printBuffer(osb.data(), osb.length());
             }
 
-            bdet_DateTz value;
-            int  numBytesConsumed = 0;
+//             bdet_DateTz value;
+//             int  numBytesConsumed = 0;
 
-            bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-            ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
-            ASSERT(0       == isb.length());
-            ASSERT(LENGTH  == numBytesConsumed);
-            P(value)
+//             bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+//             ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
+//             ASSERT(0       == isb.length());
+//             ASSERT(LENGTH  == numBytesConsumed);
+//             P(value)
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Datetime'." << bsl::endl;
+        {
+            typedef bdet_Datetime Type;
+
+            const Type  VALUE(9999, 12, 31, 23, 59, 59, 0 );
+            const char *EXP    = "01 00";
+            const int   LENGTH = numOctets(EXP);
+
+            bdesb_MemOutStreamBuf osb;
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+            ASSERT(LENGTH == osb.length());
+            ASSERT(0      == compareBuffers(osb.data(), EXP));
+
+            if (veryVerbose) {
+                P(EXP)
+                cout << "Output Buffer:";
+                printBuffer(osb.data(), osb.length());
+            }
+
+//             bdet_DateTz value;
+//             int  numBytesConsumed = 0;
+
+//             bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+//             ASSERT(SUCCESS == Util::getValue(&isb, &value, &numBytesConsumed));
+//             ASSERT(0       == isb.length());
+//             ASSERT(LENGTH  == numBytesConsumed);
+//             P(value)
         }
       } break;
       case 18: {

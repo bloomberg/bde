@@ -453,7 +453,7 @@ void bdeimp_DateUtil::prolepticSerial2ymd(int *year,
     const int num100years = serialDay / DAYS_IN_100_YEARS;
 
     serialDay -= num100years * DAYS_IN_100_YEARS;
-    const int num4years = serialDay / DAYS_IN_4_YEARS;
+    const int num4years = serialDay / (DAYS_IN_4_YEARS + 1);
 
     serialDay -= num4years * DAYS_IN_4_YEARS;
     int num1years = serialDay / DAYS_IN_NON_LEAP_YEAR;
@@ -463,7 +463,10 @@ void bdeimp_DateUtil::prolepticSerial2ymd(int *year,
 
     serialDay -= num1years * DAYS_IN_NON_LEAP_YEAR;
 
-    const int y = num400years * 400 + num100years * 100 + num4years * 4 + num1years;
+    const int y = num400years * 400
+                + num100years * 100
+                + num4years   *   4
+                + num1years;
 
     const int *daysThroughMonth = getArrayDaysThroughMonth(y + 1);
 
