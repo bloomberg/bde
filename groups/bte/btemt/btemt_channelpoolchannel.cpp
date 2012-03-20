@@ -426,7 +426,7 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
             }
         }
         BSLS_ASSERT(0 <= nConsumed && nConsumed <= numBytesAvailable);
-        BSLS_ASSERT(0 <= nNeeded);
+        BSLS_ASSERT(0 <= nNeeded || -1 == nNeeded);
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 != nConsumed)) {
             numBytesAvailable -= nConsumed;
@@ -454,7 +454,7 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
             }
         }
 
-        if (nNeeded) {
+        if (nNeeded > 0) {
             entry.d_numBytesNeeded = nNeeded;
             if (nNeeded <= numBytesAvailable) {
                 continue;
@@ -470,6 +470,9 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
             removeTopReadEntry(false);
             if (!d_readQueue.size()) {
                 d_channelPool_p->disableRead(d_channelId);
+            }
+            if (-1 == nNeeded) {
+                *numNeeded = -1;
             }
         }
     }
@@ -577,12 +580,12 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
             bcema_BlobUtil::erase(currentBlob, 0, numConsumed);
         }
 
-        BSLS_ASSERT(0 <= nNeeded);
+        BSLS_ASSERT(0 <= nNeeded || -1 == nNeeded);
         BSLS_ASSERT(0 <= numConsumed);
 
         numBytesAvailable -= numConsumed;
 
-        if (nNeeded) {
+        if (nNeeded > 0) {
             entry.d_numBytesNeeded = nNeeded;
             if (nNeeded <= numBytesAvailable) {
                 continue;
@@ -597,6 +600,9 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
             removeTopReadEntry(false);
             if (!d_readQueue.size()) {
                 d_channelPool_p->disableRead(d_channelId);
+            }
+            if (-1 == nNeeded) {
+                *numNeeded = -1;
             }
         }
     }

@@ -549,7 +549,7 @@ class CallbackClass {
         }
         bcema_Blob tmpBlob;
         tmpBlob.moveDataBuffers(msg);
-        *numNeeded = 1;
+        *numNeeded = -1;
         ++d_cbCount;
         d_barrier_p->wait();
     }
@@ -739,6 +739,10 @@ void TesterFactory::readCb(int         state,
     if (veryVerbose) {
         MTCOUT << "Read callback called with: " << state << MTENDL;
     }
+
+    MTCOUT << "Setting numNeeded" << MTENDL;
+
+    *numNeeded = -1;
 
     d_callback(0, d_session_p);
 }

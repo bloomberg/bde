@@ -1150,6 +1150,7 @@ void btemt_Channel::processReadData(int numBytes,
             newLength += minAdditional;
         }
         else {
+            newLength = 1;
             d_enableReadFlag = false;
         }
 
