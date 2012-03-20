@@ -2074,7 +2074,7 @@ int main(int argc, char *argv[])
         PoolCb    poolStateCb    = &poolStateCallback;
         SessionCb sessionStateCb = &sessionStateCallback;
 
-        btemt_SessionPool sessionPool(config, poolStateCb, false);
+        btemt_SessionPool sessionPool(config, poolStateCb, true);
 
         ASSERT(0 == sessionPool.start());
 

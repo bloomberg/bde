@@ -1514,12 +1514,12 @@ void btemt_Channel::readCb(ChannelHandle self)
         }
 
         processReadData(readRet, HINT_OBJ);
+        allocateNextReadBuffers(readRet, totalBufferSize, HINT_OBJ);
+
         if (!d_enableReadFlag) {
             disableRead(self, true);
             return;                                                   // RETURN
         }
-
-        allocateNextReadBuffers(readRet, totalBufferSize, HINT_OBJ);
 
         if (readRet != totalBufferSize) {
             break;
