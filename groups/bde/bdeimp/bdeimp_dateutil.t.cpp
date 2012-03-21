@@ -29,7 +29,7 @@ using namespace bsl;  // automatically added by script
 // loop-based tests are performed in 'veryVerbose' mode only.
 //-----------------------------------------------------------------------------
 // [ 1]  static int  isLeapYear(int year);
-// [ 1]  static int  isProlepticLeapYear(int year); TBD
+// [ 1]  static int  isProlepticLeapYear(int year);
 // [ 2]  static int  numLeapYears(int year1, int year2);
 // [ 3]  static int  lastDayOfMonth(int year, int month);
 // [ 4]  static int  isValidCalendarDate(int year, int month, int day);
@@ -2318,10 +2318,13 @@ if (veryVerbose)
         // --------------------------------------------------------------------
         // Testing:
         //   static bool isValidCalendarDate(int year, int month, int day);
+        //   static bool isValidProlepticCalendarDate(int y, int m, int d);
         //   static bool isValidYearDayDate(int year, int dayOfYear);
         //   static bool isValidserialDate(int serialDay);
+        //   static bool isValidProlepticSerialDate(int serialDay); 
         // --------------------------------------------------------------------
 
+          // TBD: from here
         if (verbose) cout << "\nTesting 'isValidXXX' Methods"
                           << "\n============================" << endl;
 
