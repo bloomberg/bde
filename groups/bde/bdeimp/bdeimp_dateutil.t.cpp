@@ -29,20 +29,25 @@ using namespace bsl;  // automatically added by script
 // loop-based tests are performed in 'veryVerbose' mode only.
 //-----------------------------------------------------------------------------
 // [ 1]  static int  isLeapYear(int year);
+// [ 1]  static int  isProlepticLeapYear(int year); TBD
 // [ 2]  static int  numLeapYears(int year1, int year2);
 // [ 3]  static int  lastDayOfMonth(int year, int month);
 // [ 4]  static int  isValidCalendarDate(int year, int month, int day);
 // [ 4]  static int  isValidCalendarDateNoCache(int year, int month, int day);
+// [ 4]  static int  isValidProlepticCalendarDate(int y, int m, int d); TBD
 // [ 4]  static int  isValidYearDayDate(int year, int dayOfYear);
 // [ 4]  static int  isValidSerialDate(int serialDay);
+// [ 4]  static int  isValidProlepticSerialDate(int serialDay); TBD
 // [ 5]  static int  ymd2serial(int year, int month, int day);
 // [ 5]  static int  ymd2serialNoCache(int year, int month, int day);
+// [ 5]  static int  ymd2prolepticSerial(int year, int month, int day); TBD
 // [ 8]  static int  yd2serial(int year, int dayOfYear);
 // [ 9]  static void serial2yd(int *year, int *dayOfYear, int serialDay);
 // [ 9]  static int  serial2dayOfYear(int serialDay);
 // [ 6]  static int  ymd2dayOfYear(int year, int month, int day);
 // [10]  static void serial2ymd(int *year, int *month, int *day, int serialDay)
 // [10]  static void serial2ymdNoCache(int *year, int *month, int *day, int sD)
+// [10]  static void prolepticSerial2ymd(int *y, int *m, int *d, int s) TBD
 // [ 9]  static int  serial2year(int serialDay);
 // [ 9]  static int  serial2yearNoCache(int serialDay);
 // [10]  static int  serial2month(int serialDay);
@@ -129,6 +134,62 @@ static const int db[2][13] =
     {{-1, 30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333, 364},
      {-1, 30, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365}};
 
+static const unsigned char mb[2][366] =
+{
+{
+1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+1, 1, 1, 1, 1,
+2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+2, 2,
+3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+3, 3, 3, 3, 3,
+4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+4, 4, 4, 4,
+5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+5, 5, 5, 5, 5,
+6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+6, 6, 6, 6,
+7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+7, 7, 7, 7, 7,
+8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+8, 8, 8, 8, 8,
+9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+9, 9, 9, 9,
+10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10
+,10,10,10,10,
+11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11
+,11,11,11,
+12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12
+,12,12,12,12
+},
+{
+1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+1, 1, 1, 1, 1,
+2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+2, 2, 2,
+3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+3, 3, 3, 3, 3,
+4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+4, 4, 4, 4,
+5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+5, 5, 5, 5, 5,
+6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+6, 6, 6, 6,
+7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+7, 7, 7, 7, 7,
+8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+8, 8, 8, 8, 8,
+9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+9, 9, 9, 9,
+10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10
+,10,10,10,10,
+11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11
+,11,11,11,
+12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12
+,12,12,12,12
+}
+};
+
 bool isLeap(int year)
 {
     return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
@@ -139,6 +200,41 @@ unsigned int ymdToSerial(int y, int m, int d)
     const int* year_data = db[isLeap(y)];
     unsigned int by = y + 32799;
     return by*365 + by/4 - by/100 + by/400 + year_data[m-1] + d;
+}
+
+void serialToYmd(int *year,
+                 int *month,
+                 int *day,
+                 unsigned int serialDate)
+{
+    BSLS_ASSERT(year);
+    BSLS_ASSERT(month);
+    BSLS_ASSERT(day);
+
+    int y = (serialDate + 2) / 365;
+    int z = (serialDate + 2) % 365 * 400 - 97 * y;
+
+    if (z < 0)
+        y += (z - 146096) / 146097;
+
+    const unsigned int ym1 = y - 1;
+    int doy = serialDate - ((unsigned)y*365 + (unsigned)y/4 - (unsigned)y/100 + (unsigned)y/400);
+    const int doy1 = serialDate - (ym1*365 + ym1/4 - ym1/100 + ym1/400);
+    const int N = std::numeric_limits<int>::digits - 1;
+
+    // arithmetic rshift - not portable - but nearly universal
+
+    const int mask1 = doy >> N;
+
+    const int mask0 = ~mask1;
+    doy = (doy & mask0) | (doy1 & mask1);
+    y = (y & mask0) | (ym1 & mask1);
+    y -= 32799;
+    const bool leap = isLeap(y);
+
+    *year  = y;
+    *month = mb[leap][doy];
+    *day   = doy - db[leap][*month-1];
 }
 
 }  // close namespace TestUtil
@@ -587,43 +683,39 @@ if (veryVerbose)
         // Prolepic Date calculations
         // --------------------------------------------------------------------
 
-          cout << "\nTesting: proleptic " << endl;
+        cout << "\nTesting: proleptic date conversion" << endl;
 
-//           int x = Util::ymd2ProlepticSerial(9999, 12, 31);
-//           P(x)
+        int serialDate = 0;
+        const int EXTRA_SERIAL_DAYS = 11979953;
+        for (int year = 1; year <= 9999; ++year) {
+            for (int month = 1; month <= 12; ++month) {
+                for (int day = 1; day <= 31; ++day) {
+                    if (Util::isValidProlepticCalendarDate(year, month, day)) {
+                        if (veryVerbose) { P_(year) P_(month) P(day) }
 
-          int ey, em, ed;
-          Util::prolepticSerial2ymd(&ey, &em, &ed, 1461);
+                        ++serialDate;
 
-          int serialDate = 0;
-          for (int year = 1; year <= 9999; ++year) {
-              for (int month = 1; month <= 12; ++month) {
-                  for (int day = 1; day <= 31; ++day) {
-                      if (Util::isValidProlepticCalendarDate(year,
-                                                             month,
-                                                             day)) {
-                          if (veryVerbose) { P_(year) P_(month) P(day) }
+                        int x = Util::ymd2ProlepticSerial(year, month, day);
+                        LOOP5_ASSERT(year, month, day, serialDate, x,
+                                     serialDate == x);
+                        int y = TestUtil::ymdToSerial(year, month, day);
+                        y -= EXTRA_SERIAL_DAYS;
+                        LOOP5_ASSERT(year, month, day, x, y, x == y);
 
-                          ++serialDate;
+                        if (veryVerbose) { P(serialDate) }
 
-                          int x = Util::ymd2ProlepticSerial(year, month, day);
-                          LOOP5_ASSERT(year, month, day, serialDate, x,
-                                       serialDate == x);
-                          int y = TestUtil::ymdToSerial(year, month, day);
-                          LOOP5_ASSERT(year, month, day, x, y - 11979953,
-                                       x == (y - 11979953));
-
-                          if (veryVerbose) { P(serialDate) }
-
-                          int ey, em, ed;
-                          Util::prolepticSerial2ymd(&ey, &em, &ed, serialDate);
-                          LOOP3_ASSERT(serialDate, ey, year,  ey == year);
-                          LOOP3_ASSERT(serialDate, em, month, em == month);
-                          LOOP3_ASSERT(serialDate, ed, day,   ed == day);
-                      }
-                  }
-              }
-          }
+                        int ey, em, ed, ty, tm, td;
+                        Util::prolepticSerial2ymd(&ey, &em, &ed, serialDate);
+                        TestUtil::serialToYmd(&ty, &tm, &td,
+                                              serialDate + EXTRA_SERIAL_DAYS);
+                        LOOP3_ASSERT(serialDate, ey, year,  ey == year);
+                        LOOP2_ASSERT(ty, ey, ey == ty);
+                        LOOP2_ASSERT(tm, em, em == tm);
+                        LOOP2_ASSERT(td, ed, ed == td);
+                    }
+                }
+            }
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -2824,6 +2916,7 @@ if (veryVerbose)
         // --------------------------------------------------------------------
         // Testing:
         //   static bool isLeapYear(int year);
+        //   static bool isProlepticLeapYear(int year);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'isLeapYear'"

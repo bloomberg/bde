@@ -141,6 +141,22 @@ const int *getArrayDaysThroughMonth(int year)
 }
 
 static inline
+const int *getProlepticArrayDaysThroughMonth(int year)
+    // Return the address of a static array that, for the specified 'year',
+    // can be used to determine the number of days up to and including the
+    // month indicated by an integer index in the range '[ 0 .. MAX_MONTH ]',
+    // where an index of 0 always results in the value 0.  The behavior is
+    // undefined unless 'MIN_YEAR <= year <= MAX_YEAR'.
+{
+    BSLS_ASSERT(MIN_YEAR <= year);
+    BSLS_ASSERT(year <= MAX_YEAR);
+
+    return bdeimp_DateUtil::isProlepticLeapYear(year)
+         ? leapDaysThroughMonth
+         : normDaysThroughMonth;
+}
+
+static inline
 int numDaysInPreviousYears(int year)
     // Return the total number of days in all years, beginning with the year 1,
     // up to but not including the specified 'year'.  The behavior is
@@ -309,20 +325,18 @@ int bdeimp_DateUtil::ymd2serialNoCache(int year, int month, int day)
     return result;
 }
 
-int bdeimp_DateUtil::ymd2ProlepticSerial(int year, int month, int day)
+int bdeimp_DateUtil::ymd2prolepticSerial(int year, int month, int day)
 {
     BSLS_ASSERT(isValidProlepticCalendarDate(year, month, day));
 
     const int y = year - 1;
 
-    // TBD: Add doc
-    return y * 365
-         + y / 4
-         - y / 100
-         + y / 400
-         + normDaysThroughMonth[month - 1]
-         + day
-         + (isProlepticLeapYear(year) && month > 2);
+    return y * 365                         // additional days for each year
+         + y / 4 - y / 100 + y / 400       // additional leap days
+         + normDaysThroughMonth[month - 1] // additional days before this month
+         + day                             // additional days this month
+         + (isProlepticLeapYear(year)      // if a leap year
+           && month > 2);                  // and month greater than February
 }
 
 int bdeimp_DateUtil::yd2serial(int year, int dayOfYear)
@@ -447,20 +461,32 @@ void bdeimp_DateUtil::prolepticSerial2ymd(int *year,
     BSLS_ASSERT(day);
     BSLS_ASSERT(isValidProlepticSerialDate(serialDay));
 
-    const int num400years = serialDay / DAYS_IN_400_YEARS;
+    // TBD: Doc imp
 
+    int num400years = serialDay / DAYS_IN_400_YEARS;
+    if (!(serialDay % DAYS_IN_400_YEARS)) {
+        --num400years;
+    }
     serialDay -= num400years * DAYS_IN_400_YEARS;
-    const int num100years = serialDay / DAYS_IN_100_YEARS;
 
-    serialDay -= num100years * DAYS_IN_100_YEARS;
-    const int num4years = serialDay / (DAYS_IN_4_YEARS + 1);
-
-    serialDay -= num4years * DAYS_IN_4_YEARS;
-    int num1years = serialDay / DAYS_IN_NON_LEAP_YEAR;
-    if (!(serialDay % DAYS_IN_NON_LEAP_YEAR)) {
-        --num1years;
+    int num100years = serialDay / DAYS_IN_100_YEARS;
+    if (!(serialDay % DAYS_IN_400_YEARS)
+     || !(serialDay % DAYS_IN_100_YEARS)) {
+        --num100years;
     }
 
+    serialDay -= num100years * DAYS_IN_100_YEARS;
+    int num4years = serialDay / DAYS_IN_4_YEARS;
+    if (!(serialDay % DAYS_IN_4_YEARS)) {
+        --num4years;
+    }
+    serialDay -= num4years * DAYS_IN_4_YEARS;
+
+    int num1years = serialDay / DAYS_IN_NON_LEAP_YEAR;
+    if (!(serialDay % DAYS_IN_4_YEARS)
+     || !(serialDay % DAYS_IN_NON_LEAP_YEAR)) {
+        --num1years;
+    }
     serialDay -= num1years * DAYS_IN_NON_LEAP_YEAR;
 
     const int y = num400years * 400
@@ -468,7 +494,7 @@ void bdeimp_DateUtil::prolepticSerial2ymd(int *year,
                 + num4years   *   4
                 + num1years;
 
-    const int *daysThroughMonth = getArrayDaysThroughMonth(y + 1);
+    const int *daysThroughMonth = getProlepticArrayDaysThroughMonth(y + 1);
 
     int m = 0;
 
