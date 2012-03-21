@@ -312,6 +312,7 @@ int main(int argc, char *argv[])
         bdem_BerEncoderOptions options;
         options.setEncodeDateAndTimeTypesAsBinary(true);
 
+#if 0
 //         if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
 //         {
 //             typedef bdet_Date Type;
@@ -514,6 +515,8 @@ int main(int argc, char *argv[])
 //             ASSERT(LENGTH  == numBytesConsumed);
 //             P(value)
         }
+#endif
+
       } break;
       case 18: {
         // --------------------------------------------------------------------
