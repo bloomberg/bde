@@ -695,7 +695,7 @@ if (veryVerbose)
 
                         ++serialDate;
 
-                        int x = Util::ymd2ProlepticSerial(year, month, day);
+                        int x = Util::ymd2prolepticSerial(year, month, day);
                         LOOP5_ASSERT(year, month, day, serialDate, x,
                                      serialDate == x);
                         int y = TestUtil::ymdToSerial(year, month, day);
@@ -2995,6 +2995,75 @@ if (veryVerbose)
             }
         }
 
+        if (verbose) cout << "\nTesting 'isProlepticLeapYear'"
+                          << "\n=============================" << endl;
+
+        {
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_year;     // year under test
+                int d_exp;      // expected value
+            } DATA[] = {
+                //line no.   year    expected value
+                //-------   ------   --------------
+                { L_,          1,              0 },
+                { L_,          2,              0 },
+                { L_,          3,              0 },
+                { L_,          4,              1 },
+                { L_,          5,              0 },
+                { L_,          8,              1 },
+                { L_,         10,              0 },
+                { L_,         96,              1 },
+                { L_,         99,              0 },
+                { L_,        100,              0 },
+                { L_,        101,              0 },
+                { L_,        104,              1 },
+                { L_,        200,              0 },
+                { L_,        396,              1 },
+                { L_,        399,              0 },
+                { L_,        400,              1 },
+                { L_,        401,              0 },
+                { L_,        800,              1 },
+                { L_,       1000,              0 },
+                { L_,       1600,              1 },
+                { L_,       1700,              0 },
+                { L_,       1752,              1 },
+                { L_,       1800,              0 },
+                { L_,       1804,              1 },
+                { L_,       1899,              0 },
+                { L_,       1900,              0 },
+                { L_,       1901,              0 },
+                { L_,       1995,              0 },
+                { L_,       1996,              1 },
+                { L_,       1997,              0 },
+                { L_,       1998,              0 },
+                { L_,       1999,              0 },
+                { L_,       2000,              1 },
+                { L_,       2001,              0 },
+                { L_,       2002,              0 },
+                { L_,       2003,              0 },
+                { L_,       2004,              1 },
+                { L_,       2005,              0 },
+                { L_,       2099,              0 },
+                { L_,       2100,              0 },
+                { L_,       2101,              0 },
+                { L_,       2399,              0 },
+                { L_,       2400,              1 },
+                { L_,       2401,              0 },
+                { L_,       9995,              0 },
+                { L_,       9996,              1 },
+                { L_,       9997,              0 },
+                { L_,       9998,              0 },
+                { L_,       9999,              0 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int di = 0; di < NUM_DATA ; ++di) {
+                const int LINE = DATA[di].d_lineNum;
+                LOOP_ASSERT(LINE, DATA[di].d_exp ==
+                                  Util::isProlepticLeapYear(DATA[di].d_year));
+            }
+        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
