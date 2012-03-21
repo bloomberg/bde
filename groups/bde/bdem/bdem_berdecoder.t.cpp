@@ -10266,6 +10266,74 @@ int main(int argc, char *argv[])
                                << "\n===================" << bsl::endl;
 
         {
+            const int YEAR = 2020, MONTH = 1, DAY = 1, OFFSET = 0;
+
+            bdet_DateTz valueOut(bdet_Date(YEAR, MONTH, DAY), OFFSET);
+
+            bdem_BerEncoderOptions options;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+
+            bdesb_MemOutStreamBuf osb;
+            bdem_BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, valueOut));
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+
+            bdet_DateTz valueIn;
+
+            ASSERT(valueOut != valueIn);
+            bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+            ASSERT(0 == decoder.decode(&isb, &valueIn));
+            printDiagnostic(decoder);
+
+            ASSERT(valueOut == valueIn);
+            if (veryVerbose) {
+                P(valueOut);
+                P(valueIn);
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting bdet_DateTz"
+                               << "\n===================" << bsl::endl;
+
+        {
+            const int YEAR = 2020, MONTH = 2, DAY = 29, OFFSET = 0;
+
+            bdet_DateTz valueOut(bdet_Date(YEAR, MONTH, DAY), OFFSET);
+
+            bdem_BerEncoderOptions options;
+            options.setEncodeDateAndTimeTypesAsBinary(true);
+
+            bdesb_MemOutStreamBuf osb;
+            bdem_BerEncoder encoder(&options);
+            ASSERT(0 == encoder.encode(&osb, valueOut));
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+
+            bdet_DateTz valueIn;
+
+            ASSERT(valueOut != valueIn);
+            bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+            ASSERT(0 == decoder.decode(&isb, &valueIn));
+            printDiagnostic(decoder);
+
+            ASSERT(valueOut == valueIn);
+            if (veryVerbose) {
+                P(valueOut);
+                P(valueIn);
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting bdet_DateTz"
+                               << "\n===================" << bsl::endl;
+
+        {
             const int YEAR = 2020, MONTH = 2, DAY = 29, OFFSET = 45;
 
             bdet_DateTz valueOut(bdet_Date(YEAR, MONTH, DAY), OFFSET);
