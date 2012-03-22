@@ -29,25 +29,20 @@ using namespace bsl;  // automatically added by script
 // loop-based tests are performed in 'veryVerbose' mode only.
 //-----------------------------------------------------------------------------
 // [ 1]  static int  isLeapYear(int year);
-// [ 1]  static int  isProlepticLeapYear(int year);
 // [ 2]  static int  numLeapYears(int year1, int year2);
 // [ 3]  static int  lastDayOfMonth(int year, int month);
 // [ 4]  static int  isValidCalendarDate(int year, int month, int day);
 // [ 4]  static int  isValidCalendarDateNoCache(int year, int month, int day);
-// [ 4]  static int  isValidProlepticCalendarDate(int y, int m, int d); TBD
 // [ 4]  static int  isValidYearDayDate(int year, int dayOfYear);
 // [ 4]  static int  isValidSerialDate(int serialDay);
-// [ 4]  static int  isValidProlepticSerialDate(int serialDay); TBD
 // [ 5]  static int  ymd2serial(int year, int month, int day);
 // [ 5]  static int  ymd2serialNoCache(int year, int month, int day);
-// [ 5]  static int  ymd2prolepticSerial(int year, int month, int day); TBD
 // [ 8]  static int  yd2serial(int year, int dayOfYear);
 // [ 9]  static void serial2yd(int *year, int *dayOfYear, int serialDay);
 // [ 9]  static int  serial2dayOfYear(int serialDay);
 // [ 6]  static int  ymd2dayOfYear(int year, int month, int day);
 // [10]  static void serial2ymd(int *year, int *month, int *day, int serialDay)
 // [10]  static void serial2ymdNoCache(int *year, int *month, int *day, int sD)
-// [10]  static void prolepticSerial2ymd(int *y, int *m, int *d, int s) TBD
 // [ 9]  static int  serial2year(int serialDay);
 // [ 9]  static int  serial2yearNoCache(int serialDay);
 // [10]  static int  serial2month(int serialDay);
@@ -573,7 +568,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 19: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TEST
         //
@@ -677,45 +672,6 @@ if (veryVerbose)
 //  10JUL1776
 //..
 
-      } break;
-      case 18: {
-        // --------------------------------------------------------------------
-        // Prolepic Date calculations
-        // --------------------------------------------------------------------
-
-        cout << "\nTesting: proleptic date conversion" << endl;
-
-        int serialDate = 0;
-        const int EXTRA_SERIAL_DAYS = 11979953;
-        for (int year = 1; year <= 9999; ++year) {
-            for (int month = 1; month <= 12; ++month) {
-                for (int day = 1; day <= 31; ++day) {
-                    if (Util::isValidProlepticCalendarDate(year, month, day)) {
-                        if (veryVerbose) { P_(year) P_(month) P(day) }
-
-                        ++serialDate;
-
-                        int x = Util::ymd2prolepticSerial(year, month, day);
-                        LOOP5_ASSERT(year, month, day, serialDate, x,
-                                     serialDate == x);
-                        int y = TestUtil::ymdToSerial(year, month, day);
-                        y -= EXTRA_SERIAL_DAYS;
-                        LOOP5_ASSERT(year, month, day, x, y, x == y);
-
-                        if (veryVerbose) { P(serialDate) }
-
-                        int ey, em, ed, ty, tm, td;
-                        Util::prolepticSerial2ymd(&ey, &em, &ed, serialDate);
-                        TestUtil::serialToYmd(&ty, &tm, &td,
-                                              serialDate + EXTRA_SERIAL_DAYS);
-                        LOOP3_ASSERT(serialDate, ey, year,  ey == year);
-                        LOOP2_ASSERT(ty, ey, ey == ty);
-                        LOOP2_ASSERT(tm, em, em == tm);
-                        LOOP2_ASSERT(td, ed, ed == td);
-                    }
-                }
-            }
-        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -2318,13 +2274,10 @@ if (veryVerbose)
         // --------------------------------------------------------------------
         // Testing:
         //   static bool isValidCalendarDate(int year, int month, int day);
-        //   static bool isValidProlepticCalendarDate(int y, int m, int d);
         //   static bool isValidYearDayDate(int year, int dayOfYear);
         //   static bool isValidserialDate(int serialDay);
-        //   static bool isValidProlepticSerialDate(int serialDay); 
         // --------------------------------------------------------------------
 
-          // TBD: from here
         if (verbose) cout << "\nTesting 'isValidXXX' Methods"
                           << "\n============================" << endl;
 
@@ -2919,7 +2872,6 @@ if (veryVerbose)
         // --------------------------------------------------------------------
         // Testing:
         //   static bool isLeapYear(int year);
-        //   static bool isProlepticLeapYear(int year);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting 'isLeapYear'"
@@ -2998,75 +2950,6 @@ if (veryVerbose)
             }
         }
 
-        if (verbose) cout << "\nTesting 'isProlepticLeapYear'"
-                          << "\n=============================" << endl;
-
-        {
-            static const struct {
-                int d_lineNum;  // source line number
-                int d_year;     // year under test
-                int d_exp;      // expected value
-            } DATA[] = {
-                //line no.   year    expected value
-                //-------   ------   --------------
-                { L_,          1,              0 },
-                { L_,          2,              0 },
-                { L_,          3,              0 },
-                { L_,          4,              1 },
-                { L_,          5,              0 },
-                { L_,          8,              1 },
-                { L_,         10,              0 },
-                { L_,         96,              1 },
-                { L_,         99,              0 },
-                { L_,        100,              0 },
-                { L_,        101,              0 },
-                { L_,        104,              1 },
-                { L_,        200,              0 },
-                { L_,        396,              1 },
-                { L_,        399,              0 },
-                { L_,        400,              1 },
-                { L_,        401,              0 },
-                { L_,        800,              1 },
-                { L_,       1000,              0 },
-                { L_,       1600,              1 },
-                { L_,       1700,              0 },
-                { L_,       1752,              1 },
-                { L_,       1800,              0 },
-                { L_,       1804,              1 },
-                { L_,       1899,              0 },
-                { L_,       1900,              0 },
-                { L_,       1901,              0 },
-                { L_,       1995,              0 },
-                { L_,       1996,              1 },
-                { L_,       1997,              0 },
-                { L_,       1998,              0 },
-                { L_,       1999,              0 },
-                { L_,       2000,              1 },
-                { L_,       2001,              0 },
-                { L_,       2002,              0 },
-                { L_,       2003,              0 },
-                { L_,       2004,              1 },
-                { L_,       2005,              0 },
-                { L_,       2099,              0 },
-                { L_,       2100,              0 },
-                { L_,       2101,              0 },
-                { L_,       2399,              0 },
-                { L_,       2400,              1 },
-                { L_,       2401,              0 },
-                { L_,       9995,              0 },
-                { L_,       9996,              1 },
-                { L_,       9997,              0 },
-                { L_,       9998,              0 },
-                { L_,       9999,              0 },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-            for (int di = 0; di < NUM_DATA ; ++di) {
-                const int LINE = DATA[di].d_lineNum;
-                LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                  Util::isProlepticLeapYear(DATA[di].d_year));
-            }
-        }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
