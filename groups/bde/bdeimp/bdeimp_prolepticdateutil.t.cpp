@@ -590,7 +590,7 @@ int main(int argc, char *argv[])
 //
 // Was the year 2000 a leap year?
 //..
-    ASSERT(true == bdeimp_ProlepticDateUtil::isLeapYear(2000));       // Yes, it was.
+    ASSERT(true == bdeimp_ProlepticDateUtil::isLeapYear(2000)); // Yes, it was.
 //..
 // Was February 29, 1900, a valid date in history?
 //..
