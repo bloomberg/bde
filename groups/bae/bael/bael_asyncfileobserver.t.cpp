@@ -412,7 +412,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator allocator; bslma_TestAllocator *Z = &allocator;
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE #2
         //
@@ -476,7 +476,7 @@ int main(int argc, char *argv[])
 
         removeFilesByPrefix(fileName.c_str());
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING CONCURRENT PUBLICATION
         //
@@ -503,7 +503,9 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta(veryVeryVeryVerbose);
 
-        Obj mX(bael_Severity::BAEL_WARN, &ta);
+        // Set up a blocking async observer
+
+        Obj mX(bael_Severity::BAEL_WARN, false, 8192, true, 100, &ta);
         mX.startPublicationThread();
         bcemt_ThreadUtil::microSleep(0, 1);
 
@@ -523,6 +525,7 @@ int main(int argc, char *argv[])
         executeInParallel(numThreads, workerThread);
 
         mX.stopPublicationThread();
+        mX.disableFileLogging();
 
         bsl::string line(&ta);
         int linesNum = 0;
@@ -535,8 +538,7 @@ int main(int argc, char *argv[])
         removeFilesByPrefix(fileName.c_str());
 
       } break;
-
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING TIME-BASED ROTATION
         //
@@ -634,7 +636,7 @@ int main(int argc, char *argv[])
         mX.stopPublicationThread();
         removeFilesByPrefix(BASENAME.c_str());
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING 'setOnFileRotationCallback'
         //
@@ -665,7 +667,7 @@ int main(int argc, char *argv[])
         ASSERT(1 == cb.numInvocations());
         removeFilesByPrefix(filename.c_str());
       } break;
-      case 4: {
+      case 5: {
 #ifdef BSLS_PLATFORM__OS_UNIX
         // don't run this if we're in the debugger because the debugger
         // stops and refuses to continue when we hit the file size limit.
@@ -752,7 +754,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // Rotation functions test
         //
@@ -1200,6 +1202,159 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING NON-BLOCKING AND BLOCKING CALLER THREAD
+        //
+        // Concerns:
+        //   - Asynchronous observer is configured to drop records when the
+        //     fixed queue is full by default.  An alert should be triggered to
+        //     print to stderr every N dropped records, where N is a
+        //     pre-configured parameter set in constructor.
+        //
+        //   - Asynchronous observer can be configured to block the caller of
+        //     'publish'  when the fixed queue is full instead of dropping
+        //     records.  In that case no record should be dropped.
+        //
+        // Plan:
+        //   To test non-blocking caller thread, we will first create an async
+        //   file observer. Then publish a fair large amount of records.  We
+        //   verify dropped records alerts being raised.
+        //
+        //   To test blocking caller thread, we will first create an asyncfile
+        //   observer by passing 'true' in the 'blocking' parameter.  Then
+        //   publish a fair large amount of records.  We verify all the records
+        //   published are actually written to file and nothing gets dropped.
+        //
+        //   We test the blocking caller thread first, then the non-blocking
+        //   caller thread because the latter needs to redirect 'stderr' to
+        //   verify the dropped records alerts being correctly raised.  Once
+        //   'stderr' is redirected, it can not be restored.
+        //
+        // Testing:
+        //   This test is for testing non-blocking and blocking caller thread,
+        //   not for any particular public method.
+        // --------------------------------------------------------------------
+
+        bcema_TestAllocator ta;
+
+        int numTestRecords = 200000;
+        bael_MultiplexObserver multiplexObserver;
+        bael_LoggerManagerConfiguration configuration;
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                    bael_Severity::BAEL_OFF,
+                    bael_Severity::BAEL_TRACE,
+                    bael_Severity::BAEL_OFF,
+                    bael_Severity::BAEL_OFF));
+        bael_LoggerManagerScopedGuard guard(&multiplexObserver, configuration);
+        if (verbose) cerr << "Testing blocking caller thread."
+                          << endl;
+        {
+            bsl::string fileName = tempFileName(veryVerbose);
+
+            int fixedQueueSize     = 8192;
+            int dropAlertThreshold = 100;
+            Obj mX(bael_Severity::BAEL_WARN,
+                   false,
+                   fixedQueueSize,
+                   true,                 // 'blocking' set to 'true'
+                   dropAlertThreshold,
+                   &ta);
+            const Obj& X = mX;
+
+            // Start the publication thread, make sure the publication thread
+            // started
+
+            mX.startPublicationThread();
+            ASSERT(X.isPublicationThreadRunning());
+            bcemt_ThreadUtil::microSleep(0, 1);
+
+
+            multiplexObserver.registerObserver(&mX);
+            mX.enableFileLogging(fileName.c_str());
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+
+            ASSERT(0 == bdesu_FileUtil::getFileSize(fileName));
+
+            bael_Context context;
+            for (int i = 0;i < numTestRecords; ++i)
+                BAEL_LOG_TRACE << "This will not be dropped." << BAEL_LOG_END;
+
+            mX.stopPublicationThread();
+            mX.disableFileLogging();
+            multiplexObserver.deregisterObserver(&mX);
+
+            bsl::string line(&ta);
+            int linesNum = 0;
+            bsl::ifstream fs;
+            fs.open(fileName.c_str(), bsl::ifstream::in);
+            while (getline(fs, line)) { ++linesNum; }
+            fs.close();
+
+            ASSERT(linesNum == 2 * numTestRecords);
+
+            removeFilesByPrefix(fileName.c_str());
+        }
+
+        if (verbose) cerr << "Testing non-blocking caller thread."
+                          << endl;
+        {
+            bsl::string fileName = tempFileName(veryVerbose);
+
+            // Redirect stderr to catch dropped records alerts
+
+            bsl::string fileErr = tempFileName(veryVerbose);
+            {
+                const FILE *out = stderr;
+                ASSERT(out == freopen(fileErr.c_str(), "w", stderr));
+                fflush(stderr);
+            }
+
+            int fixedQueueSize     = 8192;
+            int dropAlertThreshold = 100;
+            Obj mX(bael_Severity::BAEL_WARN,
+                   false,
+                   fixedQueueSize,
+                   false,                 // 'blocking' set to 'false'
+                   dropAlertThreshold,
+                   &ta);
+            const Obj& X = mX;
+
+            // Start the publication thread, make sure the publication thread
+            // started
+
+            mX.startPublicationThread();
+            ASSERT(X.isPublicationThreadRunning());
+            bcemt_ThreadUtil::microSleep(0, 1);
+            multiplexObserver.registerObserver(&mX);
+
+            mX.enableFileLogging(fileName.c_str());
+            BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
+
+            int beginFileOffset = bdesu_FileUtil::getFileSize(fileErr);
+            if (verbose)
+                cout << "Begin file offset: " << beginFileOffset << endl;
+
+            bael_Context context;
+            for (int i = 0;i < numTestRecords; ++i)
+                BAEL_LOG_TRACE << "This will be dropped." << BAEL_LOG_END;
+
+            mX.stopPublicationThread();
+            mX.disableFileLogging();
+            multiplexObserver.deregisterObserver(&mX);
+
+            // We should have got the warning
+
+            int endFileOffset = bdesu_FileUtil::getFileSize(fileErr);
+            if (verbose)
+                cout << "End file offset: " << endFileOffset << endl;
+
+            ASSERT(endFileOffset > beginFileOffset);
+
+            fclose(stderr);
+            removeFilesByPrefix(fileErr.c_str());
+        }
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING RELEASING RECORDS
@@ -1420,7 +1575,7 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing publication thread start and stop."
                           << endl;
         {
-            Obj mX;  const Obj& X = mX;
+            Obj mX;
 
             // Start the publication thread, make sure the publication thread
             // started
@@ -1452,7 +1607,7 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing asynchronous publication."
                           << endl;
         {
-            Obj mX;  const Obj& X = mX;
+            Obj mX;
             mX.startPublicationThread();
             bcemt_ThreadUtil::microSleep(0, 1);
 
@@ -1462,6 +1617,8 @@ int main(int argc, char *argv[])
             BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
             int beginFileOffset = bdesu_FileUtil::getFileSize(fileName);
+            if (verbose)
+                cout << "Begin file offset: " << beginFileOffset << endl;
 
             // Throw fair large amount of logs into the queue
 
@@ -2624,13 +2781,13 @@ int main(int argc, char *argv[])
         if (verbose) cerr << "Testing publication shutdown."
                           << endl;
         {
-            Obj mX;  const Obj& X = mX;
+            Obj mX; const Obj& X = mX;
 
             // Start the publication thread, make sure the publication thread
             // started
 
             mX.startPublicationThread();
-            ASSERT(mX.isPublicationThreadRunning());
+            ASSERT(X.isPublicationThreadRunning());
 
             bcema_SharedPtr<bael_Record> record(new (ta) bael_Record(&ta),
                                                 &ta);
@@ -2638,7 +2795,7 @@ int main(int argc, char *argv[])
             for (int i = 0;i < 8000; ++i)
                 mX.publish(record, context);
             mX.shutdownPublicationThread();
-            ASSERT(!mX.isPublicationThreadRunning());
+            ASSERT(!X.isPublicationThreadRunning());
 
             // Verify the records in fixed queue are not cleared after shutdown
 
@@ -2651,7 +2808,7 @@ int main(int argc, char *argv[])
             // get processed shortly
 
             mX.startPublicationThread();
-            ASSERT(mX.isPublicationThreadRunning());
+            ASSERT(X.isPublicationThreadRunning());
 
             bcemt_ThreadUtil::microSleep(0, 1);
             ASSERT(record.numReferences() == 1);

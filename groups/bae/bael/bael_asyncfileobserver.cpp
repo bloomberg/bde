@@ -19,6 +19,7 @@ BDES_IDENT_RCSID(bael_asyncfileobserver_cpp,"$Id$ $CSID$")
 #include <bdef_memfn.h>
 
 #include <bslma_default.h>
+#include <bsl_iostream.h>
 
 namespace BloombergLP {
 
@@ -29,8 +30,7 @@ namespace BloombergLP {
 // PRIVATE METHODS
 void bael_AsyncFileObserver::publishThreadEntryPoint()
 {
-    while (1)
-    {
+    while (1) {
         AsyncRecord asyncRecord = d_recordQueue.popFront();
         if (bael_Transmission::BAEL_END
                 == asyncRecord.d_context.transmissionCause()
@@ -38,13 +38,17 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
             break;
         }
         d_fileObserver.publish(*asyncRecord.d_record, asyncRecord.d_context);
+
+        if (int(d_dropCount) >= d_dropAlertThreshold) {
+            bsl::cerr << "Alert: bael_AsyncFileObserver has dropped "
+                      << d_dropCount.swap(0) << " records!!!" << bsl::endl;
+        }
     }
 }
 
 int bael_AsyncFileObserver::startThread()
 {
-    if (bcemt_ThreadUtil::invalidHandle() == d_threadHandle)
-    {
+    if (bcemt_ThreadUtil::invalidHandle() == d_threadHandle) {
         bcemt_ThreadAttributes attr;
         return bcemt_ThreadUtil::create(&d_threadHandle,
                                         attr,
@@ -55,8 +59,7 @@ int bael_AsyncFileObserver::startThread()
 
 int bael_AsyncFileObserver::stopThread()
 {
-    if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle)
-    {
+    if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle) {
         // Push an empty record with BAEL_END set in context
 
         bcema_SharedPtr<const bael_Record> record(
@@ -74,12 +77,15 @@ int bael_AsyncFileObserver::stopThread()
 
 // CREATORS
 bael_AsyncFileObserver::bael_AsyncFileObserver(
-                bael_Severity::Level  stdoutThreshold,
-                bslma_Allocator      *basicAllocator)
+                                         bael_Severity::Level  stdoutThreshold,
+                                         bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
-, d_clearing(false)
 , d_recordQueue(8192, basicAllocator)
+, d_clearing(false)
+, d_blocking(false)
+, d_dropCount(0)
+, d_dropAlertThreshold(100)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -91,14 +97,65 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 }
 
 bael_AsyncFileObserver::bael_AsyncFileObserver(
-                bael_Severity::Level  stdoutThreshold,
-                bool                  publishInLocalTime,
-                int                   fixedQueueSize,
-                bslma_Allocator      *basicAllocator)
+                                      bael_Severity::Level  stdoutThreshold,
+                                      bool                  publishInLocalTime,
+                                      bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
+, d_recordQueue(8192, basicAllocator)
 , d_clearing(false)
+, d_blocking(false)
+, d_dropCount(0)
+, d_dropAlertThreshold(100)
+, d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
+
+{
+    d_publishThreadEntryPoint
+        = bdef_Function<void (*)()>(
+              bdef_MemFnUtil::memFn(
+                      &bael_AsyncFileObserver::publishThreadEntryPoint,
+                      this),
+              d_allocator_p);
+}
+
+
+bael_AsyncFileObserver::bael_AsyncFileObserver(
+                                      bael_Severity::Level  stdoutThreshold,
+                                      bool                  publishInLocalTime,
+                                      int                   fixedQueueSize,
+                                      bslma_Allocator      *basicAllocator)
+: d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
+, d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(fixedQueueSize, basicAllocator)
+, d_clearing(false)
+, d_blocking(false)
+, d_dropCount(0)
+, d_dropAlertThreshold(100)
+, d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
+
+{
+    d_publishThreadEntryPoint
+        = bdef_Function<void (*)()>(
+              bdef_MemFnUtil::memFn(
+                      &bael_AsyncFileObserver::publishThreadEntryPoint,
+                      this),
+              d_allocator_p);
+}
+
+bael_AsyncFileObserver::bael_AsyncFileObserver(
+                                      bael_Severity::Level  stdoutThreshold,
+                                      bool                  publishInLocalTime,
+                                      int                   fixedQueueSize,
+                                      bool                  blocking,
+                                      int                   dropAlertThreshold,
+                                      bslma_Allocator      *basicAllocator)
+: d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
+, d_threadHandle(bcemt_ThreadUtil::invalidHandle())
+, d_recordQueue(fixedQueueSize, basicAllocator)
+, d_clearing(false)
+, d_blocking(blocking)
+, d_dropCount(0)
+, d_dropAlertThreshold(dropAlertThreshold)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 
 {
@@ -138,7 +195,15 @@ void bael_AsyncFileObserver::publish(
     AsyncRecord asyncRecord;
     asyncRecord.d_record  = record;
     asyncRecord.d_context = context;
-    d_recordQueue.pushBack(asyncRecord);
+    if (d_blocking
+        || bael_Transmission::BAEL_END == context.transmissionCause()) {
+        d_recordQueue.pushBack(asyncRecord);
+    } else if (d_recordQueue.tryPushBack(asyncRecord)) {
+
+        // Drop the record and increase the counter
+
+        d_dropCount.relaxedAdd(1);
+    }
 }
 
 int bael_AsyncFileObserver::startPublicationThread()

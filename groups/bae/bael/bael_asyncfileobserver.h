@@ -19,14 +19,16 @@ BDES_IDENT("$Id: $")
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'bael_Observer' protocol for asynchronously publishing log records to a
 // user-specified file.  A 'bael_AsyncFileObserver' object processes the log
-// records received through its 'publish' method by writing them
-// asynchronously to a user-specified file.  The 'publish' method enqueues the
-// provided 'bael_Record' object into a fixed-size queue and returns
-// immediately.  The supplied record is finally published when an independent
-// publication thread (started by calling 'startPublicationThread') reads the
-// log record from that queue and publishes it to the configured log file and
-// 'stdout'.  The following inheritance hierarchy diagram shows the classes
-// involved and their methods:
+// records received through its 'publish' method by writing them asynchronously
+// to a user-specified file.  The 'publish' method enqueues the provided
+// 'bael_Record' object into a fixed-size queue and returns immediately.  The
+// supplied record is finally published when an independent publication thread
+// (started by calling 'startPublicationThread') reads the log record from that
+// queue and publishes it to the configured log file and 'stdout'.  The
+// asynchronous observer is by default configured as non-blocking the caller
+// thread when the fixed queue is full.  Alternatively it can be configured as
+// blocking caller thread.  The following inheritance hierarchy diagram shows
+// the classes involved and their methods:
 //..
 //             ,----------------------.
 //            ( bael_AsyncFileObserver )
@@ -182,7 +184,8 @@ BDES_IDENT("$Id: $")
 // The following code fragments illustrate the essentials of using a file
 // observer within a 'bael' logging system.
 //
-// First create a 'bael_AsyncFileObserver' named 'asyncFileObserver':
+// First create a non-blocking 'bael_AsyncFileObserver' named
+// 'asyncFileObserver':
 //..
 //  bael_AsyncFileObserver asyncFileObserver;
 //..
@@ -325,9 +328,6 @@ BDES_IDENT("$Id: $")
 // complete before all the records are asynchronously written to file.
 //..
 //  asyncFileObserver.stopPublicationThread();
-//
-//  ASSERT(beginFileOffset < fileOffset   );
-//  ASSERT(fileOffset      < endFileOffset);
 //..
 
 #ifndef INCLUDED_BAESCM_VERSION
@@ -372,6 +372,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BCEMT_THREAD
 #include <bcemt_thread.h>
+#endif
+
+#ifndef INCLUDED_BCES_ATOMICTYPES
+#include <bces_atomictypes.h>
 #endif
 
 #ifndef INCLUDED_BDET_DATETIMEINTERVAL
@@ -420,12 +424,27 @@ class bael_AsyncFileObserver : public bael_Observer {
     bool                          d_clearing;        // flag that indicates
                                                      // queue in clearance
 
+    bool                          d_blocking;        // flag that indicates
+                                                     // if the fixed queue
+                                                     // should block or drop
+                                                     // records when full
+
+    bces_AtomicInt                d_dropCount;       // counter that keeps
+                                                     // track count of recently
+                                                     // dropped records
+
+    int                           d_dropAlertThreshold;
+                                                     // alert is triggered if
+                                                     // count of dropped
+                                                     // records reaches this
+                                                     // threshold
+
     bdef_Function<void (*)()>     d_publishThreadEntryPoint;
                                                      // functor that contains
                                                      // publication thread
                                                      // function
 
-    mutable bcemt_Mutex           d_mutex;              // serialize operations
+    mutable bcemt_Mutex           d_mutex;           // serialize operations
 
     bslma_Allocator              *d_allocator_p;     // memory allocator (held,
                                                      // not owned)
@@ -459,17 +478,36 @@ class bael_AsyncFileObserver : public bael_Observer {
     explicit bael_AsyncFileObserver(
               bael_Severity::Level  stdoutThreshold = bael_Severity::BAEL_WARN,
               bslma_Allocator      *basicAllocator  = 0);
-        // Create an asynchronous file observer with a fixed queue size of the
-        // specified 'fixedQueueSize' that publishes log records to 'stdout' if
-        // their severity is at least as severe as the optionally
-        // specified 'stdoutThreshold' level.  If 'stdoutThreshold' is not
-        // specified, log records are published to 'stdout' if their severity
-        // is at least as severe as 'bael_Severity::BAEL_WARN'.  The timestamp
-        // attribute of published records is written in GMT time by default.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  Note that user-defined fields are published to 'stdout' by
-        // default.  Also note that file logging is initially disabled.
+        // Create an asynchronous file observer with a fixed queue that
+        // publishes log records to 'stdout' if their severity is at least as
+        // severe as the optionally specified 'stdoutThreshold' level.  If
+        // 'stdoutThreshold' is not specified, log records are published to
+        // 'stdout' if their severity is at least as severe as
+        // 'bael_Severity::BAEL_WARN'.  The timestamp attribute of published
+        // records is written in GMT time by default.  The fixed queue is
+        // non-blocking by default.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  Note that user-defined fields are
+        // published to 'stdout' by default.  Also note that file logging is
+        // initially disabled.
+
+
+    bael_AsyncFileObserver(bael_Severity::Level  stdoutThreshold,
+                           bool                  publishInLocalTime,
+                           bslma_Allocator      *basicAllocator = 0);
+        // Create an asynchronous file observer with a fixed queue that
+        // publishes log records to 'stdout' if their severity is at least as
+        // severe as the specified 'stdoutThreshold' level.  If the specified
+        // 'publishInLocalTime' flag is 'true', the timestamp attribute of
+        // published records is written in local time; otherwise the timestamp
+        // attribute of published records is written in UTC time.  The offset
+        // between the local time and UTC time is computed at construction and
+        // remains unchanged during the lifetime of this object.  The fixed
+        // queue is non-blocking by default.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  Note that
+        // user-defined fields are published to 'stdout' by default.  Also note
+        // that file logging is initially disabled.
 
     bael_AsyncFileObserver(bael_Severity::Level  stdoutThreshold,
                            bool                  publishInLocalTime,
@@ -483,9 +521,36 @@ class bael_AsyncFileObserver : public bael_Observer {
         // in local time; otherwise the timestamp attribute of published
         // records is written in UTC time.  The offset between the local time
         // and UTC time is computed at construction and remains unchanged
-        // during the lifetime of this object.  Note that user-defined fields
-        // are published to 'stdout' by default.  Also note that file logging
-        // is initially disabled.
+        // during the lifetime of this object.  The fixed queue is non-blocking
+        // by default.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is 0, the currently installed default
+        // allocator is used.  Note that user-defined fields are published to
+        // 'stdout' by default.  Also note that file logging is initially
+        // disabled.
+
+    bael_AsyncFileObserver(bael_Severity::Level  stdoutThreshold,
+                           bool                  publishInLocalTime,
+                           int                   fixedQueueSize,
+                           bool                  blocking,
+                           int                   dropAlertThreshold,
+                           bslma_Allocator      *basicAllocator = 0);
+        // Create an asynchronous file observer with a fixed queue size of the
+        // specified 'fixedQueueSize' that publishes log records to 'stdout' if
+        // their severity is at least as severe as the specified
+        // 'stdoutThreshold' level.  If the specified 'publishInLocalTime' flag
+        // is 'true', the timestamp attribute of published records is written
+        // in local time; otherwise the timestamp attribute of published
+        // records is written in UTC time.  The offset between the local time
+        // and UTC time is computed at construction and remains unchanged
+        // during the lifetime of this object.  If the specified 'blocking' is
+        // 'false', the fixed queue drops records when it is full, and an alert
+        // will be printed to 'stdout' every the specified 'dropAlertThreshold'
+        // dropped packets; otherwise the fixed queue blocks when it is full,
+        // and 'dropAlertThreshold' has no effect.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.  Note that
+        // user-defined fields are published to 'stdout' by default.  Also note
+        // that file logging is initially disabled.
 
     ~bael_AsyncFileObserver();
         // Close the log file of this async file observer if file logging is
@@ -631,7 +696,7 @@ class bael_AsyncFileObserver : public bael_Observer {
         // publication thread has already started.
 
     int stopPublicationThread();
-        // Disable queueing of published records and wait until all currently
+        // Disable queuing of published records and wait until all currently
         // enqueued records are published, then shut down the publication
         // thread and return to the caller.
 
