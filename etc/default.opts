@@ -229,7 +229,7 @@ unix-                   _       RETRY_ALLTEST   = $(RETRY) -t 0 -a 3 -s!ILL,TRAP
 # file(s)-to-unspecified copy
 # DRQS 12110915 - cp -p broken on AIX and Linux when output isn't in
 # clearcase
-!! unix-           _       RSYNC           = /opt/swt/bin/rsync -a
+!! unix-           _       RSYNC           = rsync -a
 !! unix-           _       CP              = $(RETRY_ON_EXIT) $(RSYNC)
 windows-           _       CP              = perl -MFile::Copy -MFile::Basename -e "$$d=pop(@ARGV); die unless -d($$d) or -d($$d=dirname($$d)); while ($$f=shift @ARGV) { copy $$_,$$d foreach glob($$f) }; print \"\tcopied to $$d\n\"" --
 # Experiment to use Win32::CopyFile if available to preserve timestamps on Windows
@@ -600,6 +600,7 @@ unix-Linux-*-*-*        _   DEF_ENDLDFLAGS = $(RPATH_FLAGS)
 # tell Clang where GCC libraries are located
 !! unix-Linux-*-*-gcc-clang     _  CLANG_GCC_VER = 4.4.6
 !! unix-Linux-*-*-gcc-clang     _  CLANG_GCC_VER_CPP = -D__CLANG_GNUC__=4 -D__CLANG_GNUC_MINOR__=4 -D__CLANG_GNUC_PATCHLEVEL__=6
+!! unix-Darwin-*-*-*            _  CLANG_GCC_VER_CPP = -D__CLANG_GNUC__=4 -D__CLANG_GNUC_MINOR__=2 -D__CLANG_GNUC_PATCHLEVEL__=1
 
 !! unix-Linux-*-*-gcc-clang     _  DEF_LDFLAGS = -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER)/32 -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER)/32 -Wl,-rpath -Wl,/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib
 !! unix-Linux-*-*-gcc-clang    64  DEF_LDFLAGS = -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib64 -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib64 -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER) -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER) -Wl,-rpath -Wl,/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib64
@@ -622,6 +623,7 @@ unix-HP_UX-*-*-*       _   DEF_LDFLAGS    = $(LINKARGSCOMMON) -AA -ext
 
 #=== Default location for mapping prebuilt lib names to robocop lib names
 unix-          _   BDE_LDFLAGS =  $(LIBPATH_FLAG)/bbsrc/bde/registry/lroot/lib/$(UPLID)
+!! unix-Darwin-*-*-*    _  BDE_LDFLAGS =
 
 #==============================================================================
 # Build static/dynamic
@@ -976,7 +978,7 @@ unix-                   _   CC      = $(RETRY_ON_SIGNAL) cc -DUSE_REAL_MALLOC $(
 !! unix-Linux-*-*-def   _   CC      = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS)
 !! unix-FreeBSD-*-*-def _   CC      = $(RETRY_ON_SIGNAL) gcc $(GCCEXTRAWFLAGS) $(CC64FLAGS)
 !! unix-Cygwin-*-*-def  _   CC      = $(RETRY_ON_SIGNAL) gcc -DUSE_REAL_MALLOC -D__cygwin -D__linux $(CC64FLAGS)
-!! unix-Darwin-*-*-def  _   CC      = $(RETRY_ON_SIGNAL) gcc -DUSE_REAL_MALLOC -D__unix $(CC64FLAGS)
+!! unix-Darwin-*-*-def  _   CC      = $(RETRY_ON_SIGNAL) clang -DUSE_REAL_MALLOC -D__unix $(CC64FLAGS)
 !! unix-AIX-*-*-*       _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlc $(CC64FLAGS) -qxflag=NoKeepDebugMetaTemplateType
 !! unix-AIX-*-*-*       mt  CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlc_r $(CC64FLAGS) -qxflag=NoKeepDebugMetaTemplateType
 !! unix-HP_UX-*-*-*     _   CC      = $(RETRY_ON_SIGNAL) $(ACC_BIN)/cc $(CC64FLAGS)
@@ -1055,7 +1057,7 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 
 !! unix-Cygwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__cygwin -D__linux $(CXX64FLAGS)
 
-!! unix-Darwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__unix $(CXX64FLAGS)
+!! unix-Darwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) clang++ -D__unix $(CXX64FLAGS) $(CLANG_GCC_VER_CPP)
 
 !! unix-AIX-*-*-*   _   CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlC $(CXX64FLAGS)
 !! unix-AIX-*-*-*   mt  CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlC_r $(CXX64FLAGS)
