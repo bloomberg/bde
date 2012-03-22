@@ -10126,6 +10126,8 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nVOCABULARY TYPES TEST"
                                << "\n=====================" << bsl::endl;
 
+#if 0
+
         if (verbose) bsl::cout << "\nTesting bdet_Date"
                                << "\n=================" << bsl::endl;
 
@@ -11047,6 +11049,9 @@ int main(int argc, char *argv[])
                 P(valueIn);
             }
         }
+
+#endif
+
       } break;
       case 14: {
         // --------------------------------------------------------------------

@@ -361,37 +361,37 @@ struct bdem_BerUtil_Imp {
     template <typename TYPE>
     static int numBytesToStream(TYPE value);
 
-    static int getBinaryValue(bsl::streambuf *streamBuf,
-                              bdet_Date      *value,
-                              int             length);
-    static int getBinaryValue(bsl::streambuf *streamBuf,
-                              bdet_Time      *value,
-                              int             length);
-    static int getBinaryValue(bsl::streambuf *streamBuf,
-                              bdet_Datetime  *value,
-                              int             length);
-    static int getBinaryValue(bsl::streambuf *streamBuf,
-                              bdet_DateTz    *value,
-                              int             length);
-    static int getBinaryValue(bsl::streambuf *streamBuf,
-                              bdet_TimeTz    *value,
-                              int             length);
-    static int getBinaryValue(bsl::streambuf  *streamBuf,
-                              bdet_DatetimeTz *value,
-                              int              length);
+    static int getBinaryDateValue(bsl::streambuf *streamBuf,
+                                  bdet_Date      *value,
+                                  int             length);
+    static int getBinaryTimeValue(bsl::streambuf *streamBuf,
+                                  bdet_Time      *value,
+                                  int             length);
+    static int getBinaryDatetimeValue(bsl::streambuf *streamBuf,
+                                      bdet_Datetime  *value,
+                                      int             length);
+    static int getBinaryDateTzValue(bsl::streambuf *streamBuf,
+                                    bdet_DateTz    *value,
+                                    int             length);
+    static int getBinaryTimeTzValue(bsl::streambuf *streamBuf,
+                                    bdet_TimeTz    *value,
+                                    int             length);
+    static int getBinaryDatetimeTzValue(bsl::streambuf  *streamBuf,
+                                        bdet_DatetimeTz *value,
+                                        int              length);
 
-    static int putBinaryValue(bsl::streambuf   *streamBuf,
-                              const bdet_Date&  value);
-    static int putBinaryValue(bsl::streambuf   *streamBuf,
-                              const bdet_Time&  value);
-    static int putBinaryValue(bsl::streambuf       *streamBuf,
-                              const bdet_Datetime&  value);
-    static int putBinaryValue(bsl::streambuf     *streamBuf,
-                              const bdet_DateTz&  value);
-    static int putBinaryValue(bsl::streambuf     *streamBuf,
-                              const bdet_TimeTz&  value);
-    static int putBinaryValue(bsl::streambuf         *streamBuf,
-                              const bdet_DatetimeTz&  value);
+    static int putBinaryDateValue(bsl::streambuf   *streamBuf,
+                                  const bdet_Date&  value);
+    static int putBinaryTimeValue(bsl::streambuf   *streamBuf,
+                                  const bdet_Time&  value);
+    static int putBinaryDatetimeValue(bsl::streambuf       *streamBuf,
+                                      const bdet_Datetime&  value);
+    static int putBinaryDateTzValue(bsl::streambuf     *streamBuf,
+                                    const bdet_DateTz&  value);
+    static int putBinaryTimeTzValue(bsl::streambuf     *streamBuf,
+                                    const bdet_TimeTz&  value);
+    static int putBinaryDatetimeTzValue(bsl::streambuf         *streamBuf,
+                                        const bdet_DatetimeTz&  value);
 
     static int putDoubleValue(bsl::streambuf *streamBuf, double value);
 
