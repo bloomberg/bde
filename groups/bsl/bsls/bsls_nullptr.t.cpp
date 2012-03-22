@@ -16,7 +16,7 @@ using namespace BloombergLP;
 //                                  --------
 //
 //-----------------------------------------------------------------------------
-// [ 2] class bsls::NullPtr
+// [ 2] class bsls::NullPtr_Impl
 // [ 3] typedef bsl::nullptr_t
 //-----------------------------------------------------------------------------
 // [ 1] Breathing test
@@ -113,11 +113,18 @@ int main(int argc, char *argv[]) {
         // --------------------------------------------------------------------
         // TESTING STANDARD TYPEDEF:
         // Concerns:
+        //: 1 There exists a type alias 'bls::nullptr_t', aliasing a type that
+        //:   represents null pointer literals.
+        //: 2 Functions having parameters of type 'bsl::nullptr_t' can be
+        //:   invoked only with null pointer literals, '0' and 'NULL'.
+        //: 3 Functions having parameters of type 'bsl::nullptr_t' cannot be
+        //:   invoked pointers or pointer-to-members, even if they hold the
+        //:   null pointer value.
         //
         // Plan:
         //
         // Testing:
-        //   alias bsl::nullptr_t
+        //   bsl::nullptr_t
         // --------------------------------------------------------------------
 
         struct local {
@@ -130,48 +137,104 @@ int main(int argc, char *argv[]) {
                 // 'false' otherwise.
         };
 
+        // nulll pointer literals
+        static const int s_cZero = 0;
+        const int cZero = 0;
+
+        // not null pointer literals
+        static void *const Cptr = 0;
+        void *ptr = 0;
+        int local::*mem = 0;
+        static const int& s_zeroRef = 0;
+        int zero = 0;
+
         ASSERT(local::isNullPointer(0));
         ASSERT(local::isNullPointer(NULL));
+        ASSERT(local::isNullPointer(false));
+        ASSERT(local::isNullPointer(s_cZero));
+        ASSERT(local::isNullPointer(cZero));
+        ASSERT(local::isNullPointer(1-1));
+        ASSERT(local::isNullPointer(0*1));
 
-        void *ptr = 0;
+        ASSERT(!local::isNullPointer(Cptr));
         ASSERT(!local::isNullPointer(ptr));
+        ASSERT(!local::isNullPointer(mem));
+        ASSERT(!local::isNullPointer((void*)0));
+        ASSERT(!local::isNullPointer(zero));
+        ASSERT(!local::isNullPointer(s_zeroRef));
         ASSERT(!local::isNullPointer(1));
+        ASSERT(!local::isNullPointer(s_zeroRef*1));
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING COMPONENT TYPEDEF:
         // Concerns:
-        //: 1 The metafunction struct 'bsls::Nullptr' contains a nested alias
-        //:   named 'Type'.
-        //: 2 Functions having parameters of type 'bsls::Nullptr::Type' can be
-        //:   invoked only with null pointer literals, '0' and 'NULL'.
-        //: 3 Functions having parameters of type 'bsls::Nullptr::Type' cannot
-        //:   be invoked .
-        //: 3 Fu
+        //: 1 The metafunction struct 'bsls::Nullptr_Impl' contains a nested
+        //:   alias named 'Type'.
+        //: 2 Functions having parameters of type 'bsls::Nullptr_Impl::Type'
+        //:   can be invoked only with null pointer literals, '0' and 'NULL'.
+        //: 3 Functions having parameters of type 'bsls::Nullptr_Impl::Type'
+        //:   cannot be invoked by pointers or pointer-to-members, even if they
+        //:   hold the null pointer value.
+        //
         // Plan:
+        //: 1 Define a local class with two overloads of a static method.
+        //:   1 The first overload accepts an argument of type
+        //:     'bsls::Nullptr_Impl::Type' and returns 'true' to indicate it
+        //:     was selected by overload resolution.
+        //:   2 The second overload uses an elipsis paramater list to weakly
+        //:     match an argument of fundamental type, and returns 'false'.
+        //: 2 Call the static method with null pointer literals, and check that
+        //:   the result is 'true' in each case.
+        //: 3 Call the static method with various objects, including pointers
+        //:   and pointer-to-members, and check that the result is 'false' in
+        //:   each case.
         //
         // Testing:
-        //   class bsls::Nullptr
+        //   bsls::Nullptr_Impl::Type
         // --------------------------------------------------------------------
 
 #if !defined(BSLS_NULLPTR_USING_NATIVE_NULLPTR_T)
         struct local {
             // This local utility 'struct' provides a namespace for testing
-            // overload resolution for the type under test, 'bsl::nullptr_t'.
+            // overload resolution for the type under test,
+            // 'bsls::Nullptr_Impl::Type'.
 
-            static bool isNullPointer(bsls::Nullptr::Type) { return true;  }
-            static bool isNullPointer(...)                 { return false; }
+            static bool isNullPointer(bsls::Nullptr_Impl::Type) { return true; }
+            static bool isNullPointer(...)                    { return false; }
                 // Return 'true' is the argument is a null pointer literal, and
                 // 'false' otherwise.
         };
 
+        // nulll pointer literals
+        static const int s_cZero = 0;
+        const int cZero = 0;
+
+        // not null pointer literals
+        static void *const Cptr = 0;
+        void *ptr = 0;
+        int local::*mem = 0;
+        static const int& s_zeroRef = 0;
+        int zero = 0;
+
         ASSERT(local::isNullPointer(0));
         ASSERT(local::isNullPointer(NULL));
+        ASSERT(local::isNullPointer(false));
+        ASSERT(local::isNullPointer(s_cZero));
+        ASSERT(local::isNullPointer(cZero));
+        ASSERT(local::isNullPointer(1-1));
+        ASSERT(local::isNullPointer(0*1));
 
-        void *ptr = 0;
+        ASSERT(!local::isNullPointer(Cptr));
         ASSERT(!local::isNullPointer(ptr));
+        ASSERT(!local::isNullPointer(mem));
+        ASSERT(!local::isNullPointer((void*)0));
+        ASSERT(!local::isNullPointer(zero));
+        ASSERT(!local::isNullPointer(s_zeroRef));
         ASSERT(!local::isNullPointer(1));
+        ASSERT(!local::isNullPointer(s_zeroRef*1));
+
 #endif
       } break;
       case 1: {
@@ -180,10 +243,13 @@ int main(int argc, char *argv[]) {
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
+        //: 1 The component is sufficiently functional to enable comprehensive
         //:   testing in subsequent test cases.
         //
         // Plan:
+        //: 1 Provide a function taking an argument of type 'bsl::nullptr_t',
+        //:   and then call this function with the literal value '0'.  Confirm
+        //:   that the code compiles, and returns the expected value.
         //
         // Testing:
         //   BREATHING TEST
@@ -214,7 +280,7 @@ int main(int argc, char *argv[]) {
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

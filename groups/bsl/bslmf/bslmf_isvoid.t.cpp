@@ -14,10 +14,12 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
-// [ 2] class bslmf::IsVoid
+// [ 4] bslmf::IsVoid conversion to bslmf_MetaInt
+// [ 3] bslmf::IsVoid::Type
+// [ 2] bslmf::IsVoid::VALUE
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -69,18 +71,104 @@ bool globalVeryVeryVerbose = false;
 namespace
 {
 struct Empty {
+    // This 'struct' is an empty dummy type to allow formation of pointer-to-
+    // member types for testing.  Note that as all such uses expected for
+    // testing this component will be initialized only with null values, there
+    // is no need for any actual members to point to.
 };
 
 template<class TYPE>
 struct Identity {
+    // This metafunction provides a type-dependant context for testing the
+    // behavior of type traits.
     typedef TYPE Type;
 };
 
 struct Incomplete;
+    // A forward declaration for the type that shall remain incomplete for this
+    // whole translation unit.  This is provided solely for the purpose of
+    // testing the 'bslmf::IsVoid' metafunction with incomplete types.
+
+typedef bslmf_MetaInt<0> FalseType;
+typedef bslmf_MetaInt<1> TrueType;
+
+template<int N>
+bool dispatchFalseType(const bslmf_MetaInt<N>&) { return false; }
+bool dispatchFalseType(FalseType)               { return true;  }
+
+template<int N>
+bool dispatchTrueType(const bslmf_MetaInt<N>&)  { return false; }
+bool dispatchTrueType(TrueType)                 { return true;  }
+
+
+template<class PREDICATE>
+bool isFalseType() { return false; }
+
+template<>
+bool isFalseType<FalseType>() { return true; }
+
+template<class PREDICATE>
+bool isTrueType() { return false; }
+
+template<>
+bool isTrueType<TrueType>() { return true; }
+
 
 template<class TYPE>
 bool typeDependentTest() {
-    return bslmf::IsVoid<typename Identity<TYPE>::Type >::VALUE;
+    // Check that the 'bslmf::IsVoid' metafunction returns a consistent result
+    // for template parameters, and when applied to the same type parameter in
+    // a type-dependant context.  Return the diagnosed value for the specified
+    // 'TYPE'.
+    bool result = bslmf::IsVoid<TYPE>::VALUE;
+    bool dependentCheck = bslmf::IsVoid<typename Identity<TYPE>::Type>::VALUE;
+    LOOP2_ASSERT(result, dependentCheck, result == dependentCheck);
+    return result;
+}
+
+template<class TYPE>
+bool isDependentFalseType() {
+    // Check that the 'bslmf::IsVoid' metafunction returns a consistent result
+    // for template parameters, and when applied to the same type parameter in
+    // a type-dependant context.  Return the diagnosed value for the specified
+    // 'TYPE'.
+    ASSERT(isFalseType<typename bslmf::IsVoid<TYPE>::Type>());
+    return isFalseType<
+                typename bslmf::IsVoid<typename Identity<TYPE>::Type>::Type>();
+}
+
+template<class TYPE>
+bool isDependentTrueType() {
+    // Check that the 'bslmf::IsVoid' metafunction returns a consistent result
+    // for template parameters, and when applied to the same type parameter in
+    // a type-dependant context.  Return the diagnosed value for the specified
+    // 'TYPE'.
+    ASSERT(isTrueType<typename bslmf::IsVoid<TYPE>::Type>());
+    return isTrueType<
+                typename bslmf::IsVoid<typename Identity<TYPE>::Type>::Type>();
+}
+
+
+template<class TYPE>
+bool dispatchDependentFalseType() {
+    // Check that the 'bslmf::IsVoid' metafunction returns a consistent result
+    // for template parameters, and when applied to the same type parameter in
+    // a type-dependant context.  Return the diagnosed value for the specified
+    // 'TYPE'.
+    ASSERT(dispatchFalseType(typename bslmf::IsVoid<TYPE>()));
+    return dispatchFalseType(
+                      typename bslmf::IsVoid<typename Identity<TYPE>::Type>());
+}
+
+template<class TYPE>
+bool dispatchDependentTrueType() {
+    // Check that the 'bslmf::IsVoid' metafunction returns a consistent result
+    // for template parameters, and when applied to the same type parameter in
+    // a type-dependant context.  Return the diagnosed value for the specified
+    // 'TYPE'.
+    ASSERT(dispatchTrueType(typename bslmf::IsVoid<TYPE>()));
+    return dispatchTrueType(
+                      typename bslmf::IsVoid<typename Identity<TYPE>::Type>());
 }
 
 }  // close anonymous namespace
@@ -99,7 +187,7 @@ int main(int argc, char *argv[]) {
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -120,22 +208,133 @@ int main(int argc, char *argv[]) {
                             "\n=============\n");
 
       } break;
-      case 2: {
+      case 4: {
         // --------------------------------------------------------------------
-        // TESTING bslmf::IsVoid metafunction:
+        // TESTING type conversion:
         // Concerns:
-        //: 1 The metafunction returns 'true' for any 'void' type, regardless
-        //:   of its cv-qualification.
-        //: 2 The metafunction returns 'false' for every other type
+        //: 1 ...
         //
         // Plan:
         //
         // Testing:
-        //   bslmf::IsVoid
+        //   conversion to 'bslmf_MetaInt<>'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING bslmf::IsVoid metafunction"
-                            "\n==================================\n");
+        if (verbose) printf("\nTESTING conversion to bslmf_MetaInt"
+                            "\n====================================\n");
+
+        // Basic test dataset
+        ASSERT(dispatchTrueType(bslmf::IsVoid<void>()));
+        ASSERT(dispatchTrueType(bslmf::IsVoid<const void>()));
+        ASSERT(dispatchTrueType(bslmf::IsVoid<volatile void>()));
+        ASSERT(dispatchTrueType(bslmf::IsVoid<const volatile void>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<void *>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<void *&>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<void()>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<void(*)()>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<void *Empty::*>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<bslmf::IsVoid<void> >()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<Incomplete>()));
+
+        // Test nested template typenames with the same dataset
+        ASSERT(dispatchTrueType(bslmf::IsVoid<Identity<void>::Type>()));
+        ASSERT(dispatchTrueType(bslmf::IsVoid<Identity<const void>::Type>()));
+        ASSERT(dispatchTrueType(bslmf::IsVoid<Identity<volatile void>::Type>()));
+        ASSERT(dispatchTrueType(bslmf::IsVoid<Identity<const volatile void>::Type>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<void *>::Type>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<void *&>::Type>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<void()>::Type>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<void(*)()>::Type>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<void *Empty::*>::Type>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<bslmf::IsVoid<void> >::Type>()));
+        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<Incomplete>::Type>()));
+
+        // Test type-dependant typenames with the same dataset
+        ASSERT(dispatchDependentTrueType<void>());
+        ASSERT(dispatchDependentTrueType<const void>());
+        ASSERT(dispatchDependentTrueType<volatile void>());
+        ASSERT(dispatchDependentTrueType<const volatile void>());
+        ASSERT(dispatchDependentFalseType<void *>());
+        ASSERT(dispatchDependentFalseType<void *&>());
+        ASSERT(dispatchDependentFalseType<void()>());
+        ASSERT(dispatchDependentFalseType<void(*)()>());
+        ASSERT(dispatchDependentFalseType<void *Empty::*>());
+        ASSERT(dispatchDependentFalseType<bslmf::IsVoid<void> >());
+        ASSERT(dispatchDependentFalseType<Incomplete>());
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING bslmf::IsVoid metafunction:
+        // Concerns:
+        //: 1 ...
+        //
+        // Plan:
+        //
+        // Testing:
+        //   bslmf::IsVoid::Type
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING bslmf::IsVoid::Type"
+                            "\n===========================\n");
+
+        // Basic test dataset
+        ASSERT(isTrueType<bslmf::IsVoid<void>::Type>());
+        ASSERT(isTrueType<bslmf::IsVoid<const void>::Type>());
+        ASSERT(isTrueType<bslmf::IsVoid<volatile void>::Type>());
+        ASSERT(isTrueType<bslmf::IsVoid<const volatile void>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<void *>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<void *&>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<void()>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<void(*)()>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<void *Empty::*>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<bslmf::IsVoid<void> >::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<Incomplete>::Type>());
+
+        // Test nested template typenames with the same dataset
+        ASSERT(isTrueType<bslmf::IsVoid<Identity<void>::Type>::Type>());
+        ASSERT(isTrueType<bslmf::IsVoid<Identity<const void>::Type>::Type>());
+        ASSERT(isTrueType<bslmf::IsVoid<Identity<volatile void>::Type>::Type>());
+        ASSERT(isTrueType<bslmf::IsVoid<Identity<const volatile void>::Type>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<Identity<void *>::Type>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<Identity<void *&>::Type>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<Identity<void()>::Type>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<Identity<void(*)()>::Type>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<Identity<void *Empty::*>::Type>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<Identity<bslmf::IsVoid<void> >::Type>::Type>());
+        ASSERT(isFalseType<bslmf::IsVoid<Identity<Incomplete>::Type>::Type>());
+
+        // Test type-dependant typenames with the same dataset
+        ASSERT(isDependentTrueType<void>());
+        ASSERT(isDependentTrueType<const void>());
+        ASSERT(isDependentTrueType<volatile void>());
+        ASSERT(isDependentTrueType<const volatile void>());
+        ASSERT(isDependentFalseType<void *>());
+        ASSERT(isDependentFalseType<void *&>());
+        ASSERT(isDependentFalseType<void()>());
+        ASSERT(isDependentFalseType<void(*)()>());
+        ASSERT(isDependentFalseType<void *Empty::*>());
+        ASSERT(isDependentFalseType<bslmf::IsVoid<void> >());
+        ASSERT(isDependentFalseType<Incomplete>());
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING bslmf::IsVoid::VALUE:
+        // Concerns:
+        //: 1 The metafunction returns 'true' for any 'void' type, regardless
+        //:   of its cv-qualification.
+        //: 2 The metafunction returns 'false' for every other type.
+        //: 3 The metafunction returns the correct result, even when the
+        //:   potentially 'void' type it is diagnosing is a type alias, such as
+        //:   a dependent type name in a template.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   bslmf::IsVoid::VALUE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING bslmf::IsVoid::VALUE"
+                            "\n============================\n");
 
         // Basic test dataset
         ASSERT(bslmf::IsVoid<void>::VALUE);

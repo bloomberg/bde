@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 // 'std::nullptr_t', which can be used as a function parameter type to help
 // overload sets treat null pointer literals specially.  Note that this
 // component will be deprecated, and ultimately removed, once BDE code can
-// assume support for a C++11 compiler. 
+// assume support for a C++11 compiler.  On a platform that 
 //
 ///Limitations
 //------------
@@ -52,9 +52,39 @@ BSLS_IDENT("$Id: $")
 //     myFunction(0);  // call the 'bsl::nullptr_t' method
 //  }
 //..
+// Null pointer values can be created in C++11 by creating objects of type
+// 'std::nullptr_t', and then used to initialize poiner and pointer-to-member
+// objects:
+//..
+//  std::nullptr_t nullLiteral = std::nullptr_t();
+//  int *pI = nullLiteral;
+//..
+// The type of a 'bsl::nullpr_t' object cannot be used in such assignments
+// or initializations, unless compiled on a platform that natively supports
+// this C++11 language feature.
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
+//
+// Example 1: Constructing a "smart pointer"
+// - - - - - - - - - - - - - - - - - - - - -
+//
+//..
+// template<class TARGET_TYPE>
+// class ScopedPointer {
+//   private:
+//     T *d_target_p;
+//
+//     // Objects of this type cannot be copied.
+//     ScopedPointer(const ScopedPointer&);
+//     ScopedPointer& operator=(const ScopedPointer&);
+//
+//   public:
+//     template<class SOURCE_TYPE>
+//     ScopedPointer(SOURCE_TYPE *
+// };
+//..
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_compilerfeatures.h>
@@ -84,10 +114,10 @@ namespace bsls
                        // class bsls::Nullptr
                        // ===================
 
-struct Nullptr {
-    // This 'struct' provides an alias for a type that can match a null pointer
-    // literal, but is not a pointer itself.  It is a limited emulation of the
-    // C++11 'std::nullptr_t' type.
+struct Nullptr_Impl {
+    // This implementation-private 'struct' provides an alias for a type that
+    // can match a null pointer literal, but is not a pointer itself.  It
+    // offers a limited emulation of the C++11 'std::nullptr_t' type.
 
   private:
     struct Nullptr_ProxyType { int dummy; }; // private class to supply a
@@ -103,7 +133,9 @@ struct Nullptr {
 
 namespace bsl
 {
-    typedef BloombergLP::bsls::Nullptr::Type nullptr_t;
+    typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
+        //  Alias for a type that can match a null pointer literal, but is not
+        //  a pointer type itself.
 }
 #endif
 
