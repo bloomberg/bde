@@ -57,6 +57,8 @@ static void aSsErT(int c, const char *s, int i)
 // [ 1] void deregisterTimer(const void *handle);
 // [ 1] void deregisterAllTimers();
 // [ 1] void deregisterAll();
+// [ 1] bool hasLimitedSocketCapacity() const;
+// [ 1] int  isRegistered(const Handle& handle, const Type event);
 // [ 1] void numTimers();
 // [ 1] void numSocketEvents(const bteso_SocketHandle::Handle& handle);
 //--------------------------------------------------------------------------
@@ -406,6 +408,7 @@ class my_TimerEventManager : public bteso_TimerEventManager {
                 // 13: numEvents
                 // 14: isRegistered
                 // 15: rescheduleTimer
+                // 16: hasLimitedSocketCapacity
 
   public:
     my_TimerEventManager(int *fun) : d_fun(fun) { }
@@ -460,6 +463,9 @@ class my_TimerEventManager : public bteso_TimerEventManager {
     int rescheduleTimer(const void               *timerId,
                         const bdet_TimeInterval&  expiryTime)
         { *d_fun = 15; return 0; }
+
+    bool hasLimitedSocketCapacity() const
+        { *d_fun = 16; return true; }
 };
 
 //==========================================================================
@@ -514,6 +520,8 @@ int main(int argc, char *argv[]) {
         //   int deregisterTimer(const void *handle);
         //   int deregisterAllTimers();
         //   void deregisterAll();
+        //   bool hasLimitedSocketCapacity() const;
+        //   bool isRegistered() const;
         //   int numTimers();
         //   int numSocketEvents(const bteso_SocketHandle::Handle& handle);
         // -----------------------------------------------------------------
@@ -548,9 +556,6 @@ int main(int argc, char *argv[]) {
         t.deregisterAllSocketEvents();
         ASSERT(7 == i);
 
-        t.rescheduleTimer(tmr, ti);
-        ASSERT(15 == i);
-
         t.deregisterTimer(tmr);
         ASSERT(8 == i);
 
@@ -573,6 +578,12 @@ int main(int argc, char *argv[]) {
 
         t.isRegistered(h, e);
         ASSERT(14 == i);
+
+        t.rescheduleTimer(tmr, ti);
+        ASSERT(15 == i);
+
+        t.hasLimitedSocketCapacity();
+        ASSERT(16 == i);
 
         delete m;
         ASSERT(1 == i);

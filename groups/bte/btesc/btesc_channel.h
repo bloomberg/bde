@@ -21,7 +21,7 @@ BDES_IDENT("$Id: $")
 // of a bi-directional synchronous (i.e., blocking) stream-based communication
 // channel.  The 'btesc_Channel' protocol supports efficient "buffered"
 // transport and the syntax to enable efficient vector I/O operations (i.e.,
-// Unix-style scatter/gather "readv" and "writev").  Various forms of "partial
+// Unix-style scatter/gather 'readv' and 'writev').  Various forms of "partial
 // transmission" authorizations (i.e., "raw" OS-level atomic operations and
 // interruptions due to an "asynchronous event") are also supported as
 // appropriate.
@@ -201,8 +201,8 @@ BDES_IDENT("$Id: $")
 // the address of an 'augStatus', which will then be modified in the event of a
 // partial result.
 //
-///Usage Example
-///-------------
+///Usage
+///-----
 // The 'btesc' style of channel interface is used to transmit sequences of
 // specified size across some concrete channel implementation.  In this
 // example we demonstrate how to implement a remote procedure call (RPC)

@@ -200,6 +200,7 @@ int main(int argc, char *argv[])
         ASSERT(3.6 == cpc.idleTimeout());
 
         char buf[10000];
+        bsl::memset(buf, 0, sizeof buf);
         {
             ostrstream o(buf, sizeof buf);
             o << cpc;
@@ -219,7 +220,7 @@ int main(int argc, char *argv[])
                 "]" NL
                 ;
             if (verbose) P(s);
-            ASSERT(buf == s);
+            LOOP2_ASSERT(buf, s, buf == s);
         }
       } break;
 // TBD

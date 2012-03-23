@@ -2,6 +2,7 @@
 #include <bsls_asserttest.h>
 
 #include <bsls_assert.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_macroincrement.h>
 #include <bsls_platform.h>
 
@@ -44,10 +45,12 @@ using namespace BloombergLP;
 // [ 7] bsls_AssertTest::catchProbe
 // [ 7] bsls_AssertTest::catchProbeRaw
 // [ 5] bsls_AssertTest::failTestDriver
+// [10] bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
+// [10] ~bsls_AssertTestHandlerGuard::bsls_AssertTestHandlerGuard()
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] Test case 1: vector
-// [11] Test case 2: MyUtil::f
+// [11] Test case 1: vector
+// [12] Test case 2: MyUtil::f
 // [-1] Testing try-probes that write diagnostics to the console
 // [-2] Testing catch-probes that write diagnostics to the console
 //=============================================================================
@@ -67,39 +70,21 @@ static void aSsErT(bool b, const char *s, int i) {
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
 //=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
+//                       STANDARD BDE TEST DRIVER MACROS
 //-----------------------------------------------------------------------------
-//# define LOOP_ASSERT(I,X) { \
-//    if (!(X)) { printf("%s = %s\n", #I, (I)); aSsErT(!(X), #X, __LINE__); } }
-//
-//# define LOOP2_ASSERT(I,J,X) { \
-//    if (!(X)) { printf("%s = %s %s = %s\n", #I, (I), #J, (J)); \
-//                aSsErT(!(X), #X, __LINE__); } }
-//
-//#define LOOP3_ASSERT(I,J,K,X) { \
-//    if (!(X)) { printf("%s = %s %s = %s %s = %s\n", #I, (I), #J, (J),  \
-//                       #K, (K));                                       \
-//                aSsErT(!(X), #X, __LINE__); } }
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
-# define LOOP_ASSERT(I,X) { \
-    if (!(X)) { P_(I); aSsErT(!(X), #X, __LINE__); } }
+#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
 
-# define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { P(I) P_(J);   \
-                aSsErT(!(X), #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { P(I) P(J) P_(K) \
-                aSsErT(!(X), #X, __LINE__); } }
-
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define Q(X) printf("<| " #X " |>\n");      // Quote identifier literally.
-#define P(X) dbg_print(#X " = ", X, "\n");  // Print identifier and value.
-#define P_(X) dbg_print(#X " = ", X, ", "); // P(X) without '\n'
-#define L_ __LINE__                         // current Line number
-#define T_ putchar('\t');                   // Print a tab (w/o newline)
 
 //=============================================================================
 //                    GLOBAL CONSTANTS FOR TESTING
@@ -125,44 +110,6 @@ bool globalVeryVeryVerbose = false;
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-// Fundamental-type-specific print functions.
-inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
-inline void dbg_print(char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(unsigned char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(signed char c) { printf("%c", c); fflush(stdout); }
-inline void dbg_print(short val) { printf("%d", (int)val); fflush(stdout); }
-inline void dbg_print(unsigned short val) {
-    printf("%d", (int)val); fflush(stdout);
-}
-inline void dbg_print(int val) { printf("%d", val); fflush(stdout); }
-inline void dbg_print(unsigned int val) { printf("%u", val); fflush(stdout); }
-inline void dbg_print(long val) { printf("%ld", val); fflush(stdout); }
-inline void dbg_print(unsigned long val) {
-    printf("%lu", val); fflush(stdout);
-}
-inline void dbg_print(long long val) { printf("%lld", val); fflush(stdout); }
-inline void dbg_print(unsigned long long val) {
-    printf("%llu", val); fflush(stdout);
-}
-inline void dbg_print(float val) {
-    printf("'%f'", (double)val); fflush(stdout);
-}
-inline void dbg_print(double val) { printf("'%f'", val); fflush(stdout); }
-inline void dbg_print(long double val) {
-    printf("'%Lf'", val); fflush(stdout);
-}
-inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
-inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
-
-// Generic debug print function (3-arguments).
-template <typename T>
-void dbg_print(const char* s, const T& val, const char* nl) {
-    printf("%s", s); dbg_print(val);
-    printf("%s", nl);
-    fflush(stdout);
-}
 
 //=============================================================================
 //                 USAGE EXAMPLE EXTRACTED AS STAND-ALONE CODE
@@ -531,7 +478,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // zero is always the leading case
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING usage example 2
         //
@@ -548,7 +495,7 @@ int main(int argc, char *argv[])
 
         testMyUtilF();
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING usage example 1
         //
@@ -564,6 +511,35 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         testVectorArrayAccess();
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING bsls_AssertTestHandlerGuard
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Run the usage example.
+        //
+        // Testing:
+        //   class bsls_AssertTestHandlerGuard
+        // --------------------------------------------------------------------
+
+        if (globalVerbose) printf("\nTESTING bsls_AssertTestHandlerGuard"
+                                  "\n===================================\n");
+
+        bsls_AssertFailureHandlerGuard outerGuard(&bsls_Assert::failAbort);
+
+        ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
+        {
+            bsls_AssertTestHandlerGuard innerGuard;
+
+            ASSERT(&bsls_AssertTest::failTestDriver ==
+                                                bsls_Assert::failureHandler());
+        }
+        ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -2036,6 +2012,7 @@ void TestMacroBSLS_ASSERTTEST_IS_ACTIVE()
 //===================== SAFE_2 LEVEL_ASSERT ===============================//
 
     // Reset all configuration macros
+
 #undef BDE_BUILD_TARGET_DBG
 #undef BDE_BUILD_TARGET_OPT
 #undef BDE_BUILD_TARGET_SAFE
@@ -2836,14 +2813,23 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     ASSERT(!BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG);
 
+    {   
+        EXPECTED = true;
+
+        // Verify that *PASS macros are expanded in any build mode. 
+        
+        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+        BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+        BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+    }
+    
     {
         EXPECTED = false;
+        
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+   
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_OPT_FAIL(ASSERT(true));
     }
 
@@ -2960,11 +2946,19 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
             }
         };
 
+        {
+            EXPECTED = true;
+        
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
+        
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL(ASSERT(true));
 
         // Now test for expressions that should fail, indicating a user error
@@ -3038,12 +3032,20 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
+    
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
 
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL(ASSERT(true));
 
         // Now test for expressions that should fail, indicating a user error
@@ -3193,10 +3195,19 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #endif
             }
         };
+        
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
 
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
 
         BSLS_ASSERTTEST_ASSERT_FAIL(Production::callAssertSafe(true));
@@ -3296,10 +3307,20 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
+        
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
+
 
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
 
         BSLS_ASSERTTEST_ASSERT_FAIL(Production::callAssertSafe(true));
@@ -3475,6 +3496,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #endif
             }
         };
+        
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
 
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(Production::callAssertSafe(true));
@@ -3602,6 +3633,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
+        
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
 
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(Production::callAssertSafe(true));
@@ -3771,15 +3812,22 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG);
+    
+    {   
+        EXPECTED = true;
+
+        // Verify that *PASS macros are expanded in any build mode. 
+    
+        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+        BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+        BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+    }
 
     {
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_OPT_FAIL(ASSERT(true));
     }
 
@@ -3894,12 +3942,20 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #endif
             }
         };
+    
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
 
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL(ASSERT(true));
 
         // Now test for expressions that should fail, indicating a user error
@@ -3974,11 +4030,19 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
+        
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL(ASSERT(true));
 
         // Now test for expressions that should fail, indicating a user error
@@ -4127,10 +4191,19 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #endif
             }
         };
+        
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
 
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
 
         BSLS_ASSERTTEST_ASSERT_FAIL(Production::callAssertSafe(true));
@@ -4231,9 +4304,18 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
+        
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(ASSERT(true));
 
         BSLS_ASSERTTEST_ASSERT_FAIL(Production::callAssertSafe(true));
@@ -4409,6 +4491,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
 #endif
             }
         };
+        
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
 
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(Production::callAssertSafe(true));
@@ -4537,6 +4629,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS(ASSERT(true));
+        }
+        
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(Production::callAssertSafe(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_PASS(Production::callAssertSafe(false));
@@ -4759,15 +4861,22 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG);
+        
+    {   
+        EXPECTED = true;
+
+        // Verify that *PASS macros are expanded in any build mode. 
+    
+        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+        BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+        BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+    }
 
     {
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL_RAW(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(ASSERT(true));
     }
 
@@ -4883,12 +4992,20 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #endif
             }
         };
+        
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
 
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL_RAW(ASSERT(true));
 
         // Now test for expressions that should fail, indicating a user error
@@ -4963,11 +5080,19 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
+        
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL_RAW(ASSERT(true));
 
         // Now test for expressions that should fail, indicating a user error
@@ -5114,10 +5239,19 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #endif
             }
         };
+        
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
 
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
 
         BSLS_ASSERTTEST_ASSERT_FAIL_RAW(Production::callAssertSafe(true));
@@ -5217,10 +5351,19 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
+       
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
 
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
 
         BSLS_ASSERTTEST_ASSERT_FAIL_RAW(Production::callAssertSafe(true));
@@ -5394,6 +5537,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
             }
         };
 
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
+        
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(Production::callAssertSafe(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(Production::callAssertSafe(
@@ -5523,6 +5676,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
+        
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(Production::callAssertSafe(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(Production::callAssertSafe(
@@ -5688,15 +5851,22 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
     ASSERT(!BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG);
     ASSERT(!BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG);
+       
+    {   
+        EXPECTED = true;
 
+        // Verify that *PASS macros are expanded in any build mode. 
+       
+        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+        BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+        BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+    }
+        
     {
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL_RAW(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(ASSERT(true));
     }
 
@@ -5811,12 +5981,20 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #endif
             }
         };
+        
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
 
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL_RAW(ASSERT(true));
 
         // Now test for expressions that should fail, indicating a user error
@@ -5891,11 +6069,19 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
+        
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
-        BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_FAIL_RAW(ASSERT(true));
 
         // Now test for expressions that should fail, indicating a user error
@@ -6042,9 +6228,18 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
             }
         };
 
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
+        
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
 
         BSLS_ASSERTTEST_ASSERT_FAIL_RAW(Production::callAssertSafe(true));
@@ -6145,9 +6340,18 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
 
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
+        
         EXPECTED = false;
         // Force a fail if any of these macros expands the expression
-        BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(ASSERT(true));
 
         BSLS_ASSERTTEST_ASSERT_FAIL_RAW(Production::callAssertSafe(true));
@@ -6319,6 +6523,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 #endif
             }
         };
+        
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
 
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(Production::callAssertSafe(true));
@@ -6448,6 +6662,16 @@ void TestMacroBSLS_ASSERTTEST_PASS_OR_FAIL_RAW()
 
         // Restore filename before evaluating the test macros
 #line BSLS_ASSERTTEST_RESET_THIS_FILENAME
+
+        {   
+            EXPECTED = true;
+
+            // Verify that *PASS macros are expanded in any build mode. 
+        
+            BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_PASS_RAW(ASSERT(true));
+            BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(ASSERT(true));
+        }
 
         EXPECTED = false;
         BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(Production::callAssertSafe(true));

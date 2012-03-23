@@ -21,9 +21,9 @@ BSLS_IDENT("$Id: $")
 // supplied as its single template type parameter.  Types that are 'void' or
 // already reference types are unmodified.
 //
-////Usage
+///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: A Simple Wrapper Class
 ///- - - - - - - - - - - - - - - - -

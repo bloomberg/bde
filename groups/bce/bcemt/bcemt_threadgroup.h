@@ -30,8 +30,8 @@ BDES_IDENT("$Id: $")
 // threads may safely use their own instances or a shared instance of a
 // 'bcemt_ThreadGroup' object.
 //
-///Usage Examples
-///--------------
+///Usage
+///-----
 // The following usage example illustrates how 'bcemt_ThreadGroup' might be
 // used in a typical test driver to simplify the execution of a common
 // function in multiple threads.  Suppose that we are interested in creating a
@@ -110,8 +110,9 @@ BDES_IDENT("$Id: $")
 #endif
 
 
-namespace BloombergLP { class bslma_Allocator; }
 namespace BloombergLP {
+
+class bslma_Allocator;
 
                            // ======================
                            // class bcep_ThreadGroup

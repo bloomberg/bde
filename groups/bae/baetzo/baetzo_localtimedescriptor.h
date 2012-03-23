@@ -49,7 +49,7 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Converting Between UTC and Local Times
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
@@ -164,7 +164,7 @@ class baetzo_LocalTimeDescriptor {
     // This class:
     //: o supports a complete set of *value-semantic* operations
     //:   o except for 'bdex' serialization
-    //: o is *exception-neutral* (agnostic) TBD
+    //: o is *exception-neutral* (agnostic)
     //: o is *alias-safe*
     //: o is 'const' *thread-safe*
     // For terminology see 'bsldoc_glossary'.

@@ -66,11 +66,12 @@ using namespace bsl;  // automatically added by script
 // [ 8] dispatch
 //
 // ACCESSORS
+// [12] hasLimitedSocketCapacity
 // [ 3] numSocketEvents
 // [ 3] numEvents
 // [ 3] isRegistered
 //-----------------------------------------------------------------------------
-// [ 11] USAGE EXAMPLE
+// [ 13] USAGE EXAMPLE
 // [ 10] SYSTEM INTERFACES ASSUMPTIONS
 // [ 1] Breathing test
 // [ -1] 'dispatch' PERFORMANCE DATA
@@ -235,149 +236,7 @@ int main(int argc, char *argv[]) {
                                  bteso_TimeMetrics::BTESO_CPU_BOUND);
 
     switch (test) { case 0:
-      case -2: {
-        // -----------------------------------------------------------------
-        // PERFORMANCE TESTING 'registerSocketEvent':
-        //   Get the performance data.
-        //
-        // Plan:
-        //   Open multiple sockets and register a read event for each
-        //   socket, calculate the average time taken to register a read
-        //   event for a given number of registered read event.
-        // Testing:
-        //   'registerSocketEvent' capacity
-        // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
-
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
-
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
-        {
-            const char *FILENAME = "devpollRegister.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
-                      numPairs, numMeasurements, controlFlag);
-
-            outFile.close();
-        }
-      } break;
-      case -1: {
-        // -----------------------------------------------------------------
-        // PERFORMANCE TESTING 'dispatch':
-        //   Get the performance data.
-        //
-        // Plan:
-        //   Set up multiple connections and register a read event for each
-        //   connection, calculate the average time taken to dispatch a read
-        //   event for a given number of registered read event.
-        // Testing:
-        //   'dispatch' capacity
-        // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
-
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
-
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
-        {
-            const char *FILENAME = "devpollDispatch.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
-                      numPairs, numMeasurements, controlFlag);
-
-            outFile.close();
-        }
-      } break;
-      case 12: {
+      case 13: {
         // -----------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -491,6 +350,33 @@ int main(int argc, char *argv[]) {
                                         bteso_EventType::BTESO_WRITE));
         }
       } break;
+
+      case 12: {
+        // -----------------------------------------------------------------
+        // TESTING 'hasLimitedSocketCapacity'
+        //
+        // Concern:
+        //: 1 'hasLimitiedSocketCapacity' returns 'false'.
+        //
+        // Plan:
+        //: 1 Assert that 'hasLimitedSocketCapacity' returns 'false'.
+        //
+        // Testing:
+        //   bool hasLimitedSocketCapacity() const;
+        // -----------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'hasLimitedSocketCapacity" << endl
+                          << "=================================" << endl;
+
+        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            bool hlsc = X.hasLimitedSocketCapacity();
+            LOOP_ASSERT(hlsc, false == hlsc);
+        }
+      } break;
+
       case 11: {
         // --------------------------------------------------------------------
         // DEREGISTERING IN A CALLBACK
@@ -1544,6 +1430,150 @@ int main(int argc, char *argv[]) {
                     P_(LINE);   P(fails);
                 }
             }
+        }
+      } break;
+
+      case -1: {
+        // -----------------------------------------------------------------
+        // PERFORMANCE TESTING 'dispatch':
+        //   Get the performance data.
+        //
+        // Plan:
+        //   Set up multiple connections and register a read event for each
+        //   connection, calculate the average time taken to dispatch a read
+        //   event for a given number of registered read event.
+        // Testing:
+        //   'dispatch' capacity
+        // -----------------------------------------------------------------
+        enum {
+            DEFAULT_NUM_PAIRS        = 1024,
+            DEFAULT_NUM_MEASUREMENTS = 10
+        };
+
+        int numPairs = DEFAULT_NUM_PAIRS;
+        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+
+        if (2 < argc) {
+            int pairs = atoi(argv[2]);
+            if (0 > pairs) {
+                verbose = 0;
+                numPairs = -pairs;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
+            }
+            else {
+                numPairs = pairs;
+            }
+        }
+
+        if (3 < argc) {
+            int measurements = atoi(argv[3]);
+            if (0 > measurements) {
+                veryVerbose = 0;
+                numMeasurements = -measurements;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
+            }
+            else {
+                numMeasurements = measurements;
+            }
+        }
+
+        if (verbose)
+            cout << endl
+            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
+            << "=========================================" << endl;
+        {
+            const char *FILENAME = "devpollDispatch.dat";
+
+            ofstream outFile(FILENAME, ios_base::out);
+            if (!outFile) {
+                cout << "Cannot open " << FILENAME << " for writing."
+                     << endl;
+                return -1;
+            }
+
+            if (veryVerbose) {
+                P(numPairs);
+                P(numMeasurements);
+            }
+
+            Obj mX(&timeMetric);  // Note: no test allocator --
+                                  // performance testing
+            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
+                      numPairs, numMeasurements, controlFlag);
+
+            outFile.close();
+        }
+      } break;
+
+      case -2: {
+        // -----------------------------------------------------------------
+        // PERFORMANCE TESTING 'registerSocketEvent':
+        //   Get the performance data.
+        //
+        // Plan:
+        //   Open multiple sockets and register a read event for each
+        //   socket, calculate the average time taken to register a read
+        //   event for a given number of registered read event.
+        // Testing:
+        //   'registerSocketEvent' capacity
+        // -----------------------------------------------------------------
+        enum {
+            DEFAULT_NUM_PAIRS        = 1024,
+            DEFAULT_NUM_MEASUREMENTS = 10
+        };
+
+        int numPairs = DEFAULT_NUM_PAIRS;
+        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+
+        if (2 < argc) {
+            int pairs = atoi(argv[2]);
+            if (0 > pairs) {
+                verbose = 0;
+                numPairs = -pairs;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
+            }
+            else {
+                numPairs = pairs;
+            }
+        }
+
+        if (3 < argc) {
+            int measurements = atoi(argv[3]);
+            if (0 > measurements) {
+                veryVerbose = 0;
+                numMeasurements = -measurements;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
+            }
+            else {
+                numMeasurements = measurements;
+            }
+        }
+
+        if (verbose)
+            cout << endl
+            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
+            << "=========================================" << endl;
+        {
+            const char *FILENAME = "devpollRegister.dat";
+
+            ofstream outFile(FILENAME, ios_base::out);
+            if (!outFile) {
+                cout << "Cannot open " << FILENAME << " for writing."
+                     << endl;
+                return -1;
+            }
+
+            if (veryVerbose) {
+                P(numPairs);
+                P(numMeasurements);
+            }
+
+            Obj mX(&timeMetric);  // Note: no test allocator --
+                                  // performance testing
+            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
+                      numPairs, numMeasurements, controlFlag);
+
+            outFile.close();
         }
       } break;
 

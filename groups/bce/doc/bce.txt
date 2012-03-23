@@ -42,13 +42,13 @@
 ..
  Level 8:  bcep
 
- Level 7:                     bcefu
+ Level 7:  bcec      bcefu
 
- Level 6:            bcef               bcefi
+ Level 6:  bcef      bcefi
 
- Level 5:  bcedb              bcefr
+ Level 5:  bcedb     bcefr
 
- Level 4:  bcec      bcema
+ Level 4:  bcema
 
  Level 3:  bcemt
 

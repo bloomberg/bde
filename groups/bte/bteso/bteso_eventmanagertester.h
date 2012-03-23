@@ -234,6 +234,12 @@ BDES_IDENT("$Id: $")
 //     Write <N> bytes into the control socket of socket pair fds[<FD>],
 //           <FD>: the index into the array of socket pairs
 //           <N> : the number of bytes to be written into the control socket
+//
+// 11. 'S'<T>
+//     Sleep for <T> milliseconds
+//           <T> : the number of milliseconds to sleep for.  Bear in mind the
+//                 minimum resolution of sleeping on many platforms is 10
+//                 milliseconds.
 //..
 // The following examples interpret a given script in the order from left to
 // right to configure a list of I/O request commands for an event manager test

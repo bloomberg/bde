@@ -29,11 +29,10 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate how to use the bitwise copy
-// function.
+// This section illustrates intended use of this component.
 //
-///Usage 1
-// - - - -
+///Example 1
+///- - - - -
 // Consider the case where the pointer 'srcAddr' points to a struct of type
 // 'MyObject'.  The pointer 'dstAddr' points to properly aligned, but not
 // necessarily initialized memory.  This case is analogous to the 'memcpy'
@@ -84,8 +83,9 @@ BDES_IDENT("$Id: $")
 //                                            assert('m' == dstObj.d_char);
 //                                            assert( -1 == dstObj.d_int);
 //..
-///Usage 2
-// - - - -
+//
+///Example 2
+///- - - - -
 // The following detailed example uses the bitwise-swap
 // function.  We define a basic templatized 'Array' class as our example
 // container.  This container class may be parameterized by any class that is

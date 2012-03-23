@@ -28,6 +28,8 @@ BDES_IDENT_RCSID(bdesu_processutil_cpp,"$Id$ $CSID$")
 #include <fcntl.h>
 #elif defined(BSLS_PLATFORM__OS_HPUX)
 #include <sys/pstat.h>
+#elif defined(BSLS_PLATFORM__OS_DARWIN)
+#include <libproc.h>
 #endif
 
 namespace BloombergLP {
@@ -62,7 +64,7 @@ int bdesu_ProcessUtil::getProcessName(bsl::string *result)
 
     return length <= 0;
 #else
-#if defined BSLS_PLATFORM__OS_HPUX
+# if defined BSLS_PLATFORM__OS_HPUX
     result->resize(256);
     int rc = pstat_getcommandline(&(*result->begin()),
                                   result->size(), 1,
@@ -76,7 +78,7 @@ int bdesu_ProcessUtil::getProcessName(bsl::string *result)
     if (bsl::string::npos != pos) {
         result->resize(pos);
     }
-#elif defined BSLS_PLATFORM__OS_LINUX
+# elif defined BSLS_PLATFORM__OS_LINUX
     enum { NUM_ELEMENTS = 14 + 16 };  // "/proc/<pid>/cmdline"
 
     bdesb_MemOutStreamBuf osb(NUM_ELEMENTS);
@@ -97,24 +99,33 @@ int bdesu_ProcessUtil::getProcessName(bsl::string *result)
     if (bsl::string::npos != pos) {
         result->resize(pos);
     }
-#else
-#if defined BSLS_PLATFORM__OS_AIX
+# elif defined BSLS_PLATFORM__OS_DARWIN
+    char pathbuf[PROC_PIDPATHINFO_MAXSIZE];
+    if (proc_pidpath (getpid(), pathbuf, sizeof(pathbuf)) <= 0) {
+        return -1;
+    }
+    result->assign(pathbuf);
+# else
+#  if defined BSLS_PLATFORM__OS_AIX
     enum { NUM_ELEMENTS = 14 + 16 };  // "/proc/<pid>/psinfo"
 
     bdesb_MemOutStreamBuf osb(NUM_ELEMENTS);
     bsl::ostream          os(&osb);
     os << "/proc/" << getpid() << "/psinfo" << bsl::ends;
     const char *procfs = osb.data();
-#else
+#  else
     const char *procfs = "/proc/self/psinfo";
-#endif
+#  endif
     int fd = open(procfs, O_RDONLY);
     if (fd == -1) {
         return -1;
     }
 
     psinfo_t psinfo;
-    if (sizeof psinfo != read(fd, &psinfo, sizeof psinfo)) {
+    bool readFailed = (sizeof psinfo != read(fd, &psinfo, sizeof psinfo));
+
+    int rc = close(fd);
+    if (readFailed || 0 != rc) {
         return -1;
     }
 
@@ -124,7 +135,7 @@ int bdesu_ProcessUtil::getProcessName(bsl::string *result)
     if (bsl::string::npos != pos) {
         result->resize(pos);
     }
-#endif
+# endif
 #endif
     return result->empty();
 }

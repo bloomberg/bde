@@ -97,22 +97,22 @@ BSLS_IDENT("$Id: $")
 //
 //  // Note the use of macros within the calls to 'printHex'.
 //
-//  std::printf("\nLE to Host(x): ");
+//  printf("\nLE to Host(x): ");
 //  printHex(BSLS_BYTEORDER_LE_U16_TO_HOST(x));
 //
-//  std::printf("\nLE to Host(y): ");
+//  printf("\nLE to Host(y): ");
 //  printHex(BSLS_BYTEORDER_LE_U32_TO_HOST(y));
 //
-//  std::printf("\nLE to Host(z): ");
+//  printf("\nLE to Host(z): ");
 //  printHex(BSLS_BYTEORDER_LE_U64_TO_HOST(z));
 //
-//  std::printf("\nBE to Host(x): ");
+//  printf("\nBE to Host(x): ");
 //  printHex(BSLS_BYTEORDER_BE_U16_TO_HOST(x));
 //
-//  std::printf("\nBE to Host(y): ");
+//  printf("\nBE to Host(y): ");
 //  printHex(BSLS_BYTEORDER_BE_U32_TO_HOST(y));
 //
-//  std::printf("\nBE to Host(z): ");
+//  printf("\nBE to Host(z): ");
 //  printHex(BSLS_BYTEORDER_BE_U64_TO_HOST(z));
 //..
 // On little-endian machines (e.g., x86, IA64), this will print the following
@@ -349,7 +349,7 @@ bsls_ByteOrder__Util_x86_swap_64(const bsls_Types::Uint64 x)
     __asm__ ("bswap %0\n\t"
              "bswap %1\n\t"
            : "=r" (res), "=r" (tmp)
-           : "0" (x), "1" (x >> 32));
+           : "0" ((unsigned) x), "1" ((unsigned) (x >> 32)));
 
     return ((bsls_Types::Uint64)res << 32ULL)
           | (bsls_Types::Uint64)tmp;

@@ -130,7 +130,7 @@ pair<InputIter, OutputIter> copy_n(InputIter  first,
     return bslstl_ExAlgorithm_CopyNImp(first, count, result, tag());
 }
 
-#ifdef BSLS_PLATFORM__CMP_SUN
+#if defined(BSLS_PLATFORM__CMP_SUN) && !defined(BDE_BUILD_TARGET_STLPORT)
 
 // Provide an override for 'count' since Sun only provides a 4 argument version
 // while the C++ standard requires a 3 argument version.
@@ -163,7 +163,7 @@ count_if(InputIter first, InputIter last, PREDICATE pred)
 using native_std::count;
 using native_std::count_if;
 
-#endif  // BSLS_PLATFORM__CMP_SUN
+#endif  // BSLS_PLATFORM__CMP_SUN && !BDE_BUILD_TARGET_STLPORT
 
 }  // close namespace bsl
 

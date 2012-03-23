@@ -3255,7 +3255,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'char' on invalid input." << endl;
         {
-            typedef char Type;
+            typedef unsigned char Type;
 
             static const struct {
                 int         d_lineNum;
@@ -3321,7 +3321,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
+                const char  INPUT  = (char) DATA[i].d_input;
                 const char *RESULT = DATA[i].d_result;
 
                 bsl::stringstream ss;
@@ -3370,6 +3370,11 @@ int main(int argc, char *argv[])
                 { L_,  "Tom & Jerry",            "Tom &amp; Jerry"           },
                 { L_,  "'Hello' World!",         "&apos;Hello&apos; World!"  },
                 { L_,  "Hello \"World\"",        "Hello &quot;World&quot;"   },
+
+                { L_,  "<![CDATA&]]>",           "&lt;![CDATA&amp;]]&gt;"    },
+                { L_,  "![CDATA[&]]>",           "![CDATA[&amp;]]&gt;"       },
+                { L_,  "<![CDATA[Hello]]>World",
+                                               "&lt;![CDATA[Hello]]&gt;World"},
 
                 // Two-byte character sequences.
 

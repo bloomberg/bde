@@ -190,9 +190,10 @@ class btemt_BlobMsg {
         // Create a data message containing the specified 'blob' and associated
         // with the channel having the specified 'channelId'.  This message
         // will assume ownership of 'blob' and will destroy it when
-        // appropriate.  Optionally specify a 'basicAllocator' used to supply
-        // memory for this message.  If 'basicAllocator' is 0, the
-        // currently-installed default allocator is used.
+        // appropriate.  Optionally specify a 'basicAllocator' which was used
+        // to allocate 'blob', which will be used to construct a shared pointer
+        // and eventually deallocate 'blob'.  If 'basicAllocator' is 0, the
+        // currently installed default allocator is used.
 
     btemt_BlobMsg(const bcema_SharedPtr<bcema_Blob>& dataPtr,
                   int                                channelId);
@@ -483,7 +484,8 @@ class btemt_PoolMsg {
         BTEMT_CHANNEL_LIMIT,                // channel limit reached
         BTEMT_CAPACITY_LIMIT,               // capacity limit reached
         BTEMT_ERROR_BINDING_CLIENT_ADDR,    // error binding client address
-        BTEMT_ERROR_SETTING_OPTIONS         // error setting socket options
+        BTEMT_ERROR_SETTING_OPTIONS,        // error setting socket options
+        BTEMT_EVENT_MANAGER_LIMIT           // event manager limit reached
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
       , ACCEPT_TIMEOUT   = BTEMT_ACCEPT_TIMEOUT

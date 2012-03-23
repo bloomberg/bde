@@ -335,6 +335,30 @@ int main(int argc, char *argv[])
                                          0 == parser.addData(errOut, blob));
                     }
                 }
+                {
+                    // Now with a identify transfer encoding
+                    // should work just as above.
+
+                    parser.reset();
+                    blob.setLength(0);
+                    ASSERT(0 == parser.addData(errOut, validStartLine));
+                    {
+                        bcesb_OutBlobStreamBuf osb(&blob);
+                        bsl::ostream           os(&osb);
+                        os << "Transfer-Encoding:CHUNKED\r\n"
+                           << "Content-Length: " << contentLengthList[i]
+                           << "\r\n\r\n0\r\n";
+                    }
+                    if (verbose) {
+                        bsl::cout << bcema_BlobUtilHexDumper(&blob)
+                                  << bsl::endl;
+                    }
+                    
+                    // All content lengths are valid.
+                    LOOP_ASSERT(contentLengthList[i],
+                                     0 == parser.addData(errOut, blob));
+                }
+
             }
 
         }

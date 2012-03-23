@@ -19,7 +19,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's single type parameter is of array type.
 // 'bslmf_IsArray' defines a 'VALUE' member that is initialized
-// (at compile-time) to 1 if the parameter is an array, and to 0 otherwise.
+// (at compile-time) to 1 if the parameter is an array type, or is a
+// reference-to-array type, and to 0 otherwise.
 //
 ///Usage
 ///-----
@@ -39,6 +40,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_METAINT
+#include <bslmf_metaint.h>
+#endif
+
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>       // 'std::size_t'
 #define INCLUDED_CSTDDEF
@@ -55,37 +60,24 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                         // ========================
-                         // struct bslmf_IsArray_Imp
-                         // ========================
-
-template <typename TYPE>
-struct bslmf_IsArray_Imp {
-    enum { VALUE = 0 };
-};
-
-template <typename TYPE, std::size_t NUM_ELEMENTS>
-struct bslmf_IsArray_Imp<TYPE [NUM_ELEMENTS]> {
-    enum { VALUE = 1 };
-};
-
-template <typename TYPE>
-struct bslmf_IsArray_Imp<TYPE []> {
-    enum { VALUE = 1 };
-};
-
                          // ====================
                          // struct bslmf_IsArray
                          // ====================
 
 template <typename TYPE>
-struct bslmf_IsArray {
-    enum { VALUE = bslmf_IsArray_Imp<TYPE>::VALUE };
+struct bslmf_IsArray  : bslmf_MetaInt<0> {
+};
+
+template <typename TYPE, std::size_t NUM_ELEMENTS>
+struct bslmf_IsArray<TYPE [NUM_ELEMENTS]> : bslmf_MetaInt<1> {
 };
 
 template <typename TYPE>
-struct bslmf_IsArray<TYPE &> {
-    enum { VALUE = bslmf_IsArray_Imp<TYPE>::VALUE };
+struct bslmf_IsArray<TYPE []> : bslmf_MetaInt<1> {
+};
+
+template <typename TYPE>
+struct bslmf_IsArray<TYPE &> : bslmf_IsArray<TYPE>::Type {
 };
 
 }  // close namespace BloombergLP

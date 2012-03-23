@@ -72,13 +72,13 @@ BEGIN
             VALUE "Comments", "See BDE<GO> for information"
             VALUE "CompanyName", "Bloomberg LP"
             VALUE "FileDescription", ""
-            VALUE "FileVersion", "BLP_LIB_BDE_BDE_2.9.0"
+            VALUE "FileVersion", "BLP_LIB_BDE_BDE_2.13.0"
             VALUE "InternalName", "bde"
             VALUE "LegalCopyright", "Copyright (C) 2004 Bloomberg LP"
             VALUE "LegalTrademarks", ""
             VALUE "OriginalFilename", "bde.dbg_exc_mt.dll"
             VALUE "ProductName", "Bloomberg Development Environment"
-            VALUE "ProductVersion", "BLP_LIB_BDE_BDE_2.9.0"
+            VALUE "ProductVersion", "BLP_LIB_BDE_BDE_2.13.0"
         END
     END
     BLOCK "VarFileInfo"

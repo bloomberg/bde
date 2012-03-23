@@ -7,8 +7,6 @@
 #endif
 BDES_IDENT("$Id: $")
 
-
-
 //@PURPOSE: Define a protocol for receiving and processing log records.
 //
 //@CLASSES:
@@ -23,7 +21,7 @@ BDES_IDENT("$Id: $")
 // receive log records, and process them in a manner defined by the derived
 // class author.
 //
-///USAGE
+///Usage
 ///-----
 // This example shows the definition and use of a simple concrete observer that
 // writes three of the log record's fields, timestamp, process ID, and thread
@@ -185,6 +183,10 @@ BDES_IDENT("$Id: $")
 #include <baescm_version.h>
 #endif
 
+#ifndef INCLUDED_BCEMA_SHAREDPTR
+#include <bcema_sharedptr.h>
+#endif
+
 namespace BloombergLP {
 
 class bael_Record;
@@ -205,9 +207,25 @@ class bael_Observer {
 
     // MANIPULATORS
     virtual void publish(const bael_Record&  record,
-                         const bael_Context& context) = 0;
+                         const bael_Context& context);
         // Process the specified log 'record' having the specified publishing
         // 'context'.
+        //
+        // DEPRECATED: use the alternative 'publish' overload instead.
+
+    virtual void publish(const bcema_SharedPtr<const bael_Record>& record,
+                         const bael_Context&                       context);
+        // Process the specified log 'record' having the specified publishing
+        // 'context'.  The exact definition of publish depends on the
+        // implementing class, though the intention is that the log 'record'
+        // (whose publication has occurred according to 'context') be
+        // distributed in a human or machine readable form.
+
+    virtual void releaseRecords();
+        // Discard any shared reference to a 'bael_Record' object that was
+        // supplied to the 'publish' method, and is held by this observer.
+        // Note that this operation should be called if resources underlying
+        // the previously provided shared-pointers must be released.
 };
 
 }  // close namespace BloombergLP

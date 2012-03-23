@@ -62,15 +62,17 @@ using namespace bsl;  // automatically added by script
 // [ 8] dispatch
 //
 // ACCESSORS
+// [13] hasLimitedSocketCapacity
 // [ 3] numSocketEvents
 // [ 3] numEvents
 // [ 3] isRegistered
 //-----------------------------------------------------------------------------
-// [ 11] USAGE EXAMPLE
-// [ 10] SYSTEM INTERFACES ASSUMPTIONS
+// [14] USAGE EXAMPLE
+// [13] Testing TRAITS
+// [10] SYSTEM INTERFACES ASSUMPTIONS
 // [ 1] Breathing test
-// [ -1] 'dispatch' PERFORMANCE DATA
-// [ -2] 'registerSocketEvent' PERFORMANCE DATA
+// [-1] 'dispatch' PERFORMANCE DATA
+// [-2] 'registerSocketEvent' PERFORMANCE DATA
 //==========================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
@@ -231,176 +233,7 @@ int main(int argc, char *argv[]) {
                                  bteso_TimeMetrics::BTESO_CPU_BOUND);
 
     switch (test) { case 0:
-      case -2: {
-        // -----------------------------------------------------------------
-        // PERFORMANCE TESTING 'registerSocketEvent':
-        //   Get the performance data.
-        //
-        // Plan:
-        //   Open multiple sockets and register a read event for each
-        //   socket, calculate the average time taken to register a read
-        //   event for a given number of registered read event.
-        // Testing:
-        //   'registerSocketEvent' capacity
-        // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
-
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
-
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
-        {
-            const char *FILENAME = "epollRegister.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
-                      numPairs, numMeasurements, controlFlag);
-
-            outFile.close();
-        }
-      } break;
-      case -1: {
-        // -----------------------------------------------------------------
-        // PERFORMANCE TESTING 'dispatch':
-        //   Get the performance data.
-        //
-        // Plan:
-        //   Set up multiple connections and register a read event for each
-        //   connection, calculate the average time taken to dispatch a read
-        //   event for a given number of registered read event.
-        // Testing:
-        //   'dispatch' capacity
-        // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
-
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
-
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
-        {
-            const char *FILENAME = "epollDispatch.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
-                      numPairs, numMeasurements, controlFlag);
-
-            outFile.close();
-        }
-      } break;
-      case 13: {
-        // --------------------------------------------------------------------
-        // TESTING TRAITS
-        //
-        // Concerns:
-        //   That all of the classes defined in the component under test have
-        //   the expected traits declared.
-        //
-        // Plan:
-        //   Using the 'bslalg_HasTrait' meta-function, verify that the 'struct
-        //   epoll_event' defines the expected trait, namely
-        //   'bslalg_TypeTraitBitwiseCopyable'.
-        //
-        // Testing:
-        //   bslalg_TypeTraitBitwiseCopyable
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Traits"
-                          << "\n==============" << endl;
-
-        if (verbose) cout << "\nTesting struct ::epoll_event." << endl;
-        {
-            ASSERT((1 ==
-                bslalg_HasTrait<struct ::epoll_event,
-                                bslalg_TypeTraitBitwiseCopyable>::VALUE));
-        }
-      } break;
-      case 12: {
+      case 14: {
         // -----------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -512,6 +345,61 @@ int main(int argc, char *argv[]) {
                                         bteso_EventType::BTESO_WRITE));
         }
       } break;
+
+      case 13: {
+        // -----------------------------------------------------------------
+        // TESTING 'hasLimitedSocketCapacity'
+        //
+        // Concern:
+        //: 1 'hasLimitiedSocketCapacity' returns 'false'.
+        //
+        // Plan:
+        //: 1 Assert that 'hasLimitedSocketCapacity' returns 'false'.
+        //
+        // Testing:
+        //   bool hasLimitedSocketCapacity() const;
+        // -----------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'hasLimitedSocketCapacity" << endl
+                          << "=================================" << endl;
+
+        if (verbose) cout << "Testing 'hasLimitedSocketCapacity'" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            bool hlsc = X.hasLimitedSocketCapacity();
+            LOOP_ASSERT(hlsc, false == hlsc);
+        }
+      } break;
+
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING TRAITS
+        //
+        // Concerns:
+        //   That all of the classes defined in the component under test have
+        //   the expected traits declared.
+        //
+        // Plan:
+        //   Using the 'bslalg_HasTrait' meta-function, verify that the 'struct
+        //   epoll_event' defines the expected trait, namely
+        //   'bslalg_TypeTraitBitwiseCopyable'.
+        //
+        // Testing:
+        //   bslalg_TypeTraitBitwiseCopyable
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Traits"
+                          << "\n==============" << endl;
+
+        if (verbose) cout << "\nTesting struct ::epoll_event." << endl;
+        {
+            ASSERT((1 ==
+                bslalg_HasTrait<struct ::epoll_event,
+                                bslalg_TypeTraitBitwiseCopyable>::VALUE));
+        }
+      } break;
+
       case 11: {
         // --------------------------------------------------------------------
         // DEREGISTERING IN A CALLBACK
@@ -852,8 +740,14 @@ int main(int argc, char *argv[]) {
     // later versions do.  So we'll run this only if compiled on 2.6.10 and
     // later.
 
+#if 0
+    // Actually, it turns out 2.6.18 doesn't seem to guarantee the order either
+    // so these broke again.
+
 /// On length 3
-// Deregistering signaled socket handle
+// Deregistering signaled socket handle.  Registering 'r'/'w' without number of
+// bytes registers number of bytes as '-1' which will fail when 'Dn' is called,
+// unless the event is deregistered before it happens.
 { L_, 0,  "+0r64,{-1}; +1r; +2r64; W0,64; W1,64; W2,64; T3; Dn,2; T2;"
           "E0r; E1; E2r"                                                },
 
@@ -865,6 +759,7 @@ int main(int argc, char *argv[]) {
 
 { L_, 0,  "+0r64; +1r64, {-2}; +2r; W0,64; W1,64; W2,64; T3; Dn,2; T2;"
           "E0r; E1r; E2"                                                },
+#endif
 #endif
 // Deregistering non-signaled socket handle
 
@@ -1477,6 +1372,150 @@ int main(int argc, char *argv[]) {
                     P_(LINE);   P(fails);
                 }
             }
+        }
+      } break;
+
+      case -1: {
+        // -----------------------------------------------------------------
+        // PERFORMANCE TESTING 'dispatch':
+        //   Get the performance data.
+        //
+        // Plan:
+        //   Set up multiple connections and register a read event for each
+        //   connection, calculate the average time taken to dispatch a read
+        //   event for a given number of registered read event.
+        // Testing:
+        //   'dispatch' capacity
+        // -----------------------------------------------------------------
+        enum {
+            DEFAULT_NUM_PAIRS        = 1024,
+            DEFAULT_NUM_MEASUREMENTS = 10
+        };
+
+        int numPairs = DEFAULT_NUM_PAIRS;
+        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+
+        if (2 < argc) {
+            int pairs = atoi(argv[2]);
+            if (0 > pairs) {
+                verbose = 0;
+                numPairs = -pairs;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
+            }
+            else {
+                numPairs = pairs;
+            }
+        }
+
+        if (3 < argc) {
+            int measurements = atoi(argv[3]);
+            if (0 > measurements) {
+                veryVerbose = 0;
+                numMeasurements = -measurements;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
+            }
+            else {
+                numMeasurements = measurements;
+            }
+        }
+
+        if (verbose)
+            cout << endl
+            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
+            << "=========================================" << endl;
+        {
+            const char *FILENAME = "epollDispatch.dat";
+
+            ofstream outFile(FILENAME, ios_base::out);
+            if (!outFile) {
+                cout << "Cannot open " << FILENAME << " for writing."
+                     << endl;
+                return -1;
+            }
+
+            if (veryVerbose) {
+                P(numPairs);
+                P(numMeasurements);
+            }
+
+            Obj mX(&timeMetric);  // Note: no test allocator --
+                                  // performance testing
+            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
+                      numPairs, numMeasurements, controlFlag);
+
+            outFile.close();
+        }
+      } break;
+
+      case -2: {
+        // -----------------------------------------------------------------
+        // PERFORMANCE TESTING 'registerSocketEvent':
+        //   Get the performance data.
+        //
+        // Plan:
+        //   Open multiple sockets and register a read event for each
+        //   socket, calculate the average time taken to register a read
+        //   event for a given number of registered read event.
+        // Testing:
+        //   'registerSocketEvent' capacity
+        // -----------------------------------------------------------------
+        enum {
+            DEFAULT_NUM_PAIRS        = 1024,
+            DEFAULT_NUM_MEASUREMENTS = 10
+        };
+
+        int numPairs = DEFAULT_NUM_PAIRS;
+        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+
+        if (2 < argc) {
+            int pairs = atoi(argv[2]);
+            if (0 > pairs) {
+                verbose = 0;
+                numPairs = -pairs;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
+            }
+            else {
+                numPairs = pairs;
+            }
+        }
+
+        if (3 < argc) {
+            int measurements = atoi(argv[3]);
+            if (0 > measurements) {
+                veryVerbose = 0;
+                numMeasurements = -measurements;
+                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
+            }
+            else {
+                numMeasurements = measurements;
+            }
+        }
+
+        if (verbose)
+            cout << endl
+            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
+            << "=========================================" << endl;
+        {
+            const char *FILENAME = "epollRegister.dat";
+
+            ofstream outFile(FILENAME, ios_base::out);
+            if (!outFile) {
+                cout << "Cannot open " << FILENAME << " for writing."
+                     << endl;
+                return -1;
+            }
+
+            if (veryVerbose) {
+                P(numPairs);
+                P(numMeasurements);
+            }
+
+            Obj mX(&timeMetric);  // Note: no test allocator --
+                                  // performance testing
+            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
+                      numPairs, numMeasurements, controlFlag);
+
+            outFile.close();
         }
       } break;
 

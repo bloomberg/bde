@@ -55,15 +55,15 @@ BDES_IDENT("$Id: $")
 // interrupted (e.g., via an asynchronous event): the channel address is null
 // and the (non-negative) status conveys the nature of the interruption, (3)
 // "canceled" -- the operation was aborted (synchronously) by an explicit call
-// to 'cancelAll': the channel-allocator address in null and the status" is -1,
-// or (4) "error" -- an implementation-dependent error occurred: the channel
-// address is null and status is less than -1.  The user may retry interrupted
-// and cancelled operations with a reasonable expectation of success.  An
-// "error" status implies that the allocation is unlikely to succeed if
-// retried, but does not necessarily invalidate the allocator.  The 'isInvalid'
-// method may be used to confirm the occurrence of a permanent error.  If the
-// allocator is valid, an allocation request will be enqueued and may succeed.
-// Otherwise, the allocation request itself will not succeed.
+// to 'cancelAll': the channel-allocator address in null and the "status" is
+// -1, or (4) "error" -- an implementation-dependent error occurred: the
+// channel address is null and status is less than -1.  The user may retry
+// interrupted and cancelled operations with a reasonable expectation of
+// success.  An "error" status implies that the allocation is unlikely to
+// succeed if retried, but does not necessarily invalidate the allocator.  The
+// 'isInvalid' method may be used to confirm the occurrence of a permanent
+// error.  If the allocator is valid, an allocation request will be enqueued
+// and may succeed.  Otherwise, the allocation request itself will not succeed.
 //
 // The meanings of the callback function status value for an unsuccessful
 // allocation (i.e., a null channel address) are summarized as follows:
@@ -107,8 +107,8 @@ BDES_IDENT("$Id: $")
 // explicitly by incorporating into the optional (trailing) integer 'flags'
 // argument to a method call the 'btesc_Flag::BTESC_ASYNC_INTERRUPT' value.
 //
-///USAGE EXAMPLE
-///-------------
+///Usage
+///-----
 // TBD Usage is from timed cb allocator and needs to be redone.
 //
 // The purpose of the 'btesc_CbChannelAllocator' protocol is to isolate the act

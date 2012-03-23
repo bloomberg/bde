@@ -1001,7 +1001,7 @@ const TestString  TEST_STRING_DATA[] = { VK, VL, VM, VN, VO };
 //                         HELPER FUNCTION FOR TESTING
 //=============================================================================
 
-struct bdeut_VariantTestDriverException {};
+struct VariantTestDriverException {};
 
 // Note that a portable syntax for 'noreturn' will be available once we have
 // access to conforming C++0x compilers.
@@ -1020,7 +1020,7 @@ void applyRawFailureHandler(const char *, const char *, int)
     // This function is a placeholder for BDE 2.4, until "negative testing" is
     // formalized in a later BDE release.
 
-    throw bdeut_VariantTestDriverException();
+    throw VariantTestDriverException();
 }
 
 #undef BDEUT_VARIANT_NORETURN
@@ -1326,6 +1326,41 @@ class my_UnsetVariantVisitor {
         d_lastType = TEST_ARG;
     }
 };
+
+//-----------------------------------------------------------------------------
+
+                        // =========================
+                        // class my_NilAssertVisitor
+                        // =========================
+
+class my_NilAssertVisitor {
+    //  This class is crafted to reproduce 'The variable nil has not yet been
+    //  assigned a value' warning on Sun, where 'nil' refers to an object in
+    //  'bdeut_Variant::apply' method.
+
+    void *d_result_p;
+
+  public:
+    my_NilAssertVisitor(void *result)
+    : d_result_p(result)
+    {
+    }
+
+    void operator()(int x) const
+    {
+    }
+
+    void operator()(const bslmf_Nil x) const
+    {
+        BSLS_ASSERT(false);
+    }
+};
+
+void dummyConvert(void *result, const bdeut_Variant<int>& value)
+{
+    my_NilAssertVisitor visitor(result);
+    value.apply(visitor);
+}
 
 //-----------------------------------------------------------------------------
 
@@ -7694,8 +7729,7 @@ int main(int argc, char *argv[])
         {
             typedef bdeut_VariantImp<bslmf_TypeList<bslmf_Nil, int> > Obj;
 
-            bslmf_Nil nil;
-            Obj variant(nil);
+            Obj variant = Obj(bslmf_Nil());
 
             ASSERT(false == variant.isUnset());
         }
@@ -7793,6 +7827,12 @@ int main(int argc, char *argv[])
                        my_UnsetVariantVisitor::TEST_ARG == visitor.d_lastType);
         }
 
+        if (verbose) cout << "\nTesting a subtle warning case." << endl;
+        {
+            bdeut_Variant<int> v(1);
+            dummyConvert(0, v);
+        }
+
 // No asserts if we're in optimized mode.
 #ifndef BDE_BUILD_TARGET_OPT
         if (verbose) cout << "\nTesting 'applyRaw'." << endl;
@@ -7809,7 +7849,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(!"The call above should have thrown an exception.");
             }
-            catch (bdeut_VariantTestDriverException) {
+            catch (VariantTestDriverException) {
                 // This is the expected path, after catching an exception from
                 // the registered assert handler, indicating that 'mX' is
                 // empty.

@@ -278,6 +278,98 @@ void publishRecord(Obj *mX, const char *message)
     mX->publish(record, context);
 }
 
+class LogRotationCallbackTester {
+    // This class can be used as a functor matching the signature of
+    // 'bael_FileObserver2::OnFileRotationCallback'.  This class records every
+    // invocation of the function-call operator, and is intended to test
+    // whether 'bael_FileObserver2' calls the log-rotation callback
+    // appropriately.
+
+    // PRIVATE TYPES
+    struct Rep {
+        int         d_invocations;
+        int         d_status;
+        bsl::string d_rotatedFileName;
+
+        explicit Rep(bslma_Allocator *allocator)
+        : d_invocations(0)
+        , d_status(0)
+        , d_rotatedFileName(allocator)
+        {
+        }
+
+      private:
+        // NOT IMPLEMENTED
+        Rep(const Rep&);
+        Rep& operator=(const Rep&);
+    };
+
+    // DATA
+    bcema_SharedPtr<Rep> d_rep;
+
+  public:
+    // PUBLIC CONSTANTS
+
+    enum {
+        UNINITIALIZED = INT_MIN
+    };
+
+    explicit LogRotationCallbackTester(bslma_Allocator *allocator)
+        // Create a callback tester that will use the specified 'status' and
+        // 'logFileName' to record the arguments to the function call
+        // operator.  Set '*status' to 'UNINITIALIZED' and set '*logFileName'
+        // to the empty string.
+    : d_rep()
+    {
+        d_rep.createInplace(allocator, allocator);
+        reset();
+    }
+
+    void operator()(int                status,
+                    const bsl::string& rotatedFileName)
+        // Set the value at the status address supplied at construction to the
+        // specified 'status', and set the value at the log file name address
+        // supplied at construction to the specified 'logFileName'.
+    {
+        ++d_rep->d_invocations;
+        d_rep->d_status          = status;
+        d_rep->d_rotatedFileName = rotatedFileName;
+
+    }
+
+    void reset()
+        // Set '*status' to 'UNINITIALIZED' and set '*logFileName' to the
+        // empty string.
+    {
+        d_rep->d_invocations     = 0;
+        d_rep->d_status          = UNINITIALIZED;
+        d_rep->d_rotatedFileName = "";
+
+    }
+
+    // ACCESSORS
+    int numInvocations() const { return d_rep->d_invocations; }
+        // Return the number of times that the function-call operator has been
+        // invoked since the most recent call to 'reset', or if 'reset' has
+        // not been called, since this objects construction.
+
+    int status() const { return d_rep->d_status; }
+        // Return the status passed to the most recent invocation of the
+        // function-call operation, or 'UNINITIALIZED' if 'numInvocations' is
+        // 0.
+
+    const bsl::string& rotatedFileName() const
+        // Return a reference to the non-modifiable file name supplied to the
+        // most recent invocation of the function-call operator, or the empty
+        // string if 'numInvocations' is 0.
+    {
+        return d_rep->d_rotatedFileName;
+    }
+
+};
+
+typedef LogRotationCallbackTester RotCb;
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -299,6 +391,126 @@ int main(int argc, char *argv[])
     bslma_DefaultAllocatorGuard guard(&defaultAllocator);
 
     switch (test) { case 0:
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING TIME-BASED ROTATION
+        //
+        // Concern:
+        //: 1 'rotateOnTimeInterval' correctly forward call to
+        //:   'bael_FileObserver2'.
+        //
+        // Plan:
+        //: 1 Setup test infrastructure.
+        //:
+        //: 2 Call 'rotateOnTimeInterval' with a large interval and a reference
+        //:   time such that the next rotation will occur soon.  Verify that
+        //:   rotation occurs on the scheduled time.
+        //:
+        //: 3 Call 'disableLifetimeRotation' and verify that no rotation occurs
+        //:   afterwards.
+        //
+        // Testing:
+        //  void rotateOnTimeInterval(const DtInterval& i, const Datetime& r);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTesting Time-Based Rotation"
+                          << "\n===========================" << endl;
+
+        bael_LoggerManagerConfiguration configuration;
+
+        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_TRACE,
+                                                     bael_Severity::BAEL_OFF,
+                                                     bael_Severity::BAEL_OFF));
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+
+        Obj mX(bael_Severity::BAEL_WARN, &ta);  const Obj& X = mX;
+
+        // Set callback to monitor rotation.
+
+        RotCb cb(Z);
+        mX.setOnFileRotationCallback(cb);
+
+        bael_LoggerManager::initSingleton(&mX, configuration);
+
+        const bsl::string BASENAME = tempFileName(veryVerbose);
+
+        ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
+        ASSERT(X.isFileLoggingEnabled());
+        ASSERT(0 == cb.numInvocations());
+
+        BAEL_LOG_SET_CATEGORY("bael_FileObserverTest");
+
+        if (veryVerbose) cout << "Testing absolute time reference" << endl;
+        {
+            // Reset reference start time.
+
+            mX.disableFileLogging();
+
+            // Ensure log file did not exist
+
+            bdesu_FileUtil::remove(BASENAME.c_str());
+
+            bdet_Datetime refTime = bdetu_SystemTime::nowAsDatetimeLocal();
+            refTime += bdet_DatetimeInterval(-1, 0, 0, 3);
+            mX.rotateOnTimeInterval(bdet_DatetimeInterval(1), refTime);
+            ASSERT(0 == mX.enableFileLogging(BASENAME.c_str()));
+
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+            LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
+
+            bcemt_ThreadUtil::microSleep(0, 3);
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+
+
+            LOOP_ASSERT(cb.numInvocations(), 1 == cb.numInvocations());
+            ASSERT(1 ==
+                   bdesu_FileUtil::exists(cb.rotatedFileName().c_str()));
+        }
+
+        if (veryVerbose) cout << "Testing 'disableLifetimeRotation'" << endl;
+        {
+            cb.reset();
+
+            mX.disableLifetimeRotation();
+            bcemt_ThreadUtil::microSleep(0, 3);
+            BAEL_LOG_TRACE << "log" << BAEL_LOG_END;
+            LOOP_ASSERT(cb.numInvocations(), 0 == cb.numInvocations());
+        }
+        removeFilesByPrefix(BASENAME.c_str());
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING 'setOnFileRotationCallback'
+        //
+        // Concerns:
+        //: 1 'setOnFileRotationCallback' is properly forwarded to the
+        //:   corresponding function in 'bael_FileObserver2'
+        //
+        // Plan:
+        //: 1 Setup callback with 'setOnFileRotationCallback' and verify that
+        //:   the callback is invoked on rotation.
+        //
+        // Testing:
+        //  void setOnFileRotationCallback(const OnFileRotationCallback&);
+        // --------------------------------------------------------------------
+
+        bcema_TestAllocator ta(veryVeryVeryVerbose);
+        Obj mX(bael_Severity::BAEL_WARN, &ta);
+        bsl::string filename = tempFileName(veryVerbose);
+
+        RotCb cb(Z);
+        mX.setOnFileRotationCallback(cb);
+
+        ASSERT(0 == cb.numInvocations());
+
+        mX.enableFileLogging(filename.c_str());
+        mX.forceRotation();
+
+        ASSERT(1 == cb.numInvocations());
+        removeFilesByPrefix(filename.c_str());
+      } break;
       case 4: {
 #ifdef BSLS_PLATFORM__OS_UNIX
         // don't run this if we're in the debugger because the debugger
@@ -322,8 +534,7 @@ int main(int argc, char *argv[])
                                                   bael_Severity::BAEL_OFF,
                                                   bael_Severity::BAEL_OFF));
         bael_MultiplexObserver multiplexObserver;
-        bael_LoggerManager::initSingleton(&multiplexObserver,
-                                          configuration);
+        bael_LoggerManager::initSingleton(&multiplexObserver, configuration);
 
         {
             bsl::string fn = tempFileName(veryVerbose);
@@ -371,6 +582,7 @@ int main(int argc, char *argv[])
             ASSERT2(getline(stderrFs, line)); // we caught an error
 
             mX.disableFileLogging();
+            removeFilesByPrefix(stderrFN.c_str());
             removeFilesByPrefix(fn.c_str());
             multiplexObserver.deregisterObserver(&mX);
 
@@ -431,6 +643,7 @@ int main(int argc, char *argv[])
             mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
             ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
 
+            multiplexObserver.deregisterObserver(&mX);
 // TBD
 #if 0
             ASSERT(0 == X.maxLogFiles());
@@ -476,6 +689,7 @@ int main(int argc, char *argv[])
             mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
             ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
 
+            multiplexObserver.deregisterObserver(&mX);
 // TBD
 #if 0
             ASSERT(0 == X.maxLogFiles());
@@ -521,6 +735,7 @@ int main(int argc, char *argv[])
             mX.rotateOnLifetime(bdet_DatetimeInterval(0,0,0,1));
             ASSERT(bdet_DatetimeInterval(0,0,0,1) == X.rotationLifetime());
 
+            multiplexObserver.deregisterObserver(&mX);
 // TBD
 #if 0
             ASSERT(0 == X.maxLogFiles());
@@ -603,8 +818,7 @@ int main(int argc, char *argv[])
                                                   bael_Severity::BAEL_OFF));
 
         bael_MultiplexObserver multiplexObserver;
-        bael_LoggerManager::initSingleton(&multiplexObserver,
-                                          configuration);
+        bael_LoggerManager::initSingleton(&multiplexObserver, configuration);
 
 #ifdef BSLS_PLATFORM__OS_UNIX
         bcema_TestAllocator ta(veryVeryVeryVerbose);
@@ -970,8 +1184,7 @@ int main(int argc, char *argv[])
                                               bael_Severity::BAEL_OFF,
                                               bael_Severity::BAEL_OFF));
         bael_MultiplexObserver multiplexObserver;
-        bael_LoggerManager::initSingleton(&multiplexObserver,
-                                          configuration);
+        bael_LoggerManager::initSingleton(&multiplexObserver, configuration);
 
         if (verbose) cerr << "Testing threshold and output format."
                           << endl;
@@ -1332,7 +1545,9 @@ int main(int argc, char *argv[])
                     defaultObsHour - difference < 24) {
                     // UTC and local time are on the same day
                     if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
-                    ASSERT(dos.str() == coutS);
+                    // skong: This is a bug, you can not figure out if they
+                    // are on the same day with only two hour numbers.
+                    //ASSERT(dos.str() == coutS);
                 }
                 else if (coutS.length() >= 11) {
                     // UTC and local time are on different days.  Ignore
@@ -1939,6 +2154,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == bsl::strcmp(logFileFormat, newLogFileFormat));
             ASSERT(0 == bsl::strcmp(stdoutFormat, newStdoutFormat));
         }
+        removeFilesByPrefix(fileName.c_str());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

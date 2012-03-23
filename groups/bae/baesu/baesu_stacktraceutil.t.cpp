@@ -5,9 +5,13 @@
 #include <baesu_stackaddressutil.h>
 #include <baesu_stacktrace.h>
 
+#include <bcemt_threadutil.h>
+
 #include <bdef_function.h>
 #include <bdema_sequentialallocator.h>
 #include <bdesu_fileutil.h>
+#include <bdet_timeinterval.h>
+#include <bdetu_systemtime.h>
 #include <bdeu_string.h>
 
 #include <bslma_defaultallocatorguard.h>
@@ -322,6 +326,101 @@ void testStackTrace(const baesu_StackTrace& st)
     }
 }
 
+                                // -------
+                                // case 10
+                                // -------
+
+// We want long, ccmplicated to demangle names
+
+namespace BAESU_STACKTRACEUTIL_TEST_CASE_10 {
+namespace NS_10_2 {
+namespace NS_10_3 {
+namespace NS_10_4 {
+
+#undef  BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
+#if defined(BDE_BUILD_TARGET_DBG) || !defined(BSLS_PLATFORM__OS_WINDOWS)
+#define BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
+#endif
+
+void topOfTheStack(void *, void *, void *, void *)
+{
+    ST st;
+
+    int rc = Util::loadStackTraceFromStack(&st, 2000, true);
+    LOOP_ASSERT(rc, 0 == rc);
+
+#if defined(BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS)
+    const int len = st.length();
+
+    bool tots = false;
+    bool rabo = false;
+    bool lffs = false;
+    bool tc10 = false;
+    bool ns2  = false;
+    bool ns3  = false;
+    bool ns4  = false;
+
+    for (int i = 0; i < len; ++i) {
+        const bsl::string& s = st[i].symbolName();
+        const bsl::size_t npos = bsl::string::npos;
+
+        if (!tots && npos != s.find("topOfTheStack")) {
+            tots = true;
+        }
+        if (!rabo && npos != s.find("recurseABunchOfTimes")) {
+            rabo = true;
+        }
+        if (!lffs && npos != s.find("loopForFourSeconds")) {
+            lffs = true;
+        }
+        if (!tc10 && npos != s.find("BAESU_STACKTRACEUTIL_TEST_CASE_10")) {
+            tc10 = true;
+        }
+        if (!ns2  && npos != s.find("NS_10_2")) {
+            ns2  = true;
+        }
+        if (!ns3  && npos != s.find("NS_10_3")) {
+            ns3  = true;
+        }
+        if (!ns4  && npos != s.find("NS_10_4")) {
+            ns4  = true;
+        }
+    }
+
+    ASSERT(tots && rabo && lffs && tc10 && ns2 && ns3 && ns4);
+#endif
+}
+
+void recurseABunchOfTimes(int *depth, int, void *, int, void *)
+{
+    if (--*depth <= 0) {
+        topOfTheStack(depth, depth, depth, depth);
+    }
+    else {
+        recurseABunchOfTimes(depth, 0, depth, 0, depth);
+    }
+
+    ++*depth;
+}
+
+void loopForFourSeconds()
+{
+    bdet_TimeInterval start = bdetu_SystemTime::now();
+
+    do {
+        int depth = 20;
+        for (int i = 0; i < 100; ++i) {
+            recurseABunchOfTimes(&depth, 0, &i, 0, &i);
+            ASSERT(20 == depth);
+        }
+    } while ((bdetu_SystemTime::now() - start).totalSecondsAsDouble() < 4);
+}
+
+}  // close namespace NS_10_4
+}  // close namespace NS_10_3
+}  // close namespace NS_10_2
+}  // close namespace BAESU_STACKTRACEUTIL_TEST_CASE_10
+
                                 // ------
                                 // case 8
                                 // ------
@@ -550,9 +649,14 @@ ENDNS07  // close namespace
                                 // case 5
                                 // ------
 
-void case_5_top(bool demangle)
+void case_5_top(bool demangle, bool useTestAllocator)
 {
-    ST st;
+    bslma_TestAllocator ta;
+    ST stTest(&ta);
+    ST stHeapBypass;
+
+    ST& st = useTestAllocator ? stTest : stHeapBypass;
+
     bsls_Stopwatch sw;
     sw.start(true);
     int rc = Util::loadStackTraceFromStack(&st, 2000, demangle);
@@ -576,7 +680,7 @@ void case_5_top(bool demangle)
 
             const char *match = ".case_5_top";
             match += !dot;
-            int len = bsl::strlen(match);
+            int len = (int) bsl::strlen(match);
             const char *sn = st[0].symbolName().c_str();
             LOOP3_ASSERT(sn, match, len,
                                    !demangle || !bsl::strncmp(sn, match, len));
@@ -590,8 +694,8 @@ void case_5_top(bool demangle)
                 const char *sfn = st[0].sourceFileName().c_str();
                 sfn = nullGuard(sfn);
 
-                int sfnMatchLen = bsl::strlen(sfnMatch);
-                int sfnLen = bsl::strlen(sfn);
+                int sfnMatchLen = (int) bsl::strlen(sfnMatch);
+                int sfnLen = (int) bsl::strlen(sfn);
                 sfn += bsl::max(0, sfnLen - sfnMatchLen);
 
                 LOOP2_ASSERT(sfn, sfnMatch, !bsl::strcmp(sfn, sfnMatch));
@@ -599,7 +703,7 @@ void case_5_top(bool demangle)
 
             match = ".case_5_bottom";
             match += !dot;
-            len = bsl::strlen(match);
+            len = (int) bsl::strlen(match);
 
             bool finished = false;
             int recursersFound = 0;
@@ -635,8 +739,8 @@ void case_5_top(bool demangle)
                     const char *sfnMatch = "baesu_stacktraceutil.t.cpp";
                     const char *sfn = st[i].sourceFileName().c_str();
 
-                    int sfnMatchLen = bsl::strlen(sfnMatch);
-                    int sfnLen = bsl::strlen(sfn);
+                    int sfnMatchLen = (int) bsl::strlen(sfnMatch);
+                    int sfnLen = (int) bsl::strlen(sfn);
                     sfn += bsl::max(0, sfnLen - sfnMatchLen);
 
                     LOOP2_ASSERT(sfn, sfnMatch, !bsl::strcmp(sfn, sfnMatch));
@@ -654,14 +758,14 @@ void case_5_top(bool demangle)
 }
 
 static
-void case_5_bottom(bool demangle, int *depth)
+void case_5_bottom(bool demangle, bool useTestAllocator, int *depth)
 {
     if (--*depth <= 0) {
-        bdef_Function<void(*)(bool)> func = &case_5_top;
-        func(demangle);
+        bdef_Function<void(*)(bool, bool)> func = &case_5_top;
+        func(demangle, useTestAllocator);
     }
     else {
-        case_5_bottom(demangle, depth);
+        case_5_bottom(demangle, useTestAllocator, depth);
     }
 
     ++*depth;
@@ -1213,7 +1317,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE TWO
         //
@@ -1235,7 +1339,7 @@ int main(int argc, char *argv[])
         recurseExample2(&depth);
         ASSERT(5 == depth);
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE ONE
         //
@@ -1255,6 +1359,41 @@ int main(int argc, char *argv[])
         int depth = 5;
         recurseExample1(&depth);
         ASSERT(5 == depth);
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING MULTITHREADEDNESS
+        //
+        // Concern:
+        //   Some parts of getting a stack trace, particularly pieces like
+        //   demangling that aren't BDE code, might not be thread-safe.
+        //
+        // Plan:
+        //   Repeatedly do stack traces in 2 threads simultanously.  Don't
+        //   bother streaming them -- the streaming code is entirely ours and
+        //   we know it's safe.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Multithreaded Test\n"
+                             "==================\n";
+
+#ifndef BAESU_STACKTRACEUTIL_TEST_10_SYMBOLS
+        cout << "Not built with symbols -- no symbols checked\n";
+#endif
+
+        namespace TC1 = BAESU_STACKTRACEUTIL_TEST_CASE_10;
+        namespace TC = TC1::NS_10_2::NS_10_3::NS_10_4;
+
+        bdef_Function<void (*)()> func = &TC::loopForFourSeconds;
+        bcemt_ThreadUtil::Handle handles[2];
+        for (int i = 0; i < 2; ++i) {
+            int rc = bcemt_ThreadUtil::create(&handles[i], func);
+            ASSERT(0 == rc);
+        }
+        for (int i = 0; i < 2; ++i) {
+            int rc = bcemt_ThreadUtil::join(handles[i]);
+            ASSERT(0 == rc);
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1429,12 +1568,12 @@ int main(int argc, char *argv[])
             startDepth = bsl::atoi(argv[2]);
         }
         int depth = startDepth;
-        case_5_bottom(false, &depth);    // no demangle
+        case_5_bottom(false, false, &depth);    // no demangle
         ASSERT(startDepth  == depth);
 
         depth *= 2;
         startDepth *= 2;
-        case_5_bottom(true,  &depth);    // demangle
+        case_5_bottom(true,  false, &depth);    // demangle
         ASSERT(startDepth  == depth);
 
         CASE_4::bottomCalled = false;
@@ -1473,10 +1612,16 @@ int main(int argc, char *argv[])
         }
         int depth = startDepth;
 
-        case_5_bottom(false, &depth);    // no demangle
+        case_5_bottom(false, false, &depth);    // no demangle, hbpa
         ASSERT(startDepth == depth);
 
-        case_5_bottom(true,  &depth);    // demangle
+        case_5_bottom(true,  false, &depth);    // demangle, hbpa
+        ASSERT(startDepth == depth);
+
+        case_5_bottom(false, true,  &depth);    // no demangle, test alloc
+        ASSERT(startDepth == depth);
+
+        case_5_bottom(true,  true,  &depth);    // demangle, test alloc
         ASSERT(startDepth == depth);
       } break;
       case 4: {

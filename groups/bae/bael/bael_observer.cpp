@@ -20,6 +20,29 @@ namespace BloombergLP {
 // CREATORS
 bael_Observer::~bael_Observer()
 {
+    BSLMF_ASSERT(sizeof(bael_Observer) >= sizeof(int));
+
+    // TBD: Remove this test once the observer changes in BDE 2.12 have
+    // stabilized.
+
+    *((unsigned int*)this) = 0xdeadbeef;
+}
+
+// MANIPULATORS
+void bael_Observer::publish(const bael_Record&  record,
+                            const bael_Context& context)
+{
+    BSLS_ASSERT_OPT(false);  // Should not be called
+}
+
+void bael_Observer::publish(const bcema_SharedPtr<const bael_Record>& record,
+                            const bael_Context&                       context)
+{
+    publish(*record, context);
+}
+
+void bael_Observer::releaseRecords()
+{
 }
 
 }  // close namespace BloombergLP

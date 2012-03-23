@@ -11,7 +11,7 @@ windows  _       BSLHDRS_TEST    = $(BSL_LOCN)\bsl+bslhdrs\test
 unix     _       DEF_INCLUDE     = -I$(BSL_LOCN)/bsl+bslhdrs
 windows  _       DEF_INCLUDE     = -I$(BSL_LOCN)\bsl+bslhdrs
 
-*        _       TEST_RUNPREFIX  = 
-*        _       TEST_RUNSUFFIX  = 
+*        _       TEST_RUNPREFIX  =
+*        _       TEST_RUNSUFFIX  =
 
 *-Linux  _       DEF_CXXFLAGS    = -D_RWSTD_LINUX_RELEASE=\"`uname -r`\"

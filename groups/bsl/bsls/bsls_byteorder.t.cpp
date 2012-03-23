@@ -168,22 +168,22 @@ int main(int argc, char *argv[])
 
     // Note the use of macros within the calls to 'printHex'.
 
-    std::printf("\nLE to Host(x): ");
+    printf("\nLE to Host(x): ");
     printHex(BSLS_BYTEORDER_LE_U16_TO_HOST(x));
 
-    std::printf("\nLE to Host(y): ");
+    printf("\nLE to Host(y): ");
     printHex(BSLS_BYTEORDER_LE_U32_TO_HOST(y));
 
-    std::printf("\nLE to Host(z): ");
+    printf("\nLE to Host(z): ");
     printHex(BSLS_BYTEORDER_LE_U64_TO_HOST(z));
 
-    std::printf("\nBE to Host(x): ");
+    printf("\nBE to Host(x): ");
     printHex(BSLS_BYTEORDER_BE_U16_TO_HOST(x));
 
-    std::printf("\nBE to Host(y): ");
+    printf("\nBE to Host(y): ");
     printHex(BSLS_BYTEORDER_BE_U32_TO_HOST(y));
 
-    std::printf("\nBE to Host(z): ");
+    printf("\nBE to Host(z): ");
     printHex(BSLS_BYTEORDER_BE_U64_TO_HOST(z));
 
     }  // added to keep output of test driver clean
@@ -788,8 +788,8 @@ int main(int argc, char *argv[])
                   << std::endl;
         {
             static const struct {
-                int   d_lineNum;  // source line number
-                short d_value;
+                int            d_lineNum;  // source line number
+                unsigned short d_value;
             } DATA[] = {
                 //LINE  VALUE
                 //----  --------
@@ -805,8 +805,8 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int   LINE  = DATA[ti].d_lineNum;
-                const short VALUE = DATA[ti].d_value;
+                const int            LINE  = DATA[ti].d_lineNum;
+                const unsigned short VALUE = DATA[ti].d_value;
 
                 if (veryVerbose) { T_ P_(LINE) P(VALUE) }
                 {

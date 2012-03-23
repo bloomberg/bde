@@ -3,7 +3,7 @@
 extern int auxiliary_main(int argc, char **argv);
 
 const char *TEST_INPUT_FILE =
-                    "/bbcm/infrastructure/groups/bde/bde+pcre/test/testinput1";
+                    TEST_LOCATION "/testinput1";
 
 int main(int argc, char **argv)
 {

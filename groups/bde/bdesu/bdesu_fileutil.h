@@ -1,4 +1,4 @@
-// bdesu_fileutil.h   -*-C++-*-
+// bdesu_fileutil.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDESU_FILEUTIL
 #define INCLUDED_BDESU_FILEUTIL
 
@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a set of portable utilities for file system access.
 //
 //@CLASSES:
-//    bdesu_FileUtil: struct which scopes file system utilities
+//  bdesu_FileUtil: struct which scopes file system utilities
 //
 //@SEE_ALSO: bdesu_pathutil
 //
@@ -179,9 +179,10 @@ struct bdesu_FileUtil {
     static const Offset OFFSET_MIN = _I64_MIN;
 #else
     typedef int     FileDescriptor;
-#ifdef BDES_PLATFORM__OS_FREEBSD
-    // 'off_t' is 64-bit on FreeBSD (even when running 32-bit) so they do not
-    // have a 'off64_t' type.
+#if defined(BSLS_PLATFORM__OS_FREEBSD) \
+ || defined(BSLS_PLATFORM__OS_DARWIN)
+    // 'off_t' is 64-bit on Darwin/FreeBSD (even when running 32-bit) so they
+    // do not have a 'off64_t' type.
 
     typedef off_t Offset;
 #else
@@ -215,24 +216,33 @@ struct bdesu_FileUtil {
 #endif
     };
 
+    enum {
+        BDESU_ERROR_LOCKING_CONFLICT = 1
+    };
+
     // CLASS DATA
     static const FileDescriptor INVALID_FD;
 
     // CLASS METHODS
     static FileDescriptor open(const char         *path,
-                               bool                isWritable,
-                               bool                isExisting);
+                               bool                writableFlag,
+                               bool                existFlag,
+                               bool                appendFlag = false);
     static FileDescriptor open(const bsl::string&  path,
-                               bool                isWritable,
-                               bool                isExisting);
-        // Open the file at the specified 'path' with write permission as
-        // specified by 'isWritable'.  If 'isExisting' is true, succeed only
-        // if the file exists; otherwise, succeed only if it does not exist
-        // (in which case create it).  Return a FileDescriptor for the file
-        // on success, or 'INVALID_FD' otherwise.  Note that two calls are
-        // necessary to open a file which may or may not exist.  Also note
-        // that if 'isWritable' and 'isExisting' are both 'false', this
-        // function will necessarily fail.
+                               bool                writableFlag,
+                               bool                existFlag,
+                               bool                appendFlag = false);
+        // Open the file at the specified 'path' for writing if the specified
+        // 'writableFlag' is 'true', and for reading otherwise.  If the
+        // specified 'existFlag' is 'true', succeed only if the file exists;
+        // otherwise, succeed only if it does not exist (in which case create
+        // it).  Optionally, if 'writableFlag' is 'true', specify 'appendFlag'
+        // to indicate whether the file should be opened in append mode.
+        // 'appendFlag' has no effect if 'writableFlag' is false.  Return a
+        // valid 'FileDescriptor' for the file on success, or 'INVALID_FD'
+        // otherwise.  Note that two calls are necessary to open a file which
+        // may or may not exist.  Also note that if 'writableFlag' and
+        // 'existFlag' are both 'false', this function will necessarily fail.
 
     static int close(FileDescriptor descriptor);
         // Close the specified 'descriptor'.  Return 0 on success and a
@@ -377,14 +387,15 @@ struct bdesu_FileUtil {
         // currently available.  If 'lockWrite' is true, acquire an exclusive
         // write lock unless another process has any type of lock on the file.
         // If 'lockWrite' is false, acquire a shared read lock unless a process
-        // has a write lock.  This method will not block.  Return 0 on success
-        // and a non-zero value otherwise; in particular, return a non-zero
-        // value if the lock could not be acquired because another process has
-        // a lock.  Note that this operation locks the indicated file for
-        // use by the current *process*, but the behavior is unspecified (and
-        // platform-dependent) when either attempting to lock 'fd' multiple
-        // times, or attempting to lock another descriptor referring to the
-        // same file, within a single process.
+        // has a write lock.  This method will not block.  Return 0 on success,
+        // 'BDESU_ERROR_LOCKING_CONFLICT' if the platform reports the lock
+        // could not be acquired because another process holds a conflicting
+        // lock, and a negative value for any other kind of error.  Note that
+        // this operation locks the indicated file for use by the current
+        // *process*, but the behavior is unspecified (and platform-dependent)
+        // when either attempting to lock 'fd' multiple times, or attempting
+        // to lock another descriptor referring to the same file, within a
+        // single process.
 
     static int unlock(FileDescriptor fd);
         // Release any lock this process holds on the file with the specified
@@ -528,11 +539,12 @@ void bdesu_FileUtil::visitPaths(
 
 inline
 bdesu_FileUtil::FileDescriptor bdesu_FileUtil::open(
-                                                 const bsl::string& path,
-                                                 bool               isWritable,
-                                                 bool               isExisting)
+                                               const bsl::string& path,
+                                               bool               writableFlag,
+                                               bool               existFlag,
+                                               bool               appendFlag)
 {
-    return open(path.c_str(), isWritable, isExisting);
+    return open(path.c_str(), writableFlag, existFlag, appendFlag);
 }
 
 inline

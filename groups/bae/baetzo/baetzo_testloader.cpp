@@ -91,7 +91,7 @@ bsl::ostream& baetzo_TestLoader::print(bsl::ostream& stream,
     for (TimeZoneMap::const_iterator itr  = d_timeZones.begin(),
                                      end  = d_timeZones.end();
                                      end != itr; ++itr) {
-        printer.print(itr->second, "Zoneinfo");
+        printer.printAttribute("Zoneinfo", itr->second);
     }
     printer.end();
 

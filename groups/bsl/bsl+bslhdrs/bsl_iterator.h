@@ -32,6 +32,11 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 #include <bslstl_iterator.h>
+
+// Also include iterator adapters.
+#include <bslstl_forwarditerator.h>
+#include <bslstl_bidirectionaliterator.h>
+#include <bslstl_randomaccessiterator.h>
 #endif
 
 #endif

@@ -11,6 +11,92 @@ BDES_IDENT_RCSID(baexml_minireader_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>  // for swap
 #include <bsl_cctype.h>
 
+// IMPLEMENTATION NOTES
+// --------------------
+
+// This section will provide a little background on how this component is
+// implemented.  This component presents a parser that has the following
+// control flow:
+//..
+//          +------------------------------<----------------------------------+
+//          |                                                                 |
+//          |                                                                 ^
+//          |                                                                 |
+//          |                    '?'                                          |
+//          |                  +--->- scanProcessingInstruction ------------>-+
+//          |                  |      - set type PROCESSING_INSTRUCTION       |
+//          |                  |      - set nodeName  (ex xml)                |
+//          |                  |      - set nodeValue (ex version='1.0')      ^
+//          |                  |      - sets state to ST_TAG_END              |
+//          |                  |                                              |
+//          |                  |                               '<!--'         |
+//          |                  ^                              +--- COMMENT ->-+
+//          |                  |                              |  - set type   |
+//          |                  |                              ^    COMMENT    |
+//          |                  |                              |  - set value  ^
+//          |                  |                              |    to comment |
+//          |                  |                              |  - set state  |
+//          V                  |                              |    ST_TAG_END |
+//          |                  |  '!'                         |               |
+//          |                  +---->- scanExclaimConstruct --+               |
+//          |                  |                              |               |
+//          |                  |                              |               |
+//          |                  |                              V               |
+//          |                  |                              |               |
+//          |                  |                              |'<![CDATA['    |
+//          |                  |                              +----- CDATA ->-+
+//          |                  |                                 - set type   |
+//          |                  ^                                   CDATA      |
+//          |                  |                                 - set value  |
+//          |                  |                                   to escaped ^
+//          |                  |                                   data       |
+//          |                  |                                 - set state  |
+//          |                  |                                   ST_TAG_END |
+//          |                  |                                              |
+//          |                  | default                                      |
+//  INITIAL | scanOpenTag -----+----->----- scanStartElement ------->---------+
+//     |    |     |            |            - set type ELEMENT                |
+//     |    |     |            |            - set nodeName                    |
+//     |    |     |            |              (ex 'Request')                  |
+//     |    |     |            |            - scanAttrs                       |
+//     |    |     |            |            - check for empty element         |
+//     |    |     |            |               - set flags to EMPTY           |
+//     |    |     |            v            - set state to ST_TAG_END         |
+//     |    |     |            |                                              |
+//     |    |     |            |                                              |
+//     |    |     | '<'        |  '/'                                         |
+//     |    |     |            +------->--- scanEndElement ---------->--------+
+//     |    |     |                         - END_ELEMENT
+//     |    |     |                         - set state to ST_TAG_END
+//     |    |     |                         - decrement num of active nodes
+//     |    |     |
+//     |    |     ^
+//     |-<--+     |
+//     |          |
+//     |          |---------<-------------------+
+//     |          |                             |
+//     v          |                             |
+//  scanNode -->--+                             |
+//     |          |                             |
+//     |          |                             | '<'
+//     |          v                             |
+//     |          | default                     ^
+//     |          |                             |
+//     |          |                             |
+//     |          +---->--- scanText ---->------+
+//     |               - WHITESPACE / TEXT      |
+//     |               - if TEXT                |
+//     |                  - Replace Char        |
+//     |                    References          V EOF
+//     |                                        |
+//     |                                        |
+//     |                                        |
+//     |-------------------<--------------------+
+//     |
+//     v
+//    END
+//..
+
 namespace {
 
 inline
@@ -275,11 +361,6 @@ baexml_MiniReader::Node::addAttribute(const Attribute& attr)
                           // -----------------------
 
 // CREATORS
-baexml_MiniReader::~baexml_MiniReader(void)
-{
-    close ();
-}
-
 baexml_MiniReader::baexml_MiniReader(bslma_Allocator *basicAllocator)
 : d_state           (ST_CLOSED)
 , d_flags           (0)
@@ -362,6 +443,11 @@ baexml_MiniReader::baexml_MiniReader(int              bufSize,
 
     d_activeNodes.resize(BAEXML_DEFAULT_DEPTH);
     d_parseBuf.resize(d_readSize);
+}
+
+baexml_MiniReader::~baexml_MiniReader()
+{
+    close ();
 }
 
 // MANIPULATORS
@@ -490,7 +576,6 @@ baexml_MiniReader::doOpen(const char *url, const char *encoding)
     d_lineNum    = 0;
     d_linePtr    = d_startPtr;
 
-    d_attrNamePtr = 0;
     d_attrNamePtr = 0;
     d_state       = ST_INITIAL;
 
@@ -893,9 +978,7 @@ baexml_MiniReader::scanForSymbol(char symbol)
 int
 baexml_MiniReader::scanForSymbolOrSpace(char symbol)
 {
-    char strSet [] = {
-        symbol, '\n', '\r', '\t' , ' ', '\0'
-    };
+    char strSet[] = { symbol, '\n', '\r', '\t' , ' ', '\0' };
 
     while (1) {
         // find 'symbol' or space
@@ -1533,7 +1616,8 @@ baexml_MiniReader::updateAttributes()
         Attribute& attr =*it1;
         int flags = attr.flags();
 
-        if (0 != (flags & Attribute::BAEXML_ATTR_IS_NSDECL)){
+        if (flags & Attribute::BAEXML_ATTR_IS_NSDECL
+         || flags & Attribute::BAEXML_ATTR_IS_XSIDECL){
             continue;
         }
 
@@ -1617,8 +1701,11 @@ baexml_MiniReader::addAttribute()
         //  prefix:localName
         localName = colon + 1;
         *colon = 0;            // temporary set terminating zero
-        if (bsl::strcmp(d_attrNamePtr, "xmlns") == 0) {
+        if (!bsl::strcmp(d_attrNamePtr, "xmlns")) {
             flags |= Attribute::BAEXML_ATTR_IS_NSDECL;
+        }
+        else if (!bsl::strcmp(d_attrNamePtr, "xsi")) {
+            flags |= Attribute::BAEXML_ATTR_IS_XSIDECL;
         }
         else {
             prefix = colon;    // later it will be corrected
@@ -1626,7 +1713,7 @@ baexml_MiniReader::addAttribute()
         *colon = ':';          // restore
     }
 
-    if ((flags & Attribute::BAEXML_ATTR_IS_NSDECL) != 0) {
+    if (flags & Attribute::BAEXML_ATTR_IS_NSDECL) {
 
         prefix = "xmlns";
         namespaceUri = "http://www.w3.org/2000/xmlns/";
@@ -1634,15 +1721,21 @@ baexml_MiniReader::addAttribute()
 
         d_prefixes->pushPrefix(localName, d_attrValPtr);
     }
+    else if (flags & Attribute::BAEXML_ATTR_IS_XSIDECL) {
+
+        prefix = "xsi";
+        namespaceUri = "http://www.w3.org/2001/XMLSchema-instance";
+        namespaceId = d_prefixes->lookupNamespaceId(prefix);
+    }
 
     Attribute attr(d_prefixes,
-        d_attrNamePtr,
-        d_attrValPtr,
-        prefix,
-        localName,
-        namespaceId,
-        namespaceUri,
-        flags);
+                   d_attrNamePtr,
+                   d_attrValPtr,
+                   prefix,
+                   localName,
+                   namespaceId,
+                   namespaceUri,
+                   flags);
 
     currentNode().addAttribute(attr);
     return 0;

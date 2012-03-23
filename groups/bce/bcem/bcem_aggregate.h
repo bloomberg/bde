@@ -79,7 +79,7 @@ BDES_IDENT("$Id: $")
 // structured, nodes, a 'bdem' aggregate may contain other aggregates whose
 // structure is described by the same record definition.  The structure of the
 // aggregate is recursive, not the aggregate itself.  An aggregate with a null
-// value (see "Null Values and Default Values," below) becomes a "leaf" of the
+// value (see "Null and Default Values," below) becomes a "leaf" of the
 // tree-like structure.  A field definition that contains a pointer to its
 // parent record definition must have the "nullable" property set, meaning
 // that the field it describes may contain a null aggregate; otherwise, no
@@ -233,7 +233,7 @@ BDES_IDENT("$Id: $")
 // retrieving an enumeration value as a string type will set or return the
 // appropriate enumerator name within the enumeration definition.
 //
-///Null Values and Default Values
+///Null and Default Values
 ///------------------------------
 // Every type described in 'bdem_ElemType' has a corresponding null value.
 // For scalar types, this null value comes from the 'bdetu_Unset' component.
@@ -705,8 +705,8 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_PLATFORMUTIL
-#include <bsls_platformutil.h>
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
 #endif
 
 #ifndef INCLUDED_BSL_CLIMITS
@@ -1142,13 +1142,13 @@ class bcem_Aggregate {
         // 'false'.
 
     // SHARED-POINTER CONSTRUCTORS
-    // The following constructors initialize the aggregate's structure and
-    // data by sharing references to the arguments provided by the client.  If
-    // a schema pointer or record definition pointer is provided without value
+    // The following constructors initialize the aggregate's structure and data
+    // by sharing references to the arguments provided by the client.  If a
+    // schema pointer or record definition pointer is provided without value
     // data, then only the schema is shared with the client; the value data is
-    // allocated and given a default non-null value.  (See "Null Values and
-    // Default Values" in the 'bcem_aggregate' component-level documentation
-    // for a more complete description of default values.)
+    // allocated and given a default non-null value.  (See "Null and Default
+    // Values" in the 'bcem_aggregate' component-level documentation for a more
+    // complete description of default values.)
 
     explicit bcem_Aggregate(
         const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
@@ -1156,19 +1156,19 @@ class bcem_Aggregate {
     explicit bcem_Aggregate(
         const bcema_SharedPtr<bdem_RecordDef>&        recordDefPtr,
         bslma_Allocator                              *basicAllocator = 0);
-        // Create an aggregate containing a list or choice object
-        // structured according to the record definition pointed to by the
-        // specified 'recordDefPtr'.  If
+        // Create an aggregate containing a list or choice object structured
+        // according to the record definition pointed to by the specified
+        // 'recordDefPtr'.  If
         // 'BDEM_SEQUENCE_RECORD == recordDefPtr->recordType()', create a
         // sequence (list) of fields, each initialized with its default value
         // (recursively for constrained list elements).  If
         // 'BDEM_CHOICE_RECORD == recordDefPtr->recordType()', create a choice
-        // aggregate with no current selection.  (See "Null Values and Default
-        // Values" in the 'bcem_Aggregate' component-level documentation for a
-        // more complete description of default values.)  The new aggregate
-        // retains a reference to the shared record definition.  The behavior
-        // is undefined if any part of the record definition's parent schema
-        // is modified during the lifetime of this aggregate.  Note that after
+        // aggregate with no current selection.  (See "Null and Default Values"
+        // in the 'bcem_Aggregate' component-level documentation for a more
+        // complete description of default values.)  The new aggregate retains
+        // a reference to the shared record definition.  The behavior is
+        // undefined if any part of the record definition's parent schema is
+        // modified during the lifetime of this aggregate.  Note that after
         // construction, 'isNul2()' returns 'false'.
 
     bcem_Aggregate(
@@ -1224,18 +1224,18 @@ class bcem_Aggregate {
         // and choices).  If the element type is 'CHOICE', initialize the
         // choice object to have no current selection.  If the element type is
         // 'TABLE' or 'CHOICE_ARRAY', initialize the object to have no rows or
-        // items.  (See "Null Values and Default Values" in the
-        // 'bcem_aggregate' component-level documentation for a more complete
-        // description of default values.)  The constructed aggregate will be
-        // in an error state (see "Error Handling" in the 'bcem_Aggregate'
-        // component-level documentation) unless 'elemType' is 'VOID', 'LIST',
-        // 'TABLE', 'CHOICE', or 'CHOICE_ARRAY' and
+        // items.  (See "Null and Default Values" in the 'bcem_aggregate'
+        // component-level documentation for a more complete description of
+        // default values.)  The constructed aggregate will be in an error
+        // state (see "Error Handling" in the 'bcem_Aggregate' component-level
+        // documentation) unless 'elemType' is 'VOID', 'LIST', 'TABLE',
+        // 'CHOICE', or 'CHOICE_ARRAY' and
         // 'schemaPtr->lookupRecord(recordName)->recordType()' is
         // 'BDEM_SEQUENCE_RECORD' for an element type of 'LIST' or 'TABLE' and
         // 'schemaPtr->lookupRecord(recordName)->recordType()' is
         // 'BDEM_CHOICE_RECORD' for an element type of 'CHOICE' or
-        // 'CHOICE_ARRAY'.  The behavior is undefined if the schema is
-        // modified during the lifetime of this aggregate.  Note that after
+        // 'CHOICE_ARRAY'.  The behavior is undefined if the schema is modified
+        // during the lifetime of this aggregate.  Note that after
         // construction, 'isNul2()' returns 'false'.
 
     bcem_Aggregate(const bcem_Aggregate& original);
@@ -1267,6 +1267,19 @@ class bcem_Aggregate {
         // the same as the allocator for 'rhs'.  Note that if 'rhs' is an
         // error aggregate, then this aggregate will be assigned the same
         // error state.
+
+    const bcem_Aggregate reserveRaw(bsl::size_t numItems);
+        // Reserve sufficient memory for at least the specified 'numItems' if
+        // this aggregate references a scalar or choice array, or reserve
+        // sufficient memory for at least the footprint of 'numItems' rows, if
+        // this aggregate references a table.  In the latter case, additional
+        // memory needed to initialize a new row upon insertion, *may* or may
+        // *not* be reserved depending on the allocation mode.  In the future,
+        // this method may strengthen its guarantee such that no additional
+        // allocation will occur upon row insertion (regardless of allocation
+        // mode) unless a data element itself allocates memory.  Return the
+        // value of this aggregate on success or an error aggregate if this
+        // aggregate does not reference an array type.
 
     const bcem_Aggregate& reset();
         // Reset this object to the void aggregate ('BDEM_VOID' data type, no
@@ -1724,14 +1737,14 @@ class bcem_Aggregate {
         // aggregate to the one specified by 'newSelectorId' resetting the
         // nullness flag if 'isNul2()' returns 'true'.  If 'newSelectorId' is
         // 'bdem_RecordDef::BDEM_NULL_FIELD_ID' then the selection is reset.
-        // The newly selected sub-object is initialized to its default
-        // value. (See "Null Values and Default Values" in the 'bcem_Aggregate'
+        // The newly selected sub-object is initialized to its default value.
+        // (See "Null and Default Values" in the 'bcem_Aggregate'
         // component-level documentation for a more complete description of
-        // default values.)  Return a sub-aggregate referring to the
-        // modifiable selection on success or an error object on failure (as
-        // described in the "Error Handling" section of the 'bcem_aggregate'
-        // component-level documentation).  This aggregate is not modified if
-        // an error is detected.
+        // default values.)  Return a sub-aggregate referring to the modifiable
+        // selection on success or an error object on failure (as described in
+        // the "Error Handling" section of the 'bcem_aggregate' component-level
+        // documentation).  This aggregate is not modified if an error is
+        // detected.
 
     template <typename VALTYPE>
     const bcem_Aggregate makeSelectionById(int            newSelectorId,
@@ -1786,16 +1799,16 @@ class bcem_Aggregate {
     const bcem_Aggregate makeValue() const;
         // Construct a value for the nullable object referenced by this
         // aggregate by resetting its nullness flag and assigning it the
-        // default value specified in the schema, or (for 'LIST' aggregates)
-        // by giving each scalar field its default value and recursively
+        // default value specified in the schema, or (for 'LIST' aggregates) by
+        // giving each scalar field its default value and recursively
         // constructing the default value for each non-nullable sublist (see
-        // "Null Values and Default Values" in the 'bcem_aggregate'
-        // component-level documentation).  Return this aggregate on success
-        // or an error aggregate on failure.  If the aggregate is not null
-        // when this function is called, do nothing (this is not an error).
-        // Furthermore, if this aggregate refers to a list with an empty
-        // record definition, then the entire list will still be null after
-        // this function is called.
+        // "Null and Default Values" in the 'bcem_aggregate' component-level
+        // documentation).  Return this aggregate on success or an error
+        // aggregate on failure.  If the aggregate is not null when this
+        // function is called, do nothing (this is not an error).  Furthermore,
+        // if this aggregate refers to a list with an empty record definition,
+        // then the entire list will still be null after this function is
+        // called.
 
     void swap(bcem_Aggregate& rhs);
         // Efficiently exchange the states of this aggregate object and the
@@ -1822,6 +1835,19 @@ class bcem_Aggregate {
         // containers.
 
     // ACCESSORS
+    const bcem_Aggregate capacityRaw(bsl::size_t *capacity) const;
+        // Load, in the specified 'capacity', the total number of items for
+        // which sufficient memory is currently allocated if this aggregate
+        // references a scalar or choice array, or load the total number of row
+        // footprints for which sufficient memory is currently allocated, if
+        // this aggregate references a table.  In the latter case, inserting
+        // rows that do not exceed this capacity *may* or may *not* result in
+        // additional allocations depending on the allocation mode, and whether
+        // any row data element itself allocates memory (see the 'reserveRaw'
+        // method).  Return the value of this aggregate on success or an error
+        // aggregate if this aggregate does not reference an array type.  Note
+        // that 'length() <= capacityRaw()' is an invariant of this class.
+
     bool isError() const;
         // Return 'true' if this object was returned from a function that
         // detected an error.  If this function returns 'true', then
@@ -1898,7 +1924,7 @@ class bcem_Aggregate {
     char asChar() const;
     short asShort() const;
     int asInt() const;
-    bsls_PlatformUtil::Int64 asInt64() const;
+    bsls_Types::Int64 asInt64() const;
     float asFloat() const;
     double asDouble() const;
     bdet_Datetime asDatetime() const;
@@ -1912,7 +1938,9 @@ class bcem_Aggregate {
         // as described in the 'bcem_Aggregate' component-level documentation
         // (returning the enumerator ID when converting enumeration objects to
         // numeric values).  Return the appropriate "null" value if conversion
-        // fails.
+        // fails.  (See "Null and Default Values" in the 'bcem_aggregate'
+        // component-level documentation for a more complete description of
+        // the null values for various types.)
 
     const bdem_ElemRef asElemRef() const;
         // Return a reference to the modifiable element value held by this
@@ -2401,9 +2429,48 @@ class bcem_Aggregate_ArrayInserter {
         // has not yet been called.
 };
 
-                           // =====================================
-                           // local class bcem_Aggregate_ArraySizer
-                           // =====================================
+                        // =========================================
+                        // local class bcem_Aggregate_ArrayCapacitor
+                        // =========================================
+
+class  bcem_Aggregate_ArrayCapacitor {
+    // Functor that loads the capacity of a sequence container into a parameter
+    // passed in the constructor.  The capacity of a sequence container is the
+    // number of elements for which memory is already allocated.
+
+    //DATA
+    bsl::size_t *d_capacity_p;  // pointer to memory where to load the capacity
+
+  private:
+    // NOT IMPLEMENTED
+    bcem_Aggregate_ArrayCapacitor(const bcem_Aggregate_ArrayCapacitor&);
+    bcem_Aggregate_ArrayCapacitor& operator=(
+                                         const bcem_Aggregate_ArrayCapacitor&);
+  public:
+    // CREATOR
+    bcem_Aggregate_ArrayCapacitor(bsl::size_t *capacity)
+    : d_capacity_p(capacity)
+    {
+    }
+
+    // MANIPULATORS
+    template <typename ARRAYTYPE>
+    int operator()(ARRAYTYPE *array)
+    {
+        *d_capacity_p = array->capacity();
+
+        // Return 0 because of the constraint on the signature of this functor
+        // by the method 'bcem_Aggregate_Util::visitArray'.  The return value
+        // should not be used.
+
+        return 0;
+    }
+
+};
+
+                        // =====================================
+                        // local class bcem_Aggregate_ArraySizer
+                        // =====================================
 
 struct bcem_Aggregate_ArraySizer {
     // Function object to return the size of a sequence container.  The size of
@@ -2414,6 +2481,38 @@ struct bcem_Aggregate_ArraySizer {
     int operator()(ARRAYTYPE *array) const
     {
         return (int)array->size();
+    }
+};
+
+                        // ========================================
+                        // local class bcem_Aggregate_ArrayReserver
+                        // ========================================
+
+class bcem_Aggregate_ArrayReserver {
+    // Function object to reserve memory in a sequence container for the
+    // number of objects indicated at construction.
+
+    // DATA
+    bsl::size_t d_numItems;
+
+    // NOT IMPLEMENTED
+    bcem_Aggregate_ArrayReserver(const bcem_Aggregate_ArrayReserver&);
+    bcem_Aggregate_ArrayReserver& operator=(
+                                          const bcem_Aggregate_ArrayReserver&);
+
+  public:
+    // CREATORS
+    bcem_Aggregate_ArrayReserver(bsl::size_t numItems)
+    : d_numItems(numItems)
+    {
+    }
+
+    // ACCESSORS
+    template <typename ARRAYTYPE>
+    int operator()(ARRAYTYPE *array) const
+    {
+        array->reserve(d_numItems);
+        return 0;
     }
 };
 
@@ -2783,7 +2882,7 @@ int bcem_Aggregate_Util::visitArray(void                *array,
 // PRIVATE CLASS METHODS
 template <typename TYPE>
 inline
-bdem_ElemType::Type bcem_Aggregate::getBdemType(const TYPE& value)
+bdem_ElemType::Type bcem_Aggregate::getBdemType(const TYPE&)
 {
     return (bdem_ElemType::Type) bdem_SelectBdemType<TYPE>::VALUE;
 }
@@ -4067,7 +4166,7 @@ struct bcem_Aggregate_BdeatInfo {
     int                   d_id;
     int                   d_formattingMode;
     mutable bool          d_areLazyAttributesSet;     // 'true' if 'd_name_p',
-                                                      // etc. have been set
+                                                      // etc have been set
 
     // The following attributes are specific to 'bcem_Aggregate_BdeatUtil'.
 

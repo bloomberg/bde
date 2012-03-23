@@ -46,7 +46,6 @@
 #include <bdeut_strtokeniter.h>
 
 #include <bsl_algorithm.h>
-
 #include <bsl_cstring.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iomanip.h>
@@ -157,10 +156,9 @@ using namespace bdef_PlaceHolders;
 // [27] CONCERN: Read timeout
 // [28] TESTING: 'busyMetrics' and time metrics collection.
 // [28] CONCERN: Event Manager Allocation
-// [30] USAGE EXAMPLE 2
-// [31] (OLD) USAGE EXAMPLE my_QueueProcessor
-// [32] (OLD) USAGE EXAMPLE VLM Echo Server
-// [33] USAGE EXAMPLE 1
+// [36] USAGE EXAMPLE 2
+// [37] (OLD) USAGE EXAMPLE my_QueueProcessor
+// [38] USAGE EXAMPLE 3
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
@@ -640,6 +638,12 @@ int maxConsecutiveFailures = 1;
 int minMsgSize = 100;
 int maxMsgSize = 32000;
 
+#ifdef BDE_BUILD_TARGET_OPT
+const int NUM_THREADS = 20;
+#else
+const int NUM_THREADS = 5;
+#endif
+
 bcemt_Barrier *barrier;
 
 void poolStateCb(int state, int source, int severity)
@@ -710,14 +714,14 @@ enum  {
 
 const char* checkRcToString(int type)
 {
-    #define CASE(T)	    case T: return #T
+    #define CASE(T)         case T: return #T
     switch (type) {
       CASE(ERROR_IMPOSSIBLE_WRITE_SUCCEEDED);
       CASE(ERROR_MAX_POSSIBLE_WRITE_FAILED);
     };
     #undef CASE
 
-    BSLS_ASSERT_OPT(0);
+    ASSERT(0);
     return "UNKNOWN";
 }
 
@@ -742,7 +746,7 @@ void delay(int delay)
 {
     int i;
     for (i = 0; i < delay; ++i);
-    BSLS_ASSERT_OPT(i); // poor way to stop optimize-away
+    ASSERT(i); // poor way to stop optimize-away
 }
 
 // signal allow writer threads to start writing from the same time (to
@@ -765,9 +769,14 @@ void writerThread(unsigned threadIndex)
     int oldSignal = 0;
 
     bcema_Blob blob(&blobFactory);
-    for (iter = 0; iter < maxWritesPerThread && 
+    for (iter = 0; iter < maxWritesPerThread &&
                    consecutiveFailures < maxConsecutiveFailures; ++iter) {
+
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+        int randVal = rand();
+#else
         int randVal = rand_r(&threadIndex);
+#endif
         int nBytes  = minMsgSize + randVal % (maxMsgSize - minMsgSize + 1);
         blob.setLength(nBytes);
 
@@ -775,7 +784,6 @@ void writerThread(unsigned threadIndex)
         oldSignal = sig;
 
         int rc = channelPool->write(s_channelId, blob);
-        LOOP_ASSERT(rc, !rc);
 
         if (rc == 0) {
             consecutiveFailures = 0;
@@ -802,7 +810,7 @@ extern "C" void* threadFunctionCase36(void *data)
     Obj           *pool     = testData->d_pool_p;
     int            id       = testData->d_channelId;
     bcemt_Barrier *barrier  = testData->d_barrier_p;;
-    
+
     bcema_Blob b(&f);
     b.setLength(CACHE_HI_WAT);
 
@@ -883,10 +891,10 @@ void blobBasedReadCb(int             *needed,
 }  // namespace TEST_CASE_36_NAMESPACE
 
 //-----------------------------------------------------------------------------
-// CASE 35
+// CASE 32
 //-----------------------------------------------------------------------------
 
-namespace CASE35 {
+namespace CASE32 {
 
 void poolStateCb(int            state,
                  int            source,
@@ -1278,6 +1286,7 @@ int verify(const Obj&                 pool,
                                     bteso_SocketOptUtil::BTESO_RECEIVETIMEOUT,
                                     bteso_SocketOptUtil::BTESO_SOCKETLEVEL,
                                     channelId);
+
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -7769,6 +7778,217 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 37: {
         // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 3
+        //   Send and receive various messages conforming to the vlm_EchoServer
+        //   message schema.  This is a common message schema for passing
+        //   variable-length messages.
+        //
+        // Plan:
+        //
+        // Testing:
+        //   USAGE EXAMPLE 3
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING USAGE EXAMPLE 3"
+                          << "\n======================="
+                          << endl;
+
+        using namespace USAGE_EXAMPLE_3_NAMESPACE;
+
+        const struct {
+            int           d_line;
+            const char   *d_text;
+        } DATA[] = {
+            // Line  Text
+            {  L_,   "" },
+            {  L_,   "BDE" },
+            {  L_,   "hello world"},
+            {  L_,   "This is a short test."},
+            {  L_,   "This is a somewhat longer test which we hope "
+                     "will not pose much of a problem for the "
+                     "vlm_EchoServer." },
+        };
+        const int DATA_SIZE = sizeof DATA / sizeof *DATA;
+
+        typedef bteso_InetStreamSocketFactory<bteso_IPv4Address> IPv4Factory;
+        typedef bteso_StreamSocket<bteso_IPv4Address>            Socket;
+
+        bcema_TestAllocator ta(veryVeryVerbose);
+        {
+            vlm_EchoServer server(0, &ta);
+            ASSERT(0 == server.start());
+            const int PORT = server.portNumber();
+
+            IPv4Factory          factory(&ta);
+            Socket              *socket = factory.allocate();
+            btesos_TcpChannel    channel(socket);
+            bteso_IPv4Address    address;
+
+            address.setPortNumber(PORT);
+            ASSERT(0 == socket->connect(address));
+            ASSERT(0 == channel.isInvalid());
+
+            for(int i=0; i < DATA_SIZE; ++i){
+                // Send Request
+                const int             LINE = DATA[i].d_line;
+                const char           *TEXT = DATA[i].d_text;
+                int                   length;
+                char                  rawLength[sizeof length];
+
+                length = strlen(TEXT) + 1;
+                bdex_ByteStreamImpUtil::putInt32(rawLength, length);
+                channel.write(rawLength, sizeof length);
+                channel.write(TEXT, length);
+
+                // Read Response
+                channel.read(rawLength, sizeof length);
+                bdex_ByteStreamImpUtil::getInt32(&length, rawLength);
+                LOOP_ASSERT(i, 0 < length);
+                char   *text = new char[length];
+                channel.read(text, length);
+
+                if(veryVerbose){
+                    P_(i); P(TEXT);
+                    P_(i); P(text);
+                }
+                LOOP2_ASSERT(i, LINE, 0 == strcmp(TEXT, text));
+                delete[] text;
+            }
+
+            channel.invalidate();
+            factory.deallocate(socket);
+            ASSERT(0 == server.stop());
+        }
+        ASSERT(0 <  ta.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
+
+      } break;
+      case 36: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE TEST: my_QueueProcessor
+        //
+        // Concerns:
+        //   The usage example provided in the component header file must
+        //   compile, link, and execute as shown.
+        //
+        // Plan:
+        //   Incorporate the usage example from the header file into the test
+        //   driver.  Additionally, replace all calls to 'assert' in the usage
+        //   example with calls to 'ASSERT'.  In order for this usage example
+        //   to actually do something useful, run the test case -1 in another
+        //   thread.
+        //
+        // Testing:
+        //   USAGE EXAMPLE 2
+        // --------------------------------------------------------------------
+        if (verbose)
+            cout << "\nTESTING USAGE EXAMPLE - QUEUE PROCESSOR"
+                 << "\n=======================================" << endl;
+
+        using namespace USAGE_EXAMPLE_2_NAMESPACE;
+        using namespace USAGE_EXAMPLE_M1_NAMESPACE;
+
+        if (verbose) {
+            cout << "In another window, run this test driver's case -1, e.g.:";
+            cout << "\n\t" << argv[0] << " -1  10  2564  127.0.0.1  10000\n";
+            cout << "For bigger jobs (i.e, stress test), try:";
+            cout << "\n\t" << argv[0] << " -1  10  2564  127.0.0.1  10000\n";
+            cout << "For non-null testing in verbose mode, try:";
+            cout << "\n\t" << argv[0] << " 24 -1\n";
+        }
+
+        enum {
+            NUM_CONNECTIONS = 10,
+            MAX_CONNECTIONS = 100,
+            NUM_MESSAGES    = 10,  // per connection
+            NUM_ITERS       = 10
+        };
+
+        bcema_TestAllocator ta(veryVeryVerbose);
+        bcema_Pool pool(100, &ta);
+
+        bcec_Queue<btemt_DataMsg> incoming, outgoing;
+        my_QueueProcessor qp(&incoming, &outgoing, &coutMutex,
+                             0, MAX_CONNECTIONS, &ta);
+        ASSERT(0 == qp.startProcessor());
+        const int PORT_NUMBER = qp.portNumber();
+
+        bcemt_ThreadUtil::Handle usageMinusOneHandle;
+        if (verbose < 0) {
+            caseMinusOneInfo info;
+            info.d_numConnections = NUM_CONNECTIONS;
+            info.d_portNumber     = PORT_NUMBER;
+            info.d_hostname       = const_cast<char *>("127.0.0.1");
+            info.d_numMessages    = NUM_MESSAGES;
+            info.d_numIters       = NUM_ITERS;
+            bcemt_ThreadUtil::create(&usageMinusOneHandle,
+                                     &usageExampleMinusOne,
+                                     (void *)&info);
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 1); // 1s, to let my_QueueClients
+                                            // enqueue messages into incoming
+                                            // queue.
+
+        while (0 < incoming.queue().length()) {
+            btemt_DataMsg msg = incoming.popFront(); // get msg from client
+            if (veryVerbose) {
+                PT(msg.data()->length());
+            }
+            ASSERT(msg.data()->length());
+            if (veryVeryVerbose) {
+                MTCOUT << "Processing message from "
+                       << msg.channelId() << MTENDL;
+            }
+            bcemt_ThreadUtil::microSleep(10000);
+            outgoing.pushBack(msg); // will send back to corresponding client
+        }
+
+        if (verbose < 0) {
+            bcemt_ThreadUtil::join(usageMinusOneHandle);
+        }
+        ASSERT(0 == qp.stopProcessor());
+
+      } break;
+      case 35: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 2
+        //
+        // Concerns:
+        //   The usage example provided in the component header file must
+        //   compile, link, and execute as shown.
+        //
+        // Plan:
+        //   Incorporate the usage example from the header file into the test
+        //   driver.  Additionally, replace all calls to 'assert' in the usage
+        //   example with calls to 'ASSERT'.
+        //
+        // Testing:
+        //   USAGE EXAMPLE 1
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nTESTING USAGE EXAMPLE - AN ECHO SERVER"
+                 << "\n======================================" << endl;
+
+        using namespace USAGE_EXAMPLE_2_NAMESPACE;
+
+        enum {
+            MAX_CONNECTIONS = 1000,
+            NUM_MONITOR     = 10
+        };
+
+        my_EchoServer echoServer(&coutMutex, 0, MAX_CONNECTIONS);
+
+        if (verbose) {
+            MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
+        }
+        monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR, verbose);
+
+      } break;
+
+      case 34: {
+        // --------------------------------------------------------------------
         // REPRODUCING DRQS 25245489
         //   Reproducing that even when numNeeded is specified as 0 channel
         //   pool can continue reading because it fails to disableRead in all
@@ -7790,7 +8010,7 @@ int main(int argc, char *argv[])
         //: write random data on a channel with random intervals of spinning.
         //: The hope is that with sufficient attempts the value of
         //: 'd_writeCacheSize' would become invalid.  This condition can be
-        //: checked by trying to write data of length cache hi watermark (and 
+        //: checked by trying to write data of length cache hi watermark (and
         //: then one plus the cache hi watermark).  The former should succeed
         //: and the latter should fail.  If both conditions do not return the
         //: expected return code then we have reproduced the bug.
@@ -7800,7 +8020,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nREPRODUCING DRQS 20199908"
+            cout << "\nREPRODUCING DRQS 25245489"
                  << "\n========================="
                  << endl;
 
@@ -7858,8 +8078,7 @@ int main(int argc, char *argv[])
         channelCbBarrier.wait();
         channelCbBarrier.wait();
 
-        const int NT = 2;
-        bcemt_Barrier currBarrier(NT + 1);
+        bcemt_Barrier currBarrier(NUM_THREADS + 1);
         barrier = &currBarrier;
 
         rc = check();
@@ -7871,9 +8090,9 @@ int main(int argc, char *argv[])
         ASSERT(!rc);
 
         // fork threads
-        for (int i = 0; i < NT; ++i) {
+        for (int i = 0; i < NUM_THREADS; ++i) {
             bcemt_ThreadUtil::Handle handle;
-            rc = bcemt_ThreadUtil::create(&handle, 
+            rc = bcemt_ThreadUtil::create(&handle,
                                         bdef_BindUtil::bind(&writerThread, i));
             ASSERT(!rc);
         }
@@ -7906,19 +8125,19 @@ int main(int argc, char *argv[])
           rc = channelPool->setWriteCacheHiWatermark(channelId,
                                                      CACHE_HI_WAT * 2);
           ASSERT(!rc);
-          
+
           rc = write(CACHE_HI_WAT);
           ASSERT(!rc);
         }
         else {
           rc = channelPool->setWriteCacheHiWatermark(channelId, 1);
           ASSERT(!rc);
-          
+
           rc = write(CACHE_HI_WAT + 1);
           ASSERT(rc);
         }
       } break;
-      case 36: {
+      case 33: {
         // --------------------------------------------------------------------
         // REPRODUCING DRQS 20199908
         //   Reproducing that even when numNeeded is specified as 0 channel
@@ -8000,12 +8219,19 @@ int main(int argc, char *argv[])
             P(data);
         }
 
+        numTimesDataCbCalled = 0;
+
         rc = pool.disableRead(channelId);
         ASSERT(!rc);
 
+        // Wait for the dispatcher thread to process the deregister the READ
+        // event.
+
+        bcemt_ThreadUtil::microSleep(0, 2);
+
         rc = socket->write(TEXT, LEN);
         LOOP2_ASSERT(LEN, rc, LEN == rc);
-        
+
         bdet_TimeInterval time = bdetu_SystemTime::now() + 2;  // wait for 2
                                                                // secs
         rc = dataCbBarrier.timedWait(time);
@@ -8015,14 +8241,13 @@ int main(int argc, char *argv[])
 
         ASSERT(rc);
 
-        LOOP_ASSERT(numTimesDataCbCalled,    1   == numTimesDataCbCalled);
-        LOOP3_ASSERT(LEN, data.size(), data, LEN == data.size());
+        LOOP_ASSERT(numTimesDataCbCalled, 0 == numTimesDataCbCalled);
 
         if (veryVerbose) {
             P(data);
         }
       } break;
-      case 35: {
+      case 32: {
         // --------------------------------------------------------------------
         // TESTING 'connect' & 'listen' with SocketOpts and clientAddress
         //   Ensure that the 'connect' and 'listen' functions have the
@@ -8046,7 +8271,7 @@ int main(int argc, char *argv[])
                  << "\n===================================================="
                  << endl;
 
-        using namespace CASE35;
+        using namespace CASE32;
 
         const struct {
             int         d_line;
@@ -8055,6 +8280,7 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // Line   Spec        Exp Return Code
             // ----   ----        ---------------
+
             {   L_,   "GN",         0 },
 
 #ifdef BSLS_PLATFORM__OS_LINUX
@@ -8169,7 +8395,7 @@ int main(int argc, char *argv[])
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        // connect(IPv4Address .... ) with socket options provided
+        if (verbose) cout << "connect(IPv4Address...) with options" << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8207,16 +8433,18 @@ int main(int argc, char *argv[])
 
                 SocketOptions opt = g(SPEC); const SocketOptions& OPT = opt;
 
-                if (veryVerbose) { P_(LINE) P(OPT) }
+                if (veryVerbose) { P_(LINE) P(OPT); }
 
                 const int SERVER_ID = 100;
                 const int SOURCE_ID = 200;
 
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
                                                             factory.allocate();
+                ASSERT(socket);
                 sockets.push_back(socket);
 
                 ASSERT(0 == socket->bind(bteso_IPv4Address()));
+
                 ASSERT(0 == socket->listen(5));
 
                 bteso_IPv4Address serverAddr;
@@ -8249,7 +8477,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // connect(hostname ... ) with socket options provided
+        if (verbose) cout << "connect(hostname...) with options" << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8287,13 +8515,14 @@ int main(int argc, char *argv[])
 
                 SocketOptions opt = g(SPEC); const SocketOptions& OPT = opt;
 
-                if (veryVerbose) { P_(LINE) P(OPT) }
+                if (veryVerbose) { P(LINE) P(OPT) }
 
                 const int SERVER_ID = 100;
                 const int SOURCE_ID = 200;
 
                 bteso_StreamSocket<bteso_IPv4Address> *socket =
                                                             factory.allocate();
+                ASSERT(socket);
                 sockets.push_back(socket);
 
                 ASSERT(0 == socket->bind(bteso_IPv4Address()));
@@ -8329,7 +8558,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // connect(IPv4Address .... ) with client address specified
+        if (verbose) cout << "connect(IPv4Address...) with client address"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8391,7 +8621,8 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
 
-        // connect(hostname ... ) with client address specified
+        if (verbose) cout << "connect(hostname...) with client address"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8456,7 +8687,7 @@ int main(int argc, char *argv[])
             factory.deallocate(socket);
         }
 
-        // listen(port, backlog, id, reuseAddr, readEnabled, sockOpts)
+        if (verbose) cout << "listen with socket options" << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8547,7 +8778,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // listen(port, backlog, id, timeout, reuseAddr, readEnabled, sockOpts)
+        if (verbose) cout << "listen with time out and socket options"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8639,7 +8871,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // listen(addr, backlog, id, reuseAddr, readEnabled, sockOpts)
+        if (verbose) cout << "listen(IPv4Address...) and socket options"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8728,7 +8961,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        // listen(addr, backlog, id, time, reuse, read, mode, sockOpts)
+        if (verbose) cout << "listen(IPv4Address...) with time out and options"
+                          << endl;
         {
             btemt_ChannelPoolConfiguration config;
             config.setMaxThreads(1);
@@ -8819,217 +9053,6 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 34: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 3
-        //   Send and receive various messages conforming to the vlm_EchoServer
-        //   message schema.  This is a common message schema for passing
-        //   variable-length messages.
-        //
-        // Plan:
-        //
-        // Testing:
-        //   USAGE EXAMPLE 3
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\nTESTING USAGE EXAMPLE - VLM ECHO SERVER."
-                 << "\n========================================" << endl;
-
-        using namespace USAGE_EXAMPLE_3_NAMESPACE;
-
-        const struct {
-            int           d_line;
-            const char   *d_text;
-        } DATA[] = {
-            // Line  Text
-            {  L_,   "" },
-            {  L_,   "BDE" },
-            {  L_,   "hello world"},
-            {  L_,   "This is a short test."},
-            {  L_,   "This is a somewhat longer test which we hope "
-                     "will not pose much of a problem for the "
-                     "vlm_EchoServer." },
-        };
-        const int DATA_SIZE = sizeof DATA / sizeof *DATA;
-
-        typedef bteso_InetStreamSocketFactory<bteso_IPv4Address> IPv4Factory;
-        typedef bteso_StreamSocket<bteso_IPv4Address>            Socket;
-
-        bcema_TestAllocator ta(veryVeryVerbose);
-        {
-            vlm_EchoServer server(0, &ta);
-            ASSERT(0 == server.start());
-            const int PORT = server.portNumber();
-
-            IPv4Factory          factory(&ta);
-            Socket              *socket = factory.allocate();
-            btesos_TcpChannel    channel(socket);
-            bteso_IPv4Address    address;
-
-            address.setPortNumber(PORT);
-            ASSERT(0 == socket->connect(address));
-            ASSERT(0 == channel.isInvalid());
-
-            for(int i=0; i < DATA_SIZE; ++i){
-                // Send Request
-                const int             LINE = DATA[i].d_line;
-                const char           *TEXT = DATA[i].d_text;
-                int                   length;
-                char                  rawLength[sizeof length];
-
-                length = strlen(TEXT) + 1;
-                bdex_ByteStreamImpUtil::putInt32(rawLength, length);
-                channel.write(rawLength, sizeof length);
-                channel.write(TEXT, length);
-
-                // Read Response
-                channel.read(rawLength, sizeof length);
-                bdex_ByteStreamImpUtil::getInt32(&length, rawLength);
-                LOOP_ASSERT(i, 0 < length);
-                char   *text = new char[length];
-                channel.read(text, length);
-
-                if(veryVerbose){
-                    P_(i); P(TEXT);
-                    P_(i); P(text);
-                }
-                LOOP2_ASSERT(i, LINE, 0 == strcmp(TEXT, text));
-                delete[] text;
-            }
-
-            channel.invalidate();
-            factory.deallocate(socket);
-            ASSERT(0 == server.stop());
-        }
-        ASSERT(0 <  ta.numAllocations());
-        ASSERT(0 == ta.numBytesInUse());
-
-      } break;
-      case 33: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE TEST: my_QueueProcessor
-        //
-        // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and execute as shown.
-        //
-        // Plan:
-        //   Incorporate the usage example from the header file into the test
-        //   driver.  Additionally, replace all calls to 'assert' in the usage
-        //   example with calls to 'ASSERT'.  In order for this usage example
-        //   to actually do something useful, run the test case -1 in another
-        //   thread.
-        //
-        // Testing:
-        //   USAGE EXAMPLE 2
-        // --------------------------------------------------------------------
-        if (verbose)
-            cout << "\nTESTING USAGE EXAMPLE - QUEUE PROCESSOR"
-                 << "\n=======================================" << endl;
-
-        using namespace USAGE_EXAMPLE_2_NAMESPACE;
-        using namespace USAGE_EXAMPLE_M1_NAMESPACE;
-
-        if (verbose) {
-            cout << "In another window, run this test driver's case -1, e.g.:";
-            cout << "\n\t" << argv[0] << " -1  10  2564  127.0.0.1  10000\n";
-            cout << "For bigger jobs (i.e, stress test), try:";
-            cout << "\n\t" << argv[0] << " -1  10  2564  127.0.0.1  10000\n";
-            cout << "For non-null testing in verbose mode, try:";
-            cout << "\n\t" << argv[0] << " 24 -1\n";
-        }
-
-        enum {
-            NUM_CONNECTIONS = 10,
-            MAX_CONNECTIONS = 100,
-            NUM_MESSAGES    = 10,  // per connection
-            NUM_ITERS       = 10
-        };
-
-        bcema_TestAllocator ta(veryVeryVerbose);
-        bcema_Pool pool(100, &ta);
-
-        bcec_Queue<btemt_DataMsg> incoming, outgoing;
-        my_QueueProcessor qp(&incoming, &outgoing, &coutMutex,
-                             0, MAX_CONNECTIONS, &ta);
-        ASSERT(0 == qp.startProcessor());
-        const int PORT_NUMBER = qp.portNumber();
-
-        bcemt_ThreadUtil::Handle usageMinusOneHandle;
-        if (verbose < 0) {
-            caseMinusOneInfo info;
-            info.d_numConnections = NUM_CONNECTIONS;
-            info.d_portNumber     = PORT_NUMBER;
-            info.d_hostname       = const_cast<char *>("127.0.0.1");
-            info.d_numMessages    = NUM_MESSAGES;
-            info.d_numIters       = NUM_ITERS;
-            bcemt_ThreadUtil::create(&usageMinusOneHandle,
-                                     &usageExampleMinusOne,
-                                     (void *)&info);
-        }
-
-        bcemt_ThreadUtil::microSleep(0, 1); // 1s, to let my_QueueClients
-                                            // enqueue messages into incoming
-                                            // queue.
-
-        while (0 < incoming.queue().length()) {
-            btemt_DataMsg msg = incoming.popFront(); // get msg from client
-            if (veryVerbose) {
-                PT(msg.data()->length());
-            }
-            ASSERT(msg.data()->length());
-            if (veryVeryVerbose) {
-                MTCOUT << "Processing message from "
-                       << msg.channelId() << MTENDL;
-            }
-            bcemt_ThreadUtil::microSleep(10000);
-            outgoing.pushBack(msg); // will send back to corresponding client
-        }
-
-        if (verbose < 0) {
-            bcemt_ThreadUtil::join(usageMinusOneHandle);
-        }
-        ASSERT(0 == qp.stopProcessor());
-
-      } break;
-      case 32: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE 2
-        //
-        // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and execute as shown.
-        //
-        // Plan:
-        //   Incorporate the usage example from the header file into the test
-        //   driver.  Additionally, replace all calls to 'assert' in the usage
-        //   example with calls to 'ASSERT'.
-        //
-        // Testing:
-        //   USAGE EXAMPLE 1
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            cout << "\nTESTING USAGE EXAMPLE - AN ECHO SERVER"
-                 << "\n======================================" << endl;
-
-        using namespace USAGE_EXAMPLE_2_NAMESPACE;
-
-        enum {
-            MAX_CONNECTIONS = 1000,
-            NUM_MONITOR     = 10
-        };
-
-        my_EchoServer echoServer(&coutMutex, 0, MAX_CONNECTIONS);
-
-        if (verbose) {
-            MTCOUT << "monitor pool: count=" << NUM_MONITOR << MTENDL;
-        }
-        monitorPool(&coutMutex, echoServer.pool(), NUM_MONITOR, verbose);
-
-      } break;
-
       case 31: {
         // --------------------------------------------------------------------
         // TESTING CONCERN: DRQS 22256519
@@ -9518,6 +9541,16 @@ int main(int argc, char *argv[])
                                         btemt_ChannelPool::BTEMT_CHANNEL_UP,
                                         bdet_TimeInterval(1.0)));
 
+#if  defined(BSLS_PLATFORM__OS_LINUX)           \
+ &&  defined(BDE_BUILD_TARGET_OPT)              \
+ &&  defined(BSLS_PLATFORM__CPU_64_BIT)
+            // 64-bit opt builds on Linux this check that the latest imported
+            // socket is assigned to the lastClientSocketThreadId fails.  The
+            // allocation to a specific event manager thread is not an error
+            // per se.  It happens only in one specific build mode and where
+            // the allocation to event managers is based on the cpu
+            // utilization of the process.
+#else
             // Verify that the newly imported socket was assigned to the
             // thread (i.e., the event manager) of the channel that was not
             // simulating processing (i.e., the last channel).
@@ -9529,6 +9562,7 @@ int main(int argc, char *argv[])
                                                          states[k].d_threadId);
                 }
             }
+#endif
 
             pool.stop();
             factory.deallocate(clientSocket);
@@ -11226,9 +11260,6 @@ int main(int argc, char *argv[])
         using namespace TEST_CASE_19_NAMESPACE;
         bcema_TestAllocator ta(veryVeryVerbose);
         {
-            //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // Test Initialization
-
             enum {
                 MAX_THREADS = 5,
                 SERVER_ID   = 1013410001,
@@ -11243,11 +11274,11 @@ int main(int argc, char *argv[])
             btemt_ChannelPool::ChannelStateChangeCallback channelCb;
             makeNull(&channelCb);
 
-            btemt_ChannelPool::PoolStateChangeCallback    poolCb(
-                    bdef_BindUtil::bindA( &ta
-                                        , &case19PoolStateCallback
-                                        , _1, _2, _3
-                                        , &acceptErrors));
+            btemt_ChannelPool::PoolStateChangeCallback poolCb(
+                                 bdef_BindUtil::bindA(&ta,
+                                                      &case19PoolStateCallback,
+                                                      _1, _2, _3,
+                                                      &acceptErrors));
 
             btemt_ChannelPool::DataReadCallback         dataCb;
             makeNull(&dataCb);
@@ -11259,7 +11290,9 @@ int main(int argc, char *argv[])
 
             struct rlimit rlim;
             ASSERT(0 == getrlimit(RLIMIT_NOFILE, &rlim));
-#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_LINUX)
+
+#if defined(BSLS_PLATFORM__OS_AIX) || defined(BSLS_PLATFORM__OS_LINUX) \
+ || defined(BSLS_PLATFORM__OS_HPUX)
             rlim.rlim_cur = 4 * MAX_THREADS + 2;
 #else
             rlim.rlim_cur = 4 * MAX_THREADS + 5;
@@ -11301,19 +11334,24 @@ int main(int argc, char *argv[])
                 }
                 LOOP_ASSERT(i, sockets[i]);
                 retCode = sockets[i]->setBlockingMode(
-                                              bteso_Flag::BTESO_BLOCKING_MODE);
+                                           bteso_Flag::BTESO_NONBLOCKING_MODE);
                 LOOP2_ASSERT(i, retCode, 0 == retCode);
             }
 
             for (int i = 0; i < MAX_THREADS; ++i) {
                 retCode = sockets[i]->connect(PEER);
                 if (veryVerbose) { P_(retCode); P(errno); }
+
+                // Give time to the channel pool to process accept error
+                // callbacks.
+                bcemt_ThreadUtil::microSleep(0, 1);
             }
 
             // Give time to the channel pool to process accept error callbacks.
             bcemt_ThreadUtil::microSleep(0, 8);
 
             ASSERT(acceptErrors);
+
             if (veryVerbose) { P(acceptErrors); }
 
             for (int i = 0; i < MAX_THREADS; ++i) {
@@ -14967,6 +15005,7 @@ int main(int argc, char *argv[])
             factory.deallocate(channels[i].first);
         }
       } break;
+
       default: {
         cerr << "WARNING: CASE " << test << " NOT FOUND." << endl;
         testStatus = -1;

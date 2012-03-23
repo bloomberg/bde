@@ -1608,7 +1608,7 @@ void buildUpAndTestStringsU2ToU8(int             idx,
 // turn , and validating the reported 'numCharsWritten' and output string.
 
 struct PerturbationDesc {
-    char            d_octetToConvertTo;
+    unsigned char   d_octetToConvertTo;
     bool            d_isNewValid;
     unsigned short  d_newCharacter;
     int             d_extraInvalidBefore;
@@ -3270,7 +3270,8 @@ int main(int argc, char**argv)
                 ArrayRange<char>           u8Range(u8);
                 ArrayRange<unsigned short> u16Range(u16);
 
-                char source[2] ={ (0xc0 | octet >> 6), (0x80 | octet & 0x3f) };
+                char source[2] ={ static_cast<char>(0xc0 | octet >> 6),
+                                  static_cast<char>(0x80 | octet & 0x3f) };
 
                 if (veryVerbose) {
                     cout << hex << "Header " << deChar(source[0])
@@ -3315,9 +3316,9 @@ int main(int argc, char**argv)
                 ArrayRange<char>           u8Range(u8);
                 ArrayRange<unsigned short> u16Range(u16);
 
-                char source[3] ={ 0xe0,
-                                  (0x80 | octet >> 6),
-                                  (0x80 | octet & 0x3f) };
+                char source[3] ={ static_cast<char>(0xe0),
+                                  static_cast<char>((0x80 | octet >> 6)),
+                                  static_cast<char>((0x80 | octet & 0x3f)) };
 
                 if (veryVerbose) {
                     cout << hex << "Header " << deChar(source[0])
@@ -3364,10 +3365,10 @@ int main(int argc, char**argv)
                 ArrayRange<char>           u8Range(u8);
                 ArrayRange<unsigned short> u16Range(u16);
 
-                char source[4] ={ 0xf0,
-                                  0x80,
-                                  (0x80 | octet >> 6),
-                                  (0x80 | octet & 0x3f) };
+                char source[4] ={ static_cast<char>(0xf0),
+                                  static_cast<char>(0x80),
+                                  static_cast<char>(0x80 | octet >> 6),
+                                  static_cast<char>(0x80 | octet & 0x3f) };
 
                 if (veryVerbose) {
                     cout << hex << "Header " << deChar(source[0])
@@ -3431,7 +3432,7 @@ int main(int argc, char**argv)
                 ArrayRange<char>           u8Range(u8);
                 ArrayRange<unsigned short> u16Range(u16);
 
-                char source[3] ={ 0xe0,
+                char source[3] ={ static_cast<char>(0xe0),
                                   contin1,
                                   contin2 };
 
@@ -3498,7 +3499,10 @@ int main(int argc, char**argv)
                 ArrayRange<char>           u8Range(u8);
                 ArrayRange<unsigned short> u16Range(u16);
 
-                char source[4] ={ 0xf0, contin1, contin2, contin3 };
+                char source[4] ={ static_cast<char>(0xf0),
+                                  contin1,
+                                  contin2,
+                                  contin3 };
 
                 if (veryVerbose) {
                     cout << hex << "Header " << deChar(source[0])
@@ -3740,10 +3744,10 @@ int main(int argc, char**argv)
                 ArrayRange<char>           u8Range(u8);
                 ArrayRange<unsigned short> u16Range(u16);
 
-                char source[4] ={ 0xf0 | 4,
-                                  0x80 | *continIter[0],
-                                  0x80 | *continIter[1],
-                                  0x80 | *continIter[2] };
+                char source[4] ={ static_cast<char>(0xf0 | 4),
+                                  static_cast<char>(0x80 | *continIter[0]),
+                                  static_cast<char>(0x80 | *continIter[1]),
+                                  static_cast<char>(0x80 | *continIter[2]) };
 
                 if (veryVerbose) {
                     cout << hex << "Octet " << deChar(source[0])
@@ -3806,10 +3810,10 @@ int main(int argc, char**argv)
                 ArrayRange<char>           u8Range(u8);
                 ArrayRange<unsigned short> u16Range(u16);
 
-                char source[4] ={ 0xf0 | *charIter[0],
-                                  0x80 | *charIter[1],
-                                  0x80 | *charIter[2],
-                                  0x80 | *charIter[3] };
+                char source[4] ={ static_cast<char>(0xf0 | *charIter[0]),
+                                  static_cast<char>(0x80 | *charIter[1]),
+                                  static_cast<char>(0x80 | *charIter[2]),
+                                  static_cast<char>(0x80 | *charIter[3]) };
 
                 if (veryVerbose) {
                     cout << hex << "Octet " << deChar(source[0])

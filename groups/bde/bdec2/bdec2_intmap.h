@@ -529,6 +529,14 @@ class bdec2_IntMapIter {
     bdec2_IntMapIter(const bdec2_IntMapIter&);
     bdec2_IntMapIter& operator=(const bdec2_IntMapIter&);
 
+    bool operator==(const bdec2_IntMapIter&) const;
+    bool operator!=(const bdec2_IntMapIter&) const;
+
+    template<class OTHER>
+    bool operator==(const bdec2_IntMapIter<OTHER>&) const;
+    template<class OTHER>
+    bool operator!=(const bdec2_IntMapIter<OTHER>&) const;
+
   public:
     // CREATORS
     bdec2_IntMapIter(const bdec2_IntMap<VALUE>& map);
@@ -580,6 +588,14 @@ class bdec2_IntMapManip {
     // NOT IMPLEMENTED
     bdec2_IntMapManip(const bdec2_IntMapManip&);
     bdec2_IntMapManip& operator=(const bdec2_IntMapManip&);
+
+    bool operator==(const bdec2_IntMapManip&) const;
+    bool operator!=(const bdec2_IntMapManip&) const;
+
+    template<class OTHER>
+    bool operator==(const bdec2_IntMapManip<OTHER>&) const;
+    template<class OTHER>
+    bool operator!=(const bdec2_IntMapManip<OTHER>&) const;
 
   public:
     // CREATORS
@@ -667,8 +683,8 @@ bdec2_IntMap<VALUE>::~bdec2_IntMap()
 
 template <class VALUE>
 inline
-bdec2_IntMap<VALUE>& bdec2_IntMap<VALUE>::
-                                      operator=(const bdec2_IntMap<VALUE>& rhs)
+bdec2_IntMap<VALUE>&
+bdec2_IntMap<VALUE>::operator=(const bdec2_IntMap<VALUE>& rhs)
 {
     d_hashtable = rhs.d_hashtable;
     return *this;

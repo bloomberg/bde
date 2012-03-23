@@ -128,6 +128,7 @@ typedef bteso_StreamSocket<bteso_IPv4Address> StreamSocket;
 
 static int verbose;
 static int veryVerbose;
+static int veryVeryVerbose;
 
 const char *HOST_NAME = "127.0.0.1";
 const char *REMOTE_HOST = "204.228.67.117"; // An outside host IP address
@@ -493,9 +494,10 @@ void generatePattern(char *buffer, int length)
 
 int main(int argc, char *argv[]) {
 
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2; // global variable
-    veryVerbose = argc > 3; // global variable
+    int test        = argc > 1 ? atoi(argv[1]) : 0;
+    verbose         = argc > 2; // global variable
+    veryVerbose     = argc > 3; // global variable
+    veryVeryVerbose = argc > 4; // global variable
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -562,16 +564,8 @@ int main(int argc, char *argv[]) {
 
             if (!channel) {
                 ASSERT(0 >= status);    // Async interrupts are *not* enabled.
-                if (status) {
-                    if (verbose) bsl::cout << "Failed to connect to the peer."
-                                           << bsl::endl;
-                }
-                else {
-                    if (verbose) {
-                        bsl::cout << "Connection attempt has timed out."
-                                  << bsl::endl;
-                    }
-                }
+                if (verbose) bsl::cout << "Failed to connect to the peer."
+                                       << bsl::endl;
                 // In any case, invalidate the allocator, and exit.
                 connector.invalidate();
                 return -1;
@@ -1841,30 +1835,31 @@ int main(int argc, char *argv[]) {
               QT("===========================");
           }
 
+          bslma_TestAllocator testAllocator;
           {
               struct {
-                  int                  d_lineNum;
-                  bslma_TestAllocator *d_allocator_p;// memory allocator
-                  int                  d_capacity;   // initial capacity: not
+                  int  d_line;
+                  bool d_useAllocator;               // memory allocator
+                  int  d_capacity;                   // initial capacity: not
                                                      // specified if 0
-                  int                  d_queueSize;  // a server socket's
+                  int  d_queueSize;                  // a server socket's
                                                      // back-log value
               } VALUES[] =
                 //line         allocator   capacity   queueSize
                 //----         ---------   --------   ---------
               { // Note the 'capacity' can't be 0, or will abort.
-                {  L_,            0,          2,           16 },
-                {  L_,            0,          2,           32 },
-                {  L_,            0,          3,           64 },
-                {  L_,            0,          3,          128 },
-                {  L_,     &testAllocator,    4,           64 },
-                {  L_,     &testAllocator,    4,          128 },
-                {  L_,     &testAllocator,    8,          128 },
-                {  L_,     &testAllocator,    8,          128 },
-                {  L_,     &testAllocator,   16,          128 },
-                {  L_,     &testAllocator,   16,          128 },
-                {  L_,            0,         32,          128 },
-                {  L_,            0,         32,          128 },
+                {  L_,        false,          2,           16 },
+                {  L_,        false,          2,           32 },
+                {  L_,        false,          3,           64 },
+                {  L_,        false,          3,          128 },
+                {  L_,        true,           4,           64 },
+                {  L_,        true,           4,          128 },
+                {  L_,        true,           8,          128 },
+                {  L_,        true,           8,          128 },
+                {  L_,        true,          16,          128 },
+                {  L_,        true,          16,          128 },
+                {  L_,        false,         32,          128 },
+                {  L_,        false,         32,          128 },
               };
 
               // Register a signal handler for "SIGSYS".
@@ -1878,26 +1873,34 @@ int main(int argc, char *argv[]) {
 
               const int NUM_VALUES = sizeof VALUES / sizeof *VALUES;
               for (int i = 0; i < NUM_VALUES; i++) { // different connectors
-                  bsl::vector<btesc_Channel*> channels(&testAllocator);
+                  const int  LINE          = VALUES[i].d_line;
+                  const bool USE_ALLOCATOR = VALUES[i].d_useAllocator;
+                  const int  CAPACITY      = VALUES[i].d_capacity;
+                  const int  QUEUE_SIZE    = VALUES[i].d_queueSize;
+
+                  bslma_TestAllocator testAllocator(veryVeryVerbose);
+                  bslma_TestAllocator *allocator = USE_ALLOCATOR
+                                                 ? &testAllocator
+                                                 : 0;
+
+                  bsl::vector<btesc_Channel*> channels(allocator);
                   bsl::vector<bteso_StreamSocket<bteso_IPv4Address> *>
-                                              connList(&testAllocator);
-                  Obj connector(&factory,
-                                VALUES[i].d_capacity,
-                                VALUES[i].d_allocator_p);
+                                                           connList(allocator);
+                  Obj connector(&factory, CAPACITY, allocator);
                   bteso_StreamSocket<bteso_IPv4Address> *serverSocket =
                                                          factory.allocate();
 
-                      bteso_IPv4Address serverAddress, actualAddress;
-                      serverAddress.setIpAddress(HOST_NAME);
-                      serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
+                  bteso_IPv4Address serverAddress, actualAddress;
+                  serverAddress.setIpAddress(HOST_NAME);
+                  serverAddress.setPortNumber(DEFAULT_PORT_NUMBER);
 
-                      ASSERT(0 == serverSocket->bind(serverAddress));
+                  ASSERT(0 == serverSocket->bind(serverAddress));
 
-                      ASSERT(0 == serverSocket->localAddress(&actualAddress));
+                  ASSERT(0 == serverSocket->localAddress(&actualAddress));
 
-                      connector.setPeer(actualAddress);
+                  connector.setPeer(actualAddress);
 
-                      ASSERT(0 == connector.isInvalid());
+                  ASSERT(0 == connector.isInvalid());
 
                   int existing = 0;
                   TestCommand DATA[] =
@@ -1937,17 +1940,17 @@ int main(int argc, char *argv[]) {
 
                   // Ask the thread not to generate any signal.
                   int signals = 0;
-                  LOOP_ASSERT(VALUES[i].d_lineNum,
-                                  0 == processTest(&connector,
-                                                   threadAsServer,
-                                                   serverSocket,
-                                                   &channels,
-                                                   &connList,
-                                                   DATA,
-                                                   NUM_DATA,
-                                                   signals,
-                                                   expNumChannels,
-                                                   VALUES[i].d_queueSize));
+                  LOOP_ASSERT(LINE,
+                              0 == processTest(&connector,
+                                               threadAsServer,
+                                               serverSocket,
+                                               &channels,
+                                               &connList,
+                                               DATA,
+                                               NUM_DATA,
+                                               signals,
+                                               expNumChannels,
+                                               QUEUE_SIZE));
                   int length = channels.size();
                   if (veryVerbose) {
                       PT(channels.size());

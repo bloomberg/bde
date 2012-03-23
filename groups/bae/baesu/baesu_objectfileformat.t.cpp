@@ -109,26 +109,26 @@ typedef baesu_ObjectFileFormat          Obj;
 // value when passed an object of types
 // 'baesu_ObjectFileFormat::{Elf,Xcoff,Windows}', and 0 otherwise.
 //..
-    template <typename TYPE>
-    int typeTest(const TYPE &)
-    {
-        return 0;
-    }
+template <typename TYPE>
+int typeTest(const TYPE &)
+{
+    return 0;
+}
 
-    int typeTest(const baesu_ObjectFileFormat::Elf &)
-    {
-        return 1;
-    }
+int typeTest(const baesu_ObjectFileFormat::Elf &)
+{
+    return 1;
+}
 
-    int typeTest(const baesu_ObjectFileFormat::Xcoff &)
-    {
-        return 2;
-    }
+int typeTest(const baesu_ObjectFileFormat::Xcoff &)
+{
+    return 2;
+}
 
-    int typeTest(const baesu_ObjectFileFormat::Windows &)
-    {
-        return 3;
-    }
+int typeTest(const baesu_ObjectFileFormat::Windows &)
+{
+    return 3;
+}
 //..
 
 // ============================================================================
@@ -139,9 +139,9 @@ int main(int argc, char *argv[])
 {
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    // bool         veryVerbose = argc > 3;
+    // bool     veryVeryVerbose = argc > 4;
+    // bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

@@ -232,6 +232,10 @@ class bteso_DefaultEventManager : public bteso_EventManager {
         // handle.
 
     // ACCESSORS
+    bool hasLimitedSocketCapacity() const;
+        // Return 'true' if this event manager has a limited socket capacity,
+        // and 'false' otherwise.
+
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      const bteso_EventType::Type       event) const;
         // Return 1 if the specified 'event' is registered with this event

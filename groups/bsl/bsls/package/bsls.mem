@@ -1,4 +1,3 @@
-bsls_addressof
 bsls_alignedbuffer
 bsls_alignment
 bsls_alignmentfromtype
@@ -10,6 +9,7 @@ bsls_assert
 bsls_asserttest
 bsls_asserttestexception
 bsls_blockgrowth
+bsls_bsltestutil
 bsls_buildtarget
 bsls_byteorder
 bsls_compilerfeatures
@@ -27,3 +27,4 @@ bsls_stopwatch
 bsls_timeutil
 bsls_types
 bsls_unspecifiedbool
+bsls_util

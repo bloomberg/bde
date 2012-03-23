@@ -20,6 +20,8 @@
 
 #include <bsl_c_stdio.h>
 
+#include <bslma_testallocator.h>
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -99,6 +101,11 @@ static void aSsErT(int c, const char *s, int i)
 #define LOOP2_ASSERT(I,J,X) { \
    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
               << J << "\n"; aSsErT(1, #X, __LINE__); } }
+
+#define LOOP3_ASSERT(I,J,K,X) { \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
+                  << J << "\t" << #K << ": " << K << "\n"; \
+                  aSsErT(1, #X, __LINE__); } }
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -283,26 +290,73 @@ int main(int argc, char *argv[]) {
             if (verbose) cout << "\nTesting Usage Example"
                               << "\n=====================" << endl;
 
-            bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
-            bteso_SocketHandle::Handle fd;
-            int nativeErrNo=0;
-            bteso_SocketImpUtil::open<bteso_IPv4Address>(
+            bslma_TestAllocator ta;
+{
+///Usage
+///-----
+// In this section we show intended usage of this component
+//
+///Example 1: Create a New Stream Socket
+///- - - - - - - - - - - - - - - - - - -
+// We can use 'bteso_InetStreamSocketFactory' to allocate a new TCP-based
+// stream socket.
+//
+// First, we create a 'bteso_InetStreamSocketFactory' object:
+//..
+    bteso_InetStreamSocketFactory<bteso_IPv4Address> factory(&ta);
+//..
+// Then, we create a stream socket:
+//..
+    bteso_StreamSocket<bteso_IPv4Address> *mySocket = factory.allocate();
+    ASSERT(mySocket);
+//..
+// 'mySocket' can now be used for TCP communication.
+//
+// Finally, when we're done, we recycle the socket:
+//..
+    factory.deallocate(mySocket);
+//..
+}
+
+{
+///Example 2: Create a 'bteso_StreamSocket' Object From Existing Socket Handle
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Alternatively, we can use 'bteso_InetStreamSocketFactory' to allocate a
+// 'bteso_StreamSocket' object that attaches to an existing socket handle.
+// This socket handle may be created from a third-party library (such as
+// OpenSSL).  Using a 'bteso_StreamSocket' object rather than the socket handle
+// directly is highly desirable as it enables the use of other BTE components
+// on the socket.  In this example, the socket handle is created from the
+// 'bteso_socketimputil' component for illustrative purpose.
+//
+// First, we create a socket handle 'fd':
+//..
+    bteso_SocketHandle::Handle fd;
+    int nativeErrNo = 0;
+    bteso_SocketImpUtil::open<bteso_IPv4Address>(
                                       &fd,
                                       bteso_SocketImpUtil::BTESO_SOCKET_STREAM,
                                       &nativeErrNo);
-            ASSERT(0 == nativeErrNo);
-
-            // Secondly, allocate a socket attached to 'fd':
-            bteso_StreamSocket<bteso_IPv4Address> *mySocket =
-                                                          factory.allocate(fd);
-            ASSERT(mySocket);
-            //..
-            // Now any BTE component, that uses
-            // 'bteso_StreamSocket<bteso_IPv4Address> can use 'mySocket'.
-            // When we're done, we recycle the socket:
-            //..
-            factory.deallocate(mySocket);
-
+    ASSERT(0 == nativeErrNo);
+//..
+// Then, we create factory:
+//..
+    bteso_InetStreamSocketFactory<bteso_IPv4Address> factory(&ta);
+//..
+// Next, we allocate a stream socket attached to 'fd':
+//..
+    bteso_StreamSocket<bteso_IPv4Address> *mySocket = factory.allocate(fd);
+    ASSERT(mySocket);
+//..
+// Notice that 'fd' is passed into the 'allocate' method as an argument.  Any
+// BTE component that uses 'bteso_StreamSocket<bteso_IPv4Address>' can now be
+// used on 'mySocket'.
+//
+// Finally, when we're done, we recycle the socket:
+//..
+    factory.deallocate(mySocket);
+//..
+}
         }break;
         case 12:
         // --------------------------------------------------------------------
@@ -501,8 +555,13 @@ int main(int argc, char *argv[]) {
                ASSERT(resp == 0
                    || resp == bteso_SocketHandle::BTESO_ERROR_TIMEDOUT);
 
-               for (int x = 0; x < 100; ++x) {
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_SOLARIS)
+               enum { WAITS = 200 };
+#else
+               enum { WAITS = 100 };
+#endif
 
+               for (int x = 0; x < WAITS; ++x) {
                    bdet_TimeInterval twoseconds = bdetu_SystemTime::now() + 2;
 
                    if (veryVerbose) { cout << "waitForConnect "; P(resp); }
@@ -1625,11 +1684,15 @@ int main(int argc, char *argv[]) {
                bcemt_ThreadUtil::microSleep(DATA[ti].d_delay * 1000);
            }
 
-#if defined(BSLS_PLATFORM__OS_HPUX)  // TBD
-// Some TCP driver implementations require some delay between write and
-// read (on the loopback service) in order to recognize I/O events correctly.
-           bcemt_ThreadUtil::microSleep(20 * 1000);
+           // some platforms require latency between writes and reads
+#if   defined(BSLS_PLATFORM__OS_HPUX)
+           const int sleepTime = 20 * 1000;
+#elif defined(BSLS_PLATFORM__OS_WINDOWS)
+           const int sleepTime = 1000;
+#else
+           const int sleepTime = 0;
 #endif
+           if (sleepTime) bcemt_ThreadUtil::microSleep(sleepTime);
 
            bdet_TimeInterval timeBefore = bdetu_SystemTime::now();
 
@@ -1660,7 +1723,8 @@ int main(int argc, char *argv[]) {
                P_(timeBefore); P_(timeAfter); P(timeout);
            }
 
-           LOOP2_ASSERT(ti, DATA[ti].d_lineNum, resp == DATA[ti].d_expected);
+           LOOP3_ASSERT(ti, resp, DATA[ti].d_lineNum,
+                                                   resp == DATA[ti].d_expected);
 
 #ifndef BSLS_PLATFORM__OS_CYGWIN
            testFactory.deallocate(streamSocketA);
@@ -2135,24 +2199,30 @@ int main(int argc, char *argv[]) {
                    //  3) accept returns the socket but a read confirms the
                    //     socket has gone.  ERROR_EOF or ERROR_CONNDEAD
                    //
+                   typedef bteso_SocketHandle SH;
+
                    if (resp != 0) {
-                       ASSERT(bteso_SocketHandle::BTESO_ERROR_CONNDEAD == resp
-                       || bteso_SocketHandle::BTESO_ERROR_INTERRUPTED == resp);
-                       testFactory.deallocate(streamSocketB);
+#if defined(BSLS_PLATFORM__OS_HPUX)
+                       LOOP_ASSERT(resp,SH::BTESO_ERROR_UNCLASSIFIED == resp ||
+                                        SH::BTESO_ERROR_CONNDEAD     == resp ||
+                                        SH::BTESO_ERROR_INTERRUPTED  == resp);
+#else
+                       LOOP_ASSERT(resp,SH::BTESO_ERROR_CONNDEAD     == resp ||
+                                        SH::BTESO_ERROR_INTERRUPTED  == resp);
+#endif
                    }
                    else {
                        char buf[1];
                        resp = streamSocketB->read(buf,1 );
-                       ASSERT(bteso_SocketHandle::BTESO_ERROR_CONNDEAD == resp
-                           || bteso_SocketHandle::BTESO_ERROR_EOF == resp);
-                       testFactory.deallocate(streamSocketB);
+                       ASSERT(SH::BTESO_ERROR_CONNDEAD == resp ||
+                              SH::BTESO_ERROR_EOF      == resp);
                    }
+                   testFactory.deallocate(streamSocketB);
                } else {
                    testFactory.deallocate(serverSocket);
                }
           }
       } break;
-
       case 3: {
         // --------------------------------------------------------------------
         // TESTING FACTORY ALLOCATE WITH HANDLE

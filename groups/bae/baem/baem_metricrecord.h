@@ -278,7 +278,7 @@ bool operator!=(const baem_MetricRecord& lhs, const baem_MetricRecord& rhs);
     // 'count', 'total', 'min', or 'max' attributes.
 
 inline
-bsl::ostream& operator<<(const bsl::ostream&      stream,
+bsl::ostream& operator<<(bsl::ostream&            stream,
                          const baem_MetricRecord& record);
     // Write a formatted description of the specified 'record' to the specified
     // 'stream' and return a reference to the modifiable 'stream'.

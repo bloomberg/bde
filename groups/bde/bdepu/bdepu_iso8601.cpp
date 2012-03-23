@@ -28,6 +28,17 @@ int parseUint(const char **nextPos,
               int         *result,
               const char  *begin,
               const char  *end)
+    // Parse the unsigned integer described by the string starting at specified
+    // 'begin' and ending before the specified 'end', then load the integer
+    // value into the specified 'result' and load '*nextPos' with the address
+    // one past the last character parsed.  Return 0 on success and a non-zero
+    // value otherwise.  Failure will occur if any of the characters in the
+    // [*begin, end) range are not digits.  The behavior is undefined unless
+    // 'begin' and 'end' describe a contiguous range of memory or if the
+    // string of digits represent a value that cannot be represented in a
+    // signed integer.  Note that if a non-digit char is encountered at least
+    // one char after 'begin' but before 'end', it is not an error but merely
+    // terminates parsing.
 {
     BSLS_ASSERT(nextPos);
     BSLS_ASSERT(result);
@@ -66,6 +77,17 @@ int parseDate(int         *year,
               int         *day,
               const char **begin,
               const char  *end)
+    // Parse a date, represented in "YYYY-MM-DD" format, from the string
+    // starting at the specified '*begin' and ending before the specified 'end'
+    // then load the specified 'year', 'month' and 'day' with their respective
+    // parsed values, and set '*begin' to the location one past the last parsed
+    // character.  In the "YYYY-MM-DD" format accepted by this function,
+    // 'YYYY', 'MM', and 'DD' are strings representing positive integers, '-'
+    // is literally a dash character, 'YYYY' is 4 chars long, and 'MM' and 'DD'
+    // are both 2 chars long.  Return 0 on success and a non-zero value if the
+    // string being parsed does not match the specified format (including
+    // partial representations).  Note that if the pattern is successfully
+    // completed before 'end' is reached, that is not an error.
 {
     BSLS_ASSERT(year);
     BSLS_ASSERT(month);
@@ -79,7 +101,11 @@ int parseDate(int         *year,
 
     // Parse year.
 
-    if (0 != parseUint(&p, year, p, end) || '-' != *p) {
+    const char *expectedEnd = p + 4;
+
+    if (0   != parseUint(&p, year, p, expectedEnd)
+     || p   != expectedEnd
+     || '-' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -87,9 +113,9 @@ int parseDate(int         *year,
 
     // Parse month.
 
-    const char *expectedEnd = p + 2;
+    expectedEnd = p + 2;
 
-    if (0   != parseUint(&p, month, p, end)
+    if (0   != parseUint(&p, month, p, expectedEnd)
      || p   != expectedEnd
      || '-' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
@@ -101,7 +127,7 @@ int parseDate(int         *year,
 
     expectedEnd = p + 2;
 
-    if (0 != parseUint(&p, day, p, end) || p != expectedEnd) {
+    if (0 != parseUint(&p, day, p, expectedEnd) || p != expectedEnd) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -117,6 +143,24 @@ int parseTime(int         *hour,
               int         *millisecond,
               const char **begin,
               const char  *end)
+    // Parse a time, represented in "hh:mm:ss[.d+]" format, from the string
+    // starting at the specified '*begin' and ending before the specified
+    // 'end', then load the specified 'hour', 'minute', 'second' and
+    // 'millisecond' with their respective parsed values, and set '*begin' to
+    // the location one past the last parsed character.  In the "hh:mm:ss[.d+]"
+    // format accepted by this function, 'hh', 'mm', 'ss' are all 2 digit
+    // integers (left padded with 0's if necessary) denoting hours, minutes,
+    // and seconds, ':' is literally a colon character, and [.d+] is the
+    // optional fraction of a second, consisting of a '.' followed by one or
+    // more decimal digits.  If '[.d+]' contains more than 3 digits, the value
+    // will be rounded to the nearest value in milliseconds.  Return 0 on
+    // success and a non-zero value if the string being parsed does not match
+    // the specified format (including partial representations).  Note that a
+    // fractional second value of '.9995' or more will be rounded to 1000
+    // milliseconds (and higher level functions are responsible for
+    // incrementing the represented value of 'seconds' if necessary).  Also
+    // note that if the pattern is successfully completed before 'end' is
+    // reached, that is not an error.
 {
     BSLS_ASSERT(hour);
     BSLS_ASSERT(minute);
@@ -133,7 +177,7 @@ int parseTime(int         *hour,
 
     const char *expectedEnd = p + 2;
 
-    if (0   != parseUint(&p, hour, p, end)
+    if (0   != parseUint(&p, hour, p, expectedEnd)
      || p   != expectedEnd
      || ':' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
@@ -145,7 +189,7 @@ int parseTime(int         *hour,
 
     expectedEnd = p + 2;
 
-    if (0   != parseUint(&p, minute, p, end)
+    if (0   != parseUint(&p, minute, p, expectedEnd)
      || p   != expectedEnd
      || ':' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
@@ -157,7 +201,8 @@ int parseTime(int         *hour,
 
     expectedEnd = p + 2;
 
-    if (0 != parseUint(&p, second, p, end) || p != expectedEnd) {
+    if (0 != parseUint(&p, second, p, expectedEnd)
+     || p != expectedEnd) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -165,12 +210,12 @@ int parseTime(int         *hour,
 
     *millisecond = 0;
 
-    if (end != p && '.' == *p) {
+    if (p < end && '.' == *p) {
         // We have a fraction of a second.
 
         ++p;  // skip dot
 
-        if (!bdeu_CharType::isDigit(*p)) {
+        if (p >= end || !bdeu_CharType::isDigit(*p)) {
             return BDEPU_FAILURE;                                     // RETURN
         }
 
@@ -183,7 +228,7 @@ int parseTime(int         *hour,
         // digits.  Thus, an input of "02" yields a 'fractionBuffer' of "0200"
         // (20 milliseconds or 200 tenths).
 
-        for (int i = 0; i < 4 && p != end && bdeu_CharType::isDigit(*p); ++i) {
+        for (int i = 0; i < 4 && p < end && bdeu_CharType::isDigit(*p); ++i) {
             fractionBuffer[i] = *p++;
         }
 
@@ -200,7 +245,7 @@ int parseTime(int         *hour,
         *millisecond = (fraction + 5) / 10;
 
         // Skip remaining digits in fraction:
-        while (p != end && bdeu_CharType::isDigit(*p)) {
+        while (p < end && bdeu_CharType::isDigit(*p)) {
             ++p;
         }
 
@@ -215,6 +260,18 @@ static
 int parseTimezoneOffset(int         *minuteOffset,
                         const char **begin,
                         const char  *end)
+    // Parse a time zone offset, represented in "Shh:mm" format, from the
+    // string starting at the specified '*begin' and ending before the
+    // specified 'end' then load the specified 'minuteOffset' with the parsed
+    // time zone offset (in minutes), and set '*begin' to the location one past
+    // the last parsed character.  In the "Shh:mm" format accepted by this
+    // function, 'S' is either '+' or '-', 'hh' and 'mm' are 2 digit integers
+    // (left padded with '0's if necessary).  'hh' must be in the range
+    // '[ 00, 24 )' and 'mm' must be in the range '[ 0, 60 )'.  An alternate
+    // form of the representation is 'Z' or 'z', signifying a zero offset.
+    // Return 0 on success and a non-zero value if the string being parsed does
+    // not match the specified format.  Note that if the pattern is
+    // successfully completed before 'end' is reached, that is not an error.
 {
     BSLS_ASSERT(minuteOffset);
     BSLS_ASSERT(begin);
@@ -224,22 +281,20 @@ int parseTimezoneOffset(int         *minuteOffset,
 
     const char *p = *begin;
 
-    int sign;
+    if (p >= end) {
+        return BDEPU_FAILURE;
+    }
 
-    if ('+' == *p) {
-        sign = +1;
-    }
-    else if ('-' == *p) {
-        sign = -1;
-    }
-    else if ('Z' == *p || 'z' == *p) {
+    char sign = *p;
+
+    if ('Z' == sign || 'z' == sign) {
         *minuteOffset = 0;
 
         *begin = (*begin) + 1;
 
         return BDEPU_SUCCESS;                                         // RETURN
     }
-    else {
+    else if ('+' != sign && '-' != sign) {
         return BDEPU_FAILURE;                                         // RETURN
     }
 
@@ -248,9 +303,10 @@ int parseTimezoneOffset(int         *minuteOffset,
     const char *expectedEnd = p + 2;
 
     int hourVal;
-    if (0   != parseUint(&p, &hourVal, p, end)
-     || p   != expectedEnd
-     || hourVal > 14  // Max TZ offset is 14 hours.
+    if (0           != parseUint(&p, &hourVal, p, end)
+     || p           != expectedEnd
+     || hourVal     >= 24  // Max TZ offset is 24 hours.
+     || p           >= end
      || ':' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
     }
@@ -266,7 +322,10 @@ int parseTimezoneOffset(int         *minuteOffset,
         return BDEPU_FAILURE;                                         // RETURN
     }
 
-    *minuteOffset = sign * (hourVal * 60 + minuteVal);
+    *minuteOffset = hourVal * 60 + minuteVal;
+    if ('-' == sign) {
+        *minuteOffset *= -1;
+    }
 
     *begin = p;
 
@@ -277,7 +336,9 @@ static
 char *generateInt(char *buffer, int val, int len)
     // Write into the specified 'buffer', the decimal value of the specified
     // 'val', left-padded with zeros to the specified 'len' and return
-    // 'buffer + len'.  The buffer is NOT null-terminated.
+    // 'buffer + len'.  The buffer is NOT null-terminated.  Note that if the
+    // decimal string representation of 'val' is more than 'len' digits, only
+    // the low order digits are printed.
 {
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(0 <= len);
@@ -460,8 +521,8 @@ int bdepu_Iso8601::generateRaw(char                   *buffer,
         timezoneSign = '+';
     }
 
-    // TZ offset cannot be more than 14 hours.
-    BSLS_ASSERT(timezoneOffset <= 14 * 60);
+    // TZ offset cannot be more than 24 hours.
+    BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Datetime localDatetime = object.localDatetime();
 
@@ -495,8 +556,8 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
         timezoneSign = '+';
     }
 
-    // TZ offset cannot be more than 14 hours.
-    BSLS_ASSERT(timezoneOffset <= 14 * 60);
+    // TZ offset cannot be more than 24 hours.
+    BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Date localDate = object.localDate();
 
@@ -541,8 +602,8 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
         timezoneSign = '+';
     }
 
-    // TZ offset cannot be more than 14 hours.
-    BSLS_ASSERT(timezoneOffset <= 14 * 60);
+    // TZ offset cannot be more than 24 hours.
+    BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Time localTime = object.localTime();
 
@@ -566,9 +627,13 @@ int bdepu_Iso8601::parse(bdet_Date  *result,
     BSLS_ASSERT(input);
     BSLS_ASSERT(0 <= inputLength);
 
-    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
+    // Sample XML date: "2005-01-31" having a minimum length of 10.
 
-    // Sample XML date: "2005-01-31".
+    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1, MINIMUM_LENGTH = 10 };
+
+    if (inputLength < MINIMUM_LENGTH) {
+        return BDEPU_FAILURE;                                         // RETURN
+    }
 
     const char *begin = input;
     const char *end   = input + inputLength;
@@ -609,13 +674,17 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
     BSLS_ASSERT(input);
     BSLS_ASSERT(0 <= inputLength);
 
-    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
+    // Sample XML datetime: "2005-01-31T08:59:59.999" having a minimum length
+    // of 19.  Timezone may be optionally specified:
+    // "2005-01-31T08:59:59.999-04:00".  Also, there might be more than 3
+    // decimal places for the fraction of a second.  But when storing in
+    // bdet_Datetime, we only take the 3 most significant digits.
 
-    // Sample XML datetime: "2005-01-31T08:59:59.999".
-    // Timezone may be optionally specified: "2005-01-31T08:59:59.999-04:00".
-    // Also, there might be more than 3 decimal places for the fraction of a
-    // second.  But when storing in bdet_Datetime, we only take the 3 most
-    // significant digits.
+    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1, MINIMUM_LENGTH = 19 };
+
+    if (inputLength < MINIMUM_LENGTH) {
+        return BDEPU_FAILURE;                                         // RETURN
+    }
 
     const char *begin = input;
     const char *end   = input + inputLength;
@@ -644,6 +713,7 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
 
     if (end != begin) {
         // Parse timezone.
+
         if (0   != parseTimezoneOffset(&timezoneOffset, &begin, end)
          || end != begin) {
             return BDEPU_FAILURE;                                     // RETURN
@@ -684,13 +754,17 @@ int bdepu_Iso8601::parse(bdet_DatetimeTz *result,
     BSLS_ASSERT(input);
     BSLS_ASSERT(0 <= inputLength);
 
-    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
+    // Sample XML datetime: "2005-01-31T08:59:59.999" having a minimum length
+    // of 19.  Timezone may be optionally specified:
+    // "2005-01-31T08:59:59.999-04:00".  Also, there might be more than 3
+    // decimal places for the fraction of a second.  But when storing in
+    // bdet_Datetime, we only take the 3 most significant digits.
 
-    // Sample XML datetime: "2005-01-31T08:59:59.999".
-    // Timezone may be optionally specified: "2005-01-31T08:59:59.999-04:00".
-    // Also, there might be more than 3 decimal places for the fraction of a
-    // second.  But when storing in bdet_Datetime, we only take the 3 most
-    // significant digits.
+    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1, MINIMUM_LENGTH = 19 };
+
+    if (inputLength < MINIMUM_LENGTH) {
+        return BDEPU_FAILURE;                                         // RETURN
+    }
 
     const char *begin = input;
     const char *end   = input + inputLength;
@@ -758,13 +832,17 @@ int bdepu_Iso8601::parse(bdet_DateTz *result,
     BSLS_ASSERT(input);
     BSLS_ASSERT(0 <= inputLength);
 
-    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
+    // Sample XML datetime: "2005-01-31" having a minimum length of 10.
+    // Timezone may be optionally specified: "2005-01-31-04:00".  Also, there
+    // might be more than 3 decimal places for the fraction of a second.  But
+    // when storing in bdet_Datetime, we only take the 3 most significant
+    // digits.
 
-    // Sample XML datetime: "2005-01-31".
-    // Timezone may be optionally specified: "2005-01-31-04:00".
-    // Also, there might be more than 3 decimal places for the fraction of a
-    // second.  But when storing in bdet_Datetime, we only take the 3 most
-    // significant digits.
+    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1, MINIMUM_LENGTH = 10 };
+
+    if (inputLength < MINIMUM_LENGTH) {
+        return BDEPU_FAILURE;                                         // RETURN
+    }
 
     const char *begin = input;
     const char *end   = input + inputLength;
@@ -806,12 +884,16 @@ int bdepu_Iso8601::parse(bdet_Time  *result,
     BSLS_ASSERT(input);
     BSLS_ASSERT(0 <= inputLength);
 
-    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
+    // Sample XML time: "08:59:59.999" having a minimum length of 8.  Also,
+    // there might be more than 3 decimal places for the fraction of a second.
+    // But when storing in bdet_Datetime, we only take the 3 most significant
+    // digits.
 
-    // Sample XML time: "08:59:59.999".
-    // Also, there might be more than 3 decimal places for the fraction of a
-    // second.  But when storing in bdet_Datetime, we only take the 3 most
-    // significant digits.
+    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1, MINIMUM_LENGTH = 8 };
+
+    if (inputLength < MINIMUM_LENGTH) {
+        return BDEPU_FAILURE;                                         // RETURN
+    }
 
     const char *begin = input;
     const char *end   = input + inputLength;
@@ -867,12 +949,16 @@ int bdepu_Iso8601::parse(bdet_TimeTz *result,
     BSLS_ASSERT(input);
     BSLS_ASSERT(0 <= inputLength);
 
-    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1 };
+    // Sample XML time: "08:59:59.999" having a minimum length of 8.  Also,
+    // there might be more than 3 decimal places for the fraction of a second.
+    // But when storing in bdet_Datetime, we only take the 3 most significant
+    // digits.
 
-    // Sample XML time: "08:59:59.999".
-    // Also, there might be more than 3 decimal places for the fraction of a
-    // second.  But when storing in bdet_Datetime, we only take the 3 most
-    // significant digits.
+    enum { BDEPU_SUCCESS = 0, BDEPU_FAILURE = -1, MINIMUM_LENGTH = 8 };
+
+    if (inputLength < MINIMUM_LENGTH) {
+        return BDEPU_FAILURE;                                         // RETURN
+    }
 
     const char *begin = input;
     const char *end   = input + inputLength;

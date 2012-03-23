@@ -36,7 +36,9 @@ using namespace bsl;  // automatically added by script
 // obtains the behavior specified by the protocol from the concrete subclass.
 //-----------------------------------------------------------------------------
 // [ 1] virtual ~bael_Observer();
-// [ 1] virtual void publish(const record&, const context&) = 0;
+// [ 1] virtual void publish(const record&, const context&);
+// [ 1] virtual void publish(const sharedptr<record>&, const context&);
+// [ 1] virtual void releaseRecords();
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 // [ 2] USAGE TEST - Make sure main usage example compiles and works properly.
@@ -82,6 +84,7 @@ void aSsErT(int c, const char *s, int i)
 
 struct ObserverTest : bsls_ProtocolTestImp<bael_Observer> {
     void publish(const bael_Record&, const bael_Context&)  { markDone(); }
+    void releaseRecords() { markDone(); }
 };
 
 //=============================================================================
@@ -176,9 +179,12 @@ int main(int argc, char *argv[])
             ostrstream out(buf, sizeof buf);
 
             my_OstreamObserver    myObserver(out);
+            bael_Observer&        observer =
+                                      dynamic_cast<bael_Observer&>(myObserver);
             bdet_Datetime         now;
             bael_RecordAttributes fixed;
             bdem_List             emptyList;
+
 
             if (verbose)
                 cout << "Publish a single message (a sequence of 1)." << endl;
@@ -188,8 +194,12 @@ int main(int argc, char *argv[])
                 fixed.setTimestamp(now);
                 fixed.setProcessID(100);
                 fixed.setThreadID(0);
-                myObserver.publish(
-                              bael_Record(fixed, emptyList),
+
+                bcema_SharedPtr<const bael_Record> handle(
+                             new (testAllocator) bael_Record(fixed, emptyList),
+                             &testAllocator);
+                observer.publish(
+                              handle,
                               bael_Context(bael_Transmission::BAEL_PASSTHROUGH,
                               0,
                               1));
@@ -208,14 +218,23 @@ int main(int argc, char *argv[])
                     fixed.setTimestamp(now);
                     fixed.setProcessID(201 + n);
                     fixed.setThreadID(31 + n);
-                    myObserver.publish(
-                                  bael_Record(fixed, emptyList),
+
+                    bcema_SharedPtr<const bael_Record> handle(
+                             new (testAllocator) bael_Record(fixed, emptyList),
+                             &testAllocator);
+                    observer.publish(
+                                  handle,
                                   bael_Context(bael_Transmission::BAEL_TRIGGER,
                                                n,
                                                NUM_MESSAGES));
                 }
                 out << ends;
                 if (veryVerbose) cout << buf << endl;
+            }
+            if (verbose)
+                cout << "Invoke 'releaseRecords' method." << endl;
+            {
+                observer.releaseRecords();
             }
         }
       } break;
@@ -243,11 +262,17 @@ int main(int argc, char *argv[])
 
         bsls_ProtocolTest<ObserverTest> t(veryVerbose);
 
-        ASSERT(t.testAbstract());
         ASSERT(t.testNoDataMembers());
         ASSERT(t.testVirtualDestructor());
 
         BSLS_PROTOCOLTEST_ASSERT(t, publish(bael_Record(), bael_Context()));
+
+        bcema_SharedPtr<const bael_Record> handle(
+                              new (testAllocator) bael_Record(&testAllocator),
+                              &testAllocator);
+        BSLS_PROTOCOLTEST_ASSERT(t, publish(handle, bael_Context()));
+
+        BSLS_PROTOCOLTEST_ASSERT(t, releaseRecords());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

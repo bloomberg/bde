@@ -9887,7 +9887,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -9903,6 +9903,157 @@ int main(int argc, char *argv[])
                                << "\n=====================" << bsl::endl;
 
         usageExample();
+
+        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING ARRAYS WITH the 'encodeEmptyArrays' option (DRQS 29114951)
+        //
+        // Concerns:
+        //: 1 If 'bdem_BerEncoderOptions' is not specified then empty arrays
+        //:   are encoded.
+        //:
+        //: 2 If 'bdem_BerEncoderOptions' is specified but the
+        //:   'encodeEmptyArrays' is set to 'false' then empty arrays
+        //:   are not encoded.
+        //:
+        //: 3 If 'bdem_BerEncoderOptions' is specified and the
+        //:   'encodeEmptyArrays' option is not set or set to 'true' then
+        //:   empty arrays are encoded.
+        //:
+        //: 4 Non-empty arrays are always encoded.
+        //
+        // Plan:
+        //: 1 Create three 'bdem_BerEncoderOptions' objects.  Set the
+        //:   'encodeEmptyArrays' option in one encoder options object to
+        //:   'true' and to 'false' in the another object.  Leave the third
+        //:   encoder options object unmodified.
+        //:
+        //: 2 Create four 'bdem_BerEncoder' objects passing the three
+        //:   'bdem_BerEncoderOptions' objects created in step 1 to the first
+        //:   three encoder objects.  The fourth encoder object is not passed
+        //:   any encoder options.
+        //:
+        //: 3 Create four 'bdesb_MemOutStreamBuf' objects.
+        //:
+        //: 4 Populate a 'MySequenceWithArray' object ensuring that its
+        //:   underlying vector data member is empty.
+        //:
+        //: 5 Encode the 'MySequenceWithArray' object onto a
+        //:   'bdesb_MemOutStreamBuf' using one of the created
+        //:   'bdem_BerEncoder' objects.
+        //:
+        //: 6 Ensure that the empty vector is encoded in all cases except when
+        //:   the encoder options are explicitly provided and the
+        //:   'encodeEmptyArrays' option on that object is set to 'false'.
+        //:
+        //: 7 Repeat steps 1 - 6 for a 'MySequenceWithArray' object that has a
+        //:   non-empty vector.
+        //:
+        //: 8 Ensure that the non-empty vector is encoded in all cases.
+        //
+        // Testing:
+        //  Encoding of vectors
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTesting Arrays with 'encodeEmptyArrays'"
+                               << "\n======================================="
+                               << bsl::endl;
+
+        if (verbose) bsl::cout << "\nTesting with empty array." << bsl::endl;
+        {
+            bdem_BerEncoderOptions options1, options2, options3;
+            options1.setEncodeEmptyArrays(true);
+            options2.setEncodeEmptyArrays(false);
+
+            bdem_BerEncoder encoder1(&options1), encoder2(&options2),
+                            encoder3(&options3), encoder4;
+
+            bdesb_MemOutStreamBuf osb1, osb2, osb3, osb4;
+
+            test::MySequenceWithArray value;
+            value.attribute1() = 34;
+
+            ASSERT(0 == encoder1.encode(&osb1, value));
+            ASSERT(0 == encoder2.encode(&osb2, value));
+            ASSERT(0 == encoder3.encode(&osb3, value));
+            ASSERT(0 == encoder4.encode(&osb4, value));
+
+            ASSERT(osb1.length()  > osb2.length());
+            ASSERT(osb1.length() == osb3.length());
+            ASSERT(osb1.length() == osb4.length());
+            ASSERT(0 == memcmp(osb1.data(), osb3.data(), osb1.length()));
+            ASSERT(0 == memcmp(osb1.data(), osb4.data(), osb1.length()));
+
+            printDiagnostic(encoder1);
+            printDiagnostic(encoder2);
+            printDiagnostic(encoder3);
+            printDiagnostic(encoder4);
+
+            if (veryVerbose) {
+                P(osb1.length())
+                printBuffer(osb1.data(), osb1.length());
+
+                P(osb2.length())
+                printBuffer(osb2.data(), osb2.length());
+
+                P(osb3.length())
+                printBuffer(osb3.data(), osb3.length());
+
+                P(osb4.length())
+                printBuffer(osb4.data(), osb4.length());
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting with a non-empty array."
+                               << bsl::endl;
+        {
+            bdem_BerEncoderOptions options1, options2, options3;
+            options1.setEncodeEmptyArrays(true);
+            options2.setEncodeEmptyArrays(false);
+
+            bdem_BerEncoder encoder1(&options1), encoder2(&options2),
+                            encoder3(&options3), encoder4;
+
+            bdesb_MemOutStreamBuf osb1, osb2, osb3, osb4;
+
+            test::MySequenceWithArray value;
+            value.attribute1() = 34;
+            value.attribute2().push_back("Hello");
+            value.attribute2().push_back("World!");
+
+            ASSERT(0 == encoder1.encode(&osb1, value));
+            ASSERT(0 == encoder2.encode(&osb2, value));
+            ASSERT(0 == encoder3.encode(&osb3, value));
+            ASSERT(0 == encoder4.encode(&osb4, value));
+
+            ASSERT(osb1.length() == osb2.length())
+            ASSERT(osb1.length() == osb3.length())
+            ASSERT(osb1.length() == osb4.length())
+            ASSERT(0 == memcmp(osb1.data(), osb2.data(), osb1.length()));
+            ASSERT(0 == memcmp(osb1.data(), osb3.data(), osb1.length()));
+            ASSERT(0 == memcmp(osb1.data(), osb4.data(), osb1.length()));
+
+            printDiagnostic(encoder1);
+            printDiagnostic(encoder2);
+            printDiagnostic(encoder3);
+            printDiagnostic(encoder4);
+
+            if (veryVerbose) {
+                P(osb1.length())
+                printBuffer(osb1.data(), osb1.length());
+
+                P(osb2.length())
+                printBuffer(osb2.data(), osb2.length());
+
+                P(osb3.length())
+                printBuffer(osb3.data(), osb3.length());
+
+                P(osb4.length())
+                printBuffer(osb4.data(), osb4.length());
+            }
+        }
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;

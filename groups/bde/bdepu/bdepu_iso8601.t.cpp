@@ -18,6 +18,8 @@
 #include <bsl_cstring.h>
 #include <bsl_cmath.h>
 
+#include <malloc.h>
+
 using namespace BloombergLP;
 
 //=============================================================================
@@ -157,9 +159,107 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef bdepu_Iso8601 Util;
 
+static char *cloneStr(const char *str, int len)
+{
+    char *ret = (char *) malloc(len);
+#ifdef BSLS_PLATFORM__OS_AIX
+    // 'malloc(0) return 0 on AIX, which complicates life later
+
+    if (0 == len) {
+        ASSERT(0 == ret);
+        ret = (char *) malloc(4) + 4;
+    }
+#endif
+
+    bsl::memcpy(ret, str, len);
+    return ret;
+}
+
+static void freeStr(char *str, int len)
+{
+#ifdef BSLS_PLATFORM__OS_AIX
+    if (0 == len) {
+        str -= 4;
+    }
+#else
+    ++len;    // quiet 'unused' warnings
+#endif
+
+    free(str);
+}
+
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
+
+//=============================================================================
+//                      HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+static
+void testTimezone(const char *tzStr,
+                  const bool  valid,
+                  const int   offset)
+{
+    static const bsl::string dateStr = "2000-01-02";
+    static const bsl::string timeStr = "12:34:56";
+    static const bsl::string datetimeStr = "2001-02-03T14:21:34";
+    
+    static const bdet_Date       initDate( 3,  3,  3);
+    static const bdet_DateTz     initDateTz(initDate,-120);
+    static const bdet_Time       initTime(11, 11, 11);
+    static const bdet_TimeTz     initTimeTz(initTime, 120);
+    static const bdet_Datetime   initDatetime(  initDate, initTime);
+    static const bdet_DatetimeTz initDatetimeTz(initDatetime, 180);
+
+    int ret;
+    bdet_Date date(initDate);
+    const bsl::string& dateTzStr = dateStr + tzStr;
+    ret = !Util::parse(&date, dateTzStr.c_str(),
+                              dateTzStr.length());
+    LOOP2_ASSERT(dateTzStr, ret, valid == ret);
+    LOOP_ASSERT(dateTzStr, valid || initDate == date);
+    
+    bdet_DateTz dateTz(initDateTz);
+    ret = !Util::parse(&dateTz, dateTzStr.c_str(),
+                                dateTzStr.length());
+    LOOP2_ASSERT(dateTzStr, ret, valid == ret);
+    LOOP_ASSERT(dateTzStr, valid || initDateTz == dateTz);
+    LOOP3_ASSERT(dateTzStr, offset, dateTz.offset(),
+                      !valid || offset == dateTz.offset());
+    
+    bdet_Time time(initTime);
+    const bsl::string& timeTzStr = timeStr + tzStr;
+    ret = !Util::parse(&time, timeTzStr.c_str(),
+                              timeTzStr.length());
+    LOOP2_ASSERT(timeTzStr, ret, valid == ret);
+    LOOP_ASSERT(timeTzStr, valid || initTime == time);
+    
+    bdet_TimeTz timeTz(initTimeTz);
+    ret = !Util::parse(&timeTz, timeTzStr.c_str(),
+                                timeTzStr.length());
+    LOOP2_ASSERT(timeTzStr, ret, valid == ret);
+    LOOP_ASSERT(timeTzStr, valid || initTimeTz == timeTz);
+    LOOP3_ASSERT(timeTzStr, offset, timeTz.offset(),
+                      !valid || offset == timeTz.offset());
+    
+    bdet_Datetime datetime(initDatetime);
+    const bsl::string& datetimeTzStr = datetimeStr + tzStr;
+    ret = !Util::parse(&datetime, datetimeTzStr.c_str(),
+                                  datetimeTzStr.length());
+    LOOP2_ASSERT(dateTzStr, ret, valid == ret);
+    LOOP_ASSERT(dateTzStr,
+                        valid || initDatetime == datetime);
+    
+    bdet_DatetimeTz datetimeTz(initDatetimeTz);
+    ret = !Util::parse(&datetimeTz,datetimeTzStr.c_str(),
+                                   datetimeTzStr.length());
+    LOOP2_ASSERT(dateTzStr, ret, valid == ret);
+    LOOP_ASSERT(dateTzStr,
+                    valid || initDatetimeTz == datetimeTz);
+    LOOP3_ASSERT(datetimeTzStr, offset,datetimeTz.offset(),
+                  !valid || offset == datetimeTz.offset());
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -177,7 +277,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -224,7 +324,575 @@ int main(int argc, char *argv[])
 // the offset from GMT was converted to minutes.
 
       } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING TIME ZONES
+        //
+        // Concern:
+        //   Test that time zones accept all valid inputs and reject
+        //   appropriately.
+        //
+        // Plan:
+        //   Exhaustively test all values of hh and mm, then in a separate
+        //   loop test some other values.
+        // --------------------------------------------------------------------
 
+        if (verbose) bsl::cout << "TESTING TIME ZONES\n"
+                                  "==================\n";
+
+        if (verbose) Q(Exhaustive test);
+        {
+            for (int sign = 0; sign <= 1; ++sign) {
+                for (int hh = 0; hh <= 99; ++hh) {
+                    for (int mm = 0; mm <= 99; ++mm) {
+                        char tzBuf[10];
+                        sprintf(tzBuf, "%c%02d:%02d", (sign ? '-' : '+'),
+                                                      hh, mm);
+                        const bool VALID = hh < 24 && mm <= 59;
+                        const int OFFSET = (sign ? -1 : 1) * (hh * 60 + mm);
+
+                        testTimezone(tzBuf, VALID, OFFSET);
+                    }
+                }
+            }
+        }
+
+        if (verbose) Q(Table test);
+        {
+            static const struct {
+                const char *d_tzStr;
+                bool        d_valid;
+                int         d_offset;    // note only examined if 'valid' is
+                                         // true
+            } DATA[] = {
+                // tzStr      valid  offset
+                // ---------  -----  ------
+                { "+123:123",     0,      0 },
+                { "+12:12",       1,    732 },
+                { "-12:12",       1,   -732 },
+                { "z",            1,      0 },
+                { "Z",            1,      0 },
+                { "",             1,      0 },
+                { "+123:23",      0,      0 },
+                { "+12:123",      0,      0 },
+                { "+011:23",      0,      0 },
+                { "+12:011",      0,      0 },
+                { "+1:12",        0,      0 },
+                { "+12:1",        0,      0 },
+                { "+a1:12",       0,      0 },
+                { "z0",           0,      0 },
+                { "0",            0,      0 },
+                { "T",            0,      0 },
+                { "+",            0,      0 },
+                { "-",            0,      0 },
+                { "+0",           0,      0 },
+                { "-0",           0,      0 },
+                { "+01",          0,      0 },
+                { "-01",          0,      0 },
+                { "+01:",         0,      0 },
+                { "-01:",         0,      0 },
+                { "+01:1",        0,      0 },
+                { "-01:1",        0,      0 },
+            };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const char *TZ_STR = DATA[i].d_tzStr;
+                const bool  VALID  = DATA[i].d_valid;
+                const int   OFFSET = DATA[i].d_offset;
+
+                testTimezone(TZ_STR, VALID, OFFSET);
+            }
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // PURIFY TESTING PARSE
+        //
+        // Concerns:
+        //   That parse must never access past the end of segment.
+        //
+        // Plan:
+        //   Repeat test 3, only with segments malloc'ed to be all lengths
+        //   in the range [ 0, inputLen ].  This test must be run under purify
+        //   for the full effect.
+        //
+        // Testing (again):
+        //     static int parse(bdet_Date  *result,
+        //                      const char *input,
+        //                      int         inputLength);
+        //     static int parse(bdet_Datetime *result,
+        //                      const char    *input,
+        //                      int            inputLength);
+        //     static int parse(bdet_DatetimeTz *result,
+        //                      const char      *input,
+        //                      int              inputLength);
+        //     static int parse(bdet_DateTz *result,
+        //                      const char  *input,
+        //                      int          inputLength);
+        //     static int parse(bdet_Time  *result,
+        //                      const char *input,
+        //                      int         inputLength);
+        //     static int parse(bdet_TimeTz *result,
+        //                      const char  *input,
+        //                      int          inputLength);
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING PARSE"
+                               << "\n=============" << bsl::endl;
+
+        const struct {
+            int         d_line;
+            int         d_year;
+            int         d_month;
+            int         d_day;
+            int         d_hour;
+            int         d_minute;
+            int         d_second;
+            int         d_millisecond;
+            const char *d_fracSecond;
+            bool        d_dateValid;
+            bool        d_timeValid;
+            bool        d_partialTest;
+        } DATA[] = {
+            //                                                  Dat Tim Tst
+            //Ln  Year  Mo  Day Hr  Min  Sec    ms Frac         Vld Vld Prt
+            //==  ====  ==  === ==  ===  ===    == ====         === === ===
+
+            // Invalid Dates
+            { L_, 0000,  0,  0,  0,   0,   0,    0, "",           0,  1, 1 },
+            { L_, 2005,  0,  1,  0,   0,   0,    0, "",           0,  1, 1 },
+            { L_, 2005, 13,  1,  0,   0,   0,    0, "",           0,  1, 1 },
+            { L_, 2005, 99,  1,  0,   0,   0,    0, "",           0,  1, 1 },
+            { L_, 2005,  1,  0,  0,   0,   0,    0, "",           0,  1, 1 },
+            { L_, 2005,  1, 32,  0,   0,   0,    0, "",           0,  1, 1 },
+            { L_, 2005,  1, 99,  0,   0,   0,    0, "",           0,  1, 1 },
+
+            // Invalid Times
+            { L_, 2005, 12, 31, 25,   0,   0,    0, "",           1,  0, 1 },
+            { L_, 2005, 12, 31, 99,   0,   0,    0, "",           1,  0, 1 },
+            { L_, 2005, 12, 31, 12,  60,   0,    0, "",           1,  0, 1 },
+            { L_, 2005, 12, 31, 12, 100,   0,    0, "",           1,  0, 1 },
+            { L_, 2005, 12, 31, 12,  59,  62,    0, "",           1,  0, 1 },
+            { L_, 2005, 12, 31, 12,  59, 101,    0, "",           1,  0, 0 },
+                                           
+            { L_, 2005,  1,  1, 24,   1,   0,    0, "",           1,  0, 1 },
+            { L_, 2005,  1,  1, 24,   0,   1,    0, "",           1,  0, 1 },
+            { L_, 2005,  1,  1, 24,   0,   0, 1000, ".9991",      1,  0, 0 },
+                                           
+            // Valid dates and times       
+            { L_, 2005,  1,  1, 24,   0,   0,    0, "",           1,  1, 0 },
+            { L_, 2005,  1,  1,  0,   0,   0,    0, "",           1,  1, 1 },
+            { L_, 0123,  6, 15, 13,  40,  59,    0, "",           1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, "",           1,  1, 1 },
+
+            // Vary fractions of a second.
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".",          1,  0, 0 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".0",         1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".00",        1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".000",       1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".0000",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".00000",     1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".000000",    1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".0000000",   1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".0004",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".00045",     1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".000456",    1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    0, ".0004567",   1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    1, ".0005",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    1, ".0006",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    1, ".0009",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    2, ".002",       1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    2, ".0020",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  200, ".2",         1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  200, ".20",        1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  200, ".200",       1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  200, ".2000",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  200, ".20000",     1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  200, ".200000",    1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,    3, ".0025",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,   34, ".034",       1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,   34, ".0340",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,   35, ".0345",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  456, ".456",       1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  456, ".4560",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  457, ".4567",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  999, ".9994",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  999, ".99945",     1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  999, ".999456",    1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1,  999, ".9994567",   1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1, 1000, ".9995",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1, 1000, ".99956",     1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1, 1000, ".999567",    1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1, 1000, ".9999",      1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1, 1000, ".99991",     1,  1, 1 },
+            { L_, 1999, 10, 12, 23,   0,   1, 1000, ".999923",    1,  1, 1 },
+            { L_, 1999, 12, 31, 23,  59,  59, 1000, ".9995",      1,  1, 1 },
+        };
+
+        static const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        static const int UTC_EMPTY_OFFSET = 0x70000000;
+        static const int UTC_UCZ_OFFSET   = UTC_EMPTY_OFFSET + 'Z';
+        static const int UTC_LCZ_OFFSET   = UTC_EMPTY_OFFSET + 'z';
+
+        static const int UTC_OFFSETS[] = {
+            0, -90, -240, -720, 90, 240, 720,
+            UTC_EMPTY_OFFSET, UTC_UCZ_OFFSET, UTC_LCZ_OFFSET
+        };
+        static const int NUM_UTC_OFFSETS =
+            sizeof UTC_OFFSETS / sizeof *UTC_OFFSETS;
+
+        const bdet_Date       initDate( 3,  3,  3);
+        const bdet_Time       initTime(11, 11, 11);
+        const bdet_DateTz     initDateTz(initDate,-120);
+        const bdet_TimeTz     initTimeTz(initTime, 120);
+        const bdet_Datetime   initDatetime(  initDate, initTime);
+        const bdet_DatetimeTz initDatetimeTz(initDatetime, 180);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int         LINE        = DATA[i].d_line;
+            const int         YEAR        = DATA[i].d_year;
+            const int         MONTH       = DATA[i].d_month;
+            const int         DAY         = DATA[i].d_day;
+            const int         HOUR        = DATA[i].d_hour;
+            const int         MINUTE      = DATA[i].d_minute;
+            const int         SECOND      = DATA[i].d_second;
+            const int         MILLISECOND = DATA[i].d_millisecond;
+            const char *const FRAC_SECOND = DATA[i].d_fracSecond;
+            const bool        DATE_VALID  = DATA[i].d_dateValid;
+            const bool        TIME_VALID  = DATA[i].d_timeValid;
+            const bool        PARTIAL_TEST= DATA[i].d_partialTest;
+
+            const int         FRAC_LEN    = bsl::strlen(FRAC_SECOND);
+
+            if (verbose) {
+                P_(LINE); P_(YEAR); P_(MONTH); P(DAY);
+                P_(HOUR); P_(MINUTE); P_(SECOND); P_(MILLISECOND);
+                P_(FRAC_SECOND); P_(DATE_VALID); P(TIME_VALID);
+            }
+
+            bdet_Date theDate;
+            const bool isValidDate =
+                0 == theDate.setYearMonthDayIfValid(YEAR, MONTH, DAY) &&
+                DATE_VALID;
+            LOOP_ASSERT(LINE, DATE_VALID == isValidDate);
+
+            for (int j = 0; j < NUM_UTC_OFFSETS; ++j) {
+                if (verbose) { T_; P_(NUM_UTC_OFFSETS); P(j); }
+
+                const int UTC_OFFSET = (UTC_OFFSETS[j] >= UTC_EMPTY_OFFSET ?
+                                        0 : UTC_OFFSETS[j]);
+
+                bdet_DateTz     theDateTz;
+                if (isValidDate) {
+                    theDateTz.setDateTz(theDate, UTC_OFFSET);
+                }
+
+                bdet_Time theTime;
+                bool isValidTime =
+                         0 == theTime.setTimeIfValid(HOUR, MINUTE, SECOND) &&
+                         TIME_VALID;
+                if (isValidTime && MILLISECOND) {
+                    if (HOUR >= 24) {
+                        isValidTime = false;
+                        theTime = bdet_Time();
+                    }
+                    else {
+                        theTime.addMilliseconds(MILLISECOND);
+                        LOOP_ASSERT(LINE, TIME_VALID == isValidTime);
+                    }
+                }
+
+                bdet_TimeTz     theTimeTz;
+                bool isValidTimeTz = isValidTime
+                   && 0 == theTimeTz.validateAndSetTimeTz(theTime, UTC_OFFSET);
+
+                bool isValidDatetime = (isValidDate && isValidTime);
+                bdet_Datetime theDatetime;
+                if (isValidDatetime) {
+                    theDatetime.setDatetime(YEAR, MONTH, DAY,
+                                            HOUR, MINUTE, SECOND);
+                    if (MILLISECOND) {
+                        theDatetime.addMilliseconds(MILLISECOND);
+                    }
+                }
+
+                bdet_DatetimeTz theDatetimeTz;
+                bool isValidDatetimeTz = isValidDatetime
+                                && 0 == theDatetimeTz.validateAndSetDatetimeTz(
+                                                      theDatetime, UTC_OFFSET);
+
+                char dateStr[25], timeStr[25], offsetStr[10];
+                bsl::sprintf(dateStr, "%04d-%02d-%02d", YEAR, MONTH, DAY);
+                bsl::sprintf(timeStr, "%02d:%02d:%02d%s",
+                             HOUR, MINUTE, SECOND, FRAC_SECOND);
+                if (UTC_OFFSETS[j] >= UTC_EMPTY_OFFSET) {
+                    // Create empty string, "Z", or "z"
+                    offsetStr[0] = UTC_OFFSETS[j] - UTC_EMPTY_OFFSET;
+                    offsetStr[1] = '\0';
+                }
+                else {
+                    bsl::sprintf(offsetStr, "%+03d:%02d",
+                                 UTC_OFFSET / 60, bsl::abs(UTC_OFFSET) % 60);
+                }
+                const int OFFSET_LEN = bsl::strlen(offsetStr);
+
+                char input[200];
+                int ret;
+
+                {
+                    bsl::memset(input, 0, sizeof(input));
+                    bsl::strcpy(input, dateStr);
+                    bsl::strcat(input, "T");
+                    bsl::strcat(input, timeStr);
+                    bsl::strcat(input, offsetStr);
+                    int inputLen = bsl::strlen(input);
+                    bdet_DatetimeTz datetime;
+                    for (int k = 0; k <= inputLen; ++k) {
+                        char *segment = cloneStr(input, k);
+                        datetime = initDatetimeTz;
+                        ret = !Util::parse(&datetime, segment, k);
+                        bool pass = 19 == k;
+                        pass |= k >= 21 && k <= 19 + FRAC_LEN;
+                        pass |= k == 19 + FRAC_LEN + OFFSET_LEN;
+                        if (PARTIAL_TEST || k == inputLen) {
+                            LOOP5_ASSERT(LINE, ret, k, isValidDatetimeTz,input,
+                                           ret == (isValidDatetimeTz && pass));
+                        }
+                        freeStr(segment, k);
+                    }
+                    LOOP5_ASSERT(LINE, input, ret, isValidDatetimeTz,
+                                         UTC_OFFSET, isValidDatetimeTz == ret);
+                    if (isValidDatetimeTz) {
+                        LOOP3_ASSERT(LINE, input, datetime,
+                                                    datetime == theDatetimeTz);
+                        if (bsl::strncmp(FRAC_SECOND, ".999", 4)) {
+                            LOOP3_ASSERT(LINE, datetime, SECOND,
+                                  datetime.localDatetime().second() == SECOND);
+                            LOOP3_ASSERT(LINE, datetime, MINUTE,
+                                  datetime.localDatetime().minute() == MINUTE);
+                            LOOP3_ASSERT(LINE, datetime, HOUR,
+                                  datetime.localDatetime().hour() == HOUR);
+                            LOOP3_ASSERT(LINE, datetime, DAY,
+                                  datetime.localDatetime().day() == DAY);
+                            LOOP3_ASSERT(LINE, datetime, MONTH,
+                                  datetime.localDatetime().month() == MONTH);
+                            LOOP4_ASSERT(LINE, input, datetime, YEAR,
+                                  datetime.localDatetime().year() == YEAR);
+                        }
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, initDatetimeTz == datetime);
+                    }
+                    if (veryVerbose) { T_; P(datetime); }
+                }
+
+                {
+                    const bdet_Datetime EXP_DATETIME = isValidDatetime ?
+                                 theDatetimeTz.gmtDatetime() : bdet_Datetime();
+
+                    bsl::memset(input, 0, sizeof(input));
+                    bsl::strcpy(input, dateStr);
+                    bsl::strcat(input, "T");
+                    bsl::strcat(input, timeStr);
+                    bsl::strcat(input, offsetStr);
+                    int inputLen = bsl::strlen(input);
+                    bdet_Datetime datetime;
+                    for (int k = 0; k <= inputLen; ++k) {
+                        char *segment = cloneStr(input, k);
+                        datetime = initDatetime;
+                        ret = !Util::parse(&datetime, input, k);
+                        bool pass = 19 == k;
+                        pass |= k >= 21 && k <= 19 + FRAC_LEN;
+                        pass |= k == 19 + FRAC_LEN + OFFSET_LEN;
+                        if (PARTIAL_TEST || k == inputLen) {
+                            LOOP5_ASSERT(LINE, ret, k, isValidDatetimeTz,input,
+                                           ret == (isValidDatetimeTz && pass));
+                        }
+                        freeStr(segment, k);
+                    }
+                    if (isValidDatetimeTz) {
+                        LOOP4_ASSERT(LINE, input, datetime, EXP_DATETIME,
+                                                     EXP_DATETIME == datetime);
+                        if (bsl::strncmp(FRAC_SECOND, ".999", 4) && 0 == j) {
+                            LOOP3_ASSERT(LINE, datetime, SECOND,
+                                                  datetime.second() == SECOND);
+                            LOOP3_ASSERT(LINE, datetime, MINUTE,
+                                                  datetime.minute() == MINUTE);
+                            LOOP3_ASSERT(LINE, datetime, HOUR,
+                                                  datetime.hour() == HOUR);
+                            LOOP3_ASSERT(LINE, datetime, DAY,
+                                                  datetime.day() == DAY);
+                            LOOP3_ASSERT(LINE, datetime, MONTH,
+                                                  datetime.month() == MONTH);
+                            LOOP3_ASSERT(LINE, datetime, YEAR,
+                                                  datetime.year() == YEAR);
+                        }
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, initDatetime == datetime);
+                    }
+                    if (veryVerbose) { T_; P(datetime); }
+                }
+
+                {
+                    bsl::memset(input, 0, sizeof(input));
+                    bsl::strcpy(input, dateStr);
+                    bsl::strcat(input, offsetStr);
+                    int inputLen = bsl::strlen(input);
+                    bdet_DateTz date;
+                    for (int k = 0; k <= inputLen; ++k) {
+                        char *segment = cloneStr(input, k);
+                        date = initDateTz;
+                        ret = !Util::parse(&date, input, k);
+                        bool pass = 10 == k;
+                        pass |= k == 10 + OFFSET_LEN;
+                        if (PARTIAL_TEST || k == inputLen) {
+                            LOOP5_ASSERT(LINE, ret, k, DATE_VALID, input,
+                                                  ret == (DATE_VALID && pass));
+                        }
+                        freeStr(segment, k);
+                    }
+                    LOOP3_ASSERT(LINE, input, ret, isValidDate == ret);
+                    if (isValidDate) {
+                        LOOP3_ASSERT(LINE, input, date, date == theDateTz);
+                        LOOP3_ASSERT(LINE, date, DAY,
+                                            date.localDate().day() == DAY);
+                        LOOP3_ASSERT(LINE, date, MONTH,
+                                            date.localDate().month() == MONTH);
+                        LOOP3_ASSERT(LINE, date, YEAR,
+                                            date.localDate().year() == YEAR);
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, initDateTz == date);
+                    }
+                    if (veryVerbose) { T_; P(date); }
+                }
+
+                {
+                    bsl::memset(input, 0, sizeof(input));
+                    bsl::strcpy(input, dateStr);
+                    bsl::strcat(input, offsetStr);
+                    int inputLen = bsl::strlen(input);
+                    bdet_Date date;
+                    for (int k = 0; k <= inputLen; ++k) {
+                        char *segment = cloneStr(input, k);
+                        date = initDate;
+                        ret = !Util::parse(&date, input, k);
+                        bool pass = 10 == k;
+                        pass |= k == 10 + OFFSET_LEN;
+                        if (PARTIAL_TEST || k == inputLen) {
+                            LOOP5_ASSERT(LINE, ret, k, DATE_VALID, input,
+                                                  ret == (DATE_VALID && pass));
+                        }
+                        freeStr(segment, k);
+                    }
+                    LOOP3_ASSERT(LINE, input, ret, isValidDate == ret);
+                    if (isValidDate) {
+                        LOOP3_ASSERT(LINE, input, date, date == theDate);
+                        LOOP3_ASSERT(LINE, date, DAY,   date.day()   == DAY);
+                        LOOP3_ASSERT(LINE, date, MONTH, date.month() == MONTH);
+                        LOOP3_ASSERT(LINE, date, YEAR,  date.year()  == YEAR);
+
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, initDate == date);
+                    }
+                    if (veryVerbose) { T_; P(date); }
+                }
+
+                {
+                    bsl::memset(input, 0, sizeof(input));
+                    bsl::strcpy(input, timeStr);
+                    bsl::strcat(input, offsetStr);
+                    int inputLen = bsl::strlen(input);
+                    bdet_TimeTz time;
+                    for (int k = 0; k <= inputLen; ++k) {
+                        char *segment = cloneStr(input, k);
+                        time = initTimeTz;
+                        ret = !Util::parse(&time, input, k);
+                        bool pass = 8 == k;
+                        if (FRAC_LEN > 0) {
+                            pass |= k >= 10 && k <= 8 + FRAC_LEN;
+                        }
+                        if (OFFSET_LEN > 0) {
+                            pass |= k == 8 + FRAC_LEN + OFFSET_LEN;
+                        }
+                        if (PARTIAL_TEST || k == inputLen) {
+                            LOOP5_ASSERT(LINE, ret, k, isValidTimeTz, input,
+                                               ret == (isValidTimeTz && pass));
+                        }
+                        freeStr(segment, k);
+                    }
+                    LOOP5_ASSERT(LINE, input, ret, isValidTimeTz, UTC_OFFSET,
+                                                         isValidTimeTz == ret);
+                    if (isValidTimeTz) {
+                        LOOP3_ASSERT(LINE, input, time, time == theTimeTz);
+                        if (bsl::strncmp(FRAC_SECOND, ".999", 4)) {
+                            LOOP3_ASSERT(LINE, time, SECOND,
+                                          time.localTime().second() == SECOND);
+                            LOOP3_ASSERT(LINE, time, MINUTE,
+                                          time.localTime().minute() == MINUTE);
+                            LOOP3_ASSERT(LINE, time, HOUR,
+                                              time.localTime().hour() == HOUR);
+                        }
+                    }
+                    else if (! isValidTimeTz) {
+                        LOOP_ASSERT(LINE, initTimeTz == time);
+                    }
+                    if (veryVerbose) { T_; P(time); }
+                }
+
+                {
+                    const bdet_Time EXP_TIME = isValidTime ?
+                                             theTimeTz.gmtTime() : bdet_Time();
+
+                    bsl::memset(input, 0, sizeof(input));
+                    bsl::strcpy(input, timeStr);
+                    bsl::strcat(input, offsetStr);
+                    int inputLen = bsl::strlen(input);
+                    bdet_Time time;
+                    for (int k = 0; k <= inputLen; ++k) {
+                        char *segment = cloneStr(input, k);
+                        time = initTime;
+                        ret = !Util::parse(&time, input, k);
+                        bool pass = 8 == k;
+                        pass |= k >= 10 && k <= 8 + FRAC_LEN;
+                        pass |= k == 8 + FRAC_LEN + OFFSET_LEN;
+                        if (PARTIAL_TEST || k == inputLen) {
+                            if (8 + FRAC_LEN < k) {
+                                LOOP5_ASSERT(LINE, ret, k, isValidTimeTz,
+                                             input,
+                                               ret == (isValidTimeTz && pass));
+                            }
+                            else {
+                                LOOP5_ASSERT(LINE, ret, k, TIME_VALID, input,
+                                                  ret == (TIME_VALID && pass));
+                            }
+                        }
+                        freeStr(segment, k);
+                    }
+                    if (ret) {
+                        LOOP4_ASSERT(LINE, input, time, EXP_TIME,
+                                                             EXP_TIME == time);
+                        if (bsl::strncmp(FRAC_SECOND, ".999", 4) && 0 == j) {
+                            LOOP3_ASSERT(LINE, time, SECOND,
+                                                      time.second() == SECOND);
+                            LOOP3_ASSERT(LINE, time, MINUTE,
+                                                      time.minute() == MINUTE);
+                            LOOP3_ASSERT(LINE, time, HOUR,
+                                                      time.hour() == HOUR);
+                        }
+                    }
+                    else {
+                        LOOP_ASSERT(LINE, initTime == time);
+                    }
+                    if (veryVerbose) { T_; P(time); }
+                }
+            }
+        }
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING PARSE

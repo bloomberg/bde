@@ -26,9 +26,9 @@ bsl::ostream& baetzo_LocalTimeDescriptor::print(
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-    printer.print(d_utcOffsetInSeconds,  "utcOffsetInSeconds");
-    printer.print(d_dstInEffectFlag,     "dstInEffectFlag");
-    printer.print(d_description.c_str(), "description");
+    printer.printAttribute("utcOffsetInSeconds", d_utcOffsetInSeconds);
+    printer.printAttribute("dstInEffectFlag",    d_dstInEffectFlag);
+    printer.printAttribute("description",        d_description.c_str());
     printer.end();
 
     return stream;

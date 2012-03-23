@@ -600,6 +600,15 @@ class bdeci_HashtableSlotIter {
     bdeci_Hashtable_Link<T> **d_hashtable_p;  // hashtable
     bdeci_Hashtable_Link<T>  *d_link_p;       // current link
 
+    // NOT IMPLEMENTED
+    //bool operator==(const bdeci_HashtableSlotIter&) const;
+    //bool operator!=(const bdeci_HashtableSlotIter&) const;
+
+    //template<class OTHER, class HASH2>
+    //bool operator==(const bdeci_HashtableSlotIter<OTHER, HASH2>&) const;
+    //template<class OTHER, class HASH2>
+    //bool operator!=(const bdeci_HashtableSlotIter<OTHER, HASH2>&) const;
+
   public:
     // CREATORS
     bdeci_HashtableSlotIter(const bdeci_Hashtable<T, HASH>& hashtable,
@@ -662,6 +671,14 @@ class bdeci_HashtableSlotManip {
   private:  // not implemented
     bdeci_HashtableSlotManip(const bdeci_HashtableSlotManip&);
     bdeci_HashtableSlotManip& operator=(const bdeci_HashtableSlotManip&);
+
+    bool operator==(const bdeci_HashtableSlotManip&) const;
+    bool operator!=(const bdeci_HashtableSlotManip&) const;
+
+    template<class OTHER, class HASH2>
+    bool operator==(const bdeci_HashtableSlotManip<OTHER, HASH2>&) const;
+    template<class OTHER, class HASH2>
+    bool operator!=(const bdeci_HashtableSlotManip<OTHER, HASH2>&) const;
 
   public:
     // CREATORS
@@ -965,8 +982,7 @@ bdeci_Hashtable<T, HASH>::~bdeci_Hashtable()
 // MANIPULATORS
 template <class T, class HASH>
 bdeci_Hashtable<T, HASH>&
-                  bdeci_Hashtable<T, HASH>::
-                  operator=(const bdeci_Hashtable<T, HASH>& rhs)
+bdeci_Hashtable<T, HASH>::operator=(const bdeci_Hashtable<T, HASH>& rhs)
 {
     if (this != &rhs) {
         if (d_numElements < rhs.d_numElements) {
@@ -1399,8 +1415,9 @@ bdeci_HashtableSlotIter<T, HASH>::~bdeci_HashtableSlotIter()
 
 template <class T, class HASH>
 inline
-bdeci_HashtableSlotIter<T, HASH>& bdeci_HashtableSlotIter<T, HASH>::
-                         operator=(const bdeci_HashtableSlotIter<T, HASH>& rhs)
+bdeci_HashtableSlotIter<T, HASH>&
+bdeci_HashtableSlotIter<T, HASH>::operator=(
+                                   const bdeci_HashtableSlotIter<T, HASH>& rhs)
 {
     d_hashtable_p = rhs.d_hashtable_p;
     d_link_p = rhs.d_link_p;

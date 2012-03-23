@@ -176,10 +176,12 @@ struct baea_Ordinal {
         // Create an ordinal for the specified position 'n' (starting at 0).
 };
 
-bsl::ostream& operator<<(bsl::ostream& stream, baea_Ordinal position)
+bsl::ostream& operator<<(bsl::ostream& stream, baea_Ordinal position);
     // Output the specified 'position' (starting at 0) to the specified
     // 'stream' as an ordinal, mapping 0 to "1st", 1 to "2nd", 3 to "3rd", 4
     // to "4th", etc. following correct English usage.
+
+bsl::ostream& operator<<(bsl::ostream& stream, baea_Ordinal position)
 {
     int n = position.d_rank + 1;  // ranks start at 0, but are displayed as
                                   // 1st, 2nd, etc.
@@ -2564,11 +2566,11 @@ baea_CommandLineOption::baea_CommandLineOption(bslma_Allocator *basicAllocator)
 }
 
 baea_CommandLineOption::baea_CommandLineOption(
-                                 const baea_CommandLineOption&  optionInfo,
+                                 const baea_CommandLineOption&  original,
                                  bslma_Allocator               *basicAllocator)
 : d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
-    init(static_cast<const baea_CommandLineOptionInfo&>(optionInfo));
+    init(static_cast<const baea_CommandLineOptionInfo&>(original));
 }
 
 baea_CommandLineOption::baea_CommandLineOption(
@@ -3851,21 +3853,9 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
     bsl::vector<bsl::string> options;
     bsl::vector<bsl::string> nonOptions;
 
-    options.push_back("");  // optional flags
-    options.push_back("");  // required flags
     for (unsigned int i = 0; i < d_options.size(); ++i) {
         switch (d_options[i].argType()) {
-          case baea_CommandLineOptionInfo::BAEA_FLAG: {
-            if (!d_options[i].occurrenceInfo().isHidden()
-             && d_options[i].shortTag()) {
-                if (d_options[i].occurrenceInfo().isRequired()) {
-                    options[1].append(1, d_options[i].shortTag());
-                } else {
-                    options[0].append(1, d_options[i].shortTag());
-                }
-                break;                                                 // BREAK
-            }
-          }                                                     // FALL THROUGH
+          case baea_CommandLineOptionInfo::BAEA_FLAG:
           case baea_CommandLineOptionInfo::BAEA_OPTION: {
             if (d_options[i].occurrenceInfo().isHidden()) {
                 break;
@@ -3882,65 +3872,65 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
             }
 
             options.push_back("");
+            bsl::string& latest = options.back();
             if (start) {
-                options.back().append(1, start);
+                latest.append(1, start);
             }
             if (d_options[i].shortTag()) {
-                options.back().append(1, '-');
-                options.back().append(1, d_options[i].shortTag());
+                latest.append(1, '-');
+                latest.append(1, d_options[i].shortTag());
+                latest.append(1, '|');
             } else {
-                options.back().append(2, '-');
-                options.back().append(d_options[i].longTag());
+                latest.append(2, '-');
             }
-            options.back().append(1, ' ');
-            options.back().append(1, '<');
-            options.back().append(d_options[i].name());
-            options.back().append(1, '>');
+            latest.append(d_options[i].longTag());
+            if (baea_CommandLineOptionInfo::BAEA_FLAG != 
+                                                      d_options[i].argType()) {
+                latest.append(1, ' ');
+                latest.append(1, '<');
+                latest.append(d_options[i].name());
+                latest.append(1, '>');
+            }
             if (end) {
-                options.back().append(1, end);
+                latest.append(1, end);
             }
             if (multiIndicator) {
-                options.back().append(1, multiIndicator);
+                latest.append(1, multiIndicator);
             }
           } break;                                                     // BREAK
           case baea_CommandLineOptionInfo::BAEA_NON_OPTION: {
             char start = 0, end = 0, multiIndicator = 0;
 
-             if (d_options[i].isArray()
-              || !d_options[i].occurrenceInfo().isRequired()) {
-                 start = '[';
-                 end = ']';
-             }
+            if (d_options[i].isArray()
+             || !d_options[i].occurrenceInfo().isRequired()) {
+                start = '[';
+                end = ']';
+            }
+            
+            if (d_options[i].isArray()) {
+                multiIndicator =
+                      !d_options[i].occurrenceInfo().isRequired() ? '*' : '+';
+            }
 
-             if (d_options[i].isArray()) {
-                 multiIndicator =
-                       !d_options[i].occurrenceInfo().isRequired() ? '*' : '+';
-             }
-
-             nonOptions.push_back("");
-             if (start) {
-                 nonOptions.back().append(1, start);
-             }
-             nonOptions.back().append(1, '<');
-             nonOptions.back().append(d_options[i].name());
-             nonOptions.back().append(1, '>');
-             if (end) {
-                 nonOptions.back().append(1, end);
-             }
-             if (multiIndicator) {
-                 nonOptions.back().append(1, multiIndicator);
-             }
+            nonOptions.push_back("");
+            bsl::string& latest = nonOptions.back();
+            if (start) {
+                latest.append(1, start);
+            }
+            latest.append(1, '<');
+            latest.append(d_options[i].name());
+            latest.append(1, '>');
+            if (end) {
+                latest.append(1, end);
+            }
+            if (multiIndicator) {
+                latest.append(1, multiIndicator);
+            }
           } break;                                                     // BREAK
           default: {
             BSLS_ASSERT(0);
           } break;
         }
-    }
-    if (options[0].size() != 0) {
-        options[0] = bsl::string("[-") + options[0] + bsl::string("]");
-    }
-    if (options[1].size() != 0) {
-        options[1] = bsl::string("-") + options[1];
     }
     options.insert(options.end(), nonOptions.begin(), nonOptions.end());
 
@@ -3950,7 +3940,7 @@ void baea_CommandLine::printUsage(bsl::ostream& stream) const
     stream << usage;
     format(usage.size(), end, options, stream, usage.size());
 
-    stream << "\nWhere: \n";
+    stream << "\nWhere:\n";
 
     bsl::string temp;
     temp.append(start, ' ');

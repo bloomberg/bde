@@ -4,7 +4,7 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baet_localdatetime_cpp,"$Id$ $CSID$")
 
-#include <bdeu_print.h>
+#include <bslim_printer.h>
 
 #include <bsl_ostream.h>
 
@@ -15,6 +15,8 @@ namespace BloombergLP {
                            // ------------------------
 
 // ACCESSORS
+                        // Aspects
+
 bsl::ostream& baet_LocalDatetime::print(bsl::ostream& stream,
                                         int           level,
                                         int           spacesPerLevel) const
@@ -23,26 +25,37 @@ bsl::ostream& baet_LocalDatetime::print(bsl::ostream& stream,
         return stream;                                                // RETURN
     }
 
-    bdeu_Print::indent(stream, level, spacesPerLevel);
-
-    stream << "[ ";
-    d_datetimeTz.print(stream, level, spacesPerLevel);
-    stream << ", "
-           << d_timeZoneId
-           << " ]";
-
-    if (spacesPerLevel >= 0) {
-        stream << '\n';
-    }
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printer.printAttribute("datetimeTz", d_datetimeTz);
+    printer.printAttribute("timeZoneId", d_timeZoneId.c_str());
+    printer.end();
 
     return stream;
 }
 
-}  // close namespace BloombergLP
+// FREE OPERATORS
+bsl::ostream& operator<<(bsl::ostream&             stream,
+                         const baet_LocalDatetime& localDatetime)
+{
+    if (stream.bad()) {
+        return stream;                                                // RETURN
+    }
+
+    bslim::Printer printer(&stream, 0, -1);
+    printer.start();
+    printer.printValue(localDatetime.datetimeTz());
+    printer.printValue(localDatetime.timeZoneId().c_str());
+    printer.end();
+
+    return stream;
+}
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2010
+//      Copyright (C) Bloomberg L.P., 2011
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the

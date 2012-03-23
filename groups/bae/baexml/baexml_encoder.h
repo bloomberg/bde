@@ -108,7 +108,7 @@ BDES_IDENT("$Id: $")
 // standard output:
 //..
 //  <?xml version="1.0" encoding="UTF-8" ?>
-//  <Employee xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+//  <Employee>
 //      <name>Bob</name>
 //      <homeAddress>
 //          <street>Some Street</street>
@@ -1009,7 +1009,9 @@ int baexml_Encoder::encode(baexml_Formatter& formatter, const TYPE& object)
 
     baexml_Encoder_Context context(&formatter,this);
 
-    formatter.addHeader();
+    if (d_options->outputXMLHeader()) {
+        formatter.addHeader();
+    }
 
     const char *tag = d_options->tag().empty()
                     ? bdeat_TypeName::xsdName(object,
@@ -1022,25 +1024,25 @@ int baexml_Encoder::encode(baexml_Formatter& formatter, const TYPE& object)
 
         context.addAttribute("xmlns", d_options->objectNamespace());
 
-        // Only declare the "xsi" namespace and schema location if an object
-        // namespace was provided because only then can validation happen.
-        context.addAttribute("xmlns:xsi",
-                             "http://www.w3.org/2001/XMLSchema-instance");
+        if (d_options->outputXSIAlias()) {
+            // Only declare the "xsi" namespace and schema location if an
+            // object namespace was provided because only then can validation
+            // happen.
+            context.addAttribute("xmlns:xsi",
+                                 "http://www.w3.org/2001/XMLSchema-instance");
 
-        if (!d_options->schemaLocation().empty()) {
-            context.addAttribute("xsi:schemaLocation",
-                                 d_options->objectNamespace()
-                                 + " "
-                                 + d_options->schemaLocation());
+            if (!d_options->schemaLocation().empty()) {
+                context.addAttribute("xsi:schemaLocation",
+                                     d_options->objectNamespace()
+                                     + " "
+                                     + d_options->schemaLocation());
+            }
         }
     }
-// TBD
-#if 0
-    else {
+    else if (d_options->outputXSIAlias()) {
         context.addAttribute("xmlns:xsi",
                              "http://www.w3.org/2001/XMLSchema-instance");
     }
-#endif
 
     baexml_Encoder_EncodeValue encodeValue(&context);
 
@@ -1108,7 +1110,8 @@ baexml_Encoder_EncodeObject::executeImp(const TYPE&            object,
     if (bdeat_NullableValueFunctions::isNull(object)) {
         if (formattingMode & bdeat_FormattingMode::BDEAT_NILLABLE) {
             d_context_p->openElement(tag);
-            if (!d_context_p->encoderOptions().objectNamespace().empty()) {
+            if (!d_context_p->encoderOptions().objectNamespace().empty()
+             && d_context_p->encoderOptions().outputXSIAlias()) {
                 // Only add the "xsi:nil" attribute if an object namespace was
                 // provided because only then can validation happen.
                 d_context_p->addAttribute("xsi:nil", "true");
