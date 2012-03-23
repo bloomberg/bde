@@ -5,11 +5,11 @@ BDES_IDENT_RCSID(bteso_lingeroptions_t_cpp,"$Id$ $CSID$")
 
 #include <bteso_lingeroptions.h>
 
-#include <bdex_instreamfunctions.h>      // for testing only
-#include <bdex_outstreamfunctions.h>     // for testing only
-#include <bdex_testinstream.h>           // for testing only
-#include <bdex_testinstreamexception.h>  // for testing only
-#include <bdex_testoutstream.h>          // for testing only
+#include <bdex_instreamfunctions.h>
+#include <bdex_outstreamfunctions.h>
+#include <bdex_testinstream.h>
+#include <bdex_testinstreamexception.h>
+#include <bdex_testoutstream.h>
 
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
@@ -1452,7 +1452,7 @@ int main(int argc, char *argv[])
         // 'A' values: Boundary values.
         // -------------------------------------------------------
 
-        const T1 A1   = INT_MIN;
+        const T1 A1   = INT_MAX;
         const T2 A2   = true;
 
         if (verbose) cout << "\nCreate an object." << endl;

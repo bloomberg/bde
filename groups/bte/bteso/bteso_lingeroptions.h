@@ -175,8 +175,7 @@ class bteso_LingerOptions {
         //  lingerFlag == false
         //..
 
-    // TBD switch order for parameters.
-    bteso_LingerOptions(int timeout, bool lingerFlag);
+   bteso_LingerOptions(int timeout, bool lingerFlag);
         // Create a 'bteso_LingerOptions' object having the specified
         // 'timeout', and 'lingerFlag' attribute values.  The behavior is
         // undefined unless '0 <= timeout'.
@@ -351,7 +350,7 @@ STREAM& bteso_LingerOptions::bdexStreamIn(STREAM& stream, int version)
 inline
 void bteso_LingerOptions::setTimeout(int value)
 {
-    BSLS_ASSERT_SAFE(0 <= value)
+    BSLS_ASSERT_SAFE(0 <= value);
 
     d_timeout = value;
 }
