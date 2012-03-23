@@ -40,8 +40,8 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
         d_fileObserver.publish(*asyncRecord.d_record, asyncRecord.d_context);
 
         if (int(d_dropCount) >= d_dropAlertThreshold) {
-            bsl::cerr << "Alert: bael_AsyncFileObserver has dropped "
-                      << d_dropCount.swap(0) << " records!!!" << bsl::endl;
+            bsl::cerr << "WARN: bael_AsyncFileObserver: dropped "
+                      << d_dropCount.swap(0) << " records." << bsl::endl;
         }
     }
 }
@@ -60,13 +60,18 @@ int bael_AsyncFileObserver::startThread()
 int bael_AsyncFileObserver::stopThread()
 {
     if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle) {
+
         // Push an empty record with BAEL_END set in context
 
+        AsyncRecord asyncRecord;
         bcema_SharedPtr<const bael_Record> record(
-                new (*d_allocator_p) bael_Record(d_allocator_p),
-                d_allocator_p);
+                               new (*d_allocator_p) bael_Record(d_allocator_p),
+                               d_allocator_p);
         bael_Context context(bael_Transmission::BAEL_END, 0, 1);
-        publish(record, context);
+        asyncRecord.d_record  = record;
+        asyncRecord.d_context = context;
+        d_recordQueue.pushBack(asyncRecord);
+
         int ret = bcemt_ThreadUtil::join(d_threadHandle);
         d_threadHandle = bcemt_ThreadUtil::invalidHandle();
         return ret;                                                   // RETURN
@@ -83,7 +88,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(8192, basicAllocator)
 , d_clearing(false)
-, d_blocking(false)
+, d_dropRecordsOnFullQueueFlag(true)
 , d_dropCount(0)
 , d_dropAlertThreshold(100)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
@@ -104,7 +109,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(8192, basicAllocator)
 , d_clearing(false)
-, d_blocking(false)
+, d_dropRecordsOnFullQueueFlag(true)
 , d_dropCount(0)
 , d_dropAlertThreshold(100)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
@@ -128,7 +133,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(fixedQueueSize, basicAllocator)
 , d_clearing(false)
-, d_blocking(false)
+, d_dropRecordsOnFullQueueFlag(true)
 , d_dropCount(0)
 , d_dropAlertThreshold(100)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
@@ -143,19 +148,18 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 }
 
 bael_AsyncFileObserver::bael_AsyncFileObserver(
-                                      bael_Severity::Level  stdoutThreshold,
-                                      bool                  publishInLocalTime,
-                                      int                   fixedQueueSize,
-                                      bool                  blocking,
-                                      int                   dropAlertThreshold,
-                                      bslma_Allocator      *basicAllocator)
+                              bael_Severity::Level  stdoutThreshold,
+                              bool                  publishInLocalTime,
+                              int                   fixedQueueSize,
+                              bool                  dropRecordsOnFullQueueFlag,
+                              bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(fixedQueueSize, basicAllocator)
 , d_clearing(false)
-, d_blocking(blocking)
+, d_dropRecordsOnFullQueueFlag(dropRecordsOnFullQueueFlag)
 , d_dropCount(0)
-, d_dropAlertThreshold(dropAlertThreshold)
+, d_dropAlertThreshold(100)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 
 {
@@ -195,14 +199,16 @@ void bael_AsyncFileObserver::publish(
     AsyncRecord asyncRecord;
     asyncRecord.d_record  = record;
     asyncRecord.d_context = context;
-    if (d_blocking
-        || bael_Transmission::BAEL_END == context.transmissionCause()) {
+    if (d_dropRecordsOnFullQueueFlag) {
+        if (0 != d_recordQueue.tryPushBack(asyncRecord)) {
+
+            // Drop the record and increase the counter
+
+            d_dropCount.relaxedAdd(1);
+        }
+    }
+    else {
         d_recordQueue.pushBack(asyncRecord);
-    } else if (d_recordQueue.tryPushBack(asyncRecord)) {
-
-        // Drop the record and increase the counter
-
-        d_dropCount.relaxedAdd(1);
     }
 }
 

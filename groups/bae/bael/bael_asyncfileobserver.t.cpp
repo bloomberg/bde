@@ -387,7 +387,7 @@ extern "C" void *workerThread(void *arg)
 {
     BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
     int threadId = *((int*)arg);
-    for (int i = 0;i < 100000; ++i) {
+    for (int i = 0;i < 10000; ++i) {
         BAEL_LOG_TRACE << "bael_AsyncFileObserver Concurrency Test "
                        << threadId << BAEL_LOG_END;
     }
@@ -505,7 +505,7 @@ int main(int argc, char *argv[])
 
         // Set up a blocking async observer
 
-        Obj mX(bael_Severity::BAEL_WARN, false, 8192, true, 100, &ta);
+        Obj mX(bael_Severity::BAEL_WARN, false, 8192, false, &ta);
         mX.startPublicationThread();
         bcemt_ThreadUtil::microSleep(0, 1);
 
@@ -534,7 +534,7 @@ int main(int argc, char *argv[])
         while (getline(fs, line)) { ++linesNum; }
         fs.close();
 
-        ASSERT(linesNum == 200000 * numThreads);
+        ASSERT(linesNum == 20000 * numThreads);
         removeFilesByPrefix(fileName.c_str());
 
       } break;
@@ -1238,7 +1238,7 @@ int main(int argc, char *argv[])
 
         bcema_TestAllocator ta;
 
-        int numTestRecords = 200000;
+        int numTestRecords = 40000;
         bael_MultiplexObserver multiplexObserver;
         bael_LoggerManagerConfiguration configuration;
         ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
@@ -1253,12 +1253,10 @@ int main(int argc, char *argv[])
             bsl::string fileName = tempFileName(veryVerbose);
 
             int fixedQueueSize     = 8192;
-            int dropAlertThreshold = 100;
             Obj mX(bael_Severity::BAEL_WARN,
                    false,
                    fixedQueueSize,
-                   true,                 // 'blocking' set to 'true'
-                   dropAlertThreshold,
+                   false,                 // 'blocking' set to 'true'
                    &ta);
             const Obj& X = mX;
 
@@ -1311,12 +1309,9 @@ int main(int argc, char *argv[])
             }
 
             int fixedQueueSize     = 8192;
-            int dropAlertThreshold = 100;
             Obj mX(bael_Severity::BAEL_WARN,
                    false,
                    fixedQueueSize,
-                   false,                 // 'blocking' set to 'false'
-                   dropAlertThreshold,
                    &ta);
             const Obj& X = mX;
 
