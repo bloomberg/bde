@@ -26,7 +26,15 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-// Example 1: To be devised...
+// Example 1: using ::VALUE...
+// - - - - - - - - - - - - - -
+//
+//
+// Example 2: using ::Type...
+// - - - - - - - - - - - - - -
+//
+//
+// Example 3: Tag dispatch...
 // - - - - - - - - - - - - - -
 //
 
@@ -42,9 +50,9 @@ namespace BloombergLP {
 
 namespace bslmf
 {
-             //--------------------------------
-             // metafunction class bslm::IsVoid
-             //--------------------------------
+             //---------------------------------
+             // metafunction class bslmf::IsVoid
+             //---------------------------------
 
 template<class BSLMF_TYPE>
 struct IsVoid;

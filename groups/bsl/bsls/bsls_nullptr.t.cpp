@@ -28,7 +28,8 @@ using namespace BloombergLP;
 // FUNCTIONS, INCLUDING IOSTREAMS.
 static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i) {
+static void aSsErT(bool b, const char *s, int i)
+{
     if (b) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -73,12 +74,58 @@ bool globalVeryVeryVerbose = false;
 //                   SUPPORTING FUNCTIONS USED FOR TESTING
 //-----------------------------------------------------------------------------
 
+// Example 1: Constructing a "smart pointer"
+// - - - - - - - - - - - - - - - - - - - - -
+
+//..
+    template<class TARGET_TYPE>
+    class ScopedPointer {
+      private:
+        typedef void DeleterFn(TARGET_TYPE *);
+
+        T         *d_target_p;
+        DeleterFn *d_deleter_fn;
+
+        // Objects of this type cannot be copied.
+        ScopedPointer(const ScopedPointer&);
+        ScopedPointer& operator=(const ScopedPointer&);
+
+        template<SOURCE_TYPE>
+        static void defaultDeleteFn(TARGET_TYPE *ptr)
+        {
+            delete static_cast<SOURCE_TYPE *>(ptr);
+        }
+      
+      public:
+        template<class SOURCE_TYPE>
+        ScopedPointer(SOURCE_TYPE *ptr,
+                      DeleterFn fn = &DefaultDeleteFn<SOURCE_TYPE>)
+        : d_target_p(ptr)
+        , d_deleter_fn(deleter)
+        {
+        }
+
+        ScopedPointer(bsl::nullptr_t = 0)
+        : d_target_p(0)
+        , d_deleter_fn(0)
+        {
+        }
+
+        ~ScopedPointer()
+        {
+            if(d_deleter_fn) {
+                d_deleter_fn(d_target_t);
+            }
+        }
+  };
+//..
+
 //=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[])
+{
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
@@ -108,12 +155,19 @@ int main(int argc, char *argv[]) {
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
+        ScopedPtr x(0);
+
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING STANDARD TYPEDEF:
+        // TESTING STANDARD TYPEDEF
+        //   The primary interface of this component is a type alias that will
+        //   match a null pointer literals in overload resolution.  This should
+        //   be the declared type of 'nullptr' on conforming C++11 compilers,
+        //   and an emulated type otherwise.
+        //
         // Concerns:
-        //: 1 There exists a type alias 'bls::nullptr_t', aliasing a type that
+        //: 1 There exists a type alias 'bsl::nullptr_t', aliasing a type that
         //:   represents null pointer literals.
         //: 2 Functions having parameters of type 'bsl::nullptr_t' can be
         //:   invoked only with null pointer literals, '0' and 'NULL'.
@@ -122,6 +176,17 @@ int main(int argc, char *argv[]) {
         //:   null pointer value.
         //
         // Plan:
+        //: 1 Define a local class with two overloads of a static method.
+        //:   1 The first overload accepts an argument of type
+        //:     'bsls::Nullptr_Impl::Type' and returns 'true' to indicate it
+        //:     was selected by overload resolution.
+        //:   2 The second overload uses an ellipsis parameter list to weakly
+        //:     match an argument of fundamental type, and returns 'false'.
+        //: 2 Call the static method all valid null pointer literals, and check
+        //:   that the result is 'true' in each case.
+        //: 3 Call the static method with various objects, including pointers
+        //:   and pointer-to-members, and check that the result is 'false' in
+        //:   each case.
         //
         // Testing:
         //   bsl::nullptr_t
@@ -137,7 +202,7 @@ int main(int argc, char *argv[]) {
                 // 'false' otherwise.
         };
 
-        // nulll pointer literals
+        // null pointer literals
         static const int s_cZero = 0;
         const int cZero = 0;
 
@@ -147,6 +212,8 @@ int main(int argc, char *argv[]) {
         int local::*mem = 0;
         static const int& s_zeroRef = 0;
         int zero = 0;
+
+        enum { MY_NULL = 0 };
 
         ASSERT(local::isNullPointer(0));
         ASSERT(local::isNullPointer(NULL));
@@ -164,16 +231,24 @@ int main(int argc, char *argv[]) {
         ASSERT(!local::isNullPointer(s_zeroRef));
         ASSERT(!local::isNullPointer(1));
         ASSERT(!local::isNullPointer(s_zeroRef*1));
+        ASSERT(!local::isNullPointer(MY_NULL));
 
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING COMPONENT TYPEDEF:
+        // TESTING COMPONENT TYPEDEF
+        //   The component supplies an implementation-private class with a
+        //   nested 'typedef' that should emulate matching a null pointer
+        //   literal, unless using a compiler that supports the necessary
+        //   language features introduced by C++11, in which case the
+        //   implementation class should not be present.
+        //
         // Concerns:
         //: 1 The metafunction struct 'bsls::Nullptr_Impl' contains a nested
         //:   alias named 'Type'.
         //: 2 Functions having parameters of type 'bsls::Nullptr_Impl::Type'
-        //:   can be invoked only with null pointer literals, '0' and 'NULL'.
+        //:   can be invoked only with null pointer literals, such as '0' and
+        //:   'NULL'.
         //: 3 Functions having parameters of type 'bsls::Nullptr_Impl::Type'
         //:   cannot be invoked by pointers or pointer-to-members, even if they
         //:   hold the null pointer value.
@@ -183,10 +258,10 @@ int main(int argc, char *argv[]) {
         //:   1 The first overload accepts an argument of type
         //:     'bsls::Nullptr_Impl::Type' and returns 'true' to indicate it
         //:     was selected by overload resolution.
-        //:   2 The second overload uses an elipsis paramater list to weakly
+        //:   2 The second overload uses an ellipsis parameter list to weakly
         //:     match an argument of fundamental type, and returns 'false'.
-        //: 2 Call the static method with null pointer literals, and check that
-        //:   the result is 'true' in each case.
+        //: 2 Call the static method all valid null pointer literals, and check
+        //:   that the result is 'true' in each case.
         //: 3 Call the static method with various objects, including pointers
         //:   and pointer-to-members, and check that the result is 'false' in
         //:   each case.
@@ -201,13 +276,13 @@ int main(int argc, char *argv[]) {
             // overload resolution for the type under test,
             // 'bsls::Nullptr_Impl::Type'.
 
-            static bool isNullPointer(bsls::Nullptr_Impl::Type) { return true; }
+            static bool isNullPointer(bsls::Nullptr_Impl::Type){ return true; }
             static bool isNullPointer(...)                    { return false; }
-                // Return 'true' is the argument is a null pointer literal, and
+                // Return 'true' if the argument is a null pointer literal, and
                 // 'false' otherwise.
         };
 
-        // nulll pointer literals
+        // null pointer literals
         static const int s_cZero = 0;
         const int cZero = 0;
 
@@ -215,8 +290,10 @@ int main(int argc, char *argv[]) {
         static void *const Cptr = 0;
         void *ptr = 0;
         int local::*mem = 0;
-        static const int& s_zeroRef = 0;
+        static const int& s_zeroRefGcc = 0;
         int zero = 0;
+
+        enum { MY_NULL = 0 };
 
         ASSERT(local::isNullPointer(0));
         ASSERT(local::isNullPointer(NULL));
@@ -231,9 +308,10 @@ int main(int argc, char *argv[]) {
         ASSERT(!local::isNullPointer(mem));
         ASSERT(!local::isNullPointer((void*)0));
         ASSERT(!local::isNullPointer(zero));
-        ASSERT(!local::isNullPointer(s_zeroRef));
+        ASSERT(!local::isNullPointer(s_zeroRefGcc));
         ASSERT(!local::isNullPointer(1));
-        ASSERT(!local::isNullPointer(s_zeroRef*1));
+        ASSERT(!local::isNullPointer(s_zeroRefGcc*1));
+        ASSERT(!local::isNullPointer(MY_NULL));
 
 #endif
       } break;

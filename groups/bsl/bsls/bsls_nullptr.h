@@ -18,12 +18,14 @@ BSLS_IDENT("$Id: $")
 // 'std::nullptr_t', which can be used as a function parameter type to help
 // overload sets treat null pointer literals specially.  Note that this
 // component will be deprecated, and ultimately removed, once BDE code can
-// assume support for a C++11 compiler.  On a platform that 
+// assume support for a C++11 compiler.  On a platform that supports the
+// language feature, a fully-conforming 'typedef' is supplied rather than
+// using the emulation layer.
 //
 ///Limitations
 //------------
 // This component provides a simple emulation of the C++11 facility, which
-// cannot be expressd with a pure library solution.  As such it comes with a
+// cannot be expressed with a pure library solution.  As such it comes with a
 // number of limitations.  The most obvious is that C++11 provides a new
 // null pointer literal, 'nullptr', which is not emulated by this component.
 // The new null pointer literal is an object of a new type, expressed by the
@@ -53,13 +55,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Null pointer values can be created in C++11 by creating objects of type
-// 'std::nullptr_t', and then used to initialize poiner and pointer-to-member
+// 'std::nullptr_t', and then used to initialize pointer and pointer-to-member
 // objects:
 //..
 //  std::nullptr_t nullLiteral = std::nullptr_t();
 //  int *pI = nullLiteral;
 //..
-// The type of a 'bsl::nullpr_t' object cannot be used in such assignments
+// The type of a 'bsl::nullptr_t' object cannot be used in such assignments
 // or initializations, unless compiled on a platform that natively supports
 // this C++11 language feature.
 //
@@ -71,22 +73,49 @@ BSLS_IDENT("$Id: $")
 // - - - - - - - - - - - - - - - - - - - - -
 //
 //..
-// template<class TARGET_TYPE>
-// class ScopedPointer {
-//   private:
-//     T *d_target_p;
+//  template<class TARGET_TYPE>
+//  class ScopedPointer {
+//    private:
+//      typedef void DeleterFn(TARGET_TYPE *);
 //
-//     // Objects of this type cannot be copied.
-//     ScopedPointer(const ScopedPointer&);
-//     ScopedPointer& operator=(const ScopedPointer&);
+//      T         *d_target_p;
+//      DeleterFn *d_deleter_fn;
 //
-//   public:
-//     template<class SOURCE_TYPE>
-//     ScopedPointer(SOURCE_TYPE *
-// };
+//      // Objects of this type cannot be copied.
+//      ScopedPointer(const ScopedPointer&);
+//      ScopedPointer& operator=(const ScopedPointer&);
+//
+//      template<SOURCE_TYPE>
+//      static void defaultDeleteFn(TARGET_TYPE *ptr)
+//      {
+//          delete static_cast<SOURCE_TYPE *>(ptr);
+//      }
+//      
+//    public:
+//      template<class SOURCE_TYPE>
+//      ScopedPointer(SOURCE_TYPE *ptr,
+//                    DeleterFn fn = &DefaultDeleteFn<SOURCE_TYPE>)
+//      : d_target_p(ptr)
+//      , d_deleter_fn(deleter)
+//      {
+//      }
+//
+//      ScopedPointer(bsl::nullptr_t = 0)
+//      : d_target_p(0)
+//      , d_deleter_fn(0)
+//      {
+//      }
+//
+//      ~ScopedPointer()
+//      {
+//          if(d_deleter_fn) {
+//              d_deleter_fn(d_target_t);
+//          }
+//      }
+//  };
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
 #endif
 
