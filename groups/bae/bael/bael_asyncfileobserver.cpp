@@ -27,6 +27,14 @@ namespace BloombergLP {
                        // class bael_AsyncFileObserver
                        // ----------------------------
 
+enum {
+    // This enumeration provides the default values for the attributes of
+    // 'bael_AsyncFileObserver'.
+
+    DEFAULT_FIXED_QUEUE_SIZE     =  8192,
+    DEFAULT_DROP_ALERT_THRESHOLD =  5000
+};
+
 // PRIVATE METHODS
 void bael_AsyncFileObserver::publishThreadEntryPoint()
 {
@@ -39,7 +47,7 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
         }
         d_fileObserver.publish(*asyncRecord.d_record, asyncRecord.d_context);
 
-        if (int(d_dropCount) >= d_dropAlertThreshold) {
+        if (int(d_dropCount) >= DEFAULT_DROP_ALERT_THRESHOLD) {
             bsl::cerr << "WARN: bael_AsyncFileObserver: dropped "
                       << d_dropCount.swap(0) << " records." << bsl::endl;
         }
@@ -86,11 +94,10 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                                          bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
-, d_recordQueue(8192, basicAllocator)
+, d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueFlag(true)
-, d_dropCount(0)
-, d_dropAlertThreshold(100)
+, d_dropCount(DEFAULT_DROP_ALERT_THRESHOLD - 1)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -107,11 +114,10 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                                       bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
-, d_recordQueue(8192, basicAllocator)
+, d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueFlag(true)
-, d_dropCount(0)
-, d_dropAlertThreshold(100)
+, d_dropCount(DEFAULT_DROP_ALERT_THRESHOLD - 1)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 
 {
@@ -134,8 +140,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_recordQueue(fixedQueueSize, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueFlag(true)
-, d_dropCount(0)
-, d_dropAlertThreshold(100)
+, d_dropCount(DEFAULT_DROP_ALERT_THRESHOLD - 1)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 
 {
@@ -158,8 +163,7 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_recordQueue(fixedQueueSize, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueFlag(dropRecordsOnFullQueueFlag)
-, d_dropCount(0)
-, d_dropAlertThreshold(100)
+, d_dropCount(DEFAULT_DROP_ALERT_THRESHOLD - 1)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 
 {

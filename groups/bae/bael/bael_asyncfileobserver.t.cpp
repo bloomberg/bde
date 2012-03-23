@@ -1348,6 +1348,7 @@ int main(int argc, char *argv[])
 
             fclose(stderr);
             removeFilesByPrefix(fileErr.c_str());
+            removeFilesByPrefix(fileName.c_str());
         }
       } break;
       case 2: {

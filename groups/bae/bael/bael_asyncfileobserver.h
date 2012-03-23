@@ -434,12 +434,6 @@ class bael_AsyncFileObserver : public bael_Observer {
                                                      // track count of recently
                                                      // dropped records
 
-    int                           d_dropAlertThreshold;
-                                                     // alert is triggered if
-                                                     // count of dropped
-                                                     // records reaches this
-                                                     // threshold
-
     bdef_Function<void (*)()>     d_publishThreadEntryPoint;
                                                      // functor that contains
                                                      // publication thread
