@@ -34,6 +34,7 @@ using namespace bsl;  // automatically added by script
 // [ 4]  static int  ymd2serial(int year, int month, int day);
 // [ 5]  static void serial2ymd(int *year, int *month, int *day, int serialDay)
 //-----------------------------------------------------------------------------
+// [ 6] BRUTE-FORCE ymd2serial and serial2ymd
 // [ 7] USAGE
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -188,7 +189,7 @@ void serialToYmd(int *year,
     int doy = serialDate - ((unsigned)y*365
                           + (unsigned)y/4 - (unsigned)y/100 + (unsigned)y/400);
     const int doy1 = serialDate - (ym1*365 + ym1/4 - ym1/100 + ym1/400);
-    const int N = std::numeric_limits<int>::digits - 1;
+    const int N = bsl::numeric_limits<int>::digits - 1;
 
     // arithmetic rshift - not portable - but nearly universal
 
