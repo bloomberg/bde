@@ -1,8 +1,5 @@
 // bteso_lingeroptions.t.cpp                                          -*-C++-*-
 
-#include <bdes_ident.h>
-BDES_IDENT_RCSID(bteso_lingeroptions_t_cpp,"$Id$ $CSID$")
-
 #include <bteso_lingeroptions.h>
 
 #include <bdex_instreamfunctions.h>
@@ -314,7 +311,7 @@ int main(int argc, char *argv[])
 //..
 // Now, we create a 'bteso_LingerOptions' object, 'option', indicating an
 // associated socket should block for 2 seconds when closing a stream with
-// untransmitted data (i.e. lingering):
+// untransmitted data (i.e., lingering):
 //..
     bteso_LingerOptions option(true, 2);
 //..
@@ -358,7 +355,7 @@ int main(int argc, char *argv[])
         //: 9 'bdexStreamIn' invalidate the input stream if it contains
         //:   incomplete data.
         //:
-        //:10 'bdexStreamIn' puts the obejct into a valid state if the input
+        //:10 'bdexStreamIn' puts the object into a valid state if the input
         //:   stream contains invalid data.
         //:
         //:11 BDEX streaming is exception neutral.
@@ -402,7 +399,7 @@ int main(int argc, char *argv[])
         //:         'in' to 'mX' in the presence of exception (using the
         //:         'BDEX_EXCEPTION_TEST_*' macros).  (C-11)
         //:
-        //:       4 Use the eqaulity-comparison operator to verify that 'mX'
+        //:       4 Use the equality-comparison operator to verify that 'mX'
         //:         now has the same value as 'Z'.  (C-3)
         //:
         //:       5 Verify that 'in' is valid and empty.  (C-4..5)
@@ -421,7 +418,7 @@ int main(int argc, char *argv[])
         //:       'in' as the input stream,  to unexternalization data in 'in'
         //:       to 'mX'.
         //:
-        //:     4 Use the eqaulity-comparison operator to verify that 'mX'
+        //:     4 Use the equality-comparison operator to verify that 'mX'
         //:       still has the same value as 'Z'.
         //:
         //:     5 Verify that 'in' is now invalid.
@@ -430,7 +427,7 @@ int main(int argc, char *argv[])
         //:       number and 'in' as the input stream,  to unexternalization
         //:       data in 'in' to 'mX'.
         //:
-        //:     7 Use the eqaulity-comparison operator to verify that 'mX'
+        //:     7 Use the equality-comparison operator to verify that 'mX'
         //:       still has the same value as 'Z'.
         //:
         //:     8 Verify that 'in' is still invalid.  (C-6)
@@ -883,7 +880,7 @@ int main(int argc, char *argv[])
         //   N/A
         //
         // Testing:
-        //  Reserverd for 'swap' testing.
+        //  Reservered for 'swap' testing.
         // --------------------------------------------------------------------
 
       } break;
@@ -1016,8 +1013,6 @@ int main(int argc, char *argv[])
         //:   and return types for the two homogeneous, free equality-
         //:   comparison operators defined in this component.
         //:   (C-9..12)
-        //:
-        //: 2 Set up attribute types with distinct values for ...TBD
         //:
         //: 2 Using the table-driven technique, specify a set of distinct
         //:   object values (one per row) in terms of their individual salient
@@ -1514,7 +1509,7 @@ int main(int argc, char *argv[])
         //:   table described in P-1: (C-1..2)
         //:
         //:   1 Use the value constructor to create an object having the value
-        //:     'V' supplying all the arguments as 'const'. (C-2)
+        //:     'V' supplying all the arguments as 'const'.  (C-2)
         //:
         //:   2 Use the (as yet unproven) salient attribute accessors to verify
         //:     that all of the attributes of each object have their expected
@@ -1624,7 +1619,7 @@ int main(int argc, char *argv[])
         //: 5 Corroborate that attributes are modifiable independently by
         //:   first setting all of the attributes to their 'A' values.  Then
         //:   incrementally set each attribute to its 'B' value and verify
-        //:   after each manipulatiion that only that attribute's value
+        //:   after each manipulation that only that attribute's value
         //:   changed.  (C-3)
         //:
         //: 6 Verify that, in appropriate build modes, defensive checks are

@@ -175,7 +175,7 @@ class bteso_LingerOptions {
         //  lingerFlag == false
         //..
 
-   bteso_LingerOptions(int timeout, bool lingerFlag);
+    bteso_LingerOptions(int timeout, bool lingerFlag);
         // Create a 'bteso_LingerOptions' object having the specified
         // 'timeout', and 'lingerFlag' attribute values.  The behavior is
         // undefined unless '0 <= timeout'.
