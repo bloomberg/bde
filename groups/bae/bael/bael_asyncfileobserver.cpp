@@ -203,9 +203,11 @@ void bael_AsyncFileObserver::publish(
 
             // Drop the record and increase the counter
 
-            if (d_dropCount.relaxedAdd(1) >= DEFAULT_DROP_ALERT_THRESHOLD) {
+            if (0 ==
+                    d_dropCount.relaxedAdd(1) % DEFAULT_DROP_ALERT_THRESHOLD) {
                 bsl::cerr << "WARN: bael_AsyncFileObserver: dropped "
-                          << d_dropCount.swap(0) << " records." << bsl::endl;
+                          << DEFAULT_DROP_ALERT_THRESHOLD
+                          << " records." << bsl::endl;
             }
         }
     }
