@@ -71,48 +71,107 @@ BSLS_IDENT("$Id: $")
 //
 // Example 1: Constructing a "smart pointer"
 // - - - - - - - - - - - - - - - - - - - - -
-//
+// First we define a smart pointer class template, as a guard to destroy a
+// managed object as the smart pointer leaves scope.  This class will have a
+// constructor template taking a pointer to a type potentially derived from
+// the parameterized type of the smart pointer, and also a deletion-policy
+// function.  By capturing the most-derived type through type-deduction when
+// the smart pointer is constructed, we can ensure the correct destructor is
+// called, even if the destructor of the base class has not been declared as
+// 'virtual'.  However, relying on type-deduction means we cannot pass a null
+// pointer to this constructor, as it is not possible to deduce what type a
+// null pointer is supposed to refer to, therefore we must use a special null
+// pointer type, such as 'bsls::nullptr_t'.  Note that in real code we would
+// allocate and reclaim memory using a user-specified allocator, but defining
+// such protocols in this low level component would further distract from the
+// 'nullptr' usage in this example.
 //..
 //  template<class TARGET_TYPE>
 //  class ScopedPointer {
-//    private:
-//      typedef void DeleterFn(TARGET_TYPE *);
+//      // This class template is a guard to manage a dynamically created
+//      // object of the parameterized 'TARGET_TYPE'.
 //
-//      T         *d_target_p;
-//      DeleterFn *d_deleter_fn;
+//    private:
+//      typedef void DeleterFn(TARGET_TYPE *);  // deleter type
+//
+//      // DATA
+//      TARGET_TYPE *d_target_p;    // wrapped pointer
+//      DeleterFn   *d_deleter_fn;  // deleter function
 //
 //      // Objects of this type cannot be copied.
 //      ScopedPointer(const ScopedPointer&);
 //      ScopedPointer& operator=(const ScopedPointer&);
 //
-//      template<SOURCE_TYPE>
-//      static void defaultDeleteFn(TARGET_TYPE *ptr)
-//      {
-//          delete static_cast<SOURCE_TYPE *>(ptr);
-//      }
-//      
+//      template<class SOURCE_TYPE>
+//      static void defaultDeleteFn(TARGET_TYPE *ptr);
+//          // Destroy the specified '*ptr' by calling 'delete' on the pointer
+//          // cast to the parameterized 'SOURCE_TYPE*'.  It is an error to
+//          // instantiate this template with a 'SOURCE_TYPE' that is not
+//          // derived from (and cv-compatible with) 'TARGET_TYPE'.
+//    
 //    public:
 //      template<class SOURCE_TYPE>
-//      ScopedPointer(SOURCE_TYPE *ptr,
-//                    DeleterFn fn = &DefaultDeleteFn<SOURCE_TYPE>)
-//      : d_target_p(ptr)
-//      , d_deleter_fn(deleter)
-//      {
-//      }
+//      ScopedPointer(SOURCE_TYPE *pointer,
+//                    DeleterFn   *fn = &defaultDeleteFn<SOURCE_TYPE>);
+//          // Create a 'ScopedPointer' object owning the specified 'pointer'
+//          // and using the specifed 'fn' to destroy the owned pointer when
+//          // this object is destroyed.
 //
-//      ScopedPointer(bsl::nullptr_t = 0)
-//      : d_target_p(0)
-//      , d_deleter_fn(0)
-//      {
-//      }
+//      ScopedPointer(bsl::nullptr_t = 0);
+//          // Create an empty 'ScopedPointer' object that does not own a
+//          // pointer.
 //
-//      ~ScopedPointer()
-//      {
-//          if(d_deleter_fn) {
-//              d_deleter_fn(d_target_t);
-//          }
-//      }
+//      ~ScopedPointer();
+//          // Destroy this 'ScopedPointer' object and the target object
+//          // that it owns, using the stored deleter function.
+//
+//      // Further methods appropriate to a smart pointer, such as
+//      // 'operator*' and 'operator->' elided from this example.
 //  };
+//..
+// Then we provide a definition for each of the methods.
+//..
+//  template<class TARGET_TYPE>
+//  template<class SOURCE_TYPE>
+//  void ScopedPointer<TARGET_TYPE>::defaultDeleteFn(TARGET_TYPE *ptr)
+//  {
+//      delete static_cast<SOURCE_TYPE *>(ptr);
+//  }
+//
+//  template<class TARGET_TYPE>
+//  template<class SOURCE_TYPE>
+//  inline
+//  ScopedPointer<TARGET_TYPE>::ScopedPointer(SOURCE_TYPE *pointer,
+//                                            DeleterFn   *fn)
+//  : d_target_p(pointer)
+//  , d_deleter_fn(fn)
+//  {
+//  }
+//
+//  template<class TARGET_TYPE>
+//  inline
+//  ScopedPointer<TARGET_TYPE>::ScopedPointer(bsl::nullptr_t)
+//  : d_target_p(0)
+//  , d_deleter_fn(0)
+//  {
+//  }
+//
+//  template<class TARGET_TYPE>
+//  inline
+//  ScopedPointer<TARGET_TYPE>::~ScopedPointer()
+//  {
+//      if (d_deleter_fn) {
+//          d_deleter_fn(d_target_p);
+//      }
+//  }
+//..
+// Finally, we can construct a 'ScopedPointer' with a null pointer literal,
+// that would otherwise be non-deducible, using our 'bsl::nullptr_t' overload.
+//..
+//  void testScopedPointer()
+//  {
+//      ScopedPointer<int> x(0);
+//  }
 //..
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
