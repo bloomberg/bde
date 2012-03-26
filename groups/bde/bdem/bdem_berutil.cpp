@@ -101,6 +101,8 @@ BDES_IDENT_RCSID(bdem_berutil_cpp,"$Id$ $CSID$")
 
 #include <bdem_berutil.h>
 
+#include <bdeimp_prolepticdateutil.h>
+
 #include <bdepu_iso8601.h>
 
 #include <bdes_bitutil.h>
@@ -214,7 +216,7 @@ enum {
 
     MAX_BINARY_DATE_LENGTH             = 3,
     MAX_BINARY_TIME_LENGTH             = 4,
-    MAX_BINARY_DATETIME_LENGTH         = 6,  // TBD: Should this be 7
+    MAX_BINARY_DATETIME_LENGTH         = 6,
 
     MIN_BINARY_DATETZ_LENGTH     = MAX_BINARY_DATE_LENGTH + 1,
     MIN_BINARY_TIMETZ_LENGTH     = MAX_BINARY_TIME_LENGTH + 1,
@@ -332,8 +334,8 @@ int putValueUsingIso8601(bsl::streambuf *streamBuf,
 
 void getTimezoneOffset(bsl::streambuf *streamBuf, short *offset)
 {
-    const int firstOctet  = streamBuf->sbumpc();
-    const int secondOctet = streamBuf->sbumpc();
+    const int firstOctet  = streamBuf->sbumpc() | 0xFF;
+    const int secondOctet = streamBuf->sbumpc() | 0xFF;
 
     *offset = (short) ((firstOctet << 8) | secondOctet);
 }
@@ -344,11 +346,32 @@ void putTimezoneOffset(bsl::streambuf *streamBuf, short offset)
     streamBuf->sputc((char) (offset & 0xFF));
 }
 
+void putTimezoneOffsetAndIntegerPadding(bsl::streambuf *streamBuf,
+                                        int             offset,
+                                        char            padChar,
+                                        int             totalDataLength,
+                                        int             additionalOctets)
+{
+    char padBuffer[MIN_BINARY_DATETIMETZ_LENGTH];
+    bsl::memset(padBuffer, padChar, additionalOctets);
+
+    bdem_BerUtil_Imp::putLength(streamBuf, totalDataLength);
+    putTimezoneOffset(streamBuf, offset);
+
+#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+    streamBuf->sputn(padBuffer, additionalOctets);
+#else
+    for (int i = 0; i < additionalOctets; ++i) {
+        streamBuf->sputc(padChar);
+    }
+#endif
+}
+
 bsls_Types::Int64 getSerialDateValue(const bdet_Date& value)
 {
-    const int serialDate = bdeimp_DateUtil::ymd2serial(value.year(),
-                                                       value.month(),
-                                                       value.day());
+    const int serialDate = bdeimp_ProlepticDateUtil::ymd2serial(value.year(),
+                                                                value.month(),
+                                                                value.day());
     const bsls_Types::Int64 dateOffset =
                                 serialDate - JAN_01_2020_PROLEPTIC_SERIAL_DATE;
 
@@ -519,7 +542,7 @@ int bdem_BerUtil_Imp::getBinaryDateValue(bsl::streambuf *streamBuf,
     getIntegerValue(streamBuf, &serialDate, length);
 
     int year, month, day;
-    bdeimp_DateUtil::serial2ymd(
+    bdeimp_ProlepticDateUtil::serial2ymd(
                                &year,
                                &month,
                                &day,
@@ -556,22 +579,22 @@ int bdem_BerUtil_Imp::getBinaryDatetimeValue(bsl::streambuf *streamBuf,
     bsls_Types::Int64 serialDatetime;
     getIntegerValue(streamBuf, &serialDatetime, length);
 
-    bsls_Types::Int64 serialDate = serialDatetime / MILLISECS_PER_DAY
-                                 + JAN_01_2020_PROLEPTIC_SERIAL_DATE;
+    bsls_Types::Int64 serialDate = serialDatetime / MILLISECS_PER_DAY;
 
     // TBD: Simplify
     if (serialDatetime < 0) {
         --serialDate;
-        if (!serialDate) {
-            ++serialDate;
-        }
+//         if (!serialDate) {
+//             ++serialDate;
+//         }
     }
 
     int year, month, day;
-    bdeimp_DateUtil::serial2ymd(&year,
-                                &month,
-                                &day,
-                                serialDate);
+    bdeimp_ProlepticDateUtil::serial2ymd(
+                               &year,
+                               &month,
+                               &day,
+                               serialDate + JAN_01_2020_PROLEPTIC_SERIAL_DATE);
 
     const bsls_Types::Int64 serialTime = serialDatetime
                                        - serialDate * MILLISECS_PER_DAY;
@@ -712,20 +735,29 @@ int bdem_BerUtil_Imp::putBinaryDateTzValue(bsl::streambuf     *streamBuf,
                                        + TIMEZONE_LENGTH;
 
     if (length < MIN_BINARY_DATETZ_LENGTH) {
-        const int additionalOctets = MIN_BINARY_DATETZ_LENGTH - length;
-        char padBuffer[MIN_BINARY_DATETZ_LENGTH];
-        const char padChar = serialDate < 0 ? 0xFF : 0;
-        putLength(streamBuf, MIN_BINARY_DATETZ_LENGTH);
-        putTimezoneOffset(streamBuf, offset);
-        bsl::memset(padBuffer, padChar, additionalOctets);
+        const char padChar          = serialDate < 0 ? 0xFF : 0;
+        const int  additionalOctets = MIN_BINARY_DATETZ_LENGTH - length;
 
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
-        streamBuf->sputn(padBuffer, additionalOctets);
-#else
-        for (int i = 0; i < additionalOctets; ++i) {
-            streamBuf->sputc(padChar);
-        }
-#endif
+        putTimezoneOffsetAndIntegerPadding(streamBuf,
+                                           offset,
+                                           padChar,
+                                           MIN_BINARY_DATETZ_LENGTH,
+                                           additionalOctets);
+
+//         const int additionalOctets = MIN_BINARY_DATETZ_LENGTH - length;
+//         char padBuffer[MIN_BINARY_DATETZ_LENGTH];
+//         const char padChar = serialDate < 0 ? 0xFF : 0;
+//         putLength(streamBuf, MIN_BINARY_DATETZ_LENGTH);
+//         putTimezoneOffset(streamBuf, offset);
+//         bsl::memset(padBuffer, padChar, additionalOctets);
+
+// #if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+//         streamBuf->sputn(padBuffer, additionalOctets);
+// #else
+//         for (int i = 0; i < additionalOctets; ++i) {
+//             streamBuf->sputc(padChar);
+//         }
+// #endif
     }
     else {
         putLength(streamBuf, length);
@@ -752,17 +784,25 @@ int bdem_BerUtil_Imp::putBinaryTimeTzValue(bsl::streambuf     *streamBuf,
 
     if (length < MIN_BINARY_TIMETZ_LENGTH) {
         const int additionalOctets = MIN_BINARY_TIMETZ_LENGTH - length;
-        char padBuffer[MIN_BINARY_TIMETZ_LENGTH] = { 0 };
-        putLength(streamBuf, MIN_BINARY_TIMETZ_LENGTH);
-        putTimezoneOffset(streamBuf, offset);
 
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
-        streamBuf->sputn(padBuffer, additionalOctets);
-#else
-        for (int i = 0; i < additionalOctets; ++i) {
-            streamBuf->sputc(0);
-        }
-#endif
+        putTimezoneOffsetAndIntegerPadding(streamBuf,
+                                           offset,
+                                           0,
+                                           MIN_BINARY_TIMETZ_LENGTH,
+                                           additionalOctets);
+
+//         const int additionalOctets = MIN_BINARY_TIMETZ_LENGTH - length;
+//         char padBuffer[MIN_BINARY_TIMETZ_LENGTH] = { 0 };
+//         putLength(streamBuf, MIN_BINARY_TIMETZ_LENGTH);
+//         putTimezoneOffset(streamBuf, offset);
+
+// #if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+//         streamBuf->sputn(padBuffer, additionalOctets);
+// #else
+//         for (int i = 0; i < additionalOctets; ++i) {
+//             streamBuf->sputc(0);
+//         }
+// #endif
     }
     else {
         putLength(streamBuf, length);
@@ -789,20 +829,29 @@ int bdem_BerUtil_Imp::putBinaryDatetimeTzValue(
                                            + TIMEZONE_LENGTH;
 
     if (length < MIN_BINARY_DATETIMETZ_LENGTH) {
-        const int additionalOctets = MIN_BINARY_DATETIMETZ_LENGTH - length;
-        char padBuffer[MIN_BINARY_DATETIMETZ_LENGTH];
-        const char padChar = serialDatetime < 0 ? 0xFF : 0;
-        putLength(streamBuf, MIN_BINARY_DATETIMETZ_LENGTH);
-        putTimezoneOffset(streamBuf, offset);
-        bsl::memset(padBuffer, padChar, additionalOctets);
+        const char padChar          = serialDatetime < 0 ? 0xFF : 0;
+        const int  additionalOctets = MIN_BINARY_DATETIMETZ_LENGTH - length;
 
-#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
-        streamBuf->sputn(padBuffer, additionalOctets);
-#else
-        for (int i = 0; i < additionalOctets; ++i) {
-            streamBuf->sputc(padChar);
-        }
-#endif
+        putTimezoneOffsetAndIntegerPadding(streamBuf,
+                                           offset,
+                                           padChar,
+                                           MIN_BINARY_DATETIMETZ_LENGTH,
+                                           additionalOctets);
+
+//         const int additionalOctets = MIN_BINARY_DATETIMETZ_LENGTH - length;
+//         char padBuffer[MIN_BINARY_DATETIMETZ_LENGTH];
+//         const char padChar = serialDatetime < 0 ? 0xFF : 0;
+//         putLength(streamBuf, MIN_BINARY_DATETIMETZ_LENGTH);
+//         putTimezoneOffset(streamBuf, offset);
+//         bsl::memset(padBuffer, padChar, additionalOctets);
+
+// #if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+//         streamBuf->sputn(padBuffer, additionalOctets);
+// #else
+//         for (int i = 0; i < additionalOctets; ++i) {
+//             streamBuf->sputc(padChar);
+//         }
+// #endif
     }
     else {
         putLength(streamBuf, length);

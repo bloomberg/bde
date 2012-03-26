@@ -331,6 +331,7 @@ int main(int argc, char *argv[])
         options.setEncodeDateAndTimeTypesAsBinary(true);
 
         if (verbose) bsl::cout << "\nDefine data" << bsl::endl;
+
         static const struct {
             int d_lineNum;   // source line number
             int d_year;      // year under test
@@ -347,7 +348,22 @@ int main(int argc, char *argv[])
 //    {      L_,      1,     1,    1,     0,     0,    0,    0,      0     },
 //    {      L_,      1,     1,    1,     0,     0,    0,    0,     45     },
 
-   {      L_,      1,     1,    2,     0,     0,    0,    0,      0     },
+//    {      L_,      1,     1,    1,     1,     1,    1,    1,      0     },
+//    {      L_,      1,     1,    1,     1,     1,    1,    1,    500     },
+
+//    {      L_,      1,     1,    1,     1,    23,   59,   59,      0     },
+//    {      L_,      1,     1,    1,     1,    23,   59,   59,    999     },
+
+//    {      L_,      1,     1,    2,     0,     0,    0,    0,      0     },
+//    {      L_,      1,     1,    2,     0,     0,    0,    0,   1439     },
+
+//     {      L_,      1,     1,   10,     0,     0,    0,    0,      0     },
+
+    {      L_,      2019,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,      2020,     1,    1,     0,     0,    0,    0,      0     },
+//    {      L_,      1,     1,   30,     0,     0,    0,    0,   1439     },
+
+
 //    { L_,          1,     1,     2,            2 },
 //                 { L_,          1,     1,    30,           30 },
 //                 { L_,          1,     1,    31,           31 },
@@ -570,7 +586,7 @@ int main(int argc, char *argv[])
                 const Type VALUE(Y, M, D); Type value;
 
                 bdesb_MemOutStreamBuf osb;
-                ASSERT(0         == Util::putValue(&osb, VALUE, &options));
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
                 const int LENGTH = osb.length();
 
                 if (veryVerbose) {
@@ -583,8 +599,9 @@ int main(int argc, char *argv[])
                 ASSERT(SUCCESS == Util::getValue(&isb,
                                                  &value,
                                                  &numBytesConsumed));
-                ASSERT(0       == isb.length());
-                ASSERT(LENGTH  == numBytesConsumed);
+                ASSERT(0      == isb.length());
+                ASSERT(LENGTH == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
             }
         }
 
@@ -602,7 +619,7 @@ int main(int argc, char *argv[])
                 const Type VALUE(bdet_Date(Y, M, D), OFF); Type value;
 
                 bdesb_MemOutStreamBuf osb;
-                ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
                 const int LENGTH = osb.length();
 
                 if (veryVerbose) {
@@ -617,6 +634,7 @@ int main(int argc, char *argv[])
                                                  &numBytesConsumed));
                 ASSERT(0       == isb.length());
                 ASSERT(LENGTH  == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
             }
         }
 
@@ -634,7 +652,7 @@ int main(int argc, char *argv[])
                 const Type VALUE(H, MM, S, MS); Type value;
 
                 bdesb_MemOutStreamBuf osb;
-                ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
                 const int LENGTH = osb.length();
 
                 if (veryVerbose) {
@@ -649,6 +667,7 @@ int main(int argc, char *argv[])
                                                  &numBytesConsumed));
                 ASSERT(0       == isb.length());
                 ASSERT(LENGTH  == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
             }
         }
 
@@ -667,7 +686,7 @@ int main(int argc, char *argv[])
                 const Type VALUE(bdet_Time(H, MM, S, MS), OFF); Type value;
 
                 bdesb_MemOutStreamBuf osb;
-                ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
                 const int LENGTH = osb.length();
 
                 if (veryVerbose) {
@@ -682,6 +701,7 @@ int main(int argc, char *argv[])
                                                  &numBytesConsumed));
                 ASSERT(0       == isb.length());
                 ASSERT(LENGTH  == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
             }
         }
 
@@ -702,7 +722,7 @@ int main(int argc, char *argv[])
                 const Type VALUE(Y, M, D, H, MM, S, MS); Type value;
 
                 bdesb_MemOutStreamBuf osb;
-                ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
                 const int LENGTH = osb.length();
 
                 if (veryVerbose) {
@@ -712,11 +732,12 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-//                 ASSERT(SUCCESS == Util::getValue(&isb,
-//                                                  &value,
-//                                                  &numBytesConsumed));
-//                 ASSERT(0       == isb.length());
-//                 ASSERT(LENGTH  == numBytesConsumed);
+                ASSERT(SUCCESS == Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+                ASSERT(0       == isb.length());
+                ASSERT(LENGTH  == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
             }
         }
 
@@ -739,7 +760,7 @@ int main(int argc, char *argv[])
                 Type value;
 
                 bdesb_MemOutStreamBuf osb;
-                ASSERT(0      == Util::putValue(&osb, VALUE, &options));
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
                 const int LENGTH = osb.length();
 
                 if (veryVerbose) {
@@ -749,11 +770,12 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-//                 ASSERT(SUCCESS == Util::getValue(&isb,
-//                                                  &value,
-//                                                  &numBytesConsumed));
-//                 ASSERT(0       == isb.length());
-//                 ASSERT(LENGTH  == numBytesConsumed);
+                ASSERT(SUCCESS == Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+                ASSERT(0       == isb.length());
+                ASSERT(LENGTH  == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
             }
         }
       } break;
