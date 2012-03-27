@@ -320,10 +320,6 @@ struct bsls_AlignmentUtil {
 inline
 int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t size)
 {
-    BSLS_ASSERT_SAFE(1 <= size);
-    BSLS_ASSERT_SAFE(size <=
-                    static_cast<std::size_t>(std::numeric_limits<int>::max()));
-
     ///IMPLEMENTATION NOTE
     ///-------------------
     // It is assumed that 'BSLS_MAX_ALIGNMENT' is a positive, integral power of
@@ -369,10 +365,16 @@ int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t size)
     //   :         :          :          :         :           :
     //..
 
+    BSLS_ASSERT_SAFE(1 <= size);
+
+    // It is safe to cast our value from a 'size_t' to an int, because all
+    // bits that are higher order that 'BSLS_MAX_ALIGNMENT' are ignored by
+    // the arithmetic that is done.
+
     int alignment = static_cast<int>(size | BSLS_MAX_ALIGNMENT);
     alignment &= -alignment;              // clear all but lowest order set bit
 
-    // Verify only one bit is set (should be impossible to fail)
+    // Verify at most one bit is set (should be impossible to fail)
 
     BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
 

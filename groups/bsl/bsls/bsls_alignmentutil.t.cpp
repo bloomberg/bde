@@ -706,7 +706,8 @@ int main(int argc, char *argv[])
                 // ----  ----  ------  ----  -----
                 {  L_,   "S",  'F',     0,      0 },
                 {  L_,   "S",  'P',     1,      1 },
-                {  L_,   "S",  'P', std::numeric_limits<int>::max(), 1 }
+                {  L_,   "S",  'P',    std::numeric_limits<std::size_t>::max(),
+                                                1 }
             };
             const int DATA_SIZE = sizeof DATA / sizeof *DATA;
 
