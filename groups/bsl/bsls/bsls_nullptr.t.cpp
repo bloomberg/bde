@@ -114,13 +114,13 @@ bool globalVeryVeryVerbose = false;
             // cast to the parameterized 'SOURCE_TYPE*'.  It is an error to
             // instantiate this template with a 'SOURCE_TYPE' that is not
             // derived from (and cv-compatible with) 'TARGET_TYPE'.
-      
+
       public:
         template<class SOURCE_TYPE>
         ScopedPointer(SOURCE_TYPE *pointer,
                       DeleterFn   *fn = &defaultDeleteFn<SOURCE_TYPE>);
             // Create a 'ScopedPointer' object owning the specified 'pointer'
-            // and using the specifed 'fn' to destroy the owned pointer when
+            // and using the specified 'fn' to destroy the owned pointer when
             // this object is destroyed.
 
         ScopedPointer(bsl::nullptr_t = 0);
@@ -198,6 +198,9 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
+        //  The usage example involves defining templates that cannot be
+        //  declared as local classes, so the test case is defined out-of-line
+        //  above.
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -236,16 +239,16 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Define a local class with two overloads of a static method.
-        //:   1 The first overload accepts an argument of type
-        //:     'bsls::Nullptr_Impl::Type' and returns 'true' to indicate it
-        //:     was selected by overload resolution.
+        //:   1 The first overload accepts an argument of type 'bsl::nullptr_t'
+        //:     and returns 'true' to indicate it was selected by overload
+        //:     resolution. (C-1)
         //:   2 The second overload uses an ellipsis parameter list to weakly
         //:     match an argument of fundamental type, and returns 'false'.
         //: 2 Call the static method all valid null pointer literals, and check
-        //:   that the result is 'true' in each case.
+        //:   that the result is 'true' in each case. (C-2)
         //: 3 Call the static method with various objects, including pointers
         //:   and pointer-to-members, and check that the result is 'false' in
-        //:   each case.
+        //:   each case. (C-3)
         //
         // Testing:
         //   bsl::nullptr_t
@@ -316,14 +319,14 @@ int main(int argc, char *argv[])
         //: 1 Define a local class with two overloads of a static method.
         //:   1 The first overload accepts an argument of type
         //:     'bsls::Nullptr_Impl::Type' and returns 'true' to indicate it
-        //:     was selected by overload resolution.
+        //:     was selected by overload resolution. (C-1)
         //:   2 The second overload uses an ellipsis parameter list to weakly
         //:     match an argument of fundamental type, and returns 'false'.
         //: 2 Call the static method all valid null pointer literals, and check
-        //:   that the result is 'true' in each case.
+        //:   that the result is 'true' in each case. (C-2)
         //: 3 Call the static method with various objects, including pointers
         //:   and pointer-to-members, and check that the result is 'false' in
-        //:   each case.
+        //:   each case. (C-3)
         //
         // Testing:
         //   bsls::Nullptr_Impl::Type
@@ -385,8 +388,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Provide a function taking an argument of type 'bsl::nullptr_t',
-        //:   and then call this function with the literal value '0'.  Confirm
-        //:   that the code compiles, and returns the expected value.
+        //:   and then call this function with the literal values '0' and
+        //:   'NULL'. (C-1)
         //
         // Testing:
         //   BREATHING TEST
@@ -400,6 +403,7 @@ int main(int argc, char *argv[])
         };
 
         local::test(0);
+        local::test(NULL);
 
       } break;
       default: {

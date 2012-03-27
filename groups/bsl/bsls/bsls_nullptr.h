@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 // using the emulation layer.
 //
 ///Limitations
-//------------
+///-----------
 // This component provides a simple emulation of the C++11 facility, which
 // cannot be expressed with a pure library solution.  As such it comes with a
 // number of limitations.  The most obvious is that C++11 provides a new
@@ -108,13 +108,13 @@ BSLS_IDENT("$Id: $")
 //          // cast to the parameterized 'SOURCE_TYPE*'.  It is an error to
 //          // instantiate this template with a 'SOURCE_TYPE' that is not
 //          // derived from (and cv-compatible with) 'TARGET_TYPE'.
-//    
+//
 //    public:
 //      template<class SOURCE_TYPE>
 //      ScopedPointer(SOURCE_TYPE *pointer,
 //                    DeleterFn   *fn = &defaultDeleteFn<SOURCE_TYPE>);
 //          // Create a 'ScopedPointer' object owning the specified 'pointer'
-//          // and using the specifed 'fn' to destroy the owned pointer when
+//          // and using the specified 'fn' to destroy the owned pointer when
 //          // this object is destroyed.
 //
 //      ScopedPointer(bsl::nullptr_t = 0);
@@ -222,8 +222,8 @@ struct Nullptr_Impl {
 namespace bsl
 {
     typedef BloombergLP::bsls::Nullptr_Impl::Type nullptr_t;
-        //  Alias for a type that can match a null pointer literal, but is not
-        //  a pointer type itself.
+        // Alias for a type that can match a null pointer literal, but is not a
+        // pointer type itself.
 }
 #endif
 

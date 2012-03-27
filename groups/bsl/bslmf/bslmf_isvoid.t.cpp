@@ -14,6 +14,7 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
+// [ 4] bslmf::IsVoid conversion to bool
 // [ 4] bslmf::IsVoid conversion to bslmf_MetaInt
 // [ 3] bslmf::IsVoid::Type
 // [ 2] bslmf::IsVoid::VALUE
@@ -161,9 +162,8 @@ bool dispatchDependentFalseType()
     // for template parameters, and when applied to the same type parameter in
     // a type-dependent context.  Return the diagnosed value for the specified
     // 'TYPE'.
-    ASSERT(dispatchFalseType(typename bslmf::IsVoid<TYPE>()));
-    return dispatchFalseType(
-                      typename bslmf::IsVoid<typename Identity<TYPE>::Type>());
+    return dispatchFalseType(bslmf::IsVoid<TYPE>());
+
 }
 
 template<class TYPE>
@@ -173,9 +173,8 @@ bool dispatchDependentTrueType()
     // for template parameters, and when applied to the same type parameter in
     // a type-dependent context.  Return the diagnosed value for the specified
     // 'TYPE'.
-    ASSERT(dispatchTrueType(typename bslmf::IsVoid<TYPE>()));
-    return dispatchTrueType(
-                      typename bslmf::IsVoid<typename Identity<TYPE>::Type>());
+    return dispatchTrueType(bslmf::IsVoid<TYPE>());
+
 }
 
 }  // close unnamed namespace
@@ -219,12 +218,23 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING type conversion:
         // Concerns:
-        //: 1 ...
+        //: 1 Objects of type 'bslmf::IsVoid' are unambiguously convertible to
+        //:   either 'bslmf_MetaInt<0>' or 'bslmf_MetaInt<1>', supporting tag
+        //:   dispatch.
+        //: 2 Such objects are convertible to 'bslmf_MetaInt<1>' if the
+        //:   parameterized type is a cv-qualified 'void' type, and
+        //:   'bslmf_MetaInt<0>' otherwise.
+        //: 3 Such objects are contextually convertible to the boolean value
+        //:   'true' if the parameterized type is a cv-qualified 'void' type,
+        //:   and 'false' otherwise.
+        //: 4 Such conversions produce the correct result, even in type-
+        //:   dependent contexts.
         //
         // Plan:
         //
         // Testing:
         //   conversion to 'bslmf_MetaInt<>'
+        //   conversion to 'bool'
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING conversion to bslmf_MetaInt"
@@ -243,22 +253,21 @@ int main(int argc, char *argv[])
         ASSERT(dispatchFalseType(bslmf::IsVoid<bslmf::IsVoid<void> >()));
         ASSERT(dispatchFalseType(bslmf::IsVoid<Incomplete>()));
 
-        // Test nested template typenames with the same dataset
-        ASSERT(dispatchTrueType(bslmf::IsVoid<Identity<void>::Type>()));
-        ASSERT(dispatchTrueType(bslmf::IsVoid<Identity<const void>::Type>()));
-        ASSERT(dispatchTrueType(bslmf::IsVoid<
-                                            Identity<volatile void>::Type>()));
-        ASSERT(dispatchTrueType(bslmf::IsVoid<
-                                      Identity<const volatile void>::Type>()));
-        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<void *>::Type>()));
-        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<void *&>::Type>()));
-        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<void()>::Type>()));
-        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<void(*)()>::Type>()));
-        ASSERT(dispatchFalseType(bslmf::IsVoid<
-                                           Identity<void *Empty::*>::Type>()));
-        ASSERT(dispatchFalseType(bslmf::IsVoid<
-                                     Identity<bslmf::IsVoid<void> >::Type>()));
-        ASSERT(dispatchFalseType(bslmf::IsVoid<Identity<Incomplete>::Type>()));
+        // Basic test dataset for 'bool' conversion
+        // Note that this test is C++03 specific, and should fail to compile
+        // with C++11 where such conversions will be 'explicit'.  This set of
+        // tests should check use in an 'if' statement instead.
+        ASSERT(bslmf::IsVoid<void>());
+        ASSERT(bslmf::IsVoid<const void>());
+        ASSERT(bslmf::IsVoid<volatile void>());
+        ASSERT(bslmf::IsVoid<const volatile void>());
+        ASSERT(!bslmf::IsVoid<void *>());
+        ASSERT(!bslmf::IsVoid<void *&>());
+        ASSERT(!bslmf::IsVoid<void()>());
+        ASSERT(!bslmf::IsVoid<void(*)()>());
+        ASSERT(!bslmf::IsVoid<void *Empty::*>());
+        ASSERT(!bslmf::IsVoid<bslmf::IsVoid<void> >());
+        ASSERT(!bslmf::IsVoid<Incomplete>());
 
         // Test type-dependent typenames with the same dataset
         ASSERT(dispatchDependentTrueType<void>());
@@ -277,7 +286,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING bslmf::IsVoid metafunction:
         // Concerns:
-        //: 1 ...
+        //: 1 The metafunction 'bslmf::IsVoid' contains a nested type alias
+        //:   named 'Type'.
+        //: 2 The alias 'Type' is unambiguously either 'bslmf_MetaInt<0>' or
+        //:   'bslmf_MetaInt<1>'.
+        //: 3 The nested type alias is 'bslmf_MetaInt<1>' if the parameterized
+        //:   type is a cv-qualified 'void' type, and 'bslmf_MetaInt<0>'
+        //:   otherwise.
+        //: 4 The nested typename correctly reports that aliases and template
+        //:   type parameters corresponding to cv-qualified 'void' types are
+        //:   also void.
+        //: 5 The nested typename produces the correct result, even in type-
+        //:   dependent contexts.
         //
         // Plan:
         //
