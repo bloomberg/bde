@@ -20,9 +20,14 @@
 
 #include <bsls_asserttest.h>
 
-#include <sys/socket.h>
 #include <bsls_platform.h>
 #include <bteso_platform.h>
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+#include <sys/socket.h>
+#else
+#include <windows.h>
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -253,11 +258,19 @@ const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 //..
 // Next, we configure the linger options for the socket:
 //..
+    #if defined(BSLS_PLATFORM__OS_WINDOWS)
+        return ::setsockopt(handle,
+                            SOL_SOCKET,
+                            SO_LINGER,
+                            reinterpret_cast<char *>(&linger),
+                            sizeof linger);
+    #else
         return ::setsockopt(handle,
                             SOL_SOCKET,
                             SO_LINGER,
                             reinterpret_cast<void *>(&linger),
                             sizeof linger);
+    #endif
     }
 //..
 

@@ -82,11 +82,19 @@ BDES_IDENT("$Id: $")
 //..
 // Next, we configure the linger options for the socket:
 //..
+//  #if defined(BSLS_PLATFORM__OS_WINDOWS)
+//      return ::setsockopt(handle,
+//                          SOL_SOCKET,
+//                          SO_LINGER,
+//                          reinterpret_cast<char *>(&linger),
+//                          sizeof linger);
+//  #else
 //      return ::setsockopt(handle,
 //                          SOL_SOCKET,
 //                          SO_LINGER,
 //                          reinterpret_cast<void *>(&linger),
 //                          sizeof linger);
+//  #endif
 //  }
 //..
 // Then, we create a new socket using the 'socket' function from Berkeley API:
