@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
 //..
         void *p         = static_cast<void *>(buffer.d_buffer);
 //
-        void *charPtr   = naturallyAlign(&p, sizeof(char));
+        (void)            naturallyAlign(&p, sizeof(char));
 //
         void *shortPtr5 = naturallyAlign(&p, 5 * sizeof(short));
 //
@@ -391,10 +391,12 @@ int main(int argc, char *argv[])
 
         int i;
         for (i = 1; i <= maxAlignment; ++i) {
-            ASSERT(    maxAlignment == Class::roundUpToMaximalAlignment(i));
+            ASSERT(    maxAlignment ==
+                                    (int) Class::roundUpToMaximalAlignment(i));
         }
         for (i = maxAlignment + 1; i <= 2 * maxAlignment; ++i) {
-            ASSERT(2 * maxAlignment == Class::roundUpToMaximalAlignment(i));
+            ASSERT(2 * maxAlignment ==
+                                    (int) Class::roundUpToMaximalAlignment(i));
         }
       } break;
       case 5: {
@@ -584,7 +586,7 @@ int main(int argc, char *argv[])
 
                 // The relevant assert is active in this build
                 try {
-                    int a = bsls_AlignmentUtil::calculateAlignmentOffset(
+                    (void) bsls_AlignmentUtil::calculateAlignmentOffset(
                                                                       ADDRESS,
                                                                       ALIGN);
                     LOOP_ASSERT(LINE, bsls_AssertTest::tryProbe(RESULT));
@@ -704,8 +706,7 @@ int main(int argc, char *argv[])
                 // ----  ----  ------  ----  -----
                 {  L_,   "S",  'F',     0,      0 },
                 {  L_,   "S",  'P',     1,      1 },
-                {  L_,   "S",  'P',
-       std::numeric_limits<std::size_t>::max(), 1 }
+                {  L_,   "S",  'P', std::numeric_limits<int>::max(), 1 }
             };
             const int DATA_SIZE = sizeof DATA / sizeof *DATA;
 

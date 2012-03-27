@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide constants, types, and operations related to alignment.
 //
 //@CLASSES:
-//   bsls_AlignmentUtil: namespace for alignment functions, types, and constants
+//  bsls_AlignmentUtil: namespace for alignment functions, types, and constants
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
@@ -188,6 +188,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_types.h>
+#endif
+
 #ifndef INCLUDED_LIMITS
 #include <limits>           // 'std::numeric_limits'
 #define INCLUDED_LIMITS
@@ -262,10 +266,10 @@ struct bsls_AlignmentUtil {
         // to a maximum of 'BSLS_MAX_ALIGNMENT'.  It is guaranteed that this
         // alignment will be sufficient for any object having a footprint of
         // 'size' bytes on the current platform.  The behavior is undefined
-        // unless '1 <= size'.  Note that, depending on the machine
-        // architecture and compiler setting, the returned alignment value may
-        // be more restrictive than required for a particular object for two
-        // reasons:
+        // unless '1 <= size' and 'size <= INT_MAX'.  Note that, depending on
+        // the machine architecture and compiler setting, the returned
+        // alignment value may be more restrictive than required for a
+        // particular object for two reasons:
         //: 1 The object may be composed entirely of elements, such as 'char',
         //:   that have minimal alignment restrictions, and
         //: 2 The architecture and our compiler settings may result in
@@ -317,6 +321,8 @@ inline
 int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t size)
 {
     BSLS_ASSERT_SAFE(1 <= size);
+    BSLS_ASSERT_SAFE(size <=
+                    static_cast<std::size_t>(std::numeric_limits<int>::max()));
 
     ///IMPLEMENTATION NOTE
     ///-------------------
@@ -363,12 +369,14 @@ int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t size)
     //   :         :          :          :         :           :
     //..
 
-    std::size_t alignment = size | BSLS_MAX_ALIGNMENT;
-    alignment = alignment & -alignment;
+    int alignment = static_cast<int>(size | BSLS_MAX_ALIGNMENT);
+    alignment &= -alignment;              // clear all but lowest order set bit
+
+    // Verify only one bit is set (should be impossible to fail)
 
     BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
 
-    return static_cast<int>(alignment);
+    return alignment;
 }
 
 inline
