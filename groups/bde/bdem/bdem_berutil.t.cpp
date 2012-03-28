@@ -337,115 +337,115 @@ int main(int argc, char *argv[])
             typedef bdeimp_ProlepticDateUtil ProlepticDateUtil;
             typedef bdeimp_DateUtil          DateUtil;
 
-            for (int year = 1; year <= 9999; ++year) {
-                for (int month = 1; month <= 12; ++month) {
-                    for (int day = 1; day <= 31; ++day) {
-                        if (DateUtil::isValidCalendarDate(year, month, day)
-                         && ProlepticDateUtil::isValidCalendarDate(year,
-                                                                   month,
-                                                                   day)) {
+            const int YEARS[] = { 1, 4, 96, 100, 400, 500, 800, 1000, 1600,
+                                  1700, 1751, 1752, 1753, 1930, 2000, 2010,
+                                  2012, 2019, 2020, 2021, 6478, 6479, 6480,
+                                  9998, 9999 };
+            const int NUM_YEARS = sizeof YEARS / sizeof *YEARS;
 
-                            if (veryVerbose) { P_(year) P_(month) P(day) }
-                            {
-                                const bdet_Date VALUE(year, month, day);
-                                bdet_Date value;
+            const int MONTHS[] = { 1, 2, 5, 8, 9, 12 };
+            const int NUM_MONTHS = sizeof MONTHS / sizeof *MONTHS;
 
-                                bdesb_MemOutStreamBuf osb;
-                                ASSERT(0 == Util::putValue(&osb,
-                                                           VALUE,
-                                                           &options));
-                                const int LENGTH = osb.length();
+            const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
+            const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
 
-                                if (veryVerbose) {
-                                    cout << "Output Buffer:";
-                                    printBuffer(osb.data(), osb.length());
-                                }
-                                int numBytesConsumed = 0;
+            for (int i = 0; i <= NUM_YEARS; ++i) {
+            for (int j = 0; j <= NUM_MONTHS; ++j) {
+            for (int k = 0; k <= NUM_DAYS; ++k) {
 
-                                bdesb_FixedMemInStreamBuf isb(osb.data(),
-                                                              osb.length());
-                                ASSERT(SUCCESS == Util::getValue(
-                                                           &isb,
-                                                           &value,
-                                                           &numBytesConsumed));
-                                ASSERT(0      == isb.length());
-                                ASSERT(LENGTH == numBytesConsumed);
-                                LOOP2_ASSERT(VALUE, value, VALUE == value);
-                            }
+                const int YEAR  = YEARS[i];
+                const int MONTH = MONTHS[j];
+                const int DAY   = DAYS[k];
 
-                            {
-                                const int OFF1 = 0, OFF2 = -1439, OFF3 = 1439;
-                                const bdet_DateTz VALUE1(bdet_Date(year,
-                                                                   month,
-                                                                   day),
-                                                         OFF1);
-                                const bdet_DateTz VALUE2(bdet_Date(year,
-                                                                   month,
-                                                                   day),
-                                                         OFF2);
-                                const bdet_DateTz VALUE3(bdet_Date(year,
-                                                                   month,
-                                                                   day),
-                                                         OFF3);
-                                bdet_DateTz value1, value2, value3;
+                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                 && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
 
-                                bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                    if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
+                    {
+                        const bdet_Date VALUE(YEAR, MONTH, DAY);
+                        bdet_Date value;
 
-                                ASSERT(0 == Util::putValue(&osb1,
-                                                           VALUE1,
-                                                           &options));
-                                const int LENGTH1 = osb1.length();
+                        bdesb_MemOutStreamBuf osb;
+                        ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                        const int LENGTH = osb.length();
 
-                                ASSERT(0 == Util::putValue(&osb2,
-                                                           VALUE2,
-                                                           &options));
-                                const int LENGTH2 = osb2.length();
-
-                                ASSERT(0 == Util::putValue(&osb3,
-                                                           VALUE3,
-                                                           &options));
-                                const int LENGTH3 = osb3.length();
-
-                                if (veryVerbose) {
-                                    cout << "Output Buffer:";
-                                    printBuffer(osb1.data(), osb1.length());
-                                    printBuffer(osb2.data(), osb2.length());
-                                    printBuffer(osb3.data(), osb3.length());
-                                }
-                                int nbc1 = 0, nbc2 = 0, nbc3 = 0;
-
-                                bdesb_FixedMemInStreamBuf isb1(osb1.data(),
-                                                               osb1.length());
-                                bdesb_FixedMemInStreamBuf isb2(osb2.data(),
-                                                               osb2.length());
-                                bdesb_FixedMemInStreamBuf isb3(osb3.data(),
-                                                               osb3.length());
-
-                                ASSERT(SUCCESS == Util::getValue(&isb1,
-                                                                 &value1,
-                                                                 &nbc1));
-                                ASSERT(SUCCESS == Util::getValue(&isb2,
-                                                                 &value2,
-                                                                 &nbc2));
-                                ASSERT(SUCCESS == Util::getValue(&isb3,
-                                                                 &value3,
-                                                                 &nbc3));
-
-                                ASSERT(0       == isb1.length());
-                                ASSERT(0       == isb2.length());
-                                ASSERT(0       == isb3.length());
-
-                                ASSERT(LENGTH1 == nbc1);
-                                ASSERT(LENGTH2 == nbc2);
-                                ASSERT(LENGTH3 == nbc3);
-
-                                LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
-                                LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
-                                LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
-                            }
+                        if (veryVerbose) {
+                            cout << "Output Buffer:";
+                            printBuffer(osb.data(), osb.length());
                         }
+                        int numBytesConsumed = 0;
+
+                        bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                      osb.length());
+                        ASSERT(SUCCESS == Util::getValue(&isb,
+                                                         &value,
+                                                         &numBytesConsumed));
+                        ASSERT(0      == isb.length());
+                        ASSERT(LENGTH == numBytesConsumed);
+                        LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    }
+
+                    {
+                        const int OFF1 = 0, OFF2 = -1439, OFF3 = 1439;
+                        const bdet_DateTz VALUE1(bdet_Date(YEAR, MONTH, DAY),
+                                                 OFF1);
+                        const bdet_DateTz VALUE2(bdet_Date(YEAR, MONTH, DAY),
+                                                 OFF2);
+                        const bdet_DateTz VALUE3(bdet_Date(YEAR, MONTH, DAY),
+                                                 OFF3);
+                        bdet_DateTz value1, value2, value3;
+
+                        bdesb_MemOutStreamBuf osb1, osb2, osb3;
+
+                        ASSERT(0 == Util::putValue(&osb1, VALUE1, &options));
+                        const int LENGTH1 = osb1.length();
+
+                        ASSERT(0 == Util::putValue(&osb2, VALUE2, &options));
+                        const int LENGTH2 = osb2.length();
+
+                        ASSERT(0 == Util::putValue(&osb3, VALUE3, &options));
+                        const int LENGTH3 = osb3.length();
+
+                        if (veryVerbose) {
+                            cout << "Output Buffer:";
+                            printBuffer(osb1.data(), osb1.length());
+                            printBuffer(osb2.data(), osb2.length());
+                            printBuffer(osb3.data(), osb3.length());
+                        }
+                        int nbc1 = 0, nbc2 = 0, nbc3 = 0;
+
+                        bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                       osb1.length());
+                        bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                       osb2.length());
+                        bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                       osb3.length());
+
+                        ASSERT(SUCCESS == Util::getValue(&isb1,
+                                                         &value1,
+                                                         &nbc1));
+                        ASSERT(SUCCESS == Util::getValue(&isb2,
+                                                         &value2,
+                                                         &nbc2));
+                        ASSERT(SUCCESS == Util::getValue(&isb3,
+                                                         &value3,
+                                                         &nbc3));
+
+                        ASSERT(0       == isb1.length());
+                        ASSERT(0       == isb2.length());
+                        ASSERT(0       == isb3.length());
+
+                        ASSERT(LENGTH1 == nbc1);
+                        ASSERT(LENGTH2 == nbc2);
+                        ASSERT(LENGTH3 == nbc3);
+
+                        LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                        LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                        LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
                     }
                 }
+            }
+            }
             }
         }
 
@@ -599,32 +599,57 @@ int main(int argc, char *argv[])
             typedef bdeimp_ProlepticDateUtil ProlepticDateUtil;
             typedef bdeimp_DateUtil          DateUtil;
 
-            for (int year = 1; year <= 9999; ++year) {
-            for (int month = 1; month <= 12; ++month) {
-            for (int day = 1; day <= 31; ++day) {
-                if (DateUtil::isValidCalendarDate(year, month, day)
-                    && ProlepticDateUtil::isValidCalendarDate(year,
-                                                              month,
-                                                              day)) {
-                    const int HOURS[] = { 0, 12, 23, 24 };
-//                     const int NUM_HOURS
-                    for (int hour = 0; hour <= 23; hour += 10) {
-                    for (int min = 0; min < 60; min += 30) {
-                    for (int sec = 0; sec < 60; sec += 30) {
+            const int YEARS[] = { 1, 4, 96, 100, 400, 500, 800, 1000, 1600,
+                                  1700, 1751, 1752, 1753, 1930, 2000, 2010,
+                                  2012, 2019, 2020, 2021, 6478, 6479, 6480,
+                                  9998, 9999 };
+            const int NUM_YEARS = sizeof YEARS / sizeof *YEARS;
 
-                        if (veryVerbose) { P_(year) P_(month) P(day) }
-                        if (veryVerbose) { P_(hour) P_(min) P(sec) }
+            const int MONTHS[] = { 1, 2, 5, 8, 9, 12 };
+            const int NUM_MONTHS = sizeof MONTHS / sizeof *MONTHS;
+
+            const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
+            const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
+
+            for (int di = 0; di <= NUM_YEARS; ++di) {
+            for (int dj = 0; dj <= NUM_MONTHS; ++dj) {
+            for (int dk = 0; dk <= NUM_DAYS; ++dk) {
+
+                const int YEAR  = YEARS[di];
+                const int MONTH = MONTHS[dj];
+                const int DAY   = DAYS[dk];
+
+                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                 && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
+
+                    const int HOURS[] = { 0, 12, 23 };
+                    const int NUM_HOURS = sizeof HOURS / sizeof *HOURS;
+
+                    const int MINS[] = { 0, 30, 59 };
+                    const int NUM_MINS = sizeof MINS / sizeof *MINS;
+
+                    const int SECS[] = { 0, 30, 59 };
+                    const int NUM_SECS = sizeof SECS / sizeof *SECS;
+
+                    for (int ti = 0; ti < NUM_HOURS; ++ti) {
+                    for (int tj = 0; tj < NUM_MINS; ++tj) {
+                    for (int tk = 0; tk < NUM_SECS; ++tk) {
+
+                        const int HOUR = HOURS[ti];
+                        const int MIN  = MINS[tj];
+                        const int SEC  = SECS[tk];
+
+                        if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
+                        if (veryVerbose) { P_(HOUR) P_(MIN) P(SEC) }
                         {
                             const int MS = 0;
-                            const bdet_Date DATE(year, month, day);
-                            const bdet_Time TIME(hour, min, sec, MS);
+                            const bdet_Date DATE(YEAR, MONTH, DAY);
+                            const bdet_Time TIME(HOUR, MIN, SEC, MS);
                             const bdet_Datetime VALUE(DATE, TIME);
                             bdet_Datetime value;
 
                             bdesb_MemOutStreamBuf osb;
-                            ASSERT(0 == Util::putValue(&osb,
-                                                       VALUE,
-                                                       &options));
+                            ASSERT(0 == Util::putValue(&osb, VALUE, &options));
                             const int LENGTH = osb.length();
 
                             if (veryVerbose) {
@@ -647,14 +672,14 @@ int main(int argc, char *argv[])
                         {
                             const int MS1 = 0, MS2 = 500, MS3 = 999;
                             const int OFF1 = 0, OFF2 = -1439, OFF3 = 1439;
-                            const bdet_Date DATE1(year, month, day);
-                            const bdet_Time TIME1(hour, min, sec, MS1);
+                            const bdet_Date DATE1(YEAR, MONTH, DAY);
+                            const bdet_Time TIME1(HOUR, MIN, SEC, MS1);
 
-                            const bdet_Date DATE2(year, month, day);
-                            const bdet_Time TIME2(hour, min, sec, MS2);
+                            const bdet_Date DATE2(YEAR, MONTH, DAY);
+                            const bdet_Time TIME2(HOUR, MIN, SEC, MS2);
 
-                            const bdet_Date DATE3(year, month, day);
-                            const bdet_Time TIME3(hour, min, sec, MS3);
+                            const bdet_Date DATE3(YEAR, MONTH, DAY);
+                            const bdet_Time TIME3(HOUR, MIN, SEC, MS3);
 
                             const bdet_Datetime DT1(DATE1, TIME1);
                             const bdet_Datetime DT2(DATE2, TIME2);
@@ -868,6 +893,13 @@ int main(int argc, char *argv[])
     {      L_,   2019,    12,   31,     0,     0,    0,    0,      0     },
 
     {      L_,   2020,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,   1439     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,  -1439     },
+
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,      0     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,   1439     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,  -1439     },
+
     {      L_,   2020,     1,    2,     0,     0,    0,    0,      0     },
 
     {      L_,   2020,     2,   28,     0,     0,    0,    0,      0     },
