@@ -35,6 +35,7 @@
 #include <bsl_bitset.h>
 
 #include <bsl_fstream.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -577,8 +578,6 @@ void printBuffer(const char *buffer, int length)
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test { class MyChoice; }
 namespace test { class MySequenceWithNullable; }

@@ -324,11 +324,13 @@ BDES_IDENT("$Id: $")
 #ifndef INCLUDED_BSL_C_SIGNAL
 #include <bsl_c_signal.h>              // sigset_t
 #endif
+
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 extern "C" {
     typedef void (*bcep_FixedThreadPoolJobFunc)(void *);

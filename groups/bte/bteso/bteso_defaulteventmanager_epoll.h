@@ -291,6 +291,10 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_SYS_EPOLL
 #include <sys/epoll.h>
+
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 #define INCLUDED_SYS_EPOLL
 #endif
 
@@ -302,7 +306,6 @@ struct bslalg_TypeTraits<struct ::epoll_event> :
 {
 };
 
-class bslma_Allocator;
 class bdet_TimeInterval;
 class bteso_TimeMetrics;
 

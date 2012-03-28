@@ -303,11 +303,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
                         // ================
                         // class bcema_Pool

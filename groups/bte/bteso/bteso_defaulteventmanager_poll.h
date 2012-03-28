@@ -282,12 +282,15 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>
+
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 #define INCLUDED_SYS_POLL
 #endif
 
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bdet_TimeInterval;
 class bteso_TimeMetrics;
 
