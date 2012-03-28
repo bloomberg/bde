@@ -121,6 +121,9 @@ static int veryVeryVerbose = 0;
 typedef bdem_BerUtil Util;
 typedef bslstl_StringRef StringRef;
 
+typedef bdeimp_ProlepticDateUtil ProlepticDateUtil;
+typedef bdeimp_DateUtil          DateUtil;
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -295,7 +298,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -312,6 +315,144 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING BRUTE FORCE 'putValue'/'getValue' for date/time components
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout
+                            << "\nTESTING 'putValue', 'getValue' for date/time"
+                            << "\n============================================"
+                            << bsl::endl;
+
+#if 0
+        bdem_BerEncoderOptions options;
+        options.setEncodeDateAndTimeTypesAsBinary(true);
+
+        if (verbose) bsl::cout << "\nTesting Date." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                int         d_tzoffset;  // time zone offset
+                const char *d_exp;       // expected output
+            } DATA[] = {
+        //line no.  year   month   day   offset   exp
+        //-------   -----  -----   ---   ------   ---
+//         {      L_,  2020,      1,    1,       0,   "030100"      },
+            };
+//             new TestVal(2020,   1,   1,    0,  hex("")),
+//             new TestVal(2020,   1,   1,    0,  hex("00")),
+//             new TestVal(2020,   1,   1,    0,  hex("0000")),
+//             new TestVal(2020,   1,   1,    0,  hex("0000 00")),
+//             new TestVal(2020,   1,   1,    0,  hex("0000 0000")),
+//             new TestVal(2020,   1,   1,    0,  hex("0000 0000 00")),
+//             new TestVal(2020,   1,   1,    0,  asc("2020-01-01Z")),
+//             new TestVal(2020,   1,   1,    0,  asc("2020-01-01+00:00")),
+//             new TestVal(2020,   1,   1,    1,  hex("0001 0000")),
+//             new TestVal(2020,   1,   1,   -1,  hex("FFFF 0000")),
+//             new TestVal(2020,   1,   1, 1440,  hex("05A0 0000")),
+//             new TestVal(2020,   1,   1,-1440,  hex("FA60 0000")),
+//             new TestVal(2020,   1,   1,    1,  hex("0001 0000 00")),
+//             new TestVal(2020,   1,   1,   -1,  hex("FFFF 0000 00")),
+//             new TestVal(2020,   1,   1, 1440,  hex("05A0 0000 00")),
+//             new TestVal(2020,   1,   1,-1440,  hex("FA60 0000 00")),
+//             new TestVal(2020,   1,   2,    0,  hex("01")),
+//             new TestVal(2020,   1,   2,    0,  hex("0001")),
+//             new TestVal(2020,   1,   2,    0,  hex("0000 01")),
+//             new TestVal(2020,   1,   2,    0,  hex("0000 0001")),
+//             new TestVal(2020,   1,   2,    0,  hex("0000 0000 01")),
+//             new TestVal(2020,   1,   2,    1,  hex("0001 0001")),
+//             new TestVal(2020,   1,   2,    1,  hex("0001 0000 01")),
+//             new TestVal(2020,   1,   2,   -1,  hex("FFFF 0001")),
+//             new TestVal(2020,   1,   2,   -1,  hex("FFFF 0000 01")),
+//             new TestVal(2020,   1,   2, 1440,  hex("05A0 0001")),
+//             new TestVal(2020,   1,   2, 1440,  hex("05A0 0000 01")),
+//             new TestVal(2020,   1,   2,-1440,  hex("FA60 0001")),
+//             new TestVal(2020,   1,   2,-1440,  hex("FA60 0000 01")),
+//             new TestVal(2019,  12,  31,    0,  hex("FF")),
+//             new TestVal(2019,  12,  31,    0,  hex("FFFF")),
+//             new TestVal(2019,  12,  31,    0,  hex("FFFF FF")),
+//             new TestVal(2019,  12,  31,    0,  hex("0000 FFFF")),
+//             new TestVal(2019,  12,  31,    0,  hex("0000 FFFF FF")),
+//             new TestVal(2019,  12,  31,    1,  hex("0001 FFFF")),
+//             new TestVal(2019,  12,  31,    1,  hex("0001 FFFF FF")),
+//             new TestVal(2019,  12,  31,   -1,  hex("FFFF FFFF")),
+//             new TestVal(2019,  12,  31,   -1,  hex("FFFF FFFF FF")),
+//             new TestVal(2019,  12,  31, 1440,  hex("05A0 FFFF")),
+//             new TestVal(2019,  12,  31, 1440,  hex("05A0 FFFF FF")),
+//             new TestVal(2019,  12,  31,-1440,  hex("FA60 FFFF")),
+//             new TestVal(2019,  12,  31,-1440,  hex("FA60 FFFF FF")),
+//             new TestVal(2020,   5,   7,    0,  hex("7F")),
+//             new TestVal(2020,   5,   8,    0,  hex("0080")),
+//             new TestVal(2109,   9,  18,    0,  hex("7FFF")),
+//             new TestVal(2109,   9,  19,    0,  hex("0080 00")),
+//             new TestVal(9999,  12,  31,    0,  hex("2C79 4A")),
+//             new TestVal(2019,   8,  26,    0,  hex("80")),
+//             new TestVal(2019,   8,  26,    0,  hex("FF80")),
+//             new TestVal(2019,   8,  25,    0,  hex("FF7F")),
+//             new TestVal(1930,   4,  15,    0,  hex("8000")),
+//             new TestVal(1930,   4,  15,    0,  hex("FF80 00")),
+//             new TestVal(1930,   4,  14,    0,  hex("FF7F FF")),
+//             new TestVal(1930,   4,  14,    0,  hex("0000 FF7F FF")),
+//             new TestVal(   1,   1,   1,    0,  hex("F4BF 70")),
+//             new TestVal(   1,   1,   1,    0,  hex("0000 F4BF 70")),
+//             new TestVal(1066,  10,  14,    0,  hex("FAB0 05")),
+//             new TestVal(1066,  10,  14, -300,  hex("FED4 FAB0 05")),
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i <= NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   YEAR  = DATA[i].d_year;
+                const int   MONTH = DATA[i].d_month;
+                const int   DAY   = DATA[i].d_day;
+                const int   OFF   = DATA[i].d_tzoffset;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                                                              MONTH,
+                                                              DAY));
+
+                if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(EXP) }
+                {
+                    const bdet_Date VALUE(YEAR, MONTH, DAY);
+
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    ASSERT(LEN == osb.length());
+                    ASSERT(0   == compareBuffers(osb.data(), EXP));
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdet_Date value;
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(EXP, strlen(EXP));
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0   == isb.length());
+                    ASSERT(LEN == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+            }
+        }
+#endif
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -331,12 +472,10 @@ int main(int argc, char *argv[])
 
         bdem_BerEncoderOptions options;
         options.setEncodeDateAndTimeTypesAsBinary(true);
+        const bdem_BerEncoderOptions DEFOPTS;
 
         if (verbose) bsl::cout << "\nTesting Date Brute force." << bsl::endl;
         {
-            typedef bdeimp_ProlepticDateUtil ProlepticDateUtil;
-            typedef bdeimp_DateUtil          DateUtil;
-
             const int YEARS[] = { 1, 4, 96, 100, 400, 500, 800, 1000, 1600,
                                   1700, 1751, 1752, 1753, 1930, 2000, 2010,
                                   2012, 2019, 2020, 2021, 6478, 6479, 6480,
@@ -361,10 +500,20 @@ int main(int argc, char *argv[])
                  && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
 
                     if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
-                    {
-                        const bdet_Date VALUE(YEAR, MONTH, DAY);
-                        bdet_Date value;
 
+                    const bdet_Date VALUE(YEAR, MONTH, DAY);
+                    bdet_Date value;
+
+                    const int OFF1 = 0, OFF2 = -840, OFF3 = 840;
+                    const bdet_DateTz VALUE1(bdet_Date(YEAR, MONTH, DAY),
+                                             OFF1);
+                    const bdet_DateTz VALUE2(bdet_Date(YEAR, MONTH, DAY),
+                                             OFF2);
+                    const bdet_DateTz VALUE3(bdet_Date(YEAR, MONTH, DAY),
+                                             OFF3);
+                    bdet_DateTz value1, value2, value3;
+
+                    {
                         bdesb_MemOutStreamBuf osb;
                         ASSERT(0 == Util::putValue(&osb, VALUE, &options));
                         const int LENGTH = osb.length();
@@ -386,15 +535,27 @@ int main(int argc, char *argv[])
                     }
 
                     {
-                        const int OFF1 = 0, OFF2 = -1439, OFF3 = 1439;
-                        const bdet_DateTz VALUE1(bdet_Date(YEAR, MONTH, DAY),
-                                                 OFF1);
-                        const bdet_DateTz VALUE2(bdet_Date(YEAR, MONTH, DAY),
-                                                 OFF2);
-                        const bdet_DateTz VALUE3(bdet_Date(YEAR, MONTH, DAY),
-                                                 OFF3);
-                        bdet_DateTz value1, value2, value3;
+                        bdesb_MemOutStreamBuf osb;
+                        ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                        const int LENGTH = osb.length();
 
+                        if (veryVerbose) {
+                            cout << "Output Buffer:";
+                            printBuffer(osb.data(), osb.length());
+                        }
+                        int numBytesConsumed = 0;
+
+                        bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                      osb.length());
+                        ASSERT(SUCCESS == Util::getValue(&isb,
+                                                         &value,
+                                                         &numBytesConsumed));
+                        ASSERT(0      == isb.length());
+                        ASSERT(LENGTH == numBytesConsumed);
+                        LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    }
+
+                    {
                         bdesb_MemOutStreamBuf osb1, osb2, osb3;
 
                         ASSERT(0 == Util::putValue(&osb1, VALUE1, &options));
@@ -443,6 +604,56 @@ int main(int argc, char *argv[])
                         LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
                         LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
                     }
+
+                    {
+                        bdesb_MemOutStreamBuf osb1, osb2, osb3;
+
+                        ASSERT(0 == Util::putValue(&osb1, VALUE1, &DEFOPTS));
+                        const int LENGTH1 = osb1.length();
+
+                        ASSERT(0 == Util::putValue(&osb2, VALUE2, &DEFOPTS));
+                        const int LENGTH2 = osb2.length();
+
+                        ASSERT(0 == Util::putValue(&osb3, VALUE3, &DEFOPTS));
+                        const int LENGTH3 = osb3.length();
+
+                        if (veryVerbose) {
+                            cout << "Output Buffer:";
+                            printBuffer(osb1.data(), osb1.length());
+                            printBuffer(osb2.data(), osb2.length());
+                            printBuffer(osb3.data(), osb3.length());
+                        }
+                        int nbc1 = 0, nbc2 = 0, nbc3 = 0;
+
+                        bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                       osb1.length());
+                        bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                       osb2.length());
+                        bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                       osb3.length());
+
+                        ASSERT(SUCCESS == Util::getValue(&isb1,
+                                                         &value1,
+                                                         &nbc1));
+                        ASSERT(SUCCESS == Util::getValue(&isb2,
+                                                         &value2,
+                                                         &nbc2));
+                        ASSERT(SUCCESS == Util::getValue(&isb3,
+                                                         &value3,
+                                                         &nbc3));
+
+                        ASSERT(0       == isb1.length());
+                        ASSERT(0       == isb2.length());
+                        ASSERT(0       == isb3.length());
+
+                        ASSERT(LENGTH1 == nbc1);
+                        ASSERT(LENGTH2 == nbc2);
+                        ASSERT(LENGTH3 == nbc3);
+
+                        LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                        LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                        LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                    }
                 }
             }
             }
@@ -451,13 +662,31 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\nTesting Time Brute force." << bsl::endl;
         {
-            typedef bdeimp_ProlepticDateUtil ProlepticDateUtil;
-            typedef bdeimp_DateUtil          DateUtil;
-
             for (int hour = 0; hour <= 23; ++hour) {
                 for (int min = 0; min < 60; ++min) {
                     for (int sec = 0; sec < 60; ++sec) {
+
                         if (veryVerbose) { P_(hour) P_(min) P(sec) }
+
+                        const int MS1 = 0, MS2 = 500, MS3 = 999;
+                        const int OFF1 = 0, OFF2 = -840, OFF3 = 840;
+                        const bdet_TimeTz VALUE1(bdet_Time(hour,
+                                                           min,
+                                                           sec,
+                                                           MS1),
+                                                 OFF1);
+                        const bdet_TimeTz VALUE2(bdet_Time(hour,
+                                                           min,
+                                                           sec,
+                                                           MS2),
+                                                 OFF2);
+                        const bdet_TimeTz VALUE3(bdet_Time(hour,
+                                                           min,
+                                                           sec,
+                                                           MS3),
+                                                 OFF3);
+                        bdet_TimeTz value1, value2, value3;
+
                         {
                             const int MS = 0;
                             const bdet_Time VALUE(hour, min, sec, MS);
@@ -515,25 +744,6 @@ int main(int argc, char *argv[])
                         }
 
                         {
-                            const int MS1 = 0, MS2 = 500, MS3 = 999;
-                            const int OFF1 = 0, OFF2 = -1439, OFF3 = 1439;
-                            const bdet_TimeTz VALUE1(bdet_Time(hour,
-                                                               min,
-                                                               sec,
-                                                               MS1),
-                                                     OFF1);
-                            const bdet_TimeTz VALUE2(bdet_Time(hour,
-                                                               min,
-                                                               sec,
-                                                               MS2),
-                                                     OFF2);
-                            const bdet_TimeTz VALUE3(bdet_Time(hour,
-                                                               min,
-                                                               sec,
-                                                               MS3),
-                                                     OFF3);
-                            bdet_TimeTz value1, value2, value3;
-
                             bdesb_MemOutStreamBuf osb1, osb2, osb3;
 
                             ASSERT(0 == Util::putValue(&osb1,
@@ -588,6 +798,118 @@ int main(int argc, char *argv[])
                             LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
                             LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
                         }
+
+                        {
+                            const int MS = 0;
+                            const bdet_Time VALUE(hour, min, sec, MS);
+                            bdet_Time value;
+
+                            bdesb_MemOutStreamBuf osb;
+                            ASSERT(0 == Util::putValue(&osb,
+                                                       VALUE,
+                                                       &DEFOPTS));
+                            const int LENGTH = osb.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb.data(), osb.length());
+                            }
+                            int numBytesConsumed = 0;
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &value,
+                                                           &numBytesConsumed));
+                            ASSERT(0      == isb.length());
+                            ASSERT(LENGTH == numBytesConsumed);
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        }
+
+                        {
+                            const int MS = 999;
+                            const bdet_Time VALUE(hour, min, sec, MS);
+                            bdet_Time value;
+
+                            bdesb_MemOutStreamBuf osb;
+                            ASSERT(0 == Util::putValue(&osb,
+                                                       VALUE,
+                                                       &DEFOPTS));
+                            const int LENGTH = osb.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb.data(), osb.length());
+                            }
+                            int numBytesConsumed = 0;
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &value,
+                                                           &numBytesConsumed));
+                            ASSERT(0      == isb.length());
+                            ASSERT(LENGTH == numBytesConsumed);
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+
+                            ASSERT(0 == Util::putValue(&osb1,
+                                                       VALUE1,
+                                                       &DEFOPTS));
+                            const int LENGTH1 = osb1.length();
+
+                            ASSERT(0 == Util::putValue(&osb2,
+                                                       VALUE2,
+                                                       &DEFOPTS));
+                            const int LENGTH2 = osb2.length();
+
+                            ASSERT(0 == Util::putValue(&osb3,
+                                                       VALUE3,
+                                                       &DEFOPTS));
+                            const int LENGTH3 = osb3.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+                            int nbc1 = 0, nbc2 = 0, nbc3 = 0;
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(SUCCESS == Util::getValue(&isb1,
+                                                             &value1,
+                                                             &nbc1));
+                            ASSERT(SUCCESS == Util::getValue(&isb2,
+                                                             &value2,
+                                                             &nbc2));
+                            ASSERT(SUCCESS == Util::getValue(&isb3,
+                                                             &value3,
+                                                             &nbc3));
+
+                            ASSERT(0       == isb1.length());
+                            ASSERT(0       == isb2.length());
+                            ASSERT(0       == isb3.length());
+
+                            ASSERT(LENGTH1 == nbc1);
+                            ASSERT(LENGTH2 == nbc2);
+                            ASSERT(LENGTH3 == nbc3);
+
+                            LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                            LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                            LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                        }
                     }
                 }
             }
@@ -596,9 +918,6 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\nTesting Datetime Brute force."
                                << bsl::endl;
         {
-            typedef bdeimp_ProlepticDateUtil ProlepticDateUtil;
-            typedef bdeimp_DateUtil          DateUtil;
-
             const int YEARS[] = { 1, 4, 96, 100, 400, 500, 800, 1000, 1600,
                                   1700, 1751, 1752, 1753, 1930, 2000, 2010,
                                   2012, 2019, 2020, 2021, 6478, 6479, 6480,
@@ -641,13 +960,35 @@ int main(int argc, char *argv[])
 
                         if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
                         if (veryVerbose) { P_(HOUR) P_(MIN) P(SEC) }
-                        {
-                            const int MS = 0;
-                            const bdet_Date DATE(YEAR, MONTH, DAY);
-                            const bdet_Time TIME(HOUR, MIN, SEC, MS);
-                            const bdet_Datetime VALUE(DATE, TIME);
-                            bdet_Datetime value;
 
+                        const int MS = 0;
+                        const bdet_Date DATE(YEAR, MONTH, DAY);
+                        const bdet_Time TIME(HOUR, MIN, SEC, MS);
+                        const bdet_Datetime VALUE(DATE, TIME);
+                        bdet_Datetime value;
+
+                        const int MS1 = 0, MS2 = 500, MS3 = 999;
+                        const int OFF1 = 0, OFF2 = -840, OFF3 = 840;
+                        const bdet_Date DATE1(YEAR, MONTH, DAY);
+                        const bdet_Time TIME1(HOUR, MIN, SEC, MS1);
+
+                        const bdet_Date DATE2(YEAR, MONTH, DAY);
+                        const bdet_Time TIME2(HOUR, MIN, SEC, MS2);
+
+                        const bdet_Date DATE3(YEAR, MONTH, DAY);
+                        const bdet_Time TIME3(HOUR, MIN, SEC, MS3);
+
+                        const bdet_Datetime DT1(DATE1, TIME1);
+                        const bdet_Datetime DT2(DATE2, TIME2);
+                        const bdet_Datetime DT3(DATE3, TIME3);
+
+                        const bdet_DatetimeTz VALUE1(DT1, OFF1);
+                        const bdet_DatetimeTz VALUE2(DT2, OFF2);
+                        const bdet_DatetimeTz VALUE3(DT3, OFF3);
+
+                        bdet_DatetimeTz value1, value2, value3;
+
+                        {
                             bdesb_MemOutStreamBuf osb;
                             ASSERT(0 == Util::putValue(&osb, VALUE, &options));
                             const int LENGTH = osb.length();
@@ -670,27 +1011,6 @@ int main(int argc, char *argv[])
                         }
 
                         {
-                            const int MS1 = 0, MS2 = 500, MS3 = 999;
-                            const int OFF1 = 0, OFF2 = -1439, OFF3 = 1439;
-                            const bdet_Date DATE1(YEAR, MONTH, DAY);
-                            const bdet_Time TIME1(HOUR, MIN, SEC, MS1);
-
-                            const bdet_Date DATE2(YEAR, MONTH, DAY);
-                            const bdet_Time TIME2(HOUR, MIN, SEC, MS2);
-
-                            const bdet_Date DATE3(YEAR, MONTH, DAY);
-                            const bdet_Time TIME3(HOUR, MIN, SEC, MS3);
-
-                            const bdet_Datetime DT1(DATE1, TIME1);
-                            const bdet_Datetime DT2(DATE2, TIME2);
-                            const bdet_Datetime DT3(DATE3, TIME3);
-
-                            const bdet_DatetimeTz VALUE1(DT1, OFF1);
-                            const bdet_DatetimeTz VALUE2(DT2, OFF2);
-                            const bdet_DatetimeTz VALUE3(DT3, OFF3);
-
-                            bdet_DatetimeTz value1, value2, value3;
-
                             bdesb_MemOutStreamBuf osb1, osb2, osb3;
 
                             ASSERT(0 == Util::putValue(&osb1,
@@ -706,6 +1026,84 @@ int main(int argc, char *argv[])
                             ASSERT(0 == Util::putValue(&osb3,
                                                        VALUE3,
                                                        &options));
+                            const int LENGTH3 = osb3.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+                            int nbc1 = 0, nbc2 = 0, nbc3 = 0;
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(SUCCESS == Util::getValue(&isb1,
+                                                             &value1,
+                                                             &nbc1));
+                            ASSERT(SUCCESS == Util::getValue(&isb2,
+                                                             &value2,
+                                                             &nbc2));
+                            ASSERT(SUCCESS == Util::getValue(&isb3,
+                                                             &value3,
+                                                             &nbc3));
+
+                            ASSERT(0       == isb1.length());
+                            ASSERT(0       == isb2.length());
+                            ASSERT(0       == isb3.length());
+
+                            ASSERT(LENGTH1 == nbc1);
+                            ASSERT(LENGTH2 == nbc2);
+                            ASSERT(LENGTH3 == nbc3);
+
+                            LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                            LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                            LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb;
+                            ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                            const int LENGTH = osb.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb.data(), osb.length());
+                            }
+                            int numBytesConsumed = 0;
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &value,
+                                                           &numBytesConsumed));
+                            ASSERT(0      == isb.length());
+                            ASSERT(LENGTH == numBytesConsumed);
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+
+                            ASSERT(0 == Util::putValue(&osb1,
+                                                       VALUE1,
+                                                       &DEFOPTS));
+                            const int LENGTH1 = osb1.length();
+
+                            ASSERT(0 == Util::putValue(&osb2,
+                                                       VALUE2,
+                                                       &DEFOPTS));
+                            const int LENGTH2 = osb2.length();
+
+                            ASSERT(0 == Util::putValue(&osb3,
+                                                       VALUE3,
+                                                       &DEFOPTS));
                             const int LENGTH3 = osb3.length();
 
                             if (veryVerbose) {
@@ -772,6 +1170,7 @@ int main(int argc, char *argv[])
 
         bdem_BerEncoderOptions options;
         options.setEncodeDateAndTimeTypesAsBinary(true);
+        const bdem_BerEncoderOptions DEFOPTS;
 
         if (verbose) bsl::cout << "\nDefine data" << bsl::endl;
 
@@ -790,102 +1189,116 @@ int main(int argc, char *argv[])
    //-------   -----  -----   ---   ----    ---   ---    --  ------
     {      L_,      1,     1,    1,     0,     0,    0,    0,      0     },
     {      L_,      1,     1,    1,     0,     0,    0,    0,     45     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,   -840     },
 
     {      L_,      1,     1,    1,     1,     1,    1,    1,      0     },
     {      L_,      1,     1,    1,     1,     1,    1,    1,    500     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,   -840     },
 
     {      L_,      1,     1,    1,     1,    23,   59,   59,      0     },
-    {      L_,      1,     1,    1,     1,    23,   59,   59,    999     },
+    {      L_,      1,     1,    1,     1,    23,   59,   59,    840     },
+    {      L_,      1,     1,    1,     1,    23,   59,   59,   -840     },
 
     {      L_,      1,     1,    2,     0,     0,    0,    0,      0     },
-    {      L_,      1,     1,    2,     0,     0,    0,    0,   1439     },
+    {      L_,      1,     1,    2,     0,     0,    0,    0,    840     },
+    {      L_,      1,     1,    2,     0,     0,    0,    0,   -840     },
 
     {      L_,      1,     1,    2,     1,     1,    1,    1,      0     },
     {      L_,      1,     1,    2,     1,     1,    1,    1,    500     },
 
     {      L_,      1,     1,    2,     1,    23,   59,   59,      0     },
-    {      L_,      1,     1,    2,     1,    23,   59,   59,    999     },
+    {      L_,      1,     1,    2,     1,    23,   59,   59,    500     },
+    {      L_,      1,     1,    2,     1,    23,   59,   59,   -500     },
 
     {      L_,      1,     1,   10,     0,     0,    0,    0,      0     },
     {      L_,      1,     1,   10,     1,     1,    1,    1,     99     },
 
     {      L_,      1,     1,   30,     0,     0,    0,    0,      0     },
-    {      L_,      1,     1,   31,     0,     0,    0,    0,   1439     },
+    {      L_,      1,     1,   31,     0,     0,    0,    0,    840     },
+    {      L_,      1,     1,   31,     0,     0,    0,    0,   -840     },
 
     {      L_,      1,     2,    1,     0,     0,    0,    0,      0     },
-    {      L_,      1,     2,    1,    23,    59,   59,    0,   1439     },
+    {      L_,      1,     2,    1,    23,    59,   59,    0,    840     },
 
     {      L_,      1,    12,   31,     0,     0,    0,    0,      0     },
-    {      L_,      1,    12,   31,    23,    59,   59,    0,   1439     },
+    {      L_,      1,    12,   31,    23,    59,   59,    0,    840     },
 
     {      L_,      2,     1,    1,     0,     0,    0,    0,      0     },
-    {      L_,      2,     1,    1,    23,    59,   59,    0,   1439     },
+    {      L_,      2,     1,    1,    23,    59,   59,    0,    840     },
 
     {      L_,      4,     1,    1,     0,     0,    0,    0,      0     },
-    {      L_,      4,     1,    1,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     1,    1,    23,    59,   59,    0,    840     },
 
     {      L_,      4,     2,   28,     0,     0,    0,    0,      0     },
-    {      L_,      4,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     2,   28,    23,    59,   59,    0,    840     },
+    {      L_,      4,     2,   28,    23,    59,   59,    0,   -840     },
 
     {      L_,      4,     2,   29,     0,     0,    0,    0,      0     },
-    {      L_,      4,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     2,   29,    23,    59,   59,    0,    840     },
+    {      L_,      4,     2,   29,    23,    59,   59,    0,   -840     },
 
     {      L_,      4,     3,    1,     0,     0,    0,    0,      0     },
-    {      L_,      4,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     3,    1,    23,    59,   59,    0,    840     },
+    {      L_,      4,     3,    1,    23,    59,   59,    0,   -840     },
 
     {      L_,      8,     2,   28,     0,     0,    0,    0,      0     },
-    {      L_,      8,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,      8,     2,   28,    23,    59,   59,    0,    840     },
 
     {      L_,      8,     2,   29,     0,     0,    0,    0,      0     },
-    {      L_,      8,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,      8,     2,   29,    23,    59,   59,    0,    840     },
 
     {      L_,      8,     3,    1,     0,     0,    0,    0,      0     },
-    {      L_,      8,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,      8,     3,    1,    23,    59,   59,    0,    840     },
 
     {      L_,    100,     2,   28,     0,     0,    0,    0,      0     },
-    {      L_,    100,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,    100,     2,   28,    23,    59,   59,    0,    840     },
+    {      L_,    100,     2,   28,    23,    59,   59,    0,   -840     },
 
     {      L_,    100,     3,    1,     0,     0,    0,    0,      0     },
-    {      L_,    100,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,    100,     3,    1,    23,    59,   59,    0,    840     },
+    {      L_,    100,     3,    1,    23,    59,   59,    0,   -840     },
 
     {      L_,    400,     2,   28,     0,     0,    0,    0,      0     },
-    {      L_,    400,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     2,   28,    23,    59,   59,    0,    840     },
+    {      L_,    400,     2,   28,    23,    59,   59,    0,   -840     },
 
     {      L_,    400,     2,   29,     0,     0,    0,    0,      0     },
-    {      L_,    400,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     2,   29,    23,    59,   59,    0,    840     },
+    {      L_,    400,     2,   29,    23,    59,   59,    0,   -840     },
 
     {      L_,    400,     3,    1,     0,     0,    0,    0,      0     },
-    {      L_,    400,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     3,    1,    23,    59,   59,    0,    840     },
+    {      L_,    400,     3,    1,    23,    59,   59,    0,   -840     },
 
     {      L_,    500,     2,   28,     0,     0,    0,    0,      0     },
-    {      L_,    500,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,    500,     2,   28,    23,    59,   59,    0,    840     },
 
     {      L_,    500,     3,    1,     0,     0,    0,    0,      0     },
-    {      L_,    500,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,    500,     3,    1,    23,    59,   59,    0,    840     },
 
     {      L_,    800,     2,   28,     0,     0,    0,    0,      0     },
-    {      L_,    800,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,    800,     2,   28,    23,    59,   59,    0,    840     },
 
     {      L_,    800,     2,   29,     0,     0,    0,    0,      0     },
-    {      L_,    800,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,    800,     2,   29,    23,    59,   59,    0,    840     },
 
     {      L_,    800,     3,    1,     0,     0,    0,    0,      0     },
-    {      L_,    800,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,    800,     3,    1,    23,    59,   59,    0,    840     },
 
     {      L_,   1000,     2,   28,     0,     0,    0,    0,      0     },
-    {      L_,   1000,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,   1000,     2,   28,    23,    59,   59,    0,    840     },
 
     {      L_,   1000,     3,    1,     0,     0,    0,    0,      0     },
-    {      L_,   1000,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,   1000,     3,    1,    23,    59,   59,    0,    840     },
 
     {      L_,   2000,     2,   28,     0,     0,    0,    0,      0     },
-    {      L_,   2000,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,   2000,     2,   28,    23,    59,   59,    0,    840     },
 
     {      L_,   2000,     2,   29,     0,     0,    0,    0,      0     },
-    {      L_,   2000,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,   2000,     2,   29,    23,    59,   59,    0,    840     },
 
     {      L_,   2000,     3,    1,     0,     0,    0,    0,      0     },
-    {      L_,   2000,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,   2000,     3,    1,    23,    59,   59,    0,    840     },
 
     {      L_,   2016,    12,   31,     0,     0,    0,    0,      0     },
     {      L_,   2017,    12,   31,     0,     0,    0,    0,      0     },
@@ -893,38 +1306,45 @@ int main(int argc, char *argv[])
     {      L_,   2019,    12,   31,     0,     0,    0,    0,      0     },
 
     {      L_,   2020,     1,    1,     0,     0,    0,    0,      0     },
-    {      L_,   2020,     1,    1,     0,     0,    0,    0,   1439     },
-    {      L_,   2020,     1,    1,     0,     0,    0,    0,  -1439     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,    840     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,   -840     },
 
     {      L_,   2020,     1,    1,    23,    59,   59,  999,      0     },
-    {      L_,   2020,     1,    1,    23,    59,   59,  999,   1439     },
-    {      L_,   2020,     1,    1,    23,    59,   59,  999,  -1439     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,    840     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,   -840     },
 
     {      L_,   2020,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,    840     },
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,   -840     },
 
     {      L_,   2020,     2,   28,     0,     0,    0,    0,      0     },
-    {      L_,   2020,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     2,   28,    23,    59,   59,    0,    840     },
+    {      L_,   2020,     2,   28,    23,    59,   59,    0,   -840     },
 
     {      L_,   2020,     2,   29,     0,     0,    0,    0,      0     },
-    {      L_,   2020,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     2,   29,    23,    59,   59,    0,    840     },
+    {      L_,   2020,     2,   29,    23,    59,   59,    0,   -840     },
 
     {      L_,   2020,     3,    1,     0,     0,    0,    0,      0     },
-    {      L_,   2020,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     3,    1,    23,    59,   59,    0,    840     },
+    {      L_,   2020,     3,    1,    23,    59,   59,    0,   -840     },
 
     {      L_,   2021,     1,    2,     0,     0,    0,    0,      0     },
     {      L_,   2022,     1,    2,     0,     0,    0,    0,      0     },
 
     {      L_,   9999,     2,   28,     0,     0,    0,    0,      0     },
-    {      L_,   9999,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,   9999,     2,   28,    23,    59,   59,    0,    840     },
+    {      L_,   9999,     2,   28,    23,    59,   59,    0,   -840     },
 
     {      L_,   9999,     3,    1,     0,     0,    0,    0,      0     },
-    {      L_,   9999,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,   9999,     3,    1,    23,    59,   59,    0,    840     },
+    {      L_,   9999,     3,    1,    23,    59,   59,    0,   -840     },
 
     {      L_,   9999,    12,   30,     0,     0,    0,    0,      0     },
-    {      L_,   9999,    12,   30,    23,    59,   59,    0,   1439     },
+    {      L_,   9999,    12,   30,    23,    59,   59,    0,    840     },
 
     {      L_,   9999,    12,   31,     0,     0,    0,    0,      0     },
-    {      L_,   9999,    12,   31,    23,    59,   59,    0,   1439     },
+    {      L_,   9999,    12,   31,    23,    59,   59,    0,    840     },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -940,23 +1360,45 @@ int main(int argc, char *argv[])
 
                 const Type VALUE(Y, M, D); Type value;
 
-                bdesb_MemOutStreamBuf osb;
-                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                const int LENGTH = osb.length();
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
 
-                if (veryVerbose) {
-                    cout << "Output Buffer:";
-                    printBuffer(osb.data(), osb.length());
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0      == isb.length());
+                    ASSERT(LENGTH == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
                 }
-                int numBytesConsumed = 0;
 
-                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
-                ASSERT(0      == isb.length());
-                ASSERT(LENGTH == numBytesConsumed);
-                LOOP2_ASSERT(VALUE, value, VALUE == value);
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0      == isb.length());
+                    ASSERT(LENGTH == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
             }
         }
 
@@ -973,23 +1415,45 @@ int main(int argc, char *argv[])
 
                 const Type VALUE(bdet_Date(Y, M, D), OFF); Type value;
 
-                bdesb_MemOutStreamBuf osb;
-                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                const int LENGTH = osb.length();
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
 
-                if (veryVerbose) {
-                    cout << "Output Buffer:";
-                    printBuffer(osb.data(), osb.length());
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
                 }
-                int numBytesConsumed = 0;
 
-                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
-                ASSERT(0       == isb.length());
-                ASSERT(LENGTH  == numBytesConsumed);
-                LOOP2_ASSERT(VALUE, value, VALUE == value);
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
             }
         }
 
@@ -1006,23 +1470,45 @@ int main(int argc, char *argv[])
 
                 const Type VALUE(H, MM, S, MS); Type value;
 
-                bdesb_MemOutStreamBuf osb;
-                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                const int LENGTH = osb.length();
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
 
-                if (veryVerbose) {
-                    cout << "Output Buffer:";
-                    printBuffer(osb.data(), osb.length());
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
                 }
-                int numBytesConsumed = 0;
 
-                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
-                ASSERT(0       == isb.length());
-                ASSERT(LENGTH  == numBytesConsumed);
-                LOOP2_ASSERT(VALUE, value, VALUE == value);
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
             }
         }
 
@@ -1040,23 +1526,45 @@ int main(int argc, char *argv[])
 
                 const Type VALUE(bdet_Time(H, MM, S, MS), OFF); Type value;
 
-                bdesb_MemOutStreamBuf osb;
-                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                const int LENGTH = osb.length();
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
 
-                if (veryVerbose) {
-                    cout << "Output Buffer:";
-                    printBuffer(osb.data(), osb.length());
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
                 }
-                int numBytesConsumed = 0;
 
-                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
-                ASSERT(0       == isb.length());
-                ASSERT(LENGTH  == numBytesConsumed);
-                LOOP2_ASSERT(VALUE, value, VALUE == value);
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
             }
         }
 
@@ -1076,23 +1584,45 @@ int main(int argc, char *argv[])
 
                 const Type VALUE(Y, M, D, H, MM, S, MS); Type value;
 
-                bdesb_MemOutStreamBuf osb;
-                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                const int LENGTH = osb.length();
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
 
-                if (veryVerbose) {
-                    cout << "Output Buffer:";
-                    printBuffer(osb.data(), osb.length());
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
-                int numBytesConsumed = 0;
 
-                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
-                ASSERT(0       == isb.length());
-                ASSERT(LENGTH  == numBytesConsumed);
-                LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
+                }
             }
         }
 
@@ -1114,23 +1644,45 @@ int main(int argc, char *argv[])
                 const Type VALUE(bdet_Datetime(Y, M, D, H, MM, S, MS), OFF);
                 Type value;
 
-                bdesb_MemOutStreamBuf osb;
-                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
-                const int LENGTH = osb.length();
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
 
-                if (veryVerbose) {
-                    cout << "Output Buffer:";
-                    printBuffer(osb.data(), osb.length());
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
                 }
-                int numBytesConsumed = 0;
 
-                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
-                ASSERT(0       == isb.length());
-                ASSERT(LENGTH  == numBytesConsumed);
-                LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
+                }
             }
         }
       } break;
