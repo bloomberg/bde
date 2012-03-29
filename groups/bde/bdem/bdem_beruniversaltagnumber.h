@@ -248,20 +248,25 @@ struct bdem_BerUniversalTagNumber {
                         int          formattingMode,
                         int         *alternateTag);
         // Return the universal tag number for the specified 'object' with the
-        // specified 'formattingMode'.  The behavior is undefined if the type
-        // category of 'object' and the 'formattingMode' do not permit a
-        // universal tag number (see component-level documentation for allowed
-        // type categories and formatting modes).  TBD:
+        // specified 'formattingMode' and load into the specified
+        // 'alternateTag' any alternative tag numbers corresponding to
+        // 'object'.  The behavior is undefined if the type category of
+        // 'object' and the 'formattingMode' do not permit a universal tag
+        // number (see component-level documentation for allowed type
+        // categories and formatting modes).  Note that if an alternate tag
+        // number does not exist for 'object' then 'alternateTag' is not
+        // modified.
 
     template <typename TYPE>
     static Value select(const TYPE&                   object,
                         int                           formattingMode,
                         const bdem_BerEncoderOptions *options);
         // Return the universal tag number for the specified 'object' with the
-        // specified 'formattingMode'.  The behavior is undefined if the type
-        // category of 'object' and the 'formattingMode' do not permit a
-        // universal tag number (see component-level documentation for allowed
-        // type categories and formatting modes).  TBD:
+        // specified 'formattingMode' and using the specified 'options'.  The
+        // behavior is undefined if the type category of 'object' and the
+        // 'formattingMode' do not permit a universal tag number (see
+        // component-level documentation for allowed type categories and
+        // formatting modes).
 
     template <class STREAM>
     static STREAM& bdexStreamOut(STREAM&  stream,
@@ -500,10 +505,9 @@ bdem_BerUniversalTagNumber::select(
 template <typename TYPE>
 inline
 bdem_BerUniversalTagNumber::Value
-bdem_BerUniversalTagNumber::select(
-                                  const TYPE&  object,
-                                  int          formattingMode,
-                                  int         *alternateTag)
+bdem_BerUniversalTagNumber::select(const TYPE&  object,
+                                   int          formattingMode,
+                                   int         *alternateTag)
 {
     typedef typename bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 

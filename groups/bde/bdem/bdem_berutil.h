@@ -1,4 +1,4 @@
-// bdem_berutil.h                  -*-C++-*-
+// bdem_berutil.h                                                     -*-C++-*-
 #ifndef INCLUDED_BDEM_BERUTIL
 #define INCLUDED_BDEM_BERUTIL
 

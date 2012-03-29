@@ -295,6 +295,7 @@ inline
 int getValueUsingIso8601(bsl::streambuf *streamBuf,
                          TYPE           *value,
                          int             length)
+    // TBD: Doc
 {
     enum { FAILURE = -1 };
 
@@ -326,6 +327,7 @@ template <typename TYPE>
 inline
 int putValueUsingIso8601(bsl::streambuf *streamBuf,
                          const TYPE&     value)
+    // TBD: Doc
 {
     char buf[bdepu_Iso8601::BDEPU_MAX_DATETIME_STRLEN];
     int len = bdepu_Iso8601::generate(buf, value, sizeof(buf));
@@ -333,6 +335,7 @@ int putValueUsingIso8601(bsl::streambuf *streamBuf,
 }
 
 void getTimezoneOffset(bsl::streambuf *streamBuf, short *offset)
+    // TBD: Doc
 {
     const int firstOctet  = streamBuf->sbumpc();
     const int secondOctet = streamBuf->sbumpc();
@@ -341,6 +344,7 @@ void getTimezoneOffset(bsl::streambuf *streamBuf, short *offset)
 }
 
 void putTimezoneOffset(bsl::streambuf *streamBuf, short offset)
+    // TBD: Doc
 {
     streamBuf->sputc((char )((offset & 0xFF00) >> 8));
     streamBuf->sputc((char) (offset & 0xFF));
@@ -351,6 +355,7 @@ void putTimezoneOffsetAndIntegerPadding(bsl::streambuf *streamBuf,
                                         char            padChar,
                                         int             totalDataLength,
                                         int             additionalOctets)
+    // TBD: Doc
 {
     char padBuffer[MIN_BINARY_DATETIMETZ_LENGTH];
     bsl::memset(padBuffer, padChar, additionalOctets);
@@ -368,6 +373,7 @@ void putTimezoneOffsetAndIntegerPadding(bsl::streambuf *streamBuf,
 }
 
 bsls_Types::Int64 getSerialDateValue(const bdet_Date& value)
+    // TBD: Doc
 {
     const int serialDate = bdeimp_ProlepticDateUtil::ymd2serial(value.year(),
                                                                 value.month(),
@@ -379,12 +385,14 @@ bsls_Types::Int64 getSerialDateValue(const bdet_Date& value)
 }
 
 bsls_Types::Int64 getSerialTimeValue(const bdet_Time& value)
+    // TBD: Doc
 {
     const bdet_Time defaultTime;
     return (value - defaultTime).totalMilliseconds();
 }
 
 bsls_Types::Int64 getSerialDatetimeValue(const bdet_Datetime& value)
+    // TBD: Doc
 {
     const bsls_Types::Int64 serialDate = getSerialDateValue(value.date());
     const bsls_Types::Int64 serialTime = getSerialTimeValue(value.time());
