@@ -10484,8 +10484,8 @@ int main(int argc, char *argv[])
                     const int MINS[] = { 0, 30, 59 };
                     const int NUM_MINS = sizeof MINS / sizeof *MINS;
 
-                    const int SECS[] = { 0, 30, 59 };
-                    const int NUM_SECS = sizeof SECS / sizeof *SECS;
+                    const int SECONDS[] = { 0, 30, 59 };
+                    const int NUM_SECS = sizeof SECONDS / sizeof *SECONDS;
 
                     for (int ti = 0; ti < NUM_HOURS; ++ti) {
                     for (int tj = 0; tj < NUM_MINS; ++tj) {
@@ -10493,26 +10493,26 @@ int main(int argc, char *argv[])
 
                         const int HOUR = HOURS[ti];
                         const int MIN  = MINS[tj];
-                        const int SEC  = SECS[tk];
+                        const int SECS = SECONDS[tk];
 
                         if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
-                        if (veryVerbose) { P_(HOUR) P_(MIN) P(SEC) }
+                        if (veryVerbose) { P_(HOUR) P_(MIN) P(SECS) }
 
                         const int MS = 0;
                         const bdet_Date DATE(YEAR, MONTH, DAY);
-                        const bdet_Time TIME(HOUR, MIN, SEC, MS);
+                        const bdet_Time TIME(HOUR, MIN, SECS, MS);
                         const bdet_Datetime VALUE(DATE, TIME);
                         bdet_Datetime value;
                         const int MS1 = 0, MS2 = 500, MS3 = 999;
                         const int OFF1 = 0, OFF2 = -840, OFF3 = 840;
                         const bdet_Date DATE1(YEAR, MONTH, DAY);
-                        const bdet_Time TIME1(HOUR, MIN, SEC, MS1);
+                        const bdet_Time TIME1(HOUR, MIN, SECS, MS1);
 
                         const bdet_Date DATE2(YEAR, MONTH, DAY);
-                        const bdet_Time TIME2(HOUR, MIN, SEC, MS2);
+                        const bdet_Time TIME2(HOUR, MIN, SECS, MS2);
 
                         const bdet_Date DATE3(YEAR, MONTH, DAY);
-                        const bdet_Time TIME3(HOUR, MIN, SEC, MS3);
+                        const bdet_Time TIME3(HOUR, MIN, SECS, MS3);
 
                         const bdet_Datetime DT1(DATE1, TIME1);
                         const bdet_Datetime DT2(DATE2, TIME2);

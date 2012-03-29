@@ -16,6 +16,7 @@
 #include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
 
+#include <bdeimp_dateutil.h>
 #include <bdeimp_prolepticdateutil.h>
 
 #include <bdesb_memoutstreambuf.h>            // for testing only
@@ -327,10 +328,9 @@ int main(int argc, char *argv[])
         // Testing:
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout
-                            << "\nTESTING 'putValue', 'getValue' for date/time"
-                            << "\n============================================"
-                            << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING 'putValue' for date/time"
+                               << "\n================================"
+                               << bsl::endl;
 
         if (verbose) bsl::cout << "\nTesting Date." << bsl::endl;
         {
