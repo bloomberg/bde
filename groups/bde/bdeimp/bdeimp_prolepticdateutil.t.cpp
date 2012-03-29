@@ -21,12 +21,10 @@ using namespace bsl;  // automatically added by script
 //                              --------
 // The component under test consists of a suite of static member functions
 // (pure procedures) that perform basic validations and conversions on three
-// basic representations of standard Unix dates.  Several of the methods use
-// cached data to improve performance, and these methods must be exhaustively
-// tested (at least against the un-cached version) to ensure an accurate cache
-// is present.  The general plan is that each method is tested against a set
-// of tabulated test vectors in all test modes, and additional, exhaustive
-// loop-based tests are performed in 'veryVerbose' mode only.
+// basic representations of proleptic dates.  The general plan is that each
+// method is tested against a set of tabulated test vectors in all test modes,
+// and additional, exhaustive loop-based tests are performed in 'veryVerbose'
+// mode only.
 //-----------------------------------------------------------------------------
 // [ 1]  static int  isLeapYear(int year);
 // [ 2]  static int  isValidCalendarDate(int year, int month, int day);
@@ -1168,9 +1166,9 @@ if (veryVerbose)
             for (int di = 0; di < NUM_DATA ; ++di) {
                 const int LINE = DATA[di].d_lineNum;
                 LOOP_ASSERT(LINE, DATA[di].d_exp ==
-                                  Util::isValidCalendarDate(DATA[di].d_year,
-                                                            DATA[di].d_month,
-                                                            DATA[di].d_day));
+                            Util::isValidCalendarDate(DATA[di].d_year,
+                                                      DATA[di].d_month,
+                                                      DATA[di].d_day));
             }
         }
       } break;
