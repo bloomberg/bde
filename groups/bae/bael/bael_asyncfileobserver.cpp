@@ -29,8 +29,7 @@ namespace BloombergLP {
 // PRIVATE METHODS
 void bael_AsyncFileObserver::publishThreadEntryPoint()
 {
-    while (1)
-    {
+    while (1) {
         AsyncRecord asyncRecord = d_recordQueue.popFront();
         if (bael_Transmission::BAEL_END
                 == asyncRecord.d_context.transmissionCause()
@@ -43,8 +42,7 @@ void bael_AsyncFileObserver::publishThreadEntryPoint()
 
 int bael_AsyncFileObserver::startThread()
 {
-    if (bcemt_ThreadUtil::invalidHandle() == d_threadHandle)
-    {
+    if (bcemt_ThreadUtil::invalidHandle() == d_threadHandle) {
         bcemt_ThreadAttributes attr;
         return bcemt_ThreadUtil::create(&d_threadHandle,
                                         attr,
@@ -55,8 +53,7 @@ int bael_AsyncFileObserver::startThread()
 
 int bael_AsyncFileObserver::stopThread()
 {
-    if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle)
-    {
+    if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle) {
         // Push an empty record with BAEL_END set in context
 
         bcema_SharedPtr<const bael_Record> record(
@@ -71,15 +68,14 @@ int bael_AsyncFileObserver::stopThread()
     return 0;
 }
 
-
 // CREATORS
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                 bael_Severity::Level  stdoutThreshold,
                 bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
-, d_clearing(false)
 , d_recordQueue(8192, basicAllocator)
+, d_clearing(false)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -97,8 +93,8 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                 bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
-, d_clearing(false)
 , d_recordQueue(fixedQueueSize, basicAllocator)
+, d_clearing(false)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 
 {
@@ -158,6 +154,7 @@ int bael_AsyncFileObserver::shutdownPublicationThread()
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     d_clearing = true;
     int ret =  stopThread();
+    d_recordQueue.removeAll();
     d_clearing = false;
     return ret;
 }
