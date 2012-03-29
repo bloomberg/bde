@@ -668,6 +668,13 @@ bool operator>=(const pair<T1, T2>& x, const pair<T1, T2>& y);
     // equal to 'y' if 'x' < 'y' would return false.  A call to this operator
     // will not compile unless a call to 'x < y' would compile.
 
+template <typename T1, typename T2>
+inline
+bsl::pair<T1, T2> make_pair(T1 a, T2 b);
+    // Return a pair having the specified 'a' and 'b' values.  Note that 'a'
+    // and 'b' are passed by value, as required by the C++ standard, to allow
+    // construction of pairs of reference types.
+
 // FREE FUNCTIONS
 template <typename T1, typename T2>
 void swap(pair<T1, T2>& a, pair<T1, T2>& b);
@@ -1008,6 +1015,13 @@ inline
 void swap(pair<T1, T2>& a, pair<T1, T2>& b)
 {
     a.swap(b);
+}
+
+template <typename T1, typename T2>
+inline
+bsl::pair<T1, T2> make_pair(T1 a, T2 b)
+{
+    return pair<T1, T2>(a, b);
 }
 
 }  // close namespace bsl
