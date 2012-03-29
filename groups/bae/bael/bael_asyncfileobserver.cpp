@@ -91,8 +91,8 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_clearing(false)
-, d_dropRecordsOnFullQueueFlag(true)
-, d_dropCount(DEFAULT_DROP_ALERT_THRESHOLD - 1)
+, d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
+, d_dropCount(-1)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -111,10 +111,9 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_clearing(false)
-, d_dropRecordsOnFullQueueFlag(true)
-, d_dropCount(DEFAULT_DROP_ALERT_THRESHOLD - 1)
+, d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
+, d_dropCount(-1)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
-
 {
     d_publishThreadEntryPoint
         = bdef_Function<void (*)()>(
@@ -128,16 +127,15 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 bael_AsyncFileObserver::bael_AsyncFileObserver(
                                       bael_Severity::Level  stdoutThreshold,
                                       bool                  publishInLocalTime,
-                                      int                   fixedQueueSize,
+                                      int                   maxRecordQueueSize,
                                       bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
-, d_recordQueue(fixedQueueSize, basicAllocator)
+, d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_clearing(false)
-, d_dropRecordsOnFullQueueFlag(true)
-, d_dropCount(DEFAULT_DROP_ALERT_THRESHOLD - 1)
+, d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
+, d_dropCount(-1)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
-
 {
     d_publishThreadEntryPoint
         = bdef_Function<void (*)()>(
@@ -148,19 +146,18 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
 }
 
 bael_AsyncFileObserver::bael_AsyncFileObserver(
-                              bael_Severity::Level  stdoutThreshold,
-                              bool                  publishInLocalTime,
-                              int                   fixedQueueSize,
-                              bool                  dropRecordsOnFullQueueFlag,
-                              bslma_Allocator      *basicAllocator)
+                         bael_Severity::Level  stdoutThreshold,
+                         bool                  publishInLocalTime,
+                         int                   maxRecordQueueSize,
+                         bael_Severity::Level  dropRecordsOnFullQueueThreshold,
+                         bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
-, d_recordQueue(fixedQueueSize, basicAllocator)
+, d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_clearing(false)
-, d_dropRecordsOnFullQueueFlag(dropRecordsOnFullQueueFlag)
-, d_dropCount(DEFAULT_DROP_ALERT_THRESHOLD - 1)
+, d_dropRecordsOnFullQueueThreshold(dropRecordsOnFullQueueThreshold)
+, d_dropCount(-1)
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
-
 {
     d_publishThreadEntryPoint
         = bdef_Function<void (*)()>(
@@ -198,7 +195,7 @@ void bael_AsyncFileObserver::publish(
     AsyncRecord asyncRecord;
     asyncRecord.d_record  = record;
     asyncRecord.d_context = context;
-    if (d_dropRecordsOnFullQueueFlag) {
+    if (record->fixedFields().severity() > d_dropRecordsOnFullQueueThreshold) {
         if (0 != d_recordQueue.tryPushBack(asyncRecord)) {
 
             // Drop the record and increase the counter

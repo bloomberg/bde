@@ -414,66 +414,61 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE #2
+        // TESTING USAGE EXAMPLE
         //
         // Concerns:
-        //   The 'Example 2: Asynchronous Logging Verification' provided in the
-        //   component header file must compile, link, and run on all
+        //   The 'Example 1: Publication Through Logger Manager' provided in
+        //   the component header file must compile, link, and run on all
         //   platforms as shown.
         //
         // Plan:
         //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace 'assert' with 'ASSERT'.
+        //   comment characters, and replace explicit log file name to
+        //   temporarily created file name.
         //
         // Testing:
-        //   USAGE EXAMPLE 2
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nUsage Example #2: Asynchronous Logging"
-                          << "\n===================================" << endl;
+        if (verbose)
+            cout << "\nUsage Example 1: Publication Through Logger Manager"
+                 << "\n==================================================="
+                 << endl;
 
         bsl::string fileName = tempFileName(veryVerbose);
 
-        bcema_TestAllocator ta(veryVeryVeryVerbose);
-
-        Obj mX(bael_Severity::BAEL_WARN, &ta);
-        mX.startPublicationThread();
-        bcemt_ThreadUtil::microSleep(0, 1);
+        bael_AsyncFileObserver asyncFileObserver;
+        asyncFileObserver.startPublicationThread();
 
         bael_LoggerManagerConfiguration configuration;
-        ASSERT(0 == configuration.setDefaultThresholdLevelsIfValid(
-                                                     bael_Severity::BAEL_OFF,
-                                                     bael_Severity::BAEL_TRACE,
-                                                     bael_Severity::BAEL_OFF,
-                                                     bael_Severity::BAEL_OFF));
-        bael_LoggerManager::initSingleton(&mX, configuration);
+        bael_LoggerManager::initSingleton(&asyncFileObserver, configuration);
 
         BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
 
-        mX.enableFileLogging(fileName.c_str());
+        asyncFileObserver.setLogFormat("%i %p:%t %s %f:%l %c %m",
+                                       "%d %p:%t %s %f:%l %c %m");
 
-        int beginFileOffset = bdesu_FileUtil::getFileSize(fileName);
-        if (verbose) cout << "Begin file offset: " << beginFileOffset << endl;
+        BAEL_LOG_INFO << "Will not be published on 'stdout'."
+                      << BAEL_LOG_END;
+        BAEL_LOG_WARN << "This warning *will* be published on 'stdout'."
+                      << BAEL_LOG_END;
 
-        for (int i = 0;i < 8000; ++i) {
-             BAEL_LOG_TRACE << "bael_AsyncFileObserver Usage Example #2"
-                            << BAEL_LOG_END;
-        }
+        asyncFileObserver.setStdoutThreshold(bael_Severity::BAEL_INFO);
+        BAEL_LOG_DEBUG << "This debug message is not published on 'stdout'."
+                       << BAEL_LOG_END;
+        BAEL_LOG_INFO  << "This info will be published on 'stdout'."
+                       << BAEL_LOG_END;
+        BAEL_LOG_WARN  << "This warning will be published on 'stdout'."
+                       << BAEL_LOG_END;
 
-        int fileOffset = bdesu_FileUtil::getFileSize(fileName);
-        if (verbose)
-            cout << "FileOffset after publish: " << fileOffset << endl;
+        asyncFileObserver.enableFileLogging(fileName.c_str());
+        asyncFileObserver.setStdoutThreshold(bael_Severity::BAEL_OFF);
+        asyncFileObserver.rotateOnSize(1024 * 256);
+        asyncFileObserver.rotateOnTimeInterval(bdet_DatetimeInterval(1));
+        asyncFileObserver.disableSizeRotation();
+        asyncFileObserver.disableFileLogging();
 
-        bcemt_ThreadUtil::microSleep(0, 1);
-
-        int endFileOffset = bdesu_FileUtil::getFileSize(fileName);
-        if (verbose) cout << "End file offset: " << endFileOffset << endl;
-
-        mX.stopPublicationThread();
-
-        ASSERT(beginFileOffset < fileOffset   );
-        ASSERT(fileOffset      < endFileOffset);
-
+        asyncFileObserver.stopPublicationThread();
         removeFilesByPrefix(fileName.c_str());
       } break;
       case 8: {
@@ -505,7 +500,11 @@ int main(int argc, char *argv[])
 
         // Set up a blocking async observer
 
-        Obj mX(bael_Severity::BAEL_WARN, false, 8192, false, &ta);
+        Obj mX(bael_Severity::BAEL_WARN,
+               false,
+               8192,
+               bael_Severity::BAEL_TRACE,
+               &ta);
         mX.startPublicationThread();
         bcemt_ThreadUtil::microSleep(0, 1);
 
@@ -1256,7 +1255,7 @@ int main(int argc, char *argv[])
             Obj mX(bael_Severity::BAEL_WARN,
                    false,
                    fixedQueueSize,
-                   false,                 // 'blocking' set to 'true'
+                   bael_Severity::BAEL_TRACE,
                    &ta);
             const Obj& X = mX;
 
