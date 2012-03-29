@@ -420,7 +420,7 @@ void executeInParallel(int                               numThreads,
 extern "C" void *workerThread(void *arg)
 {
     BAEL_LOG_SET_CATEGORY("bael_AsyncFileObserverTest");
-    for (int i = 0;i < 100000; ++i) {
+    for (int i = 0;i < 20000; ++i) {
         BAEL_LOG_TRACE << "bael_AsyncFileObserver Concurrency Test "
                        << BAEL_LOG_END;
     }
@@ -597,7 +597,7 @@ int main(int argc, char *argv[])
         while (getline(fs, line)) { ++linesNum; }
         fs.close();
 
-        ASSERT(linesNum == 200000 * numThreads);
+        ASSERT(linesNum == 40000 * numThreads);
 
         // Next test if all thread-safe public methods can be called
         // concurrently without crash
@@ -909,7 +909,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
-                // wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
                 loopCount = 0;
                 linesNum  = 0;
                 do {
@@ -920,7 +920,7 @@ int main(int argc, char *argv[])
                     linesNum = 0;
                     while (getline(fs1, line)) { ++linesNum; }
                     fs1.close();
-                } while (linesNum < 2 && loopCount++ < 10);
+                } while (linesNum < 2 && loopCount++ < 3);
 
                 {
                     bsl::ifstream fs;
@@ -948,7 +948,7 @@ int main(int argc, char *argv[])
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
                 BAEL_LOG_DEBUG << "log 2" << BAEL_LOG_END;
 
-                // Wait up to 10 seconds for the rotation to complete
+                // Wait up to 3 seconds for the rotation to complete
 
                 loopCount = 0;
                 do {
@@ -958,7 +958,7 @@ int main(int argc, char *argv[])
                        0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
                     fileCount = globbuf.gl_pathc;
                     globfree(&globbuf);
-                } while (fileCount < 2 && loopCount++ < 10);
+                } while (fileCount < 2 && loopCount++ < 3);
 
                 // Check that a rotation occurred.
 
@@ -966,7 +966,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 linesNum  = 0;
@@ -978,7 +978,7 @@ int main(int argc, char *argv[])
                     linesNum = 0;
                     while (getline(fs1, line)) { ++linesNum; }
                     fs1.close();
-                } while (linesNum < 4 && loopCount++ < 10);
+                } while (linesNum < 4 && loopCount++ < 3);
 
                 // Check the number of lines in the file.
 
@@ -1005,7 +1005,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob((filename + ".2*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 linesNum  = 0;
@@ -1017,7 +1017,7 @@ int main(int argc, char *argv[])
                     linesNum = 0;
                     while (getline(fs1, line)) { ++linesNum; }
                     fs1.close();
-                } while (linesNum < 6 && loopCount++ < 10);
+                } while (linesNum < 6 && loopCount++ < 3);
 
                 {
                     bsl::ifstream fs;
@@ -1151,7 +1151,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 linesNum  = 0;
@@ -1163,7 +1163,7 @@ int main(int argc, char *argv[])
                     linesNum = 0;
                     while (getline(fs1, line)) { ++linesNum; }
                     fs1.close();
-                } while (linesNum < 2 && loopCount++ < 10);
+                } while (linesNum < 2 && loopCount++ < 3);
 
                 {
                     bsl::ifstream fs;
@@ -1191,7 +1191,7 @@ int main(int argc, char *argv[])
                 BAEL_LOG_TRACE << "log 1" << BAEL_LOG_END;
                 BAEL_LOG_DEBUG << "log 2" << BAEL_LOG_END;
 
-                // Wait up to 10 seconds for the rotation to complete
+                // Wait up to 3 seconds for the rotation to complete
 
                 loopCount = 0;
                 do {
@@ -1201,7 +1201,7 @@ int main(int argc, char *argv[])
                        0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
                     fileCount = globbuf.gl_pathc;
                     globfree(&globbuf);
-                } while (fileCount < 2 && loopCount++ < 10);
+                } while (fileCount < 2 && loopCount++ < 3);
 
                 // Check that a rotation occurred.
 
@@ -1209,7 +1209,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob((filename + "*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 do {
@@ -1220,7 +1220,7 @@ int main(int argc, char *argv[])
                     ASSERT(fs1.is_open());
                     while (getline(fs1, line)) { ++linesNum; }
                     fs1.close();
-                } while (linesNum < 4 && loopCount++ < 10);
+                } while (linesNum < 4 && loopCount++ < 3);
 
                 // Check the number of lines in the file.
 
@@ -1246,7 +1246,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob((filename+"*").c_str(), 0, 0, &globbuf));
                 ASSERT(2 == globbuf.gl_pathc);
 
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 do {
@@ -1257,7 +1257,7 @@ int main(int argc, char *argv[])
                     ASSERT(fs1.is_open());
                     while (getline(fs1, line)) { ++linesNum; }
                     fs1.close();
-                } while (linesNum < 6 && loopCount++ < 10);
+                } while (linesNum < 6 && loopCount++ < 3);
 
                 {
                     bsl::ifstream fs;
@@ -1625,14 +1625,14 @@ int main(int argc, char *argv[])
             }
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
-                } while (coutS == "" && loopCount++ < 10);
+                } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1655,14 +1655,14 @@ int main(int argc, char *argv[])
             }
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
-                } while (coutS == "" && loopCount++ < 10);
+                } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1679,14 +1679,14 @@ int main(int argc, char *argv[])
             }
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
-                } while (coutS == "" && loopCount++ < 10);
+                } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1751,14 +1751,14 @@ int main(int argc, char *argv[])
             }
             if (veryVeryVerbose) { P_(dos.str()); P(os.str()); }
             {
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
-                } while (coutS == "" && loopCount++ < 10);
+                } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
             }
             ASSERT(dos.str() == readPartialFile(fileName, fileOffset));
@@ -1812,14 +1812,14 @@ int main(int argc, char *argv[])
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
                       " bael_AsyncFileObserverTest log WARN " << "\n";
             {
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
-                } while (coutS == "" && loopCount++ < 10);
+                } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1829,14 +1829,14 @@ int main(int argc, char *argv[])
             testOs << "\nERROR " << __FILE__ << ":" << __LINE__ - 1 <<
                       " bael_AsyncFileObserverTest log ERROR " << "\n";
             {
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
-                } while (coutS == "" && loopCount++ < 10);
+                } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1859,14 +1859,14 @@ int main(int argc, char *argv[])
                 replaceSecondSpace(&temp, ':');
                 dos.str(temp);
 
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
-                } while (coutS == "" && loopCount++ < 10);
+                } while (coutS == "" && loopCount++ < 3);
                 if (veryVeryVerbose) { P_(dos.str()); P(coutS); }
                 LOOP2_ASSERT(dos.str(), coutS, dos.str() == coutS);
                 ASSERT(testOs.str() != coutS);
@@ -1923,14 +1923,14 @@ int main(int argc, char *argv[])
             testOs << "\nWARN " << __FILE__ << ":" << __LINE__ - 1 <<
                       " bael_AsyncFileObserverTest log WARN " << "\n";
             {
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
-                } while (coutS == "" && loopCount++ < 10);
+                } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1940,14 +1940,14 @@ int main(int argc, char *argv[])
             testOs << "\nERROR " << __FILE__ << ":" << __LINE__ - 1 <<
                       " bael_AsyncFileObserverTest log ERROR " << "\n";
             {
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
-                } while (coutS == "" && loopCount++ < 10);
+                } while (coutS == "" && loopCount++ < 3);
                 LOOP2_ASSERT(testOs.str(), coutS, testOs.str() == coutS);
             }
             fileOffset = bdesu_FileUtil::getFileSize(fileName);
@@ -1971,14 +1971,14 @@ int main(int argc, char *argv[])
             }
 
             {
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 bsl::string coutS = "";
                 do {
                     bcemt_ThreadUtil::microSleep(0, 1);
                     coutS = readPartialFile(fileName, fileOffset);
-                } while (coutS == "" && loopCount++ < 10);
+                } while (coutS == "" && loopCount++ < 3);
                 if (
                    0 == bdetu_SystemTime::localTimeOffset().totalSeconds()
                    ) {
@@ -2073,7 +2073,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_ERROR << "log 5" << BAEL_LOG_END;
             BAEL_LOG_FATAL << "log 6" << BAEL_LOG_END;
 
-            // Wait up to 10 seconds for the async logging to complete
+            // Wait up to 3 seconds for the async logging to complete
 
             loopCount = 0;
             do {
@@ -2083,7 +2083,7 @@ int main(int argc, char *argv[])
                 fs1.open(fn.c_str(), bsl::ifstream::in);
                 while (getline(fs1, line)) { ++linesNum; }
                 fs1.close();
-            } while (linesNum < 12 && loopCount++ < 10);
+            } while (linesNum < 12 && loopCount++ < 3);
 
             {
                 bsl::ifstream fs;
@@ -2120,7 +2120,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_ERROR << "log 5" << BAEL_LOG_END;
             BAEL_LOG_FATAL << "log 6" << BAEL_LOG_END;
 
-            // Wait up to 10 seconds for the async logging to complete
+            // Wait up to 3 seconds for the async logging to complete
 
             loopCount = 0;
             do {
@@ -2130,7 +2130,7 @@ int main(int argc, char *argv[])
                 fs1.open(fn.c_str(), bsl::ifstream::in);
                 while (getline(fs1, line)) { ++linesNum; }
                 fs1.close();
-            } while (linesNum < 12 && loopCount++ < 10);
+            } while (linesNum < 12 && loopCount++ < 3);
 
             {
                 bsl::ifstream fs;
@@ -2154,7 +2154,7 @@ int main(int argc, char *argv[])
             BAEL_LOG_ERROR << "log 2" << BAEL_LOG_END;
             BAEL_LOG_FATAL << "log 3" << BAEL_LOG_END;
 
-            // Wait up to 10 seconds for the async logging to complete
+            // Wait up to 3 seconds for the async logging to complete
 
             loopCount = 0;
             do {
@@ -2164,7 +2164,7 @@ int main(int argc, char *argv[])
                 fs1.open(fn.c_str(), bsl::ifstream::in);
                 while (getline(fs1, line)) { ++linesNum; }
                 fs1.close();
-            } while (linesNum < 12 && loopCount++ < 10);
+            } while (linesNum < 12 && loopCount++ < 3);
 
             {
                 bsl::ifstream fs;
@@ -2218,7 +2218,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == glob((fn + ".2*").c_str(), 0, 0, &globbuf));
             ASSERT(1 == globbuf.gl_pathc);
 
-            // Wait up to 10 seconds for the async logging to complete
+            // Wait up to 3 seconds for the async logging to complete
 
             loopCount = 0;
             do {
@@ -2228,7 +2228,7 @@ int main(int argc, char *argv[])
                 fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
                 while (getline(fs1, line)) { ++linesNum; }
                 fs1.close();
-            } while (linesNum < 12 && loopCount++ < 10);
+            } while (linesNum < 12 && loopCount++ < 3);
 
             {
                 bsl::ifstream fs;
@@ -2326,7 +2326,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == glob(fnOs.str().c_str(), 0, 0, &globbuf));
             ASSERT(1 == globbuf.gl_pathc);
 
-            // Wait up to 10 seconds for the async logging to complete
+            // Wait up to 3 seconds for the async logging to complete
 
             loopCount = 0;
             do {
@@ -2336,7 +2336,7 @@ int main(int argc, char *argv[])
                 fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
                 while (getline(fs1, line)) { ++linesNum; }
                 fs1.close();
-            } while (linesNum < 2 && loopCount++ < 10);
+            } while (linesNum < 2 && loopCount++ < 3);
 
             mX.disableFileLogging();
 
@@ -2455,7 +2455,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob(baseName.c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 do {
@@ -2465,7 +2465,7 @@ int main(int argc, char *argv[])
                     fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
                     while (getline(fs1, line)) { ++linesNum; }
                     fs1.close();
-                } while (!linesNum && loopCount++ < 10);
+                } while (!linesNum && loopCount++ < 3);
 
                 // Read the log file to get the record
 
@@ -2562,7 +2562,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 == glob(baseName.c_str(), 0, 0, &globbuf));
                 ASSERT(1 == globbuf.gl_pathc);
 
-                // Wait up to 10 seconds for the async logging to complete
+                // Wait up to 3 seconds for the async logging to complete
 
                 loopCount = 0;
                 do {
@@ -2572,7 +2572,7 @@ int main(int argc, char *argv[])
                     fs1.open(globbuf.gl_pathv[0], bsl::ifstream::in);
                     while (getline(fs1, line)) { ++linesNum; }
                     fs1.close();
-                } while (!linesNum && loopCount++ < 10);
+                } while (!linesNum && loopCount++ < 3);
 
                 // Read the log file to get the record
 

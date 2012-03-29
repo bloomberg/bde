@@ -188,6 +188,8 @@ class bael_TestObserver : public bael_Observer {
     bael_TestObserver& operator=(const bael_TestObserver&);
 
   public:
+    using bael_Observer::publish;
+
     // CLASS METHODS
     static int numInstances();
         // Return the total number of instances of this class that have been
