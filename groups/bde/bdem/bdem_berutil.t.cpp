@@ -794,18 +794,18 @@ int main(int argc, char *argv[])
                 const int   LINE  = DATA[i].d_lineNum;
                 const int   HOUR  = DATA[i].d_hour;
                 const int   MIN   = DATA[i].d_min;
-                const int   SEC   = DATA[i].d_sec;
+                const int   SECS  = DATA[i].d_sec;
                 const int   MSEC  = DATA[i].d_milliSec;
                 const bool  BIN   = DATA[i].d_useBinary;
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                if (veryVerbose) { P_(HOUR) P_(MIN) P_(SEC) P(MSEC) }
+                if (veryVerbose) { P_(HOUR) P_(MIN) P_(SECS) P(MSEC) }
 
                 bdem_BerEncoderOptions options;
                 options.setEncodeDateAndTimeTypesAsBinary(BIN);
 
-                const bdet_Time VALUE(HOUR, MIN, SEC, MSEC);
+                const bdet_Time VALUE(HOUR, MIN, SECS, MSEC);
 
                 bdesb_MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
@@ -971,19 +971,19 @@ int main(int argc, char *argv[])
                 const int   LINE  = DATA[i].d_lineNum;
                 const int   HOUR  = DATA[i].d_hour;
                 const int   MIN   = DATA[i].d_min;
-                const int   SEC   = DATA[i].d_sec;
+                const int   SECS  = DATA[i].d_sec;
                 const int   MSEC  = DATA[i].d_milliSec;
                 const int   OFF   = DATA[i].d_offset;
                 const bool  BIN   = DATA[i].d_useBinary;
                 const char *EXP   = DATA[i].d_exp;
                 const int   LEN   = numOctets(EXP);
 
-                if (veryVerbose) { P_(HOUR) P_(MIN) P_(SEC) P_(MSEC) P(OFF) }
+                if (veryVerbose) { P_(HOUR) P_(MIN) P_(SECS) P_(MSEC) P(OFF) }
 
                 bdem_BerEncoderOptions options;
                 options.setEncodeDateAndTimeTypesAsBinary(BIN);
 
-                const bdet_TimeTz VALUE(bdet_Time(HOUR, MIN, SEC, MSEC),
+                const bdet_TimeTz VALUE(bdet_Time(HOUR, MIN, SECS, MSEC),
                                         OFF);
 
                 bdesb_MemOutStreamBuf osb;
@@ -1367,7 +1367,7 @@ int main(int argc, char *argv[])
                 const int   DAY   = DATA[i].d_day;
                 const int   HOUR  = DATA[i].d_hour;
                 const int   MIN   = DATA[i].d_min;
-                const int   SEC   = DATA[i].d_sec;
+                const int   SECS  = DATA[i].d_sec;
                 const int   MSEC  = DATA[i].d_milliSec;
                 const bool  BIN   = DATA[i].d_useBinary;
                 const char *EXP   = DATA[i].d_exp;
@@ -1379,13 +1379,13 @@ int main(int argc, char *argv[])
                                                               DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY)
-                                   P_(HOUR) P_(MIN) P_(SEC) P(MSEC) P(EXP) }
+                                   P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
 
                 bdem_BerEncoderOptions options;
                 options.setEncodeDateAndTimeTypesAsBinary(BIN);
 
                 const bdet_Datetime VALUE(YEAR, MONTH, DAY,
-                                          HOUR, MIN, SEC, MSEC);
+                                          HOUR, MIN, SECS, MSEC);
 
                 bdesb_MemOutStreamBuf osb;
                 ASSERT(0 == Util::putValue(&osb, VALUE, &options));
@@ -1829,7 +1829,7 @@ int main(int argc, char *argv[])
                 const int   DAY   = DATA[i].d_day;
                 const int   HOUR  = DATA[i].d_hour;
                 const int   MIN   = DATA[i].d_min;
-                const int   SEC   = DATA[i].d_sec;
+                const int   SECS  = DATA[i].d_sec;
                 const int   MSEC  = DATA[i].d_milliSec;
                 const int   OFF   = DATA[i].d_offset;
                 const bool  BIN   = DATA[i].d_useBinary;
@@ -1842,13 +1842,13 @@ int main(int argc, char *argv[])
                                                               DAY));
 
                 if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF)
-                                   P_(HOUR) P_(MIN) P_(SEC) P(MSEC) P(EXP) }
+                                   P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
 
                 bdem_BerEncoderOptions options;
                 options.setEncodeDateAndTimeTypesAsBinary(BIN);
 
                 const bdet_DatetimeTz VALUE(bdet_Datetime(YEAR, MONTH, DAY,
-                                                          HOUR, MIN, SEC,
+                                                          HOUR, MIN, SECS,
                                                           MSEC),
                                             OFF);
 
@@ -2369,8 +2369,8 @@ int main(int argc, char *argv[])
                     const int MINS[] = { 0, 30, 59 };
                     const int NUM_MINS = sizeof MINS / sizeof *MINS;
 
-                    const int SECS[] = { 0, 30, 59 };
-                    const int NUM_SECS = sizeof SECS / sizeof *SECS;
+                    const int SECONDS[] = { 0, 30, 59 };
+                    const int NUM_SECS = sizeof SECONDS / sizeof *SECONDS;
 
                     for (int ti = 0; ti < NUM_HOURS; ++ti) {
                     for (int tj = 0; tj < NUM_MINS; ++tj) {
@@ -2378,27 +2378,27 @@ int main(int argc, char *argv[])
 
                         const int HOUR = HOURS[ti];
                         const int MIN  = MINS[tj];
-                        const int SEC  = SECS[tk];
+                        const int SECS = SECONDS[tk];
 
                         if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
-                        if (veryVerbose) { P_(HOUR) P_(MIN) P(SEC) }
+                        if (veryVerbose) { P_(HOUR) P_(MIN) P(SECS) }
 
                         const int MS = 0;
                         const bdet_Date DATE(YEAR, MONTH, DAY);
-                        const bdet_Time TIME(HOUR, MIN, SEC, MS);
+                        const bdet_Time TIME(HOUR, MIN, SECS, MS);
                         const bdet_Datetime VALUE(DATE, TIME);
                         bdet_Datetime value;
 
                         const int MS1 = 0, MS2 = 500, MS3 = 999;
                         const int OFF1 = 0, OFF2 = -840, OFF3 = 840;
                         const bdet_Date DATE1(YEAR, MONTH, DAY);
-                        const bdet_Time TIME1(HOUR, MIN, SEC, MS1);
+                        const bdet_Time TIME1(HOUR, MIN, SECS, MS1);
 
                         const bdet_Date DATE2(YEAR, MONTH, DAY);
-                        const bdet_Time TIME2(HOUR, MIN, SEC, MS2);
+                        const bdet_Time TIME2(HOUR, MIN, SECS, MS2);
 
                         const bdet_Date DATE3(YEAR, MONTH, DAY);
-                        const bdet_Time TIME3(HOUR, MIN, SEC, MS3);
+                        const bdet_Time TIME3(HOUR, MIN, SECS, MS3);
 
                         const bdet_Datetime DT1(DATE1, TIME1);
                         const bdet_Datetime DT2(DATE2, TIME2);
