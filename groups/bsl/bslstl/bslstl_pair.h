@@ -680,8 +680,7 @@ inline
 bsl::pair<T1, T2> make_pair(T1 a, T2 b);
     // Return a pair having the specified 'a' and 'b' values as its 'first'
     // and 'second' elements, respectively.  Note that 'a' and 'b' are passed
-    // by value, as required by the C++ standard, to allow construction of
-    // pairs of reference types.
+    // by value, as required by the C++ standard.
 
 }  // close namespace bsl
 
