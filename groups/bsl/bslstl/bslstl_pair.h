@@ -678,7 +678,7 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b);
 template <typename T1, typename T2>
 inline
 bsl::pair<T1, T2> make_pair(T1 a, T2 b);
-    // Return a pair having the specified 'a' and 'b' values as its 'first'
+    // Return a pair having the specified 'a' and 'b' values as the 'first'
     // and 'second' elements, respectively.  Note that 'a' and 'b' are passed
     // by value, as required by the C++ standard.
 
