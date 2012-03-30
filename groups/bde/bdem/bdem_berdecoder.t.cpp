@@ -10236,6 +10236,28 @@ int main(int argc, char *argv[])
 
                     {
                         bdesb_MemOutStreamBuf osb;
+                        bdem_BerEncoder encoder(&DEFOPTS);
+                        ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                        if (veryVerbose) {
+                            P(osb.length());
+                            printBuffer(osb.data(), osb.length());
+                        }
+
+                        bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                      osb.length());
+                        ASSERT(0 == decoder.decode(&isb, &value));
+                        printDiagnostic(decoder);
+
+                        LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        if (veryVerbose) {
+                            P(VALUE);
+                            P(value);
+                        }
+                    }
+
+                    {
+                        bdesb_MemOutStreamBuf osb;
                         bdem_BerEncoder encoder(&options);
                         ASSERT(0 == encoder.encode(&osb, VALUE));
 
@@ -10524,6 +10546,18 @@ int main(int argc, char *argv[])
 
                         bdet_DatetimeTz value1, value2, value3;
 
+                        test::BasicRecord VALUE4;
+                        VALUE4.i1() = 100;
+                        VALUE4.i2() = 200;
+                        VALUE4.dt() = VALUE1;
+                        VALUE4.s()  = "Hello World";
+
+                        test::BasicRecord VALUE5(VALUE4), VALUE6(VALUE4);
+                        VALUE5.dt() = VALUE2;
+                        VALUE6.dt() = VALUE3;
+
+                        test::BasicRecord value4, value5, value6;
+
                         {
                             bdesb_MemOutStreamBuf osb;
                             bdem_BerEncoder encoder(&DEFOPTS);
@@ -10585,6 +10619,44 @@ int main(int argc, char *argv[])
                         }
 
                         {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                            bdem_BerEncoder encoder(&DEFOPTS);
+                            ASSERT(0 == encoder.encode(&osb1, VALUE4));
+                            ASSERT(0 == encoder.encode(&osb2, VALUE5));
+                            ASSERT(0 == encoder.encode(&osb3, VALUE6));
+
+                            if (veryVerbose) {
+                                P(osb1.length());
+                                P(osb2.length());
+                                P(osb3.length());
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(0 == decoder.decode(&isb1, &value4));
+                            ASSERT(0 == decoder.decode(&isb2, &value5));
+                            ASSERT(0 == decoder.decode(&isb3, &value6));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE4, value4, VALUE4 == value4);
+                            LOOP2_ASSERT(VALUE5, value5, VALUE5 == value5);
+                            LOOP2_ASSERT(VALUE6, value6, VALUE6 == value6);
+                            if (veryVerbose) {
+                                P(VALUE4); P(value4);
+                                P(VALUE5); P(value5);
+                                P(VALUE6); P(value6);
+                            }
+                        }
+
+                        {
                             bdesb_MemOutStreamBuf osb;
                             bdem_BerEncoder encoder(&options);
                             ASSERT(0 == encoder.encode(&osb, VALUE));
@@ -10641,6 +10713,44 @@ int main(int argc, char *argv[])
                                 P(VALUE1); P(value1);
                                 P(VALUE2); P(value2);
                                 P(VALUE3); P(value3);
+                            }
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                            bdem_BerEncoder encoder(&options);
+                            ASSERT(0 == encoder.encode(&osb1, VALUE4));
+                            ASSERT(0 == encoder.encode(&osb2, VALUE5));
+                            ASSERT(0 == encoder.encode(&osb3, VALUE6));
+
+                            if (veryVerbose) {
+                                P(osb1.length());
+                                P(osb2.length());
+                                P(osb3.length());
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(0 == decoder.decode(&isb1, &value4));
+                            ASSERT(0 == decoder.decode(&isb2, &value5));
+                            ASSERT(0 == decoder.decode(&isb3, &value6));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE4, value4, VALUE4 == value4);
+                            LOOP2_ASSERT(VALUE5, value5, VALUE5 == value5);
+                            LOOP2_ASSERT(VALUE6, value6, VALUE6 == value6);
+                            if (veryVerbose) {
+                                P(VALUE4); P(value4);
+                                P(VALUE5); P(value5);
+                                P(VALUE6); P(value6);
                             }
                         }
                     }
