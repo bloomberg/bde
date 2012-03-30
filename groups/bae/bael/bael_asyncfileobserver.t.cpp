@@ -1220,7 +1220,7 @@ int main(int argc, char *argv[])
         //   file observer. Then publish a fair large amount of records.  We
         //   verify dropped records alerts being raised.
         //
-        //   To test blocking caller thread, we will first create an asyncfile
+        //   To test blocking caller thread, we will first create an async file
         //   observer by passing 'true' in the 'blocking' parameter.  Then
         //   publish a fair large amount of records.  We verify all the records
         //   published are actually written to file and nothing gets dropped.
