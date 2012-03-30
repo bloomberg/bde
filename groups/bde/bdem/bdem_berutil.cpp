@@ -213,6 +213,8 @@ enum {
     MILLISECS_PER_DAY                  = 86400000,
 
     TIMEZONE_LENGTH                    = 2,
+    MIN_OFFSET                         = -1439,
+    MAX_OFFSET                         = 1439,
 
     MAX_BINARY_DATE_LENGTH             = 3,
     MAX_BINARY_TIME_LENGTH             = 4,
@@ -350,8 +352,12 @@ void getTimezoneOffset(bsl::streambuf *streamBuf, short *offset)
 
 void putTimezoneOffset(bsl::streambuf *streamBuf, short offset)
     // Write to the specified 'streamBuf' the value of the specified time zone
-    // 'offset'.
+    // 'offset'.  The behavior is undefined unless
+    // 'MIN_OFFSET <= offset <= MAX_OFFSET'.
 {
+    BSLS_ASSERT(MIN_OFFSET <= offset);
+    BSLS_ASSERT(offset <= MAX_OFFSET);
+
     streamBuf->sputc((char )((offset & 0xFF00) >> 8));
     streamBuf->sputc((char) (offset & 0xFF));
 }
@@ -364,8 +370,18 @@ void putTimezoneOffsetAndIntegerPadding(bsl::streambuf *streamBuf,
     // Write to the specified 'streamBuf' the value of the specified time zone
     // 'offset' and the specified 'totalDataLength' of the data value being
     // serialized.  In addition write to 'streamBuf' the specified
-    // 'additionalOctets' having the specified 'padChar' value.
+    // 'additionalOctets' having the specified 'padChar' value.  The behavior
+    // is undefined unless 'MIN_OFFSET <= offset <= MAX_OFFSET',
+    // '0 == padChar || -1 == padChar', '0 <= totalDataLength',
+    // '0 <= additionalOctets', and 'additionalOctets < totalDataLength'.
 {
+    BSLS_ASSERT(MIN_OFFSET <= offset);
+    BSLS_ASSERT(offset <= MAX_OFFSET);
+//     BSLS_ASSERT(0 == padChar || ((char) -1) == padChar);
+    BSLS_ASSERT(0 <= totalDataLength);
+    BSLS_ASSERT(0 <= additionalOctets);
+    BSLS_ASSERT(additionalOctets < totalDataLength);
+
     char padBuffer[MIN_BINARY_DATETIMETZ_LENGTH];
     bsl::memset(padBuffer, padChar, additionalOctets);
 
@@ -661,7 +677,7 @@ int bdem_BerUtil_Imp::getBinaryDateTzValue(bsl::streambuf *streamBuf,
     if (length >= MIN_BINARY_DATETZ_LENGTH) {
         getTimezoneOffset(streamBuf, &offset);
 
-        if (offset < -1440 || offset > 1440) {
+        if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
             *value = bdet_DateTz();
             return -1;                                                // RETURN
         }
@@ -683,7 +699,7 @@ int bdem_BerUtil_Imp::getBinaryTimeTzValue(bsl::streambuf *streamBuf,
     if (length >= MIN_BINARY_TIMETZ_LENGTH) {
         getTimezoneOffset(streamBuf, &offset);
 
-        if (offset < -1440 || offset > 1440) {
+        if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
             *value = bdet_TimeTz();
             return -1;                                                // RETURN
         }
@@ -705,7 +721,7 @@ int bdem_BerUtil_Imp::getBinaryDatetimeTzValue(bsl::streambuf  *streamBuf,
     if (length >= MIN_BINARY_DATETIMETZ_LENGTH) {
         getTimezoneOffset(streamBuf, &offset);
 
-        if (offset < -1440 || offset > 1440) {
+        if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
             *value = bdet_DatetimeTz();
             return -1;                                                // RETURN
         }
