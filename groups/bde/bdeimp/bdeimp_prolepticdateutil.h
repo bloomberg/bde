@@ -12,12 +12,18 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   bdeimp_prolepticdateutil: suite of proleptic date-related procedures
 //
+//@SEE_ALSO: bdeimp_dateutil
+//
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component implements a utility class
-// 'bdeimp_prolepticdateutil', that provides a suite of low-level,
-// proleptic date-related procedures that can be used to validate, manipulate,
-// and convert among values in two different formats:
+//@DESCRIPTION: !!** DO NOT USE.  This component is a work in progress and
+// should not be relied on by application code.  Please take a look at
+// 'bdeimp_dateutil' in the interim. **!!
+//
+// This component implements a utility class 'bdeimp_prolepticdateutil', that
+// provides a suite of low-level, proleptic date-related procedures that can be
+// used to validate, manipulate, and convert among values in two different
+// formats:
 //..
 //  YMD: year/month/day
 //    S: serialDate

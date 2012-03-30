@@ -642,7 +642,7 @@ if (veryVerbose)
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // Prolepic Date calculations
+        // Proleptic Date calculations
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting: proleptic date conversion" << endl;

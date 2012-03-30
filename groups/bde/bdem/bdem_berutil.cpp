@@ -94,7 +94,7 @@ BDES_IDENT_RCSID(bdem_berutil_cpp,"$Id$ $CSID$")
 //    into IEEE representation.  This varies depending on whether the number is
 //    being streamed in is a normalized/denormalized number.  The exponent of a
 //    denormalized will have an extremely low exponent value (less than -1022
-//    to be precise). If a number is denormalized, 'NUM_MANTISSA_BITS - shift'
+//    to be precise).  If a number is denormalized, 'NUM_MANTISSA_BITS - shift'
 //    is added to the exponent and the mantissa shifted by the opposite amount.
 // 5. The bias value is added to the exponent to get its final value.
 // 6. Assemble the double value from the mantissa, exponent, and sign values.
@@ -295,7 +295,9 @@ inline
 int getValueUsingIso8601(bsl::streambuf *streamBuf,
                          TYPE           *value,
                          int             length)
-    // TBD: Doc
+    // Load into the specified 'value' the object in the ISO 8601 format of
+    // the specified 'length' reading from the specified 'streamBuf'.  Return
+    // 0 on success and a non-zero value otherwise.
 {
     enum { FAILURE = -1 };
 
@@ -327,7 +329,9 @@ template <typename TYPE>
 inline
 int putValueUsingIso8601(bsl::streambuf *streamBuf,
                          const TYPE&     value)
-    // TBD: Doc
+    // Write to the specified 'streamBuf' the length and the value of the
+    // specified 'value' in the ISO 8601 format.  Return 0 on success and a
+    // non-zero value otherwise.
 {
     char buf[bdepu_Iso8601::BDEPU_MAX_DATETIME_STRLEN];
     int len = bdepu_Iso8601::generate(buf, value, sizeof(buf));
@@ -335,7 +339,8 @@ int putValueUsingIso8601(bsl::streambuf *streamBuf,
 }
 
 void getTimezoneOffset(bsl::streambuf *streamBuf, short *offset)
-    // TBD: Doc
+    // Read from the specified 'streamBuf' and load into the specified
+    // 'offset' the value of the time zone offset.
 {
     const int firstOctet  = streamBuf->sbumpc();
     const int secondOctet = streamBuf->sbumpc();
@@ -344,7 +349,8 @@ void getTimezoneOffset(bsl::streambuf *streamBuf, short *offset)
 }
 
 void putTimezoneOffset(bsl::streambuf *streamBuf, short offset)
-    // TBD: Doc
+    // Write to the specified 'streamBuf' the value of the specified time zone
+    // 'offset'.
 {
     streamBuf->sputc((char )((offset & 0xFF00) >> 8));
     streamBuf->sputc((char) (offset & 0xFF));
@@ -355,7 +361,10 @@ void putTimezoneOffsetAndIntegerPadding(bsl::streambuf *streamBuf,
                                         char            padChar,
                                         int             totalDataLength,
                                         int             additionalOctets)
-    // TBD: Doc
+    // Write to the specified 'streamBuf' the value of the specified time zone
+    // 'offset' and the specified 'totalDataLength' of the data value being
+    // serialized.  In addition write to 'streamBuf' the specified
+    // 'additionalOctets' having the specified 'padChar' value.
 {
     char padBuffer[MIN_BINARY_DATETIMETZ_LENGTH];
     bsl::memset(padBuffer, padChar, additionalOctets);
@@ -373,7 +382,10 @@ void putTimezoneOffsetAndIntegerPadding(bsl::streambuf *streamBuf,
 }
 
 bsls_Types::Int64 getSerialDateValue(const bdet_Date& value)
-    // TBD: Doc
+    // Return the binary proleptic serial value, in number of days', of the
+    // specified date 'value' from the predefined epoch date.  Note that the
+    // serial value could be negative if 'value' occurs before the predefined
+    // epoch date.
 {
     const int serialDate = bdeimp_ProlepticDateUtil::ymd2serial(value.year(),
                                                                 value.month(),
@@ -385,14 +397,18 @@ bsls_Types::Int64 getSerialDateValue(const bdet_Date& value)
 }
 
 bsls_Types::Int64 getSerialTimeValue(const bdet_Time& value)
-    // TBD: Doc
+    // Return the binary serial value, in number of milli seconds, of the
+    // specified time 'value' from midnight.
 {
     const bdet_Time defaultTime;
     return (value - defaultTime).totalMilliseconds();
 }
 
 bsls_Types::Int64 getSerialDatetimeValue(const bdet_Datetime& value)
-    // TBD: Doc
+    // Return the binary serial value, in number of milli seconds, of the
+    // specified datetime 'value' from midnight of the predefined epoch date
+    // value.  Note that the serial value could be negative if the date
+    // corresponding to 'value' occurs before the predefined epoch date.
 {
     const bsls_Types::Int64 serialDate = getSerialDateValue(value.date());
     const bsls_Types::Int64 serialTime = getSerialTimeValue(value.time());

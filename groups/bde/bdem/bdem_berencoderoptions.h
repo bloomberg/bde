@@ -216,7 +216,12 @@ class bdem_BerEncoderOptions {
 
     void setEncodeDateAndTimeTypesAsBinary(bool value);
         // Set the "EncodeDateAndTimeTypesAsBinary" attribute of this object to
-        // the specified 'value'.
+        // the specified 'value'.  If this option is set to 'true' then date
+        // and time types will be encoded (in a standard-incompliant way) as an
+        // octet string as opposed to as a string in the ISO 8601 format as
+        // required by the standard.  Note that the binary encoding format is
+        // incompatible with the string encoding format and must be used after
+        // ensuring that the ber decoder can decode the binary format.
 
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,

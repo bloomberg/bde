@@ -491,7 +491,7 @@ template <typename TYPE>
 inline
 bdem_BerUniversalTagNumber::Value
 bdem_BerUniversalTagNumber::select(
-                                  const TYPE&                  object,
+                                  const TYPE&                   object,
                                   int                           formattingMode,
                                   const bdem_BerEncoderOptions *options)
 {
