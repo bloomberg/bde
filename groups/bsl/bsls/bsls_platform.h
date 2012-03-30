@@ -468,12 +468,26 @@ struct bsls_Platform_Assert;
 
     #if defined (__GNUC__)
         #define BSLS_PLATFORM__CMP_GNU 1
-        #if defined(__GNU_PATCHLEVEL__)
-            #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
-                        + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+
+        #if defined(__clang__)
+            // Clang is GCC compatible, but sometimes we need to know about it
+            #define BSLS_PLATFORM__CMP_CLANG 1
+
+            #if defined(__CLANG_GNU_PATCHLEVEL__)
+                #define BSLS_PLATFORM__CMP_VER_MAJOR (__CLANG_GNUC__ * 10000 \
+                       + __CLANG_GNUC_MINOR__ * 100 + __CLANG_GNUC_PATCHLEVEL__)
+            #else
+                #define BSLS_PLATFORM__CMP_VER_MAJOR (__CLANG_GNUC__ * 10000 \
+                            + __CLANG_GNUC_MINOR__ * 100)
+            #endif
         #else
-            #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
-                        + __GNUC_MINOR__ * 100)
+            #if defined(__GNU_PATCHLEVEL__)
+                #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
+                            + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+            #else
+                #define BSLS_PLATFORM__CMP_VER_MAJOR (__GNUC__ * 10000 \
+                            + __GNUC_MINOR__ * 100)
+            #endif
         #endif
     #else
         #define BSLS_PLATFORM__CMP_EDG 1
@@ -500,7 +514,7 @@ struct bsls_Platform_Assert;
     #elif defined(_WIN32) || defined(__WIN32__) && \
           ! (defined(cygwin) || defined(__cygwin))
         #define BSLS_PLATFORM__OS_WINDOWS 1
-    #elif defined(__APPLE__) 
+    #elif defined(__APPLE__)
         #define BSLS_PLATFORM__OS_DARWIN 1
     #else
         #if defined(__GNUC__)

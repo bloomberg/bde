@@ -411,7 +411,7 @@ int bces_AtomicUtilImpl_IntelPentiumSpinTryLock(volatile int *aSpin,
                           "\n1:\t"
                           "xorb %%al,%%al\n\t"
                           "lock cmpxchgb %%ah,%1\n\t"
-                          "loopnzl 1b\n\t"
+                          "loopnz 1b\n\t"
                           "xorb %%ah,%%ah\n\t"
                           : "=a"(result), "+m" (*(volatile char*)aSpin),
                             "+c"(retries)
