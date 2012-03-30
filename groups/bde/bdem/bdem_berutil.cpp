@@ -362,37 +362,22 @@ void putTimezoneOffset(bsl::streambuf *streamBuf, short offset)
     streamBuf->sputc((char) (offset & 0xFF));
 }
 
-void putTimezoneOffsetAndIntegerPadding(bsl::streambuf *streamBuf,
-                                        int             offset,
-                                        char            padChar,
-                                        int             totalDataLength,
-                                        int             additionalOctets)
-    // Write to the specified 'streamBuf' the value of the specified time zone
-    // 'offset' and the specified 'totalDataLength' of the data value being
-    // serialized.  In addition write to 'streamBuf' the specified
-    // 'additionalOctets' having the specified 'padChar' value.  The behavior
-    // is undefined unless 'MIN_OFFSET <= offset <= MAX_OFFSET',
-    // '0 == padChar || -1 == padChar', '0 <= totalDataLength',
-    // '0 <= additionalOctets', and 'additionalOctets < totalDataLength'.
+void putChars(bsl::streambuf *streamBuf, char value, int numChars)
+    // Write to the specified 'streamBuf' the specified 'numChars' characters
+    // having the specified 'value'.  The behavior is undefined unless
+    // '0 <= numChars'.
 {
-    BSLS_ASSERT(MIN_OFFSET <= offset);
-    BSLS_ASSERT(offset <= MAX_OFFSET);
 //     BSLS_ASSERT(0 == padChar || ((char) -1) == padChar);
-    BSLS_ASSERT(0 <= totalDataLength);
-    BSLS_ASSERT(0 <= additionalOctets);
-    BSLS_ASSERT(additionalOctets < totalDataLength);
+    BSLS_ASSERT(0 <= numChars);
 
-    char padBuffer[MIN_BINARY_DATETIMETZ_LENGTH];
-    bsl::memset(padBuffer, padChar, additionalOctets);
-
-    bdem_BerUtil_Imp::putLength(streamBuf, totalDataLength);
-    putTimezoneOffset(streamBuf, offset);
+    char buffer[MIN_BINARY_DATETIMETZ_LENGTH];
+    bsl::memset(buffer, value, numChars);
 
 #if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
-    streamBuf->sputn(padBuffer, additionalOctets);
+    streamBuf->sputn(buffer, numChars);
 #else
-    for (int i = 0; i < additionalOctets; ++i) {
-        streamBuf->sputc(padChar);
+    for (int i = 0; i < numChars; ++i) {
+        streamBuf->sputc(value);
     }
 #endif
 }
@@ -789,14 +774,12 @@ int bdem_BerUtil_Imp::putBinaryDateTzValue(bsl::streambuf     *streamBuf,
                                        + TIMEZONE_LENGTH;
 
     if (length < MIN_BINARY_DATETZ_LENGTH) {
-        const char padChar          = serialDate < 0 ? 0xFF : 0;
-        const int  additionalOctets = MIN_BINARY_DATETZ_LENGTH - length;
+        const char padChar      = serialDate < 0 ? 0xFF : 0;
+        const int  numPadOctets = MIN_BINARY_DATETZ_LENGTH - length;
 
-        putTimezoneOffsetAndIntegerPadding(streamBuf,
-                                           offset,
-                                           padChar,
-                                           MIN_BINARY_DATETZ_LENGTH,
-                                           additionalOctets);
+        putLength(streamBuf, MIN_BINARY_DATETZ_LENGTH);
+        putTimezoneOffset(streamBuf, offset);
+        putChars(streamBuf, padChar, numPadOctets);
     }
     else {
         putLength(streamBuf, length);
@@ -822,13 +805,11 @@ int bdem_BerUtil_Imp::putBinaryTimeTzValue(bsl::streambuf     *streamBuf,
                                        + TIMEZONE_LENGTH;
 
     if (length < MIN_BINARY_TIMETZ_LENGTH) {
-        const int additionalOctets = MIN_BINARY_TIMETZ_LENGTH - length;
+        const int  numPadOctets = MIN_BINARY_TIMETZ_LENGTH - length;
 
-        putTimezoneOffsetAndIntegerPadding(streamBuf,
-                                           offset,
-                                           0,
-                                           MIN_BINARY_TIMETZ_LENGTH,
-                                           additionalOctets);
+        putLength(streamBuf, MIN_BINARY_TIMETZ_LENGTH);
+        putTimezoneOffset(streamBuf, offset);
+        putChars(streamBuf, 0, numPadOctets);
     }
     else {
         putLength(streamBuf, length);
@@ -855,14 +836,12 @@ int bdem_BerUtil_Imp::putBinaryDatetimeTzValue(
                                            + TIMEZONE_LENGTH;
 
     if (length < MIN_BINARY_DATETIMETZ_LENGTH) {
-        const char padChar          = serialDatetime < 0 ? 0xFF : 0;
-        const int  additionalOctets = MIN_BINARY_DATETIMETZ_LENGTH - length;
+        const char padChar      = serialDatetime < 0 ? 0xFF : 0;
+        const int  numPadOctets = MIN_BINARY_DATETIMETZ_LENGTH - length;
 
-        putTimezoneOffsetAndIntegerPadding(streamBuf,
-                                           offset,
-                                           padChar,
-                                           MIN_BINARY_DATETIMETZ_LENGTH,
-                                           additionalOctets);
+        putLength(streamBuf, MIN_BINARY_DATETIMETZ_LENGTH);
+        putTimezoneOffset(streamBuf, offset);
+        putChars(streamBuf, padChar, numPadOctets);
     }
     else {
         putLength(streamBuf, length);
