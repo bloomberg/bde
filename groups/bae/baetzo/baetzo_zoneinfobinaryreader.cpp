@@ -13,6 +13,7 @@ BDES_IDENT_RCSID(baetzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 
 #include <bdeut_bigendian.h>
 
+#include <bdeu_chartype.h>
 #include <bdeu_string.h>
 
 #include <bslmf_assert.h>
