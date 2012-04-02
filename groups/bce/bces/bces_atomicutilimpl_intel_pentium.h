@@ -1184,7 +1184,7 @@ void *bces_AtomicUtilImpl<bsls_Platform::CpuX86>::getPtrRelaxed(
     volatile bces_AtomicUtilImpl<bsls_Platform::CpuX86>::Pointer *ptr =
         const_cast<volatile bces_AtomicUtilImpl<bsls_Platform::CpuX86>::
                                                         Pointer *>(&aPointer);
-    return (void*)ptr->d_value;
+    return const_cast<void*>(ptr->d_value);
 }
 
 inline

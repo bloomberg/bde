@@ -145,13 +145,7 @@ bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::
 }
 
 // MANIPULATORS
-inline
-void bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::post()
-{
-    if (++d_resources <= 0) {
-        ::sem_post(&d_sem);
-    }
-}
+// post -- see below
 
 // ACCESSORS
 inline
@@ -159,6 +153,27 @@ int bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::getValue() const
 {
     const int v = d_resources;
     return v > 0 ? v : 0;
+}
+
+#ifdef BSLS_PLATFORM__CMP_GNU
+#pragma GCC system_header    // Suppress warnings for the rest of this include
+                             // file.  Warnings in other files after this one
+                             // will still show up.
+#endif
+
+// MANIPULATORS
+inline
+void bcemt_SemaphoreImpl<bces_Platform::CountedPosixSemaphore>::post()
+{
+    // For some reason somehow linked to the fact that 'd_resources' is an
+    // atomic variable, the compiler warns that it's doing an optimization
+    // to 'if (++d_resource <= 0)' that won't work if 'd_resources' wraps
+    // around from INT_MAX to INT_MIN.  Couldn't find a way to shut it up
+    // without the above pragma.
+
+    if (++d_resources <= 0) {
+        ::sem_post(&d_sem);
+    }
 }
 
 }  // close namespace BloombergLP
