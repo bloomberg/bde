@@ -1743,6 +1743,12 @@ class btemt_ChannelPool {
         // the time one of the values is captured, another may already have
         // changed.
 
+    int getChannelWriteCacheStatistics(
+                                    bsls_PlatformUtil::Int64 *maxWriteCache,
+                                    bsls_PlatformUtil::Int64 *currWriteCache,
+                                    int                       channelId) const;
+        // TBD
+
     void getHandleStatistics(bsl::vector<HandleInfo> *handleInfo) const;
         // Append to the specified 'handleInfo' array a snapshot of the
         // information per socket handle currently in use by this channel pool.
