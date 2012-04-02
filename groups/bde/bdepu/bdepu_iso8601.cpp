@@ -250,7 +250,7 @@ int parseTimezoneOffset(int         *minuteOffset,
     int hourVal;
     if (0   != parseUint(&p, &hourVal, p, end)
      || p   != expectedEnd
-     || hourVal > 14  // Max TZ offset is 14 hours.
+     || hourVal > 24  // Max TZ offset is 24 hours.
      || ':' != *p) {
         return BDEPU_FAILURE;                                         // RETURN
     }
@@ -460,8 +460,8 @@ int bdepu_Iso8601::generateRaw(char                   *buffer,
         timezoneSign = '+';
     }
 
-    // TZ offset cannot be more than 14 hours.
-    BSLS_ASSERT(timezoneOffset <= 14 * 60);
+    // TZ offset cannot be more than 24 hours.
+    BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Datetime localDatetime = object.localDatetime();
 
@@ -495,8 +495,8 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
         timezoneSign = '+';
     }
 
-    // TZ offset cannot be more than 14 hours.
-    BSLS_ASSERT(timezoneOffset <= 14 * 60);
+    // TZ offset cannot be more than 24 hours.
+    BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Date localDate = object.localDate();
 
@@ -541,8 +541,8 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
         timezoneSign = '+';
     }
 
-    // TZ offset cannot be more than 14 hours.
-    BSLS_ASSERT(timezoneOffset <= 14 * 60);
+    // TZ offset cannot be more than 24 hours.
+    BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Time localTime = object.localTime();
 
