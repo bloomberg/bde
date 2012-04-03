@@ -1370,8 +1370,6 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_Date&              value,
                                const bdem_BerEncoderOptions *options)
 {
-    BSLS_ASSERT_SAFE(options);
-
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDateValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
@@ -1381,8 +1379,6 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_Datetime&          value,
                                const bdem_BerEncoderOptions *options)
 {
-    BSLS_ASSERT_SAFE(options);
-
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDatetimeValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
@@ -1392,8 +1388,6 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_DatetimeTz&        value,
                                const bdem_BerEncoderOptions *options)
 {
-    BSLS_ASSERT_SAFE(options);
-
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDatetimeTzValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
@@ -1403,8 +1397,6 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_DateTz&            value,
                                const bdem_BerEncoderOptions *options)
 {
-    BSLS_ASSERT_SAFE(options);
-
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryDateTzValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
@@ -1414,8 +1406,6 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_Time&              value,
                                const bdem_BerEncoderOptions *options)
 {
-    BSLS_ASSERT_SAFE(options);
-
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryTimeValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
@@ -1425,8 +1415,6 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
                                const bdet_TimeTz&            value,
                                const bdem_BerEncoderOptions *options)
 {
-    BSLS_ASSERT_SAFE(options);
-
     return options && options->encodeDateAndTimeTypesAsBinary()
          ? putBinaryTimeTzValue(streamBuf, value)
          : putValueUsingIso8601(streamBuf, value);
