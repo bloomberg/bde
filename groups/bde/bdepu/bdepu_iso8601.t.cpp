@@ -205,7 +205,7 @@ void testTimezone(const char *tzStr,
     static const bsl::string dateStr = "2000-01-02";
     static const bsl::string timeStr = "12:34:56";
     static const bsl::string datetimeStr = "2001-02-03T14:21:34";
-    
+
     static const bdet_Date       initDate( 3,  3,  3);
     static const bdet_DateTz     initDateTz(initDate,-120);
     static const bdet_Time       initTime(11, 11, 11);
@@ -220,7 +220,7 @@ void testTimezone(const char *tzStr,
                               dateTzStr.length());
     LOOP2_ASSERT(dateTzStr, ret, valid == ret);
     LOOP_ASSERT(dateTzStr, valid || initDate == date);
-    
+
     bdet_DateTz dateTz(initDateTz);
     ret = !Util::parse(&dateTz, dateTzStr.c_str(),
                                 dateTzStr.length());
@@ -228,14 +228,14 @@ void testTimezone(const char *tzStr,
     LOOP_ASSERT(dateTzStr, valid || initDateTz == dateTz);
     LOOP3_ASSERT(dateTzStr, offset, dateTz.offset(),
                       !valid || offset == dateTz.offset());
-    
+
     bdet_Time time(initTime);
     const bsl::string& timeTzStr = timeStr + tzStr;
     ret = !Util::parse(&time, timeTzStr.c_str(),
                               timeTzStr.length());
     LOOP2_ASSERT(timeTzStr, ret, valid == ret);
     LOOP_ASSERT(timeTzStr, valid || initTime == time);
-    
+
     bdet_TimeTz timeTz(initTimeTz);
     ret = !Util::parse(&timeTz, timeTzStr.c_str(),
                                 timeTzStr.length());
@@ -243,7 +243,7 @@ void testTimezone(const char *tzStr,
     LOOP_ASSERT(timeTzStr, valid || initTimeTz == timeTz);
     LOOP3_ASSERT(timeTzStr, offset, timeTz.offset(),
                       !valid || offset == timeTz.offset());
-    
+
     bdet_Datetime datetime(initDatetime);
     const bsl::string& datetimeTzStr = datetimeStr + tzStr;
     ret = !Util::parse(&datetime, datetimeTzStr.c_str(),
@@ -251,7 +251,7 @@ void testTimezone(const char *tzStr,
     LOOP2_ASSERT(dateTzStr, ret, valid == ret);
     LOOP_ASSERT(dateTzStr,
                         valid || initDatetime == datetime);
-    
+
     bdet_DatetimeTz datetimeTz(initDatetimeTz);
     ret = !Util::parse(&datetimeTz,datetimeTzStr.c_str(),
                                    datetimeTzStr.length());
@@ -476,12 +476,12 @@ int main(int argc, char *argv[])
             { L_, 2005, 12, 31, 12, 100,   0,    0, "",           1,  0, 1 },
             { L_, 2005, 12, 31, 12,  59,  62,    0, "",           1,  0, 1 },
             { L_, 2005, 12, 31, 12,  59, 101,    0, "",           1,  0, 0 },
-                                           
+
             { L_, 2005,  1,  1, 24,   1,   0,    0, "",           1,  0, 1 },
             { L_, 2005,  1,  1, 24,   0,   1,    0, "",           1,  0, 1 },
             { L_, 2005,  1,  1, 24,   0,   0, 1000, ".9991",      1,  0, 0 },
-                                           
-            // Valid dates and times       
+
+            // Valid dates and times
             { L_, 2005,  1,  1, 24,   0,   0,    0, "",           1,  1, 0 },
             { L_, 2005,  1,  1,  0,   0,   0,    0, "",           1,  1, 1 },
             { L_, 0123,  6, 15, 13,  40,  59,    0, "",           1,  1, 1 },
@@ -1172,7 +1172,7 @@ int main(int argc, char *argv[])
                     const bool trailFrac = bsl::strlen(FRAC_SECOND) > 1
                                           && 0 == bsl::strlen(offsetStr)
                                           && bdeu_CharType::isDigit(*JUNK_STR);
-    
+
                     char input[200];
                     int ret;
 
