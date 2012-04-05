@@ -23,6 +23,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif
 
+#ifndef INCLUDED_BSL_IOS
+#include <bsl_ios.h>
+#endif 
+
 #include <strstream>
 
 namespace bsl
