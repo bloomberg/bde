@@ -521,7 +521,7 @@ void baea_PipeControlChannel::dispatchMessageUpTo(
 
     bdeut_StringRef stringRef(&(*d_buffer.begin()),
                               iter - d_buffer.begin());
-    BAEL_LOG_TRACE << "Assembled complete messsage '"
+    BAEL_LOG_TRACE << "Assembled complete message '"
                    << (bsl::string)stringRef << "'"
                    << BAEL_LOG_END;
 
