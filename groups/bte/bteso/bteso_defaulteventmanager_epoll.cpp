@@ -568,7 +568,7 @@ int EventManagerName::registerSocketEvent(
     if (0 == ret) {
 
         if (wasRevalidated) {
-            // We successfully re-registered an entry of this socakt handle
+            // We successfully re-registered an entry of this socket handle
             // that is still in 'd_entriesBeingRemoved'.  Remove it from
             // 'd_entriesBeingRemoved'.
 

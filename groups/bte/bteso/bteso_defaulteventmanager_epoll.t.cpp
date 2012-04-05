@@ -257,7 +257,8 @@ static void multiRegisterDeregisterCb(Obj *mX)
 //==========================================================================
 //                      MAIN PROGRAM
 //--------------------------------------------------------------------------
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) 
+{
 #ifdef BTESO_EVENTMANAGER_ENABLETEST
     int test = argc > 1 ? atoi(argv[1]) : 0;
     int verbose = argc > 2;                 globalVerbose = verbose;
