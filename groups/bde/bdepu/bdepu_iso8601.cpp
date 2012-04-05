@@ -4,8 +4,6 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdepu_iso8601_cpp,"$Id$ $CSID$")
 
-#include <bdepu_typesparser.h>
-
 #include <bdet_date.h>
 #include <bdet_datetime.h>
 #include <bdet_datetimetz.h>
@@ -521,6 +519,7 @@ int bdepu_Iso8601::generateRaw(char                   *buffer,
     }
 
     // TZ offset cannot be more than 24 hours.
+
     BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Datetime localDatetime = object.localDatetime();
@@ -556,6 +555,7 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
     }
 
     // TZ offset cannot be more than 24 hours.
+
     BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Date localDate = object.localDate();
@@ -602,6 +602,7 @@ int bdepu_Iso8601::generateRaw(char               *buffer,
     }
 
     // TZ offset cannot be more than 24 hours.
+
     BSLS_ASSERT(timezoneOffset <= 24 * 60);
 
     bdet_Time localTime = object.localTime();
@@ -876,6 +877,7 @@ int bdepu_Iso8601::parse(bdet_TimeTz *result,
     int timezoneOffset = 0;  // minutes from GMT
     if (end != begin) {
         // Parse timezone.
+
         if (0   != parseTimezoneOffset(&timezoneOffset, &begin, end)
          || end != begin) {
             return -1;                                                // RETURN
