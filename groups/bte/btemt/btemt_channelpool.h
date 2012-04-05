@@ -1514,12 +1514,36 @@ class btemt_ChannelPool {
         // configured (for all channels) by the
         // 'btemt_ChannelPoolConfiguration' supplied at construction.
 
+    int setWriteCacheLowWatermark(int channelId, int numBytes);
+        // Set the write-cache low-watermark for the specified 'channelId' to
+        // the specified 'numBytes'; return 0 on success, or a non-zero value
+        // if either 'channelId' does not exist or 'numBytes' is less than the
+        // low watermark for the write cache.  This channel pool maintains an
+        // internal cache of outgoing data for each channel, and data written
+        // to a channel is added to this cache until the associated socket can
+        // be written-to without blocking.  Once the write-cache high-watermark
+        // is reached, this channel pool will no longer accept messages for the
+        // channel until additional space becomes available.  After the data is
+        // written to the socket and the cache size falls below the
+        // low-watermark then a 'BTEMT_WRITE_CACHE_HIWAT' alert is provided to
+        // the client via the channel state callback to suggest that further
+        // writing can resume.  The behavior is undefined unless
+        // '0 <= numBytes'.  Note that this method overrides the default value
+        // configured (for all channels) by the
+        // 'btemt_ChannelPoolConfiguration' supplied at construction.
+
+    int setMaxWriteCacheSize(int channelId, int maxWriteCacheSize);
+        // Set the max write cache size for the specified 'channelId' to the
+        // specified 'maxWriteCacheSize'.  Return 0 on success, or a non-zero
+        // value if 'channelId' does not exist.  The behavior is undefined
+        // unless '0 <= maxWriteCacheSize'.
+
                                   // *** Thread management ***
 
     int start();
         // Create internal threads that monitor network events and invoke
         // corresponding callbacks supplied (in the configuration) at
-        // construction.  Return 0 on success, and a non-zero value otherwise.
+       // construction.  Return 0 on success, and a non-zero value otherwise.
         // The behavior is undefined if the internal threads are created (as
         // reflected by the pool's state), see 'state'.
 
@@ -1743,11 +1767,16 @@ class btemt_ChannelPool {
         // the time one of the values is captured, another may already have
         // changed.
 
-    int getChannelWriteCacheStatistics(
-                                    bsls_PlatformUtil::Int64 *maxWriteCache,
-                                    bsls_PlatformUtil::Int64 *currWriteCache,
-                                    int                       channelId) const;
-        // TBD
+    int getChannelWriteCacheStatistics(bsls_Types::Uint64 *maxWriteCacheSize,
+                                       bsls_Types::Uint64 *currWriteCacheSize,
+                                       int                 channelId) const;
+        // Load into the specified 'maxWriteCacheSize' and 'currWriteCacheSize'
+        // respectively the maximum and current size of the write cache of the
+        // channel identified by the specified 'channelId' and return 0 if the
+        // specified 'channelId' is a valid channel id.  Otherwise, return a
+        // non-zero value.  Note that for performance reasons this *sequence*
+        // is not captured atomically: by the time one of the values is
+        // captured, another may already have changed.
 
     void getHandleStatistics(bsl::vector<HandleInfo> *handleInfo) const;
         // Append to the specified 'handleInfo' array a snapshot of the

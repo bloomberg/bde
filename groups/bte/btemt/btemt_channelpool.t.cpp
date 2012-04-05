@@ -10278,7 +10278,7 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // TESTING: 'setWriteCacheHighWatermark()'
+        // TESTING: 'setWriteCacheHigh/LowWatermark()'
         //
         // Concerns:
         //   o That 'setWriteCacheHighWatermark()' modifies the high watermark
@@ -10311,10 +10311,13 @@ int main(int argc, char *argv[])
         //   6. Empty the write-cache and perform a concurrency test.
         // Testing:
         //   int setWriteCacheHighWatermark(int, int);
+        //   int setWriteCacheLowWatermark(int, int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING: setWriteCacheHighWatermark()" << endl
-                          << "=====================================" << endl;
+        if (verbose) cout << "TESTING: setWriteCacheHigh/LowWatermark()"
+                          << endl
+                          << "========================================"
+                          << endl;
 
         using namespace TEST_CASE_25_NAMESPACE;
         bcema_TestAllocator ta(veryVeryVerbose);
@@ -10333,8 +10336,7 @@ int main(int argc, char *argv[])
             config.setMaxConnections(NUM_SOCKETS);
             config.setIncomingMessageSizes(1, 1, 1);
             config.setReadTimeout(100000);
-            config.setWriteCacheWatermarks(LOW_WATERMARK,
-                                           HI_WATERMARK);
+            config.setWriteCacheWatermarks(LOW_WATERMARK, HI_WATERMARK);
             if (verbose) { P(config); }
 
             ChannelPoolStateCbTester mX(config, &ta);
@@ -10394,11 +10396,27 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.setWriteCacheHiWatermark(channelId,
                                                       LOW_WATERMARK + 1));
             ASSERT(0 == pool.setWriteCacheHiWatermark(channelId,
-                                                      LOW_WATERMARK))
+                                                      LOW_WATERMARK));
+
+            pool.setWriteCacheHiWatermark(channelId, HI_WATERMARK);
+            ASSERT(0 != pool.setWriteCacheLowWatermark(channelId + 1,
+                                                       LOW_WATERMARK + 1));
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       LOW_WATERMARK + 1));
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       LOW_WATERMARK));
+
             ASSERT(0 != pool.setWriteCacheHiWatermark(channelId,
                                                       LOW_WATERMARK - 1));
             ASSERT(0 == pool.setWriteCacheHiWatermark(channelId,
                                                       HI_WATERMARK));
+
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       LOW_WATERMARK));
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       LOW_WATERMARK - 1));
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       LOW_WATERMARK + 1));
 
             // 2. Fill the write cache, verify the 'HIWAT' alert is delivered
             //    and no more data can be written.
