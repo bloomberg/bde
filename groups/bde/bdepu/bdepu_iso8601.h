@@ -31,6 +31,107 @@ BDES_IDENT("$Id: $")
 // string, and a length and parses the character string into the date or time
 // object, returning a non-zero status on error.
 //
+///Subsets of ISO8601 Format Not Accepted by These Parsers:
+///--------------------------------------------------------
+//
+// The iso8601 standard allows for many different ways of representing most of
+// the types it supports -- since this component has only one routine each for
+// reading and writing each type, we necessarily fail to support many formats
+// within the standard.  The standard, which can be found at
+//
+//: o http://dotat.at/tmp/ISO_8601-2004_E.pdf
+//: o Alternate: http://bit.ly/xAyF9d
+//
+// allows for the following formats which this component does not support:
+//
+//: o Ordinal Dates: Dates represented by year and day of year: 2.1.10
+//: o Week Dates: Dates represented by year, ordinal week within the year, and
+//:   ordinal day within the week: 2.1.11, 4.1.3.2
+//: o Recurring Time Intervals: 2.1.17
+//: o Leap Seconds: 2.2.2
+//: o Calendar Week Numbeers: 2.2.10, 4.1.4.
+//: o Basic Formats, i.e.  Dates represented as 'YYYYMMDD', times represented
+//:   as 'hhmmss', etc: 2.3.3.  This component supports complete formats only,
+//:   that is, only formats with separators such as '-' in dates and ':' in
+//:   times, and only formats that where 'YYYY' is 4 digits and 'MM', 'DD',
+//:   'hh', 'mm', and 'ss' are always 2 digits.
+//: o Extended Formats: 2.3.4 Many of the 'Extended Formats' described in the
+//:   document are in fact complete, and are thus supported, but many extended
+//:   formats, that have an inappropriate number of digits representing their
+//:   fields, are not supported.
+//: o Representation with Reduced Accuracy: 2.3.7, 4.2.2.3, 4.2.4, 4.3.3.
+//:   Abbreviation of representations by omission of lower order components of
+//:   dates or years are not supported, except that fractions of a second are
+//:   optional.
+//: o Expanded Representation: 2.3.8, 4.1.3.3.  Years outside the range
+//:   '0000 - 9999'.  In fact, only the range '0001 - 9999' is supported.
+//: o Fractions are only permissible demarked by a '.', commas ',' are not
+//:   allowed 4.2.2.4.  Fractions of hours or minutes are not allowed, only
+//:   fractions of seconds are allowed.
+//: o The time designator 'T' is only allowed within Datetimes and DatetimeTz's
+//:   to delimit the end of the date from the beginning of the time.  4.2.2.5.
+//: o 4.3.2 says that the 'T' delimiting the end of date and beginning of time
+//:   in a Datetime or DatetimeTz is optional.  In this implementation the 'T'
+//:   is mandatory.
+//: o We do not support Time Intervals, Durations: 4.4.
+//: o We do not support Recurring Time Intervals: 4.5.
+//
+///Formats we do accept in parsing:
+///-------------------------------
+//
+//: o <FRAC> := .d+
+//: o <TZ>   := ([+-]hh:mm|Z|z)
+//: o <Date> := YYYY:MM:DD
+//: o <Time> := hh:mm:ss{<FRAC>}
+//: o <Datetime> := <Date>T<Time>
+//: o <DateTz> := <Date>{<TZ>}
+//: o <TimeTz> := <Time>{<TZ>}
+//: o <DatetimeTz> := <Datetime>{<TZ>}
+//
+//: o 'bdet_Date', 'bdet_DateTz' both accept input of the form '<DateTz>'.
+//: o 'bdet_Time', 'bdet_TimeTz' both accept input of the form '<TimeTz>'.
+//: o 'bdet_Datetime', 'bdet_DatetimeTz' both accept input of the form
+//:   '<DatetimeTz>'.
+//
+//: o Where '<FRAC>' is optional.
+//:   o 'd' in 'FRAC' is any decimal digit.
+//:   o If present, 'FRAC' must consist of a '.' followed by at least one digit
+//:     d, and is interpreted as a fraction of a second.  Digits after the
+//:     first 4 are ignored.  If more than 3 digits, it is rounded to the
+//:     nearest 3 digits, possibly resulting in a value of 1.0, which will
+//:     carry into the higher fields of the time and possibly date.
+//: o '<TZ>' is always optional.
+//:   o '<TZ>' is always exactly 1 or 6 characters long.  If it is 6 chars, it
+//:     is either '+hh:mm' or '-hh:mm', if it is 1 char, it is 'Z' or 'z' which
+//:     has the same meaning as '+00:00' (UTC).
+//:   o In 'bdet_Date', '<TZ>' is ignored if present.
+//:   o In 'bdet_Time' and 'bdet_Datetime', which have no time zone fields,
+//:     '<TZ>' is converted to minutes and subtracted from the result.
+//:   o In 'bdet_DateTz', 'bdet_TimeTz', and 'bdet_DatetimeTz' it sets the
+//:     timezone field.  If absent while parsing an object with a timezone
+//:     field, the timezone field is set to '+00:00' (UTC).
+//:   o In <TZ>, 'hh' is in the range '00 - 23', 'mm' is in the range
+//:     '00 - 59'.  A value of '24' for 'hh' is not allowed.
+//: o In types contianing '<Date>':
+//:   o 'YYYY' is always 4 digits long, 'MM', 'DD' are always 2 decimal digits
+//:     long.
+//:   o 'YYYY' is in the range '0001' - '9999'.
+//:   o 'MM' is in the range '01 - 12'
+//:   o 'DD' is in the range '01 - 31', also subject to constraints depending
+//:     on year and month.
+//:   o 'YYYY:MM:DD' must be a valid year, month, day combination according to
+//:     'bdet_Date'.
+//: o In types containing '<Time>':
+//:   o 'hh', 'mm', and 'ss' are always two decimal digits long.
+//:   o 'hh' must be in the range '00 - '24'.  If 'hh' is '24', then 'mm', and
+//:     'ss' must be zero, as must '<FRAC>' and '<TZ>' if present.
+//:   o 'mm' must be in the range '00 - '59'.
+//:   o 'ss' must be in the range '00 - '59'.
+//:   o 'hh:mm:ss' must be a valid hour, minute, second combination according
+//:     to 'bdet_Time'.
+//: o Where 'T' in '<Datetime>' and '<DatetimeTz>' literally is the uppercase
+//:   letter 'T'.  It must be present.
+//
 ///Usage
 ///-----
 // The following example illustrates how to generate an ISO 8601-compliant
