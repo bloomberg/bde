@@ -67,8 +67,8 @@ namespace bsl
     // The following using declarations result in link time errors with the
     // gcc 4.1.2 compiler (due to a compiler bug).  See DRQS 31108406.
 #if !(defined(BSLS_PLATFORM__CMP_GNU)               \
-    && (BSLS_PLATFORM__CMP_VER_MAJOR >= 40100)      \
-    && (BSLS_PLATFORM__CMP_VER_MAJOR  < 40200))
+    && (BSLS_PLATFORM__CMP_VER_MAJOR >= 40000)      \
+    && (BSLS_PLATFORM__CMP_VER_MAJOR  < 40300))
 
     using native_std::boolalpha;
     using native_std::dec;
