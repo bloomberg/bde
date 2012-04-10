@@ -620,6 +620,74 @@ void populateMessage(bcema_Blob      *msg,
     msg->appendDataBuffer(blobBuffer);
 }
 
+
+//-----------------------------------------------------------------------------
+// CASE 41
+//-----------------------------------------------------------------------------
+
+namespace CASE41 {
+
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            *arg,
+                    int             *id,
+                    bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << serverId
+                  << " State: " << state << bsl::endl;
+    }
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+        barrier->wait();
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg,
+                     string          *data,
+                     bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+    *needed = 1;
+
+    barrier->wait();
+
+    ostringstream os;
+    bcema_BlobUtil::asciiDump(os, *msg);
+    data->append(os.str());
+
+    msg->removeAll();
+}
+
+void readCallback(int s1, int s2)
+{
+}
+
+}  // namespace TEST_CASE_41_NAMESPACE
+
 //-----------------------------------------------------------------------------
 // CASE 37
 //-----------------------------------------------------------------------------
@@ -7776,6 +7844,160 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 41: {
+        // --------------------------------------------------------------------
+        // ADDING WRITE STATISTICS - DRQS 30994480
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nADDING WRITE STATISTICS DRQS 30994480"
+                 << "\n====================================="
+                 << endl;
+
+        using namespace CASE41;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(1);
+        config.setWriteCacheWatermarks(0, 1024 * 1024 * 1024);
+        config.setReadTimeout(0);        // in seconds
+        if (verbose) {
+            P(config);
+        }
+
+        bcemt_Barrier   channelCbBarrier(2);
+        int             channelId;
+        btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                       bdef_BindUtil::bind(&channelStateCb,
+                                                           _1, _2, _3, _4,
+                                                           &channelId,
+                                                           &channelCbBarrier));
+
+        btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        string        data;
+        bcemt_Barrier dataCbBarrier(2);
+        btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                     bdef_BindUtil::bind(&blobBasedReadCb,
+                                                         _1, _2, _3, _4,
+                                                         &data,
+                                                         &dataCbBarrier));
+
+        btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
+
+        ASSERT(0 == pool.start());
+
+        const int SERVER_ID = 100;
+
+        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+        bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+        ASSERT(0 == socket->bind(bteso_IPv4Address()));
+        ASSERT(0 == socket->listen(5));
+
+        bteso_IPv4Address serverAddr;
+        ASSERT(0 == socket->localAddress(&serverAddr));
+        P(serverAddr);
+
+        int rc = pool.connect(serverAddr,
+                              10,
+                              bdet_TimeInterval(1),
+                              SERVER_ID);
+        ASSERT(!rc);
+
+        channelCbBarrier.wait();
+        bteso_StreamSocket<bteso_IPv4Address> *client = 0;
+        rc = socket->accept(&client);
+        ASSERT(!rc);
+        P(client->connectionStatus());
+        ASSERT(0 == client->setBlockingMode(
+                                          bteso_Flag::BTESO_NONBLOCKING_MODE));
+
+        const int SIZE = 1024 * 1024;
+        bcema_PooledBlobBufferFactory f(SIZE);
+        bcema_Blob b(&f);
+        b.setLength(SIZE);
+
+        bsls_Types::Int64 curr = 0, max = 0;
+        rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
+
+        LOOP_ASSERT(rc, !rc);
+        LOOP_ASSERT(max, 0 == max);
+        LOOP_ASSERT(curr, 0 == curr);
+
+        char buffer[SIZE];
+        for (int i = 0; i < 10; ++i) {
+            bcemt_ThreadUtil::microSleep(0, 1);
+
+            rc = pool.write(channelId, b);
+            LOOP_ASSERT(rc, !rc);
+
+            rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
+            LOOP_ASSERT(rc, !rc);
+            LOOP_ASSERT(max, max > 0);
+            LOOP_ASSERT(curr, curr >= 0);
+            P_(max) P(curr);
+
+            int totalRead = SIZE;
+            for (int j = 0; j < 3; ++j) {
+                rc = client->read(buffer, totalRead);
+                totalRead -= rc;
+            }
+        }
+
+        rc = pool.setMaxWriteCacheSize(channelId, 0);
+        LOOP_ASSERT(rc, !rc);
+
+        for (int i = 0; i < 10; ++i) {
+            bcemt_ThreadUtil::microSleep(0, 1);
+
+            rc = pool.write(channelId, b);
+            LOOP_ASSERT(rc, !rc);
+
+            rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
+            LOOP_ASSERT(rc, !rc);
+            LOOP_ASSERT(max, max > 0);
+            LOOP_ASSERT(curr, curr >= 0);
+            P_(max) P(curr);
+
+            do {
+                rc = client->read(buffer, SIZE);
+            } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
+        }
+
+        rc = pool.setMaxWriteCacheSize(channelId, 0);
+        LOOP_ASSERT(rc, !rc);
+
+        for (int i = 0; i < 10; ++i) {
+            bcemt_ThreadUtil::microSleep(0, 1);
+
+            rc = pool.setMaxWriteCacheSize(channelId, 0);
+            LOOP_ASSERT(rc, !rc);
+
+            rc = pool.write(channelId, b);
+            LOOP_ASSERT(rc, !rc);
+
+            rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
+            LOOP_ASSERT(rc, !rc);
+            LOOP_ASSERT(max, max >= 0);
+            LOOP_ASSERT(curr, curr >= 0);
+            LOOP2_ASSERT(max, curr, max == curr);
+            P_(max) P(curr);
+
+            int totalRead = SIZE;
+            for (int j = 0; j < 3; ++j) {
+                rc = client->read(buffer, totalRead);
+                totalRead -= rc;
+            }
+        }
+
+        bcemt_ThreadUtil::microSleep(0, 3);
+      } break;
+#if 0
       case 37: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
@@ -15023,7 +15245,7 @@ int main(int argc, char *argv[])
             factory.deallocate(channels[i].first);
         }
       } break;
-
+#endif
       default: {
         cerr << "WARNING: CASE " << test << " NOT FOUND." << endl;
         testStatus = -1;

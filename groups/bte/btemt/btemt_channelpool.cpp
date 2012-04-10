@@ -4484,9 +4484,9 @@ int btemt_ChannelPool::getChannelStatistics(
 }
 
 int btemt_ChannelPool::getChannelWriteCacheStatistics(
-                                        bsls_Types::Uint64 *maxWriteCacheSize,
-                                        bsls_Types::Uint64 *currWriteCacheSize,
-                                        int                 channelId) const
+                                         bsls_Types::Int64 *maxWriteCacheSize,
+                                         bsls_Types::Int64 *currWriteCacheSize,
+                                         int                channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
