@@ -49,6 +49,9 @@ typedef YesExcBuildTarget ExcBuildTarget;
 
 }  // close package namespace
 
+typedef bsls::YesExcBuildTarget bsls_YesExcBuildTarget;
+    // This alias is defined for backward compatibility.
+
 #else
 
 #ifdef BDE_BUILD_TARGET_EXC
@@ -63,6 +66,9 @@ struct NoExcBuildTarget {
 typedef NoExcBuildTarget ExcBuildTarget;
 
 }  // close package namespace
+
+typedef bsls::NoExcBuildTarget bsls_NoExcBuildTarget;
+    // This alias is defined for backward compatibility.
 
 #endif
 
@@ -82,6 +88,9 @@ typedef YesMtBuildTarget MtBuildTarget;
 
 }  // close package namespace
 
+typedef bsls::YesMtBuildTarget bsls_YesMtBuildTarget;
+    // This alias is defined for backward compatibility.
+
 #else
 
 #ifdef BDE_BUILD_TARGET_MT
@@ -97,6 +106,9 @@ typedef NoMtBuildTarget MtBuildTarget;
 
 }  // close package namespace
 
+typedef bsls::NoMtBuildTarget bsls_NoMtBuildTarget;
+    // This alias is defined for backward compatibility.
+
 #endif
 
 #ifdef BSLS_PLATFORM__CPU_64_BIT
@@ -108,7 +120,11 @@ struct Yes64BitBuildTarget {
 };
 
 }  // close package namespace
+
 typedef bsls::Yes64BitBuildTarget bsls_64BitBuildTarget;
+
+typedef bsls::Yes64BitBuildTarget bsls_Yes64BitBuildTarget;
+    // This alias is defined for backward compatibility.
 
 #else
 
@@ -119,7 +135,11 @@ struct No64BitBuildTarget {
 };
 
 }  // close package namespace
+
 typedef bsls::No64BitBuildTarget bsls_64BitBuildTarget;
+
+typedef bsls::No64BitBuildTarget bsls_No64BitBuildTarget;
+    // This alias is defined for backward compatibility.
 
 #endif
 
@@ -138,6 +158,22 @@ namespace {
                                        &bsls::MtBuildTarget::d_isMtBuildTarget;
 }
 #endif
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bsls_ExcBuildTarget
+#undef bsls_ExcBuildTarget
+#endif
+#define bsls_ExcBuildTarget bsls::ExcBuildTarget
+    // This alias is defined for backward compatibility.
+
+#ifdef bsls_MtBuildTarget
+#undef bsls_MtBuildTarget
+#endif
+#define bsls_MtBuildTarget bsls::MtBuildTarget
+    // This alias is defined for backward compatibility.
 
 }  // close enterprise namespace
 

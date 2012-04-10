@@ -44,6 +44,13 @@ struct TypeTraitHasTrivialDefaultConstructor {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::TypeTraitHasTrivialDefaultConstructor bslalg_TypeTraitHasTrivialDefaultConstructor;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

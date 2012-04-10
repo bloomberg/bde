@@ -177,6 +177,22 @@ struct RemoveCvq<T&>
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_RemoveCvq
+#undef bslmf_RemoveCvq
+#endif
+#define bslmf_RemoveCvq bslmf::RemoveCvq
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_RemovePtrCvq
+#undef bslmf_RemovePtrCvq
+#endif
+#define bslmf_RemovePtrCvq bslmf::RemovePtrCvq
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

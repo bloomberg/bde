@@ -237,6 +237,13 @@ struct TimeUtil {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::TimeUtil bsls_TimeUtil;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

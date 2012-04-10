@@ -467,6 +467,13 @@ class Allocator {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::Allocator bslma_Allocator;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 // FREE OPERATORS
@@ -576,6 +583,18 @@ void Allocator::deleteObjectRaw(const TYPE *object)
 }
 
 }  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::Allocator bslma_Allocator;
+    // This alias is defined for backward compatibility.
+
+#ifdef bdema_Allocator
+#undef bdema_Allocator
+#endif
+#define bdema_Allocator bslma::Allocator
 
 }  // close enterprise namespace
 

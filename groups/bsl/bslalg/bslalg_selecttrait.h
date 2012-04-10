@@ -94,6 +94,16 @@ struct SelectTrait {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_SelectTrait
+#undef bslalg_SelectTrait
+#endif
+#define bslalg_SelectTrait bslalg::SelectTrait
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -1480,7 +1480,25 @@ typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
 
 }  // close package namespace
 
+#ifdef bdes_AssertFailureHandlerGuard
+#undef bdes_AssertFailureHandlerGuard
 #endif
+#define bdes_AssertFailureHandlerGuard bdes::AssertFailureHandlerGuard
+    // This alias is defined for backward compatibility.
+
+#ifdef bdes_Assert
+#undef bdes_Assert
+#endif
+#define bdes_Assert bdes::Assert
+    // This alias is defined for backward compatibility.
+
+#endif
+
+typedef bsls::Assert bsls_Assert;
+    // This alias is defined for backward compatibility.
+
+typedef bsls::AssertFailureHandlerGuard bsls_AssertFailureHandlerGuard;
+    // This alias is defined for backward compatibility.
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS

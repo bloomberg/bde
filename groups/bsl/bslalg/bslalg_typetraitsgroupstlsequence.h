@@ -61,6 +61,16 @@ struct TypeTraitsGroupStlSequence :
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_TypeTraitsGroupStlSequence
+#undef bslalg_TypeTraitsGroupStlSequence
+#endif
+#define bslalg_TypeTraitsGroupStlSequence bslalg::TypeTraitsGroupStlSequence
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

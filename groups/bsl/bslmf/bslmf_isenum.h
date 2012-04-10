@@ -115,6 +115,16 @@ struct IsEnum
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsEnum
+#undef bslmf_IsEnum
+#endif
+#define bslmf_IsEnum bslmf::IsEnum
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

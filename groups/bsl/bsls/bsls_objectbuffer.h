@@ -323,6 +323,12 @@ const char *ObjectBuffer<TYPE>::buffer() const
 
 #endif
 
+#ifdef bsls_ObjectBuffer
+#undef bsls_ObjectBuffer
+#endif
+#define bsls_ObjectBuffer bsls::ObjectBuffer
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

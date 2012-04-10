@@ -238,6 +238,16 @@ RawDeleterGuard<TYPE, ALLOCATOR>::~RawDeleterGuard()
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_RawDeleterGuard
+#undef bslma_RawDeleterGuard
+#endif
+#define bslma_RawDeleterGuard bslma::RawDeleterGuard
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -117,6 +117,16 @@ struct DequeImpUtil {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_DequeImpUtil
+#undef bslalg_DequeImpUtil
+#endif
+#define bslalg_DequeImpUtil bslalg::DequeImpUtil
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -70,6 +70,13 @@ struct TypeTraitBitwiseCopyable {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::TypeTraitBitwiseCopyable bslalg_TypeTraitBitwiseCopyable;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -55,6 +55,13 @@ struct TypeTraitsGroupPod : TypeTraitBitwiseCopyable,
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::TypeTraitsGroupPod bslalg_TypeTraitsGroupPod;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

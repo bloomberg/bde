@@ -575,6 +575,16 @@ int AutoRawDeleter<TYPE, ALLOCATOR>::length() const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_AutoRawDeleter
+#undef bslma_AutoRawDeleter
+#endif
+#define bslma_AutoRawDeleter bslma::AutoRawDeleter
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

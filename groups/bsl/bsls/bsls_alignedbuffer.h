@@ -197,6 +197,16 @@ const char *AlignedBuffer<SIZE, ALIGNMENT>::buffer() const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bsls_AlignedBuffer
+#undef bsls_AlignedBuffer
+#endif
+#define bsls_AlignedBuffer bsls::AlignedBuffer
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

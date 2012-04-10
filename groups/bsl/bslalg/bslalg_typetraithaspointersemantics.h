@@ -51,6 +51,13 @@ struct TypeTraitHasPointerSemantics {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::TypeTraitHasPointerSemantics bslalg_TypeTraitHasPointerSemantics;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

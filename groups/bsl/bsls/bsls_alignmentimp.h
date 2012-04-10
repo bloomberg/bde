@@ -245,7 +245,9 @@ struct AlignmentImpPriorityToType<12> {
 
 #if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
 
-namespace bsls {template <>
+namespace bsls {
+
+template <>
 struct AlignmentImpPriorityToType<13> {
     typedef AlignmentImp8ByteAlignedType Type;
 };
@@ -323,6 +325,36 @@ struct AlignmentImpMatch {
 }  // close package namespace
 
 #undef BSLS_ALIGNMENTIMP_MATCH_FUNC
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
+typedef bsls::AlignmentImp8ByteAlignedType bsls_AlignmentImp8ByteAlignedType;
+    // This alias is defined for backward compatibility.
+#endif
+
+#ifdef bsls_AlignmentImpTag
+#undef bsls_AlignmentImpTag
+#endif
+#define bsls_AlignmentImpTag bsls::AlignmentImpTag
+    // This alias is defined for backward compatibility.
+
+#ifdef bsls_AlignmentImpPriorityToType
+#undef bsls_AlignmentImpPriorityToType
+#endif
+#define bsls_AlignmentImpPriorityToType bsls::AlignmentImpPriorityToType
+    // This alias is defined for backward compatibility.
+
+typedef bsls::AlignmentImpMatch bsls_AlignmentImpMatch;
+    // This alias is defined for backward compatibility.
+
+#ifdef bsls_AlignmentImpCalc
+#undef bsls_AlignmentImpCalc
+#endif
+#define bsls_AlignmentImpCalc bsls::AlignmentImpCalc
+    // This alias is defined for backward compatibility.
 
 }  // close enterprise namespace
 

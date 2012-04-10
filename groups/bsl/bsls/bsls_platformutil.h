@@ -314,6 +314,13 @@ int PlatformUtil::roundUpToMaximalAlignment(int size)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::PlatformUtil bsls_PlatformUtil;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

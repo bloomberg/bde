@@ -61,6 +61,13 @@ struct TypeTraitBitwiseEqualityComparable {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::TypeTraitBitwiseEqualityComparable bslalg_TypeTraitBitwiseEqualityComparable;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

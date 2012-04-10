@@ -125,6 +125,16 @@ void AutoScalarDestructor<OBJECT_TYPE>::reset(OBJECT_TYPE *object)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_AutoScalarDestructor
+#undef bslalg_AutoScalarDestructor
+#endif
+#define bslalg_AutoScalarDestructor bslalg::AutoScalarDestructor
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

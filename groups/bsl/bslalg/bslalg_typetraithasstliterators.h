@@ -62,6 +62,13 @@ struct TypeTraitHasStlIterators {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::TypeTraitHasStlIterators bslalg_TypeTraitHasStlIterators;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

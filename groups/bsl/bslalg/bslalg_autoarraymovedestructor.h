@@ -238,6 +238,16 @@ OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE>::destination() const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_AutoArrayMoveDestructor
+#undef bslalg_AutoArrayMoveDestructor
+#endif
+#define bslalg_AutoArrayMoveDestructor bslalg::AutoArrayMoveDestructor
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

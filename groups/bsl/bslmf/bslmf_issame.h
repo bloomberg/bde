@@ -76,6 +76,16 @@ struct IsSame<U, U> : MetaInt<1>
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsSame
+#undef bslmf_IsSame
+#endif
+#define bslmf_IsSame bslmf::IsSame
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

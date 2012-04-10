@@ -352,6 +352,16 @@ struct AlignmentFromType {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bsls_AlignmentFromType
+#undef bsls_AlignmentFromType
+#endif
+#define bsls_AlignmentFromType bsls::AlignmentFromType
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -673,6 +673,13 @@ void SequentialPool::deleteObject(const TYPE *object)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::SequentialPool bslma_SequentialPool;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 // FREE OPERATORS

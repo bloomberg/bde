@@ -151,6 +151,13 @@ int AssertTestException::lineNumber() const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::AssertTestException bsls_AssertTestException;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

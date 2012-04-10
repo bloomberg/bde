@@ -974,6 +974,151 @@ struct TypeListTypeOf<20,LIST,DEFAULTTYPE,1> {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_TypeList14
+#undef bslmf_TypeList14
+#endif
+#define bslmf_TypeList14 bslmf::TypeList14
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeListTypeOf
+#undef bslmf_TypeListTypeOf
+#endif
+#define bslmf_TypeListTypeOf bslmf::TypeListTypeOf
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList13
+#undef bslmf_TypeList13
+#endif
+#define bslmf_TypeList13 bslmf::TypeList13
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList4
+#undef bslmf_TypeList4
+#endif
+#define bslmf_TypeList4 bslmf::TypeList4
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList12
+#undef bslmf_TypeList12
+#endif
+#define bslmf_TypeList12 bslmf::TypeList12
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList18
+#undef bslmf_TypeList18
+#endif
+#define bslmf_TypeList18 bslmf::TypeList18
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList3
+#undef bslmf_TypeList3
+#endif
+#define bslmf_TypeList3 bslmf::TypeList3
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList15
+#undef bslmf_TypeList15
+#endif
+#define bslmf_TypeList15 bslmf::TypeList15
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList6
+#undef bslmf_TypeList6
+#endif
+#define bslmf_TypeList6 bslmf::TypeList6
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList7
+#undef bslmf_TypeList7
+#endif
+#define bslmf_TypeList7 bslmf::TypeList7
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList10
+#undef bslmf_TypeList10
+#endif
+#define bslmf_TypeList10 bslmf::TypeList10
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList20
+#undef bslmf_TypeList20
+#endif
+#define bslmf_TypeList20 bslmf::TypeList20
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList17
+#undef bslmf_TypeList17
+#endif
+#define bslmf_TypeList17 bslmf::TypeList17
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList1
+#undef bslmf_TypeList1
+#endif
+#define bslmf_TypeList1 bslmf::TypeList1
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList11
+#undef bslmf_TypeList11
+#endif
+#define bslmf_TypeList11 bslmf::TypeList11
+    // This alias is defined for backward compatibility.
+
+typedef bslmf::TypeList0 bslmf_TypeList0;
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList9
+#undef bslmf_TypeList9
+#endif
+#define bslmf_TypeList9 bslmf::TypeList9
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList8
+#undef bslmf_TypeList8
+#endif
+#define bslmf_TypeList8 bslmf::TypeList8
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList5
+#undef bslmf_TypeList5
+#endif
+#define bslmf_TypeList5 bslmf::TypeList5
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList
+#undef bslmf_TypeList
+#endif
+#define bslmf_TypeList bslmf::TypeList
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList19
+#undef bslmf_TypeList19
+#endif
+#define bslmf_TypeList19 bslmf::TypeList19
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList16
+#undef bslmf_TypeList16
+#endif
+#define bslmf_TypeList16 bslmf::TypeList16
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeList2
+#undef bslmf_TypeList2
+#endif
+#define bslmf_TypeList2 bslmf::TypeList2
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_TypeListNil
+#undef bslmf_TypeListNil
+#endif
+#define bslmf_TypeListNil bslmf::TypeListNil
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

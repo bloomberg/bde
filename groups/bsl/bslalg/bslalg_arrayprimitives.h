@@ -2619,6 +2619,13 @@ bool ArrayPrimitives_Imp::isInvalidRange(TARGET_TYPE *begin,
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::ArrayPrimitives bslalg_ArrayPrimitives;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

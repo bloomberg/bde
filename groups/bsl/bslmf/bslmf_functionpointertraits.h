@@ -308,6 +308,28 @@ struct FunctionPointerTraits<BSLMF_RETURN (*)(A1,A2,A3,A4,A5,A6,A7,A8,A9,
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslmf::FunctionPointerCPlusPlusLinkage bslmf_FunctionPointerCPlusPlusLinkage;
+    // This alias is defined for backward compatibility.
+
+typedef bslmf::FunctionPointerCLinkage bslmf_FunctionPointerCLinkage;
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_FunctionPointerTraits
+#undef bslmf_FunctionPointerTraits
+#endif
+#define bslmf_FunctionPointerTraits bslmf::FunctionPointerTraits
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_IsFunctionPointer
+#undef bslmf_IsFunctionPointer
+#endif
+#define bslmf_IsFunctionPointer bslmf::IsFunctionPointer
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -812,6 +812,9 @@ typedef bslma::Default bdema_Default;
 
 #endif
 
+typedef bslma::Default bslma_Default;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

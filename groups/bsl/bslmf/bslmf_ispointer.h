@@ -72,6 +72,16 @@ struct IsPointer<T* const volatile> : MetaInt<1> { };
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsPointer
+#undef bslmf_IsPointer
+#endif
+#define bslmf_IsPointer bslmf::IsPointer
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

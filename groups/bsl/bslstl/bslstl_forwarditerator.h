@@ -347,6 +347,16 @@ bool bslstl::operator!=(const ForwardIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
     return !(lhs == rhs);
 }
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslstl_ForwardIterator
+#undef bslstl_ForwardIterator
+#endif
+#define bslstl_ForwardIterator bslstl::ForwardIterator
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

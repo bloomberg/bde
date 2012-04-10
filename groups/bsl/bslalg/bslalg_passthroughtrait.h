@@ -128,6 +128,22 @@ struct PassthroughTrait_Imp {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_PassthroughTraitBslmaAllocator
+#undef bslalg_PassthroughTraitBslmaAllocator
+#endif
+#define bslalg_PassthroughTraitBslmaAllocator bslalg::PassthroughTraitBslmaAllocator
+    // This alias is defined for backward compatibility.
+
+#ifdef bslalg_PassthroughTrait
+#undef bslalg_PassthroughTrait
+#endif
+#define bslalg_PassthroughTrait bslalg::PassthroughTrait
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

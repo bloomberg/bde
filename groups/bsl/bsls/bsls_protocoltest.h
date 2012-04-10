@@ -757,6 +757,22 @@ bool ProtocolTest<BSLS_TESTIMP>::lastStatus() const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bsls_ProtocolTest
+#undef bsls_ProtocolTest
+#endif
+#define bsls_ProtocolTest bsls::ProtocolTest
+    // This alias is defined for backward compatibility.
+
+#ifdef bsls_ProtocolTestImp
+#undef bsls_ProtocolTestImp
+#endif
+#define bsls_ProtocolTestImp bsls::ProtocolTestImp
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

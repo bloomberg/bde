@@ -126,6 +126,19 @@ struct IsNil<Nil> {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsNil
+#undef bslmf_IsNil
+#endif
+#define bslmf_IsNil bslmf::IsNil
+    // This alias is defined for backward compatibility.
+
+typedef bslmf::Nil bslmf_Nil;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

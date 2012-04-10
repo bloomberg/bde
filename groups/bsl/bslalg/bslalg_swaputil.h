@@ -175,6 +175,13 @@ void SwapUtil::swap(T *a, T *b)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::SwapUtil bslalg_SwapUtil;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -271,6 +271,16 @@ const CHAR_TYPE *StringRefData<CHAR_TYPE>::end() const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslstl_StringRefData
+#undef bslstl_StringRefData
+#endif
+#define bslstl_StringRefData bslstl::StringRefData
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

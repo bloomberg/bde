@@ -234,6 +234,16 @@ void AutoArrayDestructor<OBJECT_TYPE>::release()
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_AutoArrayDestructor
+#undef bslalg_AutoArrayDestructor
+#endif
+#define bslalg_AutoArrayDestructor bslalg::AutoArrayDestructor
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

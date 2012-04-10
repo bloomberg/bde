@@ -617,6 +617,13 @@ int RangeCompare_Imp::lexicographical(INPUT_ITER start1,
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::RangeCompare bslalg_RangeCompare;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLALG_RANGECOMPARE)

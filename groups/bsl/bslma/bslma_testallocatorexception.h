@@ -272,6 +272,13 @@ TestAllocatorException::numBytes() const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::TestAllocatorException bslma_TestAllocatorException;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -486,6 +486,16 @@ struct TypeTraitsGroupPair : public
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslstl_TypeTraitsGroupPair
+#undef bslstl_TypeTraitsGroupPair
+#endif
+#define bslstl_TypeTraitsGroupPair bslstl::TypeTraitsGroupPair
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 namespace bsl {

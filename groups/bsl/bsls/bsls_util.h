@@ -185,6 +185,13 @@ BSLS_TYPE *Util::addressOf(BSLS_TYPE& obj)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::Util bsls_Util;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

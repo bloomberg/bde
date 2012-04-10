@@ -77,6 +77,13 @@ typedef bslalg::TypeTraitUsesBslmaAllocator bdealg_TypeTraitUsesBdemaAllocator;
 
 #endif
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::TypeTraitUsesBslmaAllocator bslalg_TypeTraitUsesBslmaAllocator;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

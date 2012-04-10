@@ -106,6 +106,22 @@ struct ArrayToPointer_Imp<TYPE [], UNUSED> {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_ArrayToConstPointer
+#undef bslmf_ArrayToConstPointer
+#endif
+#define bslmf_ArrayToConstPointer bslmf::ArrayToConstPointer
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_ArrayToPointer
+#undef bslmf_ArrayToPointer
+#endif
+#define bslmf_ArrayToPointer bslmf::ArrayToPointer
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

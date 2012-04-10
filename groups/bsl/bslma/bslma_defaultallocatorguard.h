@@ -175,6 +175,13 @@ class DefaultAllocatorGuard {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::DefaultAllocatorGuard bslma_DefaultAllocatorGuard;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

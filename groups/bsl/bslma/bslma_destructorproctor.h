@@ -301,6 +301,16 @@ void DestructorProctor<TYPE>::reset(TYPE *object)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_DestructorProctor
+#undef bslma_DestructorProctor
+#endif
+#define bslma_DestructorProctor bslma::DestructorProctor
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

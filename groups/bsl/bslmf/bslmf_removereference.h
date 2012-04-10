@@ -64,6 +64,16 @@ struct RemoveReference<TYPE&> {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_RemoveReference
+#undef bslmf_RemoveReference
+#endif
+#define bslmf_RemoveReference bslmf::RemoveReference
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

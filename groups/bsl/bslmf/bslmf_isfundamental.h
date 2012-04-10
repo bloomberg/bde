@@ -158,6 +158,16 @@ struct IsFundamental<TYPE&>
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsFundamental
+#undef bslmf_IsFundamental
+#endif
+#define bslmf_IsFundamental bslmf::IsFundamental
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

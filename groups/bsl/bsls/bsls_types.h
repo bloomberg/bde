@@ -124,6 +124,13 @@ struct Types{
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::Types bsls_Types;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

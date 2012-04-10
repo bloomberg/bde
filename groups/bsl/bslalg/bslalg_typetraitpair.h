@@ -59,6 +59,13 @@ struct TypeTraitPair {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::TypeTraitPair bslalg_TypeTraitPair;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

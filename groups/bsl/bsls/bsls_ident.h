@@ -89,10 +89,6 @@
 //                                     // with '$'
 //..
 
-#ifndef INCLUDED_BSLS_BACKCOMPAT
-#include <bsls_backcompat.h>
-#endif
-
 /* ident string intentionally omitted for this header (do not add to binaries)
  * Its use is expected to be so extensive that the cost outweighs benefit
  * of including an ident string for every file that includes this header

@@ -272,6 +272,22 @@ struct ForwardingType_Imp<TYPE,1, 0> {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_ConstForwardingType
+#undef bslmf_ConstForwardingType
+#endif
+#define bslmf_ConstForwardingType bslmf::ConstForwardingType
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_ForwardingType
+#undef bslmf_ForwardingType
+#endif
+#define bslmf_ForwardingType bslmf::ForwardingType
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

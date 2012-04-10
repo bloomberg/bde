@@ -118,6 +118,13 @@ namespace {
 }
 #endif
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslscm::Version bslscm_Version;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

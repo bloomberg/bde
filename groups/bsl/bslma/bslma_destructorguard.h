@@ -147,6 +147,16 @@ DestructorGuard<TYPE>::~DestructorGuard()
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_DestructorGuard
+#undef bslma_DestructorGuard
+#endif
+#define bslma_DestructorGuard bslma::DestructorGuard
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -1086,7 +1086,16 @@ typedef bsls::Platform Platform;
 
 }  // close package namespace
 
+#ifdef bdes_Platform
+#undef bdes_Platform
 #endif
+#define bdes_Platform bdes::Platform
+    // This alias is defined for backward compatibility.
+
+#endif
+
+typedef bsls::Platform bsls_Platform;
+    // This alias is defined for backward compatibility.
 
 }  // close enterprise namespace
 

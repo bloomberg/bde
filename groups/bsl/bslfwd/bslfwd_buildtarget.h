@@ -18,7 +18,7 @@
 // enable forward declarations provided by the 'bslfwd' package to be in the
 // appropriate namespace.
 
-// #define BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES
+#define BSLFWD_BUILDTARGET_BSL_USING_NAMESPACES
 
 #endif
 

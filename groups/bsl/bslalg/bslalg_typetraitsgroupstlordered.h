@@ -65,6 +65,16 @@ struct TypeTraitsGroupStlOrdered :
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_TypeTraitsGroupStlOrdered
+#undef bslalg_TypeTraitsGroupStlOrdered
+#endif
+#define bslalg_TypeTraitsGroupStlOrdered bslalg::TypeTraitsGroupStlOrdered
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -2940,6 +2940,13 @@ void ScalarPrimitives_Imp::swap(LHS_TYPE&                   lhs,
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::ScalarPrimitives bslalg_ScalarPrimitives;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

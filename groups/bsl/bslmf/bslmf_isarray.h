@@ -84,6 +84,16 @@ struct IsArray<TYPE &> : IsArray<TYPE>::Type {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsArray
+#undef bslmf_IsArray
+#endif
+#define bslmf_IsArray bslmf::IsArray
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

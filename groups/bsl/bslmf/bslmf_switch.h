@@ -868,6 +868,64 @@ struct Switch9<8, T0, T1, T2, T3, T4, T5, T6, T7, T8> {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_Switch3
+#undef bslmf_Switch3
+#endif
+#define bslmf_Switch3 bslmf::Switch3
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_Switch7
+#undef bslmf_Switch7
+#endif
+#define bslmf_Switch7 bslmf::Switch7
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_Switch2
+#undef bslmf_Switch2
+#endif
+#define bslmf_Switch2 bslmf::Switch2
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_Switch
+#undef bslmf_Switch
+#endif
+#define bslmf_Switch bslmf::Switch
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_Switch9
+#undef bslmf_Switch9
+#endif
+#define bslmf_Switch9 bslmf::Switch9
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_Switch8
+#undef bslmf_Switch8
+#endif
+#define bslmf_Switch8 bslmf::Switch8
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_Switch5
+#undef bslmf_Switch5
+#endif
+#define bslmf_Switch5 bslmf::Switch5
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_Switch6
+#undef bslmf_Switch6
+#endif
+#define bslmf_Switch6 bslmf::Switch6
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_Switch4
+#undef bslmf_Switch4
+#endif
+#define bslmf_Switch4 bslmf::Switch4
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

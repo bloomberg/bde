@@ -540,6 +540,13 @@ void PerformanceHint::lowFrequency()
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::PerformanceHint bsls_PerformanceHint;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -488,6 +488,28 @@ struct IsPointerToMember<TYPE&> : MetaInt<0> {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsPointerToMember
+#undef bslmf_IsPointerToMember
+#endif
+#define bslmf_IsPointerToMember bslmf::IsPointerToMember
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_IsPointerToMemberFunction
+#undef bslmf_IsPointerToMemberFunction
+#endif
+#define bslmf_IsPointerToMemberFunction bslmf::IsPointerToMemberFunction
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_IsPointerToMemberData
+#undef bslmf_IsPointerToMemberData
+#endif
+#define bslmf_IsPointerToMemberData bslmf::IsPointerToMemberData
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

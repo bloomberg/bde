@@ -863,6 +863,12 @@ template<> struct TypeTraits_AutoDetectIndex<bslmf::Nil> {
 
 #endif
 
+#ifdef bslalg_TypeTraits_NotTrait
+#undef bslalg_TypeTraits_NotTrait
+#endif
+#define bslalg_TypeTraits_NotTrait bslalg::TypeTraits_NotTrait
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif // INCLUDED_BSLALG_TYPETRAITS

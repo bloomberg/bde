@@ -157,6 +157,13 @@ struct StdExceptUtil {
 
 #undef BSLSTL_STDEXCEPTUTIL_NORETURN
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslstl::StdExceptUtil bslstl_StdExceptUtil;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -459,6 +459,16 @@ int AutoDestructor<TYPE>::length() const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_AutoDestructor
+#undef bslma_AutoDestructor
+#endif
+#define bslma_AutoDestructor bslma::AutoDestructor
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -212,6 +212,16 @@ typedef BloombergLP::bslmf::AssertTest< \
 
 #endif
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_AssertTest
+#undef bslmf_AssertTest
+#endif
+#define bslmf_AssertTest bslmf::AssertTest
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT

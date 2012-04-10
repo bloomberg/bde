@@ -192,6 +192,16 @@ UnspecifiedBool<BSLS_HOST_TYPE>::makeValue(bool predicate)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bsls_UnspecifiedBool
+#undef bsls_UnspecifiedBool
+#endif
+#define bsls_UnspecifiedBool bsls::UnspecifiedBool
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

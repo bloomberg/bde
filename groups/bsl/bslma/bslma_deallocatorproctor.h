@@ -365,6 +365,16 @@ void DeallocatorProctor<ALLOCATOR>::reset(void *memory)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_DeallocatorProctor
+#undef bslma_DeallocatorProctor
+#endif
+#define bslma_DeallocatorProctor bslma::DeallocatorProctor
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

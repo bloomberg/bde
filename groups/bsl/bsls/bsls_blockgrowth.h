@@ -148,6 +148,13 @@ struct BlockGrowth {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::BlockGrowth bsls_BlockGrowth;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

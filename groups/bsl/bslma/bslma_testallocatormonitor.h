@@ -590,6 +590,13 @@ bool TestAllocatorMonitor::isTotalUp() const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::TestAllocatorMonitor bslma_TestAllocatorMonitor;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

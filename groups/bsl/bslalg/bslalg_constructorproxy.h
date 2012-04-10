@@ -727,6 +727,16 @@ const OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object() const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_ConstructorProxy
+#undef bslalg_ConstructorProxy
+#endif
+#define bslalg_ConstructorProxy bslalg::ConstructorProxy
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

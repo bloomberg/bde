@@ -203,6 +203,16 @@ void Util::swapContainers(CONTAINER&            c1,
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslstl::UtilIterator bslstl_UtilIterator;
+    // This alias is defined for backward compatibility.
+
+typedef bslstl::Util bslstl_Util;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

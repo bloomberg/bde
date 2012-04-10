@@ -365,6 +365,13 @@ void NewDeleteAllocator::deallocate(void *address)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::NewDeleteAllocator bslma_NewDeleteAllocator;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

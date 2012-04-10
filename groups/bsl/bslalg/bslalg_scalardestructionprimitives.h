@@ -176,6 +176,13 @@ void ScalarDestructionPrimitives::destroy(TARGET_TYPE *object)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::ScalarDestructionPrimitives bslalg_ScalarDestructionPrimitives;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

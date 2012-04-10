@@ -462,6 +462,28 @@ bool AllocatorProxy<ALLOCATOR>::equalAllocator(AllocatorProxy& rhs) const
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslstl_AllocatorProxy
+#undef bslstl_AllocatorProxy
+#endif
+#define bslstl_AllocatorProxy bslstl::AllocatorProxy
+    // This alias is defined for backward compatibility.
+
+#ifdef bslstl_AllocatorProxyBslmaBase
+#undef bslstl_AllocatorProxyBslmaBase
+#endif
+#define bslstl_AllocatorProxyBslmaBase bslstl::AllocatorProxyBslmaBase
+    // This alias is defined for backward compatibility.
+
+#ifdef bslstl_AllocatorProxyNonBslmaBase
+#undef bslstl_AllocatorProxyNonBslmaBase
+#endif
+#define bslstl_AllocatorProxyNonBslmaBase bslstl::AllocatorProxyNonBslmaBase
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

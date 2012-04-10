@@ -72,6 +72,16 @@ struct TypeTraitsGroupStlUnordered :
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_TypeTraitsGroupStlUnordered
+#undef bslalg_TypeTraitsGroupStlUnordered
+#endif
+#define bslalg_TypeTraitsGroupStlUnordered bslalg::TypeTraitsGroupStlUnordered
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

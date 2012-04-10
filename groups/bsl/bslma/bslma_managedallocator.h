@@ -69,6 +69,13 @@ class ManagedAllocator : public Allocator {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::ManagedAllocator bslma_ManagedAllocator;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

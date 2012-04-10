@@ -641,6 +641,13 @@ int SequentialAllocator::truncate(void *address,
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::SequentialAllocator bslma_SequentialAllocator;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

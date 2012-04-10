@@ -205,6 +205,13 @@ void DeleterHelper::deleteObjectRaw(const TYPE *object,
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::DeleterHelper bslma_DeleterHelper;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

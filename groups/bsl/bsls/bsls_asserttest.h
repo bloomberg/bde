@@ -769,6 +769,16 @@ AssertTestHandlerGuard::AssertTestHandlerGuard()
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::AssertTestHandlerGuard bsls_AssertTestHandlerGuard;
+    // This alias is defined for backward compatibility.
+
+typedef bsls::AssertTest bsls_AssertTest;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif // test driver internal include guard

@@ -515,6 +515,16 @@ struct IsConvertible<void, void> : MetaInt<1> {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsConvertible
+#undef bslmf_IsConvertible
+#endif
+#define bslmf_IsConvertible bslmf::IsConvertible
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

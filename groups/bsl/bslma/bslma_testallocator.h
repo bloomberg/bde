@@ -1005,6 +1005,13 @@ bsls::Types::Int64 TestAllocator::numDeallocation() const
 
 // TBD #endif
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::TestAllocator bslma_TestAllocator;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

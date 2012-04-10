@@ -1290,6 +1290,28 @@ std::basic_ostream<CHAR_TYPE>&
     }
 }
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslstl_StringRefImp
+#undef bslstl_StringRefImp
+#endif
+#define bslstl_StringRefImp bslstl::StringRefImp
+    // This alias is defined for backward compatibility.
+
+#ifdef bslstl_StringRefWide
+#undef bslstl_StringRefWide
+#endif
+#define bslstl_StringRefWide bslstl::StringRefWide
+    // This alias is defined for backward compatibility.
+
+#ifdef bslstl_StringRef
+#undef bslstl_StringRef
+#endif
+#define bslstl_StringRef bslstl::StringRef
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
                       // =================================

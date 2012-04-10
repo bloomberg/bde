@@ -45,6 +45,16 @@ typedef bslmf::Nil TypeTraitNil;
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_TypeTraitNil
+#undef bslalg_TypeTraitNil
+#endif
+#define bslalg_TypeTraitNil bslalg::TypeTraitNil
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

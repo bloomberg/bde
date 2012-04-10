@@ -119,6 +119,16 @@ struct IsClass<TYPE &> : IsClass<TYPE>::Type {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsClass
+#undef bslmf_IsClass
+#endif
+#define bslmf_IsClass bslmf::IsClass
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

@@ -782,6 +782,28 @@ struct MemberFunctionPointerTraitsImp<
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_MemberFunctionPointerTraits
+#undef bslmf_MemberFunctionPointerTraits
+#endif
+#define bslmf_MemberFunctionPointerTraits bslmf::MemberFunctionPointerTraits
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_IsMemberFunctionPointer
+#undef bslmf_IsMemberFunctionPointer
+#endif
+#define bslmf_IsMemberFunctionPointer bslmf::IsMemberFunctionPointer
+    // This alias is defined for backward compatibility.
+
+#ifdef bslmf_MemberFunctionPointerTraitsImp
+#undef bslmf_MemberFunctionPointerTraitsImp
+#endif
+#define bslmf_MemberFunctionPointerTraitsImp bslmf::MemberFunctionPointerTraitsImp
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

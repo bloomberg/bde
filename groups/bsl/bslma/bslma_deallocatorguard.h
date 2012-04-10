@@ -187,6 +187,16 @@ DeallocatorGuard<ALLOCATOR>::~DeallocatorGuard()
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_DeallocatorGuard
+#undef bslma_DeallocatorGuard
+#endif
+#define bslma_DeallocatorGuard bslma::DeallocatorGuard
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

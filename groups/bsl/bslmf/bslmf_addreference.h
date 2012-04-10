@@ -196,6 +196,16 @@ struct AddReference<const volatile void> {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_AddReference
+#undef bslmf_AddReference
+#endif
+#define bslmf_AddReference bslmf::AddReference
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

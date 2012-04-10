@@ -235,6 +235,13 @@ void MallocFreeAllocator::deallocate(void *address)
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::MallocFreeAllocator bslma_MallocFreeAllocator;
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif

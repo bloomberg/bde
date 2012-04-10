@@ -133,6 +133,16 @@ struct If<0, IF_TRUE_TYPE, IF_FALSE_TYPE> {
 
 }  // close package namespace
 
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_If
+#undef bslmf_If
+#endif
+#define bslmf_If bslmf::If
+    // This alias is defined for backward compatibility.
+
 }  // close enterprise namespace
 
 #endif
