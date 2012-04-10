@@ -45,43 +45,6 @@ struct make_signed<bsls_Types::Uint64> {
     // TBD replace the code above with bsl::make_signed when available. 
 
 
-                       // =====================
-                       // class ElemDataFetcher
-                       // =====================
-struct ElemDataFetcher {
-    // This class accesses the address of a value held within a 'bdem_ElemRef'
-    // or 'bdem_ConstElemRef' without affecting the nullness of the referenced
-    // value.  
-    
-    void *d_data_p;
-
-    explicit
-    ElemDataFetcher(const bdem_ElemRef& elemRef) {
-        d_data_p = elemRef.dataRaw();
-    }
-
-    explicit
-    ElemDataFetcher(const bdem_ConstElemRef& elemRef) {
-        d_data_p = const_cast<void*>(elemRef.data());
-    }
-    
-};
-    
-                         // ================
-                         // class ArraySizer
-                         // ================
-
-struct ArraySizer {
-    // This class defines a function object to return the size of a sequence.
-
-    // ACCESSORS
-    template <typename ARRAYTYPE>
-    int operator()(ARRAYTYPE *array) const
-    {
-        return (int)array->size();
-    }
-};
-
                       // =====================
                       // class ArrayItemEraser
                       // =====================
@@ -340,8 +303,8 @@ bool bcem_AggregateRawUtil::isConformant(const bdem_ConstElemRef *object,
 }
 
 bool bcem_AggregateRawUtil::isConformant(const bdem_Row       *object,
-                                       const bdem_RecordDef *recordDef)
 {
+                                       const bdem_RecordDef *recordDef)
     return recordDef
          ? bdem_SchemaAggregateUtil::isRowConformant(*object, *recordDef)
          : true;
@@ -459,52 +422,6 @@ bcem_AggregateRaw::~bcem_AggregateRaw()
     }
 }
 #endif
-
-template <typename TYPE> 
-int bcem_AggregateRaw::assignToNillableScalarArrayImp(
-                                              const TYPE& value) const
-{
-    bdem_ElemType::Type srcType = value.type();
-
-    // Check conformance of value against this aggregate.
-    if (bdem_ElemType::BDEM_TABLE == srcType) {
-        return assignToNillableScalarArray(value.theTable());
-    }
-
-    bdem_ElemType::Type baseType = bdem_ElemType::fromArrayType(srcType);
-    if (!bdem_ElemType::isScalarType(baseType)
-        || baseType != recordConstraint()->field(0).elemType()) {
-        return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;
-    }
-
-    if (value.isNull()) {
-        makeNull();
-        return 0;
-    }
-
-    ElemDataFetcher fetcher(value);
-    void *srcData = fetcher.d_data_p;
-    ArraySizer sizer;
-    const int  length  = bcem_AggregateRawUtil::visitArray(srcData, srcType,
-                                                           &sizer);
-    
-    bcem_AggregateError error;
-    if (0 != resize(&error, length)) {
-        return error.code();
-    }
-
-    bdem_Table            *dstTable     = (bdem_Table *)data();
-    const bdem_Descriptor *baseTypeDesc =
-                                  bdem_ElemAttrLookup::lookupTable()[baseType];
-
-    for (int i = 0; i < length; ++i) {
-        bcem_AggregateRaw_ArrayIndexer indexer(i);
-        bcem_AggregateRawUtil::visitArray(srcData, srcType, &indexer);
-        baseTypeDesc->assign(dstTable->theModifiableRow(i)[0].data(),
-                             indexer.data());
-    }
-    return 0;
-}
 
 int bcem_AggregateRaw::toEnum(bcem_AggregateError      *errorDescription, 
                               const char               *value, 
@@ -667,9 +584,11 @@ TOTYPE bcem_AggregateRaw::convertScalar() const
     }
 
     if (0 != status) {
+
         // Conversion failed.
+
         return static_cast<TOTYPE>(
-                          bdetu_Unset<make_signed<TOTYPE>::type>::unsetValue());
+                bdetu_Unset<typename make_signed<TOTYPE>::type>::unsetValue());
     }
 
     return result;
