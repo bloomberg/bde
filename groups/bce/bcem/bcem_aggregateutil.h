@@ -2274,7 +2274,7 @@ int bcem_AggregateUtil::fromAggregateImp(
         bcem_AggregateRaw item;
         field.getField(&item, &error, false, i);
 
-        if (0 != (Wrapper::fromString(&(*destination)[i], item.asString()))
+        if (0 != (Wrapper::fromString(&(*destination)[i], item.asString())))
         {
             return bcem_AggregateError::BCEM_ERR_BAD_ENUMVALUE;
         }

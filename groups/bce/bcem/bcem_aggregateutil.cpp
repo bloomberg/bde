@@ -4,9 +4,9 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcem_aggregateutil_cpp,"$Id$ $CSID$")
 
-namespace BloombergLP {
+#include <bdetu_unset.h>
 
-namespace { 
+namespace BloombergLP {
 
 namespace s {
     // the Sun compiler actually compiles AggregateRaw.cpp along with 
@@ -39,9 +39,12 @@ template <>
 struct make_signed<bsls_Types::Uint64> {
     typedef bsls_Types::Int64 type;
 };    
+
 } // namespace s; please remove when make_signed is available
     // TBD TBD TBD TBD
     // TBD replace the code above with bsl::make_signed when available. 
+
+namespace { 
 
 template<typename T> 
 bsl::vector<T>& getArray(const bdem_ElemRef& data)
@@ -160,15 +163,14 @@ struct SignCast
 template <typename TYPE>
 inline
 void assignArray(const bcem_AggregateRaw& result, 
-                 const bsl::vector<TYPE>& value) {
-
-    typedef s::make_signed<TYPE>::type SignedType;
-    
-    bsl::vector<SignedType>& array = getArray<SignedType>(result.asElemRef());
+                 const bsl::vector<TYPE>& value)
+{
+    bsl::vector<typename s::make_signed<TYPE>::type>& array =
+             getArray<typename s::make_signed<TYPE>::type>(result.asElemRef());
     array.clear();
     
     bsl::transform(value.begin(), value.end(), bsl::back_inserter(array), 
-                   SignCast<TYPE, SignedType>::cast);
+                   SignCast<TYPE, typename s::make_signed<TYPE>::type>::cast);
 }
 
 template <typename TYPE>
@@ -176,14 +178,12 @@ inline
 void assignArray(bsl::vector<TYPE>         *result, 
                  const bcem_AggregateRaw&   value)
 {
-    typedef s::make_signed<TYPE>::type SignedType;
-    
-    const bsl::vector<SignedType>& array = getArray<SignedType>(
-                                                            value.asElemRef());
+    const bsl::vector<typename s::make_signed<TYPE>::type>& array =
+              getArray<typename s::make_signed<TYPE>::type>(value.asElemRef());
     result->clear();
     
     bsl::transform(array.begin(), array.end(), bsl::back_inserter(*result), 
-                   SignCast<SignedType, TYPE>::cast);
+                   SignCast<typename s::make_signed<TYPE>::type, TYPE>::cast);
 }
 
 template <typename PRIMITIVE_TYPE>
@@ -286,10 +286,10 @@ inline
 void assignPrimitive(TYPE *result, const bcem_AggregateRaw& value) {
     if (value.isNull()) {
         *result = static_cast<TYPE>(
-                       bdetu_Unset<s::make_signed<TYPE>::type>::unsetValue());
+               bdetu_Unset<typename s::make_signed<TYPE>::type>::unsetValue());
     }
     else {
-        *result = value.convertScalar<TYPE>();
+        *result = value.convertScalar<typename s::make_signed<TYPE>::type>();
     }
 }
 
@@ -301,7 +301,7 @@ void assignPrimitive(bdeut_NullableValue<TYPE> *result,
         result->reset();
     }
     else {
-        *result = value.convertScalar<TYPE>();
+        *result = value.convertScalar<typename s::make_signed<TYPE>::type>();
     }
 }
 
@@ -313,7 +313,7 @@ void assignPrimitive(bdeut_NullableAllocatedValue<TYPE> *result,
         result->reset();
     }
     else {
-        *result = value.convertScalar<TYPE>();
+        *result = value.convertScalar<typename s::make_signed<TYPE>::type>();
     }
 }
 
