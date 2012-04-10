@@ -303,8 +303,8 @@ bool bcem_AggregateRawUtil::isConformant(const bdem_ConstElemRef *object,
 }
 
 bool bcem_AggregateRawUtil::isConformant(const bdem_Row       *object,
+                                         const bdem_RecordDef *recordDef)
 {
-                                       const bdem_RecordDef *recordDef)
     return recordDef
          ? bdem_SchemaAggregateUtil::isRowConformant(*object, *recordDef)
          : true;
