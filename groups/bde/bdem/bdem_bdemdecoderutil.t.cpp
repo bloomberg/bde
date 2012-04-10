@@ -48,6 +48,7 @@
 #include <bsl_string.h>
 
 #include <bsl_c_stdio.h>       // 'snprintf'
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 
@@ -210,8 +211,6 @@ enum Enum {
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -565,7 +564,6 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
 #include <bsl_string.h>
 #endif
 namespace BloombergLP {
-class bslma_Allocator;
 namespace test {
 class MyChoice {
   private:
@@ -1577,7 +1575,6 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 #include <bsl_string.h>
 #endif
 namespace BloombergLP {
-class bslma_Allocator;
 namespace test {
 class MySequence {
   private:
@@ -2176,7 +2173,6 @@ bsl::ostream& MySequence::print(
 #include <bsl_iosfwd.h>
 #endif
 namespace BloombergLP {
-class bslma_Allocator;
 namespace test { class MySequenceWithNullables; }
 // TRAITS
 BDEAT_DECL_SEQUENCE_WITH_ALLOCATOR_TRAITS(test::MySequenceWithNullables)
@@ -2986,7 +2982,6 @@ bsl::ostream& MySequenceWithNullables::print(
 #include <bdeu_printmethods.h>
 #endif
 namespace BloombergLP {
-class bslma_Allocator;
 namespace test {
 class MySequenceWithNullablesContainer {
   private:
@@ -6871,7 +6866,6 @@ bsl::ostream& MySequenceWithManyNullables::print(
 #include <bsl_string.h>
 #endif
 namespace BloombergLP {
-class bslma_Allocator;
 namespace test {
 class Address {
   private:
@@ -7525,7 +7519,6 @@ bsl::ostream& Address::print(
 #include <bdet_datetz.h>
 #endif
 namespace BloombergLP {
-class bslma_Allocator;
 namespace test {
 class Employee {
   private:

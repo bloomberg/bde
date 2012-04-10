@@ -177,6 +177,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
 class btesc_TimedChannel;
@@ -190,8 +194,6 @@ template<> class bteso_StreamSocketFactory<bteso_IPv4Address>;
 template<> class bteso_StreamSocket<bteso_IPv4Address>;
 */
 class bdet_TimeInterval;
-class bslma_Allocator;
-
                         // ==============================
                         // class btesos_TcpTimedConnector
                         // ==============================

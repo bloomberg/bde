@@ -343,13 +343,15 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
                              // ===================
                              // class bdepcre_RegEx
                              // ===================
-
-class bslma_Allocator;
 
 class bdepcre_RegEx {
     // This class provides a mechanism for compiling and matching regular
