@@ -8,19 +8,19 @@
 BDES_IDENT("$Id: $")
 
 //@PURPOSE: Provide a type to describe errors in dynamically-typed operations.
-// 
+//
 //@CLASSES:
 //   bcem_AggregateError: type for descriptive errors
-// 
+//
 //@SEE_ALSO: bcem_Aggregate; bcem_AggregateRaw
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
-//@DESCRIPTION: This component provides a value-semantic class combining an 
-// enumerated error condition with a human-readable verbose description.  
+//@DESCRIPTION: This component provides a value-semantic class combining an
+// enumerated error condition with a human-readable verbose description.
 //
 // The error codes and the conditions that cause them are listed
-// below.  
+// below.
 //..
 //   Error Code               Cause
 //   =======================  =================================================
@@ -85,13 +85,13 @@ BDES_IDENT("$Id: $")
 //..
 //: o 'code': one of the enumerated values of 'bcem_AggregateError::Code'.
 //:
-//: o 'description': a human-readable description of the error, if any. 
+//: o 'description': a human-readable description of the error, if any.
 //
 ///Usage
 ///-----
 // 'bcem_AggregateError' is a vocabulary type for communicating errors
 // from operations on dynamically-typed objects.  See the documentation for
-// the type in question (for example, 'bcem_Aggregate') for intended usage. 
+// the type in question (for example, 'bcem_Aggregate') for intended usage.
 // In this example, we elide the actual function invocation and instead
 // focus on handling the error condition:
 //..
@@ -126,8 +126,8 @@ namespace BloombergLP {
 class bcem_AggregateError
 {
     // This value-semantic attribute class provides an enumerated error code
-    // and a human-readable message to describe errors arising from the 
-    // the usage of dynamically-typed objects. 
+    // and a human-readable message to describe errors arising from the
+    // the usage of dynamically-typed objects.
 
   public:
     // PUBLIC TYPES
@@ -173,7 +173,7 @@ class bcem_AggregateError
 
     // CREATORS
     explicit bcem_AggregateError(bslma_Allocator *basicAllocator = 0);
-        // Create an object of type 'AggregateError' having the default value. 
+        // Create an object of type 'AggregateError' having the default value.
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
@@ -186,12 +186,12 @@ class bcem_AggregateError
         // currently installed default allocator is used.
 
     bcem_AggregateError(Code             errorCode,
-                        const char      *errorString, 
+                        const char      *errorString,
                         bslma_Allocator *basicAllocator = 0);
         // Create an AggregateError object having the specified 'errorCode'
         // and 'errorString'.  Use the optionally specified 'basicAllocator'
         // to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.  
+        // installed default allocator is used.
 
     //! ~bcem_AggregateError() = default;
         // Destroy this object.  Note that this trivial destructor is generated
@@ -200,7 +200,7 @@ class bcem_AggregateError
     // MANIPULATORS
     //bcem_AggregateError& operator=(const bcem_AggregateError& rhs);
         // Assign to this object the value of the specified 'rhs' object.
-        // Note that the compiler generated default is used.  
+        // Note that the compiler generated default is used.
 
     Code& code();
         // Return a reference to the modifiable "code" attribute of this
@@ -210,6 +210,7 @@ class bcem_AggregateError
         // Return a reference to the modifiable "description" attribute of this
         // object.
 
+    // ACCESSORS
     Code code() const;
         // Return the value of the "code" attribute of this object.
 
@@ -250,29 +251,33 @@ bsl::ostream& operator<<(bsl::ostream&              stream,
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+// CREATORS
 inline
-bcem_AggregateError::bcem_AggregateError(Code             errorCode, 
-                                         const char      *errorString, 
+bcem_AggregateError::bcem_AggregateError(bslma_Allocator *basicAllocator)
+: d_description(basicAllocator)
+, d_code(BCEM_SUCCESS)
+{
+}
+
+inline
+bcem_AggregateError::bcem_AggregateError(Code             errorCode,
+                                         const char      *errorString,
                                          bslma_Allocator *basicAllocator)
 : d_description(errorString, basicAllocator)
 , d_code(errorCode)
 {
-}    
+}
 
 inline
-bcem_AggregateError::bcem_AggregateError(const bcem_AggregateError& original,
-                                         bslma_Allocator *basicAllocator)
+bcem_AggregateError::bcem_AggregateError(
+                                    const bcem_AggregateError&  original,
+                                    bslma_Allocator            *basicAllocator)
 : d_description(original.d_description, basicAllocator)
 , d_code(original.d_code)
 {
-}    
+}
 
-inline
-bcem_AggregateError::bcem_AggregateError(bslma_Allocator *basicAllocator)
-: d_description(basicAllocator)
-{
-}    
-
+// MANIPULATORS
 inline
 bcem_AggregateError::Code& bcem_AggregateError::code()
 {
@@ -280,24 +285,27 @@ bcem_AggregateError::Code& bcem_AggregateError::code()
 }
 
 inline
+bsl::string& bcem_AggregateError::description()
+{
+    return d_description;
+}
+
+// ACCESSORS
+inline
 bcem_AggregateError::Code bcem_AggregateError::code() const
 {
     return d_code;
 }
 
-inline 
-bsl::string& bcem_AggregateError::description() {
-    return d_description;
-}
-
-inline 
-const bsl::string& bcem_AggregateError::description() const {
-    return d_description;
-}
-
 inline
-std::ostream& operator<<(std::ostream&              stream,
-                         const bcem_AggregateError& rhs)
+const bsl::string& bcem_AggregateError::description() const
+{
+    return d_description;
+}
+
+// FREE OPERATORS
+inline
+std::ostream& operator<<(std::ostream& stream, const bcem_AggregateError& rhs)
 {
     return rhs.print(stream, 0, -1);
 }

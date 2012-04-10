@@ -8,7 +8,7 @@ BDES_IDENT_RCSID(bcem_aggregateerror_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-int bcem_AggregateError::fromInt(bcem_AggregateError::Code *result, 
+int bcem_AggregateError::fromInt(bcem_AggregateError::Code *result,
                                  int                        number)
 {
     switch (number) {
@@ -50,7 +50,7 @@ bsl::ostream& bcem_AggregateError::print(bsl::ostream& stream,
     // TBD, erase these two lines when bslim_printer is up-to-date
 #warning TEMPORARY BSLIM_PRINTER WORKAROUND
     printer.printAttribute("code", (int)d_code);
-    
+
     // TBD, uncomment this line and erase the lines above when bslim_printer
     // is up-to-date in this branch
     //printer.printAttribute("code", d_code);
@@ -59,7 +59,7 @@ bsl::ostream& bcem_AggregateError::print(bsl::ostream& stream,
 
     return stream;
 }
- 
+
 }  // close namespace BloombergLP
 
 // ---------------------------------------------------------------------------

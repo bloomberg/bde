@@ -150,7 +150,6 @@ int main(int argc, char *argv[])
                     "code = -2147483639 ]" == ss.str());
 
       } break;
-
       case 2: {
         // --------------------------------------------------------------------
         // Attribute test
