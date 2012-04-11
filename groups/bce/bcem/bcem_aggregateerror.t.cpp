@@ -1,10 +1,10 @@
 // bcem_aggregateerror.t.cpp
 
 #include <bcem_aggregateerror.h>
-#include <bcem_aggregateerror.h>
-#include <bsl_iostream.h>
 
-#include <sstream>
+#include <bsl_iostream.h>
+#include <bsl_cstdlib.h>
+#include <bsl_sstream.h>
 
 using namespace BloombergLP;
 
@@ -71,7 +71,7 @@ void doSomething(Obj* error) {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
 
         bcem_AggregateError error;
         doSomething(&error);
-        
+
         if (0 != error.code()) {
             bsl::cout << "Error: " << error << bsl::endl;
         }
@@ -101,17 +101,17 @@ int main(int argc, char *argv[])
         //
         // Test AggregateError::fromInt()
         // --------------------------------------------------------------------
-        
+
         if (verbose) bsl::cout << bsl::endl << "TESTING fromInt"
                                << bsl::endl << "==============="
                                << bsl::endl;
 
         Obj::Code mX;
-        
+
         ASSERT(0 != Obj::fromInt(&mX, 1));
         ASSERT(0 == Obj::fromInt(&mX, 0));
         ASSERT(Obj::BCEM_SUCCESS == mX);
-        
+
         int i;
         for (i = INT_MIN+2; i <= Obj::BCEM_ERR_AMBIGUOUS_ANON; ++i) {
             ASSERT(0 == Obj::fromInt(&mX, i));
@@ -119,33 +119,33 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 != Obj::fromInt(&mX, i));
       } break;
-        
+
       case 3: {
         // --------------------------------------------------------------------
         // TESTING output
         //
-        // Test that print output is as expected. 
+        // Test that print output is as expected.
         // --------------------------------------------------------------------
-        
+
         if (verbose) bsl::cout << bsl::endl << "TESTING output"
                                << bsl::endl << "=============="
                                << bsl::endl;
-        
+
         Obj mX;
-                
+
         bsl::ostringstream ss;
         ss << mX;
-        
-        LOOP_ASSERT(ss.str(), 
+
+        LOOP_ASSERT(ss.str(),
                     "[ description = \"\" code = 0 ]" == ss.str());
 
         mX.code() = Obj::BCEM_ERR_BAD_ARRAYINDEX;
         mX.description() = "Out of bounds";
-        
+
         ss.str("");
         ss << mX;
 
-        LOOP_ASSERT(ss.str(), 
+        LOOP_ASSERT(ss.str(),
                     "[ description = \"Out of bounds\" "
                     "code = -2147483639 ]" == ss.str());
 
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // Attribute test
         //
-        // Test all the accessors and manipulators.  
+        // Test all the accessors and manipulators.
         // --------------------------------------------------------------------
 
           if (verbose) bsl::cout << bsl::endl << "Attribute Test"
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
           Obj mY = mX;
           const Obj& Y = mY;
           const Obj& X = mX;
-          
+
           ASSERT(Y.description().empty());
           ASSERT(Obj::BCEM_SUCCESS == X.code());
 
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
           ASSERT(Obj::BCEM_ERR_NON_CONFORMANT == X.code());
           mY = mX;
           ASSERT(Obj::BCEM_ERR_NON_CONFORMANT == Y.code());
-          
+
           mX.description() = "plugh";
           ASSERT("plugh" == mX.description());
           ASSERT("plugh" == X.description());
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
           if (verbose) bsl::cout << bsl::endl << "Breathing Test"
                                  << bsl::endl << "=============="
                                  << bsl::endl;
-          
+
           Obj mX;
           const Obj& X = mX;
           ASSERT(X.description().empty());
