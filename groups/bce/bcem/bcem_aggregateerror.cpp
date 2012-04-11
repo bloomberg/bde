@@ -1,16 +1,18 @@
 // bcem_aggregateerror.cpp                                            -*-C++-*-
 
 #include <bcem_aggregateerror.h>
-#include <bslim_printer.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bcem_aggregateerror_cpp,"$Id$ $CSID$")
+
+#include <bslim_printer.h>
 
 namespace BloombergLP {
 
 int bcem_AggregateError::fromInt(bcem_AggregateError::Code *result,
                                  int                        number)
 {
+    int rc;
     switch (number) {
       case BCEM_SUCCESS:
       case BCEM_ERR_UNKNOWN_ERROR:
@@ -26,13 +28,15 @@ int bcem_AggregateError::fromInt(bcem_AggregateError::Code *result,
       case BCEM_ERR_BAD_CONVERSION:
       case BCEM_ERR_BAD_ENUMVALUE:
       case BCEM_ERR_NON_CONFORMANT:
-      case BCEM_ERR_AMBIGUOUS_ANON:
-          *result = (bcem_AggregateError::Code)number;
-          return 0;                                                   // RETURN
-      default:
-          return -1;                                                  // RETURN
-
+      case BCEM_ERR_AMBIGUOUS_ANON: {
+        *result = (bcem_AggregateError::Code) number;
+        rc = 0;
+      }
+      default: {
+        rc = -1;
+      }
     }
+    return rc;
 }
 
 bsl::ostream& bcem_AggregateError::print(bsl::ostream& stream,

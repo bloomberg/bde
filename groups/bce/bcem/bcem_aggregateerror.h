@@ -117,6 +117,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
+#endif
+
 namespace BloombergLP {
 
                        // =========================
@@ -305,7 +309,7 @@ const bsl::string& bcem_AggregateError::description() const
 
 // FREE OPERATORS
 inline
-std::ostream& operator<<(std::ostream& stream, const bcem_AggregateError& rhs)
+bsl::ostream& operator<<(bsl::ostream& stream, const bcem_AggregateError& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
