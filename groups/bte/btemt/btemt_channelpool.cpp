@@ -589,7 +589,7 @@ class btemt_Channel {
         // specified 'numBytes'.  The behavior is undefined unless
         // '0 <= numBytes'.
 
-    void setMaxWriteCacheSize(int maxWriteCacheSize);
+    void setMaxWriteCacheSize(bsls_Types::Int64 maxWriteCacheSize);
         // Set the max write cache size for this channel to the specified
         // 'maxWriteCacheSize'.  The behavior is undefined unless
         // '0 <= maxWriteCacheSize'.
@@ -720,15 +720,15 @@ bsls_PlatformUtil::Int64 btemt_Channel::numBytesRequestedToBeWritten() const
 }
 
 inline
-bsls_Types::Int64 btemt_Channel::maxWriteCacheSize() const
-{
-    return d_maxWriteCacheSize;
-}
-
-inline
 bsls_Types::Int64 btemt_Channel::currWriteCacheSize() const
 {
     return d_currWriteCacheSize;
+}
+
+inline
+bsls_Types::Int64 btemt_Channel::maxWriteCacheSize() const
+{
+    return d_maxWriteCacheSize;
 }
 
 inline
@@ -2343,7 +2343,7 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
     return 0;
 }
 
-void btemt_Channel::setMaxWriteCacheSize(int maxWriteCacheSize)
+void btemt_Channel::setMaxWriteCacheSize(bsls_Types::Int64 maxWriteCacheSize)
 {
     BSLS_ASSERT(0 <= maxWriteCacheSize);
 
@@ -3967,8 +3967,9 @@ int btemt_ChannelPool::setWriteCacheLowWatermark(int channelId, int numBytes)
     return channelHandle->setWriteCacheLowWatermark(numBytes);
 }
 
-int btemt_ChannelPool::setMaxWriteCacheSize(int channelId,
-                                            int maxWriteCacheSize)
+int btemt_ChannelPool::setMaxWriteCacheSize(
+                                           int               channelId,
+                                           bsls_Types::Int64 maxWriteCacheSize)
 {
     BSLS_ASSERT(0 <= maxWriteCacheSize);
     ChannelHandle channelHandle;

@@ -1532,7 +1532,8 @@ class btemt_ChannelPool {
         // configured (for all channels) by the
         // 'btemt_ChannelPoolConfiguration' supplied at construction.
 
-    int setMaxWriteCacheSize(int channelId, int maxWriteCacheSize);
+    int setMaxWriteCacheSize(int               channelId,
+                             bsls_Types::Int64 maxWriteCacheSize);
         // Set the max write cache size for the specified 'channelId' to the
         // specified 'maxWriteCacheSize'.  Return 0 on success, or a non-zero
         // value if 'channelId' does not exist.  The behavior is undefined
