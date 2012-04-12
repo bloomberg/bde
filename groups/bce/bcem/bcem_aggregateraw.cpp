@@ -15,8 +15,8 @@ namespace {
 
 static int s_voidNullnessWord = 1;
 
-    // TBD TBD TBD TBD TBD 
-    // replace this custom type with bsl::make_signed<T> when that's available.
+// TBD TBD TBD TBD TBD 
+// replace this custom type with bsl::make_signed<T> when that's available.
 template <typename TYPE>
 struct make_signed {
     typedef TYPE type;
@@ -41,8 +41,8 @@ template <>
 struct make_signed<bsls_Types::Uint64> {
     typedef bsls_Types::Int64 type;
 };    
-    // TBD TBD TBD TBD
-    // TBD replace the code above with bsl::make_signed when available. 
+// TBD TBD TBD TBD
+// TBD replace the code above with bsl::make_signed when available. 
 
 
                       // =====================

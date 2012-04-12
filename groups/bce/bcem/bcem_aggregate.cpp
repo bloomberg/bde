@@ -502,7 +502,6 @@ bcem_Aggregate::~bcem_Aggregate()
     if (d_schemaRep_p) {
         d_schemaRep_p->releaseRef();
     }
-
 }
 
 // MANIPULATORS
@@ -535,7 +534,6 @@ bcem_Aggregate& bcem_Aggregate::operator=(const bcem_Aggregate& rhs)
         if (d_isTopLevelAggregateNullRep_p) {
             d_isTopLevelAggregateNullRep_p->acquireRef();
         }
-        
     }
 
     return *this;
@@ -548,12 +546,15 @@ const bcem_Aggregate& bcem_Aggregate::reset()
     
     if (d_isTopLevelAggregateNullRep_p) {
         d_isTopLevelAggregateNullRep_p->releaseRef();
+        d_isTopLevelAggregateNullRep_p = 0;
     }
     if (d_valueRep_p) {
         d_valueRep_p->releaseRef();
+        d_valueRep_p = 0;
     }
     if (d_schemaRep_p) {
         d_schemaRep_p->releaseRef();
+        d_schemaRep_p = 0;
     }
     return *this;
 }

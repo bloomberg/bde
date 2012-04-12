@@ -9669,8 +9669,6 @@ static void testCase14(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
         if (verbose) tst::cout << "\nTESTING REMAINING ACCESSORS"
                                << "\n===========================" << bsl::endl;
 
-// TBD: New Uncomment
-#if 0
         if (veryVerbose) { tst::cout << "\n\tTesting reset & isNul2"
                                      << "\n\t======================"
                                      << bsl::endl; }
@@ -9932,8 +9930,6 @@ static void testCase14(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 ASSERT(Y.isNul2());
             }
         }
-// TBD: New Uncomment
-#endif
 
         if (veryVerbose) { tst::cout << "\n\tTesting numSelections"
                                      << "\n\t====================="
@@ -12439,12 +12435,11 @@ static void testCase8(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
 
                 ASSERT_AGG_ERROR(X.fieldById(r.numFields()), BCEM_ERR_TBD);
 
-// TBD: New Uncomment
                 // Test condition when aggregate is empty
-//                 mX.reset();
-//                 ASSERT_AGG_ERROR(mX.setFieldById(0, CEA), BCEM_ERR_TBD);
+                mX.reset();
+                ASSERT_AGG_ERROR(mX.setFieldById(0, CEA), BCEM_ERR_TBD);
 
-//                 ASSERT_AGG_ERROR(X.fieldById(0), BCEM_ERR_TBD);
+                ASSERT_AGG_ERROR(X.fieldById(0), BCEM_ERR_TBD);
             }
         }
 }
@@ -15797,14 +15792,13 @@ static void testCase3(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                 // Test with an index value
 // TBD                ASSERT_AGG_ERROR(mX.setField(0, CEA), BCEM_ERR_TBD);
 
-// TBD: New Uncomment
                 // Test with invalid field name
-//                 const char *errFldName = "ErrorField";
-//                 ASSERT_AGG_ERROR(mX.setField(errFldName, CEA), BCEM_ERR_TBD);
+                const char *errFldName = "ErrorField";
+                ASSERT_AGG_ERROR(mX.setField(errFldName, CEA), BCEM_ERR_TBD);
 
-//                 // Test that calling a field on an empty aggregate fails
-//                 mX.reset();
-//                 ASSERT_AGG_ERROR(mX.setField(fldName, CEA), BCEM_ERR_TBD);
+                // Test that calling a field on an empty aggregate fails
+                mX.reset();
+                ASSERT_AGG_ERROR(mX.setField(fldName, CEA), BCEM_ERR_TBD);
             }
         }
 
