@@ -500,7 +500,6 @@ struct ArraySizer {
     }
 };
 
-    
                         // =======================
                         // class bcem_AggregateRaw
                         // =======================
