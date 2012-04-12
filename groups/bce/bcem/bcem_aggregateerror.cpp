@@ -31,7 +31,7 @@ int bcem_AggregateError::fromInt(bcem_AggregateError::Code *result,
       case BCEM_ERR_AMBIGUOUS_ANON: {
         *result = (bcem_AggregateError::Code) number;
         rc = 0;
-      }
+      } break;
       default: {
         rc = -1;
       }
