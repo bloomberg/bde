@@ -187,37 +187,44 @@ void assignArray(bsl::vector<TYPE>         *result,
 }
 
 template <typename PRIMITIVE_TYPE>
-inline bool isPrimitiveArrayType(bdem_ElemType::Type) {
+inline bool isPrimitiveArrayType(bdem_ElemType::Type)
+{
     return false;
 }
 
 template <>
-inline bool isPrimitiveArrayType<bool>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<bool>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_BOOL_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<char>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<char>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_CHAR_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<unsigned char>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<unsigned char>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_CHAR_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<short>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<short>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_SHORT_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<unsigned short>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<unsigned short>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_SHORT_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<int>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<int>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_INT_ARRAY;
 }
 
@@ -227,63 +234,75 @@ inline bool isPrimitiveArrayType<unsigned int>(bdem_ElemType::Type type) {
 }
 
 template <>
-inline bool isPrimitiveArrayType<float>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<float>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_FLOAT_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<double>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<double>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_DOUBLE_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<bsl::string>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<bsl::string>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_STRING_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<bsls_Types::Int64>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<bsls_Types::Int64>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_INT64_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<bsls_Types::Uint64>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<bsls_Types::Uint64>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_INT64_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<bdet_DateTz>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<bdet_DateTz>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_DATETZ_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<bdet_DatetimeTz>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<bdet_DatetimeTz>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_DATETIMETZ_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<bdet_TimeTz>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<bdet_TimeTz>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_TIMETZ_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<bdet_Date>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<bdet_Date>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_DATE_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<bdet_Time>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<bdet_Time>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_TIME_ARRAY;
 }
 
 template <>
-inline bool isPrimitiveArrayType<bdet_Datetime>(bdem_ElemType::Type type) {
+inline bool isPrimitiveArrayType<bdet_Datetime>(bdem_ElemType::Type type)
+{
     return type == bdem_ElemType::BDEM_DATETIME_ARRAY;
 }
 
 template <typename TYPE>
 inline
-void assignPrimitive(TYPE *result, const bcem_AggregateRaw& value) {
+void assignPrimitive(TYPE *result, const bcem_AggregateRaw& value)
+{
     if (value.isNull()) {
         *result = static_cast<TYPE>(
                bdetu_Unset<typename s::make_signed<TYPE>::type>::unsetValue());
@@ -296,7 +315,8 @@ void assignPrimitive(TYPE *result, const bcem_AggregateRaw& value) {
 template <typename TYPE>
 inline
 void assignPrimitive(bdeut_NullableValue<TYPE> *result, 
-                     const bcem_AggregateRaw&   value) {
+                     const bcem_AggregateRaw&   value)
+{
     if (value.isNull()) {
         result->reset();
     }
@@ -308,7 +328,8 @@ void assignPrimitive(bdeut_NullableValue<TYPE> *result,
 template <typename TYPE>
 inline
 void assignPrimitive(bdeut_NullableAllocatedValue<TYPE> *result, 
-                     const bcem_AggregateRaw&            value) {
+                     const bcem_AggregateRaw&            value)
+{
     if (value.isNull()) {
         result->reset();
     }
@@ -319,7 +340,8 @@ void assignPrimitive(bdeut_NullableAllocatedValue<TYPE> *result,
 
 inline
 void assignPrimitive(bdeut_NullableValue<bsl::vector<char> >  *result, 
-                     const bcem_AggregateRaw&                  value) {
+                     const bcem_AggregateRaw&                  value)
+{
     if (value.isNull()) {
         result->reset();
     }
@@ -330,7 +352,8 @@ void assignPrimitive(bdeut_NullableValue<bsl::vector<char> >  *result,
 
 inline
 void assignPrimitive(bdeut_NullableAllocatedValue<bsl::vector<char> > *result, 
-                     const bcem_AggregateRaw&                          value) {
+                     const bcem_AggregateRaw&                          value)
+{
     if (value.isNull()) {
         result->reset();
     }
