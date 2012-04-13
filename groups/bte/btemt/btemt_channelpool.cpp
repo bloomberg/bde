@@ -345,7 +345,8 @@ class btemt_Channel {
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
-    bsls_Types::Int64         d_maxWriteCacheSize;// max write cache size
+    volatile bsls_Types::Int64 d_maxWriteCacheSize;
+                                                  // max write cache size
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
@@ -723,6 +724,7 @@ inline
 bsls_Types::Int64 btemt_Channel::currWriteCacheSize() const
 {
     return d_currWriteCacheSize;
+//     return d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
 }
 
 inline
@@ -2160,6 +2162,11 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 
         d_writeActiveCacheSize.relaxedAdd(dataLength);
 
+//         int activeCacheSize = d_writeActiveCacheSize.relaxedAdd(dataLength);
+//         if (d_maxWriteCacheSize < activeCacheSize + d_writeEnqueuedCacheSize) {
+//             d_maxWriteCacheSize = activeCacheSize + d_writeEnqueuedCacheSize;
+//         }
+
         oGuard.release()->unlock();
 
         // Let's first attempt to write the blob directly using iovec.
@@ -2264,6 +2271,11 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     d_writeEnqueuedData->trimLastDataBuffer();
 
     MessageUtil::appendToBlob(d_writeEnqueuedData.ptr(), msg);
+
+//     int activeCacheSize = d_writeActiveCacheSize.relaxedAdd(dataLength);
+//     if (d_maxWriteCacheSize < activeCacheSize + d_writeEnqueuedCacheSize) {
+//         d_maxWriteCacheSize = activeCacheSize + d_writeEnqueuedCacheSize;
+//     }
 
     d_currWriteCacheSize += dataLength;
 

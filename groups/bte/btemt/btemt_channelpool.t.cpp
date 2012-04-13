@@ -682,8 +682,98 @@ void blobBasedReadCb(int             *needed,
     msg->removeAll();
 }
 
-void readCallback(int s1, int s2)
+int                                    s_channelId;
+bteso_StreamSocket<bteso_IPv4Address> *s_client;
+
+void *writeData(void *poolPtr)
 {
+    const int SIZE = 1000 * 100;
+    bcema_PooledBlobBufferFactory f(SIZE);
+    bcema_Blob b(&f);
+    b.setLength(SIZE);
+
+    btemt_ChannelPool& pool = *(btemt_ChannelPool *)poolPtr;
+
+    bsls_Types::Int64 curr = 0, max = 0;
+    int rc = pool.getChannelWriteCacheStatistics(&max, &curr, s_channelId);
+
+    LOOP_ASSERT(rc, !rc);
+    LOOP_ASSERT(max, 0 == max);
+    LOOP_ASSERT(curr, 0 == curr);
+
+    if (verbose) cout << "\nFIRST SET"
+                      << "\n=========" << endl;
+
+    char buffer[SIZE];
+    for (int i = 0; i < 100; ++i) {
+        bcemt_ThreadUtil::microSleep(0, 1);
+
+        rc = pool.write(s_channelId, b);
+        LOOP_ASSERT(rc, !rc);
+
+        rc = pool.getChannelWriteCacheStatistics(&max, &curr, s_channelId);
+        LOOP_ASSERT(rc, !rc);
+        LOOP_ASSERT(max, max >= 0);
+        LOOP_ASSERT(curr, curr >= 0);
+        LOOP2_ASSERT(max, curr, curr <= max);
+        P_(max) P(curr);
+
+        do {
+            rc = s_client->read(buffer, SIZE);
+        } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
+    }
+
+    if (verbose) cout << "\nSECOND SET"
+                      << "\n==========" << endl;
+
+    rc = pool.setMaxWriteCacheSize(s_channelId, 0);
+    LOOP_ASSERT(rc, !rc);
+
+    for (int i = 0; i < 10; ++i) {
+        bcemt_ThreadUtil::microSleep(0, 1);
+
+        rc = pool.write(s_channelId, b);
+        LOOP_ASSERT(rc, !rc);
+
+        rc = pool.getChannelWriteCacheStatistics(&max, &curr, s_channelId);
+        LOOP_ASSERT(rc, !rc);
+        LOOP_ASSERT(max, max >= 0);
+        LOOP_ASSERT(curr, curr >= 0);
+        LOOP2_ASSERT(max, curr, curr <= max);
+        P_(max) P(curr);
+
+        do {
+            rc = s_client->read(buffer, SIZE);
+        } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
+    }
+
+    if (verbose) cout << "\nTHIRD SET"
+                      << "\n=========" << endl;
+
+    rc = pool.setMaxWriteCacheSize(s_channelId, 0);
+    LOOP_ASSERT(rc, !rc);
+
+    for (int i = 0; i < 10; ++i) {
+        bcemt_ThreadUtil::microSleep(0, 1);
+
+        rc = pool.setMaxWriteCacheSize(s_channelId, 0);
+        LOOP_ASSERT(rc, !rc);
+
+        rc = pool.write(s_channelId, b);
+        LOOP_ASSERT(rc, !rc);
+
+        rc = pool.getChannelWriteCacheStatistics(&max, &curr, s_channelId);
+        LOOP_ASSERT(rc, !rc);
+        LOOP_ASSERT(max, max >= 0);
+        LOOP_ASSERT(curr, curr >= 0);
+        LOOP2_ASSERT(max, curr, curr <= max);
+        P_(max) P(curr);
+
+        do {
+            rc = s_client->read(buffer, SIZE);
+        } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
+    }
+    return 0;
 }
 
 }  // namespace TEST_CASE_41_NAMESPACE
@@ -7875,7 +7965,7 @@ int main(int argc, char *argv[])
         btemt_ChannelPool::ChannelStateChangeCallback channelCb(
                                        bdef_BindUtil::bind(&channelStateCb,
                                                            _1, _2, _3, _4,
-                                                           &channelId,
+                                                           &s_channelId,
                                                            &channelCbBarrier));
 
         btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
@@ -7910,92 +8000,23 @@ int main(int argc, char *argv[])
         ASSERT(!rc);
 
         channelCbBarrier.wait();
-        bteso_StreamSocket<bteso_IPv4Address> *client = 0;
-        rc = socket->accept(&client);
+
+        rc = socket->accept(&s_client);
         ASSERT(!rc);
-        P(client->connectionStatus());
-        ASSERT(0 == client->setBlockingMode(
+        ASSERT(0 == s_client->setBlockingMode(
                                           bteso_Flag::BTESO_NONBLOCKING_MODE));
 
-        const int SIZE = 1024 * 1024;
-        bcema_PooledBlobBufferFactory f(SIZE);
-        bcema_Blob b(&f);
-        b.setLength(SIZE);
-
-        bsls_Types::Int64 curr = 0, max = 0;
-        rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
-
-        LOOP_ASSERT(rc, !rc);
-        LOOP_ASSERT(max, 0 == max);
-        LOOP_ASSERT(curr, 0 == curr);
-
-        char buffer[SIZE];
-        for (int i = 0; i < 10; ++i) {
-            bcemt_ThreadUtil::microSleep(0, 1);
-
-            rc = pool.write(channelId, b);
-            LOOP_ASSERT(rc, !rc);
-
-            rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
-            LOOP_ASSERT(rc, !rc);
-            LOOP_ASSERT(max, max > 0);
-            LOOP_ASSERT(curr, curr >= 0);
-            P_(max) P(curr);
-
-            int totalRead = SIZE;
-            for (int j = 0; j < 3; ++j) {
-                rc = client->read(buffer, totalRead);
-                totalRead -= rc;
-            }
+        const int NUM_THREADS = 5;
+        bcemt_ThreadUtil::Handle handles[NUM_THREADS];
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            bcemt_ThreadUtil::create(&handles[i], &writeData, &pool);
         }
 
-        rc = pool.setMaxWriteCacheSize(channelId, 0);
-        LOOP_ASSERT(rc, !rc);
-
-        for (int i = 0; i < 10; ++i) {
-            bcemt_ThreadUtil::microSleep(0, 1);
-
-            rc = pool.write(channelId, b);
-            LOOP_ASSERT(rc, !rc);
-
-            rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
-            LOOP_ASSERT(rc, !rc);
-            LOOP_ASSERT(max, max > 0);
-            LOOP_ASSERT(curr, curr >= 0);
-            P_(max) P(curr);
-
-            do {
-                rc = client->read(buffer, SIZE);
-            } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            ASSERT(0 == bcemt_ThreadUtil::join(handles[i]));
         }
 
-        rc = pool.setMaxWriteCacheSize(channelId, 0);
-        LOOP_ASSERT(rc, !rc);
-
-        for (int i = 0; i < 10; ++i) {
-            bcemt_ThreadUtil::microSleep(0, 1);
-
-            rc = pool.setMaxWriteCacheSize(channelId, 0);
-            LOOP_ASSERT(rc, !rc);
-
-            rc = pool.write(channelId, b);
-            LOOP_ASSERT(rc, !rc);
-
-            rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
-            LOOP_ASSERT(rc, !rc);
-            LOOP_ASSERT(max, max >= 0);
-            LOOP_ASSERT(curr, curr >= 0);
-            LOOP2_ASSERT(max, curr, max == curr);
-            P_(max) P(curr);
-
-            int totalRead = SIZE;
-            for (int j = 0; j < 3; ++j) {
-                rc = client->read(buffer, totalRead);
-                totalRead -= rc;
-            }
-        }
-
-        bcemt_ThreadUtil::microSleep(0, 3);
+//         bcemt_ThreadUtil::microSleep(0, 3);
       } break;
 #if 0
       case 37: {
