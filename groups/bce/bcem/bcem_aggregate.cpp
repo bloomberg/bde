@@ -204,7 +204,7 @@ bcema_SharedPtr<const bdem_Schema> bcem_Aggregate::schemaPtr() const
         return bcema_SharedPtr<const bdem_Schema>();
     }
     d_schemaRep_p->acquireRef();
-    return bcema_SharedPtr<const bdem_Schema>(d_rawData.schema(), 
+    return bcema_SharedPtr<const bdem_Schema>(d_rawData.schema(),
                                               d_schemaRep_p);
 }
 
@@ -214,9 +214,9 @@ bcema_SharedPtr<const bdem_RecordDef> bcem_Aggregate::recordDefPtr() const
         return bcema_SharedPtr<const bdem_RecordDef>();
     }
     d_schemaRep_p->acquireRef();
-    bcema_SharedPtr<const bdem_Schema> schema_sp (d_rawData.schema(), 
+    bcema_SharedPtr<const bdem_Schema> schema_sp (d_rawData.schema(),
                                                   d_schemaRep_p);
-    return bcema_SharedPtr<const bdem_RecordDef>(schema_sp, 
+    return bcema_SharedPtr<const bdem_RecordDef>(schema_sp,
                                                  d_rawData.recordDefPtr());
 }
 
@@ -238,7 +238,7 @@ void bcem_Aggregate::init(
     BSLS_ASSERT(0 == d_schemaRep_p);
     BSLS_ASSERT(0 == d_valueRep_p);
     BSLS_ASSERT(0 == d_isTopLevelAggregateNullRep_p);
-    
+
     if (bdem_ElemType::BDEM_VOID == elemType) {
         // Determine aggregate element type from record type
         elemType = bdem_RecordDef::BDEM_CHOICE_RECORD ==
@@ -375,7 +375,7 @@ void bcem_Aggregate::init(
 // PRIVATE ACCESSORS
 
 const bcem_Aggregate
-bcem_Aggregate::makeError(bcem_AggregateError::Code errorCode, 
+bcem_Aggregate::makeError(bcem_AggregateError::Code errorCode,
                           const char *msg, ...) const
 {
     if (0 == errorCode || isError()) {
@@ -412,7 +412,7 @@ bcem_Aggregate::makeError(const bcem_AggregateError& errorDescription) const
 
     bcem_AggregateRaw errorValue;
     errorValue.setDataPointer(errPtr.ptr());
-    
+
     return bcem_Aggregate(errorValue, 0, errPtr.rep(), 0);
 }
 
@@ -472,7 +472,7 @@ bcem_Aggregate::bcem_Aggregate(const bcem_Aggregate& original)
     }
 }
 
-bcem_Aggregate::bcem_Aggregate(const bcem_AggregateRaw&     rawData, 
+bcem_Aggregate::bcem_Aggregate(const bcem_AggregateRaw&     rawData,
                                bcema_SharedPtrRep          *schemaRep,
                                bcema_SharedPtrRep          *valueRep,
                                bcema_SharedPtrRep          *topLevelNullRep)
@@ -544,7 +544,7 @@ bcem_Aggregate& bcem_Aggregate::operator=(const bcem_Aggregate& rhs)
 const bcem_Aggregate& bcem_Aggregate::reset()
 {
     d_rawData.reset();
-    
+
     if (d_isTopLevelAggregateNullRep_p) {
         d_isTopLevelAggregateNullRep_p->releaseRef();
         d_isTopLevelAggregateNullRep_p = 0;
@@ -565,7 +565,7 @@ const bcem_Aggregate
 bcem_Aggregate::resize(int newSize) const
 {
     bcem_AggregateError errorDescription;
-    if (0 == d_rawData.resize(&errorDescription, 
+    if (0 == d_rawData.resize(&errorDescription,
                               static_cast<bsl::size_t>(newSize))) {
         return *this;
     }
@@ -577,7 +577,7 @@ bcem_Aggregate::resize(int newSize) const
 const bcem_Aggregate bcem_Aggregate::insertItems(int pos, int numItems) const
 {
     bcem_AggregateError errorDescription;
-    
+
     if (0 == d_rawData.insertItems(&errorDescription, pos, numItems)) {
         return *this;
     }
@@ -596,8 +596,8 @@ bcem_Aggregate::makeSelectionByIndex(int newSelectorIndex) const
 
     bcem_AggregateError errorDescription;
     bcem_AggregateRaw   result;
-    if (0 != d_rawData.makeSelectionByIndexRaw(&result, 
-                                               &errorDescription, 
+    if (0 != d_rawData.makeSelectionByIndexRaw(&result,
+                                               &errorDescription,
                                                newSelectorIndex)) {
         if (isAggNull) {
             makeNull();
@@ -606,8 +606,8 @@ bcem_Aggregate::makeSelectionByIndex(int newSelectorIndex) const
     }
 
     result.makeValue();
-    
-    return bcem_Aggregate(result, d_schemaRep_p, d_valueRep_p, 
+
+    return bcem_Aggregate(result, d_schemaRep_p, d_valueRep_p,
                           d_isTopLevelAggregateNullRep_p);
 }
 
@@ -690,7 +690,7 @@ bcem_Aggregate::insertNullItems(int pos, int numItems) const
 const bcem_Aggregate bcem_Aggregate::removeItems(int pos, int numItems) const
 {
     bcem_AggregateError errorDescription;
-    
+
     if (0 == d_rawData.removeItems(&errorDescription, pos, numItems)) {
         return *this;
     }
@@ -703,15 +703,15 @@ const bcem_Aggregate bcem_Aggregate::selection() const
 {
     bcem_AggregateRaw obj;
     bcem_AggregateError errorDescription;
-    if (0 != d_rawData.findUnambiguousChoice(&obj, &errorDescription, 
+    if (0 != d_rawData.findUnambiguousChoice(&obj, &errorDescription,
                                              "selection") ||
         0 != obj.fieldByIndex(&obj, &errorDescription, selectorIndex())) {
         return makeError(errorDescription);
     }
-    
-    return bcem_Aggregate(obj, 
-                          d_schemaRep_p, 
-                          d_valueRep_p, 
+
+    return bcem_Aggregate(obj,
+                          d_schemaRep_p,
+                          d_valueRep_p,
                           d_isTopLevelAggregateNullRep_p);
 }
 
@@ -721,10 +721,10 @@ bcem_Aggregate::makeSelection(const char *newSelector) const
     bcem_AggregateRaw field;
     bcem_AggregateError errorDescription;
 
-    if (0 == d_rawData.makeSelection(&field, 
-                                     &errorDescription, 
+    if (0 == d_rawData.makeSelection(&field,
+                                     &errorDescription,
                                      newSelector)) {
-        return bcem_Aggregate(field, d_schemaRep_p, d_valueRep_p, 
+        return bcem_Aggregate(field, d_schemaRep_p, d_valueRep_p,
                               d_isTopLevelAggregateNullRep_p);
     }
     else {
@@ -738,7 +738,7 @@ void bcem_Aggregate::swap(bcem_Aggregate& rhs)
     d_rawData.swap(rhs.d_rawData);
     bsl::swap(d_schemaRep_p, rhs.d_schemaRep_p);
     bsl::swap(d_valueRep_p, rhs.d_valueRep_p);
-    bsl::swap(d_isTopLevelAggregateNullRep_p, 
+    bsl::swap(d_isTopLevelAggregateNullRep_p,
               rhs.d_isTopLevelAggregateNullRep_p);
 }
 
@@ -757,8 +757,8 @@ const bcem_Aggregate bcem_Aggregate::field(NameOrIndex fieldOrIdx) const
     return fieldImp(false, fieldOrIdx);
 }
 
-const bcem_Aggregate 
-bcem_Aggregate::fieldImp(bool makeNonNullFlag, 
+const bcem_Aggregate
+bcem_Aggregate::fieldImp(bool makeNonNullFlag,
                          NameOrIndex fieldOrIdx1,
                          NameOrIndex fieldOrIdx2,
                          NameOrIndex fieldOrIdx3,
@@ -772,23 +772,23 @@ bcem_Aggregate::fieldImp(bool makeNonNullFlag,
 {
     bcem_AggregateRaw field;
     bcem_AggregateError errorDescription;
-    
-    if (0 == d_rawData.getField(&field, 
-                                &errorDescription, 
-                                makeNonNullFlag, 
-                                fieldOrIdx1, 
-                                fieldOrIdx2, 
-                                fieldOrIdx3, 
-                                fieldOrIdx4, 
-                                fieldOrIdx5, 
-                                fieldOrIdx6, 
-                                fieldOrIdx7, 
-                                fieldOrIdx8, 
-                                fieldOrIdx9, 
+
+    if (0 == d_rawData.getField(&field,
+                                &errorDescription,
+                                makeNonNullFlag,
+                                fieldOrIdx1,
+                                fieldOrIdx2,
+                                fieldOrIdx3,
+                                fieldOrIdx4,
+                                fieldOrIdx5,
+                                fieldOrIdx6,
+                                fieldOrIdx7,
+                                fieldOrIdx8,
+                                fieldOrIdx9,
                                 fieldOrIdx10)) {
-        return bcem_Aggregate(field, 
-                              d_schemaRep_p, 
-                              d_valueRep_p, 
+        return bcem_Aggregate(field,
+                              d_schemaRep_p,
+                              d_valueRep_p,
                               d_isTopLevelAggregateNullRep_p);
     }
     else {
@@ -824,11 +824,11 @@ const bcem_Aggregate bcem_Aggregate::fieldById(int fieldId) const
 {
     bcem_AggregateRaw fldObj(d_rawData);
     bcem_AggregateError errorDescription;
-    
+
     if (0 == fldObj.descendIntoFieldById(&errorDescription, fieldId)) {
-        return bcem_Aggregate(fldObj, 
-                              d_schemaRep_p, 
-                              d_valueRep_p, 
+        return bcem_Aggregate(fldObj,
+                              d_schemaRep_p,
+                              d_valueRep_p,
                               d_isTopLevelAggregateNullRep_p);
     }
     else {
@@ -841,9 +841,9 @@ const bcem_Aggregate bcem_Aggregate::fieldByIndex(int index) const
     bcem_AggregateRaw field;
     bcem_AggregateError errorDescription;
     if (0 == d_rawData.fieldByIndex(&field, &errorDescription, index)) {
-        return bcem_Aggregate(field, 
-                              d_schemaRep_p, 
-                              d_valueRep_p, 
+        return bcem_Aggregate(field,
+                              d_schemaRep_p,
+                              d_valueRep_p,
                               d_isTopLevelAggregateNullRep_p);
     }
     else {
@@ -857,9 +857,9 @@ const bcem_Aggregate bcem_Aggregate::anonymousField(int n) const
     bcem_AggregateRaw field;
     bcem_AggregateError errorDescription;
     if (0 == d_rawData.anonymousField(&field, &errorDescription, n)) {
-        return bcem_Aggregate(field, 
-                              d_schemaRep_p, 
-                              d_valueRep_p, 
+        return bcem_Aggregate(field,
+                              d_schemaRep_p,
+                              d_valueRep_p,
                               d_isTopLevelAggregateNullRep_p);
     }
     else {
@@ -869,12 +869,12 @@ const bcem_Aggregate bcem_Aggregate::anonymousField(int n) const
 
 const bcem_Aggregate bcem_Aggregate::anonymousField() const
 {
-    if (d_rawData.recordDefPtr() && 
+    if (d_rawData.recordDefPtr() &&
         1 < d_rawData.recordDefPtr()->numAnonymousFields()) {
         // Only report error if there are more than one anonymous fields.  The
         // case where there are zero anonymous fields is already handled by
         // the single-argument call to 'anonymousField', below.
-        return makeError(bcem_AggregateError::BCEM_ERR_AMBIGUOUS_ANON, 
+        return makeError(bcem_AggregateError::BCEM_ERR_AMBIGUOUS_ANON,
                          "anonymousField() called for object with multiple "
                          "anonymous fields.  Cannot pick one.");
     }
@@ -1051,12 +1051,12 @@ bcem_Aggregate::clone(bslma_Allocator *basicAllocator) const
 
     // Clone the schema:
     bcema_SharedPtr<bdem_Schema> schemaClone;
-    schemaClone.createInplace(basicAllocator, 
-                              *d_rawData.schema(), 
+    schemaClone.createInplace(basicAllocator,
+                              *d_rawData.schema(),
                               basicAllocator);
-    
+
     returnVal.d_rawData.setSchemaPointer(schemaClone.ptr());
-    
+
     bcema_SharedPtrRep *schemaCloneRep = schemaClone.rep();
     bsl::swap(returnVal.d_schemaRep_p, schemaCloneRep);
     if (schemaCloneRep) {
@@ -1077,7 +1077,7 @@ bcem_Aggregate::clone(bslma_Allocator *basicAllocator) const
         // TBD: The only way to find the field spec in the schema is to do a
         // linear search through all of the fields of all of the recordDefs.
         // Can we find a more efficient way to do this?
-        for (int recIndex = 0; 
+        for (int recIndex = 0;
              recIndex < d_rawData.schema()->numRecords();
              ++recIndex)
         {
@@ -1146,7 +1146,7 @@ bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
             valuePtr = makeValuePtrInplaceWithAlloc<bcem_AggregateError>(
                                                                     allocator);
             *static_cast<bcem_AggregateError*>(valuePtr.ptr()) =
-                               *static_cast<const bcem_AggregateError*>(data());
+                              *static_cast<const bcem_AggregateError*>(data());
         }
       } break;
       default: {
@@ -1162,7 +1162,7 @@ bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
     bcem_Aggregate returnVal(*this);
     if (valuePtr) {
         returnVal.d_rawData.setDataPointer(valuePtr.ptr());
-        
+
         bcema_SharedPtrRep *valuePtrRep = valuePtr.rep();
         bsl::swap(returnVal.d_valueRep_p, valuePtrRep);
         if (valuePtrRep) {
@@ -1176,7 +1176,7 @@ bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
     }
 
     // Clone is a top-level aggregate.
-    
+
     returnVal.d_rawData.clearParent();
 
     if (bdem_ElemType::BDEM_VOID != dataType()) {
@@ -1186,7 +1186,6 @@ bcem_Aggregate::cloneData(bslma_Allocator *basicAllocator) const
         returnVal.d_rawData.setTopLevelAggregateNullnessPointer(
                                                             isNull_sp.ptr());
 
-        
         bcema_SharedPtrRep *isNullRep = isNull_sp.rep();
         bsl::swap(returnVal.d_isTopLevelAggregateNullRep_p, isNullRep);
         if (isNullRep) {
