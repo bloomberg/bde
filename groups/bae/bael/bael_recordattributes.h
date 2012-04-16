@@ -362,7 +362,7 @@ class bael_RecordAttributes {
     int lineNumber() const;
         // Return the line number attribute of this record attributes object.
 
-    const char *message() const;
+    const bslstl_StringRef message() const;
         // Return the message attribute of this record attributes object.
 
     int processID() const;

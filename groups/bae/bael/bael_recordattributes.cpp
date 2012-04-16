@@ -97,9 +97,9 @@ bael_RecordAttributes& bael_RecordAttributes::operator=(
 }
 
 // ACCESSORS
-const char *bael_RecordAttributes::message() const
+const bslstl_StringRef bael_RecordAttributes::message() const
 {
-    const int length = d_messageStreamBuf.length();
+    int length = d_messageStreamBuf.length();
     if (0 == length || '\0' != *(d_messageStreamBuf.data() + length - 1)) {
         // Null terminate the string.
 
@@ -107,9 +107,10 @@ const char *bael_RecordAttributes::message() const
             const_cast<bael_RecordAttributes *>(this)->d_messageStreamBuf;
         streamBuf.sputc('\0');
         streamBuf.pubseekoff(-1, bsl::ios_base::cur);
+        ++length;
     }
 
-    return d_messageStreamBuf.data();
+    return bslstl_StringRef(d_messageStreamBuf.data(), length - 1);
 }
 
 bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
@@ -200,7 +201,7 @@ bsl::ostream& bael_RecordAttributes::print(bsl::ostream& stream,
     else {
         stream << ' ';
     }
-    stream << message();
+    stream << message().data();
 
     if (0 <= spacesPerLevel) {
         stream << '\n';
@@ -225,7 +226,7 @@ bool operator==(const bael_RecordAttributes& lhs,
         && lhs.d_lineNumber == rhs.d_lineNumber
         && lhs.d_fileName   == rhs.d_fileName
         && lhs.d_category   == rhs.d_category
-        && !bsl::strcmp(lhs.message(), rhs.message());
+        && !bsl::strcmp(lhs.message().data(), rhs.message().data());
 }
 
 }  // close namespace BloombergLP
