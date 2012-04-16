@@ -324,9 +324,9 @@ void bcem_Aggregate::init(
     }
 
     bcem_Aggregate_RepProctor schemaRepProctor(d_schemaRep_p);
-    
+
     BSLS_ASSERT(valuePtr.ptr());
-    
+
     d_rawData.setRecordDefPointer(recordDefPtr);
     d_rawData.setDataPointer(valuePtr.ptr());
     d_valueRep_p = valuePtr.rep();
@@ -336,10 +336,11 @@ void bcem_Aggregate::init(
 
     // "nullness" data members are set in the constructors.
     bcema_SharedPtr<int> isNull_sp;
-    isNull_sp.createInplace(allocator, isNul2());
-    d_rawData.setTopLevelAggregateNullnessPointer(isNull_sp.ptr());
+    isNull_sp.createInplace(allocator, 0);
     d_isTopLevelAggregateNullRep_p = isNull_sp.rep();
     d_isTopLevelAggregateNullRep_p->acquireRef();
+    d_rawData.setTopLevelAggregateNullnessPointer(isNull_sp.ptr());
+    *isNull_sp = isNul2();
 
     schemaRepProctor.release();
     valueRepProtctor.release();

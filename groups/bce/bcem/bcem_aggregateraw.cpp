@@ -1,13 +1,15 @@
 // bcem_aggregateraw.cpp                                             -*-C++-*-
 #include <bcem_aggregateraw.h>
 
+#include <bdes_ident.h>
+BDES_IDENT_RCSID(bcem_aggregateraw_cpp,"$Id$ $CSID$")
+
 #include <bdem_convert.h>
 #include <bdem_list.h>
 #include <bdem_schemaaggregateutil.h>
 #include <bdem_schemautil.h>
 
-#include <bdes_ident.h>
-BDES_IDENT_RCSID(bcem_aggregateraw_cpp,"$Id$ $CSID$")
+#include <stdio.h>   // for 'snprintf'
 
 namespace BloombergLP {
 
@@ -1561,8 +1563,7 @@ const bdem_ElemRef bcem_AggregateRaw::asElemRef() const
                           ? &s_voidNullnessWord
                           : d_isTopLevelAggregateNull_p;
 
-        return bdem_ElemRef(d_value_p, descriptor, nullnessWord, 0);
-                                                                      // RETURN
+        return bdem_ElemRef(d_value_p, descriptor, nullnessWord, 0);  // RETURN
     }
 
     void *valuePtr = d_parentData;

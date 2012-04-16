@@ -52,7 +52,7 @@ bsl::ostream& bcem_AggregateError::print(bsl::ostream& stream,
     printer.printAttribute("description", d_description.c_str());
 
     // TBD, erase these two lines when bslim_printer is up-to-date
-#warning TEMPORARY BSLIM_PRINTER WORKAROUND
+// #warning TEMPORARY BSLIM_PRINTER WORKAROUND
     printer.printAttribute("code", (int)d_code);
 
     // TBD, uncomment this line and erase the lines above when bslim_printer
