@@ -687,7 +687,7 @@ bteso_StreamSocket<bteso_IPv4Address> *s_client;
 
 void *writeData(void *poolPtr)
 {
-    const int SIZE = 1000 * 100;
+    const int SIZE = 100;
     bcema_PooledBlobBufferFactory f(SIZE);
     bcema_Blob b(&f);
     b.setLength(SIZE);
@@ -698,15 +698,15 @@ void *writeData(void *poolPtr)
     int rc = pool.getChannelWriteCacheStatistics(&max, &curr, s_channelId);
 
     LOOP_ASSERT(rc, !rc);
-    LOOP_ASSERT(max, 0 == max);
-    LOOP_ASSERT(curr, 0 == curr);
+//     LOOP_ASSERT(max, 0 == max);
+//     LOOP_ASSERT(curr, 0 == curr);
 
     if (verbose) cout << "\nFIRST SET"
                       << "\n=========" << endl;
 
     char buffer[SIZE];
     for (int i = 0; i < 100; ++i) {
-        bcemt_ThreadUtil::microSleep(0, 1);
+//         bcemt_ThreadUtil::microSleep(0, 1);
 
         rc = pool.write(s_channelId, b);
         LOOP_ASSERT(rc, !rc);
@@ -715,12 +715,20 @@ void *writeData(void *poolPtr)
         LOOP_ASSERT(rc, !rc);
         LOOP_ASSERT(max, max >= 0);
         LOOP_ASSERT(curr, curr >= 0);
-        LOOP2_ASSERT(max, curr, curr <= max);
-        P_(max) P(curr);
+//         LOOP2_ASSERT(max, curr, curr <= max);
+        if (veryVerbose) {
+            MTCOUT << "Max: " << max << " Curr: " << curr << MTENDL;
+        }
 
-        do {
+        for (int i = 0; i < 3; ++i) {
             rc = s_client->read(buffer, SIZE);
-        } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
+            if (rc == bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+                break;
+            }
+        }
+//         do {
+//             rc = s_client->read(buffer, SIZE);
+//         } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
     }
 
     if (verbose) cout << "\nSECOND SET"
@@ -729,8 +737,8 @@ void *writeData(void *poolPtr)
     rc = pool.setMaxWriteCacheSize(s_channelId, 0);
     LOOP_ASSERT(rc, !rc);
 
-    for (int i = 0; i < 10; ++i) {
-        bcemt_ThreadUtil::microSleep(0, 1);
+    for (int i = 0; i < 100; ++i) {
+//         bcemt_ThreadUtil::microSleep(0, 1);
 
         rc = pool.write(s_channelId, b);
         LOOP_ASSERT(rc, !rc);
@@ -739,12 +747,20 @@ void *writeData(void *poolPtr)
         LOOP_ASSERT(rc, !rc);
         LOOP_ASSERT(max, max >= 0);
         LOOP_ASSERT(curr, curr >= 0);
-        LOOP2_ASSERT(max, curr, curr <= max);
-        P_(max) P(curr);
+//         LOOP2_ASSERT(max, curr, curr <= max);
+        if (veryVerbose) {
+            MTCOUT << "Max: " << max << " Curr: " << curr << MTENDL;
+        }
 
-        do {
+        for (int i = 0; i < 3; ++i) {
             rc = s_client->read(buffer, SIZE);
-        } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
+            if (rc == bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+                break;
+            }
+        }
+//         do {
+//             rc = s_client->read(buffer, SIZE);
+//         } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
     }
 
     if (verbose) cout << "\nTHIRD SET"
@@ -753,8 +769,8 @@ void *writeData(void *poolPtr)
     rc = pool.setMaxWriteCacheSize(s_channelId, 0);
     LOOP_ASSERT(rc, !rc);
 
-    for (int i = 0; i < 10; ++i) {
-        bcemt_ThreadUtil::microSleep(0, 1);
+    for (int i = 0; i < 100; ++i) {
+//         bcemt_ThreadUtil::microSleep(0, 1);
 
         rc = pool.setMaxWriteCacheSize(s_channelId, 0);
         LOOP_ASSERT(rc, !rc);
@@ -766,12 +782,20 @@ void *writeData(void *poolPtr)
         LOOP_ASSERT(rc, !rc);
         LOOP_ASSERT(max, max >= 0);
         LOOP_ASSERT(curr, curr >= 0);
-        LOOP2_ASSERT(max, curr, curr <= max);
-        P_(max) P(curr);
+//         LOOP2_ASSERT(max, curr, curr <= max);
+        if (veryVerbose) {
+            MTCOUT << "Max: " << max << " Curr: " << curr << MTENDL;
+        }
 
-        do {
+        for (int i = 0; i < 3; ++i) {
             rc = s_client->read(buffer, SIZE);
-        } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
+            if (rc == bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+                break;
+            }
+        }
+//         do {
+//             rc = s_client->read(buffer, SIZE);
+//         } while (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK);
     }
     return 0;
 }

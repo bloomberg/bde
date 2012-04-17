@@ -263,7 +263,6 @@ class btemt_Channel {
                                                              // 'd_write*', and
                                                           // 'd_isWriteActive'.
 
-
     bool                            d_isWriteActive;         // a thread is
                                                              // actively
                                                              // writing
@@ -345,8 +344,7 @@ class btemt_Channel {
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
-    volatile bsls_Types::Int64 d_maxWriteCacheSize;
-                                                  // max write cache size
+    bsls_Types::Int64         d_maxWriteCacheSize;// max write cache size
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
@@ -723,8 +721,7 @@ bsls_PlatformUtil::Int64 btemt_Channel::numBytesRequestedToBeWritten() const
 inline
 bsls_Types::Int64 btemt_Channel::currWriteCacheSize() const
 {
-    return d_currWriteCacheSize;
-//     return d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    return d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
 }
 
 inline
@@ -1769,9 +1766,9 @@ void btemt_Channel::writeCb(ChannelHandle self)
             d_numBytesWritten += writeRet;
             d_writeActiveCacheSize.relaxedAdd(-writeRet);
 
-            d_currWriteCacheSize -= writeRet;
+//             d_currWriteCacheSize -= writeRet;
 
-            BSLS_ASSERT(d_currWriteCacheSize >= 0);
+//             BSLS_ASSERT(d_currWriteCacheSize >= 0);
 
             if (d_hiWatermarkHitFlag
              && (d_writeEnqueuedCacheSize
@@ -2137,6 +2134,14 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
+    int activeCacheSize = d_writeActiveCacheSize.relaxedLoad()
+                        + d_writeEnqueuedCacheSize
+                        + dataLength;
+
+    if (d_maxWriteCacheSize < activeCacheSize) {
+        d_maxWriteCacheSize = activeCacheSize;
+    }
+
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
         // This message is the first and only in the outgoing queue.  Note that
         // if 'blob' were a 'bcema_SharedPtr<bcema_Blob> msg' instead, we could
@@ -2228,15 +2233,15 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
             d_writeActiveData.setUserDataField1(0);
             d_writeActiveData.setUserDataField2(startingIndex);
 
-            const int unwrittenBytes = dataLength - writeRet;
+//             const int unwrittenBytes = dataLength - writeRet;
 
-            bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
+//             bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
 
-            d_currWriteCacheSize += unwrittenBytes;
+//             d_currWriteCacheSize += unwrittenBytes;
 
-            if (d_maxWriteCacheSize < d_currWriteCacheSize) {
-                d_maxWriteCacheSize = d_currWriteCacheSize;
-            }
+//             if (d_maxWriteCacheSize < d_currWriteCacheSize) {
+//                 d_maxWriteCacheSize = d_currWriteCacheSize;
+//             }
         }
 
         // There is data available, let the event manager know.
@@ -2277,11 +2282,11 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 //         d_maxWriteCacheSize = activeCacheSize + d_writeEnqueuedCacheSize;
 //     }
 
-    d_currWriteCacheSize += dataLength;
+//     d_currWriteCacheSize += dataLength;
 
-    if (d_maxWriteCacheSize < d_currWriteCacheSize) {
-        d_maxWriteCacheSize = d_currWriteCacheSize;
-    }
+//     if (d_maxWriteCacheSize < d_currWriteCacheSize) {
+//         d_maxWriteCacheSize = d_currWriteCacheSize;
+//     }
 
     return SUCCESS;
 }
