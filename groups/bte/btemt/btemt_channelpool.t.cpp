@@ -8069,7 +8069,6 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bcemt_ThreadUtil::join(handles[NUM_THREADS]));
       } break;
-#if 0
       case 37: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
@@ -15317,7 +15316,6 @@ int main(int argc, char *argv[])
             factory.deallocate(channels[i].first);
         }
       } break;
-#endif
       default: {
         cerr << "WARNING: CASE " << test << " NOT FOUND." << endl;
         testStatus = -1;
