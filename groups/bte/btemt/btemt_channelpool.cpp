@@ -1769,7 +1769,7 @@ void btemt_Channel::writeCb(ChannelHandle self)
 
             d_currWriteCacheSize.relaxedAdd(-writeRet);
 
-            BSLS_ASSERT(d_currWriteCacheSize >= 0);
+//             BSLS_ASSERT(d_currWriteCacheSize >= 0);
 
             if (d_hiWatermarkHitFlag
              && (d_writeEnqueuedCacheSize
@@ -2135,9 +2135,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    d_currWriteCacheSize = d_writeActiveCacheSize.relaxedLoad()
-                         + d_writeEnqueuedCacheSize
-                         + dataLength;
+    d_currWriteCacheSize.relaxedAdd(dataLength);
 
     if (d_maxWriteCacheSize < d_currWriteCacheSize) {
         d_maxWriteCacheSize = d_currWriteCacheSize;
