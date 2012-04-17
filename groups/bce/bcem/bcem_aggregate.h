@@ -1,4 +1,3 @@
-
 // bcem_aggregate.h                  -*-C++-*-
 #ifndef INCLUDED_BCEM_AGGREGATE
 #define INCLUDED_BCEM_AGGREGATE
