@@ -339,12 +339,13 @@ class btemt_Channel {
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
-    bsls_Types::Int64         d_currWriteCacheSize;
+    bces_AtomicInt64                   d_currWriteCacheSize;
                                                   // curr write cache size
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
-    bsls_Types::Int64         d_maxWriteCacheSize;// max write cache size
+    volatile bsls_Types::Int64         d_maxWriteCacheSize;
+                                                  // max write cache size
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
@@ -721,7 +722,7 @@ bsls_PlatformUtil::Int64 btemt_Channel::numBytesRequestedToBeWritten() const
 inline
 bsls_Types::Int64 btemt_Channel::currWriteCacheSize() const
 {
-    return d_writeEnqueuedCacheSize + d_writeActiveCacheSize.relaxedLoad();
+    return d_currWriteCacheSize.relaxedLoad();
 }
 
 inline
@@ -1766,9 +1767,9 @@ void btemt_Channel::writeCb(ChannelHandle self)
             d_numBytesWritten += writeRet;
             d_writeActiveCacheSize.relaxedAdd(-writeRet);
 
-//             d_currWriteCacheSize -= writeRet;
+            d_currWriteCacheSize -= writeRet;
 
-//             BSLS_ASSERT(d_currWriteCacheSize >= 0);
+            BSLS_ASSERT(d_currWriteCacheSize >= 0);
 
             if (d_hiWatermarkHitFlag
              && (d_writeEnqueuedCacheSize
@@ -2134,12 +2135,20 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    int activeCacheSize = d_writeActiveCacheSize.relaxedLoad()
-                        + d_writeEnqueuedCacheSize
-                        + dataLength;
+//     int activeCacheSize = d_writeActiveCacheSize.relaxedLoad()
+//                         + d_writeEnqueuedCacheSize
+//                         + dataLength;
 
-    if (d_maxWriteCacheSize < activeCacheSize) {
-        d_maxWriteCacheSize = activeCacheSize;
+    d_currWriteCacheSize = d_writeActiveCacheSize.relaxedLoad()
+                         + d_writeEnqueuedCacheSize
+                         + dataLength;
+
+//     if (d_maxWriteCacheSize < activeCacheSize) {
+//         d_maxWriteCacheSize = activeCacheSize;
+//     }
+
+    if (d_maxWriteCacheSize < d_currWriteCacheSize) {
+        d_maxWriteCacheSize = d_currWriteCacheSize;
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
@@ -2204,6 +2213,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         }
 
         d_writeActiveCacheSize.relaxedAdd(-writeRet);
+        d_currWriteCacheSize.relaxedAdd(-writeRet);
 
         if (dataLength == writeRet) {
             // We succeeded in writing the whole message.  We did release the
