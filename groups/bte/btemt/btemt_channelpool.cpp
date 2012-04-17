@@ -1767,7 +1767,7 @@ void btemt_Channel::writeCb(ChannelHandle self)
             d_numBytesWritten += writeRet;
             d_writeActiveCacheSize.relaxedAdd(-writeRet);
 
-            d_currWriteCacheSize -= writeRet;
+            d_currWriteCacheSize.relaxedAdd(-writeRet);
 
             BSLS_ASSERT(d_currWriteCacheSize >= 0);
 
@@ -2135,17 +2135,9 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-//     int activeCacheSize = d_writeActiveCacheSize.relaxedLoad()
-//                         + d_writeEnqueuedCacheSize
-//                         + dataLength;
-
     d_currWriteCacheSize = d_writeActiveCacheSize.relaxedLoad()
                          + d_writeEnqueuedCacheSize
                          + dataLength;
-
-//     if (d_maxWriteCacheSize < activeCacheSize) {
-//         d_maxWriteCacheSize = activeCacheSize;
-//     }
 
     if (d_maxWriteCacheSize < d_currWriteCacheSize) {
         d_maxWriteCacheSize = d_currWriteCacheSize;
@@ -2175,11 +2167,6 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         BSLS_ASSERT(0 == d_writeActiveData.userDataField2());
 
         d_writeActiveCacheSize.relaxedAdd(dataLength);
-
-//         int activeCacheSize = d_writeActiveCacheSize.relaxedAdd(dataLength);
-//         if (d_maxWriteCacheSize < activeCacheSize + d_writeEnqueuedCacheSize) {
-//             d_maxWriteCacheSize = activeCacheSize + d_writeEnqueuedCacheSize;
-//         }
 
         oGuard.release()->unlock();
 
@@ -2242,16 +2229,6 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
 
             d_writeActiveData.setUserDataField1(0);
             d_writeActiveData.setUserDataField2(startingIndex);
-
-//             const int unwrittenBytes = dataLength - writeRet;
-
-//             bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
-
-//             d_currWriteCacheSize += unwrittenBytes;
-
-//             if (d_maxWriteCacheSize < d_currWriteCacheSize) {
-//                 d_maxWriteCacheSize = d_currWriteCacheSize;
-//             }
         }
 
         // There is data available, let the event manager know.
@@ -2286,17 +2263,6 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     d_writeEnqueuedData->trimLastDataBuffer();
 
     MessageUtil::appendToBlob(d_writeEnqueuedData.ptr(), msg);
-
-//     int activeCacheSize = d_writeActiveCacheSize.relaxedAdd(dataLength);
-//     if (d_maxWriteCacheSize < activeCacheSize + d_writeEnqueuedCacheSize) {
-//         d_maxWriteCacheSize = activeCacheSize + d_writeEnqueuedCacheSize;
-//     }
-
-//     d_currWriteCacheSize += dataLength;
-
-//     if (d_maxWriteCacheSize < d_currWriteCacheSize) {
-//         d_maxWriteCacheSize = d_currWriteCacheSize;
-//     }
 
     return SUCCESS;
 }
