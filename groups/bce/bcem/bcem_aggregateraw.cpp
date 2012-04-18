@@ -10,6 +10,9 @@ BDES_IDENT_RCSID(bcem_aggregateraw_cpp,"$Id$ $CSID$")
 #include <bdem_schemautil.h>
 
 #include <stdio.h>   // for 'snprintf'
+#if defined(BSLS_PLATFORM__CMP_MSVC)
+#   define snprintf _snprintf // MSVC names snprintf _snprintf
+#endif
 
 namespace BloombergLP {
 

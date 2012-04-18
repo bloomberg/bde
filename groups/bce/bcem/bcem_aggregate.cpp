@@ -28,9 +28,6 @@ BDES_IDENT_RCSID(bcem_aggregate_cpp,"$Id$ $CSID$")
 #endif
 
 #include <stdio.h>     // 'v/snprintf' (not always declared in <bsl_cstdio.h>).
-#if defined(BSLS_PLATFORM__CMP_MSVC)
-#   define snprintf _snprintf // MSVC names snprintf _snprintf
-#endif
 
 #include <bsl_cstdarg.h>
 #include <bsl_cstdlib.h>         // 'strtol'
