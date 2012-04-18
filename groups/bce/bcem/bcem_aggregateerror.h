@@ -1,4 +1,4 @@
-// bcem_aggregateerror.h                                             -*-C++-*-
+// bcem_aggregateerror.h                                              -*-C++-*-
 #ifndef INCLUDED_BCEM_AGGREGATEERROR
 #define INCLUDED_BCEM_AGGREGATEERROR
 
@@ -12,15 +12,15 @@ BDES_IDENT("$Id: $")
 //@CLASSES:
 //   bcem_AggregateError: type for descriptive errors
 //
-//@SEE_ALSO: bcem_Aggregate; bcem_AggregateRaw
+//@SEE_ALSO: bcem_aggregate, bcem_aggregateraw
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
-//@DESCRIPTION: This component provides a value-semantic class combining an
-// enumerated error condition with a human-readable verbose description.
+//@DESCRIPTION: This component provides a simply-constrained value-semantic
+// class, 'bcem_AggregateError', combining an enumerated error condition with a
+// human-readable verbose description.
 //
-// The error codes and the conditions that cause them are listed
-// below.
+// The error codes and the conditions that cause them are listed below.
 //..
 //   Error Code               Cause
 //   =======================  =================================================
@@ -79,7 +79,7 @@ BDES_IDENT("$Id: $")
 ///----------
 //..
 //  Name          Type               Default
-//  ----------    ---------------    ----------------------------------
+//  ----------    ---------------    ----------------
 //  code          int                BCEM_SUCCESS (0)
 //  description   bsl::string        ""
 //..
@@ -89,20 +89,20 @@ BDES_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// 'bcem_AggregateError' is a vocabulary type for communicating errors
-// from operations on dynamically-typed objects.  See the documentation for
-// the type in question (for example, 'bcem_Aggregate') for intended usage.
-// In this example, we elide the actual function invocation and instead
-// focus on handling the error condition:
+// 'bcem_AggregateError' is a vocabulary type for communicating errors from
+// operations on a 'bcem_Aggregate' objects.  In this example, we elide the
+// actual function invocation and instead focus on handling the error
+// condition:
 //..
-// bcem_Aggregate      object;
-// bcem_AggregateError error;
-// // Manipulate 'object' in some way, passing the address of  'error'
-// // ... snip ...
+//  bcem_AggregateError error;
 //
-// if (0 != error.code()) {
-//   bsl::cout << "Error: " << error << bsl::endl;
-// }
+//  // Manipulate 'object' in some way, passing the address of  'error'
+//  // ... snip ...
+//
+//  if (0 != error.code()) {
+//      bsl::cout << "Error code: " << error.code()
+//                << " description: " << error.description() << bsl::endl;
+//  }
 //..
 
 #ifndef INCLUDED_BCESCM_VERSION
@@ -127,8 +127,7 @@ namespace BloombergLP {
                        // class bcem_AggregateError
                        // =========================
 
-class bcem_AggregateError
-{
+class bcem_AggregateError {
     // This value-semantic attribute class provides an enumerated error code
     // and a human-readable message to describe errors arising from the
     // the usage of dynamically-typed objects.
@@ -169,10 +168,10 @@ class bcem_AggregateError
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     // CLASS METHODS
-    static int fromInt(Code *result, int number);
+    static int fromInt(Code *result, int value);
         // Load into the specified 'result' the enumerator matching the
-        // specified 'number'.  Return 0 on success, and a non-zero value with
-        // no effect on 'result' otherwise (i.e., 'number' does not match any
+        // specified 'value'.  Return 0 on success, and a non-zero value with
+        // no effect on 'result' otherwise (i.e., 'value' does not match any
         // enumerator).
 
     // CREATORS
@@ -182,6 +181,14 @@ class bcem_AggregateError
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
+    bcem_AggregateError(Code             code,
+                        const char      *description,
+                        bslma_Allocator *basicAllocator = 0);
+        // Create an AggregateError object having the specified 'code' and
+        // 'description'.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
     bcem_AggregateError(const bcem_AggregateError&  original,
                         bslma_Allocator            *basicAllocator = 0);
         // Create an object of type 'AggregateError' having the value of the
@@ -189,37 +196,30 @@ class bcem_AggregateError
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.
 
-    bcem_AggregateError(Code             errorCode,
-                        const char      *errorString,
-                        bslma_Allocator *basicAllocator = 0);
-        // Create an AggregateError object having the specified 'errorCode'
-        // and 'errorString'.  Use the optionally specified 'basicAllocator'
-        // to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
-
     //! ~bcem_AggregateError() = default;
         // Destroy this object.  Note that this trivial destructor is generated
         // by the compiler.
 
     // MANIPULATORS
-    //bcem_AggregateError& operator=(const bcem_AggregateError& rhs);
+    // bcem_AggregateError& operator=(const bcem_AggregateError& rhs);
         // Assign to this object the value of the specified 'rhs' object.
         // Note that the compiler generated default is used.
 
     Code& code();
-        // Return a reference to the modifiable "code" attribute of this
+        // Return a modifiable reference to the "code" attribute of this
         // object.
 
     bsl::string& description();
-        // Return a reference to the modifiable "description" attribute of this
+        // Return a modifiable reference to the "description" attribute of this
         // object.
 
     // ACCESSORS
     Code code() const;
-        // Return the value of the "code" attribute of this object.
+        // Return a non-modifiable reference to the "code" attribute of this
+        // object.
 
     const bsl::string& description() const;
-        // Return a reference to the non-modifiable "description" attribute of
+        // Return a non-modifiable reference to the "description" attribute of
         // this object.
 
     bsl::ostream& print(bsl::ostream& stream,
@@ -242,7 +242,7 @@ class bcem_AggregateError
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&              stream,
-                         const bcem_AggregateError& localDatetime);
+                         const bcem_AggregateError& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference providing
     // modifiable access to 'stream'.  If 'stream' is not valid on entry, this
@@ -264,20 +264,20 @@ bcem_AggregateError::bcem_AggregateError(bslma_Allocator *basicAllocator)
 }
 
 inline
-bcem_AggregateError::bcem_AggregateError(Code             errorCode,
-                                         const char      *errorString,
-                                         bslma_Allocator *basicAllocator)
-: d_description(errorString, basicAllocator)
-, d_code(errorCode)
-{
-}
-
-inline
 bcem_AggregateError::bcem_AggregateError(
                                     const bcem_AggregateError&  original,
                                     bslma_Allocator            *basicAllocator)
 : d_description(original.d_description, basicAllocator)
 , d_code(original.d_code)
+{
+}
+
+inline
+bcem_AggregateError::bcem_AggregateError(Code             code,
+                                         const char      *description,
+                                         bslma_Allocator *basicAllocator)
+: d_description(description, basicAllocator)
+, d_code(code)
 {
 }
 

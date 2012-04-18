@@ -10,10 +10,10 @@ BDES_IDENT_RCSID(bcem_aggregateerror_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 int bcem_AggregateError::fromInt(bcem_AggregateError::Code *result,
-                                 int                        number)
+                                 int                        value)
 {
     int rc;
-    switch (number) {
+    switch (value) {
       case BCEM_SUCCESS:
       case BCEM_ERR_UNKNOWN_ERROR:
       case BCEM_ERR_NOT_A_RECORD:
@@ -29,7 +29,7 @@ int bcem_AggregateError::fromInt(bcem_AggregateError::Code *result,
       case BCEM_ERR_BAD_ENUMVALUE:
       case BCEM_ERR_NON_CONFORMANT:
       case BCEM_ERR_AMBIGUOUS_ANON: {
-        *result = (bcem_AggregateError::Code) number;
+        *result = (bcem_AggregateError::Code) value;
         rc = 0;
       } break;
       default: {
