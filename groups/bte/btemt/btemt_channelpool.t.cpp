@@ -710,7 +710,7 @@ void *readData(void *data)
             break;
         }
     }
-    P(br);
+    return 0;
 }
 
 struct WriteData {
@@ -2700,6 +2700,7 @@ int drainSocket(bteso_StreamSocket<bteso_IPv4Address> *clientSocket,
     while (numBytesRead < numBytesExpected &&
            (rc = clientSocket->read(buffer, BUFF_SIZE)) > 0) {
         numBytesRead += rc;
+//         P_(rc) P(numBytesRead);
     }
     LOOP2_ASSERT(numBytesRead, numBytesExpected,
                                              numBytesRead == numBytesExpected);
@@ -2761,8 +2762,9 @@ TestCase25ConcurrencyTest::TestCase25ConcurrencyTest(
 
 void TestCase25ConcurrencyTest::executeTest()
 {
-    enum { HI_WATERMARK = 1096,
-           NUM_BYTES    = HI_WATERMARK * 25 };
+    enum { LOW_WATERMARK = 64,
+           HI_WATERMARK  = 1096,
+           NUM_BYTES     = HI_WATERMARK * 25 };
 
     int rc = 0, totalBytesWritten = 0;
     bcema_Blob oneByteMsg;
@@ -2771,6 +2773,8 @@ void TestCase25ConcurrencyTest::executeTest()
     d_barrier.wait();
 
     d_pool_p->setWriteCacheHiWatermark(d_channelId, HI_WATERMARK);
+    d_pool_p->setWriteCacheLowWatermark(d_channelId, LOW_WATERMARK);
+
     while (totalBytesWritten < NUM_BYTES) {
         int currentBytesWritten = 0;
         while (currentBytesWritten < (HI_WATERMARK / 4) &&
@@ -2781,6 +2785,7 @@ void TestCase25ConcurrencyTest::executeTest()
         }
 
         d_pool_p->setWriteCacheHiWatermark(d_channelId, 2 * HI_WATERMARK);
+        d_pool_p->setWriteCacheLowWatermark(d_channelId, 2 * LOW_WATERMARK);
 
         currentBytesWritten = 0;
         while (currentBytesWritten < (HI_WATERMARK / 4) &&
@@ -2791,6 +2796,7 @@ void TestCase25ConcurrencyTest::executeTest()
         }
 
         d_pool_p->setWriteCacheHiWatermark(d_channelId, HI_WATERMARK);
+        d_pool_p->setWriteCacheLowWatermark(d_channelId, LOW_WATERMARK);
     }
     ++d_done;
 }
@@ -10602,6 +10608,7 @@ int main(int argc, char *argv[])
         //      'HIWAT' alert is generated an no data can be written to the
         //      cache.
         //   6. Empty the write-cache and perform a concurrency test.
+        //
         // Testing:
         //   int setWriteCacheHighWatermark(int, int);
         //   int setWriteCacheLowWatermark(int, int);
@@ -10698,6 +10705,10 @@ int main(int argc, char *argv[])
                                                        LOW_WATERMARK + 1));
             ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
                                                        LOW_WATERMARK));
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       HI_WATERMARK));
+            ASSERT(0 != pool.setWriteCacheLowWatermark(channelId,
+                                                       HI_WATERMARK + 1));
 
             ASSERT(0 != pool.setWriteCacheHiWatermark(channelId,
                                                       LOW_WATERMARK - 1));
