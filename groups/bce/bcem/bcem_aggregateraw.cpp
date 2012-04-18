@@ -413,16 +413,17 @@ bcem_AggregateRaw::~bcem_AggregateRaw()
         BSLS_ASSERT(!d_schema_p ||
                     (d_recordDef || d_fieldDef));
 
-        BSLS_ASSERT(! d_recordDef
-                    || &d_recordDef->schema() == d_schema_p);
+// TBD: Uncomment
+//         BSLS_ASSERT(! d_recordDef
+//                     || &d_recordDef->schema() == d_schema_p);
 
-        // Cannot easily test that 'd_fieldDef' is within 'd_schema'
-        BSLS_ASSERT(! d_fieldDef
-                    || d_fieldDef->elemType() == d_dataType
-                    || d_fieldDef->elemType() ==
-                            bdem_ElemType::toArrayType(d_dataType));
-        BSLS_ASSERT(! d_fieldDef
-                    || d_recordDef  == d_fieldDef->recordConstraint());
+//         // Cannot easily test that 'd_fieldDef' is within 'd_schema'
+//         BSLS_ASSERT(! d_fieldDef
+//                     || d_fieldDef->elemType() == d_dataType
+//                     || d_fieldDef->elemType() ==
+//                             bdem_ElemType::toArrayType(d_dataType));
+//         BSLS_ASSERT(! d_fieldDef
+//                     || d_recordDef  == d_fieldDef->recordConstraint());
     }
 }
 #endif
