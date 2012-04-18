@@ -49,15 +49,9 @@ bsl::ostream& bcem_AggregateError::print(bsl::ostream& stream,
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
+
     printer.printAttribute("description", d_description.c_str());
-
-    // TBD, erase these two lines when bslim_printer is up-to-date
-// #warning TEMPORARY BSLIM_PRINTER WORKAROUND
-    printer.printAttribute("code", (int)d_code);
-
-    // TBD, uncomment this line and erase the lines above when bslim_printer
-    // is up-to-date in this branch
-    //printer.printAttribute("code", d_code);
+    printer.printAttribute("code", d_code);
 
     printer.end();
 
