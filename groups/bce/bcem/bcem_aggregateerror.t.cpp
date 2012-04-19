@@ -1,12 +1,14 @@
-// bcem_aggregateerror.t.cpp
+// bcem_aggregateerror.t.cpp                                          -*-C++-*-
 
 #include <bcem_aggregateerror.h>
 
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
