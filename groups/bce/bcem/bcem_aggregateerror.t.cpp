@@ -62,7 +62,8 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef bcem_AggregateError Obj;
 
-void doSomething(Obj* error) {
+void doSomething(Obj* error)
+{
 }
 
 //=============================================================================
@@ -94,7 +95,6 @@ int main(int argc, char *argv[])
             bsl::cout << "Error: " << error << bsl::endl;
         }
       } break;
-
       case 4: {
         // --------------------------------------------------------------------
         // TESTING fromInt
@@ -119,7 +119,6 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 != Obj::fromInt(&mX, i));
       } break;
-
       case 3: {
         // --------------------------------------------------------------------
         // TESTING output
@@ -192,14 +191,14 @@ int main(int argc, char *argv[])
                                  << bsl::endl << "=============="
                                  << bsl::endl;
 
-          Obj mX;
-          const Obj& X = mX;
+          Obj mX; const Obj& X = mX;
           ASSERT(X.description().empty());
           ASSERT(Obj::BCEM_SUCCESS == X.code());
 
-          Obj mY(Obj::BCEM_ERR_AMBIGUOUS_ANON, "Pick one field");
+          const string expDesc = "Pick one field";
+          Obj mY(Obj::BCEM_ERR_AMBIGUOUS_ANON, expDesc.c_str());
           const Obj& Y = mY;
-          ASSERT("Pick one field" == Y.description());
+          ASSERT(expDesc == Y.description());
           ASSERT(Obj::BCEM_ERR_AMBIGUOUS_ANON == Y.code());
 
       } break;
