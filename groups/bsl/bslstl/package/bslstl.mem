@@ -15,6 +15,7 @@ bslstl_mapcomparator
 bslstl_multimap
 bslstl_multiset
 bslstl_pair
+bslstl_queue
 bslstl_randomaccessiterator
 bslstl_set
 bslstl_setcomparator
