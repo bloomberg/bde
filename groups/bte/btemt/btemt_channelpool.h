@@ -1518,19 +1518,19 @@ class btemt_ChannelPool {
         // Set the write-cache low-watermark for the specified 'channelId' to
         // the specified 'numBytes'; return 0 on success, or a non-zero value
         // if either 'channelId' does not exist or 'numBytes' is less than the
-        // low watermark for the write cache.  This channel pool maintains an
-        // internal cache of outgoing data for each channel, and data written
-        // to a channel is added to this cache until the associated socket can
-        // be written-to without blocking.  Once the write-cache high-watermark
-        // is reached, this channel pool will no longer accept messages for the
-        // channel until additional space becomes available.  After the data is
-        // written to the socket and the cache size falls below the
-        // low-watermark then a 'BTEMT_WRITE_CACHE_HIWAT' alert is provided to
-        // the client via the channel state callback to suggest that further
-        // writing can resume.  The behavior is undefined unless
+        // low watermark for the write cache.  The behavior is undefined unless
         // '0 <= numBytes'.  Note that this method overrides the default value
         // configured (for all channels) by the
-        // 'btemt_ChannelPoolConfiguration' supplied at construction.
+        // 'btemt_ChannelPoolConfiguration' supplied at construction.  This
+        // channel pool maintains an internal cache of outgoing data for each
+        // channel, and data written to a channel is added to this cache until
+        // the associated socket can be written-to without blocking.  Once the
+        // write-cache high-watermark is reached, this channel pool will no
+        // longer accept messages for the channel until additional space
+        // becomes available.  After the data is written to the socket and the
+        // cache size falls below the low-watermark then a
+        // 'BTEMT_WRITE_CACHE_LOWWAT' alert is provided to the client via the
+        // channel state callback to suggest that further writing can resume.
 
     int setMaxWriteCacheSize(int               channelId,
                              bsls_Types::Int64 maxWriteCacheSize);
@@ -1772,7 +1772,7 @@ class btemt_ChannelPool {
                                        bsls_Types::Int64 *currWriteCacheSize,
                                        int                channelId) const;
         // Load into the specified 'maxWriteCacheSize' and 'currWriteCacheSize'
-        // respectively the maximum and current size of the write cache of the
+        // the maximum and current size respectively of the write cache of the
         // channel identified by the specified 'channelId' and return 0 if the
         // specified 'channelId' is a valid channel id.  Otherwise, return a
         // non-zero value.  Note that for performance reasons this *sequence*

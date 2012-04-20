@@ -341,8 +341,6 @@ class btemt_Channel {
 
     bces_AtomicInt64                   d_currWriteCacheSize;
                                                   // curr write cache size
-                                                  // modification synchronized
-                                                  // with 'd_writeMutex'
 
     volatile bsls_Types::Int64         d_maxWriteCacheSize;
                                                   // max write cache size
@@ -581,13 +579,12 @@ class btemt_Channel {
         // during the entirety of this call.
 
     int setWriteCacheHiWatermark(int numBytes);
-        // Set the write-cache high-watermark for this channel to the
-        // specified 'numBytes'.
+        // Set the write-cache high-watermark for this channel to the specified
+        // 'numBytes'.
 
     int setWriteCacheLowWatermark(int numBytes);
-        // Set the write-cache low-watermark for this channel to the
-        // specified 'numBytes'.  The behavior is undefined unless
-        // '0 <= numBytes'.
+        // Set the write-cache low-watermark for this channel to the specified
+        // 'numBytes'.  The behavior is undefined unless '0 <= numBytes'.
 
     void setMaxWriteCacheSize(bsls_Types::Int64 maxWriteCacheSize);
         // Set the max write cache size for this channel to the specified
@@ -2135,10 +2132,10 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    d_currWriteCacheSize.relaxedAdd(dataLength);
+    int currWriteCacheSize = d_currWriteCacheSize.relaxedAdd(dataLength);
 
-    if (d_maxWriteCacheSize < d_currWriteCacheSize) {
-        d_maxWriteCacheSize = d_currWriteCacheSize;
+    if (d_maxWriteCacheSize < currWriteCacheSize) {
+        d_maxWriteCacheSize = currWriteCacheSize;
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
