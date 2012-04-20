@@ -5,6 +5,7 @@
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
+using namespace bsl;
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -70,6 +71,8 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
+
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
