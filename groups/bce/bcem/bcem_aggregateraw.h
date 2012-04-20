@@ -1398,7 +1398,6 @@ struct bcem_AggregateRaw_BdeatUtil {
 
 // MANIPULATORS
 template <typename MANIPULATOR>
-static
 int bcem_AggregateRaw_BdeatUtil::manipulateField(
                                                 bcem_AggregateRaw *parent,
                                                 MANIPULATOR&       manipulator,
@@ -1427,7 +1426,6 @@ int bcem_AggregateRaw_BdeatUtil::manipulateField(
 
 // ACCESSORS
 template <typename ACCESSOR>
-static
 int bcem_AggregateRaw_BdeatUtil::accessField(
                                            const bcem_AggregateRaw& parent,
                                            ACCESSOR&                accessor,
@@ -2484,7 +2482,7 @@ void bcem_AggregateRaw::setTopLevelAggregateNullnessPointer(int *nullnessFlag)
 }
 
 template <typename TYPE>
-int bcem_AggregateRaw::setValue(bcem_AggregateError* errorDescription,
+int bcem_AggregateRaw::setValue(bcem_AggregateError *errorDescription,
                                 const TYPE&          value) const
 {
     if (bdem_SchemaUtil::isNillableScalarArrayRecordDef(dataType(),
