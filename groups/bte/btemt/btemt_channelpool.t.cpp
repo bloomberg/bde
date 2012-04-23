@@ -754,7 +754,7 @@ void *writeData(void *data)
     if (verbose) cout << "\nSECOND SET"
                       << "\n==========" << endl;
 
-    rc = pool.setMaxWriteCacheSize(channelId, 0);
+    rc = pool.resetRecordedMaxWriteCacheSize(channelId);
     LOOP_ASSERT(rc, !rc);
 
     for (int i = 0; i < 100; ++i) {
@@ -776,13 +776,13 @@ void *writeData(void *data)
     if (verbose) cout << "\nTHIRD SET"
                       << "\n=========" << endl;
 
-    rc = pool.setMaxWriteCacheSize(channelId, 0);
+    rc = pool.resetRecordedMaxWriteCacheSize(channelId);
     LOOP_ASSERT(rc, !rc);
 
     for (int i = 0; i < 100; ++i) {
         bcemt_ThreadUtil::microSleep(1000);
 
-        rc = pool.setMaxWriteCacheSize(channelId, 0);
+        rc = pool.resetRecordedMaxWriteCacheSize(channelId);
         LOOP_ASSERT(rc, !rc);
 
         rc = pool.write(channelId, *blob);

@@ -586,10 +586,11 @@ class btemt_Channel {
         // Set the write-cache low-watermark for this channel to the specified
         // 'numBytes'.  The behavior is undefined unless '0 <= numBytes'.
 
-    void setMaxWriteCacheSize(bsls_Types::Int64 maxWriteCacheSize);
-        // Set the max write cache size for this channel to the specified
-        // 'maxWriteCacheSize'.  The behavior is undefined unless
-        // '0 <= maxWriteCacheSize'.
+    void resetRecordedMaxWriteCacheSize();
+        // Reset the recorded max write cache size for this channel to the
+        // current write cache size.  Note that this function resets the
+        // recorded max write cache size and does not change the write cache
+        // high watermark for this channel.
 
     // ACCESSORS
     int channelId() const;
@@ -2331,12 +2332,10 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
     return 0;
 }
 
-void btemt_Channel::setMaxWriteCacheSize(bsls_Types::Int64 maxWriteCacheSize)
+void btemt_Channel::resetRecordedMaxWriteCacheSize()
 {
-    BSLS_ASSERT(0 <= maxWriteCacheSize);
-
     bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
-    d_maxWriteCacheSize = maxWriteCacheSize;
+    d_maxWriteCacheSize = d_currWriteCacheSize.relaxedLoad();
 }
 
 // ============================================================================
@@ -3955,18 +3954,15 @@ int btemt_ChannelPool::setWriteCacheLowWatermark(int channelId, int numBytes)
     return channelHandle->setWriteCacheLowWatermark(numBytes);
 }
 
-int btemt_ChannelPool::setMaxWriteCacheSize(
-                                           int               channelId,
-                                           bsls_Types::Int64 maxWriteCacheSize)
+int btemt_ChannelPool::resetRecordedMaxWriteCacheSize(int channelId)
 {
-    BSLS_ASSERT(0 <= maxWriteCacheSize);
     ChannelHandle channelHandle;
     if (0 != findChannelHandle(&channelHandle, channelId)) {
-        return -1;
+        return -1;                                                    // RETURN
     }
     BSLS_ASSERT(channelHandle);
 
-    channelHandle->setMaxWriteCacheSize(maxWriteCacheSize);
+    channelHandle->resetRecordedMaxWriteCacheSize();
 
     return 0;
 }

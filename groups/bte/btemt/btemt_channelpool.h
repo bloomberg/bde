@@ -1532,12 +1532,12 @@ class btemt_ChannelPool {
         // 'BTEMT_WRITE_CACHE_LOWWAT' alert is provided to the client via the
         // channel state callback to suggest that further writing can resume.
 
-    int setMaxWriteCacheSize(int               channelId,
-                             bsls_Types::Int64 maxWriteCacheSize);
-        // Set the max write cache size for the specified 'channelId' to the
-        // specified 'maxWriteCacheSize'.  Return 0 on success, or a non-zero
-        // value if 'channelId' does not exist.  The behavior is undefined
-        // unless '0 <= maxWriteCacheSize'.
+    int resetRecordedMaxWriteCacheSize(int channelId);
+        // Reset the recorded max write cache size for the specified
+        // 'channelId' to the current write cache size.  Return 0 on success,
+        // or a non-zero value if 'channelId' does not exist.  Note that this
+        // function resets the recorded max write cache size and does not
+        // change the write cache high watermark for 'channelId'.
 
                                   // *** Thread management ***
 
