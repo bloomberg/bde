@@ -909,7 +909,9 @@ int bcem_AggregateRaw::toEnum(bcem_AggregateError *errorDescription,
     const char                *enumName = enumDef->lookupName(value);
 
     if (bdetu_Unset<int>::unsetValue() != value && !enumName) {
+
         // Failed lookup
+
         bsl::ostringstream oss;
         oss << "Attempt to set enumerator ID " << value
             << " in enumeration \""
@@ -937,7 +939,7 @@ template <typename TOTYPE>
 TOTYPE bcem_AggregateRaw::convertScalar() const
 {
     TOTYPE result;
-    int status = -1;
+    int    status = -1;
     const bdem_EnumerationDef *enumDef = enumerationConstraint();
     if (enumDef) {
         int enumId;
