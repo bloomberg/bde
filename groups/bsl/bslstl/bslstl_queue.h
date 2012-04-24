@@ -19,9 +19,13 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_vector.h>
 #endif
 
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>       // 'std::swap'
-#define INCLUDED_ALGORITHM
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
+#endif
+
+#ifndef INCLUDED_FUNCTIONAL
+#include <functional>
+#define INCLUDED_FUNCTIONAL
 #endif
 
 namespace bsl {
@@ -31,8 +35,34 @@ namespace bsl {
                              // ===========
                              
 
-template <class VALUE_TYPE, class CONTAINER = deque<VALUE_TYPE> >
+template <class VALUE, class CONTAINER = deque<VALUE> >
 class queue {
+
+    // FRIENDS
+    template<class VALUE2, class CONTAINER2>
+    friend bool operator==(const queue<VALUE2, CONTAINER2>& lhs,
+                           const queue<VALUE2, CONTAINER2>& rhs);
+
+    template<class VALUE2, class CONTAINER2>
+    friend bool operator!=(const queue<VALUE2, CONTAINER2>& lhs,
+                           const queue<VALUE2, CONTAINER2>& rhs);
+
+    template<class VALUE2, class CONTAINER2>
+    friend bool operator< (const queue<VALUE2, CONTAINER2>& lhs,
+                           const queue<VALUE2, CONTAINER2>& rhs);
+
+    template<class VALUE2, class CONTAINER2>
+    friend bool operator> (const queue<VALUE2, CONTAINER2>& lhs,
+                           const queue<VALUE2, CONTAINER2>& rhs);
+
+    template<class VALUE2, class CONTAINER2>
+    friend bool operator<=(const queue<VALUE2, CONTAINER2>& lhs,
+                           const queue<VALUE2, CONTAINER2>& rhs);
+
+    template<class VALUE2, class CONTAINER2>
+    friend bool operator>=(const queue<VALUE2, CONTAINER2>& lhs,
+                           const queue<VALUE2, CONTAINER2>& rhs);
+
 
   protected:
 
@@ -48,14 +78,16 @@ class queue {
 
     // CREATORS
 
-    // TODO: add default parameter?
-    explicit queue(const CONTAINER& container = CONTAINER());
+    explicit queue();
+        // TBD
+
+    explicit queue(const CONTAINER& container);
+        // TBD
 
 //  explicit queue(CONTAINER&& = CONTAINER());
 
 //  queue(queue&& q);
 
-    // TODO: need it?
     queue(const queue& original);
 
     template <class ALLOCATOR>
@@ -80,7 +112,6 @@ class queue {
     
 //  queue& operator=(queue&& rhs);
        
-    // TODO: need it?
     queue& operator=(const queue& rhs);
         // TBD
 
@@ -119,43 +150,50 @@ class queue {
 };
 
 // FREE FUNCTIONS
-template <class VALUE_TYPE, class CONTAINER>
-bool operator==(const queue<VALUE_TYPE, CONTAINER>& lhs,
-                const queue<VALUE_TYPE, CONTAINER>& rhs);
+template <class VALUE, class CONTAINER>
+inline
+bool operator==(const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs);
     // TBD
 
-template <class VALUE_TYPE, class CONTAINER>
-bool operator< (const queue<VALUE_TYPE, CONTAINER>& lhs,
-                const queue<VALUE_TYPE, CONTAINER>& rhs);
+template <class VALUE, class CONTAINER>
+inline
+bool operator!=(const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs);
     // TBD
 
-template <class VALUE_TYPE, class CONTAINER>
-bool operator!=(const queue<VALUE_TYPE, CONTAINER>& x,
-                const queue<VALUE_TYPE, CONTAINER>& y);
+template <class VALUE, class CONTAINER>
+inline
+bool operator< (const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs);
     // TBD
 
-template <class VALUE_TYPE, class CONTAINER>
-bool operator> (const queue<VALUE_TYPE, CONTAINER>& x,
-                const queue<VALUE_TYPE, CONTAINER>& y);
+template <class VALUE, class CONTAINER>
+inline
+bool operator> (const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs);
     // TBD
 
-template <class VALUE_TYPE, class CONTAINER>
-bool operator>=(const queue<VALUE_TYPE, CONTAINER>& x,
-                const queue<VALUE_TYPE, CONTAINER>& y);
+template <class VALUE, class CONTAINER>
+inline
+bool operator>=(const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs);
     // TBD
 
-template <class VALUE_TYPE, class CONTAINER>
-bool operator<=(const queue<VALUE_TYPE, CONTAINER>& x,
-                const queue<VALUE_TYPE, CONTAINER>& y);
+template <class VALUE, class CONTAINER>
+inline
+bool operator<=(const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs);
     // TBD
 
-template <class VALUE_TYPE, class CONTAINER>
-void swap(queue<VALUE_TYPE, CONTAINER>& lhs,
-          queue<VALUE_TYPE, CONTAINER>& rhs);
+template <class VALUE, class CONTAINER>
+inline
+void swap(queue<VALUE, CONTAINER>& lhs,
+          queue<VALUE, CONTAINER>& rhs);
     // TBD
 
-// template <class VALUE_TYPE, class CONTAINER, class ALLOCATOR>
-// struct uses_allocator<queue<VALUE_TYPE, CONTAINER>, ALLOCATOR>
+// template <class VALUE, class CONTAINER, class ALLOCATOR>
+// struct uses_allocator<queue<VALUE, CONTAINER>, ALLOCATOR>
 // : uses_allocator<CONTAINER, ALLOCATOR>::type 
 // { 
 // };
@@ -165,8 +203,8 @@ void swap(queue<VALUE_TYPE, CONTAINER>& lhs,
                          // class priority_queue
                          // ====================
                          
-template <class VALUE_TYPE,
-          class CONTAINER  = vector<VALUE_TYPE>,
+template <class VALUE,
+          class CONTAINER  = vector<VALUE>,
           class COMPARATOR = native_std::less<typename CONTAINER::value_type> >
 class priority_queue {
 
@@ -184,22 +222,27 @@ class priority_queue {
     typedef          CONTAINER                  container_type;
 
     // CREATORS
-    //
-    // TODO: add default parameters?
-    priority_queue(const COMPARATOR& comparator = COMPARATOR(),
-                   const CONTAINER&  container  = CONTAINER ());
+
+    explicit priority_queue();
+        // TBD
+
+    priority_queue(const COMPARATOR& comparator,
+                   const CONTAINER&  container);
         // TBD
         
 //  explicit priority_queue(const COMPARATOR& comparator = COMPARATOR(),
 //                                CONTAINER&& container  = CONTAINER ());
 
-    // TODO: add default parameters?
+    template <class INPUT_ITERATOR>
+    priority_queue(INPUT_ITERATOR    first,
+                   INPUT_ITERATOR    last);
+        // TBD
+
     template <class INPUT_ITERATOR>
     priority_queue(INPUT_ITERATOR    first,
                    INPUT_ITERATOR    last,
-                   const COMPARATOR& comparator = COMPARATOR(),
-                   const CONTAINER&  container  = CONTAINER ());
-        // TBD
+                   const COMPARATOR& comparator,
+                   const CONTAINER&  container);
 
 //  template <class INPUT_ITERATOR>
 //  priority_queue(INPUT_ITERATOR    first,
@@ -209,7 +252,6 @@ class priority_queue {
 
 //  priority_queue(priority_queue&&);
 
-    // TODO: need it?
     priority_queue(const priority_queue&);
 
     template <class ALLOCATOR>
@@ -243,7 +285,6 @@ class priority_queue {
 
 //  priority_queue& operator=(priority_queue&& rhs);
 
-    // TODO: need it?
     priority_queue& operator=(const priority_queue& rhs);
 
     void push(const value_type& value);
@@ -273,18 +314,16 @@ class priority_queue {
 
 // FREE FUNCTIONS
 
-// No equality is provided.
+template <class VALUE, class CONTAINER, class COMPARATOR>
+void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& lhs,
+          priority_queue<VALUE, CONTAINER, COMPARATOR>& rhs);
 
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
-void swap(priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>& lhs,
-          priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>& rhs);
-
-// template <class VALUE_TYPE,
+// template <class VALUE,
 //           class CONTAINER,
 //           class COMPARATOR,
 //           class ALLOCATOR>
 // struct
-// uses_allocator<priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>, ALLOCATOR>
+// uses_allocator<priority_queue<VALUE, CONTAINER, COMPARATOR>, ALLOCATOR>
 // : uses_allocator<CONTAINER, ALLOCATOR>::type
 // {
 // };
@@ -298,54 +337,58 @@ void swap(priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>& lhs,
                               // -----------
 
 // CREATORS
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-queue<VALUE_TYPE, CONTAINER>::queue(const CONTAINER& container)
+queue<VALUE, CONTAINER>::queue()
+{
+}
+
+template <class VALUE, class CONTAINER>
+inline
+queue<VALUE, CONTAINER>::queue(const CONTAINER& container)
 : c(container)
 {
 }
 
-// TODO: need it?
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-queue<VALUE_TYPE, CONTAINER>::queue(const queue& original)
+queue<VALUE, CONTAINER>::queue(const queue& original)
 : c(original.c)
 {
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
-queue<VALUE_TYPE, CONTAINER>::queue(const ALLOCATOR& allocator)
+queue<VALUE, CONTAINER>::queue(const ALLOCATOR& allocator)
 : c(allocator)
 {
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
-queue<VALUE_TYPE, CONTAINER>::queue(const CONTAINER& container,
-                                    const ALLOCATOR& allocator)
+queue<VALUE, CONTAINER>::queue(const CONTAINER& container,
+                               const ALLOCATOR& allocator)
 : c(container, allocator)
 {
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 template <class ALLOCATOR>
 inline
-queue<VALUE_TYPE, CONTAINER>::queue(const queue&     queue,
-                                    const ALLOCATOR& allocator)
+queue<VALUE, CONTAINER>::queue(const queue&     queue,
+                               const ALLOCATOR& allocator)
 : c(queue.c, allocator)
 {
 }
 
 // MANIPULATORS
 
-// TODO: need it?
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-queue<VALUE_TYPE, CONTAINER>&
-queue<VALUE_TYPE, CONTAINER>::operator=(const queue& rhs)
+queue<VALUE, CONTAINER>&
+queue<VALUE, CONTAINER>::operator=(const queue& rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
         queue other(rhs);
@@ -354,128 +397,128 @@ queue<VALUE_TYPE, CONTAINER>::operator=(const queue& rhs)
     return *this;
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-void queue<VALUE_TYPE, CONTAINER>::push(const value_type& value)
+void queue<VALUE, CONTAINER>::push(const value_type& value)
 {
     c.push_back(value);
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-void queue<VALUE_TYPE, CONTAINER>::pop()
+void queue<VALUE, CONTAINER>::pop()
 {
     c.pop_front();
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-void queue<VALUE_TYPE, CONTAINER>::swap(queue& q)
+void queue<VALUE, CONTAINER>::swap(queue& q)
 {
-    using std::swap;
-    swap(c, q.c);
+    BloombergLP::bslalg_SwapUtil::swap(&c, &q.c);
 }
 
 // ACCESSORS
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-bool queue<VALUE_TYPE, CONTAINER>::empty() const
+bool queue<VALUE, CONTAINER>::empty() const
 { 
     return c.empty();
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-typename queue<VALUE_TYPE, CONTAINER>::size_type
-queue<VALUE_TYPE, CONTAINER>::size() const
+typename queue<VALUE, CONTAINER>::size_type
+queue<VALUE, CONTAINER>::size() const
 {
     return c.size();
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-typename queue<VALUE_TYPE, CONTAINER>::reference
-queue<VALUE_TYPE, CONTAINER>::front()
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::front()
 {
     return c.front();
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-typename queue<VALUE_TYPE, CONTAINER>::const_reference
-queue<VALUE_TYPE, CONTAINER>::front() const
+typename queue<VALUE, CONTAINER>::const_reference
+queue<VALUE, CONTAINER>::front() const
 {
     return c.front();
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-typename queue<VALUE_TYPE, CONTAINER>::reference
-queue<VALUE_TYPE, CONTAINER>::back()
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::back()
 {
     return c.back();
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-typename queue<VALUE_TYPE, CONTAINER>::const_reference
-queue<VALUE_TYPE, CONTAINER>::back() const
+typename queue<VALUE, CONTAINER>::const_reference
+queue<VALUE, CONTAINER>::back() const
 {
     return c.back();
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+// FREE OPERATORS
+template <class VALUE, class CONTAINER>
 inline
-bool operator==(const queue<VALUE_TYPE, CONTAINER>& lhs,
-                const queue<VALUE_TYPE, CONTAINER>& rhs)
+bool operator==(const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs)
 {
     return lhs.c == rhs.c;
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-bool operator< (const queue<VALUE_TYPE, CONTAINER>& lhs,
-                const queue<VALUE_TYPE, CONTAINER>& rhs)
+bool operator< (const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs)
 {
     return lhs.c < rhs.c;
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-bool operator!=(const queue<VALUE_TYPE, CONTAINER>& lhs,
-                const queue<VALUE_TYPE, CONTAINER>& rhs)
+bool operator!=(const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs)
 {
     return lhs.c != rhs.c;
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-bool operator> (const queue<VALUE_TYPE, CONTAINER>& lhs,
-                const queue<VALUE_TYPE, CONTAINER>& rhs)
+bool operator> (const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs)
 {
     return lhs.c > rhs.c;
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-bool operator>=(const queue<VALUE_TYPE, CONTAINER>& lhs,
-                const queue<VALUE_TYPE, CONTAINER>& rhs)
+bool operator>=(const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs)
 {
     return lhs.c >= rhs.c;
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-bool operator<=(const queue<VALUE_TYPE, CONTAINER>& lhs,
-                const queue<VALUE_TYPE, CONTAINER>& rhs)
+bool operator<=(const queue<VALUE, CONTAINER>& lhs,
+                const queue<VALUE, CONTAINER>& rhs)
 {
     return lhs.c <= rhs.c;
 }
 
-template <class VALUE_TYPE, class CONTAINER>
+template <class VALUE, class CONTAINER>
 inline
-void swap(queue<VALUE_TYPE, CONTAINER>& lhs,
-          queue<VALUE_TYPE, CONTAINER>& rhs)
+void swap(queue<VALUE, CONTAINER>& lhs,
+          queue<VALUE, CONTAINER>& rhs)
 {
     lhs.swap(rhs);
 }
@@ -485,9 +528,15 @@ void swap(queue<VALUE_TYPE, CONTAINER>& lhs,
                          // class priority_queue
                          // --------------------
                          
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue()
+{
+}
+                        
+template <class VALUE, class CONTAINER, class COMPARATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                   const COMPARATOR& comparator,
                                                   const CONTAINER&  container)
 : c(container)
@@ -496,10 +545,21 @@ priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
     make_heap(c.begin(), c.end(), comp);
 }
 
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class INPUT_ITERATOR>
 inline
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
+                                                       INPUT_ITERATOR    first,
+                                                       INPUT_ITERATOR    last)
+{
+    insert(c.end(), first, last);
+    make_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class INPUT_ITERATOR>
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                   INPUT_ITERATOR    first,
                                                   INPUT_ITERATOR    last,
                                                   const COMPARATOR& comparator,
@@ -511,30 +571,29 @@ priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
     make_heap(c.begin(), c.end(), comp);
 }
 
-// TODO: need it?
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                 const priority_queue& original)
 : c(original.c)
 , comp(original.comp)
 {
 }
 
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class ALLOCATOR>
 inline
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                     const ALLOCATOR& allocator)
 : c(allocator)
 , comp(native_std::less<typename CONTAINER::value_type>())
 {
 }
 
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class ALLOCATOR>
 inline
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                   const COMPARATOR& comparator,
                                                   const ALLOCATOR&  allocator)
 : c(allocator)
@@ -542,10 +601,10 @@ priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
 {
 }
 
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class ALLOCATOR>
 inline
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                   const COMPARATOR& comparator,
                                                   const CONTAINER&  container,
                                                   const ALLOCATOR&  allocator)
@@ -555,10 +614,10 @@ priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
 }
 
    
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class ALLOCATOR>
 inline
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                const priority_queue& original,
                                                const ALLOCATOR&      allocator)
 : c(original.c, allocator)
@@ -569,11 +628,10 @@ priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::priority_queue(
 
 // MANIPULATORS
 
-// TODO: need it?
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>&
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::operator=(
+priority_queue<VALUE, CONTAINER, COMPARATOR>&
+priority_queue<VALUE, CONTAINER, COMPARATOR>::operator=(
                                                      const priority_queue& rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
@@ -583,61 +641,60 @@ priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::operator=(
     return *this;
 }
 
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-void priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::push(
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::push(
                                                        const value_type& value)
 {
     c.push_back(value);
     push_heap(c.begin(), c.end(), comp);
 }
 
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-void priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::pop()
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::pop()
 {
     pop_heap(c.begin(), c.end(), comp);
     c.pop_back();
 }
 
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-void priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::swap(
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::swap(
                                                          priority_queue& other) 
 {
-    using std::swap;
-    swap(c, other.c);
-    swap(comp, other.comp);
+    BloombergLP::bslalg_SwapUtil::swap(&c   , &other.c   );
+    BloombergLP::bslalg_SwapUtil::swap(&comp, &other.comp);
 } 
 
 // ACCESSORS
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-bool priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::empty() const
+bool priority_queue<VALUE, CONTAINER, COMPARATOR>::empty() const
 {
     return c.empty();
 }
 
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-typename priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::size_type
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::size() const
+typename priority_queue<VALUE, CONTAINER, COMPARATOR>::size_type
+priority_queue<VALUE, CONTAINER, COMPARATOR>::size() const
 {
     return c.size();
 }
 
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
+template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
-typename priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::const_reference
-priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>::top() const
+typename priority_queue<VALUE, CONTAINER, COMPARATOR>::const_reference
+priority_queue<VALUE, CONTAINER, COMPARATOR>::top() const
 {
     return c.front();
 }
 
 // FREE FUNCTIONS
-template <class VALUE_TYPE, class CONTAINER, class COMPARATOR>
-void swap(priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>& lhs,
-          priority_queue<VALUE_TYPE, CONTAINER, COMPARATOR>& rhs)
+template <class VALUE, class CONTAINER, class COMPARATOR>
+void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& lhs,
+          priority_queue<VALUE, CONTAINER, COMPARATOR>& rhs)
 {
     lhs.swap(rhs);
 }

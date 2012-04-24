@@ -11,6 +11,7 @@
 #include <bslma_defaultallocatorguard.h>   // for testing only
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>           // for testing only
+#include <bslma_testallocatormonitor.h>    // for testing only
 #include <bslma_testallocatorexception.h>  // for testing only
 
 #include <bsls_assert.h>
@@ -156,6 +157,182 @@ void dbg_print(const char* s, const T& val, const char* nl) {
     fflush(stdout);
 }
 
+
+// ============================================================================
+//                     GLOBAL TYPEDEFS FOR TESTING
+// ----------------------------------------------------------------------------
+
+template <class VALUE, class CONTAINER>
+struct QTestDriver {
+
+    static void testCase1(VALUE *testValues, size_t numValues);
+        // Breathing test.  This test *exercises* basic functionality but
+        // *test* nothing.
+};
+
+template <class VALUE, class CONTAINER>
+void QTestDriver<VALUE, CONTAINER>::testCase1(VALUE  *testValues,
+                                              size_t  numValues)
+{
+    typedef bsl::queue<VALUE, CONTAINER>  Obj;
+    bslma_TestAllocator         defaultAllocator("defaultAllocator");
+    bslma_DefaultAllocatorGuard defaultGuard(&defaultAllocator);
+
+    bslma_TestAllocator objectAllocator("objectAllocator");
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (veryVerbose) {
+        printf("Default construct an empty queue.\n");
+    }
+    {
+        Obj o1; const Obj& O1 = o1;
+        ASSERTV(0    == O1.size());
+        ASSERTV(true == O1.empty());
+        ASSERTV(0    <  defaultAllocator.numBytesInUse());
+
+        bslma_TestAllocatorMonitor monitor(&defaultAllocator);
+        Obj o2(&objectAllocator); const Obj& O2 = o2;
+        ASSERTV(0    == O2.size());
+        ASSERTV(true == O2.empty());
+        ASSERTV(monitor.isInUseSame());
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    if (veryVerbose) {
+        printf("Test use of allocators.\n");
+    }
+    {
+        bslma_TestAllocator objectAllocator1("objectAllocator1");
+        bslma_TestAllocator objectAllocator2("objectAllocator2");
+
+        CONTAINER container(&objectAllocator1);
+        Obj o1(container, &objectAllocator1); const Obj& O1 = o1;
+
+        for (size_t i = 0; i < numValues; ++i) {
+            o1.push(testValues[i]);
+        }
+        ASSERTV(numValues == O1.size());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(0 == objectAllocator2.numBytesInUse());
+
+        bslma_TestAllocatorMonitor monitor1(&objectAllocator1);
+        Obj o2(O1, &objectAllocator2); const Obj& O2 = o2;
+
+        ASSERTV(numValues == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(monitor1.isInUseSame());
+        ASSERTV(monitor1.isTotalSame());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(0 <  objectAllocator2.numBytesInUse());
+
+        Obj o3(&objectAllocator1); const Obj& O3 = o3;
+
+        ASSERTV(numValues == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(0         == O3.size());
+        ASSERTV(monitor1.isInUseUp());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(0 <  objectAllocator2.numBytesInUse());
+
+        bslma_TestAllocatorMonitor monitor2(&objectAllocator1);
+        o1.swap(o3);
+        ASSERTV(0         == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(numValues == O3.size());
+        ASSERTV(monitor2.isInUseSame());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(0 <  objectAllocator2.numBytesInUse());
+
+        o3.swap(o2);
+        ASSERTV(0         == O1.size());
+        ASSERTV(numValues == O2.size());
+        ASSERTV(numValues == O3.size());
+        ASSERTV(monitor2.isInUseSame());
+        ASSERTV(0 <  objectAllocator1.numBytesInUse());
+        ASSERTV(0 <  objectAllocator2.numBytesInUse());
+    }
+
+    if (veryVerbose) {
+        printf("Test primary manipulators/accessors.\n");
+    }
+    {
+        Obj x(&objectAllocator); const Obj& X = x;
+        for (size_t i = 0; i < numValues; ++i) {
+            
+            Obj y(X, &objectAllocator); const Obj& Y = y;
+            ASSERTV(X == Y);
+            ASSERTV(!(X != Y));
+
+            // Test 'push'.
+            
+            x.push(testValues[i]);
+
+            // Test size, empty, front, back.
+
+            ASSERTV(i + 1 == X.size());
+            ASSERTV(false == X.empty());
+            ASSERTV(testValues[0] == X.front());
+            ASSERTV(testValues[i] == X.back());
+
+            ASSERTV(X != Y);
+            ASSERTV(!(X == Y));
+
+            y = x;
+            ASSERTV(X == Y);
+            ASSERTV(!(X != Y));
+        }
+
+        for (size_t i = 0; i < numValues; --i) {
+            
+            // Test 'pop'.
+            
+            x.pop();
+
+            // Test size, front, back.
+
+            ASSERTV(numValues - i - 1 == X.size ());
+            if (i < numValues - 1) {
+                ASSERTV(testValues[i + 1]         == X.front());
+                ASSERTV(testValues[numValues - 1] == X.back ());
+            } else {
+                ASSERTV(false == X.empty());
+            }
+        }
+
+        ASSERTV(false == X.empty());
+        ASSERTV(0 != objectAllocator.numBytesInUse());
+        ASSERTV(0 == defaultAllocator.numBytesInUse());
+    }
+
+    /*
+
+    priority_queue<int> intPQueue(&objectAllocator);
+    ASSERT(intPQueue.empty());
+    intPQueue.push(101);
+    ASSERT(!intPQueue.empty());
+    intPQueue.push(102);
+    intPQueue.push(103);
+    intPQueue.push(104);
+    ASSERT(!intPQueue.empty());
+    ASSERT(4   == intPQueue.size());
+    ASSERT(104 == intPQueue.top());
+    intPQueue.pop();
+    ASSERT(3   == intPQueue.size());
+    ASSERT(103 == intPQueue.top());
+    intPQueue.pop();
+    ASSERT(2   == intPQueue.size());
+    ASSERT(102 == intPQueue.top());
+    intPQueue.pop();
+    ASSERT(1   == intPQueue.size());
+    ASSERT(101 == intPQueue.top());
+    intPQueue.pop();
+    ASSERT(0   == intPQueue.size());
+    ASSERT(intPQueue.empty());
+    */
+}
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -191,55 +368,13 @@ int main(int argc, char *argv[])
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
-        bslma_TestAllocator         defaultAllocator("defaultAllocator");
-        bslma_DefaultAllocatorGuard defaultGuard(&defaultAllocator);
+        
+        int INT_VALUES[]   = { INT_MIN, -2, -1, 0, 1, 2, INT_MAX };
+        int NUM_INT_VALUES = sizeof(INT_VALUES) / sizeof(*INT_VALUES);
 
-        bslma_TestAllocator objectAllocator("objectAllocator");
-
-        queue<int> intQueue(&objectAllocator);
-        ASSERT(intQueue.empty());
-        intQueue.push(101);
-        ASSERT(!intQueue.empty());
-        intQueue.push(102);
-        intQueue.push(103);
-        ASSERT(!intQueue.empty());
-        ASSERT(3   == intQueue.size());
-        ASSERT(101 == intQueue.front());
-        ASSERT(103 == intQueue.back());
-        intQueue.pop();
-        ASSERT(2   == intQueue.size());
-        ASSERT(102 == intQueue.front());
-        ASSERT(103 == intQueue.back());
-        intQueue.pop();
-        ASSERT(1   == intQueue.size());
-        ASSERT(103 == intQueue.front());
-        ASSERT(103 == intQueue.back());
-        intQueue.pop();
-        ASSERT(0   == intQueue.size());
-        ASSERT(intQueue.empty());
-
-        priority_queue<int> intPQueue(&objectAllocator);
-        ASSERT(intPQueue.empty());
-        intPQueue.push(101);
-        ASSERT(!intPQueue.empty());
-        intPQueue.push(102);
-        intPQueue.push(103);
-        intPQueue.push(104);
-        ASSERT(!intPQueue.empty());
-        ASSERT(4   == intPQueue.size());
-        ASSERT(104 == intPQueue.top());
-        intPQueue.pop();
-        ASSERT(3   == intPQueue.size());
-        ASSERT(103 == intPQueue.top());
-        intPQueue.pop();
-        ASSERT(2   == intPQueue.size());
-        ASSERT(102 == intPQueue.top());
-        intPQueue.pop();
-        ASSERT(1   == intPQueue.size());
-        ASSERT(101 == intPQueue.top());
-        intPQueue.pop();
-        ASSERT(0   == intPQueue.size());
-        ASSERT(intPQueue.empty());
+        QTestDriver<int, deque<int> >::testCase1(INT_VALUES, NUM_INT_VALUES);
+        //TODO: uncomment when 'bsl::list' is available
+        //QTestDriver<int,  list<int> >::testCase1(INT_VALUES, NUM_INT_VALUES);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
