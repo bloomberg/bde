@@ -25,7 +25,7 @@ BDES_IDENT("$Id: $")
 // this component adheres to the ISO8601 standard for dates and time and is
 // suitable for use in XML generation or parsing.
 //
-// Each 'generate' function takes an 'bsl::ostream' and a 'bdet' date or time
+// Each 'generate' function takes a 'bsl::ostream' and a 'bdet' date or time
 // object and writes the ISO8601 representation to the stream.  Each 'parse'
 // function takes a pointer to a 'bdet' date or time object, a character
 // string, and a length and parses the character string into the date or time
@@ -39,7 +39,8 @@ BDES_IDENT("$Id: $")
 // reading and writing each type, we necessarily fail to support many formats
 // within the standard.  The standard, which can be found at
 //
-//: o http://dotat.at/tmp/ISO_8601-2004_E.pdf
+//: o Internal: http://sundev3.dev.bloomberg.com/~bchapman/iso8601.pdf
+//: o Alternate: http://dotat.at/tmp/ISO_8601-2004_E.pdf
 //: o Alternate: http://bit.ly/xAyF9d
 //
 // allows for the following formats which this component does not support:
@@ -66,13 +67,14 @@ BDES_IDENT("$Id: $")
 //: o Expanded Representation: 2.3.8, 4.1.3.3.  Years outside the range
 //:   '0000 - 9999'.  In fact, only the range '0001 - 9999' is supported.
 //: o Fractions are only permissible demarked by a '.', commas ',' are not
-//:   allowed 4.2.2.4.  Fractions of hours or minutes are not allowed, only
+//:   allowed 4.2.2.4.  Fractions of hours or minutes are not allowed; only
 //:   fractions of seconds are allowed.
-//: o The time designator 'T' is only allowed within Datetimes and DatetimeTz's
-//:   to delimit the end of the date from the beginning of the time.  4.2.2.5.
+//: o The time designator 'T' is only allowed within 'Datetime's and
+//:   'DatetimeTz's to delimit the end of the date from the beginning of the
+//:   time.  4.2.2.5.
 //: o 4.3.2 says that the 'T' delimiting the end of date and beginning of time
-//:   in a Datetime or DatetimeTz is optional.  In this implementation the 'T'
-//:   is mandatory.
+//:   in a 'Datetime' or 'DatetimeTz' is optional.  In this implementation the
+//:   'T' is mandatory.
 //: o We do not support Time Intervals, Durations: 4.4.
 //: o We do not support Recurring Time Intervals: 4.5.
 //
@@ -80,8 +82,8 @@ BDES_IDENT("$Id: $")
 ///-------------------------------
 //
 //: o <FRAC> := .d+
-//: o <TZ>   := ([+-]hh:mm|Z|z)
-//: o <Date> := YYYY:MM:DD
+//: o <TZ>   := ((+|-)hh:mm|Z|z)
+//: o <Date> := YYYY-MM-DD
 //: o <Time> := hh:mm:ss{<FRAC>}
 //: o <Datetime> := <Date>T<Time>
 //: o <DateTz> := <Date>{<TZ>}
@@ -113,13 +115,13 @@ BDES_IDENT("$Id: $")
 //:   o In <TZ>, 'hh' is in the range '00 - 23', 'mm' is in the range
 //:     '00 - 59'.  A value of '24' for 'hh' is not allowed.
 //: o In types contianing '<Date>':
-//:   o 'YYYY' is always 4 digits long, 'MM', 'DD' are always 2 decimal digits
-//:     long.
+//:   o 'YYYY' is always 4 digits long, 'MM' and 'DD' are always 2 decimal
+//:     digits long.
 //:   o 'YYYY' is in the range '0001' - '9999'.
-//:   o 'MM' is in the range '01 - 12'
-//:   o 'DD' is in the range '01 - 31', also subject to constraints depending
+//:   o 'MM' is in the range '01' - '12'
+//:   o 'DD' is in the range '01' - '31', also subject to constraints depending
 //:     on year and month.
-//:   o 'YYYY:MM:DD' must be a valid year, month, day combination according to
+//:   o 'YYYY-MM-DD' must be a valid year, month, day combination according to
 //:     'bdet_Date'.
 //: o In types containing '<Time>':
 //:   o 'hh', 'mm', and 'ss' are always two decimal digits long.
@@ -129,8 +131,8 @@ BDES_IDENT("$Id: $")
 //:   o 'ss' must be in the range '00 - '59'.
 //:   o 'hh:mm:ss' must be a valid hour, minute, second combination according
 //:     to 'bdet_Time'.
-//: o Where 'T' in '<Datetime>' and '<DatetimeTz>' literally is the uppercase
-//:   letter 'T'.  It must be present.
+//: o Where 'T' in '<Datetime>' literally is the uppercase letter 'T'.  It must
+//:   be present.
 //
 ///Usage
 ///-----
@@ -147,7 +149,7 @@ BDES_IDENT("$Id: $")
 // into a 'bdet_DatetimeTz' object:
 //..
 //  bdet_DatetimeTz dateTime;
-//  const char dtStr[] = "2005-01-31T08:59:59.1226-04:00";
+//  const char dtStr[] = "2005-01-31T08:59:59.123+04:00";
 //  int ret = bdepu_Iso8601::parse(&dateTime, dtStr, bsl::strlen(dtStr));
 //  assert(0 == ret);
 //  assert(2005 == dateTime.localDatetime().year());
@@ -241,7 +243,10 @@ struct bdepu_Iso8601 {
         // Note that, for each type of 'object', the return value is always the
         // same (as enumerated in the '_STRLEN' constants).  Also note that a
         // buffer of size 'BDEPU_MAX_DATETIME_STRLEN + 1' is large enough to
-        // hold any formatted string, including the null terminator.
+        // hold any formatted string, including the null terminator.  Also
+        // note that the output from a 'generate' routine can always be parsed
+        // by the corresponding 'parse' routine without loss of accuracy,
+        // provided 'bufferLength' is sufficiently large.
 
     static int generateRaw(char             *buffer,
                            const bdet_Date&  object);
@@ -275,24 +280,27 @@ struct bdepu_Iso8601 {
     static int parse(bdet_Date  *result,
                      const char *input,
                      int         inputLength);
-        // Parse a date, represented in the "YYYY-MM-DD{(Shh:mm|Z|z0}" format,
-        // from the specified 'input' of the specified 'inputLength' and load
-        // it into the specified '*result'.  In the "YYYY-MM-DD" format
-        // accepted by this function, 'YYYY', 'MM', and 'DD' are strings
-        // representing positive integers, '-' is literally a dash character,
-        // 'YYYY' is 4 chars long, and 'MM' and 'DD' are both 2 chars long.
-        // 'YYYY' must be in the range '[ 0001, 9999 ]', 'MM' must be in the
-        // range [ 01, 12 ], and 'DD' must be in the range [ 01, 31 ], such
-        // that 'YYYY-MM-DD' represents a valid date.  Optional time zone
-        // information may be provided, in which case it is parsed and ignored.
-        // Do not modify '*result' on failure.  Return 0 on success, and a
-        // non-zero value otherwise.  Note that if 'inputLength' is longer than
-        // the length of the parsed data, parsing will fail.
+        // Attempt to parse the specified 'inputLength' characters of the
+        // specified 'input' as a date, and if successful load this date into
+        // the specified 'result'.  Parsing is successful if the input is of
+        // the format "YYYY-MM-DD{((+|-)hh:mm|Z|z)}" where 'YYYY', 'MM', and
+        // 'DD' are strings representing positive integers, '-' is literally a
+        // dash character, 'YYYY' is 4 chars long, and 'MM' and 'DD' are both 2
+        // chars long.  'YYYY' must be in the range '[ 0001, 9999 ]', 'MM' must
+        // be in the range [ 01, 12 ], and 'DD' must be in the range [ 01, 31
+        // ], such that 'YYYY-MM-DD' represents a valid date.  Optional time
+        // zone information may be provided, in which case it is parsed and
+        // ignored.  Do not modify '*result' on failure.  Return 0 if parsing
+        // is successful, and return a non-zero value (and do not modify
+        // 'result') otherwise.  Note that this function parses *exactly*
+        // 'inputLength' characters; parsing will fail if a subset of the
+        // passed string matches the specified format and is then followed by
+        // trailing characters.
 
     static int parse(bdet_Time  *result,
                      const char *input,
                      int         inputLength);
-        // Parse a time, represented in the "hh:mm:ss{.d+}{(Shh:mm|Z|z0}"
+        // Parse a time, represented in the "hh:mm:ss{.d+}{((+|-)hh:mm|Z|z)}"
         // format, from the specified 'input' of the specified 'inputLength'
         // and load it into the specified '*result'.  In the "hh:mm:ss{.d+}"
         // format accepted by this function, 'hh', 'mm', 'ss' are all 2 digit
@@ -316,14 +324,14 @@ struct bdepu_Iso8601 {
                      const char    *input,
                      int            inputLength);
         // Parse a date time, represented in the
-        // "YYYY-MM-DDThh:mm:ss{.d+}{(Shh:mm|Z|z0}" format, from the specified
-        // 'input' of the specified 'inputLength' and load it into the
-        // specified '*result'.  In the "YYYY-MM-DD" format accepted by this
-        // function, 'YYYY', 'MM', and 'DD' are strings representing positive
-        // integers, '-' is literally a dash character, 'YYYY' is 4 chars long,
-        // and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be in the
-        // range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ], and
-        // 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
+        // "YYYY-MM-DDThh:mm:ss{.d+}{((+|-)hh:mm|Z|z)}" format, from the
+        // specified 'input' of the specified 'inputLength' and load it into
+        // the specified '*result'.  In the "YYYY-MM-DD" format accepted by
+        // this function, 'YYYY', 'MM', and 'DD' are strings representing
+        // positive integers, '-' is literally a dash character, 'YYYY' is 4
+        // chars long, and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be
+        // in the range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ],
+        // and 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
         // represents a valid date.  'T' literally represents the 'T'
         // character.  In the "hh:mm:ss{.d+}" format, 'hh', 'mm', 'ss' are all
         // 2 digit integers (left padded with 0's if necessary) denoting hours,
@@ -345,29 +353,29 @@ struct bdepu_Iso8601 {
     static int parse(bdet_DateTz *result,
                      const char  *input,
                      int          inputLength);
-        // Parse a date, represented in the "YYYY-MM-DD{(Shh:mm|Z|z)}" format,
-        // from the specified 'input' of the specified 'inputLength' and load
-        // it into the specified '*result'.  In the "YYYY-MM-DD" format
-        // accepted by this function, 'YYYY', 'MM', and 'DD' are strings
+        // Parse a date, represented in the "YYYY-MM-DD{((+|-)hh:mm|Z|z)}"
+        // format, from the specified 'input' of the specified 'inputLength'
+        // and load it into the specified '*result'.  In the "YYYY-MM-DD"
+        // format accepted by this function, 'YYYY', 'MM', and 'DD' are strings
         // representing positive integers, '-' is literally a dash character,
         // 'YYYY' is 4 chars long, and 'MM' and 'DD' are both 2 chars long.
         // 'YYYY' must be in the range '[ 0001, 9999 ]', 'MM' must be in the
         // range [ 01, 12 ], and 'DD' must be in the range [ 01, 31 ], such
         // that 'YYYY-MM-DD' represents a valid date.  Optional time zone
         // information may be provided in the "Shh:mm" format accepted by this
-        // function, 'S' is either '+' or '-', 'hh' and 'mm' are 2 digit
-        // integers (left padded with '0's if necessary).  'hh' must be in the
-        // range '[ 00, 24 )' and 'mm' must be in the range '[ 00, 60 )'.  An
-        // alternate form of the representation for the time zone is 'Z' or
-        // 'z', signifying GMT.  If no time zone is provided, GMT is assumed.
-        // Do not modify '*result' on failure.  Return 0 on success, and a
-        // non-zero value otherwise.  Note that if 'inputLength' is longer than
-        // the length of the parsed data, parsing will fail.
+        // function, 'hh' and 'mm' are 2 digit integers (left padded with '0's
+        // if necessary).  'hh' must be in the range '[ 00, 24 )' and 'mm' must
+        // be in the range '[ 00, 60 )'.  An alternate form of the
+        // representation for the time zone is 'Z' or 'z', signifying GMT.  If
+        // no time zone is provided, GMT is assumed.  Do not modify '*result'
+        // on failure.  Return 0 on success, and a non-zero value otherwise.
+        // Note that if 'inputLength' is longer than the length of the parsed
+        // data, parsing will fail.
 
     static int parse(bdet_TimeTz *result,
                      const char  *input,
                      int          inputLength);
-        // Parse a time, represented in the "hh:mm:ss{.d+}{(Shh:mm|Z|z)}"
+        // Parse a time, represented in the "hh:mm:ss{.d+}{((+|-)hh:mm|Z|z)}"
         // format, from the specified 'input' of the specified 'inputLength'
         // and load it into the specified '*result'.  In the "hh:mm:ss{.d+}"
         // format accepted by this function, 'hh', 'mm', 'ss' are all 2 digit
@@ -380,30 +388,30 @@ struct bdepu_Iso8601 {
         // digits, the value will be rounded to the nearest value in
         // milliseconds, possibly rounding '*result' up a full second.
         // Optional time zone information may be provided in the "Shh:mm"
-        // format accepted by this function, 'S' is either '+' or '-', 'hh' and
-        // 'mm' are 2 digit integers (left padded with '0's if necessary).
-        // 'hh' must be in the range '[ 00, 24 )' and 'mm' must be in the range
-        // '[ 0, 60 )'.  An alternate form of the representation for the time
-        // zone is 'Z' or 'z', signifying GMT.  If time zone information is not
-        // provided, GMT is assumed.  An exceptional time value of '24:00:00'
-        // may be provided, in which case the fraction of a second must be 0
-        // and the time zone, if present, must be GMT.  Do not modify '*result'
-        // on failure.  Return 0 on success, and a non-zero value otherwise.
-        // Note that if 'inputLength' is longer than the length of the parsed
-        // data, parsing will fail.
+        // format accepted by this function, 'hh' and 'mm' are 2 digit integers
+        // (left padded with '0's if necessary).  'hh' must be in the range
+        // '[ 00, 24 )' and 'mm' must be in the range '[ 0, 60 )'.  An
+        // alternate form of the representation for the time zone is 'Z' or
+        // 'z', signifying GMT.  If time zone information is not provided, GMT
+        // is assumed.  An exceptional time value of '24:00:00' may be
+        // provided, in which case the fraction of a second must be 0 and the
+        // time zone, if present, must be GMT.  Do not modify '*result' on
+        // failure.  Return 0 on success, and a non-zero value otherwise.  Note
+        // that if 'inputLength' is longer than the length of the parsed data,
+        // parsing will fail.
 
     static int parse(bdet_DatetimeTz *result,
                      const char      *input,
                      int              inputLength);
         // Parse a date time, represented in the
-        // "YYYY-MM-DDThh:mm:ss{.d+}{(Shh:mm|Z|z)}" format, from the specified
-        // 'input' of the specified 'inputLength' and load it into the
-        // specified '*result'.  In the "YYYY-MM-DD" format accepted by this
-        // function, 'YYYY', 'MM', and 'DD' are strings representing positive
-        // integers, '-' is literally a dash character, 'YYYY' is 4 chars long,
-        // and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be in the
-        // range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ], and
-        // 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
+        // "YYYY-MM-DDThh:mm:ss{.d+}{((+|-)hh:mm|Z|z)}" format, from the
+        // specified 'input' of the specified 'inputLength' and load it into
+        // the specified '*result'.  In the "YYYY-MM-DD" format accepted by
+        // this function, 'YYYY', 'MM', and 'DD' are strings representing
+        // positive integers, '-' is literally a dash character, 'YYYY' is 4
+        // chars long, and 'MM' and 'DD' are both 2 chars long.  'YYYY' must be
+        // in the range '[ 0001, 9999 ]', 'MM' must be in the range [ 01, 12 ],
+        // and 'DD' must be in the range [ 01, 31 ], such that 'YYYY-MM-DD'
         // represents a valid date.  'T' literally represents the 'T'
         // character.  In the "hh:mm:ss{.d+}" format, 'hh', 'mm', 'ss' are all
         // 2 digit integers (left padded with 0's if necessary) denoting hours,
@@ -415,16 +423,16 @@ struct bdepu_Iso8601 {
         // must be in the range '[ 00, 24 )', 'mm' must be in the range
         // '[ 00, 60 )', and 'ss' must be in the range '[ 00, 60 )'.  The time
         // zone information is optional but if it is provided then it must be
-        // in the "Shh:mm" format, 'S' is either '+' or '-', 'hh' and 'mm' are
-        // 2 digit integers (left padded with '0's if necessary).  'hh' must be
-        // in the range '[ 00, 24 )' and 'mm' must be in the range
-        // '[ 00, 60 )'.  An alternate form of representing the time zone is
-        // 'Z' or 'z', signifying GMT.  If the time zone is not provided, GMT
-        // is assumed.  Do not modify '*result' on failure.  An exceptional
-        // time value of '24:00;00' may be provided, but if so the fraction of
-        // a second must be 0 and time zone, if any, must be GMT.  Return 0 on
-        // success, and a non-zero value otherwise.  Note that if 'inputLength'
-        // is longer than the length of the parsed data, parsing will fail.
+        // in the "Shh:mm" format, 'hh' and 'mm' are 2 digit integers (left
+        // padded with '0's if necessary).  'hh' must be in the range
+        // '[ 00, 24 )' and 'mm' must be in the range '[ 00, 60 )'.  An
+        // alternate form of representing the time zone is 'Z' or 'z',
+        // signifying GMT.  If the time zone is not provided, GMT is assumed.
+        // Do not modify '*result' on failure.  An exceptional time value of
+        // '24:00;00' may be provided, but if so the fraction of a second must
+        // be 0 and time zone, if any, must be GMT.  Return 0 on success, and a
+        // non-zero value otherwise.  Note that if 'inputLength' is longer than
+        // the length of the parsed data, parsing will fail.
 };
 
 // ===========================================================================
