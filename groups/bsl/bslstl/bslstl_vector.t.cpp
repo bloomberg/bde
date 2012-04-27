@@ -243,6 +243,7 @@ class BitwiseMoveableTestType;
 class BitwiseCopyableTestType;
 class BitwiseEqComparableTestType;
 
+typedef long unsigned                 LU;
 typedef TestType                      T;    // uses 'bslma' allocators
 typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
 typedef BitwiseMoveableTestType       BMT;  // uses 'bslma' allocators
@@ -2114,13 +2115,13 @@ void TestDriver<TYPE,ALLOC>::testCase21()
     };
 
     if (verbose) printf("\nConstructor 'vector(n, T x, a = A())'"
-                        " and 'max_size()' equal to %lu.\n", EXP_MAX_SIZE);
+                        " and 'max_size()' equal to %lu.\n", (LU)EXP_MAX_SIZE);
 
     for (int i = 0; DATA[i]; ++i)
     {
         bool exceptionCaught = false;
 
-        if (veryVerbose) printf("\tWith 'n' = %lu\n", DATA[i]);
+        if (veryVerbose) printf("\tWith 'n' = %lu\n", (LU) DATA[i]);
 
         try {
             Obj mX(DATA[i], DEFAULT_VALUE);  // test here
@@ -2143,7 +2144,7 @@ void TestDriver<TYPE,ALLOC>::testCase21()
     ASSERT(0 == testAllocator.numBytesInUse());
 
     if (verbose) printf("\nWith 'reserve/resize' and"
-                        " 'max_size()' equal to %lu.\n", EXP_MAX_SIZE);
+                        " 'max_size()' equal to %lu.\n", (LU) EXP_MAX_SIZE);
 
     for (int capacityMethod = 0; capacityMethod <= 2; ++capacityMethod)
     {
@@ -2160,7 +2161,7 @@ void TestDriver<TYPE,ALLOC>::testCase21()
         {
             bool exceptionCaught = false;
 
-            if (veryVerbose) printf("\t\tWith 'n' = %lu\n", DATA[i]);
+            if (veryVerbose) printf("\t\tWith 'n' = %lu\n", (LU) DATA[i]);
 
             try {
                 Obj mX;
@@ -2192,12 +2193,13 @@ void TestDriver<TYPE,ALLOC>::testCase21()
     ASSERT(0 == testAllocator.numBytesInUse());
 
     if (verbose) printf("\nWith 'insert' and 'max_size()' equal to %lu.\n",
-                        EXP_MAX_SIZE);
+                        (LU) EXP_MAX_SIZE);
 
     for (int i = 0; DATA[i]; ++i)  {
         bool exceptionCaught = false;
 
-        if (veryVerbose) printf("\tCreating vector of length %lu.\n", DATA[i]);
+        if (veryVerbose) printf("\tCreating vector of length %lu.\n",
+                                (LU) DATA[i]);
 
         try {
             Obj mX(PADDING, DEFAULT_VALUE, a);  const Obj& X = mX;
@@ -2475,10 +2477,12 @@ void TestDriver<TYPE,ALLOC>::testCase18()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
-                                      bslalg::TypeTraitBitwiseMoveable>::VALUE;
-    const int TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    enum {
+        TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
+                                      bslalg::TypeTraitBitwiseMoveable>::VALUE,
+        TYPE_ALLOC  = bslalg::HasTrait<TYPE,
+                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE
+    };
 
     static const struct {
         int         d_lineNum;          // source line number
@@ -3050,10 +3054,12 @@ void TestDriver<TYPE,ALLOC>::testCase17()
     const TYPE *const&  VALUES     = values;
     const int           NUM_VALUES = getValues(&values);
 
-    const int TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
-                                      bslalg::TypeTraitBitwiseMoveable>::VALUE;
-    const int TYPE_ALLOC  = bslalg::HasTrait<TYPE,
-                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
+    enum {
+        TYPE_MOVEABLE  = bslalg::HasTrait<TYPE,
+                                      bslalg::TypeTraitBitwiseMoveable>::VALUE,
+        TYPE_ALLOC  = bslalg::HasTrait<TYPE,
+                                   bslalg::TypeTraitUsesBslmaAllocator>::VALUE
+    };
 
     static const struct {
         int         d_lineNum;          // source line number
@@ -3276,12 +3282,18 @@ void TestDriver<TYPE,ALLOC>::testCase17()
 
                         const int REALLOC = X.capacity() > INIT_CAP;
 
-                        const int TYPE_ALLOCS = NUM_ELEMENTS &&
-                                                   TYPE_ALLOC && !TYPE_MOVEABLE
-                                              ? (REALLOC ? INIT_LENGTH
-                                                         : INIT_LENGTH - POS)
-                                              : 0;
-                        const int EXP_ALLOCS  = REALLOC + TYPE_ALLOCS +
+                        // Have to separate const's from vars in boolean
+                        // operations or we get these really stupid warnings
+                        // grom g++.
+
+                        const int TYPE_ALLOCS = !TYPE_ALLOC || TYPE_MOVEABLE
+                                              ? 0
+                                              : 0 == NUM_ELEMENTS
+                                                ? 0
+                                                : REALLOC ? INIT_LENGTH
+                                                          : INIT_LENGTH - POS;
+
+                        const int EXP_ALLOCS  = REALLOC + typeAllocs +
                                                      NUM_ELEMENTS * TYPE_ALLOC;
 
                         LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
@@ -4234,7 +4246,7 @@ void TestDriver<TYPE,ALLOC>::testCase15Negative()
             for (int i = -int(X.size()) - 1; i < int(X.size() * 2) + 2; ++i) {
                 if (veryVeryVerbose) { T_ T_ T_ P(i); }
 
-                if (i >= 0 && i < X.size()) {
+                if (i >= 0 && i < (int) X.size()) {
                     ASSERT_SAFE_PASS(X[i]);
                     ASSERT_SAFE_PASS(mX[i]);
                 }
@@ -5655,7 +5667,8 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
         if (verbose) printf("\tWithout passing in an allocator.\n");
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int     LINE   = DATA[ti].d_lineNum;
+//              const int     LINE   = DATA[ti].d_lineNum;
+
                 const char   *SPEC   = DATA[ti].d_spec;
                 const size_t  LENGTH = strlen(SPEC);
 
@@ -5681,7 +5694,8 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
         if (verbose) printf("\tWithout passing in an allocator.\n");
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int     LINE   = DATA[ti].d_lineNum;
+//              const int     LINE   = DATA[ti].d_lineNum;
+
                 const char   *SPEC   = DATA[ti].d_spec;
                 const size_t  LENGTH = strlen(SPEC);
 
@@ -5904,7 +5918,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                                 gg(&mV, V_SPEC);
                     // v--------
                     static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                    if (veryVeryVerbose||veryVerbose && firstFew > 0) {
+                    if (veryVeryVerbose || (veryVerbose && firstFew > 0)) {
                         printf("\t| "); P_(U_N); P_(V_N); P_(U); P(V);
                         --firstFew;
                     }
@@ -5924,7 +5938,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                     mU = V; // test assignment here
 
                     ASSERT((numCopyCtorCalls - NUM_CTOR) <= (int)V.size());
-                    ASSERT((numDestructorCalls - NUM_DTOR) <= OLD_LENGTH);
+                    ASSERT((numDestructorCalls - NUM_DTOR) <= (int)OLD_LENGTH);
 
                     LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == U);
                     LOOP4_ASSERT(U_SPEC, U_N, V_SPEC, V_N, VV == V);
@@ -6010,7 +6024,7 @@ void TestDriver<TYPE,ALLOC>::testCase9()
                         gg(&mV, V_SPEC);
 
                         static int firstFew = 2 * NUM_EXTEND * NUM_EXTEND;
-                        if (veryVeryVerbose||veryVerbose && firstFew > 0) {
+                        if (veryVeryVerbose || (veryVerbose && firstFew > 0)) {
                             printf("\t| "); P_(U_N); P_(V_N); P_(U); P(V);
                             --firstFew;
                         }
