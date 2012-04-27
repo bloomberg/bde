@@ -159,7 +159,7 @@ BDES_IDENT("$Id: $")
 //  assert(  59 == dateTime.localDatetime().minute());
 //  assert(  59 == dateTime.localDatetime().second());
 //  assert( 123 == dateTime.localDatetime().millisecond());
-//  assert(-240 == dateTime.offset());
+//  assert( 240 == dateTime.offset());
 //..
 // Note that fractions of a second was rounded up to 123 milliseconds and that
 // the offset from GMT was converted to minutes.
