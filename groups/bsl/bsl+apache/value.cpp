@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2005 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -194,7 +194,7 @@ assign (assign_op which, const UserClass &rhs)
     size_t *p_op       = 0;
     size_t *p_throw    = 0;
 
-    Exception *pex = 0; 
+    Exception *pex = 0;
 
     OpAssign      ex_assign;
     OpPlusAssign  ex_plus_assign;
@@ -442,7 +442,7 @@ UserClass::first_less (const UserClass *xarray, size_t nelems)
                 break;
         }
     }
-    
+
     return inx < nelems ? xarray + inx : 0;
 }
 
@@ -789,7 +789,7 @@ _rw_fmtxarrayv (char **pbuf, size_t *pbufsize, const char *fmt, va_list va)
     RW_ASSERT (0 != pva);
 
     // extract a pointer to UserClass from rw_snprintfa's variable argument
-    // list pass through to us by the caller 
+    // list pass through to us by the caller
     const UserClass* const xbeg = va_arg (*pva, UserClass*);
 
     if (-1 != cursor) {

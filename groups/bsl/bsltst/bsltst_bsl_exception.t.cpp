@@ -1,4 +1,4 @@
-// bsltst_exception.t.cpp                  -*-C++-*-
+// bsltst_exception.t.cpp                                             -*-C++-*-
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif

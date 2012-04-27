@@ -61,10 +61,10 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bslalg_TypeTraitBitwiseMoveable              BitwiseMoveable;
-typedef bslalg_TypeTraitBitwiseCopyable              BitwiseCopyable;
-typedef bslalg_TypeTraitHasTrivialDefaultConstructor TrivialConstructor;
-typedef bslalg_TypeTraitUsesBslmaAllocator           UsesBdemaAllocator;
+typedef bslalg::TypeTraitBitwiseMoveable              BitwiseMoveable;
+typedef bslalg::TypeTraitBitwiseCopyable              BitwiseCopyable;
+typedef bslalg::TypeTraitHasTrivialDefaultConstructor TrivialConstructor;
+typedef bslalg::TypeTraitUsesBslmaAllocator           UsesBdemaAllocator;
 
 //=============================================================================
 //                          HELPER CLASS FOR TESTING
@@ -86,7 +86,7 @@ struct my_MoveAbandonBdema
 {
     BSLALG_DECLARE_NESTED_TRAITS(my_MoveAbandonBdema, traits_MoveAbandonBdema);
     my_MoveAbandonBdema() { }
-    my_MoveAbandonBdema(const my_MoveAbandonBdema&, bslma_Allocator*) { }
+    my_MoveAbandonBdema(const my_MoveAbandonBdema&, bslma::Allocator*) { }
 };
 
 struct my_CopyTrivial
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
         if (verbose) bsl::printf("\nTESTING make_pair"
                                  "\n=================\n");
 
-        bslma_TestAllocator ta;
+        bslma::TestAllocator ta;
         ASSERT(0 == ta.numBlocksInUse());
 
         if (verbose) {
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
                         "bsl::pair<my_NoTraits, my_NoTraits>\n");
         }
         {
-            bslma_DefaultAllocatorGuard ag(&ta);
+            bslma::DefaultAllocatorGuard ag(&ta);
             my_NoTraits v1; my_NoTraits v2;
             typedef bsl::pair<my_NoTraits, my_NoTraits> Obj;
             Obj x = bsl::make_pair(v1, v2);
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
                         "my_MoveAbandonBdema>\n");
         }
         {
-            bslma_DefaultAllocatorGuard ag(&ta);
+            bslma::DefaultAllocatorGuard ag(&ta);
             my_MoveAbandonBdema v1; my_MoveAbandonBdema v2;
             typedef bsl::pair<my_MoveAbandonBdema, my_MoveAbandonBdema> Obj;
             Obj x = bsl::make_pair(v1, v2);
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
                         "bsl::pair<my_CopyTrivial, my_CopyTrivial>\n");
         }
         {
-            bslma_DefaultAllocatorGuard ag(&ta);
+            bslma::DefaultAllocatorGuard ag(&ta);
             my_CopyTrivial v1; my_CopyTrivial v2;
             typedef bsl::pair<my_CopyTrivial, my_CopyTrivial> Obj;
             Obj x = bsl::make_pair(v1, v2);
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
                         "bsl::pair<my_CopyTrivial, my_MoveAbandonBdema>\n");
         }
         {
-            bslma_DefaultAllocatorGuard ag(&ta);
+            bslma::DefaultAllocatorGuard ag(&ta);
             my_CopyTrivial v1; my_MoveAbandonBdema v2;
             typedef bsl::pair<my_CopyTrivial, my_MoveAbandonBdema> Obj;
             Obj x = bsl::make_pair(v1, v2);
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
                         "bsl::pair<my_MoveAbandonBdema, my_CopyTrivial>\n");
         }
         {
-            bslma_DefaultAllocatorGuard ag(&ta);
+            bslma::DefaultAllocatorGuard ag(&ta);
             my_MoveAbandonBdema v1; my_CopyTrivial v2;
             typedef bsl::pair<my_MoveAbandonBdema, my_CopyTrivial> Obj;
             Obj x = bsl::make_pair(v1, v2);
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
                         "bsl::pair<my_MoveAbandonBdema, my_NoTraits>\n");
         }
         {
-            bslma_DefaultAllocatorGuard ag(&ta);
+            bslma::DefaultAllocatorGuard ag(&ta);
             my_MoveAbandonBdema v1; my_NoTraits v2;
             typedef bsl::pair<my_MoveAbandonBdema, my_NoTraits> Obj;
             Obj x = bsl::make_pair(v1, v2);
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
                         "bsl::pair<my_CopyTrivial, my_NoTraits>\n");
         }
         {
-            bslma_DefaultAllocatorGuard ag(&ta);
+            bslma::DefaultAllocatorGuard ag(&ta);
             my_CopyTrivial v1; my_NoTraits v2;
             typedef bsl::pair<my_CopyTrivial, my_NoTraits> Obj;
             Obj x = bsl::make_pair(v1, v2);
@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
                         "bsl::pair<my_MoveAbandonBdema, int>\n");
         }
         {
-            bslma_DefaultAllocatorGuard ag(&ta);
+            bslma::DefaultAllocatorGuard ag(&ta);
             my_MoveAbandonBdema v1; int v2 = 4;
             typedef bsl::pair<my_MoveAbandonBdema, int> Obj;
             Obj x = bsl::make_pair(v1, v2);
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
                         "bsl::pair<int, my_CopyTrivial>\n");
         }
         {
-            bslma_DefaultAllocatorGuard ag(&ta);
+            bslma::DefaultAllocatorGuard ag(&ta);
             int v1 = 4; my_CopyTrivial v2;
             typedef bsl::pair<int, my_CopyTrivial> Obj;
             Obj x = bsl::make_pair(v1, v2);
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
                         "bsl::pair<pair<int, int>, pair<int, int> >\n");
         }
         {
-            bslma_DefaultAllocatorGuard ag(&ta);
+            bslma::DefaultAllocatorGuard ag(&ta);
             bsl::pair<int, int> v1; bsl::pair<int, int> v2;
             typedef bsl::pair<bsl::pair<int, int>, bsl::pair<int, int> > Obj;
             Obj x = bsl::make_pair(v1, v2);

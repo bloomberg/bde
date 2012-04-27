@@ -43,7 +43,7 @@ static const char* const exceptions[] = {
 
 // used to exercise
 // begin () and rend () and front ()
-static const ContainerTestCase 
+static const ContainerTestCase
 begin_void_test_cases [] = {
 
 #undef TEST
@@ -54,29 +54,29 @@ begin_void_test_cases [] = {
 }
 
     //    +--------------------------------- controlled sequence
-    //    |                +---------------- expected result 
-    //    |                |     
-    //    V                V     
-    TEST ("",              _RWSTD_SIZE_MAX), 
-    TEST ("a",             'a' ), 
+    //    |                +---------------- expected result
+    //    |                |
+    //    V                V
+    TEST ("",              _RWSTD_SIZE_MAX),
+    TEST ("a",             'a' ),
     TEST ("<U0>",          '\0'),
-    TEST ("abc",           'a' ),  
-    TEST ("<U0>ab<U0>@2c", '\0'), 
-    TEST ("a<U0>b<U0>@2c", 'a' ),  
-    TEST ("a<U0>bc<U0>@2", 'a' ), 
+    TEST ("abc",           'a' ),
+    TEST ("<U0>ab<U0>@2c", '\0'),
+    TEST ("a<U0>b<U0>@2c", 'a' ),
+    TEST ("a<U0>bc<U0>@2", 'a' ),
 #if TEST_RW_EXTENSIONS  // test runs slow
-    TEST ("x@4096",        'x' ),  
+    TEST ("x@4096",        'x' ),
 #else
-    TEST ("x@64",          'x' ),  
+    TEST ("x@64",          'x' ),
 #endif
-    TEST ("last",          'l' )  
+    TEST ("last",          'l' )
 };
 
 /**************************************************************************/
 
 // used to exercise
 // end () and rbegin () and back ()
-static const ContainerTestCase 
+static const ContainerTestCase
 end_void_test_cases [] = {
 
 #undef TEST
@@ -87,22 +87,22 @@ end_void_test_cases [] = {
 }
 
     //    +--------------------------------- controlled sequence
-    //    |                +---------------- expected result 
-    //    |                |     
-    //    V                V     
-    TEST ("",              _RWSTD_SIZE_MAX), 
-    TEST ("a",             'a' ), 
+    //    |                +---------------- expected result
+    //    |                |
+    //    V                V
+    TEST ("",              _RWSTD_SIZE_MAX),
+    TEST ("a",             'a' ),
     TEST ("<U0>",          '\0'),
-    TEST ("abc",           'c' ),  
-    TEST ("<U0>ab<U0>@2c", 'c' ), 
-    TEST ("a<U0>b<U0>@2c", 'c' ),  
-    TEST ("a<U0>bc<U0>@2", '\0'), 
+    TEST ("abc",           'c' ),
+    TEST ("<U0>ab<U0>@2c", 'c' ),
+    TEST ("a<U0>b<U0>@2c", 'c' ),
+    TEST ("a<U0>bc<U0>@2", '\0'),
 #if TEST_RW_EXTENSIONS  // test runs slow
-    TEST ("x@4096",        'x' ),  
+    TEST ("x@4096",        'x' ),
 #else
-    TEST ("x@64",          'x' ),  
+    TEST ("x@64",          'x' ),
 #endif
-    TEST ("last",          't' )  
+    TEST ("last",          't' )
 };
 
 /**************************************************************************/
@@ -120,14 +120,14 @@ get_allocator_void_test_cases [] = {
 }
 
     //    +------------------------------------------ controlled sequence
-    //    | 
-    //    | 
-    //    |    
-    //    |    
-    //    | 
-    //    | 
-    //    | 
-    //    V 
+    //    |
+    //    |
+    //    |
+    //    |
+    //    |
+    //    |
+    //    |
+    //    V
     TEST (""              ),
     TEST ("ab"            ),
     TEST ("<U0>"          ),
@@ -160,8 +160,8 @@ void test_iterators (T*, Allocator*,
     const ContainerTestCase &tcase = tdata.tcase_;
 
     const bool test_iters =
-           func.which_ == ListIds::begin_void 
-        || func.which_ == ListIds::begin_const_void 
+           func.which_ == ListIds::begin_void
+        || func.which_ == ListIds::begin_const_void
         || func.which_ == ListIds::end_void
         || func.which_ == ListIds::end_const_void
         || func.which_ == ListIds::rbegin_void
@@ -174,7 +174,7 @@ void test_iterators (T*, Allocator*,
         || func.which_ == ListIds::back_const_void;
 
     const bool test_const_list =
-           func.which_ == ListIds::begin_const_void 
+           func.which_ == ListIds::begin_const_void
         || func.which_ == ListIds::end_const_void
         || func.which_ == ListIds::rbegin_const_void
         || func.which_ == ListIds::rend_const_void
@@ -182,7 +182,7 @@ void test_iterators (T*, Allocator*,
         || func.which_ == ListIds::back_const_void;
 
     const bool test_end_iters =
-           func.which_ == ListIds::end_void 
+           func.which_ == ListIds::end_void
         || func.which_ == ListIds::end_const_void
         || func.which_ == ListIds::rend_void
         || func.which_ == ListIds::rend_const_void;
@@ -190,7 +190,7 @@ void test_iterators (T*, Allocator*,
     // allocator object for test get_allocator
     Allocator alloc;
 
-    // construct the list object 
+    // construct the list object
     List lst (tdata.str_, tdata.str_ + tdata.strlen_, alloc);
     // construct the constant list object
     const List clst (tdata.str_, tdata.str_ + tdata.strlen_, alloc);
@@ -304,11 +304,11 @@ void test_iterators (T*, Allocator*,
 
         case ListIds::get_allocator_void:
 #if TEST_RW_PEDANTIC || DRQS // std::allocator is assignable in standard
-	    resalloc = clst.get_allocator ();
+        resalloc = clst.get_allocator ();
 #else
-	    // Hack to make any allocator assignable
-	    resalloc.~Allocator();
-	    new ((void*) &resalloc) Allocator(clst.get_allocator ());
+        // Hack to make any allocator assignable
+        resalloc.~Allocator();
+        new ((void*) &resalloc) Allocator(clst.get_allocator ());
 #endif
             break;
 
@@ -319,14 +319,14 @@ void test_iterators (T*, Allocator*,
 
         if (res_ptr) {
 
-            const char exp_res = 
+            const char exp_res =
                 (_RWSTD_SIZE_MAX != tcase.nres ? char (tcase.nres) : char ());
 
             const bool success = 0 == T::mismatch (res_ptr, &exp_res, 1);
 
             rw_assert (success, 0, tcase.line,
                        "line %d. %{$FUNCALL}%{?} - 1%{;} expected "
-                       "%{#c}, got %{#c}", __LINE__, 
+                       "%{#c}, got %{#c}", __LINE__,
                        test_end_iters, exp_res, char (res_ptr->data_.val_));
         }
 
@@ -336,26 +336,26 @@ void test_iterators (T*, Allocator*,
 
                 bool success = true;
 
-                if (   func.which_ == ListIds::begin_void 
-                    || func.which_ == ListIds::end_void) 
+                if (   func.which_ == ListIds::begin_void
+                    || func.which_ == ListIds::end_void)
                     success = it == lst.begin () && it == lst.end ();
 
-                if (   func.which_ == ListIds::begin_const_void 
-                    || func.which_ == ListIds::end_const_void) 
+                if (   func.which_ == ListIds::begin_const_void
+                    || func.which_ == ListIds::end_const_void)
                     success = cit == clst.begin () && cit == clst.end ();
 
-                if (   func.which_ == ListIds::rbegin_void 
-                    || func.which_ == ListIds::rend_void) 
+                if (   func.which_ == ListIds::rbegin_void
+                    || func.which_ == ListIds::rend_void)
                     success = rit == lst.rbegin () && rit == lst.rend ();
 
-                if (   func.which_ == ListIds::rbegin_const_void 
-                    || func.which_ == ListIds::rend_const_void) 
+                if (   func.which_ == ListIds::rbegin_const_void
+                    || func.which_ == ListIds::rend_const_void)
                     success = crit == clst.rbegin () && crit == clst.rend ();
 
                 // check the begin () == end (), rbegin () == rend ()
                 rw_assert(success, 0, tcase.line,
                           "line %d. %{$FUNCALL} returned iterator is not "
-                          "equal to begin and end for an empty list", 
+                          "equal to begin and end for an empty list",
                           __LINE__);
             }
 
@@ -363,7 +363,7 @@ void test_iterators (T*, Allocator*,
             rw_assert(it_relations, 0, tcase.line,
                       "line %d. %{$FUNCALL} iterators "
                       "relationship is broken", __LINE__);
-        } 
+        }
 
         if (func.which_ == ListIds::get_allocator_void) {
 

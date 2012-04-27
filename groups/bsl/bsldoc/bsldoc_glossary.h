@@ -168,12 +168,13 @@ BSLS_IDENT("$Id: $")
 //: o A *function* provides the no-throw guarantee if it will not throw, or in
 //:   any way propagate, an exception to the caller under any circumstances.
 //:   o The no-throw guarantee is exceedingly rare in BDE libraries.  Any
-//:     memory allocation performed using a type derived from 'bslma_Allocator'
-//:     may throw a memory-allocation exception.  Additionally, a function may
-//:     test its input to verify that it has been called in-contract (e.g.,
-//:     using 'bsls_assert') and may throw an exception in cases where it is
-//:     called out-of-contract (functions with any undefined behavior, by
-//:     definition, cannot provide the no-throw guarantee).
+//:     memory allocation performed using a type derived from
+//:     'bslma::Allocator' may throw a memory-allocation exception.
+//:     Additionally, a function may test its input to verify that it has been
+//:     called in-contract (e.g., using 'bsls_assert') and may throw an
+//:     exception in cases where it is called out-of-contract (functions with
+//:     any undefined behavior, by definition, cannot provide the no-throw
+//:     guarantee).
 //
 ///Protocol:[TC.7]
 ///- - - - - - - -

@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2000-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for unique, unique_copy
@@ -35,7 +35,7 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
@@ -44,19 +44,19 @@ _RWSTD_NAMESPACE (std) {
 
 template
 FwdIter<eq_comp<assign<base<> > > >
-unique (FwdIter<eq_comp<assign<base<> > > >, 
+unique (FwdIter<eq_comp<assign<base<> > > >,
         FwdIter<eq_comp<assign<base<> > > >);
 
 template
 FwdIter<eq_comp<assign<base<> > > >
-unique (FwdIter<eq_comp<assign<base<> > > >, 
-        FwdIter<eq_comp<assign<base<> > > >, 
+unique (FwdIter<eq_comp<assign<base<> > > >,
+        FwdIter<eq_comp<assign<base<> > > >,
         binary_predicate<eq_comp<assign<base<> > > >);
 
 template
 OutputIter<eq_comp<assign<base<cpy_ctor> > > >
-unique_copy (InputIter<eq_comp<assign<base<cpy_ctor> > > >, 
-             InputIter<eq_comp<assign<base<cpy_ctor> > > >, 
+unique_copy (InputIter<eq_comp<assign<base<cpy_ctor> > > >,
+             InputIter<eq_comp<assign<base<cpy_ctor> > > >,
              OutputIter<eq_comp<assign<base<cpy_ctor> > > >);
 
 #if TEST_RW_EXTENSIONS
@@ -75,24 +75,24 @@ unique_copy (InputIter<eq_comp<assign<base<cpy_ctor> > > >,
 /**************************************************************************/
 
 // exercises std::unique and std::unique_copy()
-template <class FwdIterator, class FwdCopyIterator, 
+template <class FwdIterator, class FwdCopyIterator,
           class OutIterator, class T, class Predicate>
 void test_unique (int                    line,
                   const char            *src,
                   const char            *dst,
                   const FwdIterator     &it,
-                  const FwdCopyIterator &itc, 
+                  const FwdCopyIterator &itc,
                   const OutIterator     &out,
                   const T*,
-                  const Predicate       *ppred, 
+                  const Predicate       *ppred,
                   bool                   use_copy)
 {
     const char* const outname = type_name (out, (T*)0);
-    const char* const itname = 
+    const char* const itname =
         use_copy ? type_name (itc, (T*)0) : type_name (it, (T*)0);
-    const char* const fname = 
+    const char* const fname =
         use_copy ? "unique_copy" : "unique";
-    const char* const funname = 
+    const char* const funname =
         ppred ? "BinaryPredicate" : "operator==()";
 
     const std::size_t nsrc = std::strlen (src);
@@ -113,7 +113,7 @@ void test_unique (int                    line,
     const OutIterator result =  make_iter (xdst, xdst, xdst_end, out);
 
     // compute the actual number of invocations of operator==() or predicate
-    std::size_t n_total_ops = 
+    std::size_t n_total_ops =
         ppred ? Predicate::n_total_op_fcall_ : T::n_total_op_eq_;
 
     OutIterator res_c (0, 0, 0);
@@ -143,7 +143,7 @@ void test_unique (int                    line,
 
     rw_assert (0 == mismatch, 0, line,
                "line %d: std::%s <%s%{?}, %s%{;}%{?}, %s%{;}>(\"%s\", ...) "
-               "==> \"%s\", got \"%{X=*.@}\"", 
+               "==> \"%s\", got \"%{X=*.@}\"",
                __LINE__, fname, itname, use_copy, outname, 0 != ppred,
                funname, src, dst, int (ndst), mismatch, xdst);
 
@@ -165,10 +165,10 @@ void test_unique (int                    line,
 
 /**************************************************************************/
 
-template <class FwdIterator, class FwdCopyIterator, 
+template <class FwdIterator, class FwdCopyIterator,
           class OutIterator, class T, class Predicate>
 void test_unique (const FwdIterator     &it,
-                  const FwdCopyIterator &itc, 
+                  const FwdCopyIterator &itc,
                   const OutIterator     &out,
                   const T*,
                   const Predicate       *ppred,
@@ -243,7 +243,7 @@ void test_unique (const FwdIterator     &it,
 
 template <class T, class Predicate, class FwdIterator>
 void test_unique (const FwdIterator &it,
-                  const T*, 
+                  const T*,
                   const Predicate   *ppred)
 {
     static const InputIter<T>        input_iter (0, 0, 0);
@@ -285,7 +285,7 @@ void test_unique (const FwdIterator &it,
 
 template <class T, class Predicate>
 void test_unique (const T*,
-                  const Predicate *ppred, 
+                  const Predicate *ppred,
                   bool             use_copy)
 {
     static const InputIter<T>        input_iter (0, 0, 0);
@@ -296,7 +296,7 @@ void test_unique (const T*,
     rw_info (0, 0, 0,
              "template <class %s%{?}, class %s%{;}%{?}, class %s%{;}> "
              "%s std::%s (%1$s, %1$s%{?}, %3$s%{;}%{?}, %5$s%{;})",
-             use_copy ? "InputIterator" : "ForwardIterator", 
+             use_copy ? "InputIterator" : "ForwardIterator",
              use_copy, "OutputIterator", 0 != ppred, "Predicate",
              use_copy ? "OutputIterator" : "ForwardIterator",
              use_copy ? "unique_copy" : "unique", use_copy, 0 != ppred);
@@ -339,7 +339,7 @@ void test_unique (const T*,
         if (use_copy)
             test_unique (rand_iter, (T*)0, ppred);
         else
-            test_unique (rand_iter, rand_iter, rand_iter, 
+            test_unique (rand_iter, rand_iter, rand_iter,
                          (T*)0, ppred, false);
     }
 }
@@ -358,7 +358,7 @@ run_test (int, char*[])
         test_unique ((UserClass*)0, (BinaryPredicate*)0, false);
 
         if (rw_opt_no_predicate) {
-           rw_note (0, __FILE__, __LINE__,  
+           rw_note (0, __FILE__, __LINE__,
                     "std::unique predicate test disabled");
         }
         else {
@@ -373,7 +373,7 @@ run_test (int, char*[])
         test_unique ((UserClass*) 0, (BinaryPredicate*)0, true);
 
         if (rw_opt_no_predicate) {
-           rw_note (0, __FILE__, __LINE__,  
+           rw_note (0, __FILE__, __LINE__,
                     "std::unique_copy predicate test disabled");
         }
         else {
@@ -398,7 +398,7 @@ int main (int argc, char *argv[])
                     "|-no-ForwardIterator# "
                     "|-no-BidirectionalIterator# "
                     "|-no-RandomAccessIterator# "
-                    "|-no-predicate",  
+                    "|-no-predicate",
                     &rw_opt_no_unique,
                     &rw_opt_no_unique_copy,
                     &rw_opt_no_input_iter,

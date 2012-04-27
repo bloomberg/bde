@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2002-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #include <bsls_platform.h>
@@ -53,7 +53,7 @@
 #else
 #  define SLASH    "\\"
 #endif
-            
+
 
 // the root of the locale directory (RWSTD_LOCALE_ROOT)
 // set in main() instead of here to avoid Solaris 7 putenv() bug (PR #30017)
@@ -139,7 +139,7 @@ const wchar_t* widen (wchar_t *dst, const char *src)
 
 std::size_t rw_strftime (char *buf, std::size_t bufsize,
                          const char *pat, const std::tm *tmb)
-{ 
+{
     static const std::tm tmp = std::tm ();
 
     if (!tmb)
@@ -188,7 +188,7 @@ std::size_t rw_strftime (char *buf, std::size_t bufsize,
                 pat += 1;
                 break;
             case 'D':
-                // %D same as %m/%d/%y. 
+                // %D same as %m/%d/%y.
                 *fpat++ = '%'; *fpat++ = 'm'; *fpat++ = '/';
                 *fpat++ = '%'; *fpat++ = 'd'; *fpat++ = '/';
                 *fpat++ = '%'; *fpat++ = 'y'; pat += 1;
@@ -214,18 +214,18 @@ std::size_t rw_strftime (char *buf, std::size_t bufsize,
                 break;
             case 'g':
                 // %g Replaced by the last 2 digits of the week-based year
-                // as a decimal number [00,99]. [ tm_year, tm_wday, tm_yday] 
+                // as a decimal number [00,99]. [ tm_year, tm_wday, tm_yday]
                 return 0;
             case 'G':
                 // %G Replaced by the week-based year as a decimal number
-                // (for example, 1977). [ tm_year, tm_wday, tm_yday] 
+                // (for example, 1977). [ tm_year, tm_wday, tm_yday]
                 return 0;
             case 'h':
-                // %h same as %b. 
+                // %h same as %b.
                 *fpat++ = '%'; *fpat++ = 'b'; pat += 1;
                 break;
             case 'n':
-                // %n is replaced by a newline character. 
+                // %n is replaced by a newline character.
                 *fpat++ = '\n'; pat += 1;
                 break;
             case 'r':
@@ -242,11 +242,11 @@ std::size_t rw_strftime (char *buf, std::size_t bufsize,
                 *fpat++ = '%'; *fpat++ = 'M'; pat += 1;
                 break;
             case 't':
-                // %t is replaced by a tab character. 
+                // %t is replaced by a tab character.
                 *fpat++ = '\t'; pat += 1;
                 break;
             case 'T':
-                // %T is replaced by the time (%H:%M:%S). 
+                // %T is replaced by the time (%H:%M:%S).
                 *fpat++ = '%'; *fpat++ = 'H'; *fpat++ = ':';
                 *fpat++ = '%'; *fpat++ = 'M'; *fpat++ = ':';
                 *fpat++ = '%'; *fpat++ = 'S'; pat += 1;
@@ -254,7 +254,7 @@ std::size_t rw_strftime (char *buf, std::size_t bufsize,
             case 'u':
                 // %u is replaced by the weekday as a decimal number [1,7],
                 // with 1 representing Monday.
-                *fpat++ = '0' + (tmb->tm_wday + 1);                
+                *fpat++ = '0' + (tmb->tm_wday + 1);
                 pat += 1;
                 break;
             case 'V':
@@ -263,7 +263,7 @@ std::size_t rw_strftime (char *buf, std::size_t bufsize,
                 // If the week containing 1 January has four or more days
                 // in the new year, then it is considered week 1. Otherwise,
                 // it is the last week of the previous year, and the next
-                // week is week 1. 
+                // week is week 1.
                 return 0;
             default:
                 // copy percent and format
@@ -298,7 +298,7 @@ std::size_t rw_strftime (char *buf, std::size_t bufsize,
 
 std::size_t rw_strftime (wchar_t *wbuf, std::size_t bufsize,
                          const wchar_t *wpat, const std::tm *tmb)
-{ 
+{
     static const std::tm tmp = std::tm ();
 
 #if !defined (_RWSTD_NO_WCSFTIME_WCHAR_T_FMAT) && !defined (_MSC_VER)
@@ -521,7 +521,7 @@ const char* make_LC_TIME (const time_data *td)
         std::fprintf (fout, "\"");
         pcs_write (fout, td->abday [i]);
         std::fprintf (fout, "\"%c", i < 6 ? ';' : '\n');
-    }            
+    }
 
     std::fprintf (fout, "day ");
 
@@ -529,7 +529,7 @@ const char* make_LC_TIME (const time_data *td)
         std::fprintf (fout, "\"");
         pcs_write (fout, td->day [i]);
         std::fprintf (fout, "\"%c", i < 6 ? ';' : '\n');
-    }            
+    }
 
     std::fprintf (fout, "abmon ");
 
@@ -537,7 +537,7 @@ const char* make_LC_TIME (const time_data *td)
         std::fprintf (fout, "\"");
         pcs_write (fout, td->abmon [i]);
         std::fprintf (fout, "\"%c", i < 11 ? ';' : '\n');
-    }            
+    }
 
     std::fprintf (fout, "mon ");
 
@@ -545,7 +545,7 @@ const char* make_LC_TIME (const time_data *td)
         std::fprintf (fout, "\"");
         pcs_write (fout, td->mon [i]);
         std::fprintf (fout, "\"%c", i < 11 ? ';' : '\n');
-    }            
+    }
 
     std::fprintf (fout, "am_pm ");
 
@@ -710,7 +710,7 @@ const std::tm* mktm (int sec = 0,            // [0,60]
 
     // GNU glibc uses gmtoff and zone instead of timezone and
     // tzname when computing/formatting time zone information
-    // 
+    //
     // http://www.gnu.org/manual/glibc-2.2.3/html_node/libc_425.html#SEC434
 
 #  ifndef __USE_BSD
@@ -885,7 +885,7 @@ void test_POSIX (charT, const char *tname)
     TEST (T (0, 0, 0, 1, 0, -1899), "%EC", 0, 0, ' ', "00");
     TEST (T (0, 0, 0, 1, 0,  1234), "%EC", 0, 0, ' ', "31");
     TEST (T (0, 0, 0, 1, 0,  8099), "%EC", 0, 0, ' ', "99");
-    
+
 
     // %d: the day of the month as a decimal number (01-31). [tm_mday]
     rw_info (0, 0, __LINE__, "%%d: the day of the month as a decimal number");
@@ -1498,12 +1498,12 @@ void test_POSIX (charT, const char *tname)
     //
     // Where:
     //
-    // std and dst 
+    // std and dst
     // Indicate no less than three, nor more than {TZNAME_MAX}, bytes
     // that are the designation for the standard (std) or the alternative
     // (dst - such as Daylight Savings Time) timezone. Only std is required;
     // if dst is missing, then the alternative time does not apply in this
-    // locale. 
+    // locale.
     //
     // Each of these fields may occur in either of two formats quoted
     // or unquoted:
@@ -1740,9 +1740,9 @@ void test_POSIX (charT, const char *tname)
 #if TEST_RW_EXTENSIONS
     TEST (T (), " %%C%", 0, 0, ' ', " %C%");
 #endif
-    TEST (T (), " %%C%%", 0, 0, ' ', " %C%"); 
+    TEST (T (), " %%C%%", 0, 0, ' ', " %C%");
     TEST (T (), " %%%C%%", 0, 0, ' ', " %19%");
-       
+
 #if TEST_RW_EXTENSIONS
     TEST (T (), " %%%d%%%", 0, 0, ' ', " %01%%");
 #endif

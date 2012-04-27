@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide classes and macros for testing abstract protocols.
 //
 //@CLASSES:
-//   bsls_ProtocolTestImp: provides a framework for testing protocol classes
-//      bsls_ProtocolTest: provides tests for protocol class concerns
+//  bsls::ProtocolTestImp: provides a framework for testing protocol classes
+//  bsls::ProtocolTest: provides tests for protocol class concerns
 //
 //@MACROS:
 //  BSLS_PROTOCOLTEST_ASSERT: macro for testing protocol methods
@@ -74,7 +74,7 @@ BSLS_IDENT("$Id: $")
 // First, we define a test class derived from this protocol, and implement its
 // virtual methods.  Rather than deriving the test class from 'ProtocolClass'
 // directly, the test class is derived from
-// 'bsls_ProtocolTestImp<ProtocolClass>' (which, in turn, is derived
+// 'bsls::ProtocolTestImp<ProtocolClass>' (which, in turn, is derived
 // automatically from 'ProtocolClass').  This special base class implements
 // boilerplate code and provides useful functionality for testing of protocols.
 //..
@@ -82,7 +82,7 @@ BSLS_IDENT("$Id: $")
 //  //                  GLOBAL CLASSES/TYPEDEFS FOR TESTING
 //  // ------------------------------------------------------------------------
 //
-//  struct ProtocolClassTestImp : bsls_ProtocolTestImp<ProtocolClass> {
+//  struct ProtocolClassTestImp : bsls::ProtocolTestImp<ProtocolClass> {
 //      const char *bar(char const *, char const *) { return markDone(); }
 //      int foo(int) const                          { return markDone(); }
 //  };
@@ -115,7 +115,7 @@ BSLS_IDENT("$Id: $")
 //  //: 1 Define a concrete derived implementation, 'ProtocolClassTestImp',
 //  //:   of the protocol.
 //  //:
-//  //: 2 Create an object of the 'bsls_ProtocolTest' class template
+//  //: 2 Create an object of the 'bsls::ProtocolTest' class template
 //  //:   parameterized by 'ProtocolClassTestImp', and use it to verify
 //  //:   that:
 //  //:
@@ -143,12 +143,12 @@ BSLS_IDENT("$Id: $")
 //  if (verbose) printf("\nPROTOCOL TEST"
 //                      "\n=============\n");
 //..
-// Then, we create an object of type 'bsls_ProtocolTest<ProtocolClassTestImp>',
-// 'testObj':
+// Then, we create an object of type
+// 'bsls::ProtocolTest<ProtocolClassTestImp>', 'testObj':
 //..
 //  if (verbose) printf("\nCreate a test object.\n");
 //
-//  bsls_ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
+//  bsls::ProtocolTest<ProtocolClassTestImp> testObj(veryVerbose);
 //..
 // Now we use the 'testObj' to test some general concerns about the protocol
 // class.
@@ -185,12 +185,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                    // ==================================
-                    // class bsls_ProtocolTest_IsAbstract
-                    // ==================================
+namespace bsls {
+
+                    // =============================
+                    // class ProtocolTest_IsAbstract
+                    // =============================
 
 template <class T>
-struct bsls_ProtocolTest_IsAbstract {
+struct ProtocolTest_IsAbstract {
     // This class template is a compile-time meta-function, parameterized with
     // type 'T', the output of which is 'VALUE', which will be 'true' if 'T' is
     // abstract and 'false' otherwise.  The 'IsAbstract' test makes use of the
@@ -212,14 +214,14 @@ struct bsls_ProtocolTest_IsAbstract {
     enum { VALUE = sizeof(test<T>(0)) == sizeof(YesType) };
 };
 
-                 // ========================================
-                 // class bsls_ProtocolTest_MethodReturnType
-                 // ========================================
+                 // ===================================
+                 // class ProtocolTest_MethodReturnType
+                 // ===================================
 
-struct bsls_ProtocolTest_MethodReturnType {
+struct ProtocolTest_MethodReturnType {
     // This class is a proxy for a return type designed to simplify testing
     // implementations of protocol methods.
-    // 'bsls_ProtocolTest_MethodReturnType' can be converted to any
+    // 'ProtocolTest_MethodReturnType' can be converted to any
     // non-reference type (i.e., the type can be either a value or pointer
     // type, but not a reference type).  When an object of this class is
     // returned from a test implementation of a protocol method, it is
@@ -233,14 +235,14 @@ struct bsls_ProtocolTest_MethodReturnType {
         // Type 'T' is required to be default-constructible.
 };
 
-                // ===========================================
-                // class bsls_ProtocolTest_MethodReturnRefType
-                // ===========================================
+                // ======================================
+                // class ProtocolTest_MethodReturnRefType
+                // ======================================
 
-struct bsls_ProtocolTest_MethodReturnRefType {
+struct ProtocolTest_MethodReturnRefType {
     // This class is a proxy for a return type designed to simplify testing
     // implementations of protocol methods.
-    // 'bsls_ProtocolTest_MethodReturnRefType' can be converted to any
+    // 'ProtocolTest_MethodReturnRefType' can be converted to any
     // reference type.  When an object of this class is returned from a test
     // implementation of a protocol method, it is implicitly converted to
     // the return type of the protocol method.
@@ -252,30 +254,30 @@ struct bsls_ProtocolTest_MethodReturnRefType {
         // cannot be used and should be immediately discarded.
 };
 
-                       // ============================
-                       // class bsls_ProtocolTest_Dtor
-                       // ============================
+                       // =======================
+                       // class ProtocolTest_Dtor
+                       // =======================
 
 template <class BSLS_TESTIMP>
-struct bsls_ProtocolTest_Dtor : BSLS_TESTIMP {
+struct ProtocolTest_Dtor : BSLS_TESTIMP {
     // This class template is a helper protocol-test implementation class that
     // tests that a protocol destructor is declared 'virtual', which it does by
     // calling the 'markDone' function from its destructor.  The destructor
     // will be executed if the protocol's destructor is declared 'virtual' and
     // not executed otherwise.  Note that the 'BSLS_TESTIMP' template parameter
-    // is required to be a type derived from 'bsls_ProtocolTestImp' class.
+    // is required to be a type derived from 'ProtocolTestImp' class.
 
     // CREATORS
-    ~bsls_ProtocolTest_Dtor();
+    ~ProtocolTest_Dtor();
         // Destroy this object and call the 'markDone' method, indicating that
         // the base class's destructor was declared 'virtual'.
 };
 
-                      // ==============================
-                      // class bsls_ProtocolTest_Status
-                      // ==============================
+                      // =========================
+                      // class ProtocolTest_Status
+                      // =========================
 
-class bsls_ProtocolTest_Status {
+class ProtocolTest_Status {
     // This class keeps track of the test status, which includes the status of
     // the last test and the number of failures across all tests.
 
@@ -286,8 +288,8 @@ class bsls_ProtocolTest_Status {
 
   public:
     // CREATORS
-    bsls_ProtocolTest_Status();
-        // Create an object of the 'bsls_ProtocolTest_Status' class with the
+    ProtocolTest_Status();
+        // Create an object of the 'ProtocolTest_Status' class with the
         // default state in which 'failures() == 0' and 'last() == true'.
 
     // MANIPULATORS
@@ -309,12 +311,12 @@ class bsls_ProtocolTest_Status {
         // has yet completed), and 'false' if it failed.
 };
 
-                          // ==========================
-                          // class bsls_ProtocolTestImp
-                          // ==========================
+                          // =====================
+                          // class ProtocolTestImp
+                          // =====================
 
 template <class BSLS_PROTOCOL>
-class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
+class ProtocolTestImp : public BSLS_PROTOCOL {
     // This mechanism class template is a base class for a test implementation
     // of a protocol class defined by the 'BSLS_PROTOCOL' template parameter.
     // Its purpose is to reduce the boilerplate test code required to verify
@@ -327,7 +329,7 @@ class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
 
   private:
     // DATA
-    bsls_ProtocolTest_Status *d_status;   // test status object for test
+    ProtocolTest_Status      *d_status;   // test status object for test
                                           // failure reporting
 
     bool                      d_entered;  // 'true' if this object entered a
@@ -342,13 +344,13 @@ class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
     typedef BSLS_PROTOCOL ProtocolType;
 
     // CREATORS
-    bsls_ProtocolTestImp();
-        // Create an object of the 'bsls_ProtocolTestImp' class.
+    ProtocolTestImp();
+        // Create an object of the 'ProtocolTestImp' class.
 
-    ~bsls_ProtocolTestImp();
+    ~ProtocolTestImp();
         // Destroy this object and check the status of the test execution
         // (success or failure).  On test failure, report it to
-        // 'bsls_ProtocolTest_Status'.
+        // 'ProtocolTest_Status'.
 
     // MANIPULATORS
     BSLS_PROTOCOL *operator->();
@@ -364,18 +366,18 @@ class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
         // 'markDone' calls have to be paired for a protocol-method-call test
         // to succeed.
 
-    void setTestStatus(bsls_ProtocolTest_Status *testStatus);
+    void setTestStatus(ProtocolTest_Status *testStatus);
         // Connect this protocol test object with the specified 'testStatus'
         // object, which will be used for test failure reporting.
 
     // ACCESSORS
-    bsls_ProtocolTest_MethodReturnType markDone() const;
+    ProtocolTest_MethodReturnType markDone() const;
         // Return a proxy object convertible to any value or pointer type.
         // Derived classed should call this method from their implementations
         // of protocol virtual methods to indicate that virtual methods were
         // overridden correctly.
 
-    bsls_ProtocolTest_MethodReturnRefType markDoneRef() const;
+    ProtocolTest_MethodReturnRefType markDoneRef() const;
         // Return a proxy object convertible to any reference type.  Derived
         // classed should call this method from their implementations of
         // protocol virtual methods to indicate that virtual methods were
@@ -388,16 +390,16 @@ class bsls_ProtocolTestImp : public BSLS_PROTOCOL {
         // indicate that virtual methods were overridden correctly.
 };
 
-                       // =======================
-                       // class bsls_ProtocolTest
-                       // =======================
+                       // ==================
+                       // class ProtocolTest
+                       // ==================
 
 template <class BSLS_TESTIMP>
-class bsls_ProtocolTest {
+class ProtocolTest {
     // This mechanism class template provides the implementation of protocol
     // testing concerns via 'test*' methods (for non-method concerns), and via
     // 'operator->' (for method concerns).  The 'BSLS_TESTIMP' template
-    // parameter is required to be a class derived from 'bsls_ProtocolTestImp'
+    // parameter is required to be a class derived from 'ProtocolTestImp'
     // that provides test implementations of all protocol methods.
 
   private:
@@ -405,8 +407,8 @@ class bsls_ProtocolTest {
     typedef typename BSLS_TESTIMP::ProtocolType ProtocolType;
 
     // DATA
-    bsls_ProtocolTest_Status d_status;
-    bool                     d_verbose;  // print trace messages if 'true'
+    ProtocolTest_Status d_status;
+    bool                d_verbose;  // print trace messages if 'true'
 
   private:
     // PRIVATE MANIPULATORS
@@ -420,8 +422,8 @@ class bsls_ProtocolTest {
   public:
     // CREATORS
     explicit
-    bsls_ProtocolTest(bool verbose = false);
-        // Construct a 'bsls_ProtocolTest' object.
+    ProtocolTest(bool verbose = false);
+        // Construct a 'ProtocolTest' object.
 
     // MANIPULATORS
     BSLS_TESTIMP method(const char *methodDesc = "");
@@ -458,6 +460,8 @@ class bsls_ProtocolTest {
         // has yes completed) and 'false' otherwise.
 };
 
+}  // close package namespace
+
                          // ========================
                          // BSLS_PROTOCOLTEST_ASSERT
                          // ========================
@@ -480,49 +484,51 @@ class bsls_ProtocolTest {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                 // ----------------------------------------
-                 // class bsls_ProtocolTest_MethodReturnType
-                 // ----------------------------------------
+namespace bsls {
+
+                     // -----------------------------------
+                     // class ProtocolTest_MethodReturnType
+                     // -----------------------------------
 
 // ACCESSORS
 template <class T>
 inline
-bsls_ProtocolTest_MethodReturnType::operator T() const
+ProtocolTest_MethodReturnType::operator T() const
 {
     return T();
 }
 
-                // -------------------------------------------
-                // class bsls_ProtocolTest_MethodReturnRefType
-                // -------------------------------------------
+                   // --------------------------------------
+                   // class ProtocolTest_MethodReturnRefType
+                   // --------------------------------------
 
 // ACCESSORS
 template <class T>
 inline
-bsls_ProtocolTest_MethodReturnRefType::operator T&() const
+ProtocolTest_MethodReturnRefType::operator T&() const
 {
     return *reinterpret_cast<T *>(0);
 }
 
-                       // ----------------------------
-                       // class bsls_ProtocolTest_Dtor
-                       // ----------------------------
+                       // -----------------------
+                       // class ProtocolTest_Dtor
+                       // -----------------------
 
 // CREATORS
 template <class BSLS_TESTIMP>
 inline
-bsls_ProtocolTest_Dtor<BSLS_TESTIMP>::~bsls_ProtocolTest_Dtor()
+ProtocolTest_Dtor<BSLS_TESTIMP>::~ProtocolTest_Dtor()
 {
     this->markDone();
 }
 
-                      // ------------------------------
-                      // class bsls_ProtocolTest_Status
-                      // ------------------------------
+                      // -------------------------
+                      // class ProtocolTest_Status
+                      // -------------------------
 
 // CREATORS
 inline
-bsls_ProtocolTest_Status::bsls_ProtocolTest_Status()
+ProtocolTest_Status::ProtocolTest_Status()
 : d_failures(0)
 , d_last(true)
 {
@@ -530,13 +536,13 @@ bsls_ProtocolTest_Status::bsls_ProtocolTest_Status()
 
 // MANIPULATORS
 inline
-void bsls_ProtocolTest_Status::resetLast()
+void ProtocolTest_Status::resetLast()
 {
     d_last = true;
 }
 
 inline
-void bsls_ProtocolTest_Status::fail()
+void ProtocolTest_Status::fail()
 {
     ++d_failures;
     d_last = false;
@@ -544,25 +550,25 @@ void bsls_ProtocolTest_Status::fail()
 
 // ACCESSORS
 inline
-int bsls_ProtocolTest_Status::failures() const
+int ProtocolTest_Status::failures() const
 {
     return d_failures;
 }
 
 inline
-bool bsls_ProtocolTest_Status::last() const
+bool ProtocolTest_Status::last() const
 {
     return d_last;
 }
 
-                          // --------------------------
-                          // class bsls_ProtocolTestImp
-                          // --------------------------
+                          // ---------------------
+                          // class ProtocolTestImp
+                          // ---------------------
 
 // CREATORS
 template <class BSLS_PROTOCOL>
 inline
-bsls_ProtocolTestImp<BSLS_PROTOCOL>::bsls_ProtocolTestImp()
+ProtocolTestImp<BSLS_PROTOCOL>::ProtocolTestImp()
 : d_status(0)
 , d_entered(false)
 , d_exited(false)
@@ -571,7 +577,7 @@ bsls_ProtocolTestImp<BSLS_PROTOCOL>::bsls_ProtocolTestImp()
 
 template <class BSLS_PROTOCOL>
 inline
-bsls_ProtocolTestImp<BSLS_PROTOCOL>::~bsls_ProtocolTestImp()
+ProtocolTestImp<BSLS_PROTOCOL>::~ProtocolTestImp()
 {
     if (d_entered && !d_exited) {
         d_status->fail();
@@ -581,8 +587,8 @@ bsls_ProtocolTestImp<BSLS_PROTOCOL>::~bsls_ProtocolTestImp()
 // MANIPULATORS
 template <class BSLS_PROTOCOL>
 inline
-typename bsls_ProtocolTestImp<BSLS_PROTOCOL>::ProtocolType *
-bsls_ProtocolTestImp<BSLS_PROTOCOL>::operator->()
+typename ProtocolTestImp<BSLS_PROTOCOL>::ProtocolType *
+ProtocolTestImp<BSLS_PROTOCOL>::operator->()
 {
     markEnter();
     return static_cast<BSLS_PROTOCOL *>(this);
@@ -590,15 +596,14 @@ bsls_ProtocolTestImp<BSLS_PROTOCOL>::operator->()
 
 template <class BSLS_PROTOCOL>
 inline
-void bsls_ProtocolTestImp<BSLS_PROTOCOL>::setTestStatus(
-                                              bsls_ProtocolTest_Status *status)
+void ProtocolTestImp<BSLS_PROTOCOL>::setTestStatus(ProtocolTest_Status *status)
 {
     d_status = status;
 }
 
 template <class BSLS_PROTOCOL>
 inline
-void bsls_ProtocolTestImp<BSLS_PROTOCOL>::markEnter()
+void ProtocolTestImp<BSLS_PROTOCOL>::markEnter()
 {
     d_entered = true;
 }
@@ -606,46 +611,46 @@ void bsls_ProtocolTestImp<BSLS_PROTOCOL>::markEnter()
 // ACCESSORS
 template <class BSLS_PROTOCOL>
 inline
-bsls_ProtocolTest_MethodReturnType
-bsls_ProtocolTestImp<BSLS_PROTOCOL>::markDone() const
+ProtocolTest_MethodReturnType
+ProtocolTestImp<BSLS_PROTOCOL>::markDone() const
 {
     d_exited = true;
-    return bsls_ProtocolTest_MethodReturnType();
+    return ProtocolTest_MethodReturnType();
 }
 
 template <class BSLS_PROTOCOL>
 inline
-bsls_ProtocolTest_MethodReturnRefType
-bsls_ProtocolTestImp<BSLS_PROTOCOL>::markDoneRef() const
+ProtocolTest_MethodReturnRefType
+ProtocolTestImp<BSLS_PROTOCOL>::markDoneRef() const
 {
     d_exited = true;
-    return bsls_ProtocolTest_MethodReturnRefType();
+    return ProtocolTest_MethodReturnRefType();
 }
 
 template <class BSLS_PROTOCOL>
 template <class T>
 inline
-T bsls_ProtocolTestImp<BSLS_PROTOCOL>::markDoneVal(const T& value) const
+T ProtocolTestImp<BSLS_PROTOCOL>::markDoneVal(const T& value) const
 {
     d_exited = true;
     return value;
 }
 
-                       // -----------------------
-                       // class bsls_ProtocolTest
-                       // -----------------------
+                       // ------------------
+                       // class ProtocolTest
+                       // ------------------
 
 // PRIVATE MANIPULATORS
 template <class BSLS_TESTIMP>
 inline
-void bsls_ProtocolTest<BSLS_TESTIMP>::startTest()
+void ProtocolTest<BSLS_TESTIMP>::startTest()
 {
     d_status.resetLast();
 }
 
 template <class BSLS_TESTIMP>
 inline
-void bsls_ProtocolTest<BSLS_TESTIMP>::trace(char const *message) const
+void ProtocolTest<BSLS_TESTIMP>::trace(char const *message) const
 {
     if (d_verbose) {
         std::printf("\t%s\n", message);
@@ -655,7 +660,7 @@ void bsls_ProtocolTest<BSLS_TESTIMP>::trace(char const *message) const
 // CREATORS
 template <class BSLS_TESTIMP>
 inline
-bsls_ProtocolTest<BSLS_TESTIMP>::bsls_ProtocolTest(bool verbose)
+ProtocolTest<BSLS_TESTIMP>::ProtocolTest(bool verbose)
 : d_verbose(verbose)
 {
 }
@@ -663,7 +668,7 @@ bsls_ProtocolTest<BSLS_TESTIMP>::bsls_ProtocolTest(bool verbose)
 // MANIPULATORS
 template <class BSLS_TESTIMP>
 inline
-BSLS_TESTIMP bsls_ProtocolTest<BSLS_TESTIMP>::method(const char *methodDesc)
+BSLS_TESTIMP ProtocolTest<BSLS_TESTIMP>::method(const char *methodDesc)
 {
     trace(methodDesc);
     startTest();
@@ -675,12 +680,12 @@ BSLS_TESTIMP bsls_ProtocolTest<BSLS_TESTIMP>::method(const char *methodDesc)
 
 template <class BSLS_TESTIMP>
 inline
-bool bsls_ProtocolTest<BSLS_TESTIMP>::testAbstract()
+bool ProtocolTest<BSLS_TESTIMP>::testAbstract()
 {
-    trace("inside bsls_ProtocolTest::testAbstract()");
+    trace("inside ProtocolTest::testAbstract()");
     startTest();
 
-    if (!bsls_ProtocolTest_IsAbstract<ProtocolType>::VALUE) {
+    if (!ProtocolTest_IsAbstract<ProtocolType>::VALUE) {
         d_status.fail();
     }
 
@@ -689,9 +694,9 @@ bool bsls_ProtocolTest<BSLS_TESTIMP>::testAbstract()
 
 template <class BSLS_TESTIMP>
 inline
-bool bsls_ProtocolTest<BSLS_TESTIMP>::testNoDataMembers()
+bool ProtocolTest<BSLS_TESTIMP>::testNoDataMembers()
 {
-    trace("inside bsls_ProtocolTest::testNoDataMembers()");
+    trace("inside ProtocolTest::testNoDataMembers()");
     struct EmptyProtocol
     {
         virtual ~EmptyProtocol() {}
@@ -707,19 +712,19 @@ bool bsls_ProtocolTest<BSLS_TESTIMP>::testNoDataMembers()
 }
 
 template <class BSLS_TESTIMP>
-bool bsls_ProtocolTest<BSLS_TESTIMP>::testVirtualDestructor()
+bool ProtocolTest<BSLS_TESTIMP>::testVirtualDestructor()
 {
-    trace("inside bsls_ProtocolTest::testVirtualDestructor");
+    trace("inside ProtocolTest::testVirtualDestructor");
     startTest();
 
     // Can't use an automatic buffer and the placement new for an object of
-    // type bsls_ProtocolTest_Dtor<BSLS_TESTIMP> here, because bslma_Allocator
+    // type ProtocolTest_Dtor<BSLS_TESTIMP> here, because bslma::Allocator
     // defines its own placement new, making it impossible to test
-    // bslma_Allocator protocol this way.
+    // bslma::Allocator protocol this way.
 
     // Prepare a test
-    bsls_ProtocolTest_Dtor<BSLS_TESTIMP> * obj =
-                                    new bsls_ProtocolTest_Dtor<BSLS_TESTIMP>();
+    ProtocolTest_Dtor<BSLS_TESTIMP> * obj =
+                                    new ProtocolTest_Dtor<BSLS_TESTIMP>();
     BSLS_TESTIMP * base = obj;
     obj->setTestStatus(&d_status);
 
@@ -727,7 +732,7 @@ bool bsls_ProtocolTest<BSLS_TESTIMP>::testVirtualDestructor()
     obj->markEnter();
     delete base;
 
-    // 'bsls_ProtocolTest_Dtor::~bsls_ProtocolTest_Dtor' will be called only if
+    // 'ProtocolTest_Dtor::~ProtocolTest_Dtor' will be called only if
     // the destructor was declared 'virtual' in the interface, but
     // 'BSLS_TESTIMP::~BSLS_TESTIMP' is always executed to check if the
     // derived destructor was called.
@@ -738,19 +743,37 @@ bool bsls_ProtocolTest<BSLS_TESTIMP>::testVirtualDestructor()
 // ACCESSORS
 template <class BSLS_TESTIMP>
 inline
-int bsls_ProtocolTest<BSLS_TESTIMP>::failures() const
+int ProtocolTest<BSLS_TESTIMP>::failures() const
 {
     return d_status.failures();
 }
 
 template <class BSLS_TESTIMP>
 inline
-bool bsls_ProtocolTest<BSLS_TESTIMP>::lastStatus() const
+bool ProtocolTest<BSLS_TESTIMP>::lastStatus() const
 {
     return d_status.last();
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bsls_ProtocolTest
+#undef bsls_ProtocolTest
+#endif
+#define bsls_ProtocolTest bsls::ProtocolTest
+    // This alias is defined for backward compatibility.
+
+#ifdef bsls_ProtocolTestImp
+#undef bsls_ProtocolTestImp
+#endif
+#define bsls_ProtocolTestImp bsls::ProtocolTestImp
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

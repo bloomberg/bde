@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for generate
@@ -69,13 +69,13 @@ struct Generator<UserClass>
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
-template 
+template
 void generate (FwdIter<assign<base<> > >, FwdIter<assign<base<> > >,
                Generator<assign<base<> > >);
 
@@ -96,7 +96,7 @@ OutputIter<assign<base<> > >
 
 /**************************************************************************/
 
-// exercises std::generate() 
+// exercises std::generate()
 template <class ForwardIterator, class T>
 void test_generate (std::size_t N,
                     const ForwardIterator& gen_iter,
@@ -105,7 +105,7 @@ void test_generate (std::size_t N,
     static const char* const itname  = type_name (gen_iter, (T*) 0);
     static const char* const genname = "Generator";
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "void std::generate (%s, %1$s, %s)", itname, genname);
 
     // generate sequential values for each default constructed T
@@ -143,7 +143,7 @@ void test_generate (std::size_t N,
                 break;
         }
 
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. generate (): buf[%zu]: %d != %d",
                    i + 1, j, last_val + j + 1, (begin.cur_ + j)->data_.val_ );
 
@@ -152,7 +152,7 @@ void test_generate (std::size_t N,
 
         // verify 25.2.6, p3
         success = T::n_total_op_assign_ - last_n_op_assign == i + 1;
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. generate (): complexity: %zu != %zu",
                    i + 1, T::n_total_op_assign_ - last_n_op_assign, i + 1);
 
@@ -165,7 +165,7 @@ void test_generate (std::size_t N,
 
 /**************************************************************************/
 
-// exercises std::generate_n() 
+// exercises std::generate_n()
 template <class ForwardIterator, class Size, class T>
 void test_generate_n (std::size_t            N,
                       const ForwardIterator &gen_iter,
@@ -176,7 +176,7 @@ void test_generate_n (std::size_t            N,
     static const char* const szname  = "Size<int>";
     static const char* const genname = "Generator";
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "void std::generate_n (%s, %s, %s)", itname, szname, genname);
 
     // generate sequential values for each default constructed T
@@ -211,7 +211,7 @@ void test_generate_n (std::size_t            N,
                 break;
         }
 
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. generate_n (): buf[%zu]: %d != %d",
                    i + 1, j, last_val + j + 1, (begin.cur_ + j)->data_.val_ );
 
@@ -220,7 +220,7 @@ void test_generate_n (std::size_t            N,
 
         // verify 25.2.6, p3
         success = T::n_total_op_assign_ - last_n_op_assign == i;
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. generate_n (): complexity: %zu != %zu",
                    i + 1, T::n_total_op_assign_ - last_n_op_assign, i);
 

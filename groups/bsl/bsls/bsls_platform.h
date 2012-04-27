@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide compile-time support for platform/attribute identification.
 //
 //@CLASSES:
-//   bsls_Platform: namespace for platform traits
+//  bsls::Platform: namespace for platform traits
 //
 //@AUTHOR: John Lakos (jlakos)
 //
@@ -779,13 +779,16 @@ struct bsls_Platform_Assert;
     #error "Processor minor but not major version defined."
     char die[sizeof(bsls_Platform_Assert)];          // if '#error' unsupported
 #endif
+
+namespace bsls {
+
 // ----------------------------------------------------------------------------
 
-                               // =============
-                               // bsls_Platform
-                               // =============
+                               // ========
+                               // Platform
+                               // ========
 
-struct bsls_Platform {
+struct Platform {
     // Namespace for platform-trait definitions.
 
                                   // OS TYPES
@@ -907,6 +910,8 @@ struct bsls_Platform {
     #endif
 
 };
+
+}  // close package namespace
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
@@ -1074,12 +1079,25 @@ struct bsls_Platform {
 #define BDES_PLATFORM__CPU_X86_64     BSLS_PLATFORM__CPU_X86_64
 #endif
 
-typedef bsls_Platform bdes_Platform;
+namespace bdes {
+
+typedef bsls::Platform Platform;
+    // This alias is defined for backward compatibility.
+
+}  // close package namespace
+
+#ifdef bdes_Platform
+#undef bdes_Platform
+#endif
+#define bdes_Platform bdes::Platform
     // This alias is defined for backward compatibility.
 
 #endif
 
-}  // close namespace BloombergLP
+typedef bsls::Platform bsls_Platform;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

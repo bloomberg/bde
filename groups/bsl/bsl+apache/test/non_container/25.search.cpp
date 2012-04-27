@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2005 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for search, search_n
@@ -35,7 +35,7 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
@@ -47,86 +47,86 @@ _RWSTD_NAMESPACE (std) {
 // of iterator)
 template
 FwdIter<eq_comp<base<> > >
-search (FwdIter<eq_comp<base<> > >, 
-        FwdIter<eq_comp<base<> > >, 
-        FwdIter<eq_comp<base<> > >, 
+search (FwdIter<eq_comp<base<> > >,
+        FwdIter<eq_comp<base<> > >,
+        FwdIter<eq_comp<base<> > >,
         FwdIter<eq_comp<base<> > >);
 
 template
 BidirIter<eq_comp<base<> > >
-search (BidirIter<eq_comp<base<> > >, 
-        BidirIter<eq_comp<base<> > >, 
-        BidirIter<eq_comp<base<> > >, 
+search (BidirIter<eq_comp<base<> > >,
+        BidirIter<eq_comp<base<> > >,
+        BidirIter<eq_comp<base<> > >,
         BidirIter<eq_comp<base<> > >);
 
 template
 RandomAccessIter<eq_comp<base<> > >
-search (RandomAccessIter<eq_comp<base<> > >, 
-        RandomAccessIter<eq_comp<base<> > >, 
-        RandomAccessIter<eq_comp<base<> > >, 
+search (RandomAccessIter<eq_comp<base<> > >,
+        RandomAccessIter<eq_comp<base<> > >,
+        RandomAccessIter<eq_comp<base<> > >,
         RandomAccessIter<eq_comp<base<> > >);
 
 template
 FwdIter<eq_comp<base<> > >
-search (FwdIter<eq_comp<base<> > >, 
-        FwdIter<eq_comp<base<> > >, 
-        FwdIter<eq_comp<base<> > >, 
-        FwdIter<eq_comp<base<> > >, 
+search (FwdIter<eq_comp<base<> > >,
+        FwdIter<eq_comp<base<> > >,
+        FwdIter<eq_comp<base<> > >,
+        FwdIter<eq_comp<base<> > >,
         binary_predicate<eq_comp<base<> > >);
 
 template
 BidirIter<eq_comp<base<> > >
-search (BidirIter<eq_comp<base<> > >, 
-        BidirIter<eq_comp<base<> > >, 
-        BidirIter<eq_comp<base<> > >, 
-        BidirIter<eq_comp<base<> > >, 
+search (BidirIter<eq_comp<base<> > >,
+        BidirIter<eq_comp<base<> > >,
+        BidirIter<eq_comp<base<> > >,
+        BidirIter<eq_comp<base<> > >,
         binary_predicate<eq_comp<base<> > >);
 
 template
 RandomAccessIter<eq_comp<base<> > >
-search (RandomAccessIter<eq_comp<base<> > >, 
-        RandomAccessIter<eq_comp<base<> > >, 
-        RandomAccessIter<eq_comp<base<> > >, 
-        RandomAccessIter<eq_comp<base<> > >, 
+search (RandomAccessIter<eq_comp<base<> > >,
+        RandomAccessIter<eq_comp<base<> > >,
+        RandomAccessIter<eq_comp<base<> > >,
+        RandomAccessIter<eq_comp<base<> > >,
         binary_predicate<eq_comp<base<> > >);
 
 template
 FwdIter<eq_comp<base<> > >
-search_n (FwdIter<eq_comp<base<> > >, 
-          FwdIter<eq_comp<base<> > >, 
+search_n (FwdIter<eq_comp<base<> > >,
+          FwdIter<eq_comp<base<> > >,
           Size<int>, const eq_comp<base<> >&);
 
 template
 BidirIter<eq_comp<base<> > >
-search_n (BidirIter<eq_comp<base<> > >, 
-          BidirIter<eq_comp<base<> > >, 
+search_n (BidirIter<eq_comp<base<> > >,
+          BidirIter<eq_comp<base<> > >,
           Size<int>, const eq_comp<base<> >&);
 
 template
 RandomAccessIter<eq_comp<base<> > >
-search_n (RandomAccessIter<eq_comp<base<> > >, 
-          RandomAccessIter<eq_comp<base<> > >, 
+search_n (RandomAccessIter<eq_comp<base<> > >,
+          RandomAccessIter<eq_comp<base<> > >,
           Size<int>, const eq_comp<base<> >&);
 
 template
 FwdIter<eq_comp<base<> > >
-search_n (FwdIter<eq_comp<base<> > >, 
-          FwdIter<eq_comp<base<> > >, 
-          Size<int>, const eq_comp<base<> >&, 
+search_n (FwdIter<eq_comp<base<> > >,
+          FwdIter<eq_comp<base<> > >,
+          Size<int>, const eq_comp<base<> >&,
           binary_predicate<eq_comp<base<> > >);
 
 template
 BidirIter<eq_comp<base<> > >
-search_n (BidirIter<eq_comp<base<> > >, 
-          BidirIter<eq_comp<base<> > >, 
-          Size<int>, const eq_comp<base<> >&, 
+search_n (BidirIter<eq_comp<base<> > >,
+          BidirIter<eq_comp<base<> > >,
+          Size<int>, const eq_comp<base<> >&,
           binary_predicate<eq_comp<base<> > >);
 
 template
 RandomAccessIter<eq_comp<base<> > >
-search_n (RandomAccessIter<eq_comp<base<> > >, 
-          RandomAccessIter<eq_comp<base<> > >, 
-          Size<int>, const eq_comp<base<> >&, 
+search_n (RandomAccessIter<eq_comp<base<> > >,
+          RandomAccessIter<eq_comp<base<> > >,
+          Size<int>, const eq_comp<base<> >&,
           binary_predicate<eq_comp<base<> > >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
@@ -209,18 +209,18 @@ std::size_t NonPredicateTag<UserClass>::DummyPredicate::funcalls_;
 /**************************************************************************/
 
 // exercises std::search()
-template 
+template
 <class ForwardIterator1, class ForwardIterator2, class T, class PredTag>
-void test_search (int line, 
-                  const char *seq1, const char *seq2, 
-                  std::size_t off, 
+void test_search (int line,
+                  const char *seq1, const char *seq2,
+                  std::size_t off,
                   ForwardIterator1 it1, ForwardIterator2 it2,
                   const T* , PredTag pred_tag)
 {
     const char* const fname = "search";
     static const char* const it1name  = type_name (it1, (T*)0);
     static const char* const it2name  = type_name (it2, (T*)0);
-    static const char* const predname = 
+    static const char* const predname =
         pred_tag.pred_inx ? "BinaryPredicate" : "operator <()";
 
     const std::size_t nseq1 = std::strlen (seq1);
@@ -232,9 +232,9 @@ void test_search (int line,
 
     // construct iterators pointing to the beginning and end
     // of the source sequences
-    const ForwardIterator1 first1 = 
+    const ForwardIterator1 first1 =
         make_iter (xseq1, xseq1, xseq1 + nseq1, it1);
-    const ForwardIterator1 last1  = 
+    const ForwardIterator1 last1  =
         make_iter (xseq1 + nseq1, xseq1, xseq1 + nseq1, it1);
 
     const ForwardIterator1 expected = _RWSTD_SIZE_MAX == off ?
@@ -243,9 +243,9 @@ void test_search (int line,
 
     _RWSTD_UNUSED (expected);
 
-    const ForwardIterator2 first2 = 
+    const ForwardIterator2 first2 =
         make_iter (xseq2, xseq2, xseq2 + nseq2, it2);
-    const ForwardIterator2 last2  = 
+    const ForwardIterator2 last2  =
         make_iter (xseq2 + nseq2, xseq2, xseq2 + nseq2, it2);
 
     T::n_total_op_eq_ = 0;
@@ -254,25 +254,25 @@ void test_search (int line,
     typename PredTag::Predicate pred(0, 0);
 
     const ForwardIterator1 result = pred_tag.pred_inx ?
-        std::search (first1, last1, first2, last2, pred) 
+        std::search (first1, last1, first2, last2, pred)
       : std::search (first1, last1, first2, last2);
 
     _RWSTD_UNUSED (result);
 
     // 25.1.9, p2:
     // check the returned iterator
-    rw_assert (result.cur_ == expected.cur_, 0, line, 
+    rw_assert (result.cur_ == expected.cur_, 0, line,
                "std::%s<%s, %s%{?}, %s%{;}> (\"%s\", ..., \"%s\") "
                "found subsequence at %td, expected at %{?}end%{;}%zu%{;}",
                fname, it1name, it2name, pred_tag.pred_inx, predname,
-               seq1, seq2, result.cur_ - first1.cur_, 
+               seq1, seq2, result.cur_ - first1.cur_,
                _RWSTD_SIZE_MAX == off, off);
- 
+
     // 25.1.9, p3:
     // Complexity: At most (last1 ­ first1) * (last2 ­ first2)
     // applications of the corresponding predicate or operator
     const std::size_t max_op_eq = nseq1 * nseq2;
-    const std::size_t op_called = pred_tag.pred_inx ? 
+    const std::size_t op_called = pred_tag.pred_inx ?
         PredTag::Predicate::funcalls_
       : T::n_total_op_eq_;
 
@@ -286,9 +286,9 @@ void test_search (int line,
     delete[] xseq2;
 }
 
-template 
+template
 <class ForwardIterator1, class ForwardIterator2, class T, class PredTag>
-void test_search (ForwardIterator1 it1, ForwardIterator2 it2, 
+void test_search (ForwardIterator1 it1, ForwardIterator2 it2,
                   const T* , PredTag pred_tag)
 {
     static const char* const it1name  = type_name (it1, (T*)0);
@@ -296,19 +296,19 @@ void test_search (ForwardIterator1 it1, ForwardIterator2 it2,
     static const char* const predname = "EqualityPredicate";
 
     if (pred_tag.pred_inx) {  // use predicate
-        rw_info (0, 0, 0, 
+        rw_info (0, 0, 0,
                  "std::search (%s, %1$s, %s, %2$s, %s)",
                  it1name, it2name, predname);
     }
     else {   // not use predicate
-        rw_info (0, 0, 0, 
+        rw_info (0, 0, 0,
                  "std::search (%s, %1$s, %s, %2$s)",
                  it1name, it2name);
     }
 
 #define TEST(seq1, seq2, off)                                   \
     test_search (__LINE__, seq1, seq2, std::size_t (off),       \
-                 it1, it2, (T*)0, pred_tag)   
+                 it1, it2, (T*)0, pred_tag)
 
     //
     //    +--------------- sequence to search through
@@ -379,14 +379,14 @@ void test_search (ForwardIterator1 it1, ForwardIterator2 it2,
 // exercises std::search_n()
 template <class ForwardIterator, class T, class Size, class PredTag>
 void test_search_n (int line, const char *seq, Size cnt, const char val,
-                    std::size_t off, ForwardIterator it, 
+                    std::size_t off, ForwardIterator it,
                     const T* , PredTag pred_tag)
 {
     const char* const fname = "search_n";
     static const char* const itname  = type_name (it, (T*)0);
     static const char* const szname  = "Size";
     static const char* const tname   = "UserClass";
-    static const char* const predname = 
+    static const char* const predname =
         pred_tag.pred_inx ? "BinaryPredicate" : "operator <()";
 
     const std::size_t nseq = std::strlen (seq);
@@ -396,9 +396,9 @@ void test_search_n (int line, const char *seq, Size cnt, const char val,
 
     // construct iterators pointing to the beginning and end
     // of the source sequence
-    const ForwardIterator first = 
+    const ForwardIterator first =
         make_iter (xseq, xseq, xseq + nseq, it);
-    const ForwardIterator last  = 
+    const ForwardIterator last  =
         make_iter (xseq + nseq, xseq, xseq + nseq, it);
 
     const ForwardIterator expected = _RWSTD_SIZE_MAX == off ?
@@ -416,26 +416,26 @@ void test_search_n (int line, const char *seq, Size cnt, const char val,
     typename PredTag::Predicate pred(0, 0);
 
     const ForwardIterator result = pred_tag.pred_inx ?
-        std::search_n (first, last, cnt, value, pred) 
+        std::search_n (first, last, cnt, value, pred)
       : std::search_n (first, last, cnt, value);
 
     _RWSTD_UNUSED (result);
 
     // 25.1.9, p6:
     // check the returned iterator
-    rw_assert (result.cur_ == expected.cur_, 0, line, 
+    rw_assert (result.cur_ == expected.cur_, 0, line,
                "std::%s<%s, %s, %s%{?}, %s%{;}> (\"%s\", ..., %d, '%c') "
                "found subsequence at %td, expected at %{?}end%{:}%zu%{;}",
                fname, itname, szname, tname, pred_tag.pred_inx, predname,
-               seq, int (cnt), val, result.cur_ - first.cur_, 
+               seq, int (cnt), val, result.cur_ - first.cur_,
                _RWSTD_SIZE_MAX == off, off);
- 
+
     // 25.1.9, p7:
     // Complexity: At most (last ­ first) * count
     // applications of the corresponding predicate or operator.
     // In real cases the complexity should be at most (last ­ first)
     const std::size_t max_op_eq = nseq * cnt;
-    const std::size_t op_called = pred_tag.pred_inx ? 
+    const std::size_t op_called = pred_tag.pred_inx ?
         PredTag::Predicate::funcalls_
       : T::n_total_op_eq_;
 
@@ -449,7 +449,7 @@ void test_search_n (int line, const char *seq, Size cnt, const char val,
 }
 
 template <class ForwardIterator, class T, class Size, class PredTag>
-void test_search_n (ForwardIterator it, const T* , 
+void test_search_n (ForwardIterator it, const T* ,
                     const Size* , PredTag pred_tag)
 {
     static const char* const itname   = type_name (it, (T*)0);
@@ -458,12 +458,12 @@ void test_search_n (ForwardIterator it, const T* ,
     static const char* const predname = "EqualityPredicate";
 
     if (pred_tag.pred_inx) {  // use predicate
-        rw_info (0, 0, 0, 
+        rw_info (0, 0, 0,
                  "std::search_n (%s, %1$s, %s, const %s&, %s)",
                  itname, szname, tname, predname);
     }
     else {   // not use predicate
-        rw_info (0, 0, 0, 
+        rw_info (0, 0, 0,
                  "std::search_n (%s, %1$s, %s, const %s&)",
                  itname, szname, tname);
     }
@@ -603,8 +603,8 @@ void test_search_n(const T* , Size* , PredTag pred_tag)
 //    rw_info (0, 0, 0,
 //             "template <class %s, class %s, class %s%{?}, class %s%{;}> "
 //             "std::search_n (%1$s, %1$s, %2$s, %s%{?}, %4$s%{;})",
-//             "ForwardIterator", "Size", "T", 
-//             pred_tag.pred_inx, "BinaryPredicate", "const T&", 
+//             "ForwardIterator", "Size", "T",
+//             pred_tag.pred_inx, "BinaryPredicate", "const T&",
 //             pred_tag.pred_inx);
 
     if (rw_opt_no_fwd_iter) {
@@ -700,7 +700,7 @@ int main (int argc, char *argv[])
                     "|-no-ForwardIterator# "
                     "|-no-BidirectionalIterator# "
                     "|-no-RandomAccessIterator# "
-                    "|-no-Predicate",                    
+                    "|-no-Predicate",
                     &rw_opt_no_search,
                     &rw_opt_no_search_n,
                     &rw_opt_no_fwd_iter,

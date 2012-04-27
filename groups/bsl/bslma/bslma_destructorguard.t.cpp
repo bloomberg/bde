@@ -1,4 +1,4 @@
-// bslma_destructorguard.t.cpp  -*-C++-*-
+// bslma_destructorguard.t.cpp                                        -*-C++-*-
 
 #include <bslma_destructorguard.h>
 
@@ -31,8 +31,8 @@ using namespace std;
 // objects in an array.  After each proctor is destroyed, we verify that the
 // corresponding counters of the objects managed by the proctor are modified.
 //-----------------------------------------------------------------------------
-// [2] bslma_DestructorGuard<TYPE>(&object)
-// [2] ~bslma_DestructorGuard<TYPE>();
+// [2] bslma::DestructorGuard<TYPE>(&object)
+// [2] ~bslma::DestructorGuard<TYPE>();
 //-----------------------------------------------------------------------------
 // [1] my_Class(&counter);
 // [1] ~my_Class();
@@ -101,15 +101,15 @@ int veryVerbose;
 // called to create an object on the stack for performance reasons.  The
 // construction thus occurs within either of the branches of an 'if'
 // statement, so the object itself, to survive the end of the "then" or "else"
-// block, must be constructed in a 'bsls_ObjectBuffer'.  Once constructed, the
+// block, must be constructed in a 'bsls::ObjectBuffer'.  Once constructed, the
 // object would not be destroyed automatically, so to make sure it will be
-// destroyed, we place it under the management of a 'bslma_DestructorGuard'.
+// destroyed, we place it under the management of a 'bslma::DestructorGuard'.
 // After that, we know that however the routine exits -- either by a return
 // or as a result of an exception being thrown -- the object will be destroyed.
 
 double usageExample(double startValue)
 {
-    bsls_ObjectBuffer<std::vector<double> > buffer;
+    bsls::ObjectBuffer<std::vector<double> > buffer;
     std::vector<double>& myVec = buffer.object();
 
     if (startValue >= 0) {
@@ -123,7 +123,7 @@ double usageExample(double startValue)
     // Note the use of the destructor guard on 'myVec' (below). *
     //***********************************************************
 
-    bslma_DestructorGuard<std::vector<double> > guard(&myVec);
+    bslma::DestructorGuard<std::vector<double> > guard(&myVec);
         // Note that regardless of how this routine terminates, 'myVec'
         // will be destroyed.
 
@@ -181,19 +181,19 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   Need to exercise basic functionality of 'bslma_DestructorGuard'.
+        //   Need to exercise basic functionality of 'bslma::DestructorGuard'.
         //   Note that since this class has only a c'tor and d'tor, the
         //   breathing test is a thorough test of the component.
         //
         // Plan:
         //   Have an instance of 'my_Class', a class which can be destructed
         //   multiple times and which keeps count of the number of times it has
-        //   been destructed.  Use 'bslma_DestructorGuard' to destruct it
+        //   been destructed.  Use 'bslma::DestructorGuard' to destruct it
         //   several times and verify that the expected destructions occur.
         //
         // Testing:
-        //   bslma_DestructorGuard()
-        //   ~bslma_DestructorGuard()
+        //   bslma::DestructorGuard()
+        //   ~bslma::DestructorGuard()
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "BREATHING TEST" << endl
@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
             for (i = 0; i < 10; ++i) {
                 ASSERT(i == counter);
 
-                bslma_DestructorGuard<my_Class> mX(&mC);
+                bslma::DestructorGuard<my_Class> mX(&mC);
 
                 ASSERT(i == counter);
             }

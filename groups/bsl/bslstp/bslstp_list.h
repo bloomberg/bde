@@ -137,9 +137,9 @@ template <class _Dummy>
 class _List_global {
 public:
   typedef _List_node_base _Node;
-  static void   _Transfer(_List_node_base* __position,
-                          _List_node_base* __first,
-                          _List_node_base* __last);
+  static void   _Transfer(_List_node_base *__position,
+                          _List_node_base *__first,
+                          _List_node_base *__last);
 };
 
 typedef _List_global<bool> _List_global_inst;
@@ -323,7 +323,7 @@ public:
   typedef bsl::reverse_iterator<iterator>       reverse_iterator;
   typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  typedef BloombergLP::bslalg_TypeTraitsGroupStlSequence<_Tp,_Alloc>
+  typedef BloombergLP::bslalg::TypeTraitsGroupStlSequence<_Tp,_Alloc>
       ListTypeTraits;
   BSLALG_DECLARE_NESTED_TRAITS(list, ListTypeTraits);
       // Declare nested type traits for this class.
@@ -334,9 +334,9 @@ protected:
     _Node* __p = this->_M_node.allocate(1);
     BSLS_TRY {
 
-      BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
-          BSLS_UTIL_ADDRESSOF(__p->_M_data), __x,
-          this->_M_node.bslmaAllocator());
+      BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
+                                        BSLS_UTIL_ADDRESSOF(__p->_M_data), __x,
+                                        this->_M_node.bslmaAllocator());
 
     }
     BSLS_CATCH(...)
@@ -387,7 +387,7 @@ public:
   const_reference back() const { return *(--end()); }
 
   void swap(list<_Tp, _Alloc>& __x) {
-    BloombergLP::bslstl_Util::swapContainers(*this, __x, QuickSwap());
+    BloombergLP::bslstl::Util::swapContainers(*this, __x, QuickSwap());
   }
 
   iterator insert(iterator __position, const _Tp& __x = _Tp()) {
@@ -407,22 +407,22 @@ public:
     // MODIFIED BY ARTHUR
     // typedef typename _Is_integer<_InputIterator>::_Integral _Integral;
 
-    enum { VALUE = BloombergLP::bslmf_IsFundamental<_InputIterator>::VALUE };
-    _M_insert_dispatch(__pos, __first, __last, (BloombergLP::bslmf_MetaInt<VALUE> *)0);
+    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InputIterator>::VALUE };
+    _M_insert_dispatch(__pos, __first, __last, (BloombergLP::bslmf::MetaInt<VALUE> *)0);
 
   }
 
   // Check whether it's an integral type.  If so, it's not an iterator.
   template<class _Integer>
   void _M_insert_dispatch(iterator __pos, _Integer __n, _Integer __x,
-                          BloombergLP::bslmf_MetaInt<1> *) {
+                          BloombergLP::bslmf::MetaInt<1> *) {
     _M_fill_insert(__pos, (size_type) __n, (_Tp) __x);
   }
   template <class _InputIter>
   void
   _M_insert_dispatch(iterator __position,
                      _InputIter __first, _InputIter __last,
-                     BloombergLP::bslmf_MetaInt<0> *)
+                     BloombergLP::bslmf::MetaInt<0> *)
   {
     for ( ; __first != __last; ++__first)
       insert(__position, *__first);
@@ -444,7 +444,7 @@ public:
     _Node* __n = (_Node*) __position._M_node;
     __prev_node->_M_next = __next_node;
     __next_node->_M_prev = __prev_node;
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                             BSLS_UTIL_ADDRESSOF(__n->_M_data));
     this->_M_node.deallocate(__n, 1);
     return iterator((_Node*)__next_node);
@@ -476,7 +476,7 @@ public:
   { insert(begin(), __first, __last); }
 
   list(const _Self& __x)
-  : _List_base<_Tp, _Alloc>(BloombergLP::bslstl_Util::copyContainerAllocator(__x.get_allocator()))
+  : _List_base<_Tp, _Alloc>(BloombergLP::bslstl::Util::copyContainerAllocator(__x.get_allocator()))
     { insert(begin(), __x.begin(), __x.end()); }
 
   // Copy-construct with alternative allocator.
@@ -513,17 +513,17 @@ public:
 // MODIFIED BY ARTHUR
 //    typedef typename _Is_integer<_InputIterator>::_Integral _Integral;
 
-    enum { VALUE = BloombergLP::bslmf_IsFundamental<_InputIterator>::VALUE };
-    _M_assign_dispatch(__first, __last, (BloombergLP::bslmf_MetaInt<VALUE> *)0);
+    enum { VALUE = BloombergLP::bslmf::IsFundamental<_InputIterator>::VALUE };
+    _M_assign_dispatch(__first, __last, (BloombergLP::bslmf::MetaInt<VALUE> *)0);
   }
 
   template <class _Integer>
-  void _M_assign_dispatch(_Integer __n, _Integer __val, BloombergLP::bslmf_MetaInt<1> *)
+  void _M_assign_dispatch(_Integer __n, _Integer __val, BloombergLP::bslmf::MetaInt<1> *)
     { assign((size_type) __n, (_Tp) __val); }
 
   template <class _InputIterator>
   void _M_assign_dispatch(_InputIterator __first2, _InputIterator __last2,
-                          BloombergLP::bslmf_MetaInt<0> *)
+                          BloombergLP::bslmf::MetaInt<0> *)
   {
     iterator __first1 = begin();
     iterator __last1 = end();
@@ -649,7 +649,7 @@ inline
 bool operator<(const list<_Tp, _Alloc>& __x,
                const list<_Tp, _Alloc>& __y) {
   return std::lexicographical_compare(__x.begin(), __x.end(),
-          __y.begin(), __y.end());
+                                      __y.begin(), __y.end());
 }
 
 template <class _Tp, class _Alloc>
@@ -741,9 +741,9 @@ namespace bsl {
 
 template <class _Dummy>
 void
-_List_global<_Dummy>::_Transfer(_List_node_base* __position,
-                                _List_node_base* __first,
-                                _List_node_base* __last) {
+_List_global<_Dummy>::_Transfer(_List_node_base *__position,
+                                _List_node_base *__first,
+                                _List_node_base *__last) {
   if (__position != __last) {
     // Remove [first, last) from its old position.
     ((_Node*) (__last->_M_prev))->_M_next = __position;
@@ -766,7 +766,7 @@ _List_base<_Tp,_Alloc>::clear()
   while (__cur != this->_M_node._M_data) {
     _List_node<_Tp>* __tmp = __cur;
     __cur = (_List_node<_Tp>*) __cur->_M_next;
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                           BSLS_UTIL_ADDRESSOF(__tmp->_M_data));
     this->_M_node.deallocate(__tmp, 1);
   }
@@ -872,16 +872,16 @@ void _S_sort(list<_Tp, _Alloc>& __that, _StrictWeakOrdering __comp) {
 
     // Create an array of 64 '_List' objects.  Since we cannot pass
     // constructor arguments to array element constructors, we instead use
-    // an array of raw memory objects ('bsls_ObjectBuffer') and initialize
+    // an array of raw memory objects ('bsls::ObjectBuffer') and initialize
     // them with the desired allocator as a separate step.  After
     // initialization, we ensure that destructors are called by creating an
     // auto-destructor object.
-    BloombergLP::bsls_ObjectBuffer<_List> __counterBuffers[64];
+    BloombergLP::bsls::ObjectBuffer<_List> __counterBuffers[64];
     _List* __counter = &__counterBuffers[0].object();
-    BloombergLP::bslalg_ArrayPrimitives::uninitializedFillN(
-        __counter, 64, __carry,
-        __that._M_node.bslmaAllocator());
-    BloombergLP::bslma_AutoDestructor<_List> __counterGuard(__counter, 64);
+    BloombergLP::bslalg::ArrayPrimitives::uninitializedFillN(
+                                              __counter, 64, __carry,
+                                              __that._M_node.bslmaAllocator());
+    BloombergLP::bslma::AutoDestructor<_List> __counterGuard(__counter, 64);
     int __fill = 0;
     while (!__that.empty()) {
       __carry.splice(__carry.begin(), __that, __that.begin());

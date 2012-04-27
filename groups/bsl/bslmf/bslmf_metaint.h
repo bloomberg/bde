@@ -10,18 +10,18 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a meta-function to map integral constants to unique types.
 //
 //@CLASSES:
-//   bslmf_Tag: meta-function mapping integral constants to C++ types
+//  bslmf::Tag: meta-function mapping integral constants to C++ types
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component defines a simple template structure used to
-// map an integral constant to a C++ type.  'bslmf_MetaInt<int>' defines a
+//@DESCRIPTION: This component defines a simple template structure used to map
+// an integral constant to a C++ type.  'bslmf::MetaInt<int>' defines a
 // different type for each distinct compile-time constant integral parameter.
 // That is, instantiations with different integer values form distinct types,
-// so that 'bslmf_MetaInt<0>' is a distinct type from 'bslmf_MetaInt<1>', which
-// is also distinct from 'bslmf_MetaInt<2>', and so on.
+// so that 'bslmf::MetaInt<0>' is a distinct type from 'bslmf::MetaInt<1>',
+// which is also distinct from 'bslmf::MetaInt<2>', and so on.
 //
 // The most common use of this structure is to perform static function
 // dispatching based on a compile-time calculation.  Often the calculation is
@@ -31,58 +31,58 @@ BSLS_IDENT("$Id: $")
 // operations, otherwise it will use a more generic and slower implementation
 // (e.g., copy constructor).
 //..
-//       template <class T>
-//       void doSomethingImp(T *t, bslmf_MetaInt<0>)
-//       {
-//           // slow but generic implementation
-//       }
+//  template <class T>
+//  void doSomethingImp(T *t, bslmf::MetaInt<0>)
+//  {
+//      // slow but generic implementation
+//  }
 //
-//       template <class T>
-//       void doSomethingImp(T *t, bslmf_MetaInt<1>)
-//       {
-//           // fast implementation (works only for some T's)
-//       }
+//  template <class T>
+//  void doSomethingImp(T *t, bslmf::MetaInt<1>)
+//  {
+//      // fast implementation (works only for some T's)
+//  }
 //
-//       template <class T, bool IsFast>
-//       void doSomething(T *t)
-//       {
-//           doSomethingImp(t, bslmf_MetaInt<IsFast>());
-//       }
+//  template <class T, bool IsFast>
+//  void doSomething(T *t)
+//  {
+//      doSomethingImp(t, bslmf::MetaInt<IsFast>());
+//  }
 //..
 // For some parameter types, the fast version of 'doSomethingImp' is not legal.
 // The power of this approach is that the compiler will compile only the
 // implementation selected by the 'MetaInt' argument.
 //..
-//      void f()
-//      {
-//          int i;
-//          doSomething<int, true>(&i); // fast version selected for int
+//  void f()
+//  {
+//      int i;
+//      doSomething<int, true>(&i); // fast version selected for int
 //
-//          double m;
-//          doSomething<double, false>(&m); // slow version selected for double
-//      }
+//      double m;
+//      doSomething<double, false>(&m); // slow version selected for double
+//  }
 //..
 // Note that an alternative design would be to use template partial
-// specialization instead of standard function overloading to avoid the
-// cost of constructing a 'bslmf_MetaInt' object.
+// specialization instead of standard function overloading to avoid the cost of
+// constructing a 'bslmf::MetaInt' object.
 //
 // In addition to forming new types, the value of the integral paramameter is
 // "saved" in the enum member 'VALUE', and is accessible for use in
 // compile-time or run-time operations.
 //..
-//       template <int V>
-//       int g()
-//       {
-//           bslmf_MetaInt<V> i;
-//           std::cout << i.VALUE << std::endl;
-//           std::cout << bslmf_MetaInt<V>::VALUE << std::endl;
-//           return bslmf_MetaInt<V>::VALUE;
-//       }
+//  template <int V>
+//  int g()
+//  {
+//      bslmf::MetaInt<V> i;
+//      std::cout << i.VALUE << std::endl;
+//      std::cout << bslmf::MetaInt<V>::VALUE << std::endl;
+//      return bslmf::MetaInt<V>::VALUE;
+//  }
 //
-//       void h()
-//       {
-//           1 == g<1>(); // prints the number '1' twice
-//       }
+//  void h()
+//  {
+//      1 == g<1>(); // prints the number '1' twice
+//  }
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -95,49 +95,62 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                           // ====================
-                           // struct bslmf_MetaInt
-                           // ====================
+namespace bslmf {
+
+                           // ==============
+                           // struct MetaInt
+                           // ==============
 
 template <unsigned INT_VALUE>
-struct bslmf_MetaInt {
+struct MetaInt {
     // Instantiating this template produces a distinct type for each
     // non-negative integer value.
 
     // TYPES
-    typedef bslmf_MetaInt<INT_VALUE> Type;
+    typedef MetaInt<INT_VALUE> Type;
 
-    typedef bslmf_Tag<INT_VALUE>     Tag;
+    typedef bslmf::Tag<INT_VALUE>     Tag;
 
     enum { VALUE = (int)INT_VALUE };
 
     // CLASS METHODS
     static Tag& tag();
         // Declared but not defined.  Meta-function use only.  The tag can be
-        // used to recover meta-information from an expression.
-        // Example: 'sizeof(f(expr).tag())' returns a different compile-time
-        // value depending on the type of the result of calling the 'f'
-        // function but does not actually call the 'f' function or the 'tag'
-        // method at run-time.  Note that 'sizeof(f(expr)::Type)' would not be
-        // legal.
+        // used to recover meta-information from an expression.  Example:
+        // 'sizeof(f(expr).tag())' returns a different compile-time value
+        // depending on the type of the result of calling the 'f' function but
+        // does not actually call the 'f' function or the 'tag' method at
+        // run-time.  Note that 'sizeof(f(expr)::Type)' would not be legal.
 
     // ACCESSORS
     operator int () const { return VALUE; }
         // Conversion to integer.  Returns 'VALUE'.
 };
 
+}  // close package namespace
+
 #define BSLMF_METAINT_TO_INT(expr)  BSLMF_TAG_TO_INT((expr).tag())
     // Given an integral value, 'V', and an expression, 'expr', of type
-    // 'bslmf_MetaInt<V>', this macro returns a compile-time constant with
+    // 'bslmf::MetaInt<V>', this macro returns a compile-time constant with
     // value, 'V'.  The expression, 'expr', is not evaluated at run-time.
 
 #define BSLMF_METAINT_TO_BOOL(expr) BSLMF_TAG_TO_BOOL((expr).tag())
     // Given an integral value, 'V', and an expression, 'expr', of type
-    // 'bslmf_MetaInt<V>', this macro returns a compile-time constant with
+    // 'bslmf::MetaInt<V>', this macro returns a compile-time constant with
     // value, 'true' or 'false', according to the Boolean value of 'V'.  The
     // expression, 'expr', is not evaluated at run-time.
 
-}  // close namespace BloombergLP
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_MetaInt
+#undef bslmf_MetaInt
+#endif
+#define bslmf_MetaInt bslmf::MetaInt
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

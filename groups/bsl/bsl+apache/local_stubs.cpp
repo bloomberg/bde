@@ -1,4 +1,4 @@
-/* local_stubs.h                  -*-C++-*- */
+/* local_stubs.h                                                     -*-C-*- */
 
 // Local stubs for rw functions.  Not part of Apache STL distrubution.
 
@@ -17,7 +17,7 @@
 _RWSTD_NAMESPACE(_RW) {
 
 void __rw_assert_fail(const char* expr, const char* file, int line,
-			   const char* func)
+               const char* func)
 {
     std::fprintf(stderr,
                  "%s:%d: error: Assertion failed, %s, in function %s\n",

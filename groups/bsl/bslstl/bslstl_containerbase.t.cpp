@@ -1,4 +1,4 @@
-// bslstl_containerbase.t.cpp                  -*-C++-*-
+// bslstl_containerbase.t.cpp                                         -*-C++-*-
 
 #include <bslstl_containerbase.h>
 #include <bslstl_allocator.h>      // for testing only
@@ -34,7 +34,7 @@ static void aSsErT(int c, const char *s, int i) {
 }
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-//--------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
@@ -60,9 +60,9 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 //-----------------------------------------------------------------------------
 
 template <class T, class ALLOC>
-class my_FixedSizeArray : public bslstl_ContainerBase<ALLOC>
+class my_FixedSizeArray : public bslstl::ContainerBase<ALLOC>
 {
-    typedef bslstl_ContainerBase<ALLOC> Base;
+    typedef bslstl::ContainerBase<ALLOC> Base;
 
     int    d_length;
     T     *d_array;
@@ -91,7 +91,7 @@ class my_FixedSizeArray : public bslstl_ContainerBase<ALLOC>
 
 template<class T, class ALLOC>
 my_FixedSizeArray<T,ALLOC>::my_FixedSizeArray(int          length,
-                                                  const ALLOC& alloc)
+                                              const ALLOC& alloc)
     : Base(alloc), d_length(length)
 {
     d_array = this->allocator().allocate(d_length); // sizeof(T)*d_length bytes
@@ -192,8 +192,8 @@ int main(int argc, char *argv[])
                             "\n==============");
 
         my_FixedSizeArray<int, bsl::allocator<int> > a1(10);
-               ASSERT(a1.get_allocator() == bsl::allocator<int>());
-               ASSERT(a1.get_allocator() == bslma_Default::defaultAllocator());
+        ASSERT(a1.get_allocator() == bsl::allocator<int>());
+        ASSERT(a1.get_allocator() == bslma::Default::defaultAllocator());
 
       } break;
 

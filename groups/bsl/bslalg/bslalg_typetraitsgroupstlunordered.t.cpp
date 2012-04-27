@@ -1,4 +1,4 @@
-// bslalg_typetraitsgroupstlunordered.t.cpp                  -*-C++-*-
+// bslalg_typetraitsgroupstlunordered.t.cpp                           -*-C++-*-
 
 #include <bslalg_typetraitsgroupstlunordered.h>
 
@@ -29,7 +29,8 @@ static int testStatus = 0;
 
 namespace {
 
-void aSsErT(int c, const char *s, int i) {
+void aSsErT(int c, const char *s, int i)
+{
     if (c) {
         printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
@@ -123,13 +124,16 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitsGroupStlUnordered;
+        //   class bslalg::TypeTraitsGroupStlUnordered;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        bslalg_TypeTraitsGroupStlUnordered<T, Eq, Hash, bslma_Allocator *> mX;
+        bslalg::TypeTraitsGroupStlUnordered<T,
+                                            Eq,
+                                            Hash,
+                                            bslma::Allocator *> mX;
 
       } break;
 

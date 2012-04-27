@@ -14,9 +14,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
-//@DESCRIPTION: Provide functionality of the corresponding C++ standard
-// header.  This file includes the compiler provided native standard header.
-// In addition, in 'bde-stl' mode (used by Bloomberg managed code, see
+//@DESCRIPTION: Provide functionality of the corresponding C++ standard header.
+// This file includes the compiler provided native standard header.  In
+// addition, in 'bde-stl' mode (used by Bloomberg managed code, see
 // 'bsl+stdhdrs.txt' for more information) include the corresponding header in
 // 'bsl+bslhdrs' as well as 'bsl_stdhdrs_prologue.h' and
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
@@ -65,8 +65,8 @@ BSLS_IDENT("$Id: $")
 #     include BSL_NATIVE_C_LIB_HEADER(stddef.h)
 #   endif
 
-//  On SUN, 'stddef.h' (a C header) defines 'size_t'.  This odd implementation
-//  forces the following 'using' directive. 
+// On SUN, 'stddef.h' (a C header) defines 'size_t'.  This odd implementation
+// forces the following 'using' directive.
 #   ifdef BSLS_PLATFORM__CMP_SUN
 
 // This C header file might be included within an 'extern "C"' block.  To avoid

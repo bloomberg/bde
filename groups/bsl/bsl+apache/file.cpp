@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2004-2007 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -82,7 +82,7 @@ extern "C" int mkstemp (char*);
 // write `str' using symbolic names from the Portable Character Set (PCS)
 // or using the <U00XX> notations for narrow characters outside that set
 // if (0 == str), writes out the CHARMAP section of the locale definition
-// file for the Portable Character Set (in POSIX-compliant format) 
+// file for the Portable Character Set (in POSIX-compliant format)
 _TEST_EXPORT void pcs_write (void *fpv, const char *str)
 {
     FILE* const fp = _RWSTD_STATIC_CAST (FILE*, fpv);

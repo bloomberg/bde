@@ -1,4 +1,4 @@
-// bslma_sequentialallocator.cpp    -*-C++-*-
+// bslma_sequentialallocator.cpp                                      -*-C++-*-
 #include <bslma_sequentialallocator.h>
 
 #include <bsls_ident.h>
@@ -9,16 +9,20 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                       // -------------------------------
-                       // class bslma_SequentialAllocator
-                       // -------------------------------
+namespace bslma {
+
+                       // -------------------------
+                       // class SequentialAllocator
+                       // -------------------------
 
 // CREATORS
-bslma_SequentialAllocator::~bslma_SequentialAllocator()
+SequentialAllocator::~SequentialAllocator()
 {
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

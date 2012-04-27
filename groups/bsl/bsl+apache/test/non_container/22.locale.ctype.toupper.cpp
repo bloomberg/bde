@@ -286,7 +286,7 @@ void test_libstd_toupper (charT, const char *cname,
     success = ct.widen (upper) == ct.toupper (ct.widen (lower));        \
     rw_assert (success, 0, __LINE__,                                    \
                "ctype<%s>::toupper(%d) == %d, got %d", cname,           \
-               lower, upper, ct.toupper((charT)lower));                 
+               lower, upper, ct.toupper((charT)lower));
 
     TEST ('a', 'A');
     TEST ('b', 'B');

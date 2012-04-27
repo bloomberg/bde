@@ -1,4 +1,4 @@
-// bsltst_dual_slist.h   -*-C++-*-
+// bsltst_dual_slist.h                                                -*-C++-*-
 #ifndef INCLUDED_BSLTST_DUAL_SLIST
 #define INCLUDED_BSLTST_DUAL_SLIST
 
@@ -15,8 +15,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides testing for the slist template
 // configuring the include files for dual mode, in which 'std' is left
-// unperturbed so that 'bsl' and 'std' refer to two distinct namespaces.
-// The std namespace is also accessible as 'native_std'.
+// unperturbed so that 'bsl' and 'std' refer to two distinct namespaces.  The
+// std namespace is also accessible as 'native_std'.
 //
 ///Usage
 ///-----

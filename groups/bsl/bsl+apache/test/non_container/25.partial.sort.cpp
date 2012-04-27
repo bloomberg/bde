@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for partial_sort, partial_sort_copy
@@ -35,7 +35,7 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
@@ -43,30 +43,30 @@ _RWSTD_NAMESPACE (std) {
 
 template
 void
-partial_sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+partial_sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
               RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
               RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 void
-partial_sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+partial_sort (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
               RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
-              RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+              RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
               binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >
-partial_sort_copy (InputIter<lt_comp<assign<base<cpy_ctor> > > >, 
-                   InputIter<lt_comp<assign<base<cpy_ctor> > > >, 
+partial_sort_copy (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
+                   InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                    RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
                    RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >
-partial_sort_copy (InputIter<lt_comp<assign<base<cpy_ctor> > > >, 
-                   InputIter<lt_comp<assign<base<cpy_ctor> > > >, 
+partial_sort_copy (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
+                   InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                    RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
-                   RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+                   RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
                    binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
@@ -76,7 +76,7 @@ partial_sort_copy (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
 /**************************************************************************/
 
 template <class T>
-struct Less 
+struct Less
 {
     static std::size_t funcalls_;
 
@@ -110,14 +110,14 @@ void test_partial_sort (int                  line,
                         const std::size_t    mid,
                         const Iterator      &it,
                         const CopyIterator  &itc,
-                        const T* , 
+                        const T* ,
                         const Predicate     *ppred,
                         bool                 copy)
 {
     typedef RandomAccessIter<T> RandIter;
     const RandIter rand_it(0, 0, 0);
 
-    const char* const itname  = 
+    const char* const itname  =
         copy ? type_name (itc, (T*)0) : type_name (it, (T*)0);
     const char* const outname = "RandomAccessIterator";
     const char* const fname   = copy ? "partial_sort_copy" : "partial_sort";
@@ -128,8 +128,8 @@ void test_partial_sort (int                  line,
 
     const std::size_t nsrc = src ? std::strlen (src) : N;
 
-    T* const xsrc = src ? T::from_char (src, nsrc) : new T[nsrc]; 
-    T* const xdst = new T [mid]; 
+    T* const xsrc = src ? T::from_char (src, nsrc) : new T[nsrc];
+    T* const xdst = new T [mid];
     T* res_x = copy ? xdst : xsrc;
 
     T* const xsrc_end = xsrc + nsrc;
@@ -169,7 +169,7 @@ void test_partial_sort (int                  line,
     // check the returned iterator for copy version
     if (copy) {
         success = result.cur_ == res_first.cur_ + mid;
-        rw_assert (success, 0, line, 
+        rw_assert (success, 0, line,
                    "line %d: %s<%s%{?}, %s%{;}%{?}, %s%{;}> (): "
                    "returned iterator it is invalid: got result + %td, "
                    "expected result + %zu",
@@ -183,18 +183,18 @@ void test_partial_sort (int                  line,
         rw_assert (success, 0, line,
                    "line %d: %s<%s%{?}, %s%{;}%{?}, %s%{;}> "
                    "(\"%s\", %zu, ...): ==> \"%{X=*.*}\" not sorted",
-                    __LINE__, fname, itname, copy, outname, ppred, funname, 
+                    __LINE__, fname, itname, copy, outname, ppred, funname,
                     src, mid, int (mid), -1, res_x);
     }
     else {
         rw_assert (success, 0, line,
                    "line %d: %s<%s%{?}, %s%{;}%{?}, %s%{;}> "
-                   "(%zu, %zu, ...): not sorted", 
-                   __LINE__, fname, itname, copy, outname, ppred, funname, 
+                   "(%zu, %zu, ...): not sorted",
+                   __LINE__, fname, itname, copy, outname, ppred, funname,
                    nsrc, mid);
     }
 
-    // check that any element in the sorted range <= that any element 
+    // check that any element in the sorted range <= that any element
     // in the rest part of the array
     int max_el = res_x[0].data_.val_;
     std::size_t j = 1;
@@ -203,8 +203,8 @@ void test_partial_sort (int                  line,
 
     if (copy) {
         std::size_t tmp = 0;
-        for (j = 0; j < nsrc; j++) 
-            if (max_el > xsrc[j].data_.val_) 
+        for (j = 0; j < nsrc; j++)
+            if (max_el > xsrc[j].data_.val_)
                 tmp++;
 
         success = tmp <= mid;
@@ -225,29 +225,29 @@ void test_partial_sort (int                  line,
                    "line %d: %s<%s%{?}, %s%{;}%{?}, %s%{;}> "
                    "(\"%s\", %zu, ...): ==> \"%{X=*.*}\" got less element "
                    "%{?}%#c%{;} in the unsorted part",
-                   __LINE__, fname, itname, copy, outname, ppred, funname, 
-                   src, mid, int (copy ? mid : nsrc), -1, res_x, 
+                   __LINE__, fname, itname, copy, outname, ppred, funname,
+                   src, mid, int (copy ? mid : nsrc), -1, res_x,
                    !copy, xsrc[j].data_.val_);
     }
     else {
         rw_assert (success, 0, line,
                    "line %d: %s<%s%{?}, %s%{;}%{?}, %s%{;}> "
                    "(%zu, %zu, ...): got less element in the unsorted part",
-                   __LINE__, fname, itname, copy, outname, ppred, funname, 
+                   __LINE__, fname, itname, copy, outname, ppred, funname,
                    nsrc, mid);
     }
 
     // verify 25.3.1.1, p2 and 25.3.1.2, p3
-    // the complexity of our implementation is no worse than 
+    // the complexity of our implementation is no worse than
     // 3.33 * N * log (N) (hence the magic 7 and 2)
-    std::size_t n_ops = 
+    std::size_t n_ops =
        ppred ? Predicate::funcalls_ : T::n_total_op_lt_ - last_n_op_lt;
     std::size_t exp_ops = 7 * nsrc * ::ilog2 (mid > 1 ? mid : 2);
     success = 2 * n_ops <= exp_ops;
     rw_assert (success, 0, line,
                "line %d: %s<%s%{?}, %s%{;}%{?}, %s%{;}> (): complexity "
                "for length %zu is %zu, expected no more than %zu",
-               __LINE__, fname, itname, copy, outname, ppred, funname, 
+               __LINE__, fname, itname, copy, outname, ppred, funname,
                nsrc, n_ops, exp_ops / 2);
 
     delete[] xsrc;
@@ -272,11 +272,11 @@ template <class Iterator, class CopyIterator, class T, class Predicate>
 void test_partial_sort (const std::size_t    N,
                         const Iterator      &it,
                         const CopyIterator  &itc,
-                        const T* , 
+                        const T* ,
                         const Predicate     *ppred,
                         bool                 copy)
 {
-    const char* const itname  = 
+    const char* const itname  =
         copy ? type_name (itc, (T*)0) : type_name (it, (T*)0);
     const char* const outname = "RandomAccessIterator";
     const char* const fname   = copy ? "partial_sort_copy" : "partial_sort";
@@ -284,11 +284,11 @@ void test_partial_sort (const std::size_t    N,
 
     rw_info (0, 0, 0,
              "%{?}%s %{;}std::%s (%s, %4$s, %s%{?}, %2$s%{;}%{?}, %s%{;})",
-             copy, outname, fname, itname, copy ? outname : itname, 
+             copy, outname, fname, itname, copy ? outname : itname,
              copy, ppred, funname);
 
 #define TEST(src, mid)                                                      \
-    test_partial_sort (__LINE__, src, 0, mid, it, itc, (T*)0, ppred, copy) 
+    test_partial_sort (__LINE__, src, 0, mid, it, itc, (T*)0, ppred, copy)
 
     TEST ("a", 1);
 
@@ -334,7 +334,7 @@ void test_partial_sort (const std::size_t    N,
         rw_note (0, 0, 0,
                  "%{?}%s %{;}std::%s (%s, %4$s, %s%{?}, %2$s%{;}%{?}, %s%{;})"
                  ": complexity test disabled",
-                 copy, outname, fname, itname, copy ? outname : itname, 
+                 copy, outname, fname, itname, copy ? outname : itname,
                  copy, ppred, funname);
     }
     else {
@@ -342,11 +342,11 @@ void test_partial_sort (const std::size_t    N,
     rw_info (0, 0, 0,
             "%{?}%s %{;}std::%s (%s, %4$s, %s%{?}, %2$s%{;}%{?}, %s%{;})"
             ": complexity test",
-             copy, outname, fname, itname, copy ? outname : itname, 
+             copy, outname, fname, itname, copy ? outname : itname,
              copy, ppred, funname);
 
         for (std::size_t i = 1; i < N; i++)
-            test_partial_sort (__LINE__, 0, i, i > 1 ? i / 2 : 1, it, itc, 
+            test_partial_sort (__LINE__, 0, i, i > 1 ? i / 2 : 1, it, itc,
                               (T*)0, ppred, copy);
     }
 }
@@ -355,7 +355,7 @@ void test_partial_sort (const std::size_t    N,
 
 template <class T, class Predicate>
 void test_partial_sort (const std::size_t  N,
-                        const T* , 
+                        const T* ,
                         const Predicate   *ppred,
                         bool               copy)
 {
@@ -365,7 +365,7 @@ void test_partial_sort (const std::size_t  N,
              "%{?}, %3$s, %3$s%{;}%{?}, %5$s%{;})",
              copy ? "InputIterator" : "RandomAccessIterator",
              copy, "RandomAccessIterator", ppred, "StrictWeakComp",
-             copy ? "RandomAccessIterator" : "void", 
+             copy ? "RandomAccessIterator" : "void",
              copy, !copy, copy, ppred);
 
     static const InputIter<T>        input_iter (0, 0, 0);
@@ -374,7 +374,7 @@ void test_partial_sort (const std::size_t  N,
     static const RandomAccessIter<T> rand_iter (0, 0, 0);
 
     if (! copy) {
-        test_partial_sort (N, rand_iter, rand_iter, 
+        test_partial_sort (N, rand_iter, rand_iter,
                           (T*)0, ppred, false);
         return;
     }
@@ -383,7 +383,7 @@ void test_partial_sort (const std::size_t  N,
         rw_note (0, __FILE__, __LINE__, "InputIterator test disabled");
     }
     else {
-        test_partial_sort (N, rand_iter, input_iter, 
+        test_partial_sort (N, rand_iter, input_iter,
                           (T*)0, ppred, true);
     }
 
@@ -391,7 +391,7 @@ void test_partial_sort (const std::size_t  N,
         rw_note (0, __FILE__, __LINE__, "ForwardIterator test disabled");
     }
     else {
-        test_partial_sort (N, rand_iter, fwd_iter, 
+        test_partial_sort (N, rand_iter, fwd_iter,
                           (T*)0, ppred, true);
     }
 
@@ -399,7 +399,7 @@ void test_partial_sort (const std::size_t  N,
         rw_note (0, __FILE__, __LINE__, "BidirectionalIterator test disabled");
     }
     else {
-        test_partial_sort (N, rand_iter, bidir_iter, 
+        test_partial_sort (N, rand_iter, bidir_iter,
                           (T*)0, ppred, true);
     }
 
@@ -407,7 +407,7 @@ void test_partial_sort (const std::size_t  N,
         rw_note (0, __FILE__, __LINE__, "RandomAccessIterator test disabled");
     }
     else {
-        test_partial_sort (N, rand_iter, rand_iter, 
+        test_partial_sort (N, rand_iter, rand_iter,
                           (T*)0, ppred, true);
     }
 }
@@ -416,14 +416,14 @@ void test_partial_sort (const std::size_t  N,
 
 template <class T>
 void test_partial_sort (const std::size_t N,
-                        const T* , 
+                        const T* ,
                         bool        copy)
 {
     test_partial_sort (N, (T*)0, (Less<T>*)0, copy);
 
     if (rw_opt_no_predicate) {
-        rw_note (0, __FILE__, __LINE__, 
-                 "std::partial_sort%{?}_copy%{;} predicate test disabled", 
+        rw_note (0, __FILE__, __LINE__,
+                 "std::partial_sort%{?}_copy%{;} predicate test disabled",
                  copy);
     }
     else {
@@ -440,7 +440,7 @@ static int run_test (int, char*[])
     const std::size_t N = std::size_t (rw_opt_nloops);
 
     if (rw_opt_no_partial_sort) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "std::partial_sort test disabled");
     }
     else {
@@ -448,7 +448,7 @@ static int run_test (int, char*[])
     }
 
     if (rw_opt_no_partial_sort_copy) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "std::partial_sort_copy test disabled");
     }
     else {
@@ -474,7 +474,7 @@ int main (int argc, char *argv[])
                     "|-no-ForwardIterator# "
                     "|-no-BidirectionalIterator# "
                     "|-no-RandomAccessIterator# "
-                    "|-no-predicate", 
+                    "|-no-predicate",
                     &rw_opt_nloops,
                     &rw_opt_no_partial_sort,
                     &rw_opt_no_partial_sort_copy,

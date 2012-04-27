@@ -394,7 +394,7 @@ void test_op_plus_eq (charT, Traits*, Allocator*,
 
             // verify that Traits::length was used
             if (OpPlusEq (cptr) == func.which_ && rg_calls) {
-                rw_assert (n_length_calls - total_length_calls > 0, 
+                rw_assert (n_length_calls - total_length_calls > 0,
                            0, tcase.line, "line %d. %{$FUNCALL} doesn't "
                            "use traits::length()", __LINE__);
             }
@@ -469,8 +469,8 @@ void test_op_plus_eq (charT, Traits*, Allocator*,
 
 #else   // if defined (_RWSTD_NO_REPLACEABLE_NEW_DELETE)
 
-    const std::size_t expect_throws = 
-        (StringIds::UserAlloc == func.alloc_id_) 
+    const std::size_t expect_throws =
+        (StringIds::UserAlloc == func.alloc_id_)
       ? str_state.capacity_ < str.capacity (): 0;
 
 #endif   // _RWSTD_NO_REPLACEABLE_NEW_DELETE

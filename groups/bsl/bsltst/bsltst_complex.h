@@ -13,8 +13,8 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Arthur Chiu (achiu21)
 //
-//@DESCRIPTION: This component provides testing for the 'bsl::complex'
-// template class.
+//@DESCRIPTION: This component provides testing for the 'bsl::complex' template
+// class.
 //
 ///Usage
 ///-----

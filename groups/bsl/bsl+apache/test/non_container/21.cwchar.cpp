@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2004-2005 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // used in the EVAL() macro below purely to make diagnostic messages

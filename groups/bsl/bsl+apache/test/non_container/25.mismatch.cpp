@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for mismatch
@@ -93,24 +93,24 @@ void test_mismatch (std::size_t           N,
                       : std::mismatch (first1, last1, first2);
 
         // verify 25.1.7, p2
-        UserClass* const expected_buf1_end = 
+        UserClass* const expected_buf1_end =
             (i < mid_inx) ? buf1_end : buf1 + mid_inx;
 
-        UserClass* const expected_buf2_end = 
+        UserClass* const expected_buf2_end =
             (i < mid_inx) ? buf2_end : buf2 + mid_inx;
 
-        UserClass* const res_buf1_end = 
+        UserClass* const res_buf1_end =
             buf1 + (result.first.cur_ - first1.cur_);
 
-        UserClass* const res_buf2_end = 
+        UserClass* const res_buf2_end =
             buf2 + (result.second.cur_ - first2.cur_);
 
         // check that the returned iterators are valid
-        bool success = 
+        bool success =
             buf1 <= res_buf1_end && res_buf1_end <= buf1_end &&
             buf2 <= res_buf2_end && res_buf2_end <= buf2_end;
 
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. mismatch (%s, %2$s, %s%{?}, %s%{;}): "
                    "result { %d, %d } out of range: expected "
                    "{ [0, %d], [0, %d] }",
@@ -119,11 +119,11 @@ void test_mismatch (std::size_t           N,
                    buf1_end - buf1, buf2_end - buf2);
 
         // iterators are valid check that the algorithm works correctly
-        success = 
+        success =
                res_buf1_end->data_.val_ == expected_buf1_end->data_.val_
             && res_buf2_end->data_.val_ == expected_buf2_end->data_.val_;
 
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. mismatch (%s, %2$s, %s%{?}, %s%{;}): "
                    "correctness: got: %d "
                    "expected: %d, got: %d expected: %d",
@@ -134,7 +134,7 @@ void test_mismatch (std::size_t           N,
         // verify 25.1.7, p3
         success = UserClass::n_total_op_eq_ - last_n_op_eq <= (N + 1);
 
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. mismatch (%s, %2$s, %s%{?}, %s%{;}): "
                    "complexity: %zu <= %zu",
                    i, it1name, it2name, 0 != predicate, predicate,
@@ -143,7 +143,7 @@ void test_mismatch (std::size_t           N,
         if (!success)
             break;
     }
-    
+
     ::operator delete (buf1);
     ::operator delete (buf2);
 }
@@ -186,7 +186,7 @@ void test_mismatch (const InputIterator &dummy, T*, const char *predicate)
     }
 
     if (rw_opt_no_bidir_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "BidirectionalIterator test disabled");
     }
     else {
@@ -195,7 +195,7 @@ void test_mismatch (const InputIterator &dummy, T*, const char *predicate)
     }
 
     if (rw_opt_no_rnd_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "RandomAccessIterator test disabled");
     }
     else {
@@ -233,7 +233,7 @@ test_mismatch (const char *predicate)
     }
 
     if (rw_opt_no_bidir_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "BidirectionalIterator test disabled");
     }
     else {
@@ -242,7 +242,7 @@ test_mismatch (const char *predicate)
     }
 
     if (rw_opt_no_rnd_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "RandomAccessIterator test disabled");
     }
     else {

@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <ios>
@@ -357,7 +357,7 @@ int type_test (int         lineno,
 
     // exercise 22.2.6.2.1, basic_string overload
     *mp.put (buf, false, ios, charT (fill), valstr) = charT ();
-    
+
     success = 0 == rw_strncmp (buf, str);
 
     if (!success)
@@ -797,7 +797,7 @@ void grouping_test ()
         rw_note (0, __FILE__, __LINE__, "char test disabled");
         return;
     }
-    
+
     rw_info (0, 0, 0, "std::money_put<%s>::put(ostreambuf_iterator"
              "<%s>, bool, ios_base, %s, long double); correct use of "
              "moneypunct<%s, false>::grouping() and thousands_sep()",
@@ -856,7 +856,7 @@ run_test (int, char*[])
     // check to see if we can test -0.0
     static volatile double d = -0.0;
     test_neg_zero = 1.0 / d < d;
-    
+
     if (no_grouping)
         rw_note (0, __FILE__, __LINE__, "grouping test disabled");
     else
