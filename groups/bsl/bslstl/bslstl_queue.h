@@ -33,7 +33,7 @@ namespace bsl {
                              // ===========
                              // class queue
                              // ===========
-                             
+
 
 template <class VALUE, class CONTAINER = deque<VALUE> >
 class queue {
@@ -109,9 +109,9 @@ class queue {
 //  queue(queue&& original, const ALLOCATOR& allocator);
 
     // MANIPULATORS
-    
+
 //  queue& operator=(queue&& rhs);
-       
+
     queue& operator=(const queue& rhs);
         // TBD
 
@@ -127,7 +127,7 @@ class queue {
 
     void swap(queue& other);
         // TBD
-        
+
     // ACCESSORS
     bool empty() const;
         // TBD
@@ -143,10 +143,10 @@ class queue {
 
     reference back();
         // TBD
-        
+
     const_reference back() const;
         // TBD
- 
+
 };
 
 // FREE FUNCTIONS
@@ -194,15 +194,15 @@ void swap(queue<VALUE, CONTAINER>& lhs,
 
 // template <class VALUE, class CONTAINER, class ALLOCATOR>
 // struct uses_allocator<queue<VALUE, CONTAINER>, ALLOCATOR>
-// : uses_allocator<CONTAINER, ALLOCATOR>::type 
-// { 
+// : uses_allocator<CONTAINER, ALLOCATOR>::type
+// {
 // };
-   
+
 
                          // ====================
                          // class priority_queue
                          // ====================
-                         
+
 template <class VALUE,
           class CONTAINER  = vector<VALUE>,
           class COMPARATOR = native_std::less<typename CONTAINER::value_type> >
@@ -229,7 +229,7 @@ class priority_queue {
     priority_queue(const COMPARATOR& comparator,
                    const CONTAINER&  container);
         // TBD
-        
+
 //  explicit priority_queue(const COMPARATOR& comparator = COMPARATOR(),
 //                                CONTAINER&& container  = CONTAINER ());
 
@@ -272,7 +272,7 @@ class priority_queue {
 //  priority_queue(const COMPARATOR& comparator,
 //                       CONTAINER&& container,
 //                 const ALLOCATOR&  allocator);
-   
+
     template <class ALLOCATOR>
     priority_queue(const priority_queue& original, const ALLOCATOR& allocator);
         // TBD
@@ -291,13 +291,13 @@ class priority_queue {
         // TBD
 
 //  void push(value_type&& value);
-   
+
 //  template <class... Args>
 //  void emplace(Args&&... args);
-   
+
     void pop();
         // TBD
-   
+
     void swap(priority_queue& other);
         // TBD
 
@@ -307,7 +307,7 @@ class priority_queue {
 
     size_type size() const;
         // TBD
-        
+
     const_reference top() const;
         // TBD
 };
@@ -422,7 +422,7 @@ void queue<VALUE, CONTAINER>::swap(queue& q)
 template <class VALUE, class CONTAINER>
 inline
 bool queue<VALUE, CONTAINER>::empty() const
-{ 
+{
     return c.empty();
 }
 
@@ -527,13 +527,13 @@ void swap(queue<VALUE, CONTAINER>& lhs,
                          // --------------------
                          // class priority_queue
                          // --------------------
-                         
+
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue()
 {
 }
-                        
+
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
@@ -613,7 +613,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 {
 }
 
-   
+
 template <class VALUE, class CONTAINER, class COMPARATOR>
 template <class ALLOCATOR>
 inline
@@ -661,11 +661,11 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::pop()
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::swap(
-                                                         priority_queue& other) 
+                                                         priority_queue& other)
 {
     BloombergLP::bslalg_SwapUtil::swap(&c   , &other.c   );
     BloombergLP::bslalg_SwapUtil::swap(&comp, &other.comp);
-} 
+}
 
 // ACCESSORS
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -705,7 +705,7 @@ void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& lhs,
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2011
+//      Copyright (C) Bloomberg L.P., 2012
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
