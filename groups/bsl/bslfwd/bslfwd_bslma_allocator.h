@@ -38,7 +38,11 @@ namespace BloombergLP {
 
 #endif
 
+#ifdef bdema_Allocator
+#undef bdema_Allocator
+#endif
 #define bdema_Allocator bslma_Allocator
+    // This alias is defined for backward compatibility.
 
 #endif
 
