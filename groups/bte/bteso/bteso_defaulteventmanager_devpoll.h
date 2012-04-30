@@ -297,17 +297,19 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #if defined(BSLS_PLATFORM__OS_SOLARIS)
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>
 #define INCLUDED_SYS_POLL
-
 #endif
 
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bdet_TimeInterval;
 class bteso_TimeMetrics;
 

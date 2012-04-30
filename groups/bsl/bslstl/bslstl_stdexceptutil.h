@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a utility to throw standard exceptions.
 //
 //@CLASSES:
-//   bslstl_StdExceptUtil: namespace for utilities to throw standard exceptions
+//  bslstl::StdExceptUtil: namespace for utilities to throw standard exceptions
 //
 //@SEE_ALSO: stdexcept
 //
@@ -24,8 +24,7 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // First we declare a function template that wants to throw a standard
-// exception.  Note that the 'stdexcept' header is not included at this
-// point.
+// exception.  Note that the 'stdexcept' header is not included at this point.
 //..
 //  #include <bslstl_stdexceptutil.h>
 //
@@ -34,9 +33,9 @@ BSLS_IDENT("$Id: $")
 //      //  Throw a standard exception according to the specified 'selector'.
 //  {
 //    switch(selector) {
-//      case 1: bslstl_StdExceptUtil::throwRuntimeError("sample message 1");
-//      case 2: bslstl_StdExceptUtil::throwLogicError("sample message 2");
-//      default : bslstl_StdExceptUtil::throwInvalidArgument("ERROR");
+//      case 1: bslstl::StdExceptUtil::throwRuntimeError("sample message 1");
+//      case 2: bslstl::StdExceptUtil::throwLogicError("sample message 2");
+//      default : bslstl::StdExceptUtil::throwInvalidArgument("ERROR");
 //    }
 //  }
 //..
@@ -97,15 +96,17 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP {
 
-                        //===========================
-                        // class bslstl_StdExceptUtil
-                        //===========================
+namespace bslstl {
 
-struct bslstl_StdExceptUtil {
+                        //====================
+                        // class StdExceptUtil
+                        //====================
+
+struct StdExceptUtil {
     // This 'struct' provides a namespace for 'static' utility functions that
     // throw standard library exceptions.
 
-    //  CLASS METHODS
+    // CLASS METHODS
     BSLSTL_STDEXCEPTUTIL_NORETURN
     static void throwRuntimeError(const char *message);
         // Throw a 'std::runtime_error' exception supplying the specified
@@ -152,9 +153,18 @@ struct bslstl_StdExceptUtil {
         // 'message' as the sole argument to its constructor.
 };
 
+}  // close package namespace
+
 #undef BSLSTL_STDEXCEPTUTIL_NORETURN
 
-}  // close namespace BloombergLP
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslstl::StdExceptUtil bslstl_StdExceptUtil;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

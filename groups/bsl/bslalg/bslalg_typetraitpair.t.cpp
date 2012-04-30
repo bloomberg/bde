@@ -1,4 +1,4 @@
-// bslalg_typetraitpair.t.cpp                  -*-C++-*-
+// bslalg_typetraitpair.t.cpp                                         -*-C++-*-
 
 #include <bslalg_typetraitpair.h>
 
@@ -65,7 +65,7 @@ int verbose = 0;
 int veryVerbose = 0;
 int veryVeryVerbose = 0;
 
-typedef bslalg_TypeTraitPair  Obj;
+typedef bslalg::TypeTraitPair  Obj;
 
 //=============================================================================
 //                  USAGE EXAMPLE
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitPair;
+        //   class bslalg::TypeTraitPair;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

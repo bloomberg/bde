@@ -1,4 +1,4 @@
-// bsltst_bsl_string.h   -*-C++-*-
+// bsltst_bsl_string.h                                                -*-C++-*-
 #ifndef INCLUDED_BSLTST_BSL_STRING
 #define INCLUDED_BSLTST_BSL_STRING
 
@@ -14,8 +14,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides testing for the string class
-// configuring the include files for bsl mode, in which 'std' is #define'd
-// to 'bsl'.  The std namespace is still accessible as 'native_std'.
+// configuring the include files for bsl mode, in which 'std' is #define'd to
+// 'bsl'.  The std namespace is still accessible as 'native_std'.
 //
 ///Usage
 ///-----

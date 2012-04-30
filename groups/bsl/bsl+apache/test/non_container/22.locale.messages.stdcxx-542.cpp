@@ -57,7 +57,7 @@ static int run_test (int, char**)
         "Second set, first message\0\0";
 
     rw_create_catalog (CATALOG MSG_EXT, catalog);
-    
+
     typedef std::messages<char> messagesT;
 
     const std::locale loc;
@@ -74,13 +74,13 @@ static int run_test (int, char**)
         cats [i] = msgs.open (CATALOG CAT_EXT, loc);
         assert (-1 != cats [i]);
     }
-    
+
     // test STDCXX-542
     for (--i; i >= 0; --i)
         msgs.close (cats [i]);
 
     std::remove (CATALOG CAT_EXT);
-    
+
     return 0;
 }
 

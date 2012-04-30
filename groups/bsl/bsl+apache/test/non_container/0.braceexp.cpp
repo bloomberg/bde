@@ -166,10 +166,10 @@ run_tests (const char* fname,
     TEST ("{abc,def}",     "abc def");
     TEST ("{ab\\c,d\\ef}", "abc def");
     TEST ("abc{d,e,f}",    "abcd abce abcf");
-    
+
     TEST ("z{c,a{d..f}a,c}z",  "zcz zadaz zaeaz zafaz zcz");
     TEST ("z{c,a{d,e,f}a,c}z", "zcz zadaz zaeaz zafaz zcz");
-    
+
     TEST ("{abc,{,d,e,f,}}",      "abc d e f");
     TEST ("{abc,{,d,e,f,}}{x,y}", "abcx abcy x y dx dy ex ey fx fy x y");
     TEST ("{abc,{,d\\,e\\,f,}}",  "abc d,e,f");

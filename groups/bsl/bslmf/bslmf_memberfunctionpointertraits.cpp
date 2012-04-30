@@ -1,4 +1,4 @@
-// bslmf_memberfunctionpointertraits.cpp    -*-C++-*-
+// bslmf_memberfunctionpointertraits.cpp                              -*-C++-*-
 #include <bslmf_memberfunctionpointertraits.h>
 
 #include <bsls_ident.h>

@@ -1,4 +1,4 @@
-// bslma_defaultallocatorguard.cpp                  -*-C++-*-
+// bslma_defaultallocatorguard.cpp                                    -*-C++-*-
 #include <bslma_defaultallocatorguard.h>
 
 #include <bsls_ident.h>
@@ -11,28 +11,31 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        // ---------------------------------
-                        // class bslma_DefaultAllocatorGuard
-                        // ---------------------------------
+namespace bslma {
+
+                        // ---------------------------
+                        // class DefaultAllocatorGuard
+                        // ---------------------------
 
 // CREATORS
-bslma_DefaultAllocatorGuard::bslma_DefaultAllocatorGuard(
-                                                    bslma_Allocator *temporary)
-: d_original_p(bslma_Default::defaultAllocator())
+DefaultAllocatorGuard::DefaultAllocatorGuard(Allocator *temporary)
+: d_original_p(Default::defaultAllocator())
 {
     BSLS_ASSERT(temporary);
 
-    bslma_Default::setDefaultAllocatorRaw(temporary);
+    Default::setDefaultAllocatorRaw(temporary);
 }
 
-bslma_DefaultAllocatorGuard::~bslma_DefaultAllocatorGuard()
+DefaultAllocatorGuard::~DefaultAllocatorGuard()
 {
     BSLS_ASSERT(d_original_p);
 
-    bslma_Default::setDefaultAllocatorRaw(d_original_p);
+    Default::setDefaultAllocatorRaw(d_original_p);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

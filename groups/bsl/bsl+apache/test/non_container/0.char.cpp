@@ -257,7 +257,7 @@ test_user_traits_user_char ()
     rw_assert (2 == Traits::n_calls_ [MemFun::move], 0, __LINE__,
                "UserTraits::move(char_type*, const char_type*, size_t)");
 
-    
+
     memcpy (dst, src, sizeof dst);
     move = Traits::move (dst, dst + 1, 1);
 
@@ -656,7 +656,7 @@ test_rw_narrow ()
                "rw_narrow(char*, %{#s}, %zu) == %{#*s}, got %{#*s}",
                0, sizeof cdst, int (sizeof cdst), null,
                int (sizeof cdst), cdst);
-               
+
     //////////////////////////////////////////////////////////////////
     rw_info (0, 0, 0, "rw_narrow(wchar_t*, const wchar_t*, size_t)");
 
@@ -1241,7 +1241,7 @@ int main (int argc, char *argv[])
                     &opt_user_traits_wchar,
                     &opt_user_traits_user_char,
                     &opt_rw_widen,
-                    &opt_rw_expand, 
+                    &opt_rw_expand,
                     &opt_rw_narrow,
                     &opt_rw_match,
                     &opt_formatting,

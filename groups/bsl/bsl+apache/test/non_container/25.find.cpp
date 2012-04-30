@@ -23,30 +23,30 @@
  * permissions and limitations under the License.
  *
  * Copyright 2000-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for find()
 #include <cstring>      // for size_t, strlen()
 
-#include <alg_test.h>   
+#include <alg_test.h>
 #include <rw_value.h>   // for UserClass
 #include <driver.h>     // for rw_test()
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
-InputIter<eq_comp<base<> > > 
-find (InputIter<eq_comp<base<> > >, InputIter<eq_comp<base<> > >, 
+InputIter<eq_comp<base<> > >
+find (InputIter<eq_comp<base<> > >, InputIter<eq_comp<base<> > >,
       const eq_comp<base<> >&);
 
 template
-InputIter<eq_comp<base<> > > 
-find_if (InputIter<eq_comp<base<> > >, InputIter<eq_comp<base<> > >, 
+InputIter<eq_comp<base<> > >
+find_if (InputIter<eq_comp<base<> > >, InputIter<eq_comp<base<> > >,
          predicate<eq_comp<base<> > >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
@@ -166,7 +166,7 @@ void test_find (int           line,     // line number of test case
 
 template <class InputIterator>
 void test_find (InputIterator dummy_iter, bool test_pred)
-{   
+{
     static const char* const itname = type_name (dummy_iter, (UserClass*)0);
 
     rw_info (0, 0, 0, "std::find%{?}_if%{;} (%s, %2$s, "
@@ -213,7 +213,7 @@ void test_find (InputIterator dummy_iter, bool test_pred)
 static void
 test_find (bool test_pred)
 {
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "template <class %s, class %s> "
              "%1$s std::find%{?}_if%{;} (%1$s, %1$s, "
              "%{?}%2$s%{:}const %2$s&%{;})",
@@ -265,7 +265,7 @@ run_test (int, char*[])
     else {
         test_find (true);
     }
-                
+
     return 0;
 }
 

@@ -23,10 +23,10 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  ***************************************************************************/
 
-#include <cstdlib>      // for bsearch, qsort 
+#include <cstdlib>      // for bsearch, qsort
 #include <csignal>      // for signal
 #include <csetjmp>      // for setjmp, longjmp
 
@@ -52,7 +52,7 @@ extern "C" {
     }
 
 
-    static int c_comp (const void *x, const void *y) 
+    static int c_comp (const void *x, const void *y)
     {
 #ifndef _RWSTD_NO_EXCEPTIONS
 
@@ -91,7 +91,7 @@ static void
 test_qsort (int          line,
             const char  *src,
             std::size_t  nsrc,
-            bool         cxx) 
+            bool         cxx)
 {
     UserClass* const xsrc = UserClass::from_char (src, nsrc);
     UserClass* const xsrc_end = xsrc + nsrc;
@@ -99,11 +99,11 @@ test_qsort (int          line,
 
     if (cxx)
         std::qsort (xsrc, nsrc, sizeof *xsrc, cxx_comp);
-    else 
+    else
         std::qsort (xsrc, nsrc, sizeof *xsrc, c_comp);
 
     bool success = is_sorted_lt (xsrc, xsrc_end);
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: extern \"C%{?}++%{;}\" qsort (\"%s\", ...) ==> "
                "\"%{X=*.*}\" not sorted",
                __LINE__, cxx, src, int (nsrc), -1, xsrc);
@@ -118,7 +118,7 @@ static void
 test_qsort_exception (int          line,
                       int         *src,
                       std::size_t  nsrc,
-                      bool         cxx) 
+                      bool         cxx)
 {
 #ifndef _RWSTD_NO_EXCEPTIONS
 
@@ -131,7 +131,7 @@ test_qsort_exception (int          line,
         if (0 == setjmp (jmp_env)) {
             if (cxx)
                 std::qsort (src, nsrc, sizeof *src, cxx_comp);
-            else 
+            else
                 std::qsort (src, nsrc, sizeof *src, c_comp);
         }
         else {
@@ -148,7 +148,7 @@ test_qsort_exception (int          line,
     catch (...) {
     }
 
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: extern \"C%{?}++%{;}\" qsort() failed to propagate "
                "exception", __LINE__, cxx);
 
@@ -172,7 +172,7 @@ test_bsearch (int          line,
               std::size_t  nsrc,
               const char   key_val,
               std::size_t  res,
-              bool         cxx) 
+              bool         cxx)
 {
     UserClass* const xsrc = UserClass::from_char (src, nsrc,
                                                   true); // must be sorted
@@ -188,7 +188,7 @@ test_bsearch (int          line,
     const UserClass* exp_res = res == _RWSTD_SIZE_MAX ? 0 : xsrc + res;
 
     bool success = result == exp_res;
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: extern \"C%{?}++%{;}\" bsearch (\"%s\", %#c, ...) "
                "== %p, got %p, difference is %td elements",
                __LINE__, cxx, src, key_val, result, exp_res,
@@ -205,7 +205,7 @@ test_bsearch_exception (int         line,
                         const int  *src,
                         std::size_t nsrc,
                         const int  *key,
-                        bool        cxx) 
+                        bool        cxx)
 {
 #ifndef _RWSTD_NO_EXCEPTIONS
 
@@ -218,7 +218,7 @@ test_bsearch_exception (int         line,
         if (0 == setjmp (jmp_env)) {
             if (cxx)
                 std::bsearch (key, src, nsrc, sizeof *src, cxx_comp);
-            else 
+            else
                 std::bsearch (key, src, nsrc, sizeof *src, c_comp);
         }
         else {
@@ -235,7 +235,7 @@ test_bsearch_exception (int         line,
     catch (...) {
     }
 
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: extern \"C%{?}++%{;}\" bsearch() failed to propagate "
                "exception", __LINE__, cxx);
 
@@ -261,7 +261,7 @@ static int rw_opt_no_exceptions;          // --no-exceptions
 /**************************************************************************/
 
 static void
-test_qsort (bool cxx) 
+test_qsort (bool cxx)
 {
     rw_info (0, 0, 0,
              "extern \"C%{?}++%{;}\" qsort (void*, size_t, size_t, "
@@ -309,15 +309,15 @@ test_qsort (bool cxx)
                  "disabled", cxx);
     }
     else {
-        test_qsort_exception (__LINE__, global, 
-                              sizeof global / sizeof *global, cxx); 
+        test_qsort_exception (__LINE__, global,
+                              sizeof global / sizeof *global, cxx);
     }
 }
 
 /**************************************************************************/
 
 static void
-test_bsearch (bool cxx) 
+test_bsearch (bool cxx)
 {
     rw_info (0, 0, 0,
              "extern \"C%{?}++%{;}\" bsearch (const void*, const void*, "
@@ -360,8 +360,8 @@ test_bsearch (bool cxx)
                  "tests disabled", cxx);
     }
     else {
-        test_bsearch_exception (__LINE__, global, 
-                                sizeof global / sizeof *global, global, cxx); 
+        test_bsearch_exception (__LINE__, global,
+                                sizeof global / sizeof *global, global, cxx);
     }
 }
 
@@ -370,14 +370,14 @@ test_bsearch (bool cxx)
 static void
 test_libc (bool cxx)
 {
-    if (rw_opt_no_qsort) 
+    if (rw_opt_no_qsort)
         rw_note (0, 0, 0, "qsort test disabled");
-    else 
+    else
         test_qsort (cxx);
 
-    if (rw_opt_no_bsearch) 
+    if (rw_opt_no_bsearch)
         rw_note (0, 0, 0, "bsearch test disabled");
-    else 
+    else
         test_bsearch (cxx);
 }
 
@@ -386,14 +386,14 @@ test_libc (bool cxx)
 static int
 run_test (int, char*[])
 {
-    if (rw_opt_no_c) 
+    if (rw_opt_no_c)
         rw_note (0, 0, 0, "tests of extern \"C\" cfunctions disabled");
-    else 
+    else
         test_libc (false);
 
-    if (rw_opt_no_cxx) 
+    if (rw_opt_no_cxx)
         rw_note (0, 0, 0, "tests of extern \"C++\" functions disabled");
-    else 
+    else
         test_libc (true);
 
     return 0;

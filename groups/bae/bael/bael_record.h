@@ -236,13 +236,15 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
                            // =================
                            // class bael_Record
                            // =================
-
-class bslma_Allocator;
 
 class bael_Record {
     // This class provides a container for a set of fields that are

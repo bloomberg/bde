@@ -1,4 +1,4 @@
-// bdem_berutil.h                  -*-C++-*-
+// bdem_berutil.h                                                     -*-C++-*-
 #ifndef INCLUDED_BDEM_BERUTIL
 #define INCLUDED_BDEM_BERUTIL
 
@@ -100,6 +100,14 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BDEM_BERCONSTANTS
 #include <bdem_berconstants.h>
+#endif
+
+#ifndef INCLUDED_BDEM_BERCONSTANTS
+#include <bdem_berconstants.h>
+#endif
+
+#ifndef INCLUDED_BDEM_BERENCODEROPTIONS
+#include <bdem_berencoderoptions.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -255,7 +263,9 @@ struct bdem_BerUtil {
         // undefined unless '0 <= length'.
 
     template <typename TYPE>
-    static int putValue(bsl::streambuf *streamBuf, const TYPE& value);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        const TYPE&                   value,
+                        const bdem_BerEncoderOptions *options = 0);
         // Encode the specified 'value' to the specified 'streamBuf'.  Return 0
         // on success, and a non-zero value otherwise.  Note that the value
         // consists of the length and contents primitives.  Also note that only
@@ -351,6 +361,38 @@ struct bdem_BerUtil_Imp {
     template <typename TYPE>
     static int numBytesToStream(TYPE value);
 
+    static int getBinaryDateValue(bsl::streambuf *streamBuf,
+                                  bdet_Date      *value,
+                                  int             length);
+    static int getBinaryTimeValue(bsl::streambuf *streamBuf,
+                                  bdet_Time      *value,
+                                  int             length);
+    static int getBinaryDatetimeValue(bsl::streambuf *streamBuf,
+                                      bdet_Datetime  *value,
+                                      int             length);
+    static int getBinaryDateTzValue(bsl::streambuf *streamBuf,
+                                    bdet_DateTz    *value,
+                                    int             length);
+    static int getBinaryTimeTzValue(bsl::streambuf *streamBuf,
+                                    bdet_TimeTz    *value,
+                                    int             length);
+    static int getBinaryDatetimeTzValue(bsl::streambuf  *streamBuf,
+                                        bdet_DatetimeTz *value,
+                                        int              length);
+
+    static int putBinaryDateValue(bsl::streambuf   *streamBuf,
+                                  const bdet_Date&  value);
+    static int putBinaryTimeValue(bsl::streambuf   *streamBuf,
+                                  const bdet_Time&  value);
+    static int putBinaryDatetimeValue(bsl::streambuf       *streamBuf,
+                                      const bdet_Datetime&  value);
+    static int putBinaryDateTzValue(bsl::streambuf     *streamBuf,
+                                    const bdet_DateTz&  value);
+    static int putBinaryTimeTzValue(bsl::streambuf     *streamBuf,
+                                    const bdet_TimeTz&  value);
+    static int putBinaryDatetimeTzValue(bsl::streambuf         *streamBuf,
+                                        const bdet_DatetimeTz&  value);
+
     static int putDoubleValue(bsl::streambuf *streamBuf, double value);
 
     template <typename TYPE>
@@ -368,23 +410,51 @@ struct bdem_BerUtil_Imp {
                               int             valueLength);
 
     template <typename TYPE>
-    static int putValue(bsl::streambuf *streamBuf, const TYPE& value);
-    static int putValue(bsl::streambuf *streamBuf, bool value);
-    static int putValue(bsl::streambuf *streamBuf, char value);
-    static int putValue(bsl::streambuf *streamBuf, unsigned char value);
-    static int putValue(bsl::streambuf *streamBuf, signed char value);
-    static int putValue(bsl::streambuf *streamBuf, float value);
-    static int putValue(bsl::streambuf *streamBuf, double value);
-    static int putValue(bsl::streambuf *streamBuf, const bsl::string& value);
-    static int putValue(bsl::streambuf          *streamBuf,
-                        const bslstl_StringRef&  value);
-    static int putValue(bsl::streambuf *streamBuf, const bdet_Date& value);
-    static int putValue(bsl::streambuf *streamBuf, const bdet_Datetime& value);
-    static int putValue(bsl::streambuf         *streamBuf,
-                        const bdet_DatetimeTz&  value);
-    static int putValue(bsl::streambuf *streamBuf, const bdet_DateTz& value);
-    static int putValue(bsl::streambuf *streamBuf, const bdet_Time& value);
-    static int putValue(bsl::streambuf *streamBuf, const bdet_TimeTz& value);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        const TYPE&                   value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        bool                          value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        char                          value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        unsigned char                 value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        signed char                   value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        float                         value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        double                        value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        const bsl::string&            value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        const bslstl_StringRef&       value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        const bdet_Date&              value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        const bdet_Datetime&          value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        const bdet_DatetimeTz&        value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        const bdet_DateTz&            value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        const bdet_Time&              value,
+                        const bdem_BerEncoderOptions *options);
+    static int putValue(bsl::streambuf               *streamBuf,
+                        const bdet_TimeTz&            value,
+                        const bdem_BerEncoderOptions *options);
 };
 
 // ===========================================================================
@@ -482,9 +552,11 @@ int bdem_BerUtil::putLength(bsl::streambuf *streamBuf, int length)
 
 template <typename TYPE>
 inline
-int bdem_BerUtil::putValue(bsl::streambuf *streamBuf, const TYPE& value)
+int bdem_BerUtil::putValue(bsl::streambuf               *streamBuf,
+                           const TYPE&                   value,
+                           const bdem_BerEncoderOptions *options)
 {
-    return bdem_BerUtil_Imp::putValue(streamBuf, value);
+    return bdem_BerUtil_Imp::putValue(streamBuf, value, options);
 }
 
                       // -----------------------
@@ -764,13 +836,17 @@ int bdem_BerUtil_Imp::putStringValue(bsl::streambuf *streamBuf,
 
 template <typename TYPE>
 inline
-int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, const TYPE& value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               const TYPE&                   value,
+                               const bdem_BerEncoderOptions *)
 {
     return bdem_BerUtil_Imp::putIntegerValue(streamBuf, value);
 }
 
 inline
-int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, bool value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               bool                          value,
+                               const bdem_BerEncoderOptions *)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
@@ -783,7 +859,9 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, bool value)
 }
 
 inline
-int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, char value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               char                          value,
+                               const bdem_BerEncoderOptions *)
 {
     enum { BDEM_SUCCESS = 0, BDEM_FAILURE = -1 };
 
@@ -794,32 +872,41 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, char value)
 }
 
 inline
-int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, unsigned char value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               unsigned char                 value,
+                               const bdem_BerEncoderOptions *)
 {
     return bdem_BerUtil_Imp::putIntegerValue(streamBuf, (unsigned short)value);
 }
 
 inline
-int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, signed char value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               signed char                   value,
+                               const bdem_BerEncoderOptions *options)
 {
-    return putValue(streamBuf, (char) value);
+    return putValue(streamBuf, (char) value, options);
 }
 
 inline
-int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, float value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               float                         value,
+                               const bdem_BerEncoderOptions *)
 {
     return bdem_BerUtil_Imp::putDoubleValue(streamBuf, (double) value);
 }
 
 inline
-int bdem_BerUtil_Imp::putValue(bsl::streambuf *streamBuf, double value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               double                        value,
+                               const bdem_BerEncoderOptions *)
 {
     return bdem_BerUtil_Imp::putDoubleValue(streamBuf, value);
 }
 
 inline
-int bdem_BerUtil_Imp::putValue(bsl::streambuf     *streamBuf,
-                               const bsl::string&  value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               const bsl::string&            value,
+                               const bdem_BerEncoderOptions *)
 {
     return putStringValue(streamBuf,
                           value.data(),
@@ -827,8 +914,9 @@ int bdem_BerUtil_Imp::putValue(bsl::streambuf     *streamBuf,
 }
 
 inline
-int bdem_BerUtil_Imp::putValue(bsl::streambuf          *streamBuf,
-                               const bslstl_StringRef&  value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               const bslstl_StringRef&       value,
+                               const bdem_BerEncoderOptions *)
 {
     return putStringValue(streamBuf,
                           value.data(),

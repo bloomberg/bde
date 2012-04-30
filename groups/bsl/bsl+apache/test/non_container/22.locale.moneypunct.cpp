@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1998-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #include <locale>
@@ -122,8 +122,8 @@ std::lconv* lconvdup (const std::lconv *plconv)
 
 #ifndef _RWSTD_NO_LCONV_INT_FMAT
 
-    plconv2->int_p_cs_precedes   = plconv->int_p_cs_precedes; 
-    plconv2->int_p_sep_by_space  = plconv->int_p_sep_by_space; 
+    plconv2->int_p_cs_precedes   = plconv->int_p_cs_precedes;
+    plconv2->int_p_sep_by_space  = plconv->int_p_sep_by_space;
     plconv2->int_n_cs_precedes   = plconv->int_n_cs_precedes;
     plconv2->int_n_sep_by_space  = plconv->int_n_sep_by_space;
     plconv2->int_p_sign_posn     = plconv->int_p_sign_posn;
@@ -437,7 +437,7 @@ check_moneypunct (const char *locname)
         check_curr_symbol (s);
 
         s = ::convert (locname, plconv->positive_sign, (charT*)0);
-        
+
         check_positive_sign (s);
 
         s = ::convert (locname, plconv->negative_sign, (charT*)0);
@@ -528,7 +528,7 @@ check_grouping (const std::string &result)
         for ( ; i != lng->size (); ++i)
             if ((*shrt) [shrt->size () - 1] != (*lng)[i])
                 break;
-        
+
         rw_assert (i == lng->size (), 0, __LINE__,
                    "numpunct<%s, %b>::grouping() equivalent to %#s, got %#s "
                    "in locale (%#s) with LANG=%s, LC_ALL=%s, "

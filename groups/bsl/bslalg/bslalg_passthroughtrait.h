@@ -10,20 +10,21 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide facilities for computing compile-time traits.
 //
 //@CLASSES:
-//                bslalg_PassthroughTrait: pass-through trait mechanism
-//  bslalg_PassthroughTraitBslmaAllocator: pass-through for 'bslma' allocators
+//  bslalg::PassthroughTrait: pass-through trait mechanism
+//  bslalg::PassthroughTraitBslmaAllocator: pass-through for 'bslma' allocators
 //
 //@SEE_ALSO: bslmf_typetraits
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a meta-function,
-// 'bslalg_PassthroughTrait', for constructing a trait class that has a
+// 'bslalg::PassthroughTrait', for constructing a trait class that has a
 // parameterized 'TRAIT' if a parameterized 'TYPE' has the 'TRAIT'.
 //
-// A similar meta-function, 'bslalg_PassthroughTraitBslmaAllocator', allows to
-// compute the 'bslalg_TypeTraitUsesBslmaAllocator' trait for classes that have
-// a parameterized 'ALLOCATOR' member.  This is most useful for STL containers.
+// A similar meta-function, 'bslalg::PassthroughTraitBslmaAllocator', allows to
+// compute the 'bslalg::TypeTraitUsesBslmaAllocator' trait for classes that
+// have a parameterized 'ALLOCATOR' member.  This is most useful for STL
+// containers.
 //
 ///Usage
 ///-----
@@ -59,72 +60,91 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class bslma_Allocator;
+namespace bslma { class Allocator; }
+
+namespace bslalg {
 
 template <typename TRAIT>
-struct bslalg_PassthroughTrait_NotTrait;
+struct PassthroughTrait_NotTrait;
 
 template <typename T, typename TRAIT>
-struct bslalg_PassthroughTrait_Imp;
+struct PassthroughTrait_Imp;
 
-                       // ==============================
-                       // struct bslalg_PassthroughTrait
-                       // ==============================
+                       // =======================
+                       // struct PassthroughTrait
+                       // =======================
 
 template <typename T, typename TRAIT>
-struct bslalg_PassthroughTrait : bslalg_PassthroughTrait_Imp<T, TRAIT>::Type {
+struct PassthroughTrait : PassthroughTrait_Imp<T, TRAIT>::Type {
     // If 'T' has 'TRAIT', then evaluate to 'TRAIT', else evaluate to a unique
     // class that is not 'TRAIT'.  Users of this meta-function do not need to
     // expand the result with '::Type' (though they may).
 
-    typedef typename bslalg_PassthroughTrait_Imp<T, TRAIT>::Type Type;
+    typedef typename PassthroughTrait_Imp<T, TRAIT>::Type Type;
 };
 
-               // ============================================
-               // struct bslalg_PassthroughTraitBslmaAllocator
-               // ============================================
+               // =====================================
+               // struct PassthroughTraitBslmaAllocator
+               // =====================================
 
 template <typename ALLOCATOR>
-struct bslalg_PassthroughTraitBslmaAllocator :
-              bslmf_If<bslmf_IsConvertible<bslma_Allocator*, ALLOCATOR>::VALUE,
-                       bslalg_TypeTraitUsesBslmaAllocator,
-                       bslalg_PassthroughTrait_NotTrait<
-                                            bslalg_TypeTraitUsesBslmaAllocator>
-                      >::Type {
-    // Trait that evaluates to 'bslalg_TypeTraitUsesBslmaAllocator' if
-    // the parameterized 'ALLOCATOR' is convertible from 'bslma_Allocator*'.
+struct PassthroughTraitBslmaAllocator :
+           bslmf::If<bslmf::IsConvertible<bslma::Allocator*, ALLOCATOR>::VALUE,
+                       TypeTraitUsesBslmaAllocator,
+                       PassthroughTrait_NotTrait<TypeTraitUsesBslmaAllocator>
+                    >::Type {
+    // Trait that evaluates to 'TypeTraitUsesBslmaAllocator' if the
+    // parameterized 'ALLOCATOR' is convertible from 'bslma::Allocator*'.
 };
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
-                  // =======================================
-                  // struct bslalg_PassthroughTrait_NotTrait
-                  // =======================================
+                  // ================================
+                  // struct PassthroughTrait_NotTrait
+                  // ================================
 
 template <typename TRAIT>
-struct bslalg_PassthroughTrait_NotTrait {
-    // Private class: Given a trait, this template produces a unique type
-    // which is NOT the trait type and is not a trait at all.
+struct PassthroughTrait_NotTrait {
+    // Private class: Given a trait, this template produces a unique type which
+    // is NOT the trait type and is not a trait at all.
 };
 
-                     // ==================================
-                     // struct bslalg_PassthroughTrait_Imp
-                     // ==================================
+                     // ===========================
+                     // struct PassthroughTrait_Imp
+                     // ===========================
 
 template <typename T, typename TRAIT>
-struct bslalg_PassthroughTrait_Imp {
-    // Private implementation of 'bslalg_PassthroughTrait' class.
+struct PassthroughTrait_Imp {
+    // Private implementation of 'PassthroughTrait' class.
   private:
-    enum { HAS_TRAIT = (int) bslalg_HasTrait<T, TRAIT>::VALUE };
+    enum { HAS_TRAIT = (int) HasTrait<T, TRAIT>::VALUE };
 
   public:
-    typedef typename bslmf_If<HAS_TRAIT,
-                              TRAIT,
-                              bslalg_PassthroughTrait_NotTrait<TRAIT>
-                             >::Type Type;
+    typedef typename bslmf::If<HAS_TRAIT,
+                                TRAIT,
+                                PassthroughTrait_NotTrait<TRAIT>
+                              >::Type Type;
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_PassthroughTraitBslmaAllocator
+#undef bslalg_PassthroughTraitBslmaAllocator
+#endif
+#define bslalg_PassthroughTraitBslmaAllocator bslalg::PassthroughTraitBslmaAllocator
+    // This alias is defined for backward compatibility.
+
+#ifdef bslalg_PassthroughTrait
+#undef bslalg_PassthroughTrait
+#endif
+#define bslalg_PassthroughTrait bslalg::PassthroughTrait
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

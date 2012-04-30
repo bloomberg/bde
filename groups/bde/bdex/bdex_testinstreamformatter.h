@@ -650,9 +650,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstdio.h>     // for printing in macros
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                         // ================================
                         // class bdex_TestInStreamFormatter

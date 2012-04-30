@@ -97,8 +97,8 @@ static void aSsErT(int c, const char *s, int i)
 //                         GLOBAL TYPEDEF FOR TESTING
 //--------------------------------------------------------------------------
 
-typedef BloombergLP::bsls_Types::Int64  Int64;
-typedef BloombergLP::bsls_Types::Uint64 Uint64;
+typedef BloombergLP::bsls::Types::Int64  Int64;
+typedef BloombergLP::bsls::Types::Uint64 Uint64;
 
 //==========================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING

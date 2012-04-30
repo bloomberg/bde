@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2004-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #include <limits>    // for numeric_limits
@@ -34,7 +34,7 @@
 #include <driver.h>
 
 
-template <class T> 
+template <class T>
 struct Limits
 {
     enum { is_specialized = false };
@@ -104,12 +104,12 @@ struct Limits<int>
 #ifndef _RWSTD_NO_BOOL
 _RWSTD_SPECIALIZED_CLASS
 struct Limits<bool>
-{  
+{
     enum { is_specialized = true };
     static bool (min) ()  { return false; }
     static bool (max) ()  { return true;  }
 
-    enum { digits = 1 }; 
+    enum { digits = 1 };
     enum { digits10 = (digits * 301) / 1000 };
     enum { is_signed = false };
     enum { is_integer = true };
@@ -128,12 +128,12 @@ struct Limits<bool>
 
 
 _RWSTD_SPECIALIZED_CLASS
-struct Limits<char>                              
-{  
+struct Limits<char>
+{
     enum { is_specialized = true };
     static char (min) ()  { return CHAR_MIN; }
     static char (max) ()  { return CHAR_MAX; }
-        
+
     enum { is_signed =  CHAR_MAX == SCHAR_MAX ? true : false };
     enum {
         digits = is_signed ? CHAR_BIT * sizeof (char) -1
@@ -146,7 +146,7 @@ struct Limits<char>
     enum { is_bounded = true };
 
     static bool is_modulo () { return ::is_modulo ((max)()); }
-        
+
     static int compute_digits10 () {
         char buf [80];
         return std::sprintf (buf, "%d", (unsigned char)CHAR_MAX) - 1;
@@ -161,7 +161,7 @@ struct Limits<signed char>
     enum { is_specialized = true };
     static signed char (min) ()  { return SCHAR_MIN; }
     static signed char (max) ()  { return SCHAR_MAX; }
-  
+
     enum { digits = CHAR_BIT * sizeof (signed char) - 1 };
     enum { digits10 = (digits * 301) / 1000 };
     enum { is_signed = true };
@@ -243,7 +243,7 @@ struct Limits<wchar_t>
     enum { is_bounded = true };
 
     static bool is_modulo () { return ::is_modulo ((max)()); }
-        
+
     static int compute_digits10 () {
         char buf [80];
         return std::sprintf (buf, "%u", wchar_t (~0)) - 1;
@@ -290,7 +290,7 @@ struct Limits<long>
     enum { is_signed = true };
     enum { is_integer = true };
     enum { is_exact = true };
-    enum { radix =  2 }; 
+    enum { radix =  2 };
     enum { is_bounded = true };
 
     static bool is_modulo () { return ::is_modulo ((max)()); }
@@ -373,7 +373,7 @@ struct Limits<unsigned long>
         return std::sprintf (buf, "%lu", ULONG_MAX) - 1;
     }
 };
-  
+
 
 #ifdef _RWSTD_LONG_LONG
 
@@ -532,7 +532,7 @@ void run_test (T*, const char *tname, const char *fmt)
 
     // 18.2.1.2, p22
     ASSERT_0 (round_error (), fmt);
-        
+
     // 18.2.1.2, p23
     ASSERT_0 (min_exponent, "%i");
 
@@ -588,7 +588,7 @@ void run_test (T*, const char *tname, const char *fmt)
 
     // 18.2.1.2, p61
     ASSERT_0 (tinyness_before, "%b");
-        
+
     // 18.2.1.2, p63
     rw_assert (limT::round_style == int (std::round_toward_zero), 0, __LINE__,
                "std::numeric_limits<%s>::round_style == %d",
@@ -607,7 +607,7 @@ run_test (int, char**)
     TEST (bool, "%#b");
 
 #endif //_RWSTD_NO_BOOL
-  
+
 
     TEST (char, "%{#c}");
     TEST (signed char, "%{#c}");
@@ -634,7 +634,7 @@ run_test (int, char**)
     TEST (wchar_t, "%{#lc}");
 
 #endif   //_RWSTD_NO_NATIVE_WCHAR_T
- 
+
     TEST (void*, "%#p");
 
     return 0;

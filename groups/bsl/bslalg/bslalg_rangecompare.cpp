@@ -1,4 +1,4 @@
-// bslalg_rangecompare.cpp                  -*-C++-*-
+// bslalg_rangecompare.cpp                                            -*-C++-*-
 #include <bslalg_rangecompare.h>
 
 #include <bsls_ident.h>
@@ -6,7 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

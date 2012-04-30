@@ -32,7 +32,7 @@ using namespace BloombergLP;
 // destructions, and that allocates in order to take advantage of the standard
 // 'bslma' exception test.
 //-----------------------------------------------------------------------------
-// [ 2] bslalg_AutoScalarDestructor(T *object);
+// [ 2] bslalg::AutoScalarDestructor(T *object);
 // [ 2] ~AutoScalarDestructor();
 // [ 3] void release();
 // [ 2] void reset(T *object);
@@ -104,7 +104,7 @@ typedef TestType                      T;    // uses 'bslma' allocators
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose;
 
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 static int numDefaultCtorCalls = 0;
 static int numCharCtorCalls    = 0;
@@ -112,7 +112,7 @@ static int numCopyCtorCalls    = 0;
 static int numAssignmentCalls  = 0;
 static int numDestructorCalls  = 0;
 
-bslma_TestAllocator *Z;  // initialized at the start of main()
+bslma::TestAllocator *Z;  // initialized at the start of main()
 
                                // ==============
                                // class TestType
@@ -125,36 +125,36 @@ class TestType {
     // It could have the bit-wise moveable traits but we defer that trait to
     // the 'MoveableTestType'.
 
-    char            *d_data_p;
-    bslma_Allocator *d_allocator_p;
+    char             *d_data_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestType(bslma_Allocator *ba = 0)
+    TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numDefaultCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = '?';
     }
 
-    TestType(char c, bslma_Allocator *ba = 0)
+    TestType(char c, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCharCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = c;
     }
 
-    TestType(const TestType& original, bslma_Allocator *ba = 0)
+    TestType(const TestType& original, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCopyCtorCalls;
         if (&original != this) {
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -269,8 +269,8 @@ int main(int argc, char *argv[])
 
         const int MAX_SIZE = 1;
         static union {
-            char                               d_raw[MAX_SIZE * sizeof(T)];
-            bsls_AlignmentUtil::MaxAlignedType d_align;
+            char                                d_raw[MAX_SIZE * sizeof(T)];
+            bsls::AlignmentUtil::MaxAlignedType d_align;
         } u;
         T *buf = (T*)&u.d_raw[0];
 
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { buf[i].print(); }
             }
 
-            bslalg_AutoScalarDestructor<T> mG(&buf[0]);
+            bslalg::AutoScalarDestructor<T> mG(&buf[0]);
             mG.release();
         }
         ASSERT(0 <  testAllocator.numBytesInUse());
@@ -291,7 +291,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tWithout release.\n");
         {
-            bslalg_AutoScalarDestructor<T> mG(&buf[0]);
+            bslalg::AutoScalarDestructor<T> mG(&buf[0]);
         }
         ASSERT(0 == testAllocator.numBytesInUse());
         ASSERT(0 == testAllocator.numMismatches());
@@ -299,7 +299,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'class bslalg_AutoScalarDestructor'
+        // TESTING 'class bslalg::AutoScalarDestructor'
         //
         // Concerns:  That the guard frees guarded memory properly upon
         //   exceptions.
@@ -310,17 +310,17 @@ int main(int argc, char *argv[])
         //   a varying portion of an scalar.
         //
         // Testing:
-        //   bslalg_AutoScalarDestructor(T *object);
+        //   bslalg::AutoScalarDestructor(T *object);
         //   ~AutoScalarDestructor();
         //   void reset(T *object);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslalg_AutoScalarDestructor'."
-                            "\n=====================================\n");
+        if (verbose) printf("\nTESTING 'bslalg::AutoScalarDestructor'."
+                            "\n======================================\n");
 
         static union {
-            char                               d_raw[sizeof(T)];
-            bsls_AlignmentUtil::MaxAlignedType d_align;
+            char                                d_raw[sizeof(T)];
+            bsls::AlignmentUtil::MaxAlignedType d_align;
         } u;
         T *buf = (T*)&u.d_raw[0];
 
@@ -330,7 +330,7 @@ int main(int argc, char *argv[])
             new (buf) T('a', Z);
             if (veryVerbose) { buf->print(); }
 
-            bslalg_AutoScalarDestructor<T> mG(buf);
+            bslalg::AutoScalarDestructor<T> mG(buf);
             mG.reset(buf);
         }
         ASSERT(0 == testAllocator.numBytesInUse());
@@ -341,8 +341,8 @@ int main(int argc, char *argv[])
         {
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
-                bslalg_AutoScalarDestructor<T> mG(0);
-                const bslalg_AutoScalarDestructor<T>& G = mG;
+                bslalg::AutoScalarDestructor<T> mG(0);
+                const bslalg::AutoScalarDestructor<T>& G = mG;
 
                 new (buf) T('a', Z);
                 if (veryVerbose) { buf->print(); }
@@ -370,19 +370,19 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        if (verbose) printf("\nclass bslalg_AutoScalarDestructor"
-                            "\n--------------------------------\n");
+        if (verbose) printf("\nclass bslalg::AutoScalarDestructor"
+                            "\n---------------------------------\n");
         {
             static union {
-                char                               d_raw[sizeof(T)];
-                bsls_AlignmentUtil::MaxAlignedType d_align;
+                char                                d_raw[sizeof(T)];
+                bsls::AlignmentUtil::MaxAlignedType d_align;
             } u;
             T *buf = (T*)&u.d_raw[0];
 
             new (buf) T('a', Z);
             if (veryVerbose) { buf->print(); }
 
-            bslalg_AutoScalarDestructor<T> mG(buf);
+            bslalg::AutoScalarDestructor<T> mG(buf);
 
         }  // deallocates buf
 

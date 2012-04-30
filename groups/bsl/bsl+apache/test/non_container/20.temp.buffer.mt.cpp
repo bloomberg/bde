@@ -25,7 +25,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #include <memory>    // for get_temporary_buffer
@@ -215,7 +215,7 @@ run_test (int, char*[])
             rw_fatal (0 == rw_thread_create (tid + i, 0, thr_func, targs + i),
                       0, 0, "thread_create() failed");
         }
-            
+
         for (unsigned i = 0; i != rw_opt_nthreads; ++i) {
 
             rw_error (0 == rw_thread_join (tid [i], 0), 0, 0,

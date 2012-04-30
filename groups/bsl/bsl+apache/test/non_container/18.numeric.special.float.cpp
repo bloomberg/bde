@@ -26,7 +26,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2000-2008 Rogue Wave Software, Inc.
- * 
+ *
  ***********************************************************************/
 
 #include <bsls_platform.h>
@@ -34,11 +34,11 @@
 #include <rw/_defs.h>
 
 #if defined (__IBMCPP__) && !defined (_RWSTD_NO_IMPLICIT_INCLUSION)
-   // disable implicit inclusion to work around 
-   // a limitation in IBM's VisualAge 5.0.2.0 (see PR#26959) 
-#  define _RWSTD_NO_IMPLICIT_INCLUSION 
-#endif 
- 
+   // disable implicit inclusion to work around
+   // a limitation in IBM's VisualAge 5.0.2.0 (see PR#26959)
+#  define _RWSTD_NO_IMPLICIT_INCLUSION
+#endif
+
 
 #include <limits>
 
@@ -487,7 +487,7 @@ struct limits_values<float>
         } val = {
             _RWSTD_FLT_INF_BITS
         };
-            
+
         return val.val;
 #endif
 
@@ -518,7 +518,7 @@ struct limits_values<float>
         } val = {
             _RWSTD_FLT_QNAN_BITS
         };
-            
+
         return val.val;
 
 #endif
@@ -571,7 +571,7 @@ struct limits_values<float>
         } val = {
             _RWSTD_FLT_SNAN_BITS
         };
-            
+
         return val.val;
 
 #endif
@@ -754,7 +754,7 @@ struct limits_values<double>
         } val = {
             _RWSTD_DBL_INF_BITS
         };
-            
+
         return val.val;
 #endif
 
@@ -785,7 +785,7 @@ struct limits_values<double>
         } val = {
             _RWSTD_DBL_QNAN_BITS
         };
-            
+
         return val.val;
 
 #endif
@@ -838,7 +838,7 @@ struct limits_values<double>
         } val = {
             _RWSTD_DBL_SNAN_BITS
         };
-            
+
         return val.val;
 
 #endif
@@ -1013,7 +1013,7 @@ struct limits_values<long double>
         } val = {
             _RWSTD_LDBL_INF_BITS
         };
-            
+
         return val.val;
 #endif
 
@@ -1044,7 +1044,7 @@ struct limits_values<long double>
         } val = {
             _RWSTD_LDBL_QNAN_BITS
         };
-            
+
         return val.val;
 
 #endif
@@ -1097,7 +1097,7 @@ struct limits_values<long double>
         } val = {
             _RWSTD_LDBL_SNAN_BITS
         };
-            
+
         return val.val;
 
 #endif
@@ -1265,7 +1265,7 @@ void test_limits (FloatT, const char *tname, const char *fmt)
     VERIFY_DATA (is_integer);        //           p13
     VERIFY_DATA (is_exact);          //           p15
     VERIFY_DATA (radix);             //           p17
-    
+
     VERIFY_FUNCTION (epsilon);       // 18.2.1.2, p19
     VERIFY_FUNCTION (round_error);   //           p22
 
@@ -1288,13 +1288,13 @@ void test_limits (FloatT, const char *tname, const char *fmt)
             test_quiet_NaN (FLim::quiet_NaN (),
                             FLim::quiet_NaN (), tname);
     }
-    
+
     if (std::numeric_limits<FloatT>::traps)   //  p47
         VERIFY_SIGNATURE (signaling_NaN);
     else {
         VERIFY_FUNCTION (signaling_NaN);
 
-        if (FLim::has_signaling_NaN) 
+        if (FLim::has_signaling_NaN)
             test_signaling_NaN (FLim::signaling_NaN (),
                                 FLim::signaling_NaN (), tname);
     }
@@ -1405,7 +1405,7 @@ run_test (int, char**)
     VERIFY_CONST (std::denorm_indeterminate, std::float_denorm_style (-1));
     VERIFY_CONST (std::denorm_absent,        std::float_denorm_style (0));
     VERIFY_CONST (std::denorm_present,       std::float_denorm_style (1));
-        
+
     test_limits (float (), "float", "%g");
     test_limits (double (), "double", "%g");
 

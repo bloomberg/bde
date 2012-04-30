@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -831,7 +831,7 @@ _rw_pvasnprintf (Buffer &buf, const char *fmt, VarArgs *pva)
                     RW_ASSERT (0 <= backtrack [offinx]);
 
                     // set the length so as to backtrack to the position
-                    // saved on the top of the backtrack stack 
+                    // saved on the top of the backtrack stack
                     len = -int (buflen) + backtrack [offinx];
                     buf.endoff += len;
 
@@ -872,7 +872,7 @@ _rw_pvasnprintf (Buffer &buf, const char *fmt, VarArgs *pva)
                     RW_ASSERT (backtrack [offinx] <= int (buflen));
 
                     // set the length so as to backtrack to the position
-                    // saved on the top of the backtrack stack 
+                    // saved on the top of the backtrack stack
                     len = -int (buflen) + backtrack [offinx];
                     buf.endoff += len;
                 }
@@ -1222,7 +1222,7 @@ _rw_fmtinteger (FmtSpec *pspec, size_t paramno, Buffer &buf, VarArgs *pva)
                           spec.param.int_ ? "true" : "false",
                           _RWSTD_SIZE_MAX);
         break;
-        
+
     case 'd':
     case 'i':
         if (spec.mod == spec.mod_hh) {
@@ -1392,7 +1392,7 @@ _rw_fmtinteger (FmtSpec *pspec, size_t paramno, Buffer &buf, VarArgs *pva)
             const unsigned val = spec.param.int_;
             len = rw_fmtinteger (spec, buf, val);
         }
-        
+
         break;
     }
 
@@ -1414,7 +1414,7 @@ _rw_fmtfloating (const FmtSpec &spec, Buffer &buf, const void *pval)
 
     if (spec.fl_plus)
         *pf++ = '+';
-        
+
     if (spec.fl_pound)
         *pf++ = '#';
 
@@ -1552,7 +1552,7 @@ _rw_fmtpointer (const FmtSpec &spec, Buffer &buf,
         const size_t inx = _rw_big_endian ? i : nelems - i - 1;
 
         int n = _rw_fmtlong (newspec, buf, uptr.lptr [inx]);
-        if (n < 0) 
+        if (n < 0)
             return -1;
 
         len += n;
@@ -1635,7 +1635,7 @@ _rw_fmtfunptr (const FmtSpec &spec, Buffer &buf, funptr_t val)
                                      size_t (val), dli.dli_sname,
                                      size_t (val) < sym_off ? '-' : '+',
                                      addr_off);
-            
+
             FmtSpec newspec (spec);
             newspec.mod_l = newspec.mod_none;
 
@@ -1729,7 +1729,7 @@ _rw_fmttm (const FmtSpec &spec, Buffer &buf, const tm *tmb)
                 strcat (vbuf, " [0,60]");
             sep = comma;
         }
-            
+
         if (tmb->tm_min) {
             sprintf (vbuf + strlen (vbuf), "%stm_min=%d", sep, tmb->tm_min);
             if (tmb->tm_min < 0 || 59 < tmb->tm_min)
@@ -3057,7 +3057,7 @@ _rw_fmtexpr (FmtSpec &spec, Buffer &buf, VarArgs *pva)
         if (0 == val)
             val = word;
         break;
-            
+
     case '?':
         if (0 == val) {
             val   = "";

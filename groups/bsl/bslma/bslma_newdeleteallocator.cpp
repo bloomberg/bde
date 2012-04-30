@@ -11,28 +11,28 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-typedef bsls_ObjectBuffer<bslma_NewDeleteAllocator>
+typedef bsls::ObjectBuffer<bslma::NewDeleteAllocator>
                                         bslma_NewDeleteAllocator_Singleton;
     // A 'bslma_NewDeleteAllocator_Singleton' is a buffer with the right size
-    // and alignment to hold a 'bslma_NewDeleteAllocator' object.
+    // and alignment to hold a 'bslma::NewDeleteAllocator' object.
 
 static bslma_NewDeleteAllocator_Singleton g_newDeleteAllocatorSingleton;
     // 'g_newDeleteAllocatorSingleton' is a global static buffer to hold the
     // singleton.
 
-static bslma_NewDeleteAllocator *g_newDeleteAllocatorSingleton_p = 0;
+static bslma::NewDeleteAllocator *g_newDeleteAllocatorSingleton_p = 0;
     // 'g_newDeleteAllocatorSingleton_p' is a global static pointer to the
     // singleton, which is *statically* initialized to 0.
 
 static inline
-bslma_NewDeleteAllocator *
+bslma::NewDeleteAllocator *
 initSingleton(bslma_NewDeleteAllocator_Singleton *address)
-    // Construct a 'bslma_NewDeleteAllocator' at the specified 'address'
-    // in a thread-safe way, and return 'address'.
+    // Construct a 'bslma::NewDeleteAllocator' at the specified 'address' in a
+    // thread-safe way, and return 'address'.
 {
     // Thread-safe initialization of singleton:
     //
-    // A 'bslma_NewDeleteAllocator' contains no data members but does contain
+    // A 'bslma::NewDeleteAllocator' contains no data members but does contain
     // a vtbl pointer.  During construction, the vtbl pointer is first set the
     // base class's vtbl before it is set to its final, derived-class value.
     // If two threads try to initialize the same singleton, the one that
@@ -49,21 +49,23 @@ initSingleton(bslma_NewDeleteAllocator_Singleton *address)
 
     bslma_NewDeleteAllocator_Singleton stackTemp;
 
-    void *v = new(&stackTemp) bslma_NewDeleteAllocator;
+    void *v = new(&stackTemp) bslma::NewDeleteAllocator;
 
-    // Note that 'bsls_ObjectBuffer<T>' assignment is a bit-wise copy.
+    // Note that 'bsls::ObjectBuffer<T>' assignment is a bit-wise copy.
 
     *address = *(static_cast<bslma_NewDeleteAllocator_Singleton *>(v));
 
     return &address->object();
 }
 
-                        // ------------------------------
-                        // class bslma_NewDeleteAllocator
-                        // ------------------------------
+namespace bslma {
+
+                        // ------------------------
+                        // class NewDeleteAllocator
+                        // ------------------------
 
 // CLASS METHODS
-bslma_NewDeleteAllocator& bslma_NewDeleteAllocator::singleton()
+NewDeleteAllocator& NewDeleteAllocator::singleton()
 {
     // This initialization is not guaranteed to happen once, but repeated
     // initialization will be safe (see the comment above).
@@ -83,19 +85,21 @@ bslma_NewDeleteAllocator& bslma_NewDeleteAllocator::singleton()
 }
 
 // CREATORS
-bslma_NewDeleteAllocator::~bslma_NewDeleteAllocator()
+NewDeleteAllocator::~NewDeleteAllocator()
 {
 }
 
 // MANIPULATORS
-void *bslma_NewDeleteAllocator::allocate(size_type size)
+void *NewDeleteAllocator::allocate(size_type size)
 {
     BSLS_ASSERT_SAFE(0 <= size);
 
     return 0 == size ? 0 : ::operator new(size);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

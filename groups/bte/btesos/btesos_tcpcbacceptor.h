@@ -335,14 +335,16 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
 template<class ADDRESS> class bteso_StreamSocketFactory;
 template<class ADDRESS> class bteso_StreamSocket;
 
 class bteso_TimerEventManager;
-
-class bslma_Allocator;
 
 class btesos_TcpCbAcceptor_Reg; // component-local class declaration
 

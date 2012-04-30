@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifdef _MSC_VER
@@ -232,7 +232,7 @@ void exception_loop (int              line /* line number in caller*/,
                        "line %d: %s: size unexpectedly changed "
                        "from %zu to %zu after an exception",
                        __LINE__, fcall, size, deq.size ());
-            
+
             rw_assert (deq.begin () == begin, 0, line,
                        "line %d: %s: begin() unexpectedly "
                        "changed after an exception by %td",
@@ -242,14 +242,14 @@ void exception_loop (int              line /* line number in caller*/,
                        "line %d: %s: end() unexpectedly "
                        "changed after an exception by %td",
                        __LINE__, fcall, deq.end () - end);
-            
+
 
             // count the number of objects to detect leaks
             x_count = UserClass::count_ - x_count;
             rw_assert (x_count == deq.size () - size, 0, line,
                        "line %d: %s: leaked %zu objects after an exception",
                        __LINE__, fcall, x_count - (deq.size () - size));
-            
+
             if (exceptions) {
 
                 // increment to allow this call to operator new to succeed
@@ -329,8 +329,8 @@ std::size_t insert_assignments (Iterator it,
 template <class Iterator>
 void test_insert (int line, int exceptions,
                   const Iterator &dummy, int nelems,
-                  const char *seq, std::size_t seqlen, std::size_t off, 
-                  const char *ins, std::size_t inslen, 
+                  const char *seq, std::size_t seqlen, std::size_t off,
+                  const char *ins, std::size_t inslen,
                   const char *res, std::size_t reslen)
 {
     // Ensure that xsrc, xins are always dereferenceable
@@ -358,7 +358,7 @@ void test_insert (int line, int exceptions,
                   "%{?}begin(), %{:}%{?}end (), %{:}begin () + %zu%{;}%{;}"
                   "%{?}%d)%{:}%{?}\"%{X=*.*}\")%{:}%d, %d)%{;}%{;}",
                   int (seqlen), -1, xseq, 0 == off, seqlen == off, off,
-                  nelems == -2, *ins, nelems == -1, 
+                  nelems == -2, *ins, nelems == -1,
                   int (inslen), -1, xins, nelems, *ins);
 
     int n_copy = UserClass::n_total_copy_ctor_;
@@ -445,7 +445,7 @@ void test_insert (int line, int exceptions,
     const std::size_t expect_asgn =
         insert_assignments (dummy, nelems, off, seqlen, inslen);
 #if TEST_RW_EXTENSIONS  // doesn't make sense to test the number of assignments
-    rw_assert (n_asgn == int (expect_asgn), 
+    rw_assert (n_asgn == int (expect_asgn),
                __FILE__, line,
                "line %d: %s: expected %zu invocations "
                "of UserClass::operator=(const UserClass&), got %d\n",
@@ -464,7 +464,7 @@ void test_insert (int line, int exceptions,
 template <class Iterator>
 void test_insert_range (const Iterator &it, const char* itname)
 {
-    rw_info (0, 0 ,0, 
+    rw_info (0, 0 ,0,
              "std::deque<UserClass>::insert(iterator, %s, %s)", itname, itname);
 
 #undef TEST
@@ -514,7 +514,7 @@ void test_insert_range (const Iterator &it, const char* itname)
     TEST ("abc", +3, "d",   "abcd");
     TEST ("abc", +3, "de",  "abcde");
     TEST ("abc", +3, "def", "abcdef");
-    
+
 
 #define UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define LOWER "abcdefghijklmnopqrstuvwxyz"
@@ -554,8 +554,8 @@ template <class T, class IntType>
 void test_insert_int_range (const T&, const IntType&,
                             const char* t_name, const char* int_name)
 {
-    rw_info (0, 0, 0, 
-             "std::deque<%s>::insert(iterator, %s, %s)", 
+    rw_info (0, 0, 0,
+             "std::deque<%s>::insert(iterator, %s, %s)",
              t_name, int_name, int_name);
 
     std::deque<T> d;
@@ -604,9 +604,9 @@ void test_insert_int_range (const T &dummy, const char* tname)
 
 #ifdef _RWSTD_LONG_LONG
 
-    test_insert_int_range (dummy, (_RWSTD_LONG_LONG)0, 
+    test_insert_int_range (dummy, (_RWSTD_LONG_LONG)0,
                            tname, "long long");
-    test_insert_int_range (dummy, (unsigned _RWSTD_LONG_LONG)0, 
+    test_insert_int_range (dummy, (unsigned _RWSTD_LONG_LONG)0,
                            tname, "unsigned long long");
 
 #endif   // _RWSTD_LONG_LONG
@@ -741,7 +741,7 @@ void test_insert ()
     //////////////////////////////////////////////////////////////////
     // exercise deque::insert(iterator, size_type, const_reference)
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "std::deque<UserClass>::insert(iterator, size_type, "
              "const_reference)");
 
@@ -755,7 +755,7 @@ void test_insert ()
                               insseq, 1,                \
                               res, sizeof res - 1);     \
     } while (0)
-    
+
     TEST ("",     +0, 0, 'a', "");
     TEST ("",     +0, 1, 'a', "a");
     TEST ("",     +0, 2, 'b', "bb");
@@ -779,31 +779,31 @@ void test_insert ()
     //////////////////////////////////////////////////////////////////
     // exercise deque::insert(iterator, InputIterator, InputIterator)
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "template <class InputIterator> std::deque<UserClass>::"
              "insert(iterator, InputIterator, InputIterator)");
 
     if (0 == rw_opt_no_input_iterator)
         test_insert_range (InputIter<UserClass>(0, 0, 0),
                            "InputIter<UserClass>");
-    else 
-        rw_note (0, 0, __LINE__, 
+    else
+        rw_note (0, 0, __LINE__,
                  "template <class T> "
                  "std::deque<UserClass>::insert(iterator, T, T) "
                  "[with T = InputIterator] test disabled.");
 
     if (0 == rw_opt_no_forward_iterator)
         test_insert_range (FwdIter<UserClass>(), "FwdIter<UserClass>");
-    else 
-        rw_note (0, 0, __LINE__, 
+    else
+        rw_note (0, 0, __LINE__,
                  "template <class T> "
                  "std::deque<UserClass>::insert(iterator, T, T) "
                  "[with T = ForwardIterator] test disabled.");
 
     if (0 == rw_opt_no_bidirectional_iterator)
         test_insert_range (BidirIter<UserClass>(), "BidirIter<UserClass>");
-    else 
-        rw_note (0, 0, __LINE__, 
+    else
+        rw_note (0, 0, __LINE__,
                  "template <class T> "
                  "std::deque<UserClass>::insert(iterator, T, T) "
                  "[with T = BidirectionalIterator] test disabled.");
@@ -811,16 +811,16 @@ void test_insert ()
     if (0 == rw_opt_no_random_iterator)
         test_insert_range (RandomAccessIter<UserClass>(),
                            "RandomAccessIter<UserClass>");
-    else 
-        rw_note (0, 0, __LINE__, 
+    else
+        rw_note (0, 0, __LINE__,
                  "template <class T> "
                  "std::deque<UserClass>::insert(iterator, T, T) "
-                 "[with T = RandomAccessIterator] test disabled."); 
+                 "[with T = RandomAccessIterator] test disabled.");
 
     //////////////////////////////////////////////////////////////////
     // exercise deque::insert(iterator, int, int)
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "template <class IntType> "
              "std::deque<IntType>::"
              "insert(iterator, IntType, IntType)");
@@ -837,18 +837,18 @@ void test_insert ()
 
 #ifdef _RWSTD_LONG_LONG
 
-        test_insert_int_range ((_RWSTD_LONG_LONG)0, 
+        test_insert_int_range ((_RWSTD_LONG_LONG)0,
                                "long long");
-        test_insert_int_range ((unsigned _RWSTD_LONG_LONG)0, 
+        test_insert_int_range ((unsigned _RWSTD_LONG_LONG)0,
                                "unsigned long long");
 
 #endif   // _RWSTD_LONG_LONG
     }
     else
-        rw_note (0, 0, __LINE__, 
+        rw_note (0, 0, __LINE__,
                  "template <class T> "
                  "std::deque<UserClass>::insert(iterator, T, T) "
-                 "[with T = IntegralType] tests disabled."); 
+                 "[with T = IntegralType] tests disabled.");
 
 }
 
@@ -871,12 +871,12 @@ void test_assign (int line, int exceptions,
     char* funcall = 0;
     std::size_t len = 0;
 
-    rw_asnprintf (&funcall, &len, 
+    rw_asnprintf (&funcall, &len,
                   "deque(\"%{X=*.*}\").assign("
-                  "%{?}\"%{X=*.*}\")%{:}%d, %d)%{;}", 
-                  seqlen, -1, xseq, 
-                  nelems < 0, 
-                  asnlen, -1, xasn, 
+                  "%{?}\"%{X=*.*}\")%{:}%d, %d)%{;}",
+                  seqlen, -1, xseq,
+                  nelems < 0,
+                  asnlen, -1, xasn,
                   nelems, *asn);
 
     int n_copy = UserClass::n_total_copy_ctor_;
@@ -1030,31 +1030,31 @@ void test_assign ()
     //   template <class InputIterator>
     //   deque::assign(InputIterator, InputIterator)
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "template <class InputIterator> "
              "std::deque<UserClass>::assign(InputIterator, InputIterator)");
 
     if (0 == rw_opt_no_input_iterator)
         test_assign_range (InputIter<UserClass>(0, 0, 0),
                            "InputIter<UserClass>");
-    else 
-        rw_note (0, 0, __LINE__, 
+    else
+        rw_note (0, 0, __LINE__,
                  "template <class T> "
                  "std::deque<UserClass>::assign(T, T) [with T = InputIterator]"
                  "test disabled.");
 
     if (0 == rw_opt_no_forward_iterator)
         test_assign_range (FwdIter<UserClass>(), "FwdIter<UserClass>");
-    else 
-        rw_note (0, 0, __LINE__, 
+    else
+        rw_note (0, 0, __LINE__,
                  "template <class T> "
                  "std::deque<UserClass>::assign(T, T) "
                  "[with T = ForwardIterator] test disabled.");
 
     if (0 == rw_opt_no_bidirectional_iterator)
         test_assign_range (BidirIter<UserClass>(), "BidirIter<UserClass>");
-    else 
-        rw_note (0, 0, __LINE__, 
+    else
+        rw_note (0, 0, __LINE__,
                  "template <class T> "
                  "std::deque<UserClass>::assign(T, T) "
                  "[with T = BidirectionalIterator] test disabled.");
@@ -1062,8 +1062,8 @@ void test_assign ()
     if (0 == rw_opt_no_random_iterator)
         test_assign_range (RandomAccessIter<UserClass>(),
                            "RandomAccessIter<UserClass>");
-    else 
-        rw_note (0, 0, __LINE__, 
+    else
+        rw_note (0, 0, __LINE__,
                  "template <class T> "
                  "std::deque<UserClass>::assign(T, T) "
                  "[with T = RandomAccessIterator] test disabled.");
@@ -1080,7 +1080,7 @@ void test_erase (int line,
 
     Deque deq = seqlen ? Deque (xseq, xseq + seqlen) : Deque ();
     const Deque::iterator start = deq.begin () + begoff;
- 
+
     int n_copy = UserClass::n_total_copy_ctor_;
     int n_asgn = UserClass::n_total_op_assign_;
 
@@ -1094,7 +1094,7 @@ void test_erase (int line,
                       "%{?}begin () + %zu%{:}begin ()%{;}%{;}",
                       seqlen, -1, xseq,
                       begoff == deq.size (), begoff, begoff);
-        
+
         exception_loop (line, Erase_1, funcall, 0,
                         deq, start, 1, 0, (UserClass*)0, (UserClass*)0,
                         &n_copy, &n_asgn);
@@ -1114,7 +1114,7 @@ void test_erase (int line,
                       end == deq.end (),
                       end == deq.begin (),
                       end - deq.begin ());
-        
+
         exception_loop (line, EraseRange, funcall, 0,
                         deq, start, len, 0, (UserClass*)0, (UserClass*)0,
                         &n_copy, &n_asgn);
@@ -1354,7 +1354,7 @@ void test_dr_438 ()
                "deque::assign(InputIterator, InputIterator)"
                "[ with InputIterator = <integral type> ] unexpectedly "
                "used explicit argument conversion");
-    
+
     dq.insert (dq.begin (), 1, 2);
 
     rw_assert (!DR_438::cast_used, 0, __LINE__,
@@ -1385,17 +1385,17 @@ int run_test (int, char**)
 #if TEST_RW_EXTENSIONS
         new_capacity = caps [i];
 
-        rw_info (0, 0, 0, 
+        rw_info (0, 0, 0,
                  "__rw::__rw_new_capacity<std::deque<UserClass> >(0) = %zu",
                  _RW::__rw_new_capacity (0, (Deque*)0));
 #endif // TEST_RW_EXTENSIONS
 
         if (0 == rw_opt_no_assign)
             test_assign ();
-        
+
         if (0 == rw_opt_no_erase)
             test_erase ();
-        
+
         if (0 == rw_opt_no_insert)
             test_insert ();
     }

@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // include only <cerrno> here to prevent namespace pollution
@@ -98,7 +98,7 @@ run_test (int, char**)
                && 'n' == errno_type [1]
                && 't' == errno_type [2]
                && '\0' == errno_type [3],
-               0, 0, 
+               0, 0,
                "the type of errno is int, got %s", errno_type);
 
     // 7.5, p3 of C99: errno must be 0 at program startup

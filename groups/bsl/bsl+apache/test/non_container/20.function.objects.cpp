@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2000-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <functional>
@@ -265,7 +265,7 @@ test_base ()
 // most but not all operator() take arguments by const reference
 #define UNARY_OP_ARG_LIST(fun) (const fun::argument_type&)
 #define BINARY_OP_ARG_LIST(fun)   \
-        (const fun::first_argument_type&, const fun::second_argument_type&) 
+        (const fun::first_argument_type&, const fun::second_argument_type&)
 
 // use default ctor in tests below
 #define CTOR_ARG_LIST
@@ -296,7 +296,7 @@ test_arithmetic_operations ()
 
     // exercise extensions
 
-// tested fununctions are in a private namespace 
+// tested fununctions are in a private namespace
 #undef N
 #define N _RW
 
@@ -687,7 +687,7 @@ test_member_pointer_adaptors ()
 
 #undef CTOR_ARG_LIST
 #define CTOR_ARG_LIST = std::mem_fun (&Integer::div)
-    
+
     // 20.3.8, p4
     TEST_BINARY_OP (mem_fun1_t_int_Integer_short, ->operator int() / ,
                     (&int_obj), -1);
@@ -781,7 +781,7 @@ test_member_pointer_adaptors ()
 
 #undef CTOR_ARG_LIST
 #define CTOR_ARG_LIST = std::mem_fun (&Integer::const_div)
-    
+
     // 20.3.8, p4
     TEST_BINARY_OP (const_mem_fun1_t_int_Integer_short, ->operator int() / ,
                     (&int_cref), -1);

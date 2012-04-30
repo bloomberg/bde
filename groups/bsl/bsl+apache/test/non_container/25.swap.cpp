@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for swap, swap_ranges, iter_swap
@@ -34,7 +34,7 @@
 #include <driver.h>     // for rw_test()
 
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
@@ -46,13 +46,13 @@ swap (assign<base<cpy_ctor> >&, assign<base<cpy_ctor> >&);
 
 template
 FwdIter<assign<base<cpy_ctor> > >
-swap_ranges (FwdIter<assign<base<cpy_ctor> > >, 
-             FwdIter<assign<base<cpy_ctor> > >, 
+swap_ranges (FwdIter<assign<base<cpy_ctor> > >,
+             FwdIter<assign<base<cpy_ctor> > >,
              FwdIter<assign<base<cpy_ctor> > >);
 
 template
 void
-iter_swap (FwdIter<assign<base<cpy_ctor> > >, 
+iter_swap (FwdIter<assign<base<cpy_ctor> > >,
            FwdIter<assign<base<cpy_ctor> > >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
@@ -63,7 +63,7 @@ iter_swap (FwdIter<assign<base<cpy_ctor> > >,
 
 template <class T, class ForwardIterator1, class ForwardIterator2>
 void test_iter_swap (int line,
-                     const char*      seq, 
+                     const char*      seq,
                      ForwardIterator1 /* dummy */,
                      ForwardIterator2 /* dummy */,
                      const T*         /* dummy */,
@@ -72,7 +72,7 @@ void test_iter_swap (int line,
                      const char*      it2name,
                      const char*      fname)
 {
-    // generate sequential values for each default constructed T 
+    // generate sequential values for each default constructed T
     const std::size_t nseq = std::strlen (seq);
 
     // construct a sequence of `nseq' elements to pass to swap
@@ -83,10 +83,10 @@ void test_iter_swap (int line,
     std::size_t i = 1;
     for ( ; i < nseq; ++i) {
 
-        const ForwardIterator1 it1 = 
+        const ForwardIterator1 it1 =
             make_iter (tseq, tseq, tseq + nseq, it1);
 
-        const ForwardIterator2 it2 = 
+        const ForwardIterator2 it2 =
             make_iter (tseq + i, tseq, tseq + nseq, it2);
 
         a_val = (*it1).data_.val_;
@@ -110,7 +110,7 @@ void test_iter_swap (int line,
 }
 
 template <class T, class ForwardIterator1, class ForwardIterator2>
-void test_iter_swap (ForwardIterator1 it1, ForwardIterator2 it2, 
+void test_iter_swap (ForwardIterator1 it1, ForwardIterator2 it2,
                      const T*, bool it_swap)
 {
     const char* const it1name = it_swap ? type_name (it1, (T*)0) : "UserClass";
@@ -141,8 +141,8 @@ void test_iter_swap (ForwardIterator1 it1, ForwardIterator2 it2,
 template <class T, class ForwardIterator1, class ForwardIterator2>
 void test_swap_ranges (int              line,
                        const char*      seq1,
-                       const char*      seq2, 
-                       ForwardIterator1 it1, 
+                       const char*      seq2,
+                       ForwardIterator1 it1,
                        ForwardIterator2 it2,
                        const T*         /* dummy */,
                        const char*      it1name,
@@ -156,11 +156,11 @@ void test_swap_ranges (int              line,
 
     const ForwardIterator1 first1 =
         make_iter (tseq1, tseq1, tseq1 + nseq, it1);
-    const ForwardIterator1 last1  = 
+    const ForwardIterator1 last1  =
         make_iter (tseq1 + nseq, tseq1, tseq1 + nseq, it1);
-    const ForwardIterator2 first2 = 
+    const ForwardIterator2 first2 =
         make_iter (tseq2, tseq2, tseq2 + nseq, it2);
-    const ForwardIterator2 last2 = 
+    const ForwardIterator2 last2 =
         make_iter (tseq2 + nseq, tseq2, tseq2 + nseq, it2);
 
     // silence bogus EDG eccp remark #550-D: variable was set
@@ -178,7 +178,7 @@ void test_swap_ranges (int              line,
     last_n_op_assign = T::n_total_op_assign_;
 
     // exercise 25.2.3 - std::swap_ranges()
-    const ForwardIterator2 res = std::swap_ranges(first1, last1, first2); 
+    const ForwardIterator2 res = std::swap_ranges(first1, last1, first2);
 
     // silence bogus EDG eccp remark #550-D: variable was set
     // but never used
@@ -201,7 +201,7 @@ void test_swap_ranges (int              line,
             break;
     }
 
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "swap_ranges<%s, %s>(\"%s\", \"%s\") mismatch at pos %zu "
                "got { %#c, %#c }, expected { %#c, %#c }",
                it1name, it2name, seq1, seq2, i, (tseq1 + i)->data_.val_,
@@ -212,7 +212,7 @@ void test_swap_ranges (int              line,
             (T::n_total_op_assign_ - last_n_op_assign) / assigns_per_swap;
     rw_assert (swaps_per_swap_ranges == nseq, 0, line,
                "swap_ranges<%s, %s>(\"%s\", \"%s\") complexity: "
-               "%zu, expected %zu swaps", 
+               "%zu, expected %zu swaps",
                it1name, it2name, seq1, seq2, swaps_per_swap_ranges, nseq);
 
     delete[] tseq1;
@@ -222,14 +222,14 @@ void test_swap_ranges (int              line,
 /**************************************************************************/
 
 template <class T, class ForwardIterator1, class ForwardIterator2>
-void test_swap_ranges (ForwardIterator1 it1, 
+void test_swap_ranges (ForwardIterator1 it1,
                        ForwardIterator2 it2,
                        const T*         /* dummy */)
 {
     static const char* const it1name = type_name (it1, (T*)0);
     static const char* const it2name = type_name (it2, (T*)0);
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "std::swap_ranges (%s, %1$s, %s)",  it1name, it2name);
 
 #undef TEST
@@ -342,7 +342,7 @@ run_test (int, char*[])
         rw_note (0, __FILE__, __LINE__,  "std::swap_ranges test disabled");
     }
     else {
-        rw_info (0, 0, 0, 
+        rw_info (0, 0, 0,
                  "template <class %s, class %s> %2$s "
                  "swap_ranges (%1$s, %1$s, %2$s)",
                  "ForwardIterator1", "ForwardIterator2");
@@ -376,7 +376,7 @@ int main (int argc, char *argv[])
                     "|-no-iter_swap# "
                     "|-no-ForwardIterator# "
                     "|-no-BidirectionalIterator# "
-                    "|-no-RandomAccessIterator",  
+                    "|-no-RandomAccessIterator",
                     &rw_opt_no_swap,
                     &rw_opt_no_swap_ranges,
                     &rw_opt_no_iter_swap,

@@ -15,7 +15,7 @@ using namespace BloombergLP;
 //                                --------
 //-----------------------------------------------------------------------------
 // [ 4] bslmf::IsVoid conversion to bool
-// [ 4] bslmf::IsVoid conversion to bslmf_MetaInt
+// [ 4] bslmf::IsVoid conversion to bslmf::MetaInt
 // [ 3] bslmf::IsVoid::Type
 // [ 2] bslmf::IsVoid::VALUE
 //-----------------------------------------------------------------------------
@@ -92,16 +92,16 @@ struct Incomplete;
     // whole translation unit.  This is provided solely for the purpose of
     // testing the 'bslmf::IsVoid' metafunction with incomplete types.
 
-typedef bslmf_MetaInt<0> FalseType;
-typedef bslmf_MetaInt<1> TrueType;
+typedef bslmf::MetaInt<0> FalseType;
+typedef bslmf::MetaInt<1> TrueType;
 
 template<int N>
-bool dispatchFalseType(const bslmf_MetaInt<N>&) { return false; }
-bool dispatchFalseType(FalseType)               { return true;  }
+bool dispatchFalseType(const bslmf::MetaInt<N>&) { return false; }
+bool dispatchFalseType(FalseType)                { return true;  }
 
 template<int N>
-bool dispatchTrueType(const bslmf_MetaInt<N>&)  { return false; }
-bool dispatchTrueType(TrueType)                 { return true;  }
+bool dispatchTrueType(const bslmf::MetaInt<N>&)  { return false; }
+bool dispatchTrueType(TrueType)                  { return true;  }
 
 
 template<class PREDICATE>
@@ -219,11 +219,11 @@ int main(int argc, char *argv[])
         // TESTING type conversion:
         // Concerns:
         //: 1 Objects of type 'bslmf::IsVoid' are unambiguously convertible to
-        //:   either 'bslmf_MetaInt<0>' or 'bslmf_MetaInt<1>', supporting tag
+        //:   either 'bslmf::MetaInt<0>' or 'bslmf::MetaInt<1>', supporting tag
         //:   dispatch.
-        //: 2 Such objects are convertible to 'bslmf_MetaInt<1>' if the
+        //: 2 Such objects are convertible to 'bslmf::MetaInt<1>' if the
         //:   parameterized type is a cv-qualified 'void' type, and
-        //:   'bslmf_MetaInt<0>' otherwise.
+        //:   'bslmf::MetaInt<0>' otherwise.
         //: 3 Such objects are contextually convertible to the boolean value
         //:   'true' if the parameterized type is a cv-qualified 'void' type,
         //:   and 'false' otherwise.
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   conversion to 'bslmf_MetaInt<>'
+        //   conversion to 'bslmf::MetaInt<>'
         //   conversion to 'bool'
         // --------------------------------------------------------------------
 
@@ -288,10 +288,10 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The metafunction 'bslmf::IsVoid' contains a nested type alias
         //:   named 'Type'.
-        //: 2 The alias 'Type' is unambiguously either 'bslmf_MetaInt<0>' or
-        //:   'bslmf_MetaInt<1>'.
-        //: 3 The nested type alias is 'bslmf_MetaInt<1>' if the parameterized
-        //:   type is a cv-qualified 'void' type, and 'bslmf_MetaInt<0>'
+        //: 2 The alias 'Type' is unambiguously either 'bslmf::MetaInt<0>' or
+        //:   'bslmf::MetaInt<1>'.
+        //: 3 The nested type alias is 'bslmf::MetaInt<1>' if the parameterized
+        //:   type is a cv-qualified 'void' type, and 'bslmf::MetaInt<0>'
         //:   otherwise.
         //: 4 The nested typename correctly reports that aliases and template
         //:   type parameters corresponding to cv-qualified 'void' types are

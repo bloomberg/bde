@@ -80,7 +80,7 @@ _rw_setopt_trace_mask (int argc, char *argv[])
         _rw_diag_mask = 0;
         return 0;
     }
-        
+
     int diag_set = 0;
 
     const char* const argbeg = ++parg;

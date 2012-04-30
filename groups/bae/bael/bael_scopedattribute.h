@@ -59,9 +59,11 @@
 #include <bsl_string.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                     // ====================================
                     // class bael_ScopedAttribute_Container

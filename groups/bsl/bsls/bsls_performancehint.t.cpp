@@ -170,7 +170,7 @@ void testCase1(int argc, bool assert)
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    BloombergLP::bsls_Stopwatch timer;
+    BloombergLP::bsls::Stopwatch timer;
 
     timer.reset();
 
@@ -244,7 +244,7 @@ void testCase1(int argc, bool assert)
 
     if (assert) {
         LOOP2_ASSERT(likelyTime, unlikelyTime,
-                                        likelyTime + tolerance > unlikelyTime);
+                     likelyTime + tolerance > unlikelyTime);
     }
 
 #endif
@@ -290,9 +290,9 @@ void addWithPrefetch(volatile int *arrayA, volatile int *arrayB)
     // using prefetch.
 {
     for (int i = 0; i < SIZE/8; ++i){
-        BloombergLP::bsls_PerformanceHint::prefetchForWriting(
+        BloombergLP::bsls::PerformanceHint::prefetchForWriting(
                                                           (int *) arrayA + 16);
-        BloombergLP::bsls_PerformanceHint::prefetchForReading(
+        BloombergLP::bsls::PerformanceHint::prefetchForReading(
                                                           (int *) arrayB + 16);
 
         *(arrayA++) = *arrayA + *(arrayB++);
@@ -319,7 +319,7 @@ void testCase3(int argc, bool assert)
 
     TestCase3::init(TestCase3::array1, TestCase3::array2);
 
-    BloombergLP::bsls_Stopwatch timer;
+    BloombergLP::bsls::Stopwatch timer;
     timer.start();
 
     for(int i = 0; i < TESTSIZE; ++i) {
@@ -371,7 +371,7 @@ void testCase3(int argc, bool assert)
     if (assert) {
         // Only assert in performance test case.
         LOOP2_ASSERT(withoutPrefetch, withPrefetch,
-                                   withoutPrefetch + tolerance > withPrefetch);
+                     withoutPrefetch + tolerance > withPrefetch);
     }
 
 #endif
@@ -495,7 +495,7 @@ int main(int argc, char *argv[])
         //   usage examples must be faster than not using them.
         //
         // Plan:
-        //   Using 'bsls_Stopwatch', compare the time it takes to run the test
+        //   Using 'bsls::Stopwatch', compare the time it takes to run the test
         //   using the performance hints and not using the hints.  Then compare
         //   and assert the time difference.  The test driver must observe an
         //   improvement in performance.  To minimize the effect of caching

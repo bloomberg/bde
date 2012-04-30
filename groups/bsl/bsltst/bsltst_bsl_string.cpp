@@ -1,4 +1,4 @@
-// bsltst_bsl_string.cpp                                        -*-C++-*-
+// bsltst_bsl_string.cpp                                              -*-C++-*-
 #include <bsltst_bsl_string.h>
 
 #include <bsls_ident.h>
