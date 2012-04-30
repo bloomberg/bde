@@ -1,4 +1,4 @@
-// bsltst_set.t.cpp                  -*-C++-*-
+// bsltst_set.t.cpp                                                   -*-C++-*-
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif
@@ -139,11 +139,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 struct Cargo {
@@ -152,23 +152,23 @@ struct Cargo {
 
     int              d_i;
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
     enum { BULK_STORAGE = 4000 };
 
-    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
     explicit
-    Cargo(int i, bslma_Allocator *a = 0) {
+    Cargo(int i, bslma::Allocator *a = 0) {
         QV_("Default:"); PV(a);
         d_i = i;
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BULK_STORAGE);
     }
-    Cargo(const Cargo& in, bslma_Allocator* a = 0) {
+    Cargo(const Cargo& in, bslma::Allocator* a = 0) {
         QV_("Copy:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_i = in.d_i;
         d_p = d_alloc->allocate(BULK_STORAGE);
         std::memcpy(d_p, in.d_p, BULK_STORAGE);
@@ -190,25 +190,25 @@ struct CargoNoAddressOf {
 
     int              d_i;
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
     enum { BULK_STORAGE = 4000 };
 
     // Declare nested type traits for this class.
-    
-    BSLALG_DECLARE_NESTED_TRAITS(CargoNoAddressOf, 
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+
+    BSLALG_DECLARE_NESTED_TRAITS(CargoNoAddressOf,
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     explicit
-    CargoNoAddressOf(int i, bslma_Allocator *a = 0) {
+    CargoNoAddressOf(int i, bslma::Allocator *a = 0) {
         QV_("Default:"); PV(a);
         d_i = i;
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BULK_STORAGE);
     }
-    CargoNoAddressOf(const CargoNoAddressOf& in, bslma_Allocator* a = 0) {
+    CargoNoAddressOf(const CargoNoAddressOf& in, bslma::Allocator* a = 0) {
         QV_("Copy:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_i = in.d_i;
         d_p = d_alloc->allocate(BULK_STORAGE);
         std::memcpy(d_p, in.d_p, BULK_STORAGE);
@@ -344,7 +344,7 @@ void TestDriver<TYPE, ALLOC>::testCase1()
     if (verbose) cout << "\nSET BREATHING TEST\n"
                            "==================\n";
 
-    bslma_TestAllocator ta("Test case 1 Allocator", veryVeryVeryVerbose);
+    bslma::TestAllocator ta("Test case 1 Allocator", veryVeryVeryVerbose);
     bsl::set<TYPE> s(&ta);
 
     ASSERT(true  == sameType(s, std::set<TYPE>()));
@@ -359,12 +359,12 @@ void TestDriver<TYPE, ALLOC>::testCase1()
     ASSERT(true  == sameType(typename bsl::set<TYPE>::iterator(),
                              typename std::set<TYPE>::iterator()));
     ASSERT(false == sameType(typename bsl::set<TYPE>::iterator(),
-                      typename native_std::set<TYPE>::iterator()));
+                             typename native_std::set<TYPE>::iterator()));
 
     ASSERT(false == usesBslmaAllocator(typename bsl::set<TYPE>::iterator()));
     ASSERT(false == usesBslmaAllocator(typename std::set<TYPE>::iterator()));
     ASSERT(false == usesBslmaAllocator(
-                                typename native_std::set<TYPE>::iterator()));
+                                  typename native_std::set<TYPE>::iterator()));
 
 }
 
@@ -388,10 +388,10 @@ void TestDriver<TYPE, ALLOC>::testCase2()
     if (verbose) cout << "\nSET MEMORY CONSUMPTION AND CONSTRUCTOR TEST\n"
                            "===========================================\n";
 
-    bslma_TestAllocator ta("Test case 2 Alloc", veryVeryVeryVerbose);
-    bslma_TestAllocator tda("Test case 2 DefaultAlloc", veryVeryVeryVerbose);
+    bslma::TestAllocator ta("Test case 2 Alloc", veryVeryVeryVerbose);
+    bslma::TestAllocator tda("Test case 2 DefaultAlloc", veryVeryVeryVerbose);
 
-    bslma_DefaultAllocatorGuard dag(&tda);
+    bslma::DefaultAllocatorGuard dag(&tda);
 
     bsl::less<TYPE> lessTYPE;
     Greaterp<TYPE> greaterTYPE;
@@ -600,7 +600,7 @@ void TestDriver<TYPE, ALLOC>::testCase3()
     if (verbose) cout << "\nMULTISET BREATHING TEST\n"
                            "=======================\n";
 
-    bslma_TestAllocator ta("Test case 3 allocator", veryVeryVeryVerbose);
+    bslma::TestAllocator ta("Test case 3 allocator", veryVeryVeryVerbose);
     bsl::multiset<TestType> ms(&ta);
 
     ASSERT(true  == sameType(ms, std::multiset<TestType>()));
@@ -614,8 +614,9 @@ void TestDriver<TYPE, ALLOC>::testCase3()
 
     ASSERT(true  == sameType(typename bsl::multiset<TestType>::iterator(),
                              typename std::multiset<TestType>::iterator()));
-    ASSERT(false == sameType(typename bsl::multiset<TestType>::iterator(),
-                      typename native_std::multiset<TestType>::iterator()));
+    ASSERT(false == sameType(
+                         typename bsl::multiset<TestType>::iterator(),
+                         typename native_std::multiset<TestType>::iterator()));
 
     ASSERT(false == usesBslmaAllocator(
                                 typename bsl::multiset<TestType>::iterator()));
@@ -645,10 +646,10 @@ void TestDriver<TYPE, ALLOC>::testCase4()
     if (verbose) cout <<
                     "\nMULTISET MEMORY CONSUMPTION AND CONSTRUCTOR TEST\n"
                       "================================================\n";
-    bslma_TestAllocator ta("Test case 4 Alloc", veryVeryVeryVerbose);
-    bslma_TestAllocator tda("Test case 4 DefaultAlloc", veryVeryVeryVerbose);
+    bslma::TestAllocator ta("Test case 4 Alloc", veryVeryVeryVerbose);
+    bslma::TestAllocator tda("Test case 4 DefaultAlloc", veryVeryVeryVerbose);
 
-    bslma_DefaultAllocatorGuard dag(&tda);
+    bslma::DefaultAllocatorGuard dag(&tda);
 
     bsl::less<TYPE> lessTYPE;
     Greaterp<TYPE>  greaterTYPE;
@@ -890,7 +891,7 @@ void TestDriver<TYPE, ALLOC>::testCase5()
     if (verbose) cout << "\nSET MANIPULATOR / ACCESSOR / ITERATOR TEST\n"
                            "==========================================\n";
 
-    bslma_TestAllocator ta("Test case 5 Alloc", veryVeryVeryVerbose);
+    bslma::TestAllocator ta("Test case 5 Alloc", veryVeryVeryVerbose);
 
     bsl::set<TYPE> s(&ta);
 
@@ -1022,8 +1023,8 @@ void TestDriver<TYPE, ALLOC>::testCase6()
                      "\nMULTISET MANIPULATOR / ACCESSOR / ITERATOR TEST\n"
                        "===============================================\n";
 
-    bslma_TestAllocator ta("Test case 6 Alloc", veryVeryVeryVerbose);
-    
+    bslma::TestAllocator ta("Test case 6 Alloc", veryVeryVeryVerbose);
+
     bsl::multiset<TYPE> s(&ta);
     typename bsl::multiset<TYPE>::iterator it, itb, itc, itd;
 
@@ -1097,7 +1098,7 @@ void TestDriver<TYPE, ALLOC>::testCase6()
 
     {
         bsl::pair<typename bsl::multiset<TYPE>::iterator,
-                  typename bsl::multiset<TYPE>::iterator> pr = 
+                  typename bsl::multiset<TYPE>::iterator> pr =
                                                              s.equal_range(12);
 
         ASSERT(12 == *pr.first);
@@ -1161,7 +1162,7 @@ void TestDriver<TYPE, ALLOC>::testCase6()
 
     {
         bsl::pair<typename bsl::multiset<TYPE>::iterator,
-                  typename bsl::multiset<TYPE>::iterator> pr = s.equal_range(3);
+                 typename bsl::multiset<TYPE>::iterator> pr = s.equal_range(3);
 
         it = s.find(2);
         ++it;
@@ -1326,7 +1327,7 @@ int main(int argc, char *argv[])
 
        if (verbose) cout << "Testing with Type 'Cargo'" << endl;
         TestDriver<Cargo>::testCase2();
-       
+
         if (verbose) cout << "Testing with Type 'CargoNoAddressOf'" << endl;
         TestDriver<CargoNoAddressOf>::testCase2();
       } break;

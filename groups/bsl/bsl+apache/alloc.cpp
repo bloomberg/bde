@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -143,7 +143,7 @@ munmap (CaddrT addr, size_t)
 {
     if (VirtualFree (addr, 0, MEM_RELEASE))
         return 0;
-    
+
     errno = EINVAL;
     return -1;
 }
@@ -155,7 +155,7 @@ mprotect (CaddrT addr, size_t len, int prot)
     DWORD flOldProt;
     if (VirtualProtect (addr, len, _rw_translate_prot (prot), &flOldProt))
         return 0;
-    
+
     errno = EINVAL;
     return -1;
 }
@@ -583,7 +583,7 @@ rw_alloc (size_t nbytes, int flags /* = -1 */)
 
                 char* data = _RWSTD_STATIC_CAST (char*, newinfo.addr_);
                 char* guard = data;
-                
+
                 if (RW_PROT_BELOW & flags)
                     offset = pagesize;
                 else

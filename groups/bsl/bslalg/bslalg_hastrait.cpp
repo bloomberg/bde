@@ -1,4 +1,4 @@
-// bslalg_hastrait.cpp                  -*-C++-*-
+// bslalg_hastrait.cpp                                                -*-C++-*-
 #include <bslalg_hastrait.h>
 
 #include <bsls_ident.h>
@@ -6,7 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

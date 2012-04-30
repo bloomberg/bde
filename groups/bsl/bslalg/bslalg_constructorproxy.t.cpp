@@ -1,4 +1,4 @@
-// bslalg_constructorproxy.t.cpp    -*-C++-*-
+// bslalg_constructorproxy.t.cpp                                      -*-C++-*-
 
 #include <bslalg_constructorproxy.h>
 
@@ -35,14 +35,14 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // The following abbreviations are used in the signatures below:
 //
-//     o b_A  -> bslma_Allocator
-//     o b_CP -> bslalg_ConstructorProxy
+//     o b_A  -> bslma::Allocator
+//     o b_CP -> bslalg::ConstructorProxy
 //
 // CREATORS
-// [ 1] bslalg_ConstructorProxy(b_A*);
-// [ 1] bslalg_ConstructorProxy(const b_CP<OTHER>&, b_A*);
-// [ 1] bslalg_ConstructorProxy(const OTHER&, b_A*);
-// [ 1] ~bslalg_ConstructorProxy();
+// [ 1] bslalg::ConstructorProxy(b_A*);
+// [ 1] bslalg::ConstructorProxy(const b_CP<OTHER>&, b_A*);
+// [ 1] bslalg::ConstructorProxy(const OTHER&, b_A*);
+// [ 1] ~bslalg::ConstructorProxy();
 //
 // MANIPULATORS
 // [ 1] TYPE& object();
@@ -126,7 +126,7 @@ class TestType_Other_Template {
     // 'TestType_NoAllocator' objects.
     //
     // Note that a template is used in order to be able to test
-    // 'bslalg_ConstructorProxy' using 'TYPE's that are generated from
+    // 'bslalg::ConstructorProxy' using 'TYPE's that are generated from
     // templates (some compilers sometimes behave strangely when combination of
     // template classes are used).
 
@@ -177,22 +177,22 @@ class TestType_YesAllocator_Template {
     // allocators.
     //
     // Note that a template is used in order to be able to test
-    // 'bslalg_ConstructorProxy' using 'TYPE's that are generated from
+    // 'bslalg::ConstructorProxy' using 'TYPE's that are generated from
     // templates (some compilers sometimes behave strangely when combination of
     // template classes are used).
 
     // PRIVATE DATA MEMBERS
-    TYPE             d_value;        // value of this object
-    bslma_Allocator *d_allocator_p;  // allocator passed to constructor
+    TYPE              d_value;        // value of this object
+    bslma::Allocator *d_allocator_p;  // allocator passed to constructor
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestType_YesAllocator_Template,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit TestType_YesAllocator_Template(
-                                           bslma_Allocator *basicAllocator = 0)
+                                          bslma::Allocator *basicAllocator = 0)
     : d_allocator_p(basicAllocator)
     {
         ++g_objectCount;
@@ -200,7 +200,7 @@ class TestType_YesAllocator_Template {
 
     TestType_YesAllocator_Template(
                      const TestType_YesAllocator_Template&  original,
-                     bslma_Allocator                       *basicAllocator = 0)
+                     bslma::Allocator                      *basicAllocator = 0)
     : d_value(original.d_value)
     , d_allocator_p(basicAllocator)
     {
@@ -209,7 +209,7 @@ class TestType_YesAllocator_Template {
 
     explicit TestType_YesAllocator_Template(
                       const TestType_Other_Template<TYPE>&  other,
-                      bslma_Allocator                      *basicAllocator = 0)
+                      bslma::Allocator                     *basicAllocator = 0)
     : d_value(other.value())
     , d_allocator_p(basicAllocator)
     {
@@ -217,8 +217,8 @@ class TestType_YesAllocator_Template {
     }
 
     explicit TestType_YesAllocator_Template(
-                                           const TYPE&      value,
-                                           bslma_Allocator *basicAllocator = 0)
+                                          const TYPE&       value,
+                                          bslma::Allocator *basicAllocator = 0)
     : d_value(value)
     , d_allocator_p(basicAllocator)
     {
@@ -242,7 +242,7 @@ class TestType_YesAllocator_Template {
         return d_value;
     }
 
-    bslma_Allocator* allocator() const
+    bslma::Allocator* allocator() const
     {
         return d_allocator_p;
     }
@@ -255,7 +255,7 @@ class TestType_NoAllocator_Template {
     // allocators.
     //
     // Note that a template is used in order to be able to test
-    // 'bslalg_ConstructorProxy' using 'TYPE's that are generated from
+    // 'bslalg::ConstructorProxy' using 'TYPE's that are generated from
     // templates (some compilers sometimes behave strangely when combination of
     // template classes are used).
 
@@ -368,15 +368,16 @@ bool operator!=(const ValueType& lhs, const ValueType& rhs)
 typedef TestType_YesAllocator_Template<ValueType>     TestType_YesAllocator;
 typedef TestType_NoAllocator_Template<ValueType>      TestType_NoAllocator;
 typedef TestType_Other_Template<ValueType>            TestType_Other;
-typedef bslalg_ConstructorProxy<TestType_YesAllocator> Obj_YesAllocator;
-typedef bslalg_ConstructorProxy<TestType_NoAllocator>  Obj_NoAllocator;
-typedef bslalg_ConstructorProxy<TestType_Other>        Obj_Other;
+typedef bslalg::ConstructorProxy<TestType_YesAllocator> Obj_YesAllocator;
+typedef bslalg::ConstructorProxy<TestType_NoAllocator>  Obj_NoAllocator;
+typedef bslalg::ConstructorProxy<TestType_Other>        Obj_Other;
 
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 namespace UsageExample1 {
+
 ///Usage 1
 ///-------
 // The following snippets of code illustrate the minimal syntax for using a
@@ -389,56 +390,58 @@ class SomeArbitraryClass {
     // Some arbitrary class.
 
     // PRIVATE DATA MEMBERS
-    bslma_Allocator *d_allocator_p;  // allocator passed to constructor
+    bslma::Allocator *d_allocator_p;  // allocator passed to constructor
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(SomeArbitraryClass,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit SomeArbitraryClass(bslma_Allocator *basicAllocator = 0)
+    explicit SomeArbitraryClass(bslma::Allocator *basicAllocator = 0)
     : d_allocator_p(basicAllocator)
     {
     }
 
-    SomeArbitraryClass(const SomeArbitraryClass& original,
-                       bslma_Allocator           *basicAllocator = 0)
+    SomeArbitraryClass(const SomeArbitraryClass&  original,
+                       bslma::Allocator          *basicAllocator = 0)
     : d_allocator_p(basicAllocator)
     {
     }
 
     // ACCESSORS
-    bslma_Allocator* allocator() const
+    bslma::Allocator* allocator() const
     {
         return d_allocator_p;
     }
 };
 //..
 // The 'SomeArbitraryClass' class may or may not declare the
-// 'bslalg_TypeTraitUsesBslmaAllocator' trait.  The following code illustrates
+// 'bslalg::TypeTraitUsesBslmaAllocator' trait.  The following code illustrates
 // how a 'SomeArbitraryClass' object can be constructed using a constructor
 // proxy for detecting this trait:
 //..
 void run()
     // Run usage example 1.
 {
-    bslma_TestAllocator allocator;
+    bslma::TestAllocator allocator;
 
-    bslalg_ConstructorProxy<SomeArbitraryClass> proxy(&allocator);
+    bslalg::ConstructorProxy<SomeArbitraryClass> proxy(&allocator);
 
     SomeArbitraryClass& myObject = proxy.object();
 
     ASSERT(&allocator == myObject.allocator());
 }
 //..
-// If 'SomeArbitraryClass' declared the 'bslalg_TypeTraitUsesBslmaAllocator'
+// If 'SomeArbitraryClass' declared the 'bslalg::TypeTraitUsesBslmaAllocator'
 // trait, then the specified 'myObject' will obtain its memory from the
 // specified 'allocator'.  Otherwise, the specified 'allocator' will be
 // ignored.
+
 }  // end namespace UsageExample1
 
 namespace UsageExample2 {
+
 ///Usage 2
 ///-------
 // The following snippets of code illustrate the usage of this component in a
@@ -455,7 +458,7 @@ namespace UsageExample2 {
 //
 //    public:
 //      // CREATORS
-//      explicit MyContainer(bslma_Allocator *basicAllocator = 0);
+//      explicit MyContainer(bslma::Allocator *basicAllocator = 0);
 //          // Construct a container using the specified 'basicAllocator' to
 //          // supply memory.  If 'basicAllocator' is 0, an appropriate default
 //          // allocator is used.
@@ -476,7 +479,7 @@ namespace UsageExample2 {
 // follows:
 //..
 //  template <typename TYPE>
-//  MyContainer<TYPE>::MyContainer(bslma_Allocator *basicAllocator)
+//  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 //  {
 //  }
 //..
@@ -489,17 +492,17 @@ namespace UsageExample2 {
 // follows:
 //..
 //  template <typename TYPE>
-//  MyContainer<TYPE>::MyContainer(bslma_Allocator *basicAllocator)
+//  MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 //  : d_object(basicAllocator)
 //  {
 //  }
 //..
 // This implementation behaves as documented, but it will *not* compile
 // successfully for 'TYPE's that do not have a constructor that takes a
-// 'bslma_Allocator' pointer.  For example, the following declaration of
+// 'bslma::Allocator' pointer.  For example, the following declaration of
 // 'container' will *not* compile:
 //..
-//  bslma_TestAllocator testAllocator;
+//  bslma::TestAllocator testAllocator;
 //
 //  MyContainer<int> container(&testAllocator);
 //..
@@ -514,11 +517,11 @@ class MyContainer {
     // A class that contains an object of the specified 'TYPE'.
 
     // PRIVATE DATA MEMBERS
-    bslalg_ConstructorProxy<TYPE> d_proxy;
+    bslalg::ConstructorProxy<TYPE> d_proxy;
 
   public:
     // CREATORS
-    explicit MyContainer(bslma_Allocator *basicAllocator = 0);
+    explicit MyContainer(bslma::Allocator *basicAllocator = 0);
         // Construct a container using the specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, an appropriate default
         // allocator is used.
@@ -537,7 +540,7 @@ class MyContainer {
 // The constructor for 'MyContainer' can now be implemented as follows:
 //..
 template <typename TYPE>
-MyContainer<TYPE>::MyContainer(bslma_Allocator *basicAllocator)
+MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 : d_proxy(basicAllocator)
 {
 }
@@ -560,7 +563,7 @@ const TYPE& MyContainer<TYPE>::getObject() const
 //..
 void run1()
 {
-    bslma_TestAllocator testAllocator;
+    bslma::TestAllocator testAllocator;
 
     MyContainer<int> container(&testAllocator);
 }
@@ -573,22 +576,22 @@ class SomeArbitraryClassUsingAllocator {
     // Some arbitrary class that uses a 'bslma' allocator.
 
     // PRIVATE DATA MEMBERS
-    bslma_Allocator *d_allocator_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(SomeArbitraryClassUsingAllocator,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit SomeArbitraryClassUsingAllocator(
-                                       bslma_Allocator *basicAllocator = 0)
-    : d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                          bslma::Allocator *basicAllocator = 0)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
     // ACCESSORS
-    bslma_Allocator* getAllocator() const
+    bslma::Allocator* getAllocator() const
     {
         return d_allocator_p;
     }
@@ -599,7 +602,7 @@ class SomeArbitraryClassUsingAllocator {
 //..
 void run2()
 {
-    bslma_TestAllocator testAllocator;
+    bslma::TestAllocator testAllocator;
 
     MyContainer<SomeArbitraryClassUsingAllocator> container(&testAllocator);
 
@@ -611,7 +614,7 @@ void run2()
 //..
 // Finally, since the 'MyContainer' class uses a 'bslma' allocator to supply
 // memory, it would be nice to expose this trait to other containers.  This can
-// be done by declaring the 'bslalg_TypeTraitUsesBslmaAllocator' trait to
+// be done by declaring the 'bslalg::TypeTraitUsesBslmaAllocator' trait to
 // complete the definition of 'MyContainer':
 //..
 
@@ -621,22 +624,22 @@ class SomeArbitraryClassUsingAllocator {
     // Some arbitrary class that uses a 'bslma' allocator.
 
     // PRIVATE DATA MEMBERS
-    bslma_Allocator *d_allocator_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(SomeArbitraryClassUsingAllocator,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
     explicit SomeArbitraryClassUsingAllocator(
-                                       bslma_Allocator *basicAllocator = 0)
-    : d_allocator_p(bslma_Default::allocator(basicAllocator))
+                                          bslma::Allocator *basicAllocator = 0)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
     }
 
     // ACCESSORS
-    bslma_Allocator* getAllocator() const
+    bslma::Allocator* getAllocator() const
     {
         return d_allocator_p;
     }
@@ -645,18 +648,18 @@ class SomeArbitraryClassUsingAllocator {
 template <typename TYPE>
 class MyContainer {
     // A class that contains an object of the specified 'TYPE' and declares
-    // the 'bslalg_TypeTraitUsesBslmaAllocator' trait.
+    // the 'bslalg::TypeTraitUsesBslmaAllocator' trait.
 
     // PRIVATE DATA MEMBERS
-    bslalg_ConstructorProxy<TYPE> d_proxy;
+    bslalg::ConstructorProxy<TYPE> d_proxy;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(MyContainer,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    explicit MyContainer(bslma_Allocator *basicAllocator = 0);
+    explicit MyContainer(bslma::Allocator *basicAllocator = 0);
         // Construct a container using the specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, an appropriate default
         // allocator is used.
@@ -673,7 +676,7 @@ class MyContainer {
 };
 
 template <typename TYPE>
-MyContainer<TYPE>::MyContainer(bslma_Allocator *basicAllocator)
+MyContainer<TYPE>::MyContainer(bslma::Allocator *basicAllocator)
 : d_proxy(basicAllocator)
 {
 }
@@ -696,7 +699,7 @@ const TYPE& MyContainer<TYPE>::getObject() const
 
 void run()
 {
-    bslma_TestAllocator testAllocator;
+    bslma::TestAllocator testAllocator;
 
     MyContainer<MyContainer<SomeArbitraryClassUsingAllocator> >
                                             containedContainer(&testAllocator);
@@ -708,6 +711,7 @@ void run()
 }  // close namespace WithAllocatorTrait
 
 //..
+
 }  // end namespace UsageExample2
 
 //=============================================================================
@@ -774,10 +778,10 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   The constructor proxy must pass the allocator to the contained
-        //   'TYPE' if 'TYPE' declares the 'bslalg_TypeTraitUsesBslmaAllocator'
-        //   trait.  The objects must be correctly constructed and destructed.
-        //   The 'object()' manipulator and accessor must return references to
-        //   the contained object.
+        //   'TYPE' if 'TYPE' declares the
+        //   'bslalg::TypeTraitUsesBslmaAllocator' trait.  The objects must be
+        //   correctly constructed and destructed.  The 'object()' manipulator
+        //   and accessor must return references to the contained object.
         //
         // Plan:
         //   Use the 'TestType_YesAllocator', 'TestType_NoAllocator', and the
@@ -787,7 +791,7 @@ int main(int argc, char *argv[])
         //       1) Constructing without value.
         //          a) 'TYPE' = 'TestType_YesAllocator'.
         //          b) 'TYPE' = 'TestType_NoAllocator'.
-        //       2) Constructing with 'bslalg_ConstructorProxy<OTHER>'.
+        //       2) Constructing with 'bslalg::ConstructorProxy<OTHER>'.
         //          a) 'TYPE'  = 'TestType_YesAllocator'.
         //             'OTHER' = 'TestType_YesAllocator'.
         //          b) 'TYPE'  = 'TestType_YesAllocator'.
@@ -810,10 +814,10 @@ int main(int argc, char *argv[])
         //  correctly.
         //
         // Testing:
-        //   bslalg_ConstructorProxy(b_A*);
-        //   bslalg_ConstructorProxy(const b_CP<OTHER>&, b_A*);
-        //   bslalg_ConstructorProxy(const OTHER&, b_A*);
-        //   ~bslalg_ConstructorProxy();
+        //   bslalg::ConstructorProxy(b_A*);
+        //   bslalg::ConstructorProxy(const b_CP<OTHER>&, b_A*);
+        //   bslalg::ConstructorProxy(const OTHER&, b_A*);
+        //   ~bslalg::ConstructorProxy();
         //   TYPE& object();
         //   const TYPE& object() const;
         // --------------------------------------------------------------------
@@ -821,8 +825,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nConstructor Proxy Test"
                           << "\n======================" << endl;
 
-        bslma_TestAllocator  testAllocator;
-        bslma_Allocator     *ALLOCATOR = &testAllocator;
+        bslma::TestAllocator  testAllocator;
+        bslma::Allocator     *ALLOCATOR = &testAllocator;
 
         const ValueType DEFAULT;
         const ValueType VALUE(123);
@@ -868,7 +872,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\n2. Constructing with 'bslalg_ConstructorProxy"
+        if (verbose) cout << "\n2. Constructing with 'bslalg::ConstructorProxy"
                           << "<OTHER>'." << endl;
         {
             if (veryVerbose) cout << "\ta) 'TYPE'  = 'TestType_YesAllocator'."
@@ -878,8 +882,8 @@ int main(int argc, char *argv[])
                 typedef TestType_YesAllocator Type;
                 typedef TestType_YesAllocator OtherType;
 
-                typedef bslalg_ConstructorProxy<Type>      Obj;
-                typedef bslalg_ConstructorProxy<OtherType> OriginalType;
+                typedef bslalg::ConstructorProxy<Type>      Obj;
+                typedef bslalg::ConstructorProxy<OtherType> OriginalType;
 
                 const OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
 
@@ -904,8 +908,8 @@ int main(int argc, char *argv[])
                 typedef TestType_YesAllocator Type;
                 typedef TestType_Other        OtherType;
 
-                typedef bslalg_ConstructorProxy<Type>      Obj;
-                typedef bslalg_ConstructorProxy<OtherType> OriginalType;
+                typedef bslalg::ConstructorProxy<Type>      Obj;
+                typedef bslalg::ConstructorProxy<OtherType> OriginalType;
 
                 const OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
 
@@ -930,8 +934,8 @@ int main(int argc, char *argv[])
                 typedef TestType_NoAllocator Type;
                 typedef TestType_NoAllocator OtherType;
 
-                typedef bslalg_ConstructorProxy<Type>      Obj;
-                typedef bslalg_ConstructorProxy<OtherType> OriginalType;
+                typedef bslalg::ConstructorProxy<Type>      Obj;
+                typedef bslalg::ConstructorProxy<OtherType> OriginalType;
 
                 const OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
 
@@ -954,8 +958,8 @@ int main(int argc, char *argv[])
                 typedef TestType_NoAllocator Type;
                 typedef TestType_Other       OtherType;
 
-                typedef bslalg_ConstructorProxy<Type>      Obj;
-                typedef bslalg_ConstructorProxy<OtherType> OriginalType;
+                typedef bslalg::ConstructorProxy<Type>      Obj;
+                typedef bslalg::ConstructorProxy<OtherType> OriginalType;
 
                 const OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
 
@@ -978,9 +982,9 @@ int main(int argc, char *argv[])
                           << endl << "\t   'OTHER' = 'TestType_YesAllocator'."
                           << endl;
             {
-                typedef TestType_YesAllocator        Type;
-                typedef TestType_YesAllocator        OtherType;
-                typedef bslalg_ConstructorProxy<Type> Obj;
+                typedef TestType_YesAllocator          Type;
+                typedef TestType_YesAllocator          OtherType;
+                typedef bslalg::ConstructorProxy<Type> Obj;
 
                 const OtherType OTHER_VALUE(VALUE);
 
@@ -1002,9 +1006,9 @@ int main(int argc, char *argv[])
                           << endl << "\t   'OTHER' = 'TestType_Other'."
                           << endl;
             {
-                typedef TestType_YesAllocator        Type;
-                typedef TestType_Other               OtherType;
-                typedef bslalg_ConstructorProxy<Type> Obj;
+                typedef TestType_YesAllocator          Type;
+                typedef TestType_Other                 OtherType;
+                typedef bslalg::ConstructorProxy<Type> Obj;
 
                 const OtherType OTHER_VALUE(VALUE);
 
@@ -1026,9 +1030,9 @@ int main(int argc, char *argv[])
                           << endl << "\t   'OTHER' = 'TestType_NoAllocator'."
                           << endl;
             {
-                typedef TestType_NoAllocator         Type;
-                typedef TestType_NoAllocator         OtherType;
-                typedef bslalg_ConstructorProxy<Type> Obj;
+                typedef TestType_NoAllocator           Type;
+                typedef TestType_NoAllocator           OtherType;
+                typedef bslalg::ConstructorProxy<Type> Obj;
 
                 const OtherType OTHER_VALUE(VALUE);
 
@@ -1048,9 +1052,9 @@ int main(int argc, char *argv[])
                           << endl << "\t   'OTHER' = 'TestType_Other'."
                           << endl;
             {
-                typedef TestType_NoAllocator         Type;
-                typedef TestType_Other               OtherType;
-                typedef bslalg_ConstructorProxy<Type> Obj;
+                typedef TestType_NoAllocator           Type;
+                typedef TestType_Other                 OtherType;
+                typedef bslalg::ConstructorProxy<Type> Obj;
 
                 const OtherType OTHER_VALUE(VALUE);
 

@@ -23,10 +23,10 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
-#include <algorithm>    // for merge, 
+#include <algorithm>    // for merge,
 #include <cstring>      // for strlen, size_t
 
 #include <alg_test.h>
@@ -35,13 +35,13 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
 OutputIter<lt_comp<assign<base<cpy_ctor> > > >
-merge (InputIter<lt_comp<assign<base<cpy_ctor> > > >, 
+merge (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
        InputIter<lt_comp<assign<base<cpy_ctor> > > >,
        InputIter<lt_comp<assign<base<cpy_ctor> > > >,
        InputIter<lt_comp<assign<base<cpy_ctor> > > >,
@@ -49,7 +49,7 @@ merge (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
 
 template
 OutputIter<lt_comp<assign<base<cpy_ctor> > > >
-merge (InputIter<lt_comp<assign<base<cpy_ctor> > > >, 
+merge (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
        InputIter<lt_comp<assign<base<cpy_ctor> > > >,
        InputIter<lt_comp<assign<base<cpy_ctor> > > >,
        InputIter<lt_comp<assign<base<cpy_ctor> > > >,
@@ -58,13 +58,13 @@ merge (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
 
 template
 void
-inplace_merge (BidirIter<lt_comp<assign<base<cpy_ctor> > > >, 
+inplace_merge (BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
                BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
                BidirIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 void
-inplace_merge (BidirIter<lt_comp<assign<base<cpy_ctor> > > >, 
+inplace_merge (BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
                BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
                BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
                binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
@@ -230,7 +230,7 @@ void test_merge (int                line,
                               xsrc2, xsrc2_end, xdst, xdst_end, ppred);
     }
 
-    const std::size_t n_ops_lt = ppred ? 
+    const std::size_t n_ops_lt = ppred ?
         Less::funcalls_ : UserClass::n_total_op_lt_ - last_n_op_lt;
 
     bool success = true;
@@ -251,7 +251,7 @@ void test_merge (int                line,
                "line %d: %s<%s%{?}, %s, %s%{;}%{?}, %s%{;}> "
                "(\"%s\", %{?}\"%s\"%{;}%{?}%zu%{;}, ...) ==> \"%{X=*.*}\" "
                "not sorted",
-               __LINE__, algname, it1name, !inplace, it2name, outname, 
+               __LINE__, algname, it1name, !inplace, it2name, outname,
                predicate, predname, src1, !inplace, src2, inplace, midinx,
                int (ndst), -1, xdst);
 
@@ -272,9 +272,9 @@ void test_merge (int                line,
                "line %d: %s<%s%{?}, %s, %s%{;}%{?}, %s%{;}> "
                "(\"%s\", %{?}\"%s\"%{;}%{?}%zu%{;}, ...) ==> \"%{X=*.*}\" "
                "not stable at %zu: got ids %d != %d for values %#c == %#c",
-               __LINE__, algname, it1name, !inplace, it2name, outname, 
+               __LINE__, algname, it1name, !inplace, it2name, outname,
                predicate, predname, src1, !inplace, src2, inplace, midinx,
-               int (ndst), i, xdst, i, xdst [i - 1].origin_, 
+               int (ndst), i, xdst, i, xdst [i - 1].origin_,
                xdst [i].origin_, xdst [i - 1].data_.val_, xdst [i].data_.val_);
 
     // check the complexity
@@ -283,7 +283,7 @@ void test_merge (int                line,
                "line %d: %s<%s%{?}, %s, %s%{;}%{?}, %s%{;}> "
                "(\"%s\", %{?}\"%s\"%{;}%{?}%zu%{;}, ...) ==> \"%{X=*.*}\" "
                "complexity: got %zu, expected <= %zu",
-               __LINE__, algname, it1name, !inplace, it2name, outname, 
+               __LINE__, algname, it1name, !inplace, it2name, outname,
                predicate, predname, src1, !inplace, src2, inplace, midinx,
                int (ndst), -1, xdst, n_ops_lt, ndst - 1);
 
@@ -382,7 +382,7 @@ void test_inplace_merge (const MergeBase &alg, bool predicate)
 
 #undef TEST
 #define TEST(src, mid)                                            \
-    test_merge (__LINE__, src, "", mid, predicate, alg)     
+    test_merge (__LINE__, src, "", mid, predicate, alg)
 
     TEST ("a",  0);
     TEST ("aa", 0);

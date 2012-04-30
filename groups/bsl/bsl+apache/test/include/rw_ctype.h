@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_CTYPE_H_INCLUDED
@@ -42,7 +42,7 @@ struct _TEST_EXPORT UserCtypeBase: std::ctype_base
         mf_scan_not,
         mf_toupper,
         mf_toupper_range,
-        mf_tolower, 
+        mf_tolower,
         mf_tolower_range,
         mf_widen,
         mf_widen_range,

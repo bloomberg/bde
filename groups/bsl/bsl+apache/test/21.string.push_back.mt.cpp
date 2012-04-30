@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <string>       // for string

@@ -1,4 +1,4 @@
-// bslstl_exfunctional.cpp                  -*-C++-*-
+// bslstl_exfunctional.cpp                                            -*-C++-*-
 #include <bslstl_exfunctional.h>
 
 #include <bsls_ident.h>

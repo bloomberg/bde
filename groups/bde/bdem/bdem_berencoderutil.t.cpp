@@ -34,6 +34,7 @@
 
 #include <bsl_climits.h>
 #include <bsl_fstream.h>
+#include <bslfwd_bslma_allocator.h>
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -445,8 +446,6 @@ void assembleDouble(double *value, int sign, int exponent, long long mantissa)
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test { class MyChoice; }
 namespace test { class MySequenceWithNullable; }

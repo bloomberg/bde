@@ -3,7 +3,7 @@
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
- 
+
 // ---------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2010

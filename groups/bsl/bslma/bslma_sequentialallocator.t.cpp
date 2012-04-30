@@ -1,4 +1,4 @@
-// bslma_sequentialallocator.t.cpp  -*-C++-*-
+// bslma_sequentialallocator.t.cpp                                    -*-C++-*-
 
 #include <bslma_sequentialallocator.h>
 #include <bslma_allocator.h>          // for testing only
@@ -21,8 +21,8 @@ using namespace std;
 //                                  Overview
 //                                  --------
 // The goals of this test suite are to verify 1) that
-// 'bslma_SequentialAllocator' correctly proxies memory requests (except
-// deallocation) to its 'bslma_SequentialPool' member; and 2) that the
+// 'bslma::SequentialAllocator' correctly proxies memory requests (except
+// deallocation) to its 'bslma::SequentialPool' member; and 2) that the
 // 'deallocate' method does *not* deallocate any memory.
 //
 // To achieve goal 1, create a string allocator and a string pool, and supply
@@ -36,17 +36,17 @@ using namespace std;
 // Verify that the number of bytes in use indicated by the test allocator does
 // not decrease after each 'deallocate' method invocation.
 //-----------------------------------------------------------------------------
-// [ 2] bslma_SequentialAllocator(allocator);
-// [ 2] bslma_SequentialAllocator(strategy, allocator);
-// [ 2] bslma_SequentialAllocator(initialSize, allocator);
-// [ 2] bslma_SequentialAllocator(initialSize, strategy, allocator);
-// [ 2] bslma_SequentialAllocator(buffer, bufSize, allocator);
-// [ 2] bslma_SequentialAllocator(buffer, bufSize, strategy, allocator);
-// [ 2] bslma_SequentialAllocator(initialSize, maxSize, allocator);
-// [ 2] bslma_SequentialAllocator(initialSize, maxSize, strategy, alloc);
-// [ 2] bslma_SequentialAllocator(buffer, bufSize, maxSize, allocator);
-// [ 2] bslma_SequentialAllocator(buffer, bufSize, maxSize, strategy, ta);
-// [ 2] ~bslma_SequentialAllocator();
+// [ 2] bslma::SequentialAllocator(allocator);
+// [ 2] bslma::SequentialAllocator(strategy, allocator);
+// [ 2] bslma::SequentialAllocator(initialSize, allocator);
+// [ 2] bslma::SequentialAllocator(initialSize, strategy, allocator);
+// [ 2] bslma::SequentialAllocator(buffer, bufSize, allocator);
+// [ 2] bslma::SequentialAllocator(buffer, bufSize, strategy, allocator);
+// [ 2] bslma::SequentialAllocator(initialSize, maxSize, allocator);
+// [ 2] bslma::SequentialAllocator(initialSize, maxSize, strategy, alloc);
+// [ 2] bslma::SequentialAllocator(buffer, bufSize, maxSize, allocator);
+// [ 2] bslma::SequentialAllocator(buf, bufSize, maxSize, strategy, ta);
+// [ 2] ~bslma::SequentialAllocator();
 // [ 1] void *allocate(numBytes);
 // [ 3] void deallocate(address);
 // [ 4] void release();
@@ -99,20 +99,26 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define TAB cout << '\t';
 
-typedef bslma_SequentialAllocator          Obj;
-typedef bslma_SequentialPool               Pool;
-typedef bslma_TestAllocator                TestAllocator;
-typedef bslma_BufferAllocator              BufferAllocator;
+typedef bslma::SequentialAllocator         Obj;
+typedef bslma::SequentialPool              Pool;
+typedef bslma::TestAllocator               TestAllocator;
+typedef bslma::BufferAllocator             BufferAllocator;
 typedef BufferAllocator::AlignmentStrategy AlignStrategy;
 
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 class my_DoubleStack {
-    double *d_stack_p; // dynamically allocated array (d_size elements)
-    int d_size;        // physical capacity of this stack (in elements)
-    int d_length;      // logical index of next available stack element
-    bslma_Allocator *d_allocator_p; // holds (but does not own) object
+    double           *d_stack_p;      // dynamically allocated array (d_size
+                                      // elements)
+
+    int               d_size;         // physical capacity of this stack (in
+                                      // elements)
+
+    int               d_length;       // logical index of next available stack
+                                      // element
+
+    bslma::Allocator *d_allocator_p;  // holds (but does not own) object
 
     friend class my_DoubleStackIter;
 
@@ -121,9 +127,9 @@ class my_DoubleStack {
 
   public:
     // CREATORS
-    my_DoubleStack(bslma_Allocator *basicAllocator = 0);
-    my_DoubleStack(const my_DoubleStack& other,
-                   bslma_Allocator *basicAllocator = 0);
+    my_DoubleStack(bslma::Allocator *basicAllocator = 0);
+    my_DoubleStack(const my_DoubleStack&  other,
+                   bslma::Allocator      *basicAllocator = 0);
     ~my_DoubleStack();
 
     // MANIPULATORS
@@ -140,7 +146,7 @@ enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 
 // ...
 
-my_DoubleStack::my_DoubleStack(bslma_Allocator *basicAllocator)
+my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(basicAllocator)
@@ -171,7 +177,7 @@ inline void my_DoubleStack::push(double value)
 
 inline static
 void reallocate(double **array, int newSize, int length,
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified
     // 'newSize' using the specified 'basicAllocator'.  The specified
     // 'length' number of leading elements are preserved.  Since the
@@ -256,8 +262,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE TEST" << endl
                                   << "==========" << endl;
         {
-            bslma_SequentialAllocator myA;
-            bslma_Allocator& a = myA;
+            bslma::SequentialAllocator myA;
+            bslma::Allocator& a = myA;
             my_DoubleStack s(&a);
             s.push(1.25);
             s.push(1.5);
@@ -272,8 +278,8 @@ int main(int argc, char *argv[])
         // TBD doc and move
         // quick test for allocateAndExpand
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
-            bslma_SequentialAllocator sa(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::SequentialAllocator sa(&ta);
 
             char *addr0 = (char *)sa.allocate(64);
             sa.truncate(addr0, 64, 0);
@@ -303,8 +309,8 @@ int main(int argc, char *argv[])
         // TBD doc and move
         // quick test for expand
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
-            bslma_SequentialAllocator sa(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::SequentialAllocator sa(&ta);
 
             const int SIZE = INITIAL_BUF_SIZE * 2;
             char *addr0 = (char *)sa.allocate(SIZE);
@@ -336,8 +342,8 @@ int main(int argc, char *argv[])
         // TBD doc and move
         // quick test for truncate
         {
-            bslma_TestAllocator ta(veryVeryVerbose);
-            bslma_SequentialAllocator sa(&ta);
+            bslma::TestAllocator ta(veryVeryVerbose);
+            bslma::SequentialAllocator sa(&ta);
 
             char *addr0 = (char *)sa.allocate(32);
             sa.truncate(addr0, 32, 0);
@@ -376,12 +382,12 @@ int main(int argc, char *argv[])
         const int RES_DATA[] = { 0, 2, 4, 8, 16, 32, 64, 128, 256, 512 };
         const int NUM_RES_DATA = sizeof RES_DATA / sizeof *RES_DATA;
 
-        bslma_TestAllocator sequentialAllocatorTA(veryVeryVerbose);
-        bslma_TestAllocator sequentialPoolTA(veryVeryVerbose);
+        bslma::TestAllocator sequentialAllocatorTA(veryVeryVerbose);
+        bslma::TestAllocator sequentialPoolTA(veryVeryVerbose);
 
         for (int j = 0; j < NUM_RES_DATA; ++j) {
-            bslma_SequentialAllocator sa(&sequentialAllocatorTA);
-            bslma_SequentialPool sp(&sequentialPoolTA);
+            bslma::SequentialAllocator sa(&sequentialAllocatorTA);
+            bslma::SequentialPool sp(&sequentialPoolTA);
 
             sa.reserveCapacity(RES_DATA[j]);
             sp.reserveCapacity(RES_DATA[j]);
@@ -424,8 +430,8 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator ta(veryVeryVerbose);
-        bslma_SequentialAllocator sa(&ta);
+        bslma::TestAllocator ta(veryVeryVerbose);
+        bslma::SequentialAllocator sa(&ta);
 
         int lastNumBytesInUse = ta.numBytesInUse();
 
@@ -448,17 +454,17 @@ int main(int argc, char *argv[])
         //   if requested to allocate what fits in the buffer.
         //
         // Testing:
-        //   bslma_SequentialAllocator(allocator);
-        //   bslma_SequentialAllocator(strategy, allocator);
-        //   bslma_SequentialAllocator(initialSize, allocator);
-        //   bslma_SequentialAllocator(initialSize, strategy, allocator);
-        //   bslma_SequentialAllocator(buffer, bufSize, allocator);
-        //   bslma_SequentialAllocator(buffer, bufSize, strategy, allocator);
-        //   bslma_SequentialAllocator(initialSize, maxSize, allocator);
-        //   bslma_SequentialAllocator(initialSize, maxSize, strategy, alloc);
-        //   bslma_SequentialAllocator(buffer, bufSize, maxSize, allocator);
-        //   bslma_SequentialAllocator(buffer, bufSize, maxSize, strategy, ta);
-        //   ~bslma_SequentialAllocator();
+        //   bslma::SequentialAllocator(allocator);
+        //   bslma::SequentialAllocator(strategy, allocator);
+        //   bslma::SequentialAllocator(initialSize, allocator);
+        //   bslma::SequentialAllocator(initialSize, strategy, allocator);
+        //   bslma::SequentialAllocator(buffer, bufSize, allocator);
+        //   bslma::SequentialAllocator(buffer, bufSize, strategy, allocator);
+        //   bslma::SequentialAllocator(initialSize, maxSize, allocator);
+        //   bslma::SequentialAllocator(initialSize, maxSize, strategy, alloc);
+        //   bslma::SequentialAllocator(buffer, bufSize, maxSize, allocator);
+        //   bslma::SequentialAllocator(buf, bufSize, maxSize, strategy, ta);
+        //   ~bslma::SequentialAllocator();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "CONSTRUCTOR TEST" << endl
@@ -499,12 +505,14 @@ int main(int argc, char *argv[])
         {
             const int SIZE = DATA[i];
 
-            bslma_TestAllocator sequentialPoolTA(veryVeryVerbose);
-            bslma_SequentialPool sp(&sequentialPoolTA);
+            bslma::TestAllocator sequentialPoolTA(veryVeryVerbose);
+            bslma::SequentialPool sp(&sequentialPoolTA);
             char *buffer = (char*)sp.allocate(SIZE);
 
-            bslma_TestAllocator sequentialAllocatorTA(veryVeryVerbose);
-            bslma_SequentialAllocator sa(buffer, SIZE, &sequentialAllocatorTA);
+            bslma::TestAllocator sequentialAllocatorTA(veryVeryVerbose);
+            bslma::SequentialAllocator sa(buffer, 
+                                          SIZE, 
+                                          &sequentialAllocatorTA);
 
             void *p = sa.allocate(SIZE);
             LOOP_ASSERT(i, 0 == sequentialAllocatorTA.numBytesInUse());
@@ -679,8 +687,8 @@ int main(int argc, char *argv[])
         //   requested.
         //
         // Testing:
-        //   bslma_SequentialAllocator(basicAllocator);
-        //   ~bslma_SequentialAllocator();
+        //   bslma::SequentialAllocator(basicAllocator);
+        //   ~bslma::SequentialAllocator();
         //   void *allocate(numBytes);
         //   void release();
         // --------------------------------------------------------------------
@@ -694,11 +702,11 @@ int main(int argc, char *argv[])
         const int DATA[] = { 0, 5, 12, 24, 32, 64, 256, 1000 };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        bslma_TestAllocator sequentialAllocatorTA(veryVeryVerbose);
-        bslma_TestAllocator sequentialPoolTA(veryVeryVerbose);
+        bslma::TestAllocator sequentialAllocatorTA(veryVeryVerbose);
+        bslma::TestAllocator sequentialPoolTA(veryVeryVerbose);
 
-        bslma_SequentialAllocator sa(&sequentialAllocatorTA);
-        bslma_SequentialPool sp(&sequentialPoolTA);
+        bslma::SequentialAllocator sa(&sequentialAllocatorTA);
+        bslma::SequentialPool sp(&sequentialPoolTA);
 
         for (int i = 0; i < NUM_DATA; ++i) {
             const int SIZE = DATA[i];

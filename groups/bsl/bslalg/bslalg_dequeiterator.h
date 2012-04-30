@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide primitive data structures for implementing deques.
 //
 //@CLASSES:
-//      bslalg_DequeImp: namespace for deque primitive data structures
+//  bslalg::DequeImp: namespace for deque primitive data structures
 //
 //@SEE_ALSO: bslalg_dequeiterator, bslalg_dequeprimitives
 //
@@ -23,8 +23,8 @@ BSLS_IDENT("$Id: $")
 // objects.  An element in the deque is identified by an iterator which
 // consists of two pointers:
 //..
-//    - a pointer to the block pointer array, and
-//    - a pointer to a value within the block referred to by the first pointer.
+//  - a pointer to the block pointer array, and
+//  - a pointer to a value within the block referred to by the first pointer.
 //..
 // Dereferencing the iterator dereferences the second pointer.  Incrementing or
 // decrementing the iterator consists of incrementing the value pointer, unless
@@ -45,26 +45,26 @@ BSLS_IDENT("$Id: $")
 //
 // The picture is as follows:
 //..
-//                         v--- Iterator to 'I': ptr to this BlockPtr
-//    +-----+-----+-----+-----+-----+-----+-----+-----+
-//    |  *  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |    BlockPtr array
-//    +-----+-----+--|--+--|--+--|--+--|--+-----+-----+
-//                   |     |     |     |                  Block
-//                   |     |     |     |  +---+---+---+---+---+---+---+---+
-//                   |     |     |     `--| V | W | X | Y | Z |   |   |   |
-//                   |     |     |        +---+---+---+---+---+---+---+---+
-//                   |     |     |                  Block
-//                   |     |     |  +---+---+---+---+---+---+---+---+
-//                   |     |     `--| N | O | P | Q | R | S | T | U |
-//                   |     |        +---+---+---+---+---+---+---+---+
-//                   |     |                v---- Iterator to 'I': ptr to value
-//                   |     |  +---+---+---+---+---+---+---+---+
-//                   |     `--| F | G | H | I | J | K | L | M |
-//                   |        +---+---+---+---+---+---+---+---+
-//                   |                  Block
-//                   |  +---+---+---+---+---+---+---+---+
-//                   `--|   |   |   | A | B | C | D | E |
-//                      +---+---+---+---+---+---+---+---+
+//                       v--- Iterator to 'I': ptr to this BlockPtr
+//  +-----+-----+-----+-----+-----+-----+-----+-----+
+//  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |  *  |    BlockPtr array
+//  +-----+-----+--|--+--|--+--|--+--|--+-----+-----+
+//                 |     |     |     |                  Block
+//                 |     |     |     |  +---+---+---+---+---+---+---+---+
+//                 |     |     |     `--| V | W | X | Y | Z |   |   |   |
+//                 |     |     |        +---+---+---+---+---+---+---+---+
+//                 |     |     |                  Block
+//                 |     |     |  +---+---+---+---+---+---+---+---+
+//                 |     |     `--| N | O | P | Q | R | S | T | U |
+//                 |     |        +---+---+---+---+---+---+---+---+
+//                 |     |                v---- Iterator to 'I': ptr to value
+//                 |     |  +---+---+---+---+---+---+---+---+
+//                 |     `--| F | G | H | I | J | K | L | M |
+//                 |        +---+---+---+---+---+---+---+---+
+//                 |                  Block
+//                 |  +---+---+---+---+---+---+---+---+
+//                 `--|   |   |   | A | B | C | D | E |
+//                    +---+---+---+---+---+---+---+---+
 //..
 // Depicted above is a deque consisting of eight block pointers, only four
 // actually used to point to blocks of eight elements.  In the first block, the
@@ -108,11 +108,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bslalg {
+
 template <class VALUE_TYPE, int BLOCK_LENGTH>
-class bslalg_DequeIterator;
+class DequeIterator;
 
 template <class VALUE_TYPE>
-class bslalg_DequeIterator<VALUE_TYPE, 1>;
+class DequeIterator<VALUE_TYPE, 1>;
 
 // WARNING: These free operators are declared here as a workaround for windows,
 // because windows gives an ambiguity error if the operator declaration is
@@ -121,60 +123,60 @@ class bslalg_DequeIterator<VALUE_TYPE, 1>;
 // FREE OPERATORS
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bool operator==(const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-                const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs);
+bool operator==(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
+                const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs);
     // Return 'true' if the specified 'rhs' iterator points to the same element
     // in the same block as this iterator, and 'false' otherwise.
 
 template <class VALUE_TYPE>
 inline
-bool operator==(const bslalg_DequeIterator<VALUE_TYPE, 1>& lhs,
-                const bslalg_DequeIterator<VALUE_TYPE, 1>& rhs);
+bool operator==(const DequeIterator<VALUE_TYPE, 1>& lhs,
+                const DequeIterator<VALUE_TYPE, 1>& rhs);
     // Specialization for deques having a block length of 1.
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bool operator!=(const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-                const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs);
+bool operator!=(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
+                const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs);
     // Return 'true' if the specified 'rhs' iterator points to a different
     // element as this iterator, and 'false' otherwise.
 
 template <class VALUE_TYPE>
 inline
-bool operator!=(const bslalg_DequeIterator<VALUE_TYPE, 1>& lhs,
-                const bslalg_DequeIterator<VALUE_TYPE, 1>& rhs);
+bool operator!=(const DequeIterator<VALUE_TYPE, 1>& lhs,
+                const DequeIterator<VALUE_TYPE, 1>& rhs);
     // Specialization for deques having a block length of 1.
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bool operator<(const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-               const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs);
+bool operator<(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
+               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs);
     // Return 'true' if the specified 'rhs' iterator points to an element in a
     // previous block or in a previous position in the same block as this
     // iterator, and 'false' otherwise.
 
 template <class VALUE_TYPE>
 inline
-bool operator<(const bslalg_DequeIterator<VALUE_TYPE, 1>& lhs,
-               const bslalg_DequeIterator<VALUE_TYPE, 1>& rhs);
+bool operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
+               const DequeIterator<VALUE_TYPE, 1>& rhs);
     // Specialization for deques having a block length of 1.
 
-                       // ==========================
-                       // class bslalg_DequeIterator
-                       // ==========================
+                       // ===================
+                       // class DequeIterator
+                       // ===================
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
-class bslalg_DequeIterator {
+class DequeIterator {
     // Implementation of a deque iterator, parameterized by the 'VALUE_TYPE',
     // for a deque with the parameterized 'BLOCK_LENGTH', and suitable for use
-    // by the 'bslstl_RandomAccessIterator' adapter.  Note that 'BLOCK_LENGTH'
-    // is the number of items of 'VALUE_TYPE' within a block, not the size of
-    // a block in bytes.
+    // by the 'bslstl::RandomAccessIterator' adapter.  Note that 'BLOCK_LENGTH'
+    // is the number of items of 'VALUE_TYPE' within a block, not the size of a
+    // block in bytes.
 
     // PRIVATE TYPES
-    typedef bslalg_DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>        DequeImpUtil;
-    typedef typename DequeImpUtil::BlockPtr                      BlockPtr;
-    typedef bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>       IteratorType;
+    typedef bslalg::DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>  DequeImpUtil;
+    typedef typename DequeImpUtil::BlockPtr                 BlockPtr;
+    typedef DequeIterator<VALUE_TYPE, BLOCK_LENGTH>         IteratorType;
 
     // DATA
     BlockPtr   *d_blockPtr_p;
@@ -182,32 +184,32 @@ class bslalg_DequeIterator {
 
     // FRIENDS
     friend bool operator==<VALUE_TYPE, BLOCK_LENGTH>(
-                        const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&,
-                        const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
+                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&,
+                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
 
     friend bool operator!=<VALUE_TYPE, BLOCK_LENGTH>(
-                        const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&,
-                        const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
+                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&,
+                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
 
     friend bool operator< <VALUE_TYPE, BLOCK_LENGTH>(
-                        const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&,
-                        const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
+                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&,
+                               const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>&);
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(IteratorType,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 TypeTraitBitwiseCopyable);
 
     // CREATORS
-    bslalg_DequeIterator();
+    DequeIterator();
         // Create a singular iterator (i.e., having internal null pointers).
 
     explicit
-    bslalg_DequeIterator(BlockPtr *blockPtrPtr);
+    DequeIterator(BlockPtr *blockPtrPtr);
         // Create an iterator pointing to the first element in the block
         // pointed to by the specified 'blockPtrPtr'.
 
-    bslalg_DequeIterator(BlockPtr *blockPtrPtr, VALUE_TYPE *valuePtr);
+    DequeIterator(BlockPtr *blockPtrPtr, VALUE_TYPE *valuePtr);
         // Create an iterator pointing to the element at the specified
         // 'valuePtr' address in the block pointed to by the specified
         // 'blockPtrPtr'.  The behavior is undefined unless 'valuePtr' points
@@ -265,15 +267,15 @@ class bslalg_DequeIterator {
         // to by this iterator.  Note that this value is modifiable if
         // 'VALUE_TYPE' is modifiable, and non-modifiable if it is not.
 
-    bslalg_DequeIterator operator+(std::ptrdiff_t offset) const;
+    DequeIterator operator+(std::ptrdiff_t offset) const;
         // Return an iterator pointing the element at the specified 'offset'
         // after this iterator.
 
-    bslalg_DequeIterator operator-(std::ptrdiff_t offset) const;
+    DequeIterator operator-(std::ptrdiff_t offset) const;
         // Return an iterator pointing the element at the specified 'offset'
         // before this iterator.
 
-    std::ptrdiff_t operator-(const bslalg_DequeIterator& rhs) const;
+    std::ptrdiff_t operator-(const DequeIterator& rhs) const;
         // Return the distance between this iterator and the specified 'rhs'
         // iterator.
 
@@ -304,15 +306,15 @@ class bslalg_DequeIterator {
 
 // PARTIAL SPECIALIZATION
 template <class VALUE_TYPE>
-class bslalg_DequeIterator<VALUE_TYPE, 1> {
-    // This partial specialization of 'bslalg_DequeIterator' for the case when
-    // there is a single element per block uses simpler storage and a simpler
+class DequeIterator<VALUE_TYPE, 1> {
+    // This partial specialization of 'DequeIterator' for the case when there
+    // is a single element per block uses simpler storage and a simpler
     // implementation.
 
     // PRIVATE TYPES
-    typedef bslalg_DequeImpUtil<VALUE_TYPE, 1>                   DequeImpUtil;
-    typedef typename DequeImpUtil::BlockPtr                      BlockPtr;
-    typedef bslalg_DequeIterator<VALUE_TYPE, 1>                  IteratorType;
+    typedef bslalg::DequeImpUtil<VALUE_TYPE, 1> DequeImpUtil;
+    typedef typename DequeImpUtil::BlockPtr     BlockPtr;
+    typedef DequeIterator<VALUE_TYPE, 1>        IteratorType;
 
     // DATA
     BlockPtr   *d_blockPtr_p; // pointer to BlockPtr within BlockPtr array
@@ -325,37 +327,37 @@ class bslalg_DequeIterator<VALUE_TYPE, 1> {
     // it is declared differently.
 
     template <class VALUE_TYPE>
-    friend bool operator==(const bslalg_DequeIterator<VALUE_TYPE, 1>&,
-                           const bslalg_DequeIterator<VALUE_TYPE, 1>&);
+    friend bool operator==(const DequeIterator<VALUE_TYPE, 1>&,
+                           const DequeIterator<VALUE_TYPE, 1>&);
 
     template <class VALUE_TYPE>
-    friend bool operator!=(const bslalg_DequeIterator<VALUE_TYPE, 1>&,
-                           const bslalg_DequeIterator<VALUE_TYPE, 1>&);
+    friend bool operator!=(const DequeIterator<VALUE_TYPE, 1>&,
+                           const DequeIterator<VALUE_TYPE, 1>&);
 
     template <class VALUE_TYPE>
-    friend bool operator< (const bslalg_DequeIterator<VALUE_TYPE, 1>&,
-                           const bslalg_DequeIterator<VALUE_TYPE, 1>&);
+    friend bool operator< (const DequeIterator<VALUE_TYPE, 1>&,
+                           const DequeIterator<VALUE_TYPE, 1>&);
 #else
     friend bool operator==<VALUE_TYPE>
-                              (const bslalg_DequeIterator<VALUE_TYPE, 1>&,
-                               const bslalg_DequeIterator<VALUE_TYPE, 1>&);
+                              (const DequeIterator<VALUE_TYPE, 1>&,
+                               const DequeIterator<VALUE_TYPE, 1>&);
     friend bool operator!=<VALUE_TYPE>
-                              (const bslalg_DequeIterator<VALUE_TYPE, 1>&,
-                               const bslalg_DequeIterator<VALUE_TYPE, 1>&);
+                              (const DequeIterator<VALUE_TYPE, 1>&,
+                               const DequeIterator<VALUE_TYPE, 1>&);
     friend bool operator< <VALUE_TYPE>
-                              (const bslalg_DequeIterator<VALUE_TYPE, 1>&,
-                               const bslalg_DequeIterator<VALUE_TYPE, 1>&);
+                              (const DequeIterator<VALUE_TYPE, 1>&,
+                               const DequeIterator<VALUE_TYPE, 1>&);
 #endif
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(IteratorType,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 TypeTraitBitwiseCopyable);
 
     // CREATORS
-    bslalg_DequeIterator();
-    bslalg_DequeIterator(BlockPtr *blockPtrPtr);
-    bslalg_DequeIterator(BlockPtr *blockPtrPtr, VALUE_TYPE *valuePtr);
+    DequeIterator();
+    DequeIterator(BlockPtr *blockPtrPtr);
+    DequeIterator(BlockPtr *blockPtrPtr, VALUE_TYPE *valuePtr);
 
     // MANIPULATORS
     void operator++();
@@ -371,9 +373,9 @@ class bslalg_DequeIterator<VALUE_TYPE, 1> {
 
     // ACCESSORS
     VALUE_TYPE& operator*() const;
-    bslalg_DequeIterator operator+(std::ptrdiff_t offset) const;
-    bslalg_DequeIterator operator-(std::ptrdiff_t offset) const;
-    std::ptrdiff_t operator-(const bslalg_DequeIterator& rhs) const;
+    DequeIterator operator+(std::ptrdiff_t offset) const;
+    DequeIterator operator-(std::ptrdiff_t offset) const;
+    std::ptrdiff_t operator-(const DequeIterator& rhs) const;
     VALUE_TYPE *blockBegin() const;
     VALUE_TYPE *blockEnd() const;
     BlockPtr   *blockPtr() const;
@@ -386,14 +388,14 @@ class bslalg_DequeIterator<VALUE_TYPE, 1> {
 //                         INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                         // --------------------------
-                         // class bslalg_DequeIterator
-                         // --------------------------
+                         // -------------------
+                         // class DequeIterator
+                         // -------------------
 
 // CREATORS
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::bslalg_DequeIterator()
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::DequeIterator()
 : d_blockPtr_p(0)
 , d_value_p(0)
 {
@@ -401,8 +403,7 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::bslalg_DequeIterator()
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::bslalg_DequeIterator(
-                                                         BlockPtr *blockPtrPtr)
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::DequeIterator(BlockPtr *blockPtrPtr)
 : d_blockPtr_p(blockPtrPtr)
 , d_value_p(reinterpret_cast<VALUE_TYPE*>(*blockPtrPtr))
 {
@@ -410,8 +411,7 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::bslalg_DequeIterator(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::bslalg_DequeIterator(
-                                                       BlockPtr   *blockPtrPtr,
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::DequeIterator(BlockPtr   *blockPtrPtr,
                                                        VALUE_TYPE *valuePtr)
 : d_blockPtr_p(blockPtrPtr)
 , d_value_p(valuePtr)
@@ -422,7 +422,7 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::bslalg_DequeIterator(
 
 // MANIPULATORS
 template <class VALUE_TYPE, int BLOCK_LENGTH>
-void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator++()
+void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator++()
 {
     if (1 == this->remainingInBlock()) {
         ++d_blockPtr_p;
@@ -434,7 +434,7 @@ void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator++()
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
-void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator--()
+void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator--()
 {
     if (0 == this->offsetInBlock()) {
         --d_blockPtr_p;
@@ -445,8 +445,7 @@ void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator--()
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 void
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator+=(
-                                                         std::ptrdiff_t offset)
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator+=(std::ptrdiff_t offset)
 {
     offset += offsetInBlock();
     if (offset >= 0) {
@@ -462,15 +461,14 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator+=(
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
 void
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-=(
-                                                         std::ptrdiff_t offset)
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-=(std::ptrdiff_t offset)
 {
     this->operator+=(-offset);
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::nextBlock()
+void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::nextBlock()
 {
     ++d_blockPtr_p;
     d_value_p = this->blockBegin();
@@ -478,7 +476,7 @@ void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::nextBlock()
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::previousBlock()
+void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::previousBlock()
 {
     --d_blockPtr_p;
     d_value_p = this->blockBegin();
@@ -486,8 +484,7 @@ void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::previousBlock()
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::setBlock(
-                                                         BlockPtr *blockPtrPtr)
+void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::setBlock(BlockPtr *blockPtrPtr)
 {
     d_blockPtr_p = blockPtrPtr;
     d_value_p    = this->blockBegin();
@@ -495,7 +492,7 @@ void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::setBlock(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrIncrement()
+void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrIncrement()
 {
     BSLS_ASSERT_SAFE(d_blockPtr_p[0]->d_data <= d_value_p);
     BSLS_ASSERT_SAFE(d_value_p < d_blockPtr_p[0]->d_data + BLOCK_LENGTH);
@@ -505,7 +502,7 @@ void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrIncrement()
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrDecrement()
+void DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrDecrement()
 {
     BSLS_ASSERT_SAFE(d_blockPtr_p[0]->d_data <= d_value_p);
     BSLS_ASSERT_SAFE(d_value_p < d_blockPtr_p[0]->d_data + BLOCK_LENGTH);
@@ -517,37 +514,35 @@ void bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtrDecrement()
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
 VALUE_TYPE&
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator*() const
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator*() const
 {
     return *d_value_p;
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator+(
-                                                   std::ptrdiff_t offset) const
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator+(std::ptrdiff_t offset) const
 {
-    bslalg_DequeIterator ret(*this);
+    DequeIterator ret(*this);
     ret += offset;
     return ret;
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-(
-                                                   std::ptrdiff_t offset) const
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-(std::ptrdiff_t offset) const
 {
-    bslalg_DequeIterator ret(*this);
+    DequeIterator ret(*this);
     ret += -offset;
     return ret;
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 std::ptrdiff_t
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-(
-               const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs) const
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-(
+                      const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs) const
 {
     if (d_blockPtr_p == rhs.d_blockPtr_p) {
         return d_value_p - rhs.d_value_p;
@@ -563,7 +558,7 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::operator-(
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
 VALUE_TYPE *
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::blockBegin() const
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::blockBegin() const
 {
     return reinterpret_cast<VALUE_TYPE*>(*d_blockPtr_p);
 }
@@ -571,7 +566,7 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::blockBegin() const
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
 VALUE_TYPE *
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::blockEnd() const
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::blockEnd() const
 {
     return reinterpret_cast<VALUE_TYPE*>(*d_blockPtr_p) + BLOCK_LENGTH;
 }
@@ -579,8 +574,8 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::blockEnd() const
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
 typename
-bslalg_DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>::BlockPtr *
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::blockPtr() const
+DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>::BlockPtr *
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::blockPtr() const
 {
     return d_blockPtr_p;
 }
@@ -588,7 +583,7 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::blockPtr() const
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
 std::size_t
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::offsetInBlock() const
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::offsetInBlock() const
 {
     return d_value_p - blockBegin();
 }
@@ -596,7 +591,7 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::offsetInBlock() const
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
 std::size_t
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::remainingInBlock() const
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::remainingInBlock() const
 {
     return blockBegin() + BLOCK_LENGTH - d_value_p;
 }
@@ -604,19 +599,19 @@ bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::remainingInBlock() const
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
 VALUE_TYPE *
-bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtr() const
+DequeIterator<VALUE_TYPE, BLOCK_LENGTH>::valuePtr() const
 {
     return d_value_p;
 }
 
-                  // ----------------------------------------
-                  // class bslalg_DequeIterator<VALUE_TYPE,1>
-                  // ----------------------------------------
+                  // ---------------------------------
+                  // class DequeIterator<VALUE_TYPE,1>
+                  // ---------------------------------
 
 // CREATORS
 template <class VALUE_TYPE>
 inline
-bslalg_DequeIterator<VALUE_TYPE, 1>::bslalg_DequeIterator()
+DequeIterator<VALUE_TYPE, 1>::DequeIterator()
 : d_blockPtr_p(0)
 , d_value_p(0)
 {
@@ -624,8 +619,7 @@ bslalg_DequeIterator<VALUE_TYPE, 1>::bslalg_DequeIterator()
 
 template <class VALUE_TYPE>
 inline
-bslalg_DequeIterator<VALUE_TYPE, 1>::bslalg_DequeIterator(
-                                                         BlockPtr *blockPtrPtr)
+DequeIterator<VALUE_TYPE, 1>::DequeIterator(BlockPtr *blockPtrPtr)
 : d_blockPtr_p(blockPtrPtr)
 , d_value_p(reinterpret_cast<VALUE_TYPE*>(*blockPtrPtr))
 {
@@ -633,9 +627,8 @@ bslalg_DequeIterator<VALUE_TYPE, 1>::bslalg_DequeIterator(
 
 template <class VALUE_TYPE>
 inline
-bslalg_DequeIterator<VALUE_TYPE, 1>::bslalg_DequeIterator(
-                                                       BlockPtr   *blockPtrPtr,
-                                                       VALUE_TYPE *valuePtr)
+DequeIterator<VALUE_TYPE, 1>::DequeIterator(BlockPtr   *blockPtrPtr,
+                                            VALUE_TYPE *valuePtr)
 : d_blockPtr_p(blockPtrPtr)
 , d_value_p(valuePtr)
 {
@@ -645,7 +638,7 @@ bslalg_DequeIterator<VALUE_TYPE, 1>::bslalg_DequeIterator(
 // MANIPULATORS
 template <class VALUE_TYPE>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, 1>::operator++()
+void DequeIterator<VALUE_TYPE, 1>::operator++()
 {
     ++d_blockPtr_p;
     d_value_p = reinterpret_cast<VALUE_TYPE*>(*d_blockPtr_p);
@@ -653,7 +646,7 @@ void bslalg_DequeIterator<VALUE_TYPE, 1>::operator++()
 
 template <class VALUE_TYPE>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, 1>::operator--()
+void DequeIterator<VALUE_TYPE, 1>::operator--()
 {
     --d_blockPtr_p;
     d_value_p = reinterpret_cast<VALUE_TYPE*>(*d_blockPtr_p);
@@ -661,7 +654,7 @@ void bslalg_DequeIterator<VALUE_TYPE, 1>::operator--()
 
 template <class VALUE_TYPE>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, 1>::operator+=(std::ptrdiff_t offset)
+void DequeIterator<VALUE_TYPE, 1>::operator+=(std::ptrdiff_t offset)
 {
     d_blockPtr_p += offset;
     d_value_p     = reinterpret_cast<VALUE_TYPE*>(*d_blockPtr_p);
@@ -669,14 +662,14 @@ void bslalg_DequeIterator<VALUE_TYPE, 1>::operator+=(std::ptrdiff_t offset)
 
 template <class VALUE_TYPE>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, 1>::operator-=(std::ptrdiff_t offset)
+void DequeIterator<VALUE_TYPE, 1>::operator-=(std::ptrdiff_t offset)
 {
     this->operator+=(-offset);
 }
 
 template <class VALUE_TYPE>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, 1>::nextBlock()
+void DequeIterator<VALUE_TYPE, 1>::nextBlock()
 {
     ++d_blockPtr_p;
     d_value_p = reinterpret_cast<VALUE_TYPE*>(*d_blockPtr_p);
@@ -684,7 +677,7 @@ void bslalg_DequeIterator<VALUE_TYPE, 1>::nextBlock()
 
 template <class VALUE_TYPE>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, 1>::previousBlock()
+void DequeIterator<VALUE_TYPE, 1>::previousBlock()
 {
     --d_blockPtr_p;
     d_value_p = reinterpret_cast<VALUE_TYPE*>(*d_blockPtr_p);
@@ -692,7 +685,7 @@ void bslalg_DequeIterator<VALUE_TYPE, 1>::previousBlock()
 
 template <class VALUE_TYPE>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, 1>::setBlock(BlockPtr *blockPtrPtr)
+void DequeIterator<VALUE_TYPE, 1>::setBlock(BlockPtr *blockPtrPtr)
 {
     d_blockPtr_p = blockPtrPtr;
     d_value_p    = reinterpret_cast<VALUE_TYPE*>(*d_blockPtr_p);
@@ -700,7 +693,7 @@ void bslalg_DequeIterator<VALUE_TYPE, 1>::setBlock(BlockPtr *blockPtrPtr)
 
 template <class VALUE_TYPE>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, 1>::valuePtrIncrement()
+void DequeIterator<VALUE_TYPE, 1>::valuePtrIncrement()
 {
     // This should never be called for 'BLOCK_LENGTH' of 1
     BSLS_ASSERT_SAFE(0);
@@ -708,7 +701,7 @@ void bslalg_DequeIterator<VALUE_TYPE, 1>::valuePtrIncrement()
 
 template <class VALUE_TYPE>
 inline
-void bslalg_DequeIterator<VALUE_TYPE, 1>::valuePtrDecrement()
+void DequeIterator<VALUE_TYPE, 1>::valuePtrDecrement()
 {
     // This should never be called for 'BLOCK_LENGTH' of 1
     BSLS_ASSERT_SAFE(0);
@@ -717,32 +710,32 @@ void bslalg_DequeIterator<VALUE_TYPE, 1>::valuePtrDecrement()
 // ACCESSORS
 template <class VALUE_TYPE>
 inline
-VALUE_TYPE& bslalg_DequeIterator<VALUE_TYPE, 1>::operator*() const
+VALUE_TYPE& DequeIterator<VALUE_TYPE, 1>::operator*() const
 {
     return *d_value_p;
 }
 
 template <class VALUE_TYPE>
 inline
-bslalg_DequeIterator<VALUE_TYPE, 1>
-bslalg_DequeIterator<VALUE_TYPE, 1>::operator+(std::ptrdiff_t offset) const
+DequeIterator<VALUE_TYPE, 1>
+DequeIterator<VALUE_TYPE, 1>::operator+(std::ptrdiff_t offset) const
 {
-    return bslalg_DequeIterator<VALUE_TYPE, 1>(d_blockPtr_p + offset);
+    return DequeIterator<VALUE_TYPE, 1>(d_blockPtr_p + offset);
 }
 
 template <class VALUE_TYPE>
 inline
-bslalg_DequeIterator<VALUE_TYPE, 1>
-bslalg_DequeIterator<VALUE_TYPE, 1>::operator-(std::ptrdiff_t offset) const
+DequeIterator<VALUE_TYPE, 1>
+DequeIterator<VALUE_TYPE, 1>::operator-(std::ptrdiff_t offset) const
 {
-    return bslalg_DequeIterator<VALUE_TYPE, 1>(d_blockPtr_p - offset);
+    return DequeIterator<VALUE_TYPE, 1>(d_blockPtr_p - offset);
 }
 
 template <class VALUE_TYPE>
 inline
 std::ptrdiff_t
-bslalg_DequeIterator<VALUE_TYPE, 1>::operator-(
-                          const bslalg_DequeIterator<VALUE_TYPE, 1>& rhs) const
+DequeIterator<VALUE_TYPE, 1>::operator-(
+                                 const DequeIterator<VALUE_TYPE, 1>& rhs) const
 {
     return d_blockPtr_p - rhs.d_blockPtr_p;
 }
@@ -750,7 +743,7 @@ bslalg_DequeIterator<VALUE_TYPE, 1>::operator-(
 template <class VALUE_TYPE>
 inline
 VALUE_TYPE *
-bslalg_DequeIterator<VALUE_TYPE, 1>::blockBegin() const
+DequeIterator<VALUE_TYPE, 1>::blockBegin() const
 {
     return reinterpret_cast<VALUE_TYPE*>(*d_blockPtr_p);
 }
@@ -758,7 +751,7 @@ bslalg_DequeIterator<VALUE_TYPE, 1>::blockBegin() const
 template <class VALUE_TYPE>
 inline
 VALUE_TYPE *
-bslalg_DequeIterator<VALUE_TYPE, 1>::blockEnd() const
+DequeIterator<VALUE_TYPE, 1>::blockEnd() const
 {
     return reinterpret_cast<VALUE_TYPE*>(*d_blockPtr_p) + 1;
 }
@@ -766,8 +759,8 @@ bslalg_DequeIterator<VALUE_TYPE, 1>::blockEnd() const
 template <class VALUE_TYPE>
 inline
 typename
-bslalg_DequeImpUtil<VALUE_TYPE, 1>::BlockPtr *
-bslalg_DequeIterator<VALUE_TYPE, 1>::blockPtr() const
+DequeImpUtil<VALUE_TYPE, 1>::BlockPtr *
+DequeIterator<VALUE_TYPE, 1>::blockPtr() const
 {
     return d_blockPtr_p;
 }
@@ -775,7 +768,7 @@ bslalg_DequeIterator<VALUE_TYPE, 1>::blockPtr() const
 template <class VALUE_TYPE>
 inline
 std::size_t
-bslalg_DequeIterator<VALUE_TYPE, 1>::offsetInBlock() const
+DequeIterator<VALUE_TYPE, 1>::offsetInBlock() const
 {
     return 0;
 }
@@ -783,7 +776,7 @@ bslalg_DequeIterator<VALUE_TYPE, 1>::offsetInBlock() const
 template <class VALUE_TYPE>
 inline
 std::size_t
-bslalg_DequeIterator<VALUE_TYPE, 1>::remainingInBlock() const
+DequeIterator<VALUE_TYPE, 1>::remainingInBlock() const
 {
     return 1;
 }
@@ -791,40 +784,42 @@ bslalg_DequeIterator<VALUE_TYPE, 1>::remainingInBlock() const
 template <class VALUE_TYPE>
 inline
 VALUE_TYPE *
-bslalg_DequeIterator<VALUE_TYPE, 1>::valuePtr() const
+DequeIterator<VALUE_TYPE, 1>::valuePtr() const
 {
     return d_value_p;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bool operator==(const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-                const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
+bool bslalg::operator==(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
+                        const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
 {
     return lhs.d_value_p == rhs.d_value_p;
 }
 
 template <class VALUE_TYPE>
 inline
-bool operator==(const bslalg_DequeIterator<VALUE_TYPE, 1>& lhs,
-                const bslalg_DequeIterator<VALUE_TYPE, 1>& rhs)
+bool bslalg::operator==(const DequeIterator<VALUE_TYPE, 1>& lhs,
+                        const DequeIterator<VALUE_TYPE, 1>& rhs)
 {
     return lhs.d_blockPtr_p == rhs.d_blockPtr_p;
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bool operator!=(const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-                const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
+bool bslalg::operator!=(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
+                        const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
 {
     return !(lhs == rhs);
 }
 
 template <class VALUE_TYPE>
 inline
-bool operator!=(const bslalg_DequeIterator<VALUE_TYPE, 1>& lhs,
-                const bslalg_DequeIterator<VALUE_TYPE, 1>& rhs)
+bool bslalg::operator!=(const DequeIterator<VALUE_TYPE, 1>& lhs,
+                        const DequeIterator<VALUE_TYPE, 1>& rhs)
 {
     return !(lhs == rhs);
 }
@@ -832,8 +827,8 @@ bool operator!=(const bslalg_DequeIterator<VALUE_TYPE, 1>& lhs,
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 inline
-bool operator<(const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
-               const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
+bool bslalg::operator<(const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
+                       const DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& rhs)
 {
     if (lhs.d_blockPtr_p == rhs.d_blockPtr_p) {
         return lhs.d_value_p < rhs.d_value_p;
@@ -845,13 +840,23 @@ bool operator<(const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& lhs,
 
 template <class VALUE_TYPE>
 inline
-bool operator<(const bslalg_DequeIterator<VALUE_TYPE, 1>& lhs,
-               const bslalg_DequeIterator<VALUE_TYPE, 1>& rhs)
+bool bslalg::operator<(const DequeIterator<VALUE_TYPE, 1>& lhs,
+                       const DequeIterator<VALUE_TYPE, 1>& rhs)
 {
     return lhs.d_blockPtr_p < rhs.d_blockPtr_p;
 }
 
-}  // close namespace BloombergLP
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_DequeIterator
+#undef bslalg_DequeIterator
+#endif
+#define bslalg_DequeIterator bslalg::DequeIterator
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

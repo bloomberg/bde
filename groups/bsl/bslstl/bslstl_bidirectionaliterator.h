@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a template to create STL-compliant bidirectional iterators.
 //
 //@CLASSES:
-//  bslstl_BidirectionalIterator: bidirectional iterator template
+//  bslstl::BidirectionalIterator: bidirectional iterator template
 //
 //@SEE_ALSO: bslstl_iterator, bslstl_forwarditerator,
 //           bslstl_randomaccessiterator
@@ -62,8 +62,8 @@ BSLS_IDENT("$Id: $")
 // 'my_IteratorImp<T>' access, and the container will have STL-compliant
 // bidirectional iterators:
 //..
-//  typedef bslstl_BidirectionalIterator<T, my_IteratorImp<T> > iterator;
-//  typedef bslstl_BidirectionalIterator<const T, my_IteratorImp<T> >
+//  typedef bslstl::BidirectionalIterator<T, my_IteratorImp<T> > iterator;
+//  typedef bslstl::BidirectionalIterator<const T, my_IteratorImp<T> >
 //                                                              const_iterator;
 //..
 // Note that the implementation for 'const_iterator' is 'my_IteratorImp<T>' and
@@ -105,14 +105,16 @@ in BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP {
 
-                        //===================================
-                        // class bslstl_BidirectionalIterator
-                        //===================================
+namespace bslstl {
+
+                        //============================
+                        // class BidirectionalIterator
+                        //============================
 
 template <typename T, typename ITER_IMP, typename TAG_TYPE =
                                                std::bidirectional_iterator_tag>
-class bslstl_BidirectionalIterator
-    : public bslstl_ForwardIterator<T, ITER_IMP, TAG_TYPE> {
+class BidirectionalIterator
+    : public ForwardIterator<T, ITER_IMP, TAG_TYPE> {
     // Given an 'ITER_IMP' type that implements a minimal subset of an iterator
     // interface, this template generates a complete iterator that meets all of
     // the requirements of a "bidirectional iterator" in the C++ standard.  If
@@ -131,7 +133,7 @@ class bslstl_BidirectionalIterator
     //..
 
     // PRIVATE TYPES
-    typedef typename bslmf_RemoveCvq<T>::Type UnCvqT;  // value type without
+    typedef typename bslmf::RemoveCvq<T>::Type UnCvqT;  // value type without
                                                        // 'const' and
                                                        // 'volatile'
                                                        // qualifications
@@ -144,49 +146,47 @@ class bslstl_BidirectionalIterator
     typedef std::bidirectional_iterator_tag  iterator_category;
 
     // CREATORS
-    bslstl_BidirectionalIterator();
+    BidirectionalIterator();
         // Construct the default value for this iterator type.  All default-
-        // constructed 'bslstl_BidirectionalIterator' objects represent
-        // non-dereferenceable iterators into the same empty range.  They
-        // do not have a singular value unless an object of the type specified
-        // by the template parameter 'ITER_IMP' has a singular value after
+        // constructed 'BidirectionalIterator' objects represent
+        // non-dereferenceable iterators into the same empty range.  They do
+        // not have a singular value unless an object of the type specified by
+        // the template parameter 'ITER_IMP' has a singular value after
         // value-initialization.
 
-    bslstl_BidirectionalIterator(const ITER_IMP& implementation);
+    BidirectionalIterator(const ITER_IMP& implementation);
         // Construct a bidirectional iterator having the specified
         // 'implementation' of the parameterized 'ITER_IMP' type.
 
-    //! bslstl_BidirectionalIterator(
-    //!                          const bslstl_BidirectionalIterator& original);
+    //! BidirectionalIterator(const BidirectionalIterator& original);
         // Construct a bidirectional iterator having the same value as the
         // 'original' iterator.  Note that this method's definition is compiler
         // generated.
 
-    bslstl_BidirectionalIterator(const
-                bslstl_BidirectionalIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other);
+    BidirectionalIterator(
+                 const BidirectionalIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other);
         // Construct a bidirectional iterator from another (compatible)
-        // 'bslstl_BidirectionalIterator' type, e.g., a mutable iterator of
-        // the same type.  Note that as this is a template, it has a lower
-        // priority in overload resolution than the other constructors.
+        // 'BidirectionalIterator' type, e.g., a mutable iterator of the same
+        // type.  Note that as this is a template, it has a lower priority in
+        // overload resolution than the other constructors.
 
-    //! ~bslstl_BidirectionalIterator();
+    //! ~BidirectionalIterator();
         // Destroy this iterator.  Note that this method's definition is
         // compiler generated.
 
     // MANIPULATORS
-    //! bslstl_BidirectionalIterator& operator=(
-    //!                               const bslstl_BidirectionalIterator& rhs);
+    //! BidirectionalIterator& operator=(const BidirectionalIterator& rhs);
         // Copy the value of the specified 'rhs' to this iterator.  Return a
         // reference to this modifiable object.  Note that this method's
         // definition is compiler generated.
 
-    bslstl_BidirectionalIterator& operator++();
+    BidirectionalIterator& operator++();
         // Increment to the next element.  Return a reference to this
         // modifiable iterator.  The behavior is undefined if, on entry, this
         // iterator has the past-the-end value for an iterator over the
         // underlying sequence.
 
-    bslstl_BidirectionalIterator& operator--();
+    BidirectionalIterator& operator--();
         // Decrement to the previous element.  Return a reference to this
         // modifiable iterator.  The behavior is undefined if, on entry, this
         // iterator has the same value as an iterator the refers to the start
@@ -195,8 +195,8 @@ class bslstl_BidirectionalIterator
 
 // FREE OPERATORS
 template <typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE>
-bool operator==(const bslstl_BidirectionalIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
-                const bslstl_BidirectionalIterator<T2,ITER_IMP,TAG_TYPE>& rhs);
+bool operator==(const BidirectionalIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
+                const BidirectionalIterator<T2,ITER_IMP,TAG_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' iterator has the same value as the
     // specified 'rhs' iterator, and 'false' otherwise.  Two iterators have the
     // same value if they refer to the same element, or both have the past-the-
@@ -204,8 +204,8 @@ bool operator==(const bslstl_BidirectionalIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
     // both iterators refer to the same underlying sequence.
 
 template <typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE>
-bool operator!=(const bslstl_BidirectionalIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
-                const bslstl_BidirectionalIterator<T2,ITER_IMP,TAG_TYPE>& rhs);
+bool operator!=(const BidirectionalIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
+                const BidirectionalIterator<T2,ITER_IMP,TAG_TYPE>& rhs);
     // Return 'true' if the specified 'lhs' iterator does not have the same
     // value as the specified 'rhs' iterator, and 'false' otherwise.  Two
     // iterators do not have the same value if (1) they do not refer to the
@@ -214,15 +214,15 @@ bool operator!=(const bslstl_BidirectionalIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
     // iterators refer to the same underlying sequence.
 
 template <typename T, typename ITER_IMP, typename TAG_TYPE>
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>
-operator++(bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int);
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE>
+operator++(BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int);
     // Increment the specified 'iter' to the next element.  Return the previous
-    // value of 'iter'.  The behavior is undefined if, on entry, 'iter' has
-    // the past-the-end value for an iterator of the underlying sequence.
+    // value of 'iter'.  The behavior is undefined if, on entry, 'iter' has the
+    // past-the-end value for an iterator of the underlying sequence.
 
 template <typename T, typename ITER_IMP, typename TAG_TYPE>
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>
-operator--(bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int);
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE>
+operator--(BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int);
     // Decrement the specified 'iter' to the previous element.  Return the
     // previous value of 'iter'.  The behavior is undefined if, on entry,
     // 'iter' has the same value as an iterator to the start of the underlying
@@ -233,40 +233,38 @@ operator--(bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int);
 // ===========================================================================
 
                 //-----------------------------------
-                // class bslstl_BidirectionalIterator
+                // class BidirectionalIterator
                 //-----------------------------------
 
 // CREATORS
 template <typename T, typename ITER_IMP, typename TAG_TYPE>
 inline
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::
-bslstl_BidirectionalIterator()
-: bslstl_ForwardIterator<T,ITER_IMP,TAG_TYPE>()
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::BidirectionalIterator()
+: ForwardIterator<T,ITER_IMP,TAG_TYPE>()
 {
 }
 
 template <typename T, typename ITER_IMP, typename TAG_TYPE>
 inline
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::
-bslstl_BidirectionalIterator(const ITER_IMP& implementation)
-: bslstl_ForwardIterator<T,ITER_IMP,TAG_TYPE>(implementation)
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::
+BidirectionalIterator(const ITER_IMP& implementation)
+: ForwardIterator<T,ITER_IMP,TAG_TYPE>(implementation)
 {
 }
 
 template <typename T, typename ITER_IMP, typename TAG_TYPE>
 inline
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::
-bslstl_BidirectionalIterator(
-           const bslstl_BidirectionalIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other)
-: bslstl_ForwardIterator<T,ITER_IMP,TAG_TYPE>(other.imp())
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::BidirectionalIterator(
+                  const BidirectionalIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other)
+: ForwardIterator<T,ITER_IMP,TAG_TYPE>(other.imp())
 {
 }
 
 // MANIPULATORS
 template <typename T, typename ITER_IMP, typename TAG_TYPE>
 inline
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>&
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::operator++()
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE>&
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::operator++()
 {
     ++this->imp();
     return *this;
@@ -274,51 +272,63 @@ bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::operator++()
 
 template <typename T, typename ITER_IMP, typename TAG_TYPE>
 inline
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>&
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::operator--()
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE>&
+BidirectionalIterator<T,ITER_IMP,TAG_TYPE>::operator--()
 {
     --this->imp();
     return *this;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 template <typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE>
 inline
-bool operator==(const bslstl_BidirectionalIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
-                const bslstl_BidirectionalIterator<T2,ITER_IMP,TAG_TYPE>& rhs)
+bool bslstl::operator==(const BidirectionalIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
+                        const BidirectionalIterator<T2,ITER_IMP,TAG_TYPE>& rhs)
 {
     return lhs.imp() == rhs.imp();
 }
 
 template <typename T1, typename T2, typename ITER_IMP, typename TAG_TYPE>
 inline
-bool operator!=(const bslstl_BidirectionalIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
-                const bslstl_BidirectionalIterator<T2,ITER_IMP,TAG_TYPE>& rhs)
+bool bslstl::operator!=(const BidirectionalIterator<T1,ITER_IMP,TAG_TYPE>& lhs,
+                        const BidirectionalIterator<T2,ITER_IMP,TAG_TYPE>& rhs)
 {
     return !(lhs == rhs);
 }
 
 template <typename T, typename ITER_IMP, typename TAG_TYPE>
 inline
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>
-operator++(bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int)
+bslstl::BidirectionalIterator<T,ITER_IMP,TAG_TYPE>
+bslstl::operator++(BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int)
 {
-    bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE> tmp(iter);
+    BidirectionalIterator<T,ITER_IMP,TAG_TYPE> tmp(iter);
     ++iter;
     return tmp;
 }
 
 template <typename T, typename ITER_IMP, typename TAG_TYPE>
 inline
-bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>
-operator--(bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int)
+bslstl::BidirectionalIterator<T,ITER_IMP,TAG_TYPE>
+bslstl::operator--(BidirectionalIterator<T,ITER_IMP,TAG_TYPE>& iter, int)
 {
-    bslstl_BidirectionalIterator<T,ITER_IMP,TAG_TYPE> tmp(iter);
+    BidirectionalIterator<T,ITER_IMP,TAG_TYPE> tmp(iter);
     --iter;
     return tmp;
 }
 
-}  // close namespace BloombergLP
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslstl_BidirectionalIterator
+#undef bslstl_BidirectionalIterator
+#endif
+#define bslstl_BidirectionalIterator bslstl::BidirectionalIterator
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

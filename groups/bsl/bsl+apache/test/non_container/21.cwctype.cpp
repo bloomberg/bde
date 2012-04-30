@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2005 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <cwctype>
@@ -882,7 +882,7 @@ run_test (int, char**)
 
     const test_wint_t wc = 0;
     const test_wctype_t desc = 0;
-    
+
     result = std::iswctype (wc, desc);
 
     RW_DIAG (-1 != result && !(missing_set & bit_iswctype), 0, __LINE__,

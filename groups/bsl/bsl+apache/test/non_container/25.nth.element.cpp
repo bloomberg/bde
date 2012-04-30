@@ -23,10 +23,10 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
-#include <algorithm>    // for nth_element, 
+#include <algorithm>    // for nth_element,
 #include <cstring>      // for strlen, size_t
 
 #include <alg_test.h>
@@ -35,19 +35,19 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
 void
-nth_element (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+nth_element (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
              RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
              RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
-void 
-nth_element (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+void
+nth_element (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
              RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
              RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
              binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
@@ -59,7 +59,7 @@ nth_element (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
 /**************************************************************************/
 
 template <class T>
-struct StrictWeakLess 
+struct StrictWeakLess
 {
     static std::size_t funcalls_;
 
@@ -120,7 +120,7 @@ void test_nth_element (int                 line,
 
     Predicate pred (0, 0);
 
-    const std::size_t last_n_op_lt = T::n_total_op_lt_; 
+    const std::size_t last_n_op_lt = T::n_total_op_lt_;
 
     if (ppred)
         std::nth_element (first, nth_it, last, pred);
@@ -151,7 +151,7 @@ void test_nth_element (int                 line,
         rw_assert (success, 0, line,
                    "line %d: %s<%s%{?}, %s%{;}>(\"%s\", %zu, ...) ==> "
                    "\"%{X=*.*}\", got %#c at %zu !< %#c at %zu",
-                   __LINE__, fname, itname, ppred, funname, src, nth, 
+                   __LINE__, fname, itname, ppred, funname, src, nth,
                    int (nsrc), -1, xsrc, xsrc[i].data_.val_, i,
                    xsrc[j].data_.val_, j);
     }
@@ -159,14 +159,14 @@ void test_nth_element (int                 line,
         rw_assert (success, 0, line,
                    "line %d: %s<%s%{?}, %s%{;}>(%zu, %zu, ...) "
                    "got %d at %zu !< %d at %zu",
-                   __LINE__, fname, itname, ppred, funname, N, nth, 
+                   __LINE__, fname, itname, ppred, funname, N, nth,
                    xsrc[i].data_.val_, i, xsrc[j].data_.val_, j);
     }
 
     // check the complexity, 25.3.2, p2
     // it should be linear, i.e. <= K * N, there K << N
     // after tests on random sequences use K == 8 as upper bound
-    std::size_t n_ops = 
+    std::size_t n_ops =
         ppred ? Predicate::funcalls_ : T::n_total_op_lt_ - last_n_op_lt;
     std::size_t exp_ops = 8 * nsrc;
 
@@ -175,7 +175,7 @@ void test_nth_element (int                 line,
     rw_assert (success, 0, line,
                "line %d: %s<%s%{?}, %s%{;}>(%{?}\"%s\"%{;}%{?}%zu%{;}, "
                "%zu, ...): complexity: got %zu, expected no more than %zu",
-               __LINE__, fname, itname, ppred, funname, 
+               __LINE__, fname, itname, ppred, funname,
                src, src, !src, N, nth, n_ops, exp_ops);
 
     delete[] xsrc;
@@ -279,7 +279,7 @@ static int run_test (int, char*[])
     test_nth_element ((UserClass*)0, (StrictWeakLess<UserClass>*)0);
 
     if (rw_opt_no_predicate) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "std::nth_element predicate test disabled");
     }
     else {

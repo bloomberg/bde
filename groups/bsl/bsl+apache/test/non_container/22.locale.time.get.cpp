@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 #include <bsls_platform.h>
 
@@ -625,7 +625,7 @@ void test_posix (charT, const char *cname)
 #ifdef __GLIBC__
 
     STEP ("%k: equivalent to %H (GNU glibc extension)");
-    
+
     TEST (T (0, 0,  0),   "0", 1, "k", 0, Eof);
     TEST (T (0, 0,  1),   "1", 1, "k", 0, Eof);
     TEST (T (0, 0,  9),   "9", 1, "k", 0, Eof);
@@ -738,7 +738,7 @@ void test_posix (charT, const char *cname)
     TEST (T (),    " ", 1, "t", 0, Eof);
     TEST (T (),   "  ", 2, "t", 0, Eof);
     TEST (T (),  "\n ", 2, "t", 0, Eof);
-    
+
     // %T The time as %H:%M:%S.
     STEP ("%T: the time as %H:%M:%S");
     TEST (T ( 0,  0,  0),    "0:0:00", 6, "T", 0, Eof);
@@ -832,7 +832,7 @@ void test_posix (charT, const char *cname)
     TEST (T (0), "0", 0, "Z", 0, Fail);
 
 
-    // %Ec The locale's alternative date and time representation. 
+    // %Ec The locale's alternative date and time representation.
     // %EC The name of the base year (period) in the locale's alternative
     //     representation.
     // %Ex The locale's alternative date representation.
@@ -1159,7 +1159,7 @@ make_LC_TIME (const time_data *td)
         std::fprintf (fout, "\"");
         pcs_write (fout, td->abday [i]);
         std::fprintf (fout, "\"%c", i < 6 ? ';' : '\n');
-    }            
+    }
 
     std::fprintf (fout, "day ");
 
@@ -1167,7 +1167,7 @@ make_LC_TIME (const time_data *td)
         std::fprintf (fout, "\"");
         pcs_write (fout, td->day [i]);
         std::fprintf (fout, "\"%c", i < 6 ? ';' : '\n');
-    }            
+    }
 
     std::fprintf (fout, "abmon ");
 
@@ -1175,7 +1175,7 @@ make_LC_TIME (const time_data *td)
         std::fprintf (fout, "\"");
         pcs_write (fout, td->abmon [i]);
         std::fprintf (fout, "\"%c", i < 11 ? ';' : '\n');
-    }            
+    }
 
     std::fprintf (fout, "mon ");
 
@@ -1183,7 +1183,7 @@ make_LC_TIME (const time_data *td)
         std::fprintf (fout, "\"");
         pcs_write (fout, td->mon [i]);
         std::fprintf (fout, "\"%c", i < 11 ? ';' : '\n');
-    }            
+    }
 
     std::fprintf (fout, "am_pm ");
 
@@ -1419,7 +1419,7 @@ void test_user (charT, const char *cname, const char *locname)
     // set the global locale (used by the test function)
     std::locale::global (loc);
 
-    
+
     // %Ec: The locale's alternative date and time representation.
     STEP ("%Ec: alternative date and time representation");
     TEST (T (0, 0, 0, 1, 0, 0, 0),
@@ -1583,7 +1583,7 @@ void test_user (charT, const char *cname, const char *locname)
     // %OW: The week number of the year (Monday as the first day of the week)
     //      using the locale's alternative numeric symbols.
     STEP ("%OW: the Monday-based week using alternative numeric symbols");
-    
+
     TEST (T (0, 0, 0, 0, 0, 0, 1), "1st", 3, "%OW", 0, Good);
     // rw_warn (0, 0, __LINE__, "%%OW not being exercised");
 

@@ -124,10 +124,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bdema_SequentialAllocator;
 class bcema_Blob;
 class baenet_HttpEntityProcessor;

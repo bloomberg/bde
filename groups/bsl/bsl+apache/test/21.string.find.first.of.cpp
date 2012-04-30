@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * 21.string.find.first.of.cpp - 
+ * 21.string.find.first.of.cpp -
  *      string test exercising lib.string.find.first.of
  *
  * $Id: 21.string.find.first.of.cpp 590052 2007-10-30 12:44:14Z faridz $
@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <string>           // for string
@@ -48,9 +48,9 @@ static const char* const exceptions[] = {
 
 /**************************************************************************/
 
-// used to exercise 
+// used to exercise
 // find_first_of (const value_type*)
-static const StringTestCase 
+static const StringTestCase
 cptr_test_cases [] = {
 
 #undef TEST
@@ -62,74 +62,74 @@ cptr_test_cases [] = {
 
     //    +----------------------------------- controlled sequence
     //    |             +--------------------- sequence to be found
-    //    |             |                +---- expected result 
-    //    |             |                |                               
-    //    |             |                |                     
-    //    V             V                V        
-    TEST ("ab",         "a",             0),   
+    //    |             |                +---- expected result
+    //    |             |                |
+    //    |             |                |
+    //    V             V                V
+    TEST ("ab",         "a",             0),
 
-    TEST ("",           "",           NPOS),   
-    TEST ("",           "\0",         NPOS),    
-    TEST ("",           "a",          NPOS),   
+    TEST ("",           "",           NPOS),
+    TEST ("",           "\0",         NPOS),
+    TEST ("",           "a",          NPOS),
 
-    TEST ("\0",         "",           NPOS),    
-    TEST ("\0",         "\0",         NPOS),   
-    TEST ("\0",         "a",          NPOS),   
+    TEST ("\0",         "",           NPOS),
+    TEST ("\0",         "\0",         NPOS),
+    TEST ("\0",         "a",          NPOS),
 
-    TEST ("bbcdefghij", "a",          NPOS),    
-    TEST ("abcdefghij", "a",             0),  
-    TEST ("abcdefghij", "f",             5),  
-    TEST ("abcdefghij", "j",             9),  
+    TEST ("bbcdefghij", "a",          NPOS),
+    TEST ("abcdefghij", "a",             0),
+    TEST ("abcdefghij", "f",             5),
+    TEST ("abcdefghij", "j",             9),
 
-    TEST ("edfcbbhjig", "cba",           3),     
-    TEST ("ecdfcbahca", "cba",           1),   
-    TEST ("bacbahjicg", "cba",           0),  
-    TEST ("efhijhjieg", "cba",        NPOS), 
+    TEST ("edfcbbhjig", "cba",           3),
+    TEST ("ecdfcbahca", "cba",           1),
+    TEST ("bacbahjicg", "cba",           0),
+    TEST ("efhijhjieg", "cba",        NPOS),
 
-    TEST ("e\0cb\0\0g", "b\0\0g",        3),    
-    TEST ("e\0cb\0\0g", "cbe",           0),    
-    TEST ("\0cb\0\0ge", "\0\0ge",     NPOS),   
-    TEST ("\0cb\0\0be", "b\0c",          2),   
-    TEST ("e\0gbg\0\0", "bg",            2),    
-    TEST ("e\0dg\0\0a", "cba",           6),  
-    TEST ("a\0b",       "e\0gbg\0\0", NPOS),    
-    TEST ("a\0b",       "eb\0gg\0\0",    2), 
+    TEST ("e\0cb\0\0g", "b\0\0g",        3),
+    TEST ("e\0cb\0\0g", "cbe",           0),
+    TEST ("\0cb\0\0ge", "\0\0ge",     NPOS),
+    TEST ("\0cb\0\0be", "b\0c",          2),
+    TEST ("e\0gbg\0\0", "bg",            2),
+    TEST ("e\0dg\0\0a", "cba",           6),
+    TEST ("a\0b",       "e\0gbg\0\0", NPOS),
+    TEST ("a\0b",       "eb\0gg\0\0",    2),
     TEST ("a\0b",       "e\0gg\0\0a", NPOS),
 
-    TEST ("bcbedfbjih", "a",          NPOS),   
-    TEST ("bcaedfajih", "a",             2),    
-    TEST ("bcedfaajih", "a",             5),    
-    TEST ("bcaaedfaji", "a",             2),    
+    TEST ("bcbedfbjih", "a",          NPOS),
+    TEST ("bcaedfajih", "a",             2),
+    TEST ("bcedfaajih", "a",             5),
+    TEST ("bcaaedfaji", "a",             2),
 
-    TEST ("aaaaaaaaaa", "aaaaaaaaaa",    0),     
-    TEST ("aaaaabaaaa", "cccccccccb",    5),   
+    TEST ("aaaaaaaaaa", "aaaaaaaaaa",    0),
+    TEST ("aaaaabaaaa", "cccccccccb",    5),
     TEST ("aabaabaaaa", "cccccccccb",    2),
-    TEST ("bbb",        "aaaaaaaaba",    0),        
-    TEST ("bbb",        "aaaaaaaaaa", NPOS),    
+    TEST ("bbb",        "aaaaaaaaba",    0),
+    TEST ("bbb",        "aaaaaaaaaa", NPOS),
 
-    TEST ("x@4096",     "",           NPOS),     
-    TEST ("x@4096",     "a",          NPOS),  
-    TEST ("x@4096",     "x",             0),       
-    TEST ("x@4096",     "axa",           0),   
-    TEST ("abc",        "x@4096",     NPOS),    
-    TEST ("axbc",       "x@4096",        1), 
-    TEST ("x@2048axxx", "y@4096a",    2048), 
+    TEST ("x@4096",     "",           NPOS),
+    TEST ("x@4096",     "a",          NPOS),
+    TEST ("x@4096",     "x",             0),
+    TEST ("x@4096",     "axa",           0),
+    TEST ("abc",        "x@4096",     NPOS),
+    TEST ("axbc",       "x@4096",        1),
+    TEST ("x@2048axxx", "y@4096a",    2048),
 
-    TEST ("abcdefghij", 0,               0),      
-    TEST ("\0cb\0\0ge", 0,            NPOS),       
+    TEST ("abcdefghij", 0,               0),
+    TEST ("\0cb\0\0ge", 0,            NPOS),
     TEST ("x@4096",     0,               0),
 
-    TEST ("last test",  "test",          2)       
+    TEST ("last test",  "test",          2)
 };
 
 /**************************************************************************/
 
-// used to exercise 
+// used to exercise
 // find_first_of (const basic_string&)
-static const StringTestCase 
+static const StringTestCase
 cstr_test_cases [] = {
 
-#undef TEST     
+#undef TEST
 #define TEST(str, arg, res)                 \
     { __LINE__, -1, -1, -1, -1, -1,         \
       str, sizeof str - 1, arg,             \
@@ -138,74 +138,74 @@ cstr_test_cases [] = {
 
     //    +------------------------------------ controlled sequence
     //    |             +---------------------- sequence to be found
-    //    |             |                +----- expected result 
-    //    |             |                |                               
-    //    |             |                |                     
-    //    V             V                V        
-    TEST ("ab",         "a",             0),   
+    //    |             |                +----- expected result
+    //    |             |                |
+    //    |             |                |
+    //    V             V                V
+    TEST ("ab",         "a",             0),
 
-    TEST ("",           "",           NPOS),   
-    TEST ("",           "\0",         NPOS),    
-    TEST ("",           "a",          NPOS),   
+    TEST ("",           "",           NPOS),
+    TEST ("",           "\0",         NPOS),
+    TEST ("",           "a",          NPOS),
 
-    TEST ("\0",         "",           NPOS),    
-    TEST ("\0",         "\0",            0),   
-    TEST ("\0",         "a",          NPOS),   
+    TEST ("\0",         "",           NPOS),
+    TEST ("\0",         "\0",            0),
+    TEST ("\0",         "a",          NPOS),
 
-    TEST ("bbcdefghij", "a",          NPOS),    
-    TEST ("abcdefghij", "a",             0),  
-    TEST ("abcdefghij", "f",             5),  
-    TEST ("abcdefghij", "j",             9),  
+    TEST ("bbcdefghij", "a",          NPOS),
+    TEST ("abcdefghij", "a",             0),
+    TEST ("abcdefghij", "f",             5),
+    TEST ("abcdefghij", "j",             9),
 
-    TEST ("edfcbbhjig", "cba",           3),     
-    TEST ("ecdfcbahca", "cba",           1),   
-    TEST ("bacbahjicg", "cba",           0),  
-    TEST ("efhijhjieg", "cba",        NPOS), 
+    TEST ("edfcbbhjig", "cba",           3),
+    TEST ("ecdfcbahca", "cba",           1),
+    TEST ("bacbahjicg", "cba",           0),
+    TEST ("efhijhjieg", "cba",        NPOS),
 
-    TEST ("e\0cb\0\0g", "ad",         NPOS),  
-    TEST ("e\0cb\0\0g", "b\0\0g",        1),    
-    TEST ("e\0cb\0\0g", "cbe",           0),    
-    TEST ("\0cb\0\0ge", "\0\0ge",        0),   
-    TEST ("\0cb\0\0be", "b\0c",          0),  
+    TEST ("e\0cb\0\0g", "ad",         NPOS),
+    TEST ("e\0cb\0\0g", "b\0\0g",        1),
+    TEST ("e\0cb\0\0g", "cbe",           0),
+    TEST ("\0cb\0\0ge", "\0\0ge",        0),
+    TEST ("\0cb\0\0be", "b\0c",          0),
     TEST ("\0cb\0\0be", "bc",            1),
     TEST ("\0ab\0\0be", "bc",            2),
-    TEST ("e\0gbg\0\0", "bg",            2),    
-    TEST ("e\0dg\0\0a", "cba",           6),  
-    TEST ("a\0b",       "e\0gbg\0\0",    1),    
-    TEST ("a\0b",       "eb\0gg\0\0",    1), 
+    TEST ("e\0gbg\0\0", "bg",            2),
+    TEST ("e\0dg\0\0a", "cba",           6),
+    TEST ("a\0b",       "e\0gbg\0\0",    1),
+    TEST ("a\0b",       "eb\0gg\0\0",    1),
     TEST ("a\0b",       "e\0gg\0\0a",    0),
 
-    TEST ("bcbedfbjih", "a",          NPOS),   
-    TEST ("bcaedfajih", "a",             2),    
-    TEST ("bcedfaajih", "a",             5),    
-    TEST ("bcaaedfaji", "a",             2),    
+    TEST ("bcbedfbjih", "a",          NPOS),
+    TEST ("bcaedfajih", "a",             2),
+    TEST ("bcedfaajih", "a",             5),
+    TEST ("bcaaedfaji", "a",             2),
 
-    TEST ("aaaaaaaaaa", "aaaaaaaaaa",    0),     
-    TEST ("aaaaabaaaa", "cccccccccb",    5),   
+    TEST ("aaaaaaaaaa", "aaaaaaaaaa",    0),
+    TEST ("aaaaabaaaa", "cccccccccb",    5),
     TEST ("aabaabaaaa", "cccccccccb",    2),
-    TEST ("bbb",        "aaaaaaaaba",    0),        
-    TEST ("bbb",        "aaaaaaaaaa", NPOS),    
+    TEST ("bbb",        "aaaaaaaaba",    0),
+    TEST ("bbb",        "aaaaaaaaaa", NPOS),
 
-    TEST ("x@4096",     "",           NPOS),     
-    TEST ("x@4096",     "a",          NPOS),  
-    TEST ("x@4096",     "x",             0),       
-    TEST ("x@4096",     "axa",           0),   
-    TEST ("abc",        "x@4096",     NPOS),    
-    TEST ("axbc",       "x@4096",        1), 
+    TEST ("x@4096",     "",           NPOS),
+    TEST ("x@4096",     "a",          NPOS),
+    TEST ("x@4096",     "x",             0),
+    TEST ("x@4096",     "axa",           0),
+    TEST ("abc",        "x@4096",     NPOS),
+    TEST ("axbc",       "x@4096",        1),
     TEST ("x@2048axxx", "y@4096a",    2048),
 
-    TEST ("abcdefghij", 0,               0),      
-    TEST ("\0cb\0\0ge", 0,               0),       
+    TEST ("abcdefghij", 0,               0),
+    TEST ("\0cb\0\0ge", 0,               0),
     TEST ("x@4096",     0,               0),
 
-    TEST ("last test",  "test",          2)      
+    TEST ("last test",  "test",          2)
 };
 
 /**************************************************************************/
 
-// used to exercise 
+// used to exercise
 // find_first_of (const value_type*, size_type)
-static const StringTestCase 
+static const StringTestCase
 cptr_size_test_cases [] = {
 
 #undef TEST
@@ -217,90 +217,90 @@ cptr_size_test_cases [] = {
 
     //    +------------------------------------- controlled sequence
     //    |            +------------------------ sequence to be found
-    //    |            |               +-------- find_first_of() off argument 
-    //    |            |               |     +-- expected result  
-    //    |            |               |     |                             
-    //    |            |               |     |             
-    //    V            V               V     V                 
-    TEST ("ab",        "a",            0,    0),   
+    //    |            |               +-------- find_first_of() off argument
+    //    |            |               |     +-- expected result
+    //    |            |               |     |
+    //    |            |               |     |
+    //    V            V               V     V
+    TEST ("ab",        "a",            0,    0),
 
-    TEST ("",           "",            0, NPOS),    
-    TEST ("",           "\0",          0, NPOS),    
-    TEST ("",           "a",           0, NPOS),    
+    TEST ("",           "",            0, NPOS),
+    TEST ("",           "\0",          0, NPOS),
+    TEST ("",           "a",           0, NPOS),
 
-    TEST ("\0",         "",            0, NPOS),    
-    TEST ("\0",         "\0",          0, NPOS),   
-    TEST ("\0",         "\0",          1, NPOS),    
-    TEST ("\0",         "a",           0, NPOS),    
+    TEST ("\0",         "",            0, NPOS),
+    TEST ("\0",         "\0",          0, NPOS),
+    TEST ("\0",         "\0",          1, NPOS),
+    TEST ("\0",         "a",           0, NPOS),
 
-    TEST ("bbcdefghij", "a",           0, NPOS),    
-    TEST ("abcdefghij", "a",           0,    0),   
-    TEST ("abcdefghij", "a",           2, NPOS),    
-    TEST ("abcdefghij", "f",           2,    5),   
-    TEST ("abcdefghij", "f",           7, NPOS),    
-    TEST ("abcdefghij", "j",           9,    9),  
+    TEST ("bbcdefghij", "a",           0, NPOS),
+    TEST ("abcdefghij", "a",           0,    0),
+    TEST ("abcdefghij", "a",           2, NPOS),
+    TEST ("abcdefghij", "f",           2,    5),
+    TEST ("abcdefghij", "f",           7, NPOS),
+    TEST ("abcdefghij", "j",           9,    9),
 
-    TEST ("edfcbbhjig", "cba",         0,    3),    
-    TEST ("edfcbahjig", "cba",         4,    4),     
-    TEST ("edfcbahjig", "cba",         6, NPOS),    
-    TEST ("edfcbahcba", "cba",         9,    9),       
-    TEST ("cbacbahjig", "cba",         7, NPOS),    
+    TEST ("edfcbbhjig", "cba",         0,    3),
+    TEST ("edfcbahjig", "cba",         4,    4),
+    TEST ("edfcbahjig", "cba",         6, NPOS),
+    TEST ("edfcbahcba", "cba",         9,    9),
+    TEST ("cbacbahjig", "cba",         7, NPOS),
 
-    TEST ("e\0cb\0\0g", "b\0\0g",      0,    3),    
-    TEST ("e\0cb\0\0g", "b\0\0g",      4, NPOS),    
-    TEST ("e\0cb\0\0g", "cbe",         0,    0),     
-    TEST ("\0cb\0\0ge", "\0\0ge",      0, NPOS),  
-    TEST ("\0cb\0\0ge", "cb\0",        6, NPOS),     
-    TEST ("e\0gbg\0\0", "bg",          1,    2),   
-    TEST ("e\0dg\0\0a", "cba",         0,    6),    
-    TEST ("a\0b",       "e\0gbg\0\0",  0, NPOS),    
-    TEST ("a\0b",       "eb\0gg\0\0",  1,    2), 
+    TEST ("e\0cb\0\0g", "b\0\0g",      0,    3),
+    TEST ("e\0cb\0\0g", "b\0\0g",      4, NPOS),
+    TEST ("e\0cb\0\0g", "cbe",         0,    0),
+    TEST ("\0cb\0\0ge", "\0\0ge",      0, NPOS),
+    TEST ("\0cb\0\0ge", "cb\0",        6, NPOS),
+    TEST ("e\0gbg\0\0", "bg",          1,    2),
+    TEST ("e\0dg\0\0a", "cba",         0,    6),
+    TEST ("a\0b",       "e\0gbg\0\0",  0, NPOS),
+    TEST ("a\0b",       "eb\0gg\0\0",  1,    2),
     TEST ("a\0b",       "e\0gg\0\0a",  3, NPOS),
 
-    TEST ("bcbedfbjih", "a",           0, NPOS),    
-    TEST ("bcaedfajih", "a",           1,    2),     
-    TEST ("bcedfaajih", "a",           6,    6),    
-    TEST ("bcaaedfaji", "a",           5,    7),    
+    TEST ("bcbedfbjih", "a",           0, NPOS),
+    TEST ("bcaedfajih", "a",           1,    2),
+    TEST ("bcedfaajih", "a",           6,    6),
+    TEST ("bcaaedfaji", "a",           5,    7),
 
-    TEST ("aaaaaaaaaa", "aaaaaaaaaa",  0,    0),    
-    TEST ("aaaaaaaaaa", "aaaaaaaaaa",  4,    4),    
-    TEST ("aaaaabaaaa", "cccccccccb",  1,    5),   
-    TEST ("aabaabaaaa", "cccccccccb",  0,    2),  
-    TEST ("aabaabaaaa", "cccccccccb",  6, NPOS), 
-    TEST ("bbb",        "aaaaaaaaba",  2,    2),  
+    TEST ("aaaaaaaaaa", "aaaaaaaaaa",  0,    0),
+    TEST ("aaaaaaaaaa", "aaaaaaaaaa",  4,    4),
+    TEST ("aaaaabaaaa", "cccccccccb",  1,    5),
+    TEST ("aabaabaaaa", "cccccccccb",  0,    2),
+    TEST ("aabaabaaaa", "cccccccccb",  6, NPOS),
+    TEST ("bbb",        "aaaaaaaaba",  2,    2),
     TEST ("bab",        "aaaaaaaaba",  0,    0),
-    TEST ("bbb",        "aaaaaaaaaa",  0, NPOS),     
+    TEST ("bbb",        "aaaaaaaaaa",  0, NPOS),
 
-    TEST ("x@4096",     "",            0, NPOS),    
-    TEST ("x@4096",     "a",           0, NPOS),     
-    TEST ("x@4096",     "x",           0,    0),     
-    TEST ("x@4096",     "xxx",        10,   10),    
-    TEST ("x@4096",     "axa",        10,   10),     
-    TEST ("abc",        "x@4096",      2, NPOS),    
+    TEST ("x@4096",     "",            0, NPOS),
+    TEST ("x@4096",     "a",           0, NPOS),
+    TEST ("x@4096",     "x",           0,    0),
+    TEST ("x@4096",     "xxx",        10,   10),
+    TEST ("x@4096",     "axa",        10,   10),
+    TEST ("abc",        "x@4096",      2, NPOS),
     TEST ("xxxxxxxxxx", "x@4096",      0,    0),
     TEST ("x@2048axxx", "y@4096a",    10, 2048),
 
-    TEST ("x@4096",     "xxx",      4093, 4093), 
-    TEST ("x@4096",     "xxx",      4096, NPOS),     
+    TEST ("x@4096",     "xxx",      4093, 4093),
+    TEST ("x@4096",     "xxx",      4096, NPOS),
 
-    TEST ("abcdefghij", 0,             0,    0),    
-    TEST ("abcdefghij", 0,             1,    1),   
-    TEST ("\0cb\0\0ge", 0,             5, NPOS),    
-    TEST ("x@4096",     0,             0,    0),  
-    TEST ("x@4096",     0,             7,    7),    
+    TEST ("abcdefghij", 0,             0,    0),
+    TEST ("abcdefghij", 0,             1,    1),
+    TEST ("\0cb\0\0ge", 0,             5, NPOS),
+    TEST ("x@4096",     0,             0,    0),
+    TEST ("x@4096",     0,             7,    7),
 
-    TEST ("",           "",            1, NPOS),  
-    TEST ("abcdefghij", "abc",        10, NPOS),   
-    TEST ("abcdefghij", "cba",        10, NPOS), 
+    TEST ("",           "",            1, NPOS),
+    TEST ("abcdefghij", "abc",        10, NPOS),
+    TEST ("abcdefghij", "cba",        10, NPOS),
 
-    TEST ("last test", "test",         0,    2)      
+    TEST ("last test", "test",         0,    2)
 };
 
 /**************************************************************************/
 
-// used to exercise 
+// used to exercise
 // find_first_of (const value_type*, size_type, size_type)
-static const StringTestCase 
+static const StringTestCase
 cptr_size_size_test_cases [] = {
 
 #undef TEST
@@ -313,14 +313,14 @@ cptr_size_size_test_cases [] = {
     //    +-------------------------------------- controlled sequence
     //    |            +------------------------- sequence to be found
     //    |            |               +--------- find_first_of() off argument
-    //    |            |               |   +----- find_first_of() n argument 
-    //    |            |               |   |     +- expected result  
-    //    |            |               |   |     |  exception info 
-    //    |            |               |   |     |  |   0 - no exception        
-    //    |            |               |   |     |  |   1 - length_error  
-    //    |            |               |   |     |  |                           
-    //    |            |               |   |     |  +-----+             
-    //    V            V               V   V     V        V             
+    //    |            |               |   +----- find_first_of() n argument
+    //    |            |               |   |     +- expected result
+    //    |            |               |   |     |  exception info
+    //    |            |               |   |     |  |   0 - no exception
+    //    |            |               |   |     |  |   1 - length_error
+    //    |            |               |   |     |  |
+    //    |            |               |   |     |  +-----+
+    //    V            V               V   V     V        V
     TEST ("ab",        "a",            0,  1,    0,       0),
 
     TEST ("",           "",            0,  0, NPOS,       0),
@@ -355,8 +355,8 @@ cptr_size_size_test_cases [] = {
     TEST ("e\0cb\0\0g", "afe",         0,  2, NPOS,       0),
     TEST ("\0cb\0\0ge", "\0\0ge",      7,  4, NPOS,       0),
     TEST ("\0cb\0\0ge", "\0\0ge",      6,  0, NPOS,       0),
-    TEST ("a\0b",       "e\0gbg\0\0",  0,  1, NPOS,       0),    
-    TEST ("a\0b",       "eb\0gg\0\0",  1,  2,    2,       0), 
+    TEST ("a\0b",       "e\0gbg\0\0",  0,  1, NPOS,       0),
+    TEST ("a\0b",       "eb\0gg\0\0",  1,  2,    2,       0),
     TEST ("a\0b",       "e\0gg\0\0a",  3,  6, NPOS,       0),
     TEST ("a\0b",       "e\0gg\0\0a",  0,  7,    0,       0),
     TEST ("a\0b",       "e\0gg\0\0a",  0,  4,    1,       0),
@@ -371,8 +371,8 @@ cptr_size_size_test_cases [] = {
     TEST ("aaaaabaaaa", "cccccccccc",  0, 10, NPOS,       0),
     TEST ("aaaaabaaaa", "cccbcccccc",  1,  4,    5,       0),
     TEST ("aaaabaaaaa", "cccca",       0,  5,    0,       0),
-    TEST ("aabaabaaaa", "cbccccccca",  0,  5,    2,       0), 
-    TEST ("bbb",        "aaaaaaaaba",  2,  2, NPOS,       0),  
+    TEST ("aabaabaaaa", "cbccccccca",  0,  5,    2,       0),
+    TEST ("bbb",        "aaaaaaaaba",  2,  2, NPOS,       0),
     TEST ("bbb",        "aaaaaaaaaa",  0,  9, NPOS,       0),
     TEST ("bab",        "aaaaaaaaba",  0,  0, NPOS,       0),
     TEST ("bab",        "ccccccccba",  1, 10,    1,       0),
@@ -415,9 +415,9 @@ cptr_size_size_test_cases [] = {
 
 /**************************************************************************/
 
-// used to exercise 
+// used to exercise
 // find_first_of (const basic_string&, size_type)
-static const StringTestCase 
+static const StringTestCase
 cstr_size_test_cases [] = {
 
 #undef TEST
@@ -430,92 +430,92 @@ cstr_size_test_cases [] = {
     //    +-------------------------------------- controlled sequence
     //    |             +------------------------ sequence to be found
     //    |             |              +--------- find_first_of() off argument
-    //    |             |              |     +--- expected result 
-    //    |             |              |     |                          
-    //    |             |              |     |           
-    //    V             V              V     V                
-    TEST ("ab",         "a",           0,    0),     
+    //    |             |              |     +--- expected result
+    //    |             |              |     |
+    //    |             |              |     |
+    //    V             V              V     V
+    TEST ("ab",         "a",           0,    0),
 
-    TEST ("",           "",            0, NPOS),    
-    TEST ("",           "\0",          0, NPOS),    
-    TEST ("",           "a",           0, NPOS),    
+    TEST ("",           "",            0, NPOS),
+    TEST ("",           "\0",          0, NPOS),
+    TEST ("",           "a",           0, NPOS),
 
-    TEST ("\0",         "",            0, NPOS),    
-    TEST ("\0",         "\0",          0,    0),   
-    TEST ("\0",         "\0",          1, NPOS),    
-    TEST ("\0",         "a",           0, NPOS),    
+    TEST ("\0",         "",            0, NPOS),
+    TEST ("\0",         "\0",          0,    0),
+    TEST ("\0",         "\0",          1, NPOS),
+    TEST ("\0",         "a",           0, NPOS),
 
-    TEST ("bbcdefghij", "a",           0, NPOS),    
-    TEST ("abcdefghij", "a",           0,    0),   
-    TEST ("abcdefghij", "a",           2, NPOS),    
-    TEST ("abcdefghij", "f",           2,    5),   
-    TEST ("abcdefghij", "f",           7, NPOS),    
-    TEST ("abcdefghij", "j",           9,    9),  
+    TEST ("bbcdefghij", "a",           0, NPOS),
+    TEST ("abcdefghij", "a",           0,    0),
+    TEST ("abcdefghij", "a",           2, NPOS),
+    TEST ("abcdefghij", "f",           2,    5),
+    TEST ("abcdefghij", "f",           7, NPOS),
+    TEST ("abcdefghij", "j",           9,    9),
 
-    TEST ("edfcbbhjig", "cba",         0,    3),    
-    TEST ("edfcbahjig", "cba",         4,    4),     
-    TEST ("edfcbahjig", "cba",         6, NPOS),    
-    TEST ("edfcbahcba", "cba",         9,    9),       
-    TEST ("cbacbahjig", "cba",         7, NPOS),    
+    TEST ("edfcbbhjig", "cba",         0,    3),
+    TEST ("edfcbahjig", "cba",         4,    4),
+    TEST ("edfcbahjig", "cba",         6, NPOS),
+    TEST ("edfcbahcba", "cba",         9,    9),
+    TEST ("cbacbahjig", "cba",         7, NPOS),
 
-    TEST ("e\0cb\0\0g", "b\0\0g",      0,    1),    
-    TEST ("e\0cb\0\0g", "b\0\0g",      4,    4),    
-    TEST ("e\0cb\0\0g", "cbe",         0,    0),     
-    TEST ("\0cb\0\0ge", "\0\0ge",      0,    0),  
-    TEST ("\0cb\0\0ge", "cb\0",        6, NPOS),     
-    TEST ("e\0gbg\0\0", "bg",          1,    2),   
-    TEST ("e\0gbg\0\0", "\0bg",        5,    5), 
-    TEST ("e\0dg\0\0a", "cba",         0,    6),    
-    TEST ("a\0b",       "e\0gbg\0\0",  0,    1),    
-    TEST ("a\0b",       "eb\0gg\0\0",  1,    1), 
+    TEST ("e\0cb\0\0g", "b\0\0g",      0,    1),
+    TEST ("e\0cb\0\0g", "b\0\0g",      4,    4),
+    TEST ("e\0cb\0\0g", "cbe",         0,    0),
+    TEST ("\0cb\0\0ge", "\0\0ge",      0,    0),
+    TEST ("\0cb\0\0ge", "cb\0",        6, NPOS),
+    TEST ("e\0gbg\0\0", "bg",          1,    2),
+    TEST ("e\0gbg\0\0", "\0bg",        5,    5),
+    TEST ("e\0dg\0\0a", "cba",         0,    6),
+    TEST ("a\0b",       "e\0gbg\0\0",  0,    1),
+    TEST ("a\0b",       "eb\0gg\0\0",  1,    1),
     TEST ("a\0b",       "e\0gg\0\0b",  2,    2),
     TEST ("a\0b",       "e\0gg\0\0a",  3, NPOS),
 
-    TEST ("bcbedfbjih", "a",           0, NPOS),    
-    TEST ("bcaedfajih", "a",           1,    2),     
-    TEST ("bcedfaajih", "a",           6,    6),    
-    TEST ("bcaaedfaji", "a",           5,    7),    
+    TEST ("bcbedfbjih", "a",           0, NPOS),
+    TEST ("bcaedfajih", "a",           1,    2),
+    TEST ("bcedfaajih", "a",           6,    6),
+    TEST ("bcaaedfaji", "a",           5,    7),
 
-    TEST ("aaaaaaaaaa", "aaaaaaaaaa",  0,    0),    
-    TEST ("aaaaaaaaaa", "aaaaaaaaaa",  4,    4),    
-    TEST ("aaaaabaaaa", "cccccccccb",  1,    5),   
-    TEST ("aabaabaaaa", "cccccccccb",  0,    2),  
-    TEST ("aabaabaaaa", "cccccccccb",  6, NPOS), 
-    TEST ("bbb",        "aaaaaaaaba",  2,    2),  
+    TEST ("aaaaaaaaaa", "aaaaaaaaaa",  0,    0),
+    TEST ("aaaaaaaaaa", "aaaaaaaaaa",  4,    4),
+    TEST ("aaaaabaaaa", "cccccccccb",  1,    5),
+    TEST ("aabaabaaaa", "cccccccccb",  0,    2),
+    TEST ("aabaabaaaa", "cccccccccb",  6, NPOS),
+    TEST ("bbb",        "aaaaaaaaba",  2,    2),
     TEST ("bab",        "aaaaaaaaba",  0,    0),
-    TEST ("bbb",        "aaaaaaaaaa",  0, NPOS),     
+    TEST ("bbb",        "aaaaaaaaaa",  0, NPOS),
 
-    TEST ("x@4096",     "",            0, NPOS),    
-    TEST ("x@4096",     "a",           0, NPOS),     
-    TEST ("x@4096",     "x",           0,    0),     
-    TEST ("x@4096",     "xxx",        10,   10),    
-    TEST ("x@4096",     "axa",        10,   10),     
-    TEST ("abc",        "x@4096",      2, NPOS),    
-    TEST ("xxxxxxxxxx", "x@4096",      0,    0), 
+    TEST ("x@4096",     "",            0, NPOS),
+    TEST ("x@4096",     "a",           0, NPOS),
+    TEST ("x@4096",     "x",           0,    0),
+    TEST ("x@4096",     "xxx",        10,   10),
+    TEST ("x@4096",     "axa",        10,   10),
+    TEST ("abc",        "x@4096",      2, NPOS),
+    TEST ("xxxxxxxxxx", "x@4096",      0,    0),
     TEST ("x@2048axxx", "y@4096a",    10, 2048),
 
-    TEST ("x@4096",     "xxx",      4093, 4093), 
-    TEST ("x@4096",     "xxx",      4096, NPOS),     
+    TEST ("x@4096",     "xxx",      4093, 4093),
+    TEST ("x@4096",     "xxx",      4096, NPOS),
 
-    TEST ("abcdefghij", 0,             0,    0),    
-    TEST ("abcdefghij", 0,             1,    1),   
-    TEST ("\0cb\0\0ge", 0,             5,    5),    
-    TEST ("\0cb\0\0ge", 0,             4,    4),  
-    TEST ("x@4096",     0,             0,    0),  
-    TEST ("x@4096",     0,             7,    7),    
+    TEST ("abcdefghij", 0,             0,    0),
+    TEST ("abcdefghij", 0,             1,    1),
+    TEST ("\0cb\0\0ge", 0,             5,    5),
+    TEST ("\0cb\0\0ge", 0,             4,    4),
+    TEST ("x@4096",     0,             0,    0),
+    TEST ("x@4096",     0,             7,    7),
 
-    TEST ("",           "",            1, NPOS),  
-    TEST ("abcdefghij", "abc",        10, NPOS),   
-    TEST ("abcdefghij", "cba",        10, NPOS), 
+    TEST ("",           "",            1, NPOS),
+    TEST ("abcdefghij", "abc",        10, NPOS),
+    TEST ("abcdefghij", "cba",        10, NPOS),
 
-    TEST ("last test",  "test",        0,    2)     
+    TEST ("last test",  "test",        0,    2)
 };
 
 /**************************************************************************/
 
-// used to exercise 
+// used to exercise
 // find_first_of (value_type)
-static const StringTestCase 
+static const StringTestCase
 val_test_cases [] = {
 
 #undef TEST
@@ -527,39 +527,39 @@ val_test_cases [] = {
 
     //    +----------------------------- controlled sequence
     //    |              +-------------- character to be found
-    //    |              |       +------ expected result  
-    //    |              |       |                           
-    //    |              |       |                
-    //    V              V       V                 
-    TEST ("ab",          'a',    0),   
+    //    |              |       +------ expected result
+    //    |              |       |
+    //    |              |       |
+    //    V              V       V
+    TEST ("ab",          'a',    0),
 
-    TEST ("",            'a', NPOS),  
-    TEST ("",           '\0', NPOS),   
+    TEST ("",            'a', NPOS),
+    TEST ("",           '\0', NPOS),
 
-    TEST ("\0",         '\0',    0),   
-    TEST ("\0\0",       '\0',    0),  
-    TEST ("\0",          'a', NPOS),   
+    TEST ("\0",         '\0',    0),
+    TEST ("\0\0",       '\0',    0),
+    TEST ("\0",          'a', NPOS),
 
-    TEST ("e\0cb\0\0g", '\0',    1),    
-    TEST ("e\0cb\0\0g",  'b',    3),    
-    TEST ("e\0cb\0\0g",  'a', NPOS),   
-    TEST ("\0cbge\0\0", '\0',    0),   
-    TEST ("\0cbge\0\0",  'b',    2),   
-    TEST ("\0cbge\0\0",  'a', NPOS),   
+    TEST ("e\0cb\0\0g", '\0',    1),
+    TEST ("e\0cb\0\0g",  'b',    3),
+    TEST ("e\0cb\0\0g",  'a', NPOS),
+    TEST ("\0cbge\0\0", '\0',    0),
+    TEST ("\0cbge\0\0",  'b',    2),
+    TEST ("\0cbge\0\0",  'a', NPOS),
 
-    TEST ("x@4096",      'x',    0),  
-    TEST ("x@4096",     '\0', NPOS),   
+    TEST ("x@4096",      'x',    0),
+    TEST ("x@4096",     '\0', NPOS),
     TEST ("x@4096",      'a', NPOS),
     TEST ("x@2048axxx",  'a', 2048),
 
-    TEST ("last test",   't',    3)    
+    TEST ("last test",   't',    3)
 };
 
 /**************************************************************************/
 
-// used to exercise 
+// used to exercise
 // find_first_of (value_type, size_type)
-static const StringTestCase 
+static const StringTestCase
 val_size_test_cases [] = {
 
 #undef TEST
@@ -572,49 +572,49 @@ val_size_test_cases [] = {
     //    +------------------------------ controlled sequence
     //    |              +--------------- character to be found
     //    |              |     +--------- find_first_of() off argument
-    //    |              |     |     +--- expected result  
-    //    |              |     |     |                              
-    //    |              |     |     |               
-    //    V              V     V     V                   
-    TEST ("ab",          'a',  0,    0),    
+    //    |              |     |     +--- expected result
+    //    |              |     |     |
+    //    |              |     |     |
+    //    V              V     V     V
+    TEST ("ab",          'a',  0,    0),
 
-    TEST ("",            'a',  0, NPOS),   
-    TEST ("",           '\0',  0, NPOS),    
+    TEST ("",            'a',  0, NPOS),
+    TEST ("",           '\0',  0, NPOS),
 
-    TEST ("\0",         '\0',  1, NPOS),    
-    TEST ("\0",          'a',  0, NPOS),   
-    TEST ("\0\0",       '\0',  1,    1),    
-    TEST ("\0\0",        'a',  3, NPOS),   
-    TEST ("\0\0",       '\0',  3, NPOS),    
+    TEST ("\0",         '\0',  1, NPOS),
+    TEST ("\0",          'a',  0, NPOS),
+    TEST ("\0\0",       '\0',  1,    1),
+    TEST ("\0\0",        'a',  3, NPOS),
+    TEST ("\0\0",       '\0',  3, NPOS),
 
-    TEST ("e\0cb\0\0g", '\0',  1,    1),    
-    TEST ("e\0cb\0\0g", '\0',  2,    4),    
-    TEST ("e\0cb\0\0g", '\0',  6, NPOS),    
-    TEST ("e\0cb\0\0g",  'b',  1,    3),    
-    TEST ("e\0cb\0\0g",  'b',  4, NPOS),    
-    TEST ("e\0cb\0\0g",  'a',  0, NPOS),   
-    TEST ("\0cbge\0\0", '\0',  0,    0),   
-    TEST ("\0cbge\0\0", '\0',  1,    5),  
-    TEST ("\0cbge\0\0", '\0',  9, NPOS),    
-    TEST ("\0cbge\0\0",  'b',  0,    2),  
-    TEST ("\0bgeb\0\0",  'b',  2,    4),   
-    TEST ("\0cbge\0\0",  'a',  1, NPOS),    
+    TEST ("e\0cb\0\0g", '\0',  1,    1),
+    TEST ("e\0cb\0\0g", '\0',  2,    4),
+    TEST ("e\0cb\0\0g", '\0',  6, NPOS),
+    TEST ("e\0cb\0\0g",  'b',  1,    3),
+    TEST ("e\0cb\0\0g",  'b',  4, NPOS),
+    TEST ("e\0cb\0\0g",  'a',  0, NPOS),
+    TEST ("\0cbge\0\0", '\0',  0,    0),
+    TEST ("\0cbge\0\0", '\0',  1,    5),
+    TEST ("\0cbge\0\0", '\0',  9, NPOS),
+    TEST ("\0cbge\0\0",  'b',  0,    2),
+    TEST ("\0bgeb\0\0",  'b',  2,    4),
+    TEST ("\0cbge\0\0",  'a',  1, NPOS),
 
-    TEST ("x@4096",      'x',  0,    0),   
-    TEST ("x@4096",      'x',  5,    5),   
-    TEST ("x@4096",     '\0',  0, NPOS),    
-    TEST ("x@4096",      'a',  3, NPOS),     
+    TEST ("x@4096",      'x',  0,    0),
+    TEST ("x@4096",      'x',  5,    5),
+    TEST ("x@4096",     '\0',  0, NPOS),
+    TEST ("x@4096",      'a',  3, NPOS),
     TEST ("x@4096",      'x', 4096, NPOS),
     TEST ("x@4096",      'x', 4095, 4095),
     TEST ("x@2048axxx",  'a', 10, 2048),
 
-    TEST ("last test",   't',  0,    3)      
+    TEST ("last test",   't',  0,    3)
 };
 
 /**************************************************************************/
 
 template <class charT, class Traits, class Allocator>
-void test_find_first_of (charT, Traits*, Allocator*,  
+void test_find_first_of (charT, Traits*, Allocator*,
                          const StringFunc    &func,
                          const StringTestCase &tcase)
 {
@@ -715,8 +715,8 @@ void test_find_first_of (charT, Traits*, Allocator*,
         // verify the returned value
         rw_assert (exp_res == res, 0, tcase.line,
                    "line %d. %{$FUNCALL} == %{?}%zu%{;}%{?}npos%{;}, "
-                   "got %{?}%zu%{;}%{?}npos%{;}", 
-                   __LINE__, NPOS != tcase.nres, exp_res, NPOS == tcase.nres, 
+                   "got %{?}%zu%{;}%{?}npos%{;}",
+                   __LINE__, NPOS != tcase.nres, exp_res, NPOS == tcase.nres,
                    String::npos != res, res, String::npos == res);
     }
 

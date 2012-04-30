@@ -23,10 +23,10 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
-#include <numeric>      // for inner_product 
+#include <numeric>      // for inner_product
 #include <cstddef>      // for size_t
 
 #include <alg_test.h>
@@ -67,21 +67,21 @@ operator* (const plus_asgn<T> &lhs, const plus_asgn<T> &rhs)
 }
 
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
-template 
+template
 plus_asgn<assign<base<cpy_ctor> > >
 inner_product (InputIter<plus_asgn<assign<base<cpy_ctor> > > >,
                InputIter<plus_asgn<assign<base<cpy_ctor> > > >,
                InputIter<plus_asgn<assign<base<cpy_ctor> > > >,
                plus_asgn<assign<base<cpy_ctor> > >);
 
-template 
-assign<base<cpy_ctor> > 
+template
+assign<base<cpy_ctor> >
 inner_product (InputIter<assign<base<cpy_ctor> > >,
                InputIter<assign<base<cpy_ctor> > >,
                InputIter<assign<base<cpy_ctor> > >,
@@ -117,7 +117,7 @@ struct conv_to_T
         return conv_to_T (val);
     }
 
-    // strictly convertible to a T value 
+    // strictly convertible to a T value
     operator T () const {
         return val_;
     }
@@ -197,7 +197,7 @@ struct InnerProductBase
     virtual UserClass
     inner_product (const UserClass     *xsrc1, const UserClass   *xsrc1_end,
                    const UserClass     *xsrc2, const UserClass   *xsrc2_end,
-                   const UserClass&     init,  const Accumulator *op1, 
+                   const UserClass&     init,  const Accumulator *op1,
                    const Multiplicator *op2) const = 0;
 };
 
@@ -212,7 +212,7 @@ struct InnerProduct : InnerProductBase
     virtual UserClass
     inner_product (const UserClass     *xsrc1, const UserClass   *xsrc1_end,
                    const UserClass     *xsrc2, const UserClass   *xsrc2_end,
-                   const UserClass&     init,  const Accumulator *op1, 
+                   const UserClass&     init,  const Accumulator *op1,
                    const Multiplicator *op2) const {
 
         const InputIterator1 first1 (xsrc1,     xsrc1, xsrc1_end);
@@ -244,7 +244,7 @@ void test_inner_product (const std::size_t       N,
     const char* const op1name = "Plus";
     const char* const op2name = "Multiple";
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "std::inner_product (%s, %1$s, %s, %s%{?}, %s, %s%{;})",
              it1name, it2name, tname, binop, op1name, op2name);
 
@@ -256,7 +256,7 @@ void test_inner_product (const std::size_t       N,
 
     UserClass* const buf1 = new UserClass [N];
     UserClass* const buf2 = new UserClass [N];
-    
+
     for (std::size_t i = 0; i != N; ++i) {
 
         UserClass* const buf1_end = buf1 + i;
@@ -268,7 +268,7 @@ void test_inner_product (const std::size_t       N,
         const Accumulator* const   pbinop1 = binop ? &acc : 0;
         const Multiplicator* const pbinop2 = binop ? &mult : 0;
 
-        const UserClass res = alg.inner_product (buf1, buf1_end, buf2, buf2_end, 
+        const UserClass res = alg.inner_product (buf1, buf1_end, buf2, buf2_end,
                                                  init, pbinop1, pbinop2);
 
         // verify the result 26.4.1, p1
@@ -314,7 +314,7 @@ void gen_inner_product_test (const std::size_t N,
 
 template <class InputIterator1>
 void gen_inner_product_test (const std::size_t     N,
-                             const InputIterator1 &it1, 
+                             const InputIterator1 &it1,
                              bool                  binop)
 {
     if (0 == rw_opt_no_input_iter)
@@ -339,9 +339,9 @@ void gen_inner_product_test (const std::size_t N,
     rw_info (0, 0, 0,
              "template <class %s, class %s, class %s%{?}, class %s, "
              "class %s%{;}> %3$s inner_product (%1$s, %1$s, %2$s, "
-             "%3$s%{?}, %s, %s%{;})", 
+             "%3$s%{?}, %s, %s%{;})",
              "InputIterator1", "InputIterator2", "UserClass",
-             binop, "BinaryOperation1", "BinaryOperation2", binop, 
+             binop, "BinaryOperation1", "BinaryOperation2", binop,
              "BinaryOperation1", "BinaryOperation2");
 
     if (rw_opt_no_input_iter)
@@ -376,7 +376,7 @@ run_test (int, char*[])
     gen_inner_product_test (N, false);
 
     if (rw_opt_no_binary_op)
-        rw_note (0, 0, 0, 
+        rw_note (0, 0, 0,
                  "inner_product with binary operations test disabled");
     else
         gen_inner_product_test (N, true);

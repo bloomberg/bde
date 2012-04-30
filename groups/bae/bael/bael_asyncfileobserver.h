@@ -382,10 +382,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
-
-class bslma_Allocator;
-
 
                           // ============================
                           // class bael_AsyncFileObserver
@@ -620,9 +621,7 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     int shutdownPublicationThread();
         // Immediately shutdown the publication thread and return to the
-        // caller.  Currently queue'd records will remain in the queue and
-        // un-published until either 'startPublicationThread' or
-        // 'releaseRecords' is called.
+        // caller.  The records in the queue are cleared without publication.
 
     int startPublicationThread();
         // Start the publication thread of this async file observer.  Return 0

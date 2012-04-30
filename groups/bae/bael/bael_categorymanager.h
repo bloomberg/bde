@@ -231,13 +231,15 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstring.h>       // for 'bsl::strcmp'
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
                         // ===================
                         // class bael_Category
                         // ===================
-
-class bslma_Allocator;
 
 class bael_CategoryHolder;
 class bael_CategoryManager;

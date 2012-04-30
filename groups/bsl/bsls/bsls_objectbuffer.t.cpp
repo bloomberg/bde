@@ -1,4 +1,4 @@
-// bsls_objectbuffer.t.cpp                  -*-C++-*-
+// bsls_objectbuffer.t.cpp                                            -*-C++-*-
 
 #include <bsls_objectbuffer.h>
 
@@ -14,7 +14,7 @@ using namespace std;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// bsls_ObjectBuffer is a simple template class that provides a few
+// bsls::ObjectBuffer is a simple template class that provides a few
 // compile-time invariants and four trivial run-time functions.  Our tests
 // involve instantiating it with various representative template parameters
 // and verifying the invariants.
@@ -175,9 +175,9 @@ struct my_Type
 //
 ///Usage Example 1:
 ///- - - - - - - -
-// Here we use 'bsls_ObjectBuffer' to create a variable-length array of
+// Here we use 'bsls::ObjectBuffer' to create a variable-length array of
 // 'my_String' objects.  For efficiency, the array is created on the stack as
-// a fixed-sized array of 'bsls_ObjectBuffer<my_String>' objects and the
+// a fixed-sized array of 'bsls::ObjectBuffer<my_String>' objects and the
 // length is kept in a separate variable.  Only 'len' calls are made to the
 // 'my_String' constructor, with the unused array elements left as raw
 // memory.  An array directly containing 'my_String' objects would not have
@@ -193,7 +193,7 @@ struct my_Type
     {
         ASSERT(len <= 10);
 
-        bsls_ObjectBuffer<my_String> tempArray[10];
+        bsls::ObjectBuffer<my_String> tempArray[10];
         for (int i = 0; i < len; ++i) {
             new (tempArray[i].buffer()) my_String(stringArray[i]);
             ASSERT(stringArray[i] == tempArray[i].object())
@@ -231,7 +231,7 @@ struct my_Type
 //..
 ///Usage Example 2:
 ///- - - - - - - -
-// Here we use 'bsls_ObjectBuffer' to compose a variable-type object capable
+// Here we use 'bsls::ObjectBuffer' to compose a variable-type object capable
 // of holding a string or an integer:
 //..
     class my_Union
@@ -240,10 +240,10 @@ struct my_Type
         enum TypeTag { INT, STRING };
 
       private:
-        TypeTag                          d_type;
+        TypeTag                           d_type;
         union {
-            int                          d_int;
-            bsls_ObjectBuffer<my_String> d_string;
+            int                           d_int;
+            bsls::ObjectBuffer<my_String> d_string;
         };
 
       public:
@@ -305,7 +305,7 @@ struct my_Type
 
     int usageExample2()
     {
-        ASSERT(sizeof(bsls_ObjectBuffer<my_String>) == sizeof(my_String));
+        ASSERT(sizeof(bsls::ObjectBuffer<my_String>) == sizeof(my_String));
 
         // Create a 'my_Union' object containing a string.
         const my_Union U1("hello");
@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example showing how one might use bsls_ObjectBuffer
+        //   Simple example showing how one might use bsls::ObjectBuffer
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -383,7 +383,7 @@ int main(int argc, char *argv[])
         //   - buffer() returns the address of the first byte of the buffer
         //
         // Plan:
-        //   - Create a 'bsls_ObjectBuffer' objects with different sizes and
+        //   - Create a 'bsls::ObjectBuffer' objects with different sizes and
         //     alignments.
         //   - For each object, verify that buffer() returns the address of
         //     the object.
@@ -395,15 +395,15 @@ int main(int argc, char *argv[])
         //   const char *buffer() const;
         // --------------------------------------------------------------------
 
-#       define TEST_METHODS(TYPE) \
-            do { \
-                bsls_ObjectBuffer<TYPE> buff; \
-                const bsls_ObjectBuffer<TYPE>& BUFF = buff; \
-                ASSERT(&BUFF == static_cast<void*>(&buff.object())); \
-                ASSERT((const char*) &BUFF == buff.buffer()); \
-                ASSERT(&BUFF == static_cast<const void*>(&BUFF.object())); \
-                ASSERT((const char*) &BUFF == BUFF.buffer()); \
-            } while (false)
+#       define TEST_METHODS(TYPE)                                       \
+        do {                                                            \
+            bsls::ObjectBuffer<TYPE> buff;                              \
+            const bsls::ObjectBuffer<TYPE>& BUFF = buff;                \
+            ASSERT(&BUFF == static_cast<void*>(&buff.object()));        \
+            ASSERT((const char*) &BUFF == buff.buffer());               \
+            ASSERT(&BUFF == static_cast<const void*>(&BUFF.object()));  \
+            ASSERT((const char*) &BUFF == BUFF.buffer());               \
+        } while (false)
 
         TEST_METHODS(char);
         TEST_METHODS(unsigned char);
@@ -423,10 +423,10 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For a representative set of TYPE template parameters
-        //   instantiate bsls_ObjectBuffer<TYPE> (a.k.a. Buff) and
+        //   instantiate bsls::ObjectBuffer<TYPE> (a.k.a. Buff) and
         //   verify that:
-        //   - bsls_AlignmentFromType<Buff>::VALUE ==
-        //                                  bsls_AlignmentFromType<TYPE>::VALUE
+        //   - bsls::AlignmentFromType<Buff>::VALUE ==
+        //                                 bsls::AlignmentFromType<TYPE>::VALUE
         //   - sizeof(Buff) == sizeof(TYPE)
         //
         // Testing:
@@ -436,13 +436,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CLASS INVARIANTS"
                             "\n========================\n");
 
-#       define TEST_INVARIANTS(TYPE) \
-            do { \
-                typedef bsls_ObjectBuffer<TYPE> Buff;  \
-                ASSERT((int) bsls_AlignmentFromType<Buff>::VALUE == \
-                       (int) bsls_AlignmentFromType<TYPE>::VALUE); \
-                ASSERT(sizeof(Buff) == sizeof(TYPE)); \
-            } while (false)
+#       define TEST_INVARIANTS(TYPE)                                 \
+        do {                                                         \
+            typedef bsls::ObjectBuffer<TYPE> Buff;                   \
+            ASSERT((int) bsls::AlignmentFromType<Buff>::VALUE ==     \
+                   (int) bsls::AlignmentFromType<TYPE>::VALUE);      \
+            ASSERT(sizeof(Buff) == sizeof(TYPE));                    \
+        } while (false)
 
         TEST_INVARIANTS(char);
         TEST_INVARIANTS(unsigned char);

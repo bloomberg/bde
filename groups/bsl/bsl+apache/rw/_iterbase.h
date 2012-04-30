@@ -1,4 +1,4 @@
-// _iterbase.h                  -*-C++-*-
+// _iterbase.h                                                        -*-C++-*-
 #ifndef INCLUDED__ITERBASE
 #define INCLUDED__ITERBASE
 

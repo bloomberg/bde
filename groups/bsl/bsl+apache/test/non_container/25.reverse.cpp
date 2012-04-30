@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for reverse, reverse_copy
@@ -35,19 +35,19 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
-void reverse (BidirIter<assign<base<cpy_ctor> > >, 
+void reverse (BidirIter<assign<base<cpy_ctor> > >,
               BidirIter<assign<base<cpy_ctor> > >);
 
 template
 OutputIter<eq_comp<assign<base<> > > >
-reverse_copy (BidirIter<eq_comp<assign<base<> > > >, 
+reverse_copy (BidirIter<eq_comp<assign<base<> > > >,
               BidirIter<eq_comp<assign<base<> > > >,
               OutputIter<eq_comp<assign<base<> > > >);
 
@@ -405,7 +405,7 @@ int main (int argc, char *argv[])
                     "|-no-OutputIterator# "
                     "|-no-ForwardIterator# "
                     "|-no-BidirectionalIterator# "
-                    "|-no-RandomAccessIterator#",                    
+                    "|-no-RandomAccessIterator#",
                     &rw_opt_no_reverse,
                     &rw_opt_no_reverse_copy,
                     &rw_opt_no_output_iter,

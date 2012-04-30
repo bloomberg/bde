@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifdef __GNUG__
@@ -202,7 +202,7 @@ struct NumPut: std::num_put<charT, charT*>
         test_long, test_ulong, test_llong, test_ullong,
         test_pvoid, test_float, test_double, test_ldouble
     };
-        
+
     static int ncalls_ [13];
 
     NumPut (std::size_t ref = 0): Base (ref) { }
@@ -302,7 +302,7 @@ void do_test (charT           /* dummy */,
         rw_note (0, __FILE__, __LINE__, "test on line %d disabled", lineno);
         return;
     }
-    
+
     // create a distinct punctuation facet for each iteration to make sure
     // any data cached in between successive calls to the facet's public
     // member functions are flushed
@@ -957,7 +957,7 @@ void long_test (charT, const char *cname)
     TEST (T,       0L, hex | uppercase | showbase, 0, 0, ' ', "", "%#lX");
     TEST (T,       1L, hex | uppercase | showbase, 0, 0, ' ', "", "%#lX");
     TEST (T,  0XEF02L, hex | uppercase | showbase, 0, 0, ' ', "", "%#lX");
-    
+
     rw_info (0, 0, __LINE__, "std::ios::hex | std::ios::oct");
 
     TEST (T,       0L, oct | hex, 0, 0, ' ', "", "%ld");
@@ -1760,7 +1760,7 @@ void dbl_test (charT, const char *cname)
         char stdiofmt [8];
         const std::streamsize prec = std::streamsize (DBL_DIG + 3);
         std::sprintf (stdiofmt, "%%.%dg", int (prec));
-    
+
         TEST (T, DBL_MIN, 0, prec, 0, ' ', "", stdiofmt);
         TEST (T, DBL_MAX, 0, prec, 0, ' ', "", stdiofmt);
     }
@@ -1942,7 +1942,7 @@ void ldbl_test (charT, const char *cname)
     TEST (T, Pi, fixed,  2, 0, ' ', "", "%.2Lf",  Eof, 3.14L);
     TEST (T, Pi, fixed,  3, 0, ' ', "", "%.3Lf",  Eof, 3.142L);
     TEST (T, Pi, fixed, 10, 0, ' ', "", "%.10Lf", Eof, 3.1415926536L);
-    
+
 
     // exercise formatting of very large numbers in a fixed notation
     // using '-' as the fill character to disable num_get tests
@@ -2369,7 +2369,7 @@ void run_tests (charT, const char *cname)
 
 #endif   // _RWSTD_NO_BOOL
 
-    
+
     // NOTE: there is no num_put::put(..., short)
     // TEST (shrt, "short");
     // TEST (ushrt, "unsigned short");

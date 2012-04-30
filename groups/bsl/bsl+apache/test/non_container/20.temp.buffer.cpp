@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2003-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <memory>      // for get_temporary_buffer()
@@ -140,9 +140,9 @@ void test_success (T*, const char *tname)
     rw_assert (2 <= pa [2].second, 0, __LINE__,
                "get_temporary_buffer<%s>(2).second >= 2, got %td",
                tname, pa [2].second);
-    
+
     pa [3] = std::get_temporary_buffer<T>(3);
-    
+
 
     rw_assert (0 != pa [3].first, 0, __LINE__,
                "get_temporary_buffer<%s>(3).first != 0, got 0", tname);
@@ -249,7 +249,7 @@ void test_failure (T*, const char *tname)
         rw_sprintf (buf, "char[%zu]", sizeof (T));
         tname = buf;
     }
-        
+
     rw_info (0, 0, __LINE__,
              "std::get_temporary_buffer<%s>(ptrdiff_t) on arithmetic overflow",
              tname);

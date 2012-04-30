@@ -10,27 +10,27 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide raw buffer with size and alignment of user-specified type.
 //
 //@CLASSES:
-//   bsls_ObjectBuffer: templatized buffer aligned to hold specified type
+//  bsls::ObjectBuffer: templatized buffer aligned to hold specified type
 //
 //@SEE_ALSO: bsls_alignmentfromtype
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component provides a templated buffer type,
-// 'bsls_ObjectBuffer', which is compile-time sized and aligned to hold a
-// specified object type.  Defining a 'bsls_ObjectBuffer<T>' object does not
+// 'bsls::ObjectBuffer', which is compile-time sized and aligned to hold a
+// specified object type.  Defining a 'bsls::ObjectBuffer<T>' object does not
 // cause the constructor for 'T' to be called.  Similarly, destroying the
 // object buffer does not call the destructor for 'T'.  Instead, the user
-// instantiates 'bsls_ObjectBuffer' with a specific type, then constructs an
+// instantiates 'bsls::ObjectBuffer' with a specific type, then constructs an
 // object of that type within that buffer.  When the object is no longer
 // needed, the user must explicitly call its destructor.  A
-// 'bsls_ObjectBuffer' can reside on the stack or within another object,
+// 'bsls::ObjectBuffer' can reside on the stack or within another object,
 // including within a 'union'.
 //
-// Typically, a 'bsls_ObjectBuffer' is used in situations where efficient
+// Typically, a 'bsls::ObjectBuffer' is used in situations where efficient
 // (e.g., stack-based) storage is required but where straight-forward
 // initialization or destruction of an object is not possible.  For example,
-// 'bsls_ObjectBuffer' can be used to construct an array where the number of
+// 'bsls::ObjectBuffer' can be used to construct an array where the number of
 // used elements varies at run-time or where the element type does not have a
 // default constructor.  It can also be used to create a 'union' containing
 // non-POD element types.
@@ -44,9 +44,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage Example 1:
 ///- - - - - - - -
-// Here we use 'bsls_ObjectBuffer' to create a variable-length array of
+// Here we use 'bsls::ObjectBuffer' to create a variable-length array of
 // 'my_String' objects.  For efficiency, the array is created on the stack as
-// a fixed-sized array of 'bsls_ObjectBuffer<my_String>' objects and the
+// a fixed-sized array of 'bsls::ObjectBuffer<my_String>' objects and the
 // length is kept in a separate variable.  Only 'len' calls are made to the
 // 'my_String' constructor, with the unused array elements left as raw
 // memory.  An array directly containing 'my_String' objects would not have
@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      assert(len <= 10);
 //
-//      bsls_ObjectBuffer<my_String> tempArray[10];
+//      bsls::ObjectBuffer<my_String> tempArray[10];
 //      for (int i = 0; i < len; ++i) {
 //          new (tempArray[i].buffer()) my_String(stringArray[i]);
 //          assert(stringArray[i] == tempArray[i].object())
@@ -99,7 +99,7 @@ BSLS_IDENT("$Id: $")
 //..
 ///Usage Example 2:
 ///- - - - - - - -
-// Here we use 'bsls_ObjectBuffer' to compose a variable-type object capable
+// Here we use 'bsls::ObjectBuffer' to compose a variable-type object capable
 // of holding a string or an integer:
 //..
 //  class my_Union
@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 //      TypeTag                          d_type;
 //      union {
 //          int                          d_int;
-//          bsls_ObjectBuffer<my_String> d_string;
+//          bsls::ObjectBuffer<my_String> d_string;
 //      };
 //
 //    public:
@@ -173,7 +173,7 @@ BSLS_IDENT("$Id: $")
 //
 //  int main()
 //  {
-//      assert(sizeof(bsls_ObjectBuffer<my_String>) == sizeof(my_String));
+//      assert(sizeof(bsls::ObjectBuffer<my_String>) == sizeof(my_String));
 //
 //      // Create a 'my_Union' object containing a string.
 //      const my_Union U1("hello");
@@ -216,37 +216,39 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // =======================
-                        // union bsls_ObjectBuffer
-                        // =======================
+namespace bsls {
+
+                        // ==================
+                        // union ObjectBuffer
+                        // ==================
 
 template <typename TYPE>
-union bsls_ObjectBuffer {
+union ObjectBuffer {
     // An instance of this union is a raw block of memory suitable for storing
     // an object of type 'TYPE'.  Specifically, the size and alignment of this
     // union exactly matches that of 'TYPE'.  A 'TYPE' object can be
-    // constructed into a 'bsls_ObjectBuffer' using the placement 'new'
+    // constructed into a 'ObjectBuffer' using the placement 'new'
     // operator and can be destroyed by explicitly calling its destructor,
     // '~TYPE()'.  It is the user's responsibility to perform this
-    // construction and destruction; a 'bsls_AlignedBuffer' object does not
+    // construction and destruction; a 'AlignedBuffer' object does not
     // manage the construction or destruction of any other objects.
     //
-    // Note that a collaboration is implied between 'bsls_ObjectBuffer' and
-    // the user.  A 'bsls_ObjectBuffer' provides aligned memory and the user
+    // Note that a collaboration is implied between 'ObjectBuffer' and
+    // the user.  A 'ObjectBuffer' provides aligned memory and the user
     // handles construction and destruction of the object contained within
     // that memory.
 
   private:
     // Buffer correctly sized and aligned for object of type 'TYPE'.
-    char                                        d_buffer[sizeof(TYPE)];
-    typename bsls_AlignmentFromType<TYPE>::Type d_align;
+    char                                   d_buffer[sizeof(TYPE)];
+    typename AlignmentFromType<TYPE>::Type d_align;
 
   public:
     // CREATORS
     // Note that we deliberately omit defining constructors and destructors in
     // order to keep this union "POD-like".  In particular, a
-    // 'bsls_ObjectBuffer' may be used as a member in another 'union'.
-    // Copying a 'bsls_ObjectBuffer' by assignment or copy construction will
+    // 'ObjectBuffer' may be used as a member in another 'union'.
+    // Copying a 'ObjectBuffer' by assignment or copy construction will
     // result in a bit-wise copy and will not invoke 'TYPE's assignment
     // operator or copy constructor.
 
@@ -278,14 +280,14 @@ union bsls_ObjectBuffer {
 // MANIPULATORS
 template <typename TYPE>
 inline
-TYPE& bsls_ObjectBuffer<TYPE>::object()
+TYPE& ObjectBuffer<TYPE>::object()
 {
     return *reinterpret_cast<TYPE*>(this);
 }
 
 template <typename TYPE>
 inline
-char *bsls_ObjectBuffer<TYPE>::buffer()
+char *ObjectBuffer<TYPE>::buffer()
 {
     return d_buffer;
 }
@@ -293,17 +295,19 @@ char *bsls_ObjectBuffer<TYPE>::buffer()
 // ACCESSORS
 template <typename TYPE>
 inline
-const TYPE& bsls_ObjectBuffer<TYPE>::object() const
+const TYPE& ObjectBuffer<TYPE>::object() const
 {
     return *reinterpret_cast<const TYPE*>(this);
 }
 
 template <typename TYPE>
 inline
-const char *bsls_ObjectBuffer<TYPE>::buffer() const
+const char *ObjectBuffer<TYPE>::buffer() const
 {
     return d_buffer;
 }
+
+}  // close package namespace
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 
@@ -314,12 +318,18 @@ const char *bsls_ObjectBuffer<TYPE>::buffer() const
 #ifdef bdes_ObjectBuffer
 #undef bdes_ObjectBuffer
 #endif
-#define bdes_ObjectBuffer bsls_ObjectBuffer
+#define bdes_ObjectBuffer bsls::ObjectBuffer
     // This alias is defined for backward compatibility.
 
 #endif
 
-}  // close namespace BloombergLP
+#ifdef bsls_ObjectBuffer
+#undef bsls_ObjectBuffer
+#endif
+#define bsls_ObjectBuffer bsls::ObjectBuffer
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

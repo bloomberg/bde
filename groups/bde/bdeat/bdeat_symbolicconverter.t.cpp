@@ -9,6 +9,7 @@
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -152,8 +153,6 @@ struct ConvertibleType {
 #include <bsl_string.h>
 #endif
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -960,8 +959,6 @@ bsl::ostream& ChoiceA::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class ChoiceB {
@@ -1759,8 +1756,6 @@ bsl::ostream& ChoiceB::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class CustomizedA {
@@ -2118,8 +2113,6 @@ const char CustomizedA::CLASS_NAME[] = "CustomizedA";
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -3203,8 +3196,6 @@ int EnumerationB::fromString(EnumerationB::Value *result,
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class SequenceA {
@@ -3895,8 +3886,6 @@ bsl::ostream& SequenceA::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class SequenceB {
@@ -4586,8 +4575,6 @@ bsl::ostream& SequenceB::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -5428,8 +5415,6 @@ bsl::ostream& Employee::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class Trainee {
@@ -6189,8 +6174,6 @@ bsl::ostream& Trainee::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 

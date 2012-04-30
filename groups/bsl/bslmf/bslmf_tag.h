@@ -10,20 +10,20 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an integral-constant-to-type conversion.
 //
 //@CLASSES:
-//  bslmf_Tag: map integral constants to C++ types
+//  bslmf::Tag: map integral constants to C++ types
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component defines a simple template structure used to
-// map an integral constant to a C++ type.  'bslmf_Tag<unsigned>' defines a
+//@DESCRIPTION: This component defines a simple template structure used to map
+// an integral constant to a C++ type.  'bslmf::Tag<unsigned>' defines a
 // different type for each distinct compile-time constant integral parameter.
 // That is, instantiations with different integer values form distinct types,
-// so that 'bslmf_Tag<0>' is a distinct type from 'bslmf_Tag<1>', which, in
-// turn, is also distinct from 'bslmf_Tag<2>', and so on.
+// so that 'bslmf::Tag<0>' is a distinct type from 'bslmf::Tag<1>', which, in
+// turn, is also distinct from 'bslmf::Tag<2>', and so on.
 //
-// This component also provides two macros for mapping a 'bslmf_Tag<N>'
+// This component also provides two macros for mapping a 'bslmf::Tag<N>'
 // instance to the integral value 'N' ('BSLMF_TAG_TO_INT'), and to the boolean
 // value 'N != 0' ('BSLMF_TAG_TO_BOOL').
 //
@@ -34,12 +34,12 @@ BSLS_IDENT("$Id: $")
 //..
 //  BSLMF_TAG_TO_INT(EXPR)
 //    Given an integral value, 'V', and an expression, 'EXPR', of type
-//    'bslmf_Tag<V>', this macro returns a compile-time constant with the
+//    'bslmf::Tag<V>', this macro returns a compile-time constant with the
 //    value 'V'.  'EXPR' is not evaluated at run-time.
 //
 //  BSLMF_TAG_TO_BOOL(EXPR)
 //    Given an integral value, 'V', and an expression, 'EXPR', of type
-//    'bslmf_Tag<V>', this macro returns a compile-time constant with the
+//    'bslmf::Tag<V>', this macro returns a compile-time constant with the
 //    value 'true' or 'false', depending on the boolean value of 'V'.  'EXPR'
 //    is not evaluated at run-time.
 //..
@@ -55,13 +55,13 @@ BSLS_IDENT("$Id: $")
 // (e.g., copy constructor).
 //..
 //  template <class T>
-//  void doSomethingImp(T *t, bslmf_Tag<0> *)
+//  void doSomethingImp(T *t, bslmf::Tag<0> *)
 //  {
 //      // slow but generic implementation
 //  }
 //
 //  template <class T>
-//  void doSomethingImp(T *t, bslmf_Tag<1> *)
+//  void doSomethingImp(T *t, bslmf::Tag<1> *)
 //  {
 //      // fast implementation (appropriate for bitwise-movable types)
 //  }
@@ -69,7 +69,7 @@ BSLS_IDENT("$Id: $")
 //  template <class T, bool IsFast>
 //  void doSomething(T *t)
 //  {
-//      doSomethingImp(t, (bslmf_Tag<IsFast> *)0);
+//      doSomethingImp(t, (bslmf::Tag<IsFast> *)0);
 //  }
 //..
 // For some parameter types, the fast version of 'doSomethingImp' is not legal.
@@ -86,22 +86,22 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Note that an alternative design would be to use template partial
-// specialization instead of standard function overloading to avoid the
-// cost of passing a 'bslmf_Tag<N>' pointer.
+// specialization instead of standard function overloading to avoid the cost of
+// passing a 'bslmf::Tag<N>' pointer.
 //
 // The value of the integral parameter supplied to an instantiation of
-// 'bslmf_Tag<N>' is "recoverable" by using the 'BSLMF_TAG_TO_INT' macro.
-// For example:
+// 'bslmf::Tag<N>' is "recoverable" by using the 'BSLMF_TAG_TO_INT' macro.  For
+// example:
 //..
-//  bslmf_Tag<7> tag;
+//  bslmf::Tag<7> tag;
 //  assert( 7 == BSLMF_TAG_TO_INT(tag));
-//  assert(53 == BSLMF_TAG_TO_INT(bslmf_Tag<50 + 3>()));
+//  assert(53 == BSLMF_TAG_TO_INT(bslmf::Tag<50 + 3>()));
 //..
 // The 'BSLMF_TAG_TO_BOOL' macro can be used to determine if the parameter is
 // non-zero:
 //..
 //  assert( 1 == BSLMF_TAG_TO_BOOL(tag));
-//  assert( 0 == BSLMF_TAG_TO_BOOL(bslmf_Tag<0>()));
+//  assert( 0 == BSLMF_TAG_TO_BOOL(bslmf::Tag<0>()));
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -114,22 +114,26 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                           // ===================
-                           // struct bslmf_Tag<N>
-                           // ===================
+namespace bslmf {
+
+                           // =============
+                           // struct Tag<N>
+                           // =============
 
 template <unsigned N>
-struct bslmf_Tag {
+struct Tag {
     // This template class is never intended to produce a run-time instance.
     // The only useful attribute of a tag is its size (which is, of course,
-    // computable at compile time, even if an instance is never created).
-    // Note that in case of overflow on Linux 64-bit machines, we split the
-    // size into 2 data members.
+    // computable at compile time, even if an instance is never created).  Note
+    // that in case of overflow on Linux 64-bit machines, we split the size
+    // into 2 data members.
 
     // DATA
     char d_upperSizeArray[(N >> 16)        + 1];
     char d_lowerSizeArray[(N & 0x0000FFFF) + 1];
 };
+
+}  // close package namespace
 
 #define BSLMF_TAG_TO_UINT(BSLMF_EXPR)                                        \
                          (((sizeof(BSLMF_EXPR.d_upperSizeArray) - 1) << 16)  \
@@ -139,7 +143,17 @@ struct bslmf_Tag {
 
 #define BSLMF_TAG_TO_BOOL(BSLMF_EXPR) (BSLMF_TAG_TO_INT(BSLMF_EXPR) != 0)
 
-}  // close namespace BloombergLP
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_Tag
+#undef bslmf_Tag
+#endif
+#define bslmf_Tag bslmf::Tag
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

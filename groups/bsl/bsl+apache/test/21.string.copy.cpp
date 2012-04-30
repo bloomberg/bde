@@ -2,7 +2,7 @@
  *
  * 21.string.copy.cpp - string test exercising [lib.string::copy]
  *
- * $Id: 21.string.copy.cpp 590052 2007-10-30 12:44:14Z faridz $ 
+ * $Id: 21.string.copy.cpp 590052 2007-10-30 12:44:14Z faridz $
  *
  ***************************************************************************
  *
@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <string>           // for string
@@ -62,31 +62,31 @@ ptr_size_test_cases [] = {
     //    +--------------------------------------- controlled sequence
     //    |                       +--------------- copy() n argument
     //    |                       |   +----------- expected result sequence
-    //    |                       |   |     
-    //    V                       V   V             
-    TEST ("ab",                   2,  "ab"),       
+    //    |                       |   |
+    //    V                       V   V
+    TEST ("ab",                   2,  "ab"),
 
-    TEST ("",                     0,  ""),         
-    TEST ("",                    10,  ""),          
+    TEST ("",                     0,  ""),
+    TEST ("",                    10,  ""),
 
-    TEST ("<U0>",                 1,  "<U0>"),       
-    TEST ("<U0>@2",               2,  "<U0>@2"),    
+    TEST ("<U0>",                 1,  "<U0>"),
+    TEST ("<U0>@2",               2,  "<U0>@2"),
 
-    TEST ("abc",                  0,  ""), 
-    TEST ("abc",                  1,  "a"),                 
-    TEST ("abc",                  2,  "ab"),       
-    TEST ("abc",                  3,  "abc"), 
+    TEST ("abc",                  0,  ""),
+    TEST ("abc",                  1,  "a"),
+    TEST ("abc",                  2,  "ab"),
+    TEST ("abc",                  3,  "abc"),
     TEST ("abc",                  5,  "abc"),
 
-    TEST ("a<U0>b<U0>@2c",       10,  "a<U0>b<U0>@2c"),  
+    TEST ("a<U0>b<U0>@2c",       10,  "a<U0>b<U0>@2c"),
     TEST ("<U0>ab<U0>@3c<U0>",    1,  "<U0>"),
     TEST ("<U0>ab<U0>@3c<U0>",    8,  "<U0>ab<U0>@3c<U0>"),
-    TEST ("<U0>ab<U0>@3c<U0>",    5,  "<U0>ab<U0>@2"),   
-    TEST ("<U0>@2ab<U0>@2c<U0>",  6,  "<U0>@2ab<U0>@2"), 
+    TEST ("<U0>ab<U0>@3c<U0>",    5,  "<U0>ab<U0>@2"),
+    TEST ("<U0>@2ab<U0>@2c<U0>",  6,  "<U0>@2ab<U0>@2"),
 
     TEST ("x@4096",            4096,  "x@4096"),
 
-    TEST ("last",                 4,  "last")       
+    TEST ("last",                 4,  "last")
 };
 
 /**************************************************************************/
@@ -108,11 +108,11 @@ ptr_size_size_test_cases [] = {
     //    |                       |   +-------------- copy() pos argument
     //    |                       |   |  +----------- expected result sequence
     //    |                       |   |  |       +--- exception info:
-    //    |                       |   |  |       |      0 - no exception    
-    //    |                       |   |  |       |      1 - out_of_range 
-    //    |                       |   |  |       |   
-    //    |                       |   |  |       +---------+   
-    //    V                       V   V  V                 V  
+    //    |                       |   |  |       |      0 - no exception
+    //    |                       |   |  |       |      1 - out_of_range
+    //    |                       |   |  |       |
+    //    |                       |   |  |       +---------+
+    //    V                       V   V  V                 V
     TEST ("ab",                   2,  0, "ab",             0),
 
     TEST ("",                     0,  0, "",               0),
@@ -158,7 +158,7 @@ ptr_size_size_test_cases [] = {
 /**************************************************************************/
 
 template <class charT, class Traits, class Allocator>
-void test_copy (charT, Traits*, Allocator*,                
+void test_copy (charT, Traits*, Allocator*,
                 const StringFunc     &func,
                 const StringTestCase &tcase)
 {
@@ -174,7 +174,7 @@ void test_copy (charT, Traits*, Allocator*,
     std::size_t res_len = sizeof wres_buf / sizeof *wres_buf;
     charT* wres = rw_expand (wres_buf, tcase.res, tcase.nres, &res_len);
 
-    // construct the string object 
+    // construct the string object
     const String  str (wstr, str_len);
 
     if (wstr != wstr_buf)
@@ -235,10 +235,10 @@ void test_copy (charT, Traits*, Allocator*,
 
         // verify the returned value
         rw_assert (res == res_len, 0, tcase.line,
-                   "line %d. %{$FUNCALL} == %zu, got %zu", 
+                   "line %d. %{$FUNCALL} == %zu, got %zu",
                    __LINE__, res_len, res);
 
-        if (res == res_len) 
+        if (res == res_len)
         {
             const std::size_t match = rw_match (tcase.res, s_res, res_len);
             bool success = match == res_len;
@@ -246,7 +246,7 @@ void test_copy (charT, Traits*, Allocator*,
             rw_assert (success, 0, tcase.line,
                        "line %d. %{$FUNCALL} expected %{#*s}, "
                        "got %{/*.*Gs}, differ at pos %zu",
-                       __LINE__, int (tcase.nres), tcase.res, 
+                       __LINE__, int (tcase.nres), tcase.res,
                        int (sizeof (charT)), int (res), s_res, match);
 
             success = 1 == rw_match (cgb, s_res + min_len, 1);
