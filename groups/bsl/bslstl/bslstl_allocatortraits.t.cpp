@@ -18,7 +18,6 @@
 
 using namespace BloombergLP;
 using namespace bsl;
-//using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -230,7 +229,7 @@ class BslmaAllocator
     // This class is a C++03-compliant allocator that conforms to the
     // 'bslma' allocator model (i.e., it is convertible from
     // 'bslma::Allocator*'.
-    bslma_Allocator *d_mechanism;
+    bslma::Allocator *d_mechanism;
 
   public:
     // PUBLIC TYPES
@@ -251,7 +250,7 @@ class BslmaAllocator
     // A client that uses this allocator should have this trait
     typedef bslalg::TypeTraitUsesBslmaAllocator ClientTrait;
 
-    explicit BslmaAllocator(bslma::Allocator *basicAlloc = 0)
+    BslmaAllocator(bslma::Allocator *basicAlloc = 0)
         : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
 
     pointer allocate(size_type n, const void *hint = 0) {
@@ -350,7 +349,7 @@ class FunkyAllocator
     // A client that uses this allocator should have this trait
     typedef bslalg::TypeTraitUsesBslmaAllocator ClientTrait;
 
-    explicit FunkyAllocator(bslma::Allocator *basicAlloc = 0)
+    FunkyAllocator(bslma::Allocator *basicAlloc = 0)
         : d_mechanism(bslma::Default::allocator(basicAlloc)) { }
 
     pointer allocate(size_type n, const void *hint = 0) {
@@ -830,7 +829,7 @@ inline bool isMutable(const T& /* x */) { return false; }
         ASSERT((bslmf::IsSame<MyContainer<MyType, MyTypeAlloc>::allocator_type,
                               MyTypeAlloc>::VALUE));
         ASSERT(C1.get_allocator() == MyTypeAlloc(1));
-        ASSERT(C1.front().allocator() == bslma_Default::defaultAllocator());
+        ASSERT(C1.front().allocator() == bslma::Default::defaultAllocator());
 
         MyContainer<MyType, MyTypeAlloc> C2(C1);
         ASSERT(C2.get_allocator() == C1.get_allocator());
@@ -1155,11 +1154,11 @@ void testNestedTypedefs(const char* allocName)
                  typename Traits::propagate_on_container_copy_assignment*,
                  bslmf::MetaInt<0>* >::VALUE));
     LOOP_ASSERT(allocName,
-                (bslmf_IsConvertible<
+                (bslmf::IsConvertible<
                  typename Traits::propagate_on_container_move_assignment*,
                  bslmf::MetaInt<0>* >::VALUE));
     LOOP_ASSERT(allocName,
-                (bslmf_IsConvertible<
+                (bslmf::IsConvertible<
                  typename Traits::propagate_on_container_swap*,
                  bslmf::MetaInt<0>* >::VALUE));
 }
@@ -1952,7 +1951,7 @@ int main(int argc, char *argv[])
         //: 2  The 'NonBslmaAllocator' class can be rebound using the
         //:    'rebind' member template.
         //: 3  The objects of 'NonBslmaAllocator' can be (explicitly)
-        //:    constructed from a pointer to a 'bslma_TestAllocator'.
+        //:    constructed from a pointer to a 'bslma::TestAllocator'.
         //: 4  The default constructor for 'NonBslmaAllocator'
         //:    uses the currently-installed test allocator.
         //: 5  A 'NonBslmaAllocator' object can be copy-constructed.
@@ -2010,7 +2009,7 @@ int main(int argc, char *argv[])
         //: o Instantiate 'testAttribClass' with each meaningful combination
         //:   of attribute classes ('AttribClass5', 'AttribClass5Alloc', and
         //:   'AttribClass5bslma') and allocator type ('NonBslmaAllocator',
-        //:   'BslmaAllocator', 'FunkyAllocator', 'bslma_Allocator*', and no
+        //:   'BslmaAllocator', 'FunkyAllocator', 'bslma::Allocator*', and no
         //:   allocator). (C16-C18)
         //: o Within 'testAllocatorConformance', set 'g_lastHint' to a known
         //:   address before calling 'allocate' with no hint.  Verify that
@@ -2041,18 +2040,18 @@ int main(int argc, char *argv[])
         testAllocatorConformance<FunkyAllocator>("FunkyAllocator");
 
         if (verbose)
-            printf("Testing convertibility from 'bslma_Allocator*'\n");
+            printf("Testing convertibility from 'bslma::Allocator*'\n");
 
         ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                      BslmaAllocator<int> >::VALUE));
+                                       BslmaAllocator<int> >::VALUE));
         ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                      BslmaAllocator<AttribClass5> >::VALUE));
+                                       BslmaAllocator<AttribClass5> >::VALUE));
         ASSERT(! (bslmf::IsConvertible<bslma::Allocator*,
                                     NonBslmaAllocator<AttribClass5> >::VALUE));
         ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                      FunkyAllocator<int> >::VALUE));
+                                       FunkyAllocator<int> >::VALUE));
         ASSERT(  (bslmf::IsConvertible<bslma::Allocator*,
-                                      FunkyAllocator<AttribClass5> >::VALUE));
+                                       FunkyAllocator<AttribClass5> >::VALUE));
 
         testAttribClass<AttribClass5>("AttribClass5");
         testAttribClass<AttribClass5Alloc<NonBslmaAllocator<int> > >(
@@ -2087,7 +2086,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator default_ta;
         bslma::TestAllocator ta;
 
-        bslma_DefaultAllocatorGuard guard(&default_ta);
+        bslma::DefaultAllocatorGuard guard(&default_ta);
 
         if (verbose) printf("Testing NonBslmaAllocator<AttribClass5>\n");
         {

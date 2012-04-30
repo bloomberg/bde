@@ -56,12 +56,12 @@ BSLS_IDENT("$Id: $")
 // allocator-propagation traits.  The implementations of these features within
 // this component are tuned to Bloomberg's needs.  The 'construct' member
 // function will automatically forward the iterator to the constructed object
-// iff the 'ALLOC' parameter is convertible from 'bslma_Allocator*' and the
-// object being constructed has the 'bslalg_TypeTraitUsesBslmaAllocator' type
+// iff the 'ALLOC' parameter is convertible from 'bslma::Allocator*' and the
+// object being constructed has the 'bslalg::TypeTraitUsesBslmaAllocator' type
 // trait, as per standard Bloomberg practice.  The
 // 'select_on_container_copy_construction' static member will return a
 // default-constructed allocator iff 'ALLOC' is convertible to from
-// 'bslma_Allocator*' because bslma allocators should not be copied when a
+// 'bslma::Allocator*' because bslma allocators should not be copied when a
 // container is copy-constructed; otherwise this function will return a copy
 // of the allocator, as per C++03 container rules.  The other propagation
 // traits all have a 'false' value, so allocators are not propagated on
@@ -92,7 +92,7 @@ BSLS_IDENT("$Id: $")
 //      TYPE  *d_value_p;
 //
 //    public:
-//      typedef bslalg_TypeTraitsGroupStlSequence<TYPE,ALLOC> TypeTraits;
+//      typedef bslalg::TypeTraitsGroupStlSequence<TYPE,ALLOC> TypeTraits;
 //      BSLALG_DECLARE_NESTED_TRAITS(MyContainer, TypeTraits);
 //          // Declare nested type traits for this class.
 //
@@ -203,7 +203,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  int main()
 //  {
-//      bslma_TestAllocator testAlloc;
+//      bslma::TestAllocator testAlloc;
 //      MyContainer<int> C1(123, &testAlloc);
 //      assert(C1.get_allocator() == bsl::allocator<int>(&testAlloc));
 //      assert(C1.front() == 123);
@@ -225,24 +225,24 @@ BSLS_IDENT("$Id: $")
 //
 //  class MyType {
 //
-//      bslma_Allocator *d_allocator_p;
+//      bslma::Allocator *d_allocator_p;
 //      // etc.
 //    public:
 //      // TRAITS
 //      BSLALG_DECLARE_NESTED_TRAITS(MyType,
-//                                   bslalg_TypeTraitUsesBslmaAllocator);
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
 //      // CREATORS
-//      explicit MyType(bslma_Allocator* basicAlloc = 0)
-//          : d_allocator_p(bslma_Default::allocator(basicAlloc)) { /* ... */ }
+//      explicit MyType(bslma::Allocator* basicAlloc = 0)
+//          : d_allocator_p(bslma::Default::allocator(basicAlloc)) {/* ... */}
 //      MyType(const MyType& other)
-//          : d_allocator_p(bslma_Default::allocator(0)) { /* ... */ }
-//      MyType(const MyType& other, bslma_Allocator* basicAlloc)
-//          : d_allocator_p(bslma_Default::allocator(basicAlloc)) { /* ... */ }
+//          : d_allocator_p(bslma::Default::allocator(0)) { /* ... */ }
+//      MyType(const MyType& other, bslma::Allocator* basicAlloc)
+//          : d_allocator_p(bslma::Default::allocator(basicAlloc)) {/* ... */}
 //      // etc.
 //
 //      // ACCESSORS
-//      bslma_Allocator *allocator() const { return d_allocator_p; }
+//      bslma::Allocator *allocator() const { return d_allocator_p; }
 //      // etc.
 //  };
 //..
@@ -258,9 +258,9 @@ BSLS_IDENT("$Id: $")
 //
 //  int main()
 //  {
-//      bslma_TestAllocator testAlloc;
+//      bslma::TestAllocator testAlloc;
 //      MyContainer<MyType> C1(&testAlloc);
-//      assert((bslmf_IsSame<MyContainer<MyType>::allocator_type,
+//      assert((bslmf::IsSame<MyContainer<MyType>::allocator_type,
 //              bsl::allocator<MyType> >::VALUE));
 //      assert(C1.get_allocator() == bsl::allocator<MyType>(&testAlloc));
 //      assert(C1.front().allocator() == &testAlloc);
@@ -269,7 +269,7 @@ BSLS_IDENT("$Id: $")
 //      assert(C2.get_allocator() != C1.get_allocator());
 //      assert(C2.get_allocator() == bsl::allocator<MyType>());
 //      assert(C2.front().allocator() != &testAlloc);
-//      assert(C2.front().allocator() == bslma_Default::defaultAllocator());
+//      assert(C2.front().allocator() == bslma::Default::defaultAllocator());
 //
 //      return 0;
 //  }
@@ -334,15 +334,15 @@ BSLS_IDENT("$Id: $")
 //  {
 //      typedef MyCpp03Allocator<MyType> MyTypeAlloc;
 //      MyContainer<MyType, MyTypeAlloc> C1(MyTypeAlloc(1));
-//      assert((bslmf_IsSame<MyContainer<MyType, MyTypeAlloc>::allocator_type,
+//      assert((bslmf::IsSame<MyContainer<MyType, MyTypeAlloc>::allocator_type,
 //                           MyTypeAlloc>::VALUE));
 //      assert(C1.get_allocator() == MyTypeAlloc(1));
-//      assert(C1.front().allocator() == bslma_Default::defaultAllocator());
+//      assert(C1.front().allocator() == bslma::Default::defaultAllocator());
 //
 //      MyContainer<MyType, MyTypeAlloc> C2(C1);
 //      assert(C2.get_allocator() == C1.get_allocator());
 //      assert(C2.get_allocator() != MyTypeAlloc())
-//      assert(C2.front().allocator() == bslma_Default::defaultAllocator());
+//      assert(C2.front().allocator() == bslma::Default::defaultAllocator());
 //
 //      return 0;
 //  }
@@ -386,7 +386,7 @@ struct allocator_traits {
     // standard-conforming allocator.  This version of 'allocator_traits'
     // supports Bloomberg's 'bslma' allocator model by automatically detecting
     // when the parameterized, 'ALLOCATOR_TYPE', is convertible from
-    // 'bslma_Allocator' (called a bslma-compatible allocator).  For
+    // 'bslma::Allocator' (called a bslma-compatible allocator).  For
     // bslma-compatible allocators, the 'construct' methods forwards the
     // allocator to the element's constructor, when possible, and
     // 'select_on_container_copy_constructor' returns a default-constructed
@@ -404,8 +404,8 @@ struct allocator_traits {
     typedef BloombergLP::bslmf::MetaInt<1> TrueType;
 
     // 'IsBslma' is 'TrueType' if the parameterized 'ALLOCATOR_TYPE' is
-    // constructible from 'bslma_Allocator*'.  In other words, its 'VALUE' is
-    // true if 'ALLOCATOR_TYPE' is a wrapper around 'bslma_Allocator*'.
+    // constructible from 'bslma::Allocator*'.  In other words, its 'VALUE' is
+    // true if 'ALLOCATOR_TYPE' is a wrapper around 'bslma::Allocator*'.
     typedef
     typename BloombergLP::bslmf::IsConvertible<BloombergLP::bslma::Allocator*,
                                                ALLOCATOR_TYPE>::Type IsBslma;
@@ -429,7 +429,7 @@ struct allocator_traits {
     static
     BloombergLP::bslma::Allocator *mechanism(const ALLOCATOR_TYPE& allocator,
                                              TrueType);
-        // Return the address of the 'bslma_Allocator' that implements the
+        // Return the address of the 'bslma::Allocator' that implements the
         // mechanism for the specified 'allocator', i.e.,
         // 'allocator.mechanism()'. Note that this function is called only
         // when 'ALLOCATOR_TYPE' is bslma allocator.
@@ -492,7 +492,7 @@ struct allocator_traits {
         // Construct an object of the parameterized 'ELEMENT_TYPE' at the
         // specified 'elementAddr' using the specified 'ctorArgs'.  If the
         // parameterized 'ALLOCATOR_TYPE' is bslma-compatible and
-        // 'ELEMENT_TYPE' has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+        // 'ELEMENT_TYPE' has the 'bslalg::TypeTraitUsesBslmaAllocator' trait,
         // then pass the mechanism from the specified 'allocator' as an
         // additional constructor argument (at the end of the argument list).
         // The behavior is undefined unless 'elementAddr' refers to valid,
@@ -505,7 +505,7 @@ struct allocator_traits {
         // Construct an object of the parameterized 'ELEMENT_TYPE' at the
         // specified 'elementAddr' using the specified 'ctorArgs'.  If the
         // parameterized 'ALLOCATOR_TYPE' is bslma-compatible and
-        // 'ELEMENT_TYPE' has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+        // 'ELEMENT_TYPE' has the 'bslalg::TypeTraitUsesBslmaAllocator' trait,
         // then pass the mechanism from the specified 'allocator' as an
         // additional constructor argument (at the end of the argument list).
         // The behavior is undefined unless 'elementAddr' refers to valid,
@@ -517,7 +517,7 @@ struct allocator_traits {
                           ELEMENT_TYPE     *elementAddr);
         // Construct an object of the parameterized 'ELEMENT_TYPE'.  If the
         // parameterized 'ALLOCATOR_TYPE' is bslma-compatible and
-        // 'ELEMENT_TYPE' has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+        // 'ELEMENT_TYPE' has the 'bslalg::TypeTraitUsesBslmaAllocator' trait,
         // then pass the mechanism from the specified 'allocator' as the sole
         // constructor argument; otherwise, invoke the default constructor for
         // 'ELEMENT_TYPE' (passing no arguments).  The behavior is undefined
@@ -531,7 +531,7 @@ struct allocator_traits {
         // specified 'elementAddr' using the specified 'ctorArg1' constructor
         // argument.  If the parameterized 'ALLOCATOR_TYPE' is
         // bslma-compatible and 'ELEMENT_TYPE' has the
-        // 'bslalg_TypeTraitUsesBslmaAllocator' trait, then pass the mechanism
+        // 'bslalg::TypeTraitUsesBslmaAllocator' trait, then pass the mechanism
         // from the specified 'allocator' as an additional constructor
         // argument (at the end of the argument list).  The behavior is
         // undefined unless 'elementAddr' refers to valid, uninitialized
@@ -546,7 +546,7 @@ struct allocator_traits {
         // specified 'elementAddr' using the specified 'ctorArg1', and
         // 'ctorArg2' constructor arguments.  If the parameterized
         // 'ALLOCATOR_TYPE' is bslma-compatible and 'ELEMENT_TYPE' has the
-        // 'bslalg_TypeTraitUsesBslmaAllocator' trait, then pass the mechanism
+        // 'bslalg::TypeTraitUsesBslmaAllocator' trait, then pass the mechanism
         // from the specified 'allocator' as an additional constructor
         // argument (at the end of the argument list).  The behavior is
         // undefined unless 'elementAddr' refers to valid, uninitialized
@@ -563,7 +563,7 @@ struct allocator_traits {
         // specified 'elementAddr' using the specified 'ctorArg1', 'ctorArg2',
         // and 'ctorArg3' constructor arguments.  If the parameterized
         // 'ALLOCATOR_TYPE' is bslma-compatible and 'ELEMENT_TYPE' has the
-        // 'bslalg_TypeTraitUsesBslmaAllocator' trait, then pass the mechanism
+        // 'bslalg::TypeTraitUsesBslmaAllocator' trait, then pass the mechanism
         // from the specified 'allocator' as an additional constructor
         // argument (at the end of the argument list).  The behavior is
         // undefined unless 'elementAddr' refers to valid, uninitialized
@@ -581,7 +581,7 @@ struct allocator_traits {
         // specified 'elementAddr' using the specified 'ctorArg1', 'ctorArg2',
         // 'ctorArg3' and 'ctorArg4' constructor arguments.  If the
         // parameterized 'ALLOCATOR_TYPE' is bslma-compatible and
-        // 'ELEMENT_TYPE' has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+        // 'ELEMENT_TYPE' has the 'bslalg::TypeTraitUsesBslmaAllocator' trait,
         // then pass the mechanism from the specified 'allocator' as an
         // additional constructor argument (at the end of the argument list).
         // The behavior is undefined unless 'elementAddr' refers to valid,
@@ -600,7 +600,7 @@ struct allocator_traits {
         // specified 'elementAddr' using the specified 'ctorArg1', 'ctorArg2',
         // 'ctorArg3', 'ctorArg4' and 'ctorArg5' constructor arguments.  If
         // the parameterized 'ALLOCATOR_TYPE' is bslma-compatible and
-        // 'ELEMENT_TYPE' has the 'bslalg_TypeTraitUsesBslmaAllocator' trait,
+        // 'ELEMENT_TYPE' has the 'bslalg::TypeTraitUsesBslmaAllocator' trait,
         // then pass the mechanism from the specified 'allocator' as an
         // additional constructor argument (at the end of the argument list).
         // The behavior is undefined unless 'elementAddr' refers to valid,
@@ -632,31 +632,31 @@ struct allocator_traits {
         // newly-constructed container).
 
     typedef FalseType propagate_on_container_copy_assignment;
-        // Identical to, or derived from 'bslmf_MetaInt<1>' if an allocator of
+        // Identical to, or derived from 'bslmf::MetaInt<1>' if an allocator of
         // parameterized 'ALLOCATOR_TYPE' should be copied when a container
         // using that 'ALLOCATOR_TYPE' is copy-assigned; otherwise identical
-        // to or derived from 'bslmf_MetaInt<0>'.  In the current
-        // implementation, this type is always 'bslmf_MetaInt<0>'.  In a fully
+        // to or derived from 'bslmf::MetaInt<0>'.  In the current
+        // implementation, this type is always 'bslmf::MetaInt<0>'.  In a fully
         // standard-compliant implementation, this type would be
         // 'ALLOCATOR_TYPE::propagate_on_container_copy_assignment' if such a
         // type is defined, and 'false_type' otherwise.
 
     typedef FalseType propagate_on_container_move_assignment;
-        // Identical to, or derived from 'bslmf_MetaInt<1>' if an allocator of
+        // Identical to, or derived from 'bslmf::MetaInt<1>' if an allocator of
         // parameterized 'ALLOCATOR_TYPE' should be moved when a container
         // using that 'ALLOCATOR_TYPE' is move-assigned; otherwise identical
-        // to or derived from 'bslmf_MetaInt<0>'.  In the current
-        // implementation, this type is always 'bslmf_MetaInt<0>'.  In a fully
+        // to or derived from 'bslmf::MetaInt<0>'.  In the current
+        // implementation, this type is always 'bslmf::MetaInt<0>'.  In a fully
         // standard-compliant implementation, this type would be
         // 'ALLOCATOR_TYPE::propagate_on_container_move_assignment' if such a
         // type is defined, and 'false_type' otherwise.
 
     typedef FalseType propagate_on_container_swap;
-        // Identical to, or derived from 'bslmf_MetaInt<1>' if the allocators
+        // Identical to, or derived from 'bslmf::MetaInt<1>' if the allocators
         // of parameterized 'ALLOCATOR_TYPE' should be swapped when containers
         // using that 'ALLOCATOR_TYPE' are swapped; otherwise identical to or
-        // derived from 'bslmf_MetaInt<0>'.  In the current implementation,
-        // this type is always 'bslmf_MetaInt<0>'.  In a fully
+        // derived from 'bslmf::MetaInt<0>'.  In the current implementation,
+        // this type is always 'bslmf::MetaInt<0>'.  In a fully
         // standard-compliant implementation, this type would be
         // 'ALLOCATOR_TYPE::propagate_on_container_swap' if such a type is
         // defined, and 'false_type' otherwise.
