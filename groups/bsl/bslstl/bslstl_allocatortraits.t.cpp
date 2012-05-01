@@ -11,6 +11,7 @@
 #include <bslmf_removecvq.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_util.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -358,7 +359,7 @@ class FunkyAllocator
     }
 
     void deallocate(pointer p, size_type n = 1)
-        { d_mechanism->deallocate(&*p); }
+        { d_mechanism->deallocate(bsls::Util::addressOf(*p)); }
 
     void construct(pointer p, const T& val) { ::new ((void*) &*p) T(val); }
     void destroy(pointer p) { p->~T(); }
@@ -490,6 +491,8 @@ class AttribClass5Alloc
     Uniq       *e() const { return d_attrib.e(); }
 
     AllocatorType allocator() const { return d_allocator; }
+
+    friend void operator&(AttribClass5Alloc&) { }
 };
 
 class AttribClass5bslma
@@ -1310,7 +1313,8 @@ void testAllocateDeallocate(const char *name)
         LOOP2_ASSERT(name, N, (useHint ? hint : 0) == g_lastHint);
 
         // Check memory allocation
-        LOOP2_ASSERT(name, N, ta.lastAllocatedAddress() == &*pointers[i]);
+        LOOP2_ASSERT(name, N, ta.lastAllocatedAddress() ==
+                              bsls::Util::addressOf(*pointers[i]));
         LOOP2_ASSERT(name, N, ta.lastAllocatedNumBytes() == blockSize);
         LOOP2_ASSERT(name, N, ta.numAllocations() == allocationsB + 1);
         LOOP2_ASSERT(name, N, ta.numBlocksInUse() == blocksInUseB + 1);
@@ -1399,55 +1403,60 @@ void testConstructDestroy(const char *allocname,
         int expCtorCount = C::ctorCount();
         int expDtorCount = C::dtorCount();
 
-        TraitsT::construct(a, &objects[0].object());
+        TraitsT::construct(a, bsls::Util::addressOf(objects[0].object()));
         LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
         LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
         LOOP3_ASSERT(allocname, tname, i,
                      matchAttrib(objects[0].object(), DFLT_A, DFLT_B, DFLT_C,
                                  DFLT_D, DFLT_E, exp_a));
 
-        TraitsT::construct(a, &objects[1].object(), A);
+        TraitsT::construct(a, bsls::Util::addressOf(objects[1].object()), A);
         LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
         LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
         LOOP3_ASSERT(allocname, tname, i,
                      matchAttrib(objects[1].object(), A, DFLT_B, DFLT_C,
                                  DFLT_D, DFLT_E, exp_a));
 
-        TraitsT::construct(a, &objects[2].object(), A, B);
+        TraitsT::construct(a, bsls::Util::addressOf(objects[2].object()),
+                              A, B);
         LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
         LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
         LOOP3_ASSERT(allocname, tname, i,
                      matchAttrib(objects[2].object(), A, B, DFLT_C, DFLT_D,
                                  DFLT_E, exp_a));
 
-        TraitsT::construct(a, &objects[3].object(), A, B, C);
+        TraitsT::construct(a, bsls::Util::addressOf(objects[3].object()),
+                              A, B, C);
         LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
         LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
         LOOP3_ASSERT(allocname, tname, i,
                      matchAttrib(objects[3].object(), A, B, C, DFLT_D, DFLT_E,
                                  exp_a));
 
-        TraitsT::construct(a, &objects[4].object(), A, B, C, D);
+        TraitsT::construct(a, bsls::Util::addressOf(objects[4].object()),
+                              A, B, C, D);
         LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
         LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
         LOOP3_ASSERT(allocname, tname, i,
                      matchAttrib(objects[4].object(), A, B, C, D, DFLT_E,
                                  exp_a));
 
-        TraitsT::construct(a, &objects[5].object(), A, B, C, D, E);
+        TraitsT::construct(a, bsls::Util::addressOf(objects[5].object()),
+                              A, B, C, D, E);
         LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
         LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
         LOOP3_ASSERT(allocname, tname, i,
                      matchAttrib(objects[5].object(), A, B, C, D, E, exp_a));
 
-        TraitsT::construct(a, &objects[6].object(), objects[5].object());
+        TraitsT::construct(a, bsls::Util::addressOf(objects[6].object()),
+                              objects[5].object());
         LOOP3_ASSERT(allocname, tname, i, C::ctorCount() == ++expCtorCount);
         LOOP3_ASSERT(allocname, tname, i, C::dtorCount() == expDtorCount);
         LOOP3_ASSERT(allocname, tname, i,
                      matchAttrib(objects[6].object(), A, B, C, D, E, exp_a));
 
         for (int j = 0; j < 7; ++j) {
-            TraitsT::destroy(a, &objects[i].object());
+            TraitsT::destroy(a, bsls::Util::addressOf(objects[i].object()));
             LOOP3_ASSERT(allocname,tname,i, C::ctorCount() == expCtorCount);
             LOOP3_ASSERT(allocname,tname,i, C::dtorCount() == ++expDtorCount);
             LOOP3_ASSERT(allocname,tname,i,
