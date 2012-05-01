@@ -11,9 +11,9 @@ BDES_IDENT("$Id: $")
 //
 //@CLASSES:
 //   bcem_AggregateRaw: pointer to fully-introspective, dynamically-typed data
-//   bcem_AggregateRaw_NameOrIndex: simple discriminated union of string, index
+//   bcem_AggregateRawNameOrIndex: simple discriminated union of string, index
 //
-//@SEE_ALSO: bdem package; bcem_Aggregate
+//@SEE_ALSO: bdem package, bcem_aggregate
 //
 //@AUTHOR: David Schumann (dschumann1)
 //
@@ -169,11 +169,11 @@ namespace BloombergLP {
 
 struct bcem_AggregateRaw_BdeatUtil;
 
-                        // ===================================
-                        // class bcem_AggregateRaw_NameOrIndex
-                        // ===================================
+                        // ==================================
+                        // class bcem_AggregateRawNameOrIndex
+                        // ==================================
 
-class bcem_AggregateRaw_NameOrIndex {
+class bcem_AggregateRawNameOrIndex {
     // This class holds a *temporary* name string, an integer index, or neither
     // (the "empty" state).  It has conversion constructors
     // from 'bsl::string', 'const char *', and 'int'.  It does not own its
@@ -194,24 +194,24 @@ class bcem_AggregateRaw_NameOrIndex {
 
   public:
     // CREATORS
-    bcem_AggregateRaw_NameOrIndex();
+    bcem_AggregateRawNameOrIndex();
         // Create an empty name/index having no name or index.
 
-    bcem_AggregateRaw_NameOrIndex(const char *name);
+    bcem_AggregateRawNameOrIndex(const char *name);
         // Create a name/index having the specified 'name'.  The behavior is
         // undefined unless the character array pointed to by 'name' is
         // unchanged and remains valid during the lifetime of this object.
 
-    bcem_AggregateRaw_NameOrIndex(const bsl::string& name);
+    bcem_AggregateRawNameOrIndex(const bsl::string& name);
         // Create a name/index having the specified 'name'.  The behavior is
         // undefined unless 'name' is unchanged during the lifetime of this
-        // object.  Note that this method, allowing implicit conversion
-        // of bsl::string to 'bcem_AggregateRaw_NameOrIndex', is necessary
-        // for the usability of public functions in the interfaces of
-        // 'bcem_Aggregate' and 'bcem_AggregateRaw' that allow the caller
-        // to specify any of int, string literal, or bsl::string.
+        // object.  Note that this method, allowing implicit conversion of
+        // bsl::string to 'bcem_AggregateRawNameOrIndex', is necessary for the
+        // usability of public functions in the interfaces of 'bcem_Aggregate'
+        // and 'bcem_AggregateRaw' that allow the caller to specify any of int,
+        // string literal, or bsl::string.
 
-    bcem_AggregateRaw_NameOrIndex(int index);
+    bcem_AggregateRawNameOrIndex(int index);
         // Create a name/index having the specified 'index'.  The behavior is
         // undefined unless 'index >= 0'.
 
@@ -236,6 +236,94 @@ class bcem_AggregateRaw_NameOrIndex {
         // and 'bdem_RecordDef::BDEM_NULL_FIELD_ID' otherwise.
 };
 
+                     // =======================================
+                     // class bcem_AggregateRaw_ElemDataFetcher
+                     // =======================================
+
+struct bcem_AggregateRaw_ElemDataFetcher {
+    // This class accesses the address of a value held within a 'bdem_ElemRef'
+    // or 'bdem_ConstElemRef' without affecting the nullness of the referenced
+    // value.
+
+    void *d_data_p;
+
+    explicit
+    bcem_AggregateRaw_ElemDataFetcher(const bdem_ElemRef& elemRef)
+    {
+        d_data_p = elemRef.dataRaw();
+    }
+
+    explicit
+    bcem_AggregateRaw_ElemDataFetcher(const bdem_ConstElemRef& elemRef)
+    {
+        d_data_p = const_cast<void *>(elemRef.data());
+    }
+};
+
+                     // ====================================
+                     // class bcem_AggregateRaw_ArrayIndexer
+                     // ====================================
+
+class bcem_AggregateRaw_ArrayIndexer {
+    // This class defines a function object to access the n'th element in
+    // an array.
+
+    // DATA
+    int   d_index;   // index of array element to be accessed
+    void *d_item_p;  // address of element (initially null)
+
+    // NOT IMPLEMENTED
+    bcem_AggregateRaw_ArrayIndexer(const bcem_AggregateRaw_ArrayIndexer&);
+    bcem_AggregateRaw_ArrayIndexer& operator=(
+                                        const bcem_AggregateRaw_ArrayIndexer&);
+
+  public:
+    // CREATORS
+    explicit
+    bcem_AggregateRaw_ArrayIndexer(int index)
+    : d_index(index)
+    , d_item_p(0)
+    {
+    }
+
+    // MANIPULATORS
+    template <typename ARRAYTYPE>
+    int operator()(ARRAYTYPE *array)
+    {
+        int rc;
+        if ((unsigned)d_index < array->size()) {
+            d_item_p = & (*array)[d_index];
+            rc = 0;
+        }
+        else {
+            d_item_p = 0;
+            rc = -1;
+        }
+        return rc;
+    }
+
+    // ACCESSORS
+    void *data() const
+    {
+        return d_item_p;
+    }
+};
+
+                         // ==================================
+                         // class bcem_AggregateRaw_ArraySizer
+                         // ==================================
+
+struct bcem_AggregateRaw_ArraySizer {
+    // This class defines a function object to return the size of a sequence.
+
+    // ACCESSORS
+    template <typename ARRAYTYPE>
+    int operator()(ARRAYTYPE *array) const
+    {
+        return (int)array->size();
+    }
+};
+
                         // =======================
                         // class bcem_AggregateRaw
                         // =======================
@@ -249,7 +337,7 @@ class bcem_AggregateRaw {
 
   private:
     // PRIVATE TYPES
-    typedef bcem_AggregateRaw_NameOrIndex NameOrIndex;  // short hand
+    typedef bcem_AggregateRawNameOrIndex NameOrIndex;  // short hand
 
     // Data invariants:
     // - If 'd_dataType' is 'bdem_ElemType::BDEM_VOID', then 'd_value' will be
@@ -269,8 +357,8 @@ class bcem_AggregateRaw {
     //   'd_fieldDef->elemType()'.
     // - If this is the root object, then 'd_fieldDef' will be null, but
     //   'd_recordDef' may still have a value.  Otherwise,
-    //   'd_fieldDef->recordConstraint()' will always be equal to
     //   'd_recordDef'.  The code in this class always uses 'd_recordDef', not
+    //   'd_fieldDef->recordConstraint()' will always be equal to
     //   'd_fieldDef->recordConstraint()'.
 
     // DATA
@@ -353,12 +441,92 @@ class bcem_AggregateRaw {
         // a nonzero value with a description loaded into the specified
         // 'errorDescription' on failure.
 
+    // TBD: Order functions
+
     // PRIVATE ACCESSORS
+    template <typename TOTYPE>
+    TOTYPE convertScalar() const;
+        // Return the scalar value stored in this aggregate converted to the
+        // parameterized 'TOTYPE'.  Return an "unset" 'TOTYPE' value (see
+        // 'bdetu_unset') unless this aggregate holds a scalar value that is
+        // convertible to 'TOTYPE'.  'TOTYPE' shall be one of: 'bool', 'char',
+        // 'short', 'int', 'bsls_Types::Int64', 'float', 'double',
+        // 'bdet_Datetime', 'bdet_DatetimeTz', 'bdet_Date', 'bdet_DateTz',
+        // 'bdet_Time', 'bdet_TimeTz'; or, unsigned versions of these.  But
+        // note that if TOTYPE is unsigned, and this aggregate is not
+        // convertible to 'TOTYPE', then the unset value of the corresponding
+        // signed type is returned.
+
     void convertScalarToString(bsl::string *result) const;
         // Convert the scalar value stored in this aggregate to a string, and
         // load the resulting string into the specified 'result', or make
         // 'result' the empty string if this aggregate holds a value that is
         // not convertible to a string.
+
+    int descendIntoField(bcem_AggregateError *errorDescription,
+                         const NameOrIndex&   fieldOrIdx,
+                         bool                 makeNonNullFlag);
+        // Modify this aggregate so that it refers to the field with the
+        // specified 'fieldOrIdx' within the currently-referenced sequence or
+        // choice object.  If this aggregate references a nillable array, the
+        // element having 'fieldOrIdx' is null, and the specified
+        // 'makeNonNullFlag' is 'true', assign that element its default value;
+        // otherwise leave the element unmodified.  Return 0 on success, with
+        // no effect on the specified 'errorDescription'; otherwise, load into
+        // 'errorDescription' a description of the failure and return a nonzero
+        // value.
+
+    int descendIntoFieldByName(bcem_AggregateError *errorDescription,
+                               const char          *name);
+        // Modify this aggregate so that it refers to the field with the
+        // specified 'name' within the currently-referenced sequence or choice
+        // object.  Return 0 on success, with no effect on the specified
+        // 'errorDescription'; otherwise, load into 'errorDescription' a
+        // description of the failure and return a nonzero value.
+
+    int descendIntoFieldById(bcem_AggregateError *errorDescription,
+                             int                  id);
+        // Modify this aggregate so that it refers to the field with the
+        // specified 'id' within the currently-referenced sequence or choice
+        // object.  Return 0 on success, with no effect on the specified
+        // 'errorDescription'; otherwise, load into 'errorDescription' a
+        // description of the failure and return a nonzero value.
+
+    int descendIntoFieldByIndex(bcem_AggregateError *errorDescription,
+                                int                  index);
+        // Modify this aggregate so that it refers to the field with the
+        // specified 'index' within the currently-referenced sequence or choice
+        // object.  Return 0 on success, with no effect on the specified
+        // 'errorDescription'; otherwise, load into 'errorDescription' a
+        // description of the failure and return a nonzero value.
+
+    int makeSelectionByIndexRaw(bcem_AggregateRaw   *result,
+                                bcem_AggregateError *errorDescription,
+                                int                  index) const;
+        // Change the selector in the referenced choice object to the one at
+        // the specified 'index', and load a reference to the new selection
+        // into the specified 'result' if 'result' is not 0.  The new selection
+        // will not be initialized as in 'makeSelection' (so makeValue() will
+        // need to be invoked before using the new selection).  If
+        // '-1 == index' then the selector value of this object is reset to its
+        // default value, with no effect on 'result'.  Return 0 on success, or
+        // a nonzero value otherwise with the specified 'errorDescription'
+        // loaded with details.
+
+    int getFieldIndex(int                 *index,
+                      bcem_AggregateError *errorDescription,
+                      const char          *fieldName,
+                      const char          *caller) const;
+    int getFieldIndex(int                 *index,
+                      bcem_AggregateError *errorDescription,
+                      int                  fieldId,
+                      const char          *caller) const;
+        // On behalf of the specified 'caller', load into the specified 'index'
+        // the index of the field indicated by the specified 'fieldName' or
+        // 'fieldId' in the record definition of this aggregate.  Return 0 on
+        // success, with no effect on the specified 'errorDescription';
+        // otherwise, load into 'errorDescription' a description of the failure
+        // (incorporating the value of 'caller') and return a nonzero value.
 
   public:
 
@@ -377,6 +545,31 @@ class bcem_AggregateRaw {
     static bdem_ElemType::Type getBdemType(const TYPE& value);
         // Return the 'bdem_ElemType::Type' corresponding to the parameterized
         // 'value'.
+
+    static bool areEquivalent(const bcem_AggregateRaw& lhs,
+                              const bcem_AggregateRaw& rhs);
+        // Return 'true' if the value of the object referenced by the specified
+        // 'lhs' aggregate equals the value of the object referenced by the
+        // specified 'rhs' aggregate.  The aggregates need not be identical (as
+        // per 'areIdentical'), but must have equivalent record definitions and
+        // equal data and nullness values.  This predicate is roughly
+        // equivalent to dereferencing two pointers and comparing their
+        // pointed-to values for equality.  'areIdentical(lhs, rhs)' implies
+        // 'areEquivalent(lhs, rhs)', but not vice versa.
+
+    static bool areIdentical(const bcem_AggregateRaw& lhs,
+                             const bcem_AggregateRaw& rhs);
+        // Return 'true' if the specified 'lhs' aggregate refers to the same
+        // object as the specified 'rhs' aggregate and 'false' otherwise.
+        // Specifically, 'lhs' and 'rhs' are considered identical if 'dataType'
+        // and 'dataPtr' return equal values for the respective arguments.
+        // When two 'bcem_AggregateRaw' objects compare identical,
+        // modifications to one of their referred-to object will be visible
+        // through the other.  This predicate is roughly equivalent to
+        // comparing two pointers for equality.  Note that if
+        // 'bdem_ElemType::BDEM_VOID == lhs.dataType()' or
+        // 'bdem_ElemType::BDEM_VOID == rhs.dataType()', then 'false' is
+        // returned.
 
     // CREATORS
     bcem_AggregateRaw();
@@ -406,10 +599,6 @@ class bcem_AggregateRaw {
         // 'other' remain valid for the lifetime of this object.  Note that if
         // 'rhs' is an error aggregate, then this aggregate will be assigned
         // the same error state as 'rhs'.
-
-    void clearParent();
-        // Make this aggregate a top-level aggregate by resetting the parent
-        // information.
 
     void setDataType(bdem_ElemType::Type dataType);
         // Set the type of data referenced by this "raw" aggregate to the
@@ -441,8 +630,16 @@ class bcem_AggregateRaw {
         // Representation" in the component-level documentation for a
         // description of the top-level nullness bit.
 
+    void clearParent();
+        // Make this aggregate a top-level aggregate by resetting the 
+        // parent information.  TBD: Remove if possible
+    
+    void reset();
+        // Reset this object to its default-constructed state.
+
+    // REFERENCED-VALUE ACCESSORS
     int reserveRaw(bcem_AggregateError *errorDescription,
-                   bsl::size_t          numItems);
+                   bsl::size_t          numItems) const;
         // Reserve sufficient memory for at least the specified 'numItems' if
         // this aggregate references a scalar or choice array, or reserve
         // sufficient memory for at least the footprint of 'numItems' rows, if
@@ -455,10 +652,19 @@ class bcem_AggregateRaw {
         // success or a nonzero value with a description loaded into the
         // specified 'errorDescription' on failure.
 
-    void reset();
-        // Reset this object to its default-constructed state.
+    int capacityRaw(bcem_AggregateError *errorDescription,
+                    bsl::size_t         *capacity) const;
+        // Load, in the specified 'capacity', the total number of items for
+        // which sufficient memory is currently allocated if this aggregate
+        // references a scalar or choice array, or load the total number of row
+        // footprints for which sufficient memory is currently allocated, if
+        // this aggregate references a table.  In the latter case, inserting
+        // rows that do not exceed this capacity *may* or may *not* result in
+        // additional allocations depending on the allocation mode, and whether
+        // any row data element itself allocates memory (see the 'reserveRaw'
+        // method).  Return 0 on success or a nonzero value with a description
+        // loaded into the specified 'errorDescription' on failure.
 
-    // ACCESSORS
     bool isError() const;
         // Return 'true' if this object was returned from a function that
         // detected an error.  If this function returns 'true', then
@@ -522,19 +728,6 @@ class bcem_AggregateRaw {
         // enumerator ID when converting enumeration objects to numeric
         // values).  Return the appropriate "null" value if conversion fails.
 
-    template <typename TOTYPE>
-    TOTYPE convertScalar() const;
-        // Return the scalar value stored in this aggregate converted to the
-        // parameterized 'TOTYPE'.  Return an "unset" 'TOTYPE' value (see
-        // 'bdetu_unset') unless this aggregate holds a scalar value that is
-        // convertible to 'TOTYPE'.  'TOTYPE' shall be one of: 'bool', 'char',
-        // 'short', 'int', 'bsls_Types::Int64', 'float', 'double',
-        // 'bdet_Datetime', 'bdet_DatetimeTz', 'bdet_Date', 'bdet_DateTz',
-        // 'bdet_Time', 'bdet_TimeTz'; or, unsigned versions of these.  But
-        // note that if TOTYPE is unsigned, and this aggregate is not
-        // convertible to 'TOTYPE', then the unset value of the corresponding
-        // signed type is returned.
-
     const bdem_ElemRef asElemRef() const;
         // Return an element reference providing modifiable access to the value
         // held by this aggregate.
@@ -563,49 +756,13 @@ class bcem_AggregateRaw {
         // 'errorDescription' and return a nonzero value; otherwise return 0
         // with no effect on 'errorDescription'.
 
-    int anonymousField(bcem_AggregateRaw *object) const;
+    int anonymousField(bcem_AggregateRaw   *object,
+                       bcem_AggregateError *errorDescription) const;
         // If this aggregate contains exactly one field with a null name (i.e.,
         // an anonymous field), then load into the specified 'object' an
         // aggregate representing that field and return 0; otherwise return a
         // non-zero value.  An anonymous field is a field with with a null
-        // name.
-
-    int descendIntoField(bcem_AggregateError *errorDescription,
-                         const NameOrIndex&   fieldOrIdx,
-                         bool                 makeNonNullFlag);
-        // Modify this aggregate so that it refers to the field with the
-        // specified 'fieldOrIdx' within the currently-referenced sequence or
-        // choice object.  If this aggregate references a nillable array, the
-        // element having 'fieldOrIdx' is null, and the specified
-        // 'makeNonNullFlag' is 'true', assign that element its default value;
-        // otherwise leave the element unmodified.  Return 0 on success, with
-        // no effect on the specified 'errorDescription'; otherwise, load into
-        // 'errorDescription' a description of the failure and return a nonzero
-        // value.
-
-    int descendIntoFieldByName(bcem_AggregateError *errorDescription,
-                               const char          *name);
-        // Modify this aggregate so that it refers to the field with the
-        // specified 'name' within the currently-referenced sequence or choice
-        // object.  Return 0 on success, with no effect on the specified
-        // 'errorDescription'; otherwise, load into 'errorDescription' a
-        // description of the failure and return a nonzero value.
-
-    int descendIntoFieldById(bcem_AggregateError *errorDescription,
-                             int                  id);
-        // Modify this aggregate so that it refers to the field with the
-        // specified 'id' within the currently-referenced sequence or choice
-        // object.  Return 0 on success, with no effect on the specified
-        // 'errorDescription'; otherwise, load into 'errorDescription' a
-        // description of the failure and return a nonzero value.
-
-    int descendIntoFieldByIndex(bcem_AggregateError *errorDescription,
-                                int                  index);
-        // Modify this aggregate so that it refers to the field with the
-        // specified 'index' within the currently-referenced sequence or choice
-        // object.  Return 0 on success, with no effect on the specified
-        // 'errorDescription'; otherwise, load into 'errorDescription' a
-        // description of the failure and return a nonzero value.
+        // name.  TBD: Update doc for errorDescription
 
     int getField(bcem_AggregateRaw   *resultField,
                  bcem_AggregateError *errorDescription,
@@ -635,21 +792,6 @@ class bcem_AggregateRaw {
         // unused argument results in the construction of a null 'NameOrIndex',
         // which is treated as the end of the argument list.
 
-    int getFieldIndex(int                 *index,
-                      bcem_AggregateError *errorDescription,
-                      const char          *fieldName,
-                      const char          *caller) const;
-    int getFieldIndex(int                 *index,
-                      bcem_AggregateError *errorDescription,
-                      int                  fieldId,
-                      const char          *caller) const;
-        // On behalf of the specified 'caller', load into the specified 'index'
-        // the index of the field indicated by the specified 'fieldName' or
-        // 'fieldId' in the record definition of this aggregate.  Return 0 on
-        // success, with no effect on the specified 'errorDescription';
-        // otherwise, load into 'errorDescription' a description of the failure
-        // (incorporating the value of 'caller') and return a nonzero value.
-
     int findUnambiguousChoice(bcem_AggregateRaw   *choiceObject,
                               bcem_AggregateError *errorDescription,
                               const char          *caller = "") const;
@@ -672,6 +814,15 @@ class bcem_AggregateRaw {
         // success, with no effect on the specified 'errorDescription';
         // otherwise, load into 'errorDescription' a description of the failure
         // and return a nonzero value.
+
+    int fieldById(bcem_AggregateRaw   *field,
+                  bcem_AggregateError *errorDescription,
+                  int                  fieldId) const;
+        // Load into the specified 'field' object the field within this
+        // aggregate with the specified (zero-based) 'index'.  Return 0 on
+        // success, with no effect on the specified 'errorDescription';
+        // otherwise, load into 'errorDescription' a description of the failure
+        // and return a nonzero value. TBD: Update doc
 
     int arrayItem(bcem_AggregateRaw   *item,
                   bcem_AggregateError *errorDescription,
@@ -818,6 +969,19 @@ class bcem_AggregateRaw {
         // as per the "Anonymous Fields" section of the 'bcem_aggregate'
         // component-level documentation.
 
+    int selection(bcem_AggregateRaw   *field,
+                  bcem_AggregateError *errorDescription) const;
+        // TBD: Fix
+        // If this aggregate refers to choice or choice array item, return the
+        // sub-aggregate that refers to the modifiable current selection, or a
+        // void aggregate if there is no current selection.  If this aggregate
+        // refers to a list or row, look for an anonymous field within the
+        // list or row and recursively look for a choice in the anonymous
+        // field (if any), as per the "Anonymous Fields" section of the
+        // 'bcem_aggregate' component-level documentation.  Otherwise, (if
+        // this aggregate does not directly or indirectly refer to a choice or
+        // choice array item) or 'true == isNul2()' return an error object.
+
     bdem_ElemType::Type dataType() const;
         // Return the type of data referenced by this aggregate.  Return
         // 'bdem_ElemType::BDEM_VOID' for a void or error aggregate.
@@ -922,6 +1086,117 @@ class bcem_AggregateRaw {
         // this print function prepend's each field with the name of the field.
 
     template <typename VALTYPE>
+    int setField(bcem_AggregateRaw   *field,
+                 bcem_AggregateError *errorDescription,
+                 NameOrIndex          fieldOrIndex1,
+                 const VALTYPE&       value) const;
+    template <typename VALTYPE>
+    int setField(bcem_AggregateRaw   *field,
+                 bcem_AggregateError *errorDescription,
+                 NameOrIndex          fieldOrIndex1,
+                 NameOrIndex          fieldOrIndex2,
+                 const VALTYPE&       value) const;
+    template <typename VALTYPE>
+    int setField(bcem_AggregateRaw   *field,
+                 bcem_AggregateError *errorDescription,
+                 NameOrIndex          fieldOrIndex1,
+                 NameOrIndex          fieldOrIndex2,
+                 NameOrIndex          fieldOrIndex3,
+                 const VALTYPE&       value) const;
+    template <typename VALTYPE>
+    int setField(bcem_AggregateRaw   *field,
+                 bcem_AggregateError *errorDescription,
+                 NameOrIndex          fieldOrIndex1,
+                 NameOrIndex          fieldOrIndex2,
+                 NameOrIndex          fieldOrIndex3,
+                 NameOrIndex          fieldOrIndex4,
+                 const VALTYPE&       value) const;
+    template <typename VALTYPE>
+    int setField(bcem_AggregateRaw   *field,
+                 bcem_AggregateError *errorDescription,
+                 NameOrIndex          fieldOrIndex1,
+                 NameOrIndex          fieldOrIndex2,
+                 NameOrIndex          fieldOrIndex3,
+                 NameOrIndex          fieldOrIndex4,
+                 NameOrIndex          fieldOrIndex5,
+                 const VALTYPE&       value) const;
+    template <typename VALTYPE>
+    int setField(bcem_AggregateRaw   *field,
+                 bcem_AggregateError *errorDescription,
+                 NameOrIndex          fieldOrIndex1,
+                 NameOrIndex          fieldOrIndex2,
+                 NameOrIndex          fieldOrIndex3,
+                 NameOrIndex          fieldOrIndex4,
+                 NameOrIndex          fieldOrIndex5,
+                 NameOrIndex          fieldOrIndex6,
+                 const VALTYPE&       value) const;
+    template <typename VALTYPE>
+    int setField(bcem_AggregateRaw   *field,
+                 bcem_AggregateError *errorDescription,
+                 NameOrIndex          fieldOrIndex1,
+                 NameOrIndex          fieldOrIndex2,
+                 NameOrIndex          fieldOrIndex3,
+                 NameOrIndex          fieldOrIndex4,
+                 NameOrIndex          fieldOrIndex5,
+                 NameOrIndex          fieldOrIndex6,
+                 NameOrIndex          fieldOrIndex7,
+                 const VALTYPE&       value) const;
+    template <typename VALTYPE>
+    int setField(bcem_AggregateRaw   *field,
+                 bcem_AggregateError *errorDescription,
+                 NameOrIndex          fieldOrIndex1,
+                 NameOrIndex          fieldOrIndex2,
+                 NameOrIndex          fieldOrIndex3,
+                 NameOrIndex          fieldOrIndex4,
+                 NameOrIndex          fieldOrIndex5,
+                 NameOrIndex          fieldOrIndex6,
+                 NameOrIndex          fieldOrIndex7,
+                 NameOrIndex          fieldOrIndex8,
+                 const VALTYPE&       value) const;
+    template <typename VALTYPE>
+    int setField(bcem_AggregateRaw   *field,
+                 bcem_AggregateError *errorDescription,
+                 NameOrIndex          fieldOrIndex1,
+                 NameOrIndex          fieldOrIndex2,
+                 NameOrIndex          fieldOrIndex3,
+                 NameOrIndex          fieldOrIndex4,
+                 NameOrIndex          fieldOrIndex5,
+                 NameOrIndex          fieldOrIndex6,
+                 NameOrIndex          fieldOrIndex7,
+                 NameOrIndex          fieldOrIndex8,
+                 NameOrIndex          fieldOrIndex9,
+                 const VALTYPE&       value) const;
+    template <typename VALTYPE>
+    int setField(bcem_AggregateRaw   *field,
+                 bcem_AggregateError *errorDescription,
+                 NameOrIndex          fieldOrIndex1,
+                 NameOrIndex          fieldOrIndex2,
+                 NameOrIndex          fieldOrIndex3,
+                 NameOrIndex          fieldOrIndex4,
+                 NameOrIndex          fieldOrIndex5,
+                 NameOrIndex          fieldOrIndex6,
+                 NameOrIndex          fieldOrIndex7,
+                 NameOrIndex          fieldOrIndex8,
+                 NameOrIndex          fieldOrIndex9,
+                 NameOrIndex          fieldOrIndex10,
+                 const VALTYPE&       value) const;
+        // TBD: Check doc
+        // Navigate to the field within this aggregate reached through the
+        // specified chain of one to ten 'fieldOrIndex' arguments, each of
+        // which specifies a field name or array index, then set that field to
+        // the specified 'value', resetting its nullness flag if
+        // 'field.isNul2()' is 'true', after appropriate conversions (see
+        // "Extended Type Conversions" in the 'bcem_Aggregate' component-level
+        // documentation).  Return a sub-aggregate referring to the modified
+        // field on success or an error object on failure (as described in the
+        // "Error Handling" section of the 'bcem_aggregate' component-level
+        // documentation).  An empty string can be used for any of the
+        // 'fieldOrIndex' arguments to specify the current selection within a
+        // choice object.  If value is null then make the field null.  Note
+        // that if any field in the chain of fields is null then an error is
+        // returned.  This aggregate is not modified if an error is detected.
+        
+    template <typename VALTYPE>
     int insertItem(bcem_AggregateRaw   *newItem,
                    bcem_AggregateError *errorDescription,
                    int                  index,
@@ -956,6 +1231,17 @@ class bcem_AggregateRaw {
         // into 'errorDescription' a description of the failure and return a
         // nonzero value.
 
+    int insertNullItems(bcem_AggregateError *errorDescription,
+                        int                  index,
+                        int                  numItems) const;
+        // Insert 'numItems' new elements before the specified 'index' in the
+        // scalar array, table, or choice array referenced by this aggregate.
+        // The new items are set to the null values, as specified in the schema
+        // (recursively for the fields within inserted table rows).  Return 0
+        // on success, with no effect on the specified 'errorDescription';
+        // otherwise, load into 'errorDescription' a description of the failure
+        // and return a nonzero value.
+
     int removeItems(bcem_AggregateError *errorDescription,
                     int                  index,
                     int                  numItems) const;
@@ -966,18 +1252,41 @@ class bcem_AggregateRaw {
         // 'errorDescription' a description of the failure and return a nonzero
         // value.
 
-    int makeSelectionByIndexRaw(bcem_AggregateRaw   *result,
-                                bcem_AggregateError *errorDescription,
-                                int                  index) const;
-        // Change the selector in the referenced choice object to the one at
-        // the specified 'index', and load a reference to the new selection
-        // into the specified 'result' if 'result' is not 0.  The new selection
-        // will not be initialized as in 'makeSelection' (so makeValue() will
-        // need to be invoked before using the new selection).  If
-        // '-1 == index' then the selector value of this object is reset to its
-        // default value, with no effect on 'result'.  Return 0 on success, or
-        // a nonzero value otherwise with the specified 'errorDescription'
-        // loaded with details.
+    int makeSelectionByIndex(bcem_AggregateRaw   *field,
+                             bcem_AggregateError *errorDescription,
+                             int                  index) const;
+        // Change the selector in the choice object referenced by this
+        // aggregate to the one specified by 'newSelectorIndex' resetting the
+        // nullness flag if 'isNul2()' returns 'true'.  If 'newSelectorIndex'
+        // is negative then the selection is reset.  The newly selected
+        // sub-object is initialized to its default value.  (See "Null Values
+        // and Default Values" in the 'bcem_Aggregate' component-level
+        // documentation for a more complete description of default values.)
+        // Return a sub-aggregate referring to the modifiable selection on
+        // success or an error object on failure (as described in the "Error
+        // Handling" section of the 'bcem_aggregate' component-level
+        // documentation).  This aggregate is not modified if an error is
+        // detected.  TBD: Update
+
+    template <typename VALTYPE>
+    int makeSelectionByIndex(bcem_AggregateRaw   *field,
+                             bcem_AggregateError *errorDescription,
+                             int                  index,
+                             const VALTYPE&       value) const;
+        // Change the selector in the choice object referenced by this
+        // aggregate to the one specified by 'newSelectorIndex' and set the
+        // newly selected sub-object to 'value' resetting the nullness flag if
+        // 'isNul2()' returns 'true', after appropriate conversions (see
+        // "Extended Type Conversions" in the 'bcem_Aggregate' component-level
+        // documentation).  If 'newSelectorIndex' is negative then the
+        // selection is reset.  Return a sub-aggregate referring to the
+        // modifiable selection on success or an error object on failure (as
+        // described in the "Error Handling" section of the 'bcem_aggregate'
+        // component-level documentation).  If 'newSelectorIndex' is valid but
+        // 'value' is not convertible to the newly-selected sub-object type,
+        // then the sub-object is initialized to its default value, otherwise
+        // this aggregate is not modified when an error is detected.
+        // TBD: Update
 
     int makeSelection(bcem_AggregateRaw   *result,
                       bcem_AggregateError *errorDescription,
@@ -992,7 +1301,24 @@ class bcem_AggregateRaw {
         // 'result' is not 0; otherwise, return a nonzero error and populate
         // the specified 'errorDescription' with no effect on this object.
 
-    int makeSelectionById(bcem_AggregateError *errorDescription,
+    template <typename VALTYPE>
+    int makeSelection(bcem_AggregateRaw   *result,
+                      bcem_AggregateError *errorDescription,
+                      const char          *newSelector,
+                      const VALTYPE&       value) const;
+        // Change the selector in the choice object referenced by this
+        // aggregate to the one specified by 'newSelector', first making this
+        // choice non-null if it is currently null.  If 'newSelector' is null
+        // or the empty string then the selection is reset to its default
+        // value.  The newly selected sub-object is initialized to its default
+        // value.  Return 0 on success, loading a sub-aggregate referring to
+        // the modifiable selection into the specified 'result' object if
+        // 'result' is not 0; otherwise, return a nonzero error and populate
+        // the specified 'errorDescription' with no effect on this object.
+        // TBD: Update
+
+    int makeSelectionById(bcem_AggregateRaw   *field,
+                          bcem_AggregateError *errorDescription,
                           int                  newSelectorId) const;
         // Change the selector in the choice object referenced by this
         // aggregate to the one specified by 'newSelectorId', first making this
@@ -1001,7 +1327,21 @@ class bcem_AggregateRaw {
         // value.  The newly selected sub-object is initialized to its default
         // value.  Return 0 on success; otherwise, return a nonzero error and
         // populate the specified 'errorDescription' with no effect on this
-        // object.
+        // object.  TBD: Update
+
+    template <typename VALTYPE>
+    int makeSelectionById(bcem_AggregateRaw   *result,
+                          bcem_AggregateError *errorDescription,
+                          int                  newSelectorId,
+                          const VALTYPE&       value) const;
+        // Change the selector in the choice object referenced by this
+        // aggregate to the one specified by 'newSelectorId', first making this
+        // choice non-null if it is currently null.  If 'newSelector' is null
+        // or the empty string then the selection is reset to its default
+        // value.  The newly selected sub-object is initialized to its default
+        // value.  Return 0 on success; otherwise, return a nonzero error and
+        // populate the specified 'errorDescription' with no effect on this
+        // object.  TBD: Update
 
     void makeNull() const;
         // Set the object referenced by this aggregate to null.  If the object
@@ -2167,6 +2507,53 @@ int bdeat_typeCategoryAccessSimple(const bcem_AggregateRaw& object,
 //                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
 // ===========================================================================
 
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::makeSelectionByIndex(
+                                         bcem_AggregateRaw   *field,
+                                         bcem_AggregateError *errorDescription,
+                                         int                  index,
+                                         const VALTYPE&       value) const
+{
+    int rc = makeSelectionByIndex(field, errorDescription, index);
+
+    if (!rc) {
+        rc = field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::makeSelectionById(bcem_AggregateRaw   *field,
+                                         bcem_AggregateError *errorDescription,
+                                         int                  id,
+                                         const VALTYPE&       value) const
+{
+    int rc = makeSelectionById(field, errorDescription, id);
+
+    if (!rc) {
+        rc = field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::makeSelection(bcem_AggregateRaw   *field,
+                                     bcem_AggregateError *errorDescription,
+                                     const char          *newSelector,
+                                     const VALTYPE&       value) const
+{
+    int rc = makeSelection(field, errorDescription, newSelector);
+
+    if (!rc) {
+        rc = field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+
                    // ----------------------------------
                    // local struct bcem_AggregateRawUtil
                    // ----------------------------------
@@ -2227,21 +2614,21 @@ bcem_AggregateRawUtil::visitArray(void                *array,
 
 // CREATORS
 inline
-bcem_AggregateRaw_NameOrIndex::bcem_AggregateRaw_NameOrIndex()
+bcem_AggregateRawNameOrIndex::bcem_AggregateRawNameOrIndex()
 : d_state(BCEM_NOI_EMPTY)
 , d_name(0)
 {
 }
 
 inline
-bcem_AggregateRaw_NameOrIndex::bcem_AggregateRaw_NameOrIndex(const char *name)
+bcem_AggregateRawNameOrIndex::bcem_AggregateRawNameOrIndex(const char *name)
 : d_state(BCEM_NOI_NAME)
 , d_name(name)
 {
 }
 
 inline
-bcem_AggregateRaw_NameOrIndex::bcem_AggregateRaw_NameOrIndex(
+bcem_AggregateRawNameOrIndex::bcem_AggregateRawNameOrIndex(
                                                        const bsl::string& name)
 : d_state(BCEM_NOI_NAME)
 , d_name(name.c_str())
@@ -2249,7 +2636,7 @@ bcem_AggregateRaw_NameOrIndex::bcem_AggregateRaw_NameOrIndex(
 }
 
 inline
-bcem_AggregateRaw_NameOrIndex::bcem_AggregateRaw_NameOrIndex(int index)
+bcem_AggregateRawNameOrIndex::bcem_AggregateRawNameOrIndex(int index)
 : d_state(BCEM_NOI_INDEX)
 , d_index(index)
 {
@@ -2257,31 +2644,31 @@ bcem_AggregateRaw_NameOrIndex::bcem_AggregateRaw_NameOrIndex(int index)
 
 // ACCESSORS
 inline
-bool bcem_AggregateRaw_NameOrIndex::isEmpty() const
+bool bcem_AggregateRawNameOrIndex::isEmpty() const
 {
     return BCEM_NOI_EMPTY == d_state;
 }
 
 inline
-bool bcem_AggregateRaw_NameOrIndex::isName() const
+bool bcem_AggregateRawNameOrIndex::isName() const
 {
     return BCEM_NOI_NAME == d_state;
 }
 
 inline
-bool bcem_AggregateRaw_NameOrIndex::isIndex() const
+bool bcem_AggregateRawNameOrIndex::isIndex() const
 {
     return BCEM_NOI_INDEX == d_state;
 }
 
 inline
-const char *bcem_AggregateRaw_NameOrIndex::name() const
+const char *bcem_AggregateRawNameOrIndex::name() const
 {
     return BCEM_NOI_NAME == d_state ? d_name : 0;
 }
 
 inline
-int bcem_AggregateRaw_NameOrIndex::index() const
+int bcem_AggregateRawNameOrIndex::index() const
 {
     return BCEM_NOI_INDEX == d_state
                            ? d_index
@@ -2333,6 +2720,53 @@ int bcem_AggregateRaw::toEnum(bcem_AggregateError *errorDescription,
                               bslmf_MetaInt<1>     direct) const
 {
     return toEnum(errorDescription, value.c_str(), direct);
+}
+
+template <typename TYPE>
+int bcem_AggregateRaw::assignToNillableScalarArrayImp(const TYPE& value) const
+{
+    bdem_ElemType::Type srcType = value.type();
+
+    // Check conformance of value against this aggregate.
+
+    if (bdem_ElemType::BDEM_TABLE == srcType) {
+        return assignToNillableScalarArray(value.theTable());         // RETURN
+    }
+
+    bdem_ElemType::Type baseType = bdem_ElemType::fromArrayType(srcType);
+    if (!bdem_ElemType::isScalarType(baseType)
+      || baseType != recordConstraint()->field(0).elemType()) {
+        return bcem_AggregateError::BCEM_ERR_NON_CONFORMANT;          // RETURN
+    }
+
+    if (value.isNull()) {
+        makeNull();
+        return 0;                                                     // RETURN
+    }
+
+    bcem_AggregateRaw_ElemDataFetcher fetcher(value);
+    void *srcData = fetcher.d_data_p;
+    bcem_AggregateRaw_ArraySizer sizer;
+    const int  length  = bcem_AggregateRawUtil::visitArray(srcData,
+                                                           srcType,
+                                                           &sizer);
+
+    bcem_AggregateError error;
+    if (0 != resize(&error, length)) {
+        return error.code();                                          // RETURN
+    }
+
+    bdem_Table            *dstTable     = (bdem_Table *)data();
+    const bdem_Descriptor *baseTypeDesc =
+                                  bdem_ElemAttrLookup::lookupTable()[baseType];
+
+    for (int i = 0; i < length; ++i) {
+        bcem_AggregateRaw_ArrayIndexer indexer(i);
+        bcem_AggregateRawUtil::visitArray(srcData, srcType, &indexer);
+        baseTypeDesc->assign(dstTable->theModifiableRow(i)[0].data(),
+                             indexer.data());
+    }
+    return 0;
 }
 
 template <typename TYPE>
@@ -2454,7 +2888,7 @@ void bcem_AggregateRaw::setSchemaPointer(const bdem_Schema *schema)
 {
     BSLS_ASSERT(schema);
 
-    d_schema_p = data;
+    d_schema_p = schema;
 }
 
 inline
@@ -2478,7 +2912,7 @@ void bcem_AggregateRaw::setTopLevelAggregateNullnessPointer(int *nullnessFlag)
 {
     BSLS_ASSERT(nullnessFlag);
 
-    d_isTopLevelAggregateNull_p = pointer;
+    d_isTopLevelAggregateNull_p = nullnessFlag;
 }
 
 template <typename TYPE>
@@ -2613,6 +3047,263 @@ STREAM& bcem_AggregateRaw::bdexStreamIn(STREAM& stream, int version) const
     }
 
     return stream;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::setField(bcem_AggregateRaw   *field,
+                                bcem_AggregateError *errorDescription,
+                                NameOrIndex          fieldOrIndex1,
+                                const VALTYPE&       value) const
+{
+    int rc = getField(field, errorDescription, true, fieldOrIndex1);
+    if (!rc) {
+        field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::setField(bcem_AggregateRaw   *field,
+                                bcem_AggregateError *errorDescription,
+                                NameOrIndex          fieldOrIndex1,
+                                NameOrIndex          fieldOrIndex2,
+                                const VALTYPE&       value) const
+{
+    int rc = getField(field,
+                      errorDescription,
+                      true,
+                      fieldOrIndex1,
+                      fieldOrIndex2);
+    if (!rc) {
+        field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::setField(bcem_AggregateRaw   *field,
+                                bcem_AggregateError *errorDescription,
+                                NameOrIndex          fieldOrIndex1,
+                                NameOrIndex          fieldOrIndex2,
+                                NameOrIndex          fieldOrIndex3,
+                                const VALTYPE&       value) const
+{
+    int rc = getField(field,
+                      errorDescription,
+                      true,
+                      fieldOrIndex1,
+                      fieldOrIndex2,
+                      fieldOrIndex3);
+    if (!rc) {
+        field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::setField(bcem_AggregateRaw   *field,
+                                bcem_AggregateError *errorDescription,
+                                NameOrIndex          fieldOrIndex1,
+                                NameOrIndex          fieldOrIndex2,
+                                NameOrIndex          fieldOrIndex3,
+                                NameOrIndex          fieldOrIndex4,
+                                const VALTYPE&       value) const
+{
+    int rc = getField(field,
+                      errorDescription,
+                      true,
+                      fieldOrIndex1,
+                      fieldOrIndex2,
+                      fieldOrIndex3,
+                      fieldOrIndex4);
+    if (!rc) {
+        field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::setField(bcem_AggregateRaw   *field,
+                                bcem_AggregateError *errorDescription,
+                                NameOrIndex          fieldOrIndex1,
+                                NameOrIndex          fieldOrIndex2,
+                                NameOrIndex          fieldOrIndex3,
+                                NameOrIndex          fieldOrIndex4,
+                                NameOrIndex          fieldOrIndex5,
+                                const VALTYPE&       value) const
+{
+    int rc = getField(field,
+                      errorDescription,
+                      true,
+                      fieldOrIndex1,
+                      fieldOrIndex2,
+                      fieldOrIndex3,
+                      fieldOrIndex4,
+                      fieldOrIndex5);
+    if (!rc) {
+        field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::setField(bcem_AggregateRaw   *field,
+                                bcem_AggregateError *errorDescription,
+                                NameOrIndex          fieldOrIndex1,
+                                NameOrIndex          fieldOrIndex2,
+                                NameOrIndex          fieldOrIndex3,
+                                NameOrIndex          fieldOrIndex4,
+                                NameOrIndex          fieldOrIndex5,
+                                NameOrIndex          fieldOrIndex6,
+                                const VALTYPE&       value) const
+{
+    int rc = getField(field,
+                      errorDescription,
+                      true,
+                      fieldOrIndex1,
+                      fieldOrIndex2,
+                      fieldOrIndex3,
+                      fieldOrIndex4,
+                      fieldOrIndex5,
+                      fieldOrIndex6);
+    if (!rc) {
+        field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::setField(bcem_AggregateRaw   *field,
+                                bcem_AggregateError *errorDescription,
+                                NameOrIndex          fieldOrIndex1,
+                                NameOrIndex          fieldOrIndex2,
+                                NameOrIndex          fieldOrIndex3,
+                                NameOrIndex          fieldOrIndex4,
+                                NameOrIndex          fieldOrIndex5,
+                                NameOrIndex          fieldOrIndex6,
+                                NameOrIndex          fieldOrIndex7,
+                                const VALTYPE&       value) const
+{
+    int rc = getField(field,
+                      errorDescription,
+                      true,
+                      fieldOrIndex1,
+                      fieldOrIndex2,
+                      fieldOrIndex3,
+                      fieldOrIndex4,
+                      fieldOrIndex5,
+                      fieldOrIndex6,
+                      fieldOrIndex7);
+    if (!rc) {
+        field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::setField(bcem_AggregateRaw   *field,
+                                bcem_AggregateError *errorDescription,
+                                NameOrIndex          fieldOrIndex1,
+                                NameOrIndex          fieldOrIndex2,
+                                NameOrIndex          fieldOrIndex3,
+                                NameOrIndex          fieldOrIndex4,
+                                NameOrIndex          fieldOrIndex5,
+                                NameOrIndex          fieldOrIndex6,
+                                NameOrIndex          fieldOrIndex7,
+                                NameOrIndex          fieldOrIndex8,
+                                const VALTYPE&       value) const
+{
+    int rc = getField(field,
+                      errorDescription,
+                      true,
+                      fieldOrIndex1,
+                      fieldOrIndex2,
+                      fieldOrIndex3,
+                      fieldOrIndex4,
+                      fieldOrIndex5,
+                      fieldOrIndex6,
+                      fieldOrIndex7,
+                      fieldOrIndex8);
+    if (!rc) {
+        field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::setField(bcem_AggregateRaw   *field,
+                                bcem_AggregateError *errorDescription,
+                                NameOrIndex          fieldOrIndex1,
+                                NameOrIndex          fieldOrIndex2,
+                                NameOrIndex          fieldOrIndex3,
+                                NameOrIndex          fieldOrIndex4,
+                                NameOrIndex          fieldOrIndex5,
+                                NameOrIndex          fieldOrIndex6,
+                                NameOrIndex          fieldOrIndex7,
+                                NameOrIndex          fieldOrIndex8,
+                                NameOrIndex          fieldOrIndex9,
+                                const VALTYPE&       value) const
+{
+    int rc = getField(field,
+                      errorDescription,
+                      true,
+                      fieldOrIndex1,
+                      fieldOrIndex2,
+                      fieldOrIndex3,
+                      fieldOrIndex4,
+                      fieldOrIndex5,
+                      fieldOrIndex6,
+                      fieldOrIndex7,
+                      fieldOrIndex8,
+                      fieldOrIndex9);
+    if (!rc) {
+        field->setValue(errorDescription, value);
+    }
+    return rc;
+}
+
+template <typename VALTYPE>
+inline
+int bcem_AggregateRaw::setField(bcem_AggregateRaw   *field,
+                                bcem_AggregateError *errorDescription,
+                                NameOrIndex          fieldOrIndex1,
+                                NameOrIndex          fieldOrIndex2,
+                                NameOrIndex          fieldOrIndex3,
+                                NameOrIndex          fieldOrIndex4,
+                                NameOrIndex          fieldOrIndex5,
+                                NameOrIndex          fieldOrIndex6,
+                                NameOrIndex          fieldOrIndex7,
+                                NameOrIndex          fieldOrIndex8,
+                                NameOrIndex          fieldOrIndex9,
+                                NameOrIndex          fieldOrIndex10,
+                                const VALTYPE&       value) const
+{
+    int rc = getField(field,
+                      errorDescription,
+                      true,
+                      fieldOrIndex1,
+                      fieldOrIndex2,
+                      fieldOrIndex3,
+                      fieldOrIndex4,
+                      fieldOrIndex5,
+                      fieldOrIndex6,
+                      fieldOrIndex7,
+                      fieldOrIndex8,
+                      fieldOrIndex9,
+                      fieldOrIndex10);
+    if (!rc) {
+        field->setValue(errorDescription, value);
+    }
+    return rc;
 }
 
 template <typename VALTYPE>
@@ -2769,6 +3460,19 @@ bool bcem_AggregateRaw::isError() const
     // The 'd_value' holds the error record.
 
     return bdem_ElemType::BDEM_VOID == d_dataType && d_value_p;
+}
+
+inline
+int bcem_AggregateRaw::selection(bcem_AggregateRaw   *field,
+                                 bcem_AggregateError *errorDescription) const
+{
+    int rc = findUnambiguousChoice(field, errorDescription, "selection");
+    if (!rc) {
+        return field->fieldByIndex(field,
+                                   errorDescription,
+                                   selectorIndex());                  // RETURN
+    }
+    return rc;
 }
 
 inline

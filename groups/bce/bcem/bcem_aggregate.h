@@ -1,4 +1,4 @@
-// bcem_aggregate.h                  -*-C++-*-
+// bcem_aggregate.h                                                   -*-C++-*-
 #ifndef INCLUDED_BCEM_AGGREGATE
 #define INCLUDED_BCEM_AGGREGATE
 
@@ -163,7 +163,7 @@ BDES_IDENT("$Id: $")
 // of syntactic sugar, both facilitating ease of use and reducing
 // error-checking clutter.
 //
-// See 'bcem_AggregateRaw' for a list of error codes and the conditions that
+// See 'bcem_AggregateError' for a list of error codes and the conditions that
 // cause them.  Unless explicitly stated otherwise in the function-level
 // documentation, any method that returns a 'bcem_Aggregate' will detect these
 // conditions and return the appropriate error aggregate.
@@ -310,13 +310,13 @@ BDES_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-//  A 'bcem_Aggregate' maintains a reference counted handle to possibly-shared
-// data. It is not safe to access or modify this shared data concurrently from
-// different threads, therefore 'bcem_Aggregate' is, strictly speaking, *thread*
-// *unsafe* as two aggregates may refer to the same shared data.  However, it 
-// is safe to concurrently access or modify two 'bcem_Aggregate' objects 
-// refering to different data. In addition, it is safe to destroy a 
-// 'bcem_Aggregate' on one thread, while another thread is accessing or 
+// A 'bcem_Aggregate' maintains a reference counted handle to possibly-shared
+// data.  It is not safe to access or modify this shared data concurrently from
+// different threads, therefore 'bcem_Aggregate' is, strictly speaking,
+// *thread* *unsafe* as two aggregates may refer to the same shared data.
+// However, it is safe to concurrently access or modify two 'bcem_Aggregate'
+// objects refering to different data.  In addition, it is safe to destroy a
+// 'bcem_Aggregate' on one thread, while another thread is accessing or
 // modified the same shared data through another 'bcem_Aggregate' object.
 // 
 ///Usage
@@ -642,6 +642,10 @@ BDES_IDENT("$Id: $")
 #include <bdem_row.h>
 #endif
 
+#ifndef INCLUDED_BDEM_SCHEMA
+#include <bdem_schema.h>
+#endif
+
 #ifndef INCLUDED_BDEM_SCHEMAUTIL
 #include <bdem_schemautil.h>
 #endif
@@ -747,15 +751,12 @@ class bcem_Aggregate {
     //   'd_fieldDef->recordConstraint()'.
 
     // DATA
-    bcem_AggregateRaw                   d_rawData;
-    bcema_SharedPtrRep                 *d_schemaRep_p;    // shared schema
-    bcema_SharedPtrRep                 *d_valueRep_p;     // pointer to data
-    bcema_SharedPtrRep                 *d_isTopLevelAggregateNullRep_p;
-                                                          // nullness
-                                                          // indicator for
-                                                          // top-level
-                                                          // aggregate in bit
-                                                          // 0
+    bcem_AggregateRaw   d_rawData;
+    bcema_SharedPtrRep *d_schemaRep_p;                  // shared schema
+    bcema_SharedPtrRep *d_valueRep_p;                   // pointer to data
+    bcema_SharedPtrRep *d_isTopLevelAggregateNullRep_p; // nullness indicator
+                                                        // for top-level
+                                                        // aggregate in bit 0
 
     // PRIVATE MANIPULATORS
     const bcem_Aggregate fieldImp(
@@ -803,8 +804,8 @@ class bcem_Aggregate {
     // PRIVATE ACCESSORS
     const bcem_Aggregate makeError(
                             const bcem_AggregateError& errorDescription) const;
-    const bcem_Aggregate makeError(bcem_AggregateError::Code errorCode, 
-                                   const char *msg, ...) const
+    const bcem_Aggregate makeError(bcem_AggregateError::Code  errorCode, 
+                                   const char                *msg, ...) const
 #ifdef BSLS_PLATFORM__CMP_GNU
         // Declare this function as printf-like in gcc.
         // The 'msg' arg is the 3rd arg, including the implicit 'this'.
@@ -835,23 +836,24 @@ class bcem_Aggregate {
         // default allocator is used.
 
     template <typename TYPE>
-    static const TYPE&         valueRef(const TYPE& value);
-    static bdem_ElemRef        valueRef(const bcem_Aggregate& value);
-        // Return the specified 'value', unless 'value' is bcem_Aggregate, 
-        // in which case return 'value.asElemRef()'.  This method facilitates
-        // passing values to AggregateRaw template methods for assignment.
+    static const TYPE&  valueRef(const TYPE& value);
+    static bdem_ElemRef valueRef(const bcem_Aggregate& value);
+        // Return the specified 'value' if 'value' is not a 'bcem_Aggregate'
+        // and 'value.asElemRef()' otherwise.  Note that this method
+        // facilitates passing values to the 'bcem_AggregateRaw' template
+        // methods for assignment.
 
     // PRIVATE CREATORS
-    bcem_Aggregate(const bcem_AggregateRaw&     rawData, 
-                   bcema_SharedPtrRep          *schemaRep,
-                   bcema_SharedPtrRep          *valueRep,
-                   bcema_SharedPtrRep          *isTopLevelAggregateNullRep);
-       // Create a bcem_Aggregate holding a counted reference to the same 
-       // schema and data as the specified 'rawData' object.  Increment 
-       // and maintain the refererence count using the specified 'schemaRep'
-       // for the shared schema reference, the specified 'valueRep' for 
-       // the shared data reference, and the specified
-       // 'isTopLevelAggregateNullRep' for the top-level nullness bit.  
+    bcem_Aggregate(const bcem_AggregateRaw&  rawData,
+                   bcema_SharedPtrRep       *schemaRep,
+                   bcema_SharedPtrRep       *valueRep,
+                   bcema_SharedPtrRep       *isTopLevelAggregateNullRep);
+       // Create a bcem_Aggregate holding a counted reference to the same
+       // schema and data as the specified 'rawData' object.  Increment and
+       // maintain the refererence count using the specified 'schemaRep' for
+       // the shared schema reference, the specified 'valueRep' for the shared
+       // data reference, and the specified 'isTopLevelAggregateNullRep' for
+       // the top-level nullness bit.
     
   public:
     // TRAITS
@@ -910,7 +912,6 @@ class bcem_Aggregate {
         // equivalent to dereferencing two pointers and comparing their
         // pointed-to values for equality.  'areIdentical(lhs, rhs)' implies
         // 'areEquivalent(lhs, rhs)', but not vice versa.
-        // TBD: Update for nillable scalar arrays
 
     static int maxSupportedBdexVersion();
         // Return the most current 'bdex' streaming version number supported
@@ -1677,7 +1678,7 @@ class bcem_Aggregate {
         // Return a negative error code describing the the status of this
         // object if 'isError()' is 'true', or zero if 'isError()' is 'false'.
         // A set of error code constants with names beginning with 'BCEM_ERR_'
-        // are described in the 'bcem_aggregateraw' component-level
+        // are described in the 'bcem_aggregateerror' component-level
         // documentation.
 
     bsl::string errorMessage() const;
@@ -2176,43 +2177,33 @@ public:
                         // class bcem_Aggregate
                         //---------------------
 
-inline
-const bcem_Aggregate& bcem_Aggregate::makeNull()  const
-{
-    d_rawData.makeNull();
-    return *this;
-}
-
-inline
-const bcem_Aggregate bcem_Aggregate::makeValue() const
-{
-    d_rawData.makeValue();
-    return *this;
-}
-
-// CLASS METHODS
+// PRIVATE CLASS METHODS
 template <typename TYPE>
-inline 
-const TYPE& bcem_Aggregate::valueRef(const TYPE& value) {
+inline
+const TYPE& bcem_Aggregate::valueRef(const TYPE& value)
+{
     return value;
 }
 
-inline 
-bdem_ElemRef bcem_Aggregate::valueRef(const bcem_Aggregate& value) {
+inline
+bdem_ElemRef bcem_Aggregate::valueRef(const bcem_Aggregate& value)
+{
     return value.asElemRef();
 }
 
+// CLASS METHODS
 inline
 bool bcem_Aggregate::areIdentical(const bcem_Aggregate& lhs,
                                   const bcem_Aggregate& rhs)
 {
-    // If identical in these respects, then there is no need to check their
-    // respective nullness attributes.  We need to special case for aggregates
-    // of type 'bdem_ElemType::BDEM_VOID' as those have empty values.
+    return bcem_AggregateRaw::areIdentical(lhs.dataRaw(), rhs.dataRaw());
+}
 
-    return bdem_ElemType::BDEM_VOID != lhs.dataType()
-        && lhs.dataType()           == rhs.dataType()
-        && lhs.data()               == rhs.data();
+inline
+bool bcem_Aggregate::areEquivalent(const bcem_Aggregate& lhs,
+                                   const bcem_Aggregate& rhs)
+{
+    return bcem_AggregateRaw::areEquivalent(lhs.dataRaw(), rhs.dataRaw());
 }
 
 inline
@@ -2233,23 +2224,23 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
 {
     d_rawData.setDataType(dataType);
 
-    bcema_SharedPtr<void> value_sp = 
-        makeValuePtr(dataType, basicAllocator);
+    bcema_SharedPtr<void> value_sp = makeValuePtr(dataType, basicAllocator);
 
     d_rawData.setDataPointer(value_sp.ptr());
     d_valueRep_p = value_sp.rep();
     d_valueRep_p->acquireRef();
-    
+
     bcem_Aggregate_RepProctor valueRepProctor(d_valueRep_p);
 
-    int status = bdem_Convert::toBdemType(value_sp.ptr(), dataType, 
+    int status = bdem_Convert::toBdemType(value_sp.ptr(),
+                                          dataType,
                                           valueRef(value));
     if (status) {
         *this = makeError(bcem_AggregateError::BCEM_ERR_BAD_CONVERSION,
                           "Invalid conversion to %s from %s",
                           bdem_ElemType::toAscii(dataType),
                           bdem_ElemType::toAscii(
-                              bcem_AggregateRaw::getBdemType(valueRef(value))));
+                             bcem_AggregateRaw::getBdemType(valueRef(value))));
     }
     else {
         bcema_SharedPtr<int> null_sp;
@@ -2263,8 +2254,8 @@ bcem_Aggregate::bcem_Aggregate(const bdem_ElemType::Type  dataType,
 
 inline
 bcem_Aggregate::bcem_Aggregate(
-        const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
-        bslma_Allocator                              *basicAllocator)
+                  const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
+                  bslma_Allocator                              *basicAllocator)
 : d_rawData()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2275,8 +2266,8 @@ bcem_Aggregate::bcem_Aggregate(
 
 inline
 bcem_Aggregate::bcem_Aggregate(
-        const bcema_SharedPtr<bdem_RecordDef>&  recordDefPtr,
-        bslma_Allocator                        *basicAllocator)
+                        const bcema_SharedPtr<bdem_RecordDef>&  recordDefPtr,
+                        bslma_Allocator                        *basicAllocator)
 : d_rawData()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2287,9 +2278,9 @@ bcem_Aggregate::bcem_Aggregate(
 
 inline
 bcem_Aggregate::bcem_Aggregate(
-        const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
-        bdem_ElemType::Type                           elemType,
-        bslma_Allocator                              *basicAllocator)
+                  const bcema_SharedPtr<const bdem_RecordDef>&  recordDefPtr,
+                  bdem_ElemType::Type                           elemType,
+                  bslma_Allocator                              *basicAllocator)
 : d_rawData()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2300,9 +2291,9 @@ bcem_Aggregate::bcem_Aggregate(
 
 inline
 bcem_Aggregate::bcem_Aggregate(
-        const bcema_SharedPtr<bdem_RecordDef>&  recordDefPtr,
-        bdem_ElemType::Type                     elemType,
-        bslma_Allocator                        *basicAllocator)
+                        const bcema_SharedPtr<bdem_RecordDef>&  recordDefPtr,
+                        bdem_ElemType::Type                     elemType,
+                        bslma_Allocator                        *basicAllocator)
 : d_rawData()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2313,10 +2304,10 @@ bcem_Aggregate::bcem_Aggregate(
 
 inline
 bcem_Aggregate::bcem_Aggregate(
-        const bcema_SharedPtr<const bdem_Schema>&  schemaPtr,
-        const bsl::string&                         recordName,
-        bdem_ElemType::Type                        elemType,
-        bslma_Allocator                           *basicAllocator)
+                     const bcema_SharedPtr<const bdem_Schema>&  schemaPtr,
+                     const bsl::string&                         recordName,
+                     bdem_ElemType::Type                        elemType,
+                     bslma_Allocator                           *basicAllocator)
 : d_rawData()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2327,10 +2318,10 @@ bcem_Aggregate::bcem_Aggregate(
 
 inline
 bcem_Aggregate::bcem_Aggregate(
-        const bcema_SharedPtr<bdem_Schema>&  schemaPtr,
-        const bsl::string&                   recordName,
-        bdem_ElemType::Type                  elemType,
-        bslma_Allocator                     *basicAllocator)
+                           const bcema_SharedPtr<bdem_Schema>&  schemaPtr,
+                           const bsl::string&                   recordName,
+                           bdem_ElemType::Type                  elemType,
+                           bslma_Allocator                     *basicAllocator)
 : d_rawData()
 , d_schemaRep_p(0)
 , d_valueRep_p(0)
@@ -2339,18 +2330,31 @@ bcem_Aggregate::bcem_Aggregate(
     init(schemaPtr, recordName.c_str(), elemType, basicAllocator);
 }
 
+// REFERENCED-VALUE MANIPULATORS
+inline
+const bcem_Aggregate& bcem_Aggregate::makeNull()  const
+{
+    d_rawData.makeNull();
+    return *this;
+}
 
-// ACCESSORS THAT MANIPULATE DATA
+inline
+const bcem_Aggregate bcem_Aggregate::makeValue() const
+{
+    d_rawData.makeValue();
+    return *this;
+}
+
 template <typename VALTYPE>
 const bcem_Aggregate bcem_Aggregate::setValue(const VALTYPE& value) const
 {
     if (isError()) {
-        return *this;                                                 
+        return *this;                                                 // RETURN
     }
 
     bcem_AggregateError errorDescription;
     if (0 != d_rawData.setValue(&errorDescription, valueRef(value))) {
-        return makeError(errorDescription);
+        return makeError(errorDescription);                           // RETURN
     }
     return *this;
 }
@@ -2761,13 +2765,17 @@ inline
 const bcem_Aggregate bcem_Aggregate::insert(int            pos,
                                             const VALTYPE& newItem) const
 {
-    bcem_AggregateRaw field;
+    bcem_AggregateRaw   field;
     bcem_AggregateError errorDescription;
-    if (0 != d_rawData.insertItem(&field, &errorDescription, 
-                                  pos, valueRef(newItem))) {
-        return makeError(errorDescription);
+    if (0 != d_rawData.insertItem(&field,
+                                  &errorDescription,
+                                  pos,
+                                  valueRef(newItem))) {
+        return makeError(errorDescription);                           // RETURN
     }
-    return bcem_Aggregate(field, d_schemaRep_p, d_valueRep_p, 
+    return bcem_Aggregate(field,
+                          d_schemaRep_p,
+                          d_valueRep_p, 
                           d_isTopLevelAggregateNullRep_p);
 }
 
@@ -2931,45 +2939,24 @@ bcem_Aggregate::makeSelection(const bsl::string& newSelector) const
 
 template <typename VALTYPE>
 const bcem_Aggregate
-bcem_Aggregate::makeSelectionByIndex(int            newSelectorIndex,
-                                     const VALTYPE& value) const
-{
-    bool isAggNull = isNul2();
-    if (isAggNull) {
-        makeValue();
-    }
-
-    bcem_AggregateError errorDescription;
-    bcem_AggregateRaw   result;
-    if (0 != d_rawData.makeSelectionByIndexRaw(&result, 
-                                               &errorDescription, 
-                                               newSelectorIndex) ||
-        0 != result.setValue(&errorDescription, valueRef(value))) {
-        if (isAggNull) {
-            makeNull();
-        }
-        return makeError(errorDescription);
-    }
-
-    return bcem_Aggregate(result, d_schemaRep_p, d_valueRep_p, 
-                          d_isTopLevelAggregateNullRep_p);
-}
-
-template <typename VALTYPE>
-const bcem_Aggregate
 bcem_Aggregate::makeSelection(const char     *newSelector,
                               const VALTYPE&  value) const
 {
-    int newSelectorIndex = -1;
+    bcem_AggregateRaw   field;
     bcem_AggregateError errorDescription;
-    if (0 != d_rawData.getFieldIndex(&newSelectorIndex,
+
+    if (0 == d_rawData.makeSelection(&field,
                                      &errorDescription,
                                      newSelector,
-                                     "makeSelection")) {
-        return makeError(errorDescription);
+                                     value)) {
+        return bcem_Aggregate(field,
+                              d_schemaRep_p,
+                              d_valueRep_p,
+                              d_isTopLevelAggregateNullRep_p);        // RETURN
     }
-
-    return makeSelectionByIndex(newSelectorIndex, value);
+    else {
+        return makeError(errorDescription);                           // RETURN
+    }
 }
 
 template <typename VALTYPE>
@@ -2981,32 +2968,58 @@ bcem_Aggregate::makeSelection(const bsl::string& newSelector,
     return makeSelection(newSelector.c_str(), value);
 }
 
+template <typename VALTYPE>
+inline
+const bcem_Aggregate
+bcem_Aggregate::makeSelectionById(int id, const VALTYPE& value) const
+{
+    bcem_AggregateRaw   field;
+    bcem_AggregateError errorDescription;
+
+    if (0 == d_rawData.makeSelectionById(&field,
+                                         &errorDescription,
+                                         id,
+                                         value)) {
+        return bcem_Aggregate(field,
+                              d_schemaRep_p,
+                              d_valueRep_p,
+                              d_isTopLevelAggregateNullRep_p);        // RETURN
+    }
+    else {
+        return makeError(errorDescription);                           // RETURN
+    }
+}
+
+template <typename VALTYPE>
+const bcem_Aggregate
+bcem_Aggregate::makeSelectionByIndex(int index, const VALTYPE& value) const
+{
+    bcem_AggregateRaw   field;
+    bcem_AggregateError errorDescription;
+
+    if (0 == d_rawData.makeSelectionByIndex(&field,
+                                            &errorDescription,
+                                            index,
+                                            value)) {
+        return bcem_Aggregate(field,
+                              d_schemaRep_p,
+                              d_valueRep_p,
+                              d_isTopLevelAggregateNullRep_p);        // RETURN
+    }
+    else {
+        return makeError(errorDescription);                           // RETURN
+    }
+}
+
 inline
 const bcem_Aggregate
 bcem_Aggregate::reserveRaw(bsl::size_t numItems) 
 {
     bcem_AggregateError errorDescription;
     if (0 == d_rawData.reserveRaw(&errorDescription, numItems)) {
-        return *this;
+        return *this;                                                 // RETURN
     }
     return makeError(errorDescription);
-}
-
-template <typename VALTYPE>
-inline
-const bcem_Aggregate
-bcem_Aggregate::makeSelectionById(int newSelector, const VALTYPE& value) const
-{
-    int newSelectorIndex = -1;
-    bcem_AggregateError errorDescription;
-    if (0 != d_rawData.getFieldIndex(&newSelectorIndex,
-                                     &errorDescription,
-                                     newSelector,
-                                     "makeSelection")) {
-        return makeError(errorDescription);
-    }
-    
-    return makeSelectionByIndex(newSelectorIndex, value);
 }
 
 template <class STREAM>
@@ -3017,7 +3030,19 @@ STREAM& bcem_Aggregate::bdexStreamIn(STREAM& stream, int version) const
 }
 
 // ACCESSORS
-inline 
+inline
+const bcem_Aggregate bcem_Aggregate::capacityRaw(bsl::size_t *capacity) const
+{
+    BSLS_ASSERT_SAFE(capacity);
+
+    bcem_AggregateError errorDescription;
+    if (0 == d_rawData.capacityRaw(&errorDescription, capacity)) {
+        return *this;                                                 // RETURN
+    }
+    return makeError(errorDescription);
+}
+
+inline
 int bcem_Aggregate::selectorIndex() const
 {
     return d_rawData.selectorIndex();
@@ -3140,15 +3165,15 @@ STREAM& bcem_Aggregate::bdexStreamOut(STREAM& stream, int version) const
 }
 
 inline
-bsl::ostream& bcem_Aggregate::print(bsl::ostream& stream, 
-                                    int level, 
-                                    int spacesPerLevel) const
+bsl::ostream& bcem_Aggregate::print(bsl::ostream& stream,
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     return d_rawData.print(stream, level, spacesPerLevel);
 }
 
 inline
-const bcem_AggregateRaw& bcem_Aggregate::rawData() const 
+const bcem_AggregateRaw& bcem_Aggregate::rawData() const
 {
     return d_rawData;
 }
@@ -3204,8 +3229,9 @@ int bdeat_arrayManipulateElement(bcem_Aggregate *array,
                                  int             index)
 {
     return bdeat_arrayManipulateElement(
-                                     (bcem_AggregateRaw*)&array->rawData(),
-                                     manipulator, index);
+                            const_cast<bcem_AggregateRaw *>(&array->rawData()),
+                            manipulator,
+                            index);
 }
 
 inline
@@ -3263,8 +3289,8 @@ inline
 int bdeat_choiceMakeSelection(bcem_Aggregate *object, int selectionId)
 {
     return bdeat_choiceMakeSelection(
-                            const_cast<bcem_AggregateRaw*>(&object->rawData()),
-                            selectionId);
+                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
+                           selectionId);
 }
 
 inline
@@ -3274,7 +3300,8 @@ int bdeat_choiceMakeSelection(bcem_Aggregate *object,
 { 
     return bdeat_choiceMakeSelection(
                             const_cast<bcem_AggregateRaw*>(&object->rawData()),
-                            selectionName, selectionNameLength);
+                            selectionName,
+                            selectionNameLength);
 }
 
 template <typename MANIPULATOR>
@@ -3283,8 +3310,8 @@ int bdeat_choiceManipulateSelection(bcem_Aggregate *object,
                                     MANIPULATOR&    manipulator)
 {
     return bdeat_choiceManipulateSelection(
-                           const_cast<bcem_AggregateRaw*>(&object->rawData()), 
-                           manipulator);
+                            const_cast<bcem_AggregateRaw*>(&object->rawData()),
+                            manipulator);
 }
 
 template <typename ACCESSOR>
@@ -3330,17 +3357,20 @@ namespace bdeat_EnumFunctions {
 inline
 int bdeat_enumFromInt(bcem_Aggregate *result, int enumId)
 { 
-    return bdeat_enumFromInt((bcem_AggregateRaw*)&result->rawData(),
-                             enumId);
+    return bdeat_enumFromInt(
+                            const_cast<bcem_AggregateRaw*>(&result->rawData()),
+                            enumId);
 }
-    
+
 inline
 int bdeat_enumFromString(bcem_Aggregate *result,
                          const char     *string,
                          int             stringLength)
 {
-    return bdeat_enumFromString((bcem_AggregateRaw*)&result->rawData(),
-                                string, stringLength);
+    return bdeat_enumFromString(
+                            const_cast<bcem_AggregateRaw*>(&result->rawData()),
+                            string,
+                            stringLength);
 }
 
 inline
@@ -3375,15 +3405,13 @@ namespace bdeat_NullableValueFunctions {
 }  // close namespace bdeat_NullableValueFunctions
 
 inline
-bool bdeat_nullableValueIsNull(
-                      const bcem_Aggregate_NullableAdapter& object)
+bool bdeat_nullableValueIsNull(const bcem_Aggregate_NullableAdapter& object)
 {
     return object.d_element_p->isNul2();
 }
 
 inline
-void bdeat_nullableValueMakeValue(
-                             bcem_Aggregate_NullableAdapter *object)
+void bdeat_nullableValueMakeValue(bcem_Aggregate_NullableAdapter *object)
 {
     object->d_element_p->makeValue();
 }
@@ -3391,8 +3419,8 @@ void bdeat_nullableValueMakeValue(
 template <typename MANIPULATOR>
 inline
 int bdeat_nullableValueManipulateValue(
-                        bcem_Aggregate_NullableAdapter  *object,
-                        MANIPULATOR&                     manipulator)
+                                   bcem_Aggregate_NullableAdapter *object,
+                                   MANIPULATOR&                    manipulator)
 {
     return manipulator(object->d_element_p);
 }
@@ -3400,8 +3428,8 @@ int bdeat_nullableValueManipulateValue(
 template <typename ACCESSOR>
 inline
 int bdeat_nullableValueAccessValue(
-                     const bcem_Aggregate_NullableAdapter& object,
-                     ACCESSOR&                             accessor)
+                                const bcem_Aggregate_NullableAdapter& object,
+                                ACCESSOR&                             accessor)
 {
     return accessor(*object.d_element_p);
 }
@@ -3443,8 +3471,10 @@ int bdeat_sequenceManipulateAttribute(bcem_Aggregate *object,
                                       int             attributeNameLength)
 {
     return bdeat_sequenceManipulateAttribute(
-                           const_cast<bcem_AggregateRaw*>(&object->rawData()),
-                           manipulator, attributeName, attributeNameLength);
+                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
+                           manipulator,
+                           attributeName,
+                           attributeNameLength);
 }
 
 template <typename MANIPULATOR>
@@ -3454,8 +3484,9 @@ int bdeat_sequenceManipulateAttribute(bcem_Aggregate *object,
                                       int             attributeId)
 {
     return bdeat_sequenceManipulateAttribute(
-                           const_cast<bcem_AggregateRaw*>(&object->rawData()),
-                           manipulator, attributeId);
+                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
+                           manipulator,
+                           attributeId);
 }
 
 template <typename MANIPULATOR>
@@ -3464,8 +3495,8 @@ int bdeat_sequenceManipulateAttributes(bcem_Aggregate *object,
                                        MANIPULATOR&    manipulator)
 {
     return bdeat_sequenceManipulateAttributes(
-                            const_cast<bcem_AggregateRaw*>(&object->rawData()),
-                            manipulator);
+                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
+                           manipulator);
 }
 
 template <typename ACCESSOR>
@@ -3487,7 +3518,8 @@ int bdeat_sequenceAccessAttribute(const bcem_Aggregate& object,
                                   ACCESSOR&             accessor,
                                   int                   attributeId)
 {
-    return bdeat_sequenceAccessAttribute(object.rawData(), accessor, 
+    return bdeat_sequenceAccessAttribute(object.rawData(),
+                                         accessor, 
                                          attributeId);
 }
 
@@ -3499,13 +3531,13 @@ int bdeat_sequenceAccessAttributes(const bcem_Aggregate& object,
     return bdeat_sequenceAccessAttributes(object.rawData(), accessor);
 }
 
-
 inline
 bool bdeat_sequenceHasAttribute(const bcem_Aggregate&  object,
                                 const char            *attributeName,
                                 int                    attributeNameLength)
 {
-    return bdeat_sequenceHasAttribute(object.rawData(), attributeName, 
+    return bdeat_sequenceHasAttribute(object.rawData(),
+                                      attributeName, 
                                       attributeNameLength);
 }
 
@@ -3525,14 +3557,14 @@ bdeat_typeCategorySelect(const bcem_Aggregate& object)
 {
     return bdeat_typeCategorySelect(object.rawData());
 }
-                                   
+
 template <typename MANIPULATOR>
 inline
 int bdeat_typeCategoryManipulateArray(bcem_Aggregate *object,
                                       MANIPULATOR&    manipulator)
 {
     return bdeat_typeCategoryManipulateArray(
-                           const_cast<bcem_AggregateRaw*>(&object->rawData()),
+                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
                            manipulator);
 }
 
@@ -3541,8 +3573,9 @@ inline
 int bdeat_typeCategoryManipulateSimple(bcem_Aggregate *object,
                                        MANIPULATOR&    manipulator)
 {
-    return bdeat_typeCategoryManipulateSimple
-        ((bcem_AggregateRaw*)&object->rawData(), manipulator);
+    return bdeat_typeCategoryManipulateSimple(
+                           const_cast<bcem_AggregateRaw *>(&object->rawData()),
+                           manipulator);
 }
 
 template <typename ACCESSOR>
@@ -3560,7 +3593,6 @@ int bdeat_typeCategoryAccessSimple(const bcem_Aggregate& object,
 {
     return bdeat_typeCategoryAccessSimple(object.rawData(), accessor);
 }
-
 
 // ============================================================================
 //                       'bdeat_typename' overloads
@@ -3593,7 +3625,7 @@ int bdeat_valueTypeAssign(bcem_Aggregate *lhs, const bcem_Aggregate& rhs)
 inline
 void bdeat_valueTypeReset(bcem_Aggregate *object)
 {
-    bdeat_valueTypeReset((bcem_AggregateRaw*)&object->rawData());
+    bdeat_valueTypeReset(const_cast<bcem_AggregateRaw *>(&object->rawData()));
 }
 
 }  // close namespace BloombergLP
