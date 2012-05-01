@@ -580,10 +580,15 @@ inline bool isMutable(const T& /* x */) { return false; }
 
     template <class TYPE, class ALLOC = bsl::allocator<TYPE> >
     class MyContainer {
+        // This class provides a container that always holds exactly one
+        // element, dynamically allocated using the specified allocator.
+
+        // DATA
         ALLOC  d_allocator;
         TYPE  *d_valuep;
 
       public:
+        // TRAITS
         typedef bslalg::TypeTraitsGroupStlSequence<TYPE,ALLOC> TypeTraits;
         BSLALG_DECLARE_NESTED_TRAITS(MyContainer, TypeTraits);
             // Declare nested type traits for this class.
@@ -592,14 +597,17 @@ inline bool isMutable(const T& /* x */) { return false; }
         typedef ALLOC allocator_type;
         // etc.
 
+        // CREATORS
         explicit MyContainer(const ALLOC& a = ALLOC());
         explicit MyContainer(const TYPE& v, const ALLOC& a = ALLOC());
         MyContainer(const MyContainer& other);
         MyContainer(const MyContainer& other, const ALLOC& a);
         ~MyContainer();
 
+        // MANIPULATORS
         ALLOC get_allocator() const { return d_allocator; }
 
+        // ACCESSORS
         TYPE&       front()       { return *d_valuep; }
         const TYPE& front() const { return *d_valuep; }
         // etc.
@@ -615,6 +623,11 @@ inline bool isMutable(const T& /* x */) { return false; }
 //..
     template <class ALLOC>
     class MyContainerProctor {
+        // This class implements a proctor to release memory allocated during
+        // the construction of a 'MyContainer' object if the constructor for
+        // the container's data element throws an exception.  Such a proctor
+        // should be 'release'd once the element is safely constructed.
+
         typedef typename bsl::allocator_traits<ALLOC>::pointer pointer;
         ALLOC   d_alloc;
         pointer d_datap;
@@ -917,8 +930,18 @@ void testAllocatorConformance(const char* allocName)
         LOOP_ASSERT(allocName, ! (a2 != a4));
     }
 
+    // The following are default values for the 5 attributes of our test classes.
+    char        const VAL_A = 'x';
+    int         const VAL_B = 6;
+    double      const VAL_C = -1.5;
+    const char *const VAL_D = "pizza";
+    Uniq       *const VAL_E = 0;
+
     if (veryVerbose) printf("  Testing member functions\n");
-    AttribClass5 val('x',  6, -1.5, "pizza", 0);
+    AttribClass5 val(VAL_A, VAL_B, VAL_C, VAL_D, VAL_E);
+    LOOP6_ASSERT(allocName, val.a(), val.b(), val.c(), val.d(), val.e(),
+                 matchAttrib(val, VAL_A, VAL_B, VAL_C, VAL_D, VAL_E));
+
     Alloc a(&ta);
 
     int ctorCountBefore = AttribClass5::ctorCount();
@@ -934,7 +957,8 @@ void testAllocatorConformance(const char* allocName)
 
     a.construct(p, val);
     LOOP_ASSERT(allocName, AttribClass5::ctorCount() == ctorCountBefore + 1);
-    LOOP_ASSERT(allocName, matchAttrib(*p, 'x',  6, -1.5, "pizza", 0));
+    LOOP6_ASSERT(allocName, p->a(), p->b(), p->c(), p->d(), p->e(),
+                 matchAttrib(*p, VAL_A, VAL_B, VAL_C, VAL_D, VAL_E));
 
     // Test that 'pointer' can convert to 'const_pointer'
     cp = p;
@@ -944,7 +968,8 @@ void testAllocatorConformance(const char* allocName)
     // Test that dereferencing a pointer yields a reference
     value_type& v        = *p;
     const value_type& cv = *cp;
-    LOOP_ASSERT(allocName, matchAttrib(cv, 'x',  6, -1.5, "pizza", 0));
+    LOOP6_ASSERT(allocName, cv.a(), cv.b(), cv.c(), cv.d(), cv.e(),
+                 matchAttrib(cv, VAL_A, VAL_B, VAL_C, VAL_D, VAL_E));
 
     LOOP_ASSERT(allocName, p  == a.address(v));
     LOOP_ASSERT(allocName, cp == a.address(cv));
