@@ -339,13 +339,11 @@ class btemt_Channel {
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
-    bces_AtomicInt64                   d_currWriteCacheSize;
+    bces_AtomicInt64                   d_currentWriteCacheSize;
                                                   // curr write cache size
 
-    volatile bsls_Types::Int64         d_maxWriteCacheSize;
+    bces_AtomicInt64                   d_maxWriteCacheSize;
                                                   // max write cache size
-                                                  // modification synchronized
-                                                  // with 'd_writeMutex'
 
     // Memory allocation section (pointers held, not owned)
     bcema_PooledBufferChainFactory *d_chainFactory_p;     // for d_currentMsg
@@ -625,7 +623,7 @@ class btemt_Channel {
         // Return the number of bytes request to be written to this channel
         // since its construction or since the last reset.
 
-    bsls_Types::Int64 currWriteCacheSize() const;
+    bsls_Types::Int64 currentWriteCacheSize() const;
         // Return a snapshot of the number of bytes currently cached to be
         // written to this channel.
 
@@ -718,15 +716,15 @@ bsls_PlatformUtil::Int64 btemt_Channel::numBytesRequestedToBeWritten() const
 }
 
 inline
-bsls_Types::Int64 btemt_Channel::currWriteCacheSize() const
+bsls_Types::Int64 btemt_Channel::currentWriteCacheSize() const
 {
-    return d_currWriteCacheSize.relaxedLoad();
+    return d_currentWriteCacheSize.relaxedLoad();
 }
 
 inline
 bsls_Types::Int64 btemt_Channel::maxWriteCacheSize() const
 {
-    return d_maxWriteCacheSize;
+    return d_maxWriteCacheSize.relaxedLoad();
 }
 
 inline
@@ -1765,9 +1763,9 @@ void btemt_Channel::writeCb(ChannelHandle self)
             d_numBytesWritten += writeRet;
             d_writeActiveCacheSize.relaxedAdd(-writeRet);
 
-            d_currWriteCacheSize.relaxedAdd(-writeRet);
+            d_currentWriteCacheSize.relaxedAdd(-writeRet);
 
-//             BSLS_ASSERT(d_currWriteCacheSize >= 0);
+//             BSLS_ASSERT(d_currentWriteCacheSize >= 0);
 
             if (d_hiWatermarkHitFlag
              && (d_writeEnqueuedCacheSize
@@ -1899,7 +1897,7 @@ btemt_Channel::btemt_Channel(
 , d_numBytesRead(0)
 , d_numBytesWritten(0)
 , d_numBytesRequestedToBeWritten(0)
-, d_currWriteCacheSize(0)
+, d_currentWriteCacheSize(0)
 , d_maxWriteCacheSize(0)
 , d_chainFactory_p(bufferPool)
 , d_writeBlobFactory_p(writeBlobBufferPool)
@@ -1959,7 +1957,7 @@ btemt_Channel::~btemt_Channel()
 
     d_socketFactory_p->deallocate(d_socket_p);
     d_socket_p = 0; // for debugging for now, shouldn't slow anything down
-    BSLS_ASSERT(d_currWriteCacheSize >= 0);
+    BSLS_ASSERT(d_currentWriteCacheSize >= 0);
     BSLS_ASSERT(d_maxWriteCacheSize >= 0);
 }
 
@@ -2133,10 +2131,10 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         return HIT_CACHE_HIWAT;
     }
 
-    int currWriteCacheSize = d_currWriteCacheSize.relaxedAdd(dataLength);
+    int currentWriteCacheSize = d_currentWriteCacheSize.relaxedAdd(dataLength);
 
-    if (d_maxWriteCacheSize < currWriteCacheSize) {
-        d_maxWriteCacheSize = currWriteCacheSize;
+    if (d_maxWriteCacheSize < currentWriteCacheSize) {
+        d_maxWriteCacheSize = currentWriteCacheSize;
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
@@ -2196,7 +2194,7 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
         }
 
         d_writeActiveCacheSize.relaxedAdd(-writeRet);
-        d_currWriteCacheSize.relaxedAdd(-writeRet);
+        d_currentWriteCacheSize.relaxedAdd(-writeRet);
 
         if (dataLength == writeRet) {
             // We succeeded in writing the whole message.  We did release the
@@ -2334,8 +2332,7 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
 
 void btemt_Channel::resetRecordedMaxWriteCacheSize()
 {
-    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
-    d_maxWriteCacheSize = d_currWriteCacheSize.relaxedLoad();
+    d_maxWriteCacheSize.relaxedStore(d_currentWriteCacheSize.relaxedLoad());
 }
 
 // ============================================================================
@@ -4469,15 +4466,15 @@ int btemt_ChannelPool::getChannelStatistics(
 }
 
 int btemt_ChannelPool::getChannelWriteCacheStatistics(
-                                         bsls_Types::Int64 *maxWriteCacheSize,
-                                         bsls_Types::Int64 *currWriteCacheSize,
-                                         int                channelId) const
+                                      bsls_Types::Int64 *maxWriteCacheSize,
+                                      bsls_Types::Int64 *currentWriteCacheSize,
+                                      int                channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
         btemt_Channel *channel = channelHandle.ptr();
-        *maxWriteCacheSize  = channel->maxWriteCacheSize();
-        *currWriteCacheSize = channel->currWriteCacheSize();
+        *maxWriteCacheSize     = channel->maxWriteCacheSize();
+        *currentWriteCacheSize = channel->currentWriteCacheSize();
         return 0;
     }
     return 1;

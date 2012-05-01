@@ -1768,16 +1768,18 @@ class btemt_ChannelPool {
         // the time one of the values is captured, another may already have
         // changed.
 
-    int getChannelWriteCacheStatistics(bsls_Types::Int64 *maxWriteCacheSize,
-                                       bsls_Types::Int64 *currWriteCacheSize,
-                                       int                channelId) const;
-        // Load into the specified 'maxWriteCacheSize' and 'currWriteCacheSize'
-        // the maximum and current size respectively of the write cache of the
-        // channel identified by the specified 'channelId' and return 0 if the
-        // specified 'channelId' is a valid channel id.  Otherwise, return a
-        // non-zero value.  Note that for performance reasons this *sequence*
-        // is not captured atomically: by the time one of the values is
-        // captured, another may already have changed.
+    int getChannelWriteCacheStatistics(
+                                      bsls_Types::Int64 *maxWriteCacheSize,
+                                      bsls_Types::Int64 *currentWriteCacheSize,
+                                      int                channelId) const;
+        // Load into the specified 'maxWriteCacheSize' and
+        // 'currentWriteCacheSize' the maximum and current size respectively of
+        // the write cache of the channel identified by the specified
+        // 'channelId' and return 0 if the specified 'channelId' is a valid
+        // channel id.  Otherwise, return a non-zero value.  Note that for
+        // performance reasons this *sequence* is not captured atomically: by
+        // the time one of the values is captured, another may already have
+        // changed.
 
     void getHandleStatistics(bsl::vector<HandleInfo> *handleInfo) const;
         // Append to the specified 'handleInfo' array a snapshot of the
