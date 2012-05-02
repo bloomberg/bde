@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2004-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_CHAR_INCLUDED
@@ -122,7 +122,7 @@ public:
 
     UserInt (const UserInt &rhs)
         : ptr_ (&i_), i_ (rhs.i_) {
-        // verify rhs is valid 
+        // verify rhs is valid
         // const_cast used to avoid MSVC 7.0 error C2446:
         // '==' : no conversion from 'const int *' to 'void *const '
         RW_ASSERT (_RWSTD_CONST_CAST (const void*, rhs.ptr_) == &rhs.i_);
@@ -158,7 +158,7 @@ public:
         /* const */ UserChar tmp /* = { 0, i_ }*/;
         tmp.f = 0;
         tmp.c = (unsigned char)(i_);
-        return tmp; 
+        return tmp;
     }
 
     ~UserInt () {
@@ -224,10 +224,10 @@ struct _TEST_EXPORT UserTraits<char>: native_std::char_traits<char>
 
     static int
     compare (const char_type*, const char_type*, _RWSTD_SIZE_T);
-        
+
     static _RWSTD_SIZE_T
     length (const char_type*);
- 
+
     static const char_type*
     find (const char_type*, _RWSTD_SIZE_T, const char_type&);
 
@@ -245,7 +245,7 @@ struct _TEST_EXPORT UserTraits<char>: native_std::char_traits<char>
 
     static char_type
     to_char_type (const int_type&);
-      
+
     static int_type
     to_int_type (const char_type&);
 
@@ -295,10 +295,10 @@ struct _TEST_EXPORT UserTraits<wchar_t>: native_std::char_traits<wchar_t>
 
     static int
     compare (const char_type*, const char_type*, _RWSTD_SIZE_T);
-        
+
     static _RWSTD_SIZE_T
     length (const char_type*);
- 
+
     static const char_type*
     find (const char_type*, _RWSTD_SIZE_T, const char_type&);
 
@@ -316,7 +316,7 @@ struct _TEST_EXPORT UserTraits<wchar_t>: native_std::char_traits<wchar_t>
 
     static char_type
     to_char_type (const int_type&);
-      
+
     static int_type
     to_int_type (const char_type&);
 
@@ -366,9 +366,9 @@ struct _TEST_EXPORT UserTraits<UserChar>   // user-defined character traits
 
     static int
     compare (const char_type*, const char_type*, _RWSTD_SIZE_T);
-        
+
     static _RWSTD_SIZE_T length (const char_type*);
- 
+
     static const char_type*
     find (const char_type*, _RWSTD_SIZE_T, const char_type&);
 
@@ -384,7 +384,7 @@ struct _TEST_EXPORT UserTraits<UserChar>   // user-defined character traits
     static int_type not_eof (const int_type&);
 
     static char_type to_char_type (const int_type&);
-      
+
     static int_type to_int_type (const char_type&);
 
     static bool eq_int_type (const int_type&, const int_type&);
@@ -448,7 +448,7 @@ rw_narrow (char*         /* dst */,
 // if (len == SIZE_MAX) is true elements are compared until the first
 // mismatch is found or until the NUL character is encountered
 // returns the number of matching elements
-_TEST_EXPORT _RWSTD_SIZE_T 
+_TEST_EXPORT _RWSTD_SIZE_T
 rw_match (const char*   /* s1  */,
           const char*   /* s2  */,
           _RWSTD_SIZE_T /* len */ = _RWSTD_SIZE_MAX);
@@ -490,14 +490,14 @@ rw_match (const char*, const UserChar*, _RWSTD_SIZE_T = _RWSTD_SIZE_MAX);
 
 
 // accessors to n_calls array, if present
-template <class charT> 
+template <class charT>
 inline _RWSTD_SIZE_T*
 rw_get_call_counters (native_std::char_traits<charT>*, charT*)
 {
     return 0;
 }
 
-template <class charT> 
+template <class charT>
 inline _RWSTD_SIZE_T*
 rw_get_call_counters (UserTraits<charT>*, charT*)
 {

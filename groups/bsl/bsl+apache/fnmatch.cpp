@@ -88,7 +88,7 @@ _rw_bracketmatch (const char *pattern, const unsigned char ch, int)
             esc = true;
             continue;
         }
-            
+
         if (']' == *pc && !esc)
             break;
 
@@ -149,7 +149,7 @@ rw_fnmatch (const char *pattern, const char *string, int arg)
             }
             else
                 esc = true;
-                
+
             break;
 
         case '*':
@@ -208,7 +208,7 @@ rw_fnmatch (const char *pattern, const char *string, int arg)
 
             ++next;
             break;
-            
+
         default:
             if (c != *next)
                 return 1;

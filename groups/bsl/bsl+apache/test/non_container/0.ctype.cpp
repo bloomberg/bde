@@ -263,7 +263,7 @@ test_is (charT*, const char *cname)
         -1            // end of masks
     };
 
-    static const int mask_all = 
+    static const int mask_all =
           std::ctype_base::alpha
         | std::ctype_base::cntrl
         | std::ctype_base::digit

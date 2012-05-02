@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for random_shuffle
@@ -34,7 +34,7 @@
 #include <driver.h>     // for rw_test()
 
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
@@ -42,12 +42,12 @@ _RWSTD_NAMESPACE (std) {
 
 template
 void
-random_shuffle (RandomAccessIter<assign<base<cpy_ctor> > >, 
+random_shuffle (RandomAccessIter<assign<base<cpy_ctor> > >,
                 RandomAccessIter<assign<base<cpy_ctor> > >);
 
 template
 void
-random_shuffle (RandomAccessIter<assign<base<cpy_ctor> > >, 
+random_shuffle (RandomAccessIter<assign<base<cpy_ctor> > >,
                 RandomAccessIter<assign<base<cpy_ctor> > >,
                 func<const long>&);
 
@@ -141,7 +141,7 @@ int sequence_generator ()
 template <class T, class Iterator, class RandomNumberGenerator>
 void test_random_shuffle (const std::size_t            line,
                           const std::size_t            N,
-                          const Iterator              &it, 
+                          const Iterator              &it,
                           const RandomNumberGenerator*,
                           const T*,
                           bool                         rnd_gen)
@@ -216,7 +216,7 @@ void test_random_shuffle (const std::size_t            line,
         rw_assert (success, 0, line,
                    "%zu. std::%s<%s%{?}, %s%{;}>(): complexity: "
                    "expected %zu swaps, got %zu",
-                   i, fname, itname, rnd_gen, funname, 
+                   i, fname, itname, rnd_gen, funname,
                    2 * i, n_op_assign);
     }
 
@@ -235,7 +235,7 @@ void test_random_shuffle (const std::size_t line)
              "matches the expected result, this "
              "depends on the implementation of the random "
              "number generator used by random_shuffle()");
-    
+
     int array[] = {
         0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -311,7 +311,7 @@ void test_random_shuffle (const std::size_t line)
     for (std::size_t i = 0; i != sizeof array / sizeof *array; ++i) {
         const bool success = array [i] == result [i];
         if (!success) {
-            rw_assert (0, 0, line, 
+            rw_assert (0, 0, line,
                        "randomly shuffled sequence failed to match "
                        "the expected result (data portability failure) "
                        "%d != %d at %zu",
@@ -362,7 +362,7 @@ static int run_test (int, char*[])
     }
 
     if (rw_opt_no_random_generator) {
-        rw_note (0, __FILE__, __LINE__,  
+        rw_note (0, __FILE__, __LINE__,
                  "std::random with random_generator test disabled");
     }
     else {
@@ -388,7 +388,7 @@ int main (int argc, char *argv[])
                     "|-nloops#0 "   // must be non-negative
                     "|-no-random# "
                     "|-no-random_generator# "
-                    "|-no-rand_test", 
+                    "|-no-rand_test",
                     &rw_opt_nloops,
                     &rw_opt_no_random,
                     &rw_opt_no_random_generator,

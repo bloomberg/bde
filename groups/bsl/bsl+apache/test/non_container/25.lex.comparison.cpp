@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for lexicographical_compare
@@ -35,7 +35,7 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
@@ -43,16 +43,16 @@ _RWSTD_NAMESPACE (std) {
 // to verify that the algorithm imposes no requirements
 // beyond those specified
 template
-bool lexicographical_compare (InputIter<lt_comp<base<> > >, 
-                              InputIter<lt_comp<base<> > >, 
-                              InputIter<lt_comp<base<> > >, 
-                              InputIter<lt_comp<base<> > >); 
+bool lexicographical_compare (InputIter<lt_comp<base<> > >,
+                              InputIter<lt_comp<base<> > >,
+                              InputIter<lt_comp<base<> > >,
+                              InputIter<lt_comp<base<> > >);
 template
-bool lexicographical_compare (InputIter<base<> >, 
-                              InputIter<base<> >, 
-                              InputIter<base<> >, 
+bool lexicographical_compare (InputIter<base<> >,
                               InputIter<base<> >,
-                              binary_predicate<base<> >); 
+                              InputIter<base<> >,
+                              InputIter<base<> >,
+                              binary_predicate<base<> >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
 
@@ -61,7 +61,7 @@ bool lexicographical_compare (InputIter<base<> >,
 /**************************************************************************/
 
 template <class T>
-struct Less 
+struct Less
 {
     static std::size_t funcalls_;
 
@@ -89,7 +89,7 @@ template<class T> std::size_t Less<T>::funcalls_;
 /**************************************************************************/
 
 // exercise lexicographical_compare 25.3.8
-template 
+template
 <class T, class InputIterator1, class InputIterator2, class Predicate>
 void test_lex_compare (int                   line,
                        const char           *src1,
@@ -127,17 +127,17 @@ void test_lex_compare (int                   line,
         std::lexicographical_compare (first1, last1, first2, last2, pred)
       : std::lexicographical_compare (first1, last1, first2, last2);
 
-    // verify the returned value 25.3.8, p1 and p3: If two sequences have 
-    // the same number of elements and their corresponding elements are 
+    // verify the returned value 25.3.8, p1 and p3: If two sequences have
+    // the same number of elements and their corresponding elements are
     // equivalent, then neither sequence is  lexicographically less than
     // the other.
     rw_assert (res == result, 0, line,
                "line %d: %s<%s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
-               "== %b, got %b", 
+               "== %b, got %b",
                __LINE__, fname, it1name, it2name, 0 != ppred, funname,
                src1, src2, res, result);
 
-    const std::size_t n_ops_lt = ppred ? 
+    const std::size_t n_ops_lt = ppred ?
         Predicate::funcalls_ : T::n_total_op_lt_ - last_n_op_lt;
 
     // verify the complexity 25.3.8, p2
@@ -152,7 +152,7 @@ void test_lex_compare (int                   line,
     delete[] xsrc2;
 }
 
-template 
+template
 <class T, class InputIterator1, class InputIterator2, class Predicate>
 void test_lex_compare (const InputIterator1 &it1,
                        const InputIterator2 &it2,
@@ -263,7 +263,7 @@ void test_lex_compare (const T*,
              "template <class %s, class %s%{?}, class %s%{;}> "
              "bool std::lexicographical_compare (%1$s, %1$s, %2$s, "
              "%2$s%{?}, %s%{;})",
-             "InputIterator1", "InputIterator2", ppred, "Compare", 
+             "InputIterator1", "InputIterator2", ppred, "Compare",
              0 != ppred, "Compare");
 
     if (rw_opt_no_input_iter) {
@@ -299,14 +299,14 @@ void test_lex_compare (const T*,
 
 static int run_test (int, char*[])
 {
-    test_lex_compare ((UserClass*)0, (Less<UserClass>*)0); 
+    test_lex_compare ((UserClass*)0, (Less<UserClass>*)0);
 
     if (rw_opt_no_predicate) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "std::lexicographical_compare predicate test disabled");
     }
     else {
-        test_lex_compare ((UserClass*)0, (Less<UserClass>*)1); 
+        test_lex_compare ((UserClass*)0, (Less<UserClass>*)1);
     }
 
     return 0;

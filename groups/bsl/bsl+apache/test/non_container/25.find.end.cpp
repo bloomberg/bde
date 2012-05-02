@@ -23,32 +23,32 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for find_end()
 #include <functional>   // for equal_to
 #include <cstring>      // for size_t, strlen()
 
-#include <alg_test.h>   
+#include <alg_test.h>
 #include <rw_value.h>   // for UserClass
 #include <driver.h>     // for rw_test()
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
-FwdIter<eq_comp<base<> > > 
-find_end (FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >, 
+FwdIter<eq_comp<base<> > >
+find_end (FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >,
           FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >);
 
 template
-FwdIter<eq_comp<base<> > > 
-find_end (FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >, 
-          FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >, 
+FwdIter<eq_comp<base<> > >
+find_end (FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >,
+          FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >,
           binary_predicate<eq_comp<base<> > >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
@@ -121,16 +121,16 @@ void do_test (int               line,     // line number of test case
     // compute the number of invocations of the predicate
     std::size_t last_n_op_assign = T::n_total_op_assign_;
 
-    const ForwardIterator1 res = predicate ? 
+    const ForwardIterator1 res = predicate ?
           std::find_end (first1, last1, first2, last2, std::equal_to<T>())
         : std::find_end (first1, last1, first2, last2);
-    
+
     // silence a bogus EDG eccp remark #550-D:
     // variable "res" was set but never used
     _RWSTD_UNUSED (res);
 
     bool success = res.cur_ == first1.cur_ + resoff;
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: find_end<%s, %s>(it = \"%s\", \"%s\")"
                " == (it + %zu), got (it + %td)",
                __LINE__, it1name, it2name, src, fseq,
@@ -150,7 +150,7 @@ void do_test (int               line,     // line number of test case
                 break;
         }
 
-        rw_assert (success, 0, line, 
+        rw_assert (success, 0, line,
                    "line %d: find_end<%s, %s>(it = \"%s\", \"%s\")"
                    " expected value %c got %c at %zu position",
                    __LINE__, it1name, it2name, src, fseq,
@@ -165,11 +165,11 @@ void do_test (int               line,     // line number of test case
 
     success =
         T::n_total_op_assign_ - last_n_op_assign <= nfseq * (nsrc - nfseq + 1);
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: find_end<%s, %s>(it = \"%s\", \"%s\")"
                " %s invoked %zu times, expected no more than %td",
                __LINE__, it1name, it2name, src, fseq,
-               predicate ? predicate : "comparison operator", 
+               predicate ? predicate : "comparison operator",
                T::n_total_op_eq_, nfseq * (nsrc - nfseq + 1));
 
     delete[] tsrc;
@@ -179,23 +179,23 @@ void do_test (int               line,     // line number of test case
 /**************************************************************************/
 
 template <class ForwardIterator1, class ForwardIterator2, class T>
-void run_tests (const ForwardIterator1& dummy_iter1, 
+void run_tests (const ForwardIterator1& dummy_iter1,
                 const ForwardIterator2& dummy_iter2,
                 const T*, const char* predicate)
 {
     static const char* const it1name = type_name (dummy_iter1, (T*)0);
     static const char* const it2name = type_name (dummy_iter2, (T*)0);
 
-    rw_info (0, 0, 0, "%s std::find_end (%1$s, %1$s, %s, %2$s%{?}, %s%{;})", 
+    rw_info (0, 0, 0, "%s std::find_end (%1$s, %1$s, %s, %2$s%{?}, %s%{;})",
              it1name, it2name, 0 != predicate, predicate);
-    
+
 #define TEST(src, fnd, off_res) \
     do_test (__LINE__, src, fnd, std::size_t (off_res), \
              dummy_iter1, dummy_iter2, (UserClass*)0, predicate)
 
     //    +------------------ subject sequence
     //    |                +--- sequence to be found
-    //    |                |   
+    //    |                |
     //    |                |      +-- offset of returned iterator,
     //    |                |      |   -1 denotes the end of sequence
     //    v                v      v
@@ -250,7 +250,7 @@ void run_tests (const ForwardIterator1& dummy_iter1,
 
 
 template <class ForwardIterator, class T>
-void run_test_find_end (const ForwardIterator& dummy, T*, 
+void run_test_find_end (const ForwardIterator& dummy, T*,
                         const char* predicate)
 {
     if (rw_opt_no_fwd_iter) {
@@ -280,16 +280,16 @@ void run_test_find_end (const ForwardIterator& dummy, T*,
 static void
 test_find_end (const char* predicate)
 {
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "template <class %s, class %s> "
              "%1$s std::find_end (%1$s, %1$s, %2$s, %2$s%{?}, %s%{;})",
-             "ForwardIterator1", "ForwardIterator2", 
+             "ForwardIterator1", "ForwardIterator2",
              0 != predicate, predicate);
 
     if (rw_opt_no_fwd_iter) {
         rw_note (0, __FILE__, __LINE__, "ForwardIterator test disabled");
     }
-    else {       
+    else {
         run_test_find_end (FwdIter<UserClass>(), (UserClass*)0, predicate);
     }
 
@@ -322,7 +322,7 @@ run_test (int, char*[])
     else {
         test_find_end ("std::equal_to<UserClass>");
     }
-                
+
     return 0;
 }
 
@@ -332,7 +332,7 @@ int main (int argc, char *argv[])
 {
     return rw_test (argc, argv, __FILE__,
                     "lib.alg.find.end",
-                    0 /* no comment */, run_test,                    
+                    0 /* no comment */, run_test,
                     "|-no-ForwardIterator#"
                     "|-no-BidirectionalIterator#"
                     "|-no-RandomAccessIterator#"

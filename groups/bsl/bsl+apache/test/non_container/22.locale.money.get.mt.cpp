@@ -433,7 +433,7 @@ run_test (int, char**)
     test_wchar = false;
 
     // create and start a pool of threads and wait for them to finish
-    int result = 
+    int result =
         rw_thread_pool (0, std::size_t (opt_nthreads), 0, thread_func, 0);
 
     rw_error (result == 0, 0, __LINE__,

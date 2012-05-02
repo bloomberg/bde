@@ -1,4 +1,4 @@
-// bslma_deallocatorguard.cpp    -*-C++-*-
+// bslma_deallocatorguard.cpp                                         -*-C++-*-
 #include <bslma_deallocatorguard.h>
 
 #include <bsls_ident.h>

@@ -401,6 +401,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #if defined(BSLS_PLATFORM__OS_UNIX)
     #ifndef INCLUDED_BSL_C_SIGNAL
     #include <bsl_c_signal.h>
@@ -408,8 +412,6 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
                        // ==================================
                        // class bcep_MultipriorityThreadPool

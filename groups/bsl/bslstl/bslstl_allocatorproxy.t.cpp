@@ -1,4 +1,4 @@
-// bslstl_allocatorproxy.t.cpp                  -*-C++-*-
+// bslstl_allocatorproxy.t.cpp                                        -*-C++-*-
 
 #include <bslstl_allocatorproxy.h>
 #include <bslstl_allocator.h>
@@ -60,7 +60,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 namespace BloombergLP {
     // Force instantiation (and thus compilation) of proxy class
-    template class bslstl_AllocatorProxy<bsl::allocator<int> >;
+    template class bslstl::AllocatorProxy<bsl::allocator<int> >;
 }
 
 //=============================================================================
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 
         // Does not actually do anything, but forces class instantiation.
         bsl::allocator<int> a;
-        bslstl_AllocatorProxy<bsl::allocator<int> > theAllocatorProxy(a);
+        bslstl::AllocatorProxy<bsl::allocator<int> > theAllocatorProxy(a);
 
       } break;
 

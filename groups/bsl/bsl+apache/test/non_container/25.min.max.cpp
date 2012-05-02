@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for min, max, min_element, max_element
@@ -35,30 +35,30 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
-const lt_comp<base<cpy_ctor> >& 
+const lt_comp<base<cpy_ctor> >&
 min (const lt_comp<base<cpy_ctor> >&,
      const lt_comp<base<cpy_ctor> >&);
 
 template
-const lt_comp<base<cpy_ctor> >& 
+const lt_comp<base<cpy_ctor> >&
 min (const lt_comp<base<cpy_ctor> >&,
      const lt_comp<base<cpy_ctor> >&,
      binary_predicate<lt_comp<base<cpy_ctor> > >);
 
 template
-const lt_comp<base<cpy_ctor> >& 
+const lt_comp<base<cpy_ctor> >&
 max (const lt_comp<base<cpy_ctor> >&,
      const lt_comp<base<cpy_ctor> >&);
 
 template
-const lt_comp<base<cpy_ctor> >& 
+const lt_comp<base<cpy_ctor> >&
 max (const lt_comp<base<cpy_ctor> >&,
      const lt_comp<base<cpy_ctor> >&,
      binary_predicate<lt_comp<base<cpy_ctor> > >);
@@ -92,7 +92,7 @@ max_element (FwdIter<lt_comp<base<cpy_ctor> > >,
 /**************************************************************************/
 
 template <class T>
-struct Less 
+struct Less
 {
     static std::size_t funcalls_;
 
@@ -143,7 +143,7 @@ void test_min_max (int              line,
 
     const Predicate pred (0, 0);   // dummy arguments
 
-    const T& res = ppred ? 
+    const T& res = ppred ?
         test_min ? std::min (ta, tb, pred) : std::max (ta, tb, pred)
       : test_min ? std::min (ta, tb) : std::max (ta, tb);
 
@@ -157,10 +157,10 @@ void test_min_max (int              line,
 
 /**************************************************************************/
 
-// exrcises min_element, max_element: 25.3.7 
+// exrcises min_element, max_element: 25.3.7
 template <class T, class ForwardIterator, class Predicate>
 void test_min_max_element (int                     line,
-                           const char             *src,                    
+                           const char             *src,
                            const std::size_t       min_off,
                            const std::size_t       max_off,
                            const ForwardIterator  &it,
@@ -187,13 +187,13 @@ void test_min_max_element (int                     line,
     ForwardIterator res (0, 0, 0);
 
     if (ppred) {
-        res = test_min ? 
-            std::min_element (first, last, pred) 
+        res = test_min ?
+            std::min_element (first, last, pred)
           : std::max_element (first, last, pred);
     }
     else {
-        res = test_min ? 
-            std::min_element (first, last) 
+        res = test_min ?
+            std::min_element (first, last)
           : std::max_element (first, last);
     }
 
@@ -201,11 +201,11 @@ void test_min_max_element (int                     line,
     const std::size_t off = test_min ? min_off : max_off;
     rw_assert (res.cur_ == xsrc + off, 0, line,
                "line %d: %s<%s%{?}, %s%{;}> (\"%s\", %zu, ...) "
-               "got first + %td, expected first + %zu", 
+               "got first + %td, expected first + %zu",
                __LINE__, fname, itname, 0 != ppred, funname, src, off,
                res.cur_ - xsrc, off);
 
-    const std::size_t n_ops_lt = ppred ? 
+    const std::size_t n_ops_lt = ppred ?
         Predicate::funcalls_ : T::n_total_op_lt_ - last_n_op_lt;
 
     // verify the complexity: 25.3.7 p8, p10
@@ -253,7 +253,7 @@ void test_min_max (const T*,
 
 template <class T, class ForwardIterator, class Predicate>
 void test_min_max_element (const ForwardIterator   &it,
-                           const T*, 
+                           const T*,
                            const Predicate         *ppred,
                            bool                     test_min)
 {
@@ -267,7 +267,7 @@ void test_min_max_element (const ForwardIterator   &it,
 
 #define TEST(src, min_off, max_off)                                  \
     test_min_max_element (__LINE__, src, min_off, max_off, it,       \
-                         (T*)0, ppred, test_min)  
+                         (T*)0, ppred, test_min)
 
     TEST ("", 0, 0);
     TEST ("a", 0, 0);

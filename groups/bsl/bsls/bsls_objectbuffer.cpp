@@ -1,4 +1,4 @@
-// bsls_objectbuffer.cpp                  -*-C++-*-
+// bsls_objectbuffer.cpp                                              -*-C++-*-
 #include <bsls_objectbuffer.h>
 
 #include <bsls_ident.h>

@@ -87,9 +87,9 @@
 #define INCLUDED_FUNCTIONAL
 #endif
 
-// bslalg_ConstructorProxy needs an allocator, even if default.
-#define _STLP_BSLMA_DFLT        (BloombergLP::bslma_Allocator*)0
-#define _STLP_ADD_BSLMA_DFLT  , (BloombergLP::bslma_Allocator*)0
+// bslalg::ConstructorProxy needs an allocator, even if default.
+#define _STLP_BSLMA_DFLT        (BloombergLP::bslma::Allocator*)0
+#define _STLP_ADD_BSLMA_DFLT  , (BloombergLP::bslma::Allocator*)0
 
 //_STLP_BEGIN_NAMESPACE
 namespace bsl {
@@ -108,7 +108,7 @@ public:
   typedef typename _Sequence::allocator_type  allocator_type;
 
 protected:
-  BloombergLP::bslalg_ConstructorProxy<_Sequence> _M_s;
+  BloombergLP::bslalg::ConstructorProxy<_Sequence> _M_s;
 
   _Sequence& _Get_s() { return _M_s.object(); }
   const _Sequence& _Get_s() const { return _M_s.object(); }
@@ -226,8 +226,8 @@ public:
   typedef typename _Sequence::allocator_type  allocator_type;
 
 protected:
-  BloombergLP::bslalg_ConstructorProxy<_Sequence> _M_s;
-  BloombergLP::bslalg_ConstructorProxy<_Compare>  comp;
+  BloombergLP::bslalg::ConstructorProxy<_Sequence> _M_s;
+  BloombergLP::bslalg::ConstructorProxy<_Compare>  comp;
 
   _Sequence& _Get_s() { return _M_s.object(); }
   const _Sequence& _Get_s() const { return _M_s.object(); }
@@ -301,7 +301,7 @@ public:
   // Constructor templates with allocator.
   template <class _InputIterator>
   priority_queue(_InputIterator __first, _InputIterator __last,
-          const allocator_type& alloc)
+                 const allocator_type& alloc)
     : _M_s(__first, __last, alloc.mechanism()), comp(alloc.mechanism())
     { std::make_heap(_Get_s().begin(), _Get_s().end(), _comp()); }
 

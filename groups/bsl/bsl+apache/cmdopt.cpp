@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: cmdopt.cpp 650698 2008-04-22 23:38:40Z sebor $ 
+ * $Id: cmdopt.cpp 650698 2008-04-22 23:38:40Z sebor $
  *
  ************************************************************************
  *
@@ -21,7 +21,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -341,7 +341,7 @@ _rw_getbounds (const char *next, char sep, RW_VA_LIST_ARG_PTR pva)
             have_maxval = true;
             ++next;
         }
-        
+
         char *end = 0;
 
         // '*' designates an int va_arg argument
@@ -471,7 +471,7 @@ rw_vsetopts (const char *opts, va_list va)
         if (_rw_ncmdopts == _rw_optbufsize) {
 
             const size_t newbufsize = 2 * _rw_ncmdopts + 1;
-            
+
             cmdopts_t* const newopts =
                 (cmdopts_t*)malloc (newbufsize * sizeof (cmdopts_t));
 
@@ -638,7 +638,7 @@ rw_vsetopts (const char *opts, va_list va)
             else
                 fprintf (stderr, "null handler for option -%c\n",
                          lastopt->sopt_);
-                
+
             abort ();
         }
     }
@@ -693,7 +693,7 @@ _rw_getarg (cmdopts_t *optspec, const char *opt, const char *arg)
 
     else if (   optval < long (optspec->minval_)
              || long (optspec->maxval_) < optval) {
-        
+
         // numeric argument out of range
         fprintf (stderr, "numeric argument %ld out of range"
                  " [%d, %d]: %s\n", optval,
@@ -818,7 +818,7 @@ _rw_match_tristate (const cmdopts_t *opt, const char *optname)
     RW_ASSERT (0 != optname);
 
     static const char* const prefix[] = {
-        "+enable", "+use", "+with", 
+        "+enable", "+use", "+with",
         "-disable", "-no", "-without",
         0
     };
@@ -938,7 +938,7 @@ rw_runopts (int argc, char *argv[])
 
                 // get a pointer to the (possibly empty) name
                 // of the long option
-                const char* const lopt = opt->lopt_ ? 
+                const char* const lopt = opt->lopt_ ?
                     opt->lopt_ : opt->loptbuf_;
 
                 if (opt->tristate_) {
@@ -1125,7 +1125,7 @@ rw_runopts (const char *str)
 
         // split up unquoted space-separated arguments
         if (argc == 0 || isspace (*s)) {
-            if (argc > 0) 
+            if (argc > 0)
                 *s = 0;
 
             // skip over leading spaces

@@ -1,4 +1,4 @@
-// bslmf_anytype.cpp                  -*-C++-*-
+// bslmf_anytype.cpp                                                  -*-C++-*-
 #include <bslmf_anytype.h>
 
 #include <bsls_ident.h>

@@ -1,4 +1,4 @@
-// bsltst_dual_map.t.cpp                  -*-C++-*-
+// bsltst_dual_map.t.cpp                                              -*-C++-*-
 #undef  BSL_OVERRIDES_STD
 #include <bsltst_dual_map.h>
 
@@ -137,11 +137,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================
@@ -150,21 +150,21 @@ bool usesBslmaAllocator(const TYPE& arg)
 
 struct Cargo {
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
 
-    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
     explicit
-    Cargo(bslma_Allocator *a = 0) {
+    Cargo(bslma::Allocator *a = 0) {
         QV_("Default:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(4000);
     }
-    Cargo(const Cargo& in, bslma_Allocator* a = 0) {
+    Cargo(const Cargo& in, bslma::Allocator* a = 0) {
         QV_("Copy:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(4000);
         std::memcpy(d_p, in.d_p, 4000);
     }
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
@@ -203,13 +203,13 @@ int main(int argc, char *argv[])
         // MULTIMAP STORING TEST
         //
         // Concerns:
-        //   That memory allocated by the class comes from the bslma_Allocator
+        //   That memory allocated by the class comes from the bslma::Allocator
         //   passed at construction.
         //
         // Plan:
         //   Store objects of the locally defined 'Cargo' type, which
         //   allcocates a large amount of memory, in the container, and
-	//   observe that all of the memory comes from the passed allocator.
+    //   observe that all of the memory comes from the passed allocator.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nMAP STORING TEST\n"
@@ -269,13 +269,13 @@ int main(int argc, char *argv[])
         // MAP STORING TEST
         //
         // Concerns:
-        //   That memory allocated by the class comes from the bslma_Allocator
+        //   That memory allocated by the class comes from the bslma::Allocator
         //   passed at construction.
         //
         // Plan:
         //   Store objects of the locally defined 'Cargo' type, which
         //   allcocates a large amount of memory, in the container, and
-	//   observe that all of the memory comes from the passed allocator.
+    //   observe that all of the memory comes from the passed allocator.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nMAP STORING TEST\n"

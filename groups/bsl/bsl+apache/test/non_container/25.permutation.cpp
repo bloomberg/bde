@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for prev_permutation, next_permutation
@@ -35,30 +35,30 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers that can't handle it
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
 bool
-prev_permutation (BidirIter<lt_comp<assign<base<cpy_ctor> > > >, 
+prev_permutation (BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
                   BidirIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 bool
-prev_permutation (BidirIter<lt_comp<assign<base<cpy_ctor> > > >, 
-                  BidirIter<lt_comp<assign<base<cpy_ctor> > > >,          
+prev_permutation (BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
+                  BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
                   binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 bool
-next_permutation (BidirIter<lt_comp<assign<base<cpy_ctor> > > >, 
+next_permutation (BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
                   BidirIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 bool
-next_permutation (BidirIter<lt_comp<assign<base<cpy_ctor> > > >, 
+next_permutation (BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
                   BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
                   binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
 
@@ -69,7 +69,7 @@ next_permutation (BidirIter<lt_comp<assign<base<cpy_ctor> > > >,
 /**************************************************************************/
 
 template <class T>
-struct Less 
+struct Less
 {
     static std::size_t funcalls_;
 
@@ -126,13 +126,13 @@ void test_permutations (int                     line,
     bool result = false;
 
     if (ppred) {
-        result = prev ? 
-            std::prev_permutation (first, last, pred) 
+        result = prev ?
+            std::prev_permutation (first, last, pred)
           : std::next_permutation (first, last, pred);
     }
     else {
-        result = prev ? 
-            std::prev_permutation (first, last) 
+        result = prev ?
+            std::prev_permutation (first, last)
           : std::next_permutation (first, last);
     }
 
@@ -142,7 +142,7 @@ void test_permutations (int                     line,
     bool success = result == res;
     rw_assert (success, 0, line,
                "line %d. %s <%s%{?}, %s%{;}> (\"%s\", ...) == %b, got %b",
-               __LINE__, algname, itname, 0 != ppred, predname, 
+               __LINE__, algname, itname, 0 != ppred, predname,
                src, result, res);
 
     // verify the permutation result
@@ -168,7 +168,7 @@ void test_permutations (int                     line,
     rw_assert (success, 0, line,
                "line %d. %s <%s%{?}, %s%{;}> (\"%s\", ...) "
                "complexity: got %zu assigns, expected no more than %zu",
-               __LINE__, algname, itname, 0 != ppred, predname, src, 
+               __LINE__, algname, itname, 0 != ppred, predname, src,
                n_ops_assign, nsrc);
 
     delete[] xsrc;
@@ -191,7 +191,7 @@ void test_permutations (const BidirectIterator &it,
              algname, itname, 0 != ppred, predname);
 
 #define TEST(src, dst, res)                                                 \
-    test_permutations (__LINE__, src, dst, res, it, (T*)0, ppred, prev) 
+    test_permutations (__LINE__, src, dst, res, it, (T*)0, ppred, prev)
 
     if (prev) {
         //     +------------- initial (source) sequence
@@ -237,7 +237,7 @@ void test_permutations (const BidirectIterator &it,
 
         TEST ("abcdefghij", "abcdefghji", true);
         TEST ("jihgfedcba", "abcdefghij", false);
-    }                        
+    }
 }
 
 /**************************************************************************/
@@ -261,8 +261,8 @@ void test_permutations (const T*,
     rw_info (0, 0, 0,
              "template <class %s%{?}, class %s%{;}> "
              "bool %s (%1$s, %1$s%{?}, %s%{;})",
-             "BidirectionalIterator", 0 != ppred, "Compare", 
-             prev ? "prev_permutation" : "next_permutation", 
+             "BidirectionalIterator", 0 != ppred, "Compare",
+             prev ? "prev_permutation" : "next_permutation",
              0 != ppred, "Compare");
 
     if (rw_opt_no_bidir_iter) {
@@ -290,14 +290,14 @@ void test_permutations (const T*,
         rw_note (0, 0, __LINE__, "std::prev_permutation test disabled");
     }
     else {
-        test_permutations ((UserClass*)0, ppred, true); 
+        test_permutations ((UserClass*)0, ppred, true);
     }
 
     if (rw_opt_no_next_permutation) {
         rw_note (0, 0, __LINE__, "std::next_permutation test disabled");
     }
     else {
-        test_permutations ((UserClass*)0, ppred, false); 
+        test_permutations ((UserClass*)0, ppred, false);
     }
 }
 
@@ -305,13 +305,13 @@ void test_permutations (const T*,
 
 static int run_test (int, char*[])
 {
-    test_permutations ((UserClass*)0, (Less<UserClass>*)0); 
+    test_permutations ((UserClass*)0, (Less<UserClass>*)0);
 
     if (rw_opt_no_predicate) {
         rw_note (0, 0, __LINE__, "predicate test disabled");
     }
     else {
-        test_permutations ((UserClass*)0, (Less<UserClass>*)1); 
+        test_permutations ((UserClass*)0, (Less<UserClass>*)1);
     }
 
     return 0;

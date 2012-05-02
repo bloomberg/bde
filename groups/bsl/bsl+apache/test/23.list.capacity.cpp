@@ -62,9 +62,9 @@ size_void_test_cases [] = {
 
     //    +--------------------------------------- controlled sequence
     //    |                    +------------------ expected result
-    //    |                    |                   
-    //    |                    |                   
-    //    V                    V                   
+    //    |                    |
+    //    |                    |
+    //    V                    V
     TEST (0,                   0),
     TEST ("",                  0),
 
@@ -126,26 +126,26 @@ max_size_void_test_cases [] = {
     }
 
     //    +------------------------------ controlled sequence
-    //    |                
-    //    |                               
-    //    |                               
-    //    V                             
-    TEST (0),     
-    TEST (""),   
+    //    |
+    //    |
+    //    |
+    //    V
+    TEST (0),
+    TEST (""),
 
-    TEST ("<U0>"),    
-    TEST ("a"),       
+    TEST ("<U0>"),
+    TEST ("a"),
 
-    TEST ("test string"), 
-    TEST ("a<U0>b<U0>c<U0>@2"),  
-    TEST ("x@128"),     
-    TEST ("x@207"),    
+    TEST ("test string"),
+    TEST ("a<U0>b<U0>c<U0>@2"),
+    TEST ("x@128"),
+    TEST ("x@207"),
 #if TEST_RW_EXTENSIONS  // these tests run too slowly and doesn't add any value
-    TEST ("x@2284"),   
-    TEST ("x@3695"), 
+    TEST ("x@2284"),
+    TEST ("x@3695"),
 #endif
 
-    TEST ("last")        
+    TEST ("last")
 };
 
 /**************************************************************************/
@@ -169,7 +169,7 @@ resize_size_val_test_cases [] = {
     //    |                      |     |    |      +- exception info
     //    |                      |     |    |      |     0 - no exception
     //    |                      |     |    |      |     1 - length_error
-    //    |                      |     |    |      |    
+    //    |                      |     |    |      |
     //    |                      |     |    |      +-----------+
     //    V                      V     V    V                  V
     TEST ("",                    0,   'a',  "",                0),
@@ -243,7 +243,7 @@ resize_size_test_cases [] = {
     //    |                      |    |              |      0 - no exception
     //    |                      |    |              |      1 - length_error
     //    |                      |    |              |
-    //    V                      V    V              V    
+    //    V                      V    V              V
     TEST ("",                    0,   "",            0),
     TEST ("",                    5,   "\0@5",        0),
     TEST ("",                  334,   "\0@334",      0),
@@ -309,28 +309,28 @@ clear_void_test_cases [] = {
     }
 
     //    +------------------------------ controlled sequence
-    //    |                
-    //    |                               
-    //    |                               
-    //    V  
-    TEST (0), 
-    TEST (""),   
+    //    |
+    //    |
+    //    |
+    //    V
+    TEST (0),
+    TEST (""),
 
-    TEST ("<U0>"),    
-    TEST ("a"),       
+    TEST ("<U0>"),
+    TEST ("a"),
 
-    TEST ("test string"), 
-    TEST ("a<U0>b<U0>c<U0>@2"),  
+    TEST ("test string"),
+    TEST ("a<U0>b<U0>c<U0>@2"),
 #if TEST_RW_EXTENSIONS
-    TEST ("x@128"),     
-    TEST ("x@207"),    
+    TEST ("x@128"),
+    TEST ("x@207"),
     TEST ("x@334"),
     TEST ("x@540"),
     TEST ("x@873"),
     TEST ("x@1412"),
-    TEST ("x@2284"),   
-    TEST ("x@3695"), 
-    TEST ("x@4096"), 
+    TEST ("x@2284"),
+    TEST ("x@3695"),
+    TEST ("x@4096"),
 #else
     TEST ("x@20"),
     TEST ("x@32"),
@@ -342,7 +342,7 @@ clear_void_test_cases [] = {
     TEST ("x@129"),
 #endif
 
-    TEST ("last") 
+    TEST ("last")
 };
 
 /**************************************************************************/
@@ -360,22 +360,22 @@ empty_void_test_cases [] = {
 }
 
     //    +------------------------------ controlled sequence
-    //    |              +--------------- expected result              
-    //    |              |                     
-    //    |              |                     
+    //    |              +--------------- expected result
+    //    |              |
+    //    |              |
     //    V              V
-    TEST (0,             1), 
-    TEST ("",            1),   
+    TEST (0,             1),
+    TEST ("",            1),
 
-    TEST ("<U0>",        0),    
-    TEST ("a",           0),       
-    TEST ("<U0>ab<U0>c", 0),  
+    TEST ("<U0>",        0),
+    TEST ("a",           0),
+    TEST ("<U0>ab<U0>c", 0),
 
-    TEST ("x@128",       0),     
+    TEST ("x@128",       0),
 #if TEST_RW_EXTENSIONS  // runs slowly and doesn't add any value
-    TEST ("x@3695",      0), 
+    TEST ("x@3695",      0),
 #endif
-    TEST ("last",        0) 
+    TEST ("last",        0)
 };
 
 /**************************************************************************/
@@ -489,10 +489,10 @@ void test_capacity (T*, Allocator*,
               || func.which_ == ListIds::resize_size
               || func.which_ == ListIds::resize_size_val)) {
 
-                  std::size_t nctors = tdata.reslen_ > tdata.strlen_ ? 
+                  std::size_t nctors = tdata.reslen_ > tdata.strlen_ ?
                       tdata.reslen_ - tdata.strlen_ : 0;
 
-                  std::size_t ndtors = tdata.reslen_ < tdata.strlen_ ? 
+                  std::size_t ndtors = tdata.reslen_ < tdata.strlen_ ?
                       tdata.strlen_ - tdata.reslen_ : 0;
 
                   std::size_t new_count = x_count_save + nctors - ndtors;
@@ -522,7 +522,7 @@ void test_capacity (T*, Allocator*,
             }
 
             // verify the returned value
-            if (func.which_ == ListIds::size_void 
+            if (func.which_ == ListIds::size_void
              || func.which_ == ListIds::empty_void) {
                 rw_assert (res == tcase.nres, 0, tcase.line,
                            "line %d. %{$FUNCALL} expected %zu, got %zu",
@@ -537,7 +537,7 @@ void test_capacity (T*, Allocator*,
                            __LINE__, res, cur_sz);
             }
 
-            if (func.which_ == ListIds::resize_size_val 
+            if (func.which_ == ListIds::resize_size_val
              || func.which_ == ListIds::resize_size
              || func.which_ == ListIds::clear_void) {
 

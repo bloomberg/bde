@@ -23,17 +23,17 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // this may be the "native" header that comes with the compiler
 // do not assume that any of our stuff (i.e., macros) is available
 
 #if defined (__IBMCPP__) && !defined (_RWSTD_NO_IMPLICIT_INCLUSION)
-// Disable implicit inclusion to work around 
-// a limitation in IBM's VisualAge 5.0.2.0 (see PR#26959) 
+// Disable implicit inclusion to work around
+// a limitation in IBM's VisualAge 5.0.2.0 (see PR#26959)
 
-#  define _RWSTD_NO_IMPLICIT_INCLUSION 
+#  define _RWSTD_NO_IMPLICIT_INCLUSION
 #endif
 
 #include <cstdlib>
@@ -129,6 +129,7 @@ FUN_1 (tan);
 FUN_1 (tanh);
 
 #ifndef __GNUC__
+
 }   // namespace std
 #endif
 

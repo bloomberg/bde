@@ -1,4 +1,4 @@
-// bsltst_locale.t.cpp                  -*-C++-*-
+// bsltst_locale.t.cpp                                                -*-C++-*-
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif

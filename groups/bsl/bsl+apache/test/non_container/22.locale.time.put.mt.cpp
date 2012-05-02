@@ -25,7 +25,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2002-2007 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <ios>        // for ios
@@ -96,10 +96,10 @@ struct MyTimeData
     // the format specifier
     char format_;
 
-    // narrow representations of time_ given the 
+    // narrow representations of time_ given the
     // locale_name_ and the format_
     char ncs_ [BufferSize];
-    
+
 #ifndef _RWSTD_NO_WCHAR_T
 
     // wide representations of time_
@@ -271,7 +271,7 @@ run_test (int, char**)
 
             nio.imbue (loc);
             nsb.pubsetp (data.ncs_, RW_COUNT_OF (data.ncs_));
-            
+
             *np.put (std::ostreambuf_iterator<char>(&nsb),
                      nio, ' ', &data.time_, data.format_) = '\0';
 
@@ -279,7 +279,7 @@ run_test (int, char**)
                       "time_put<char>::put(..., %c) "
                       "failed for locale(%#s)",
                       data.format_, data.locale_name_);
-            
+
 #ifndef _RWSTD_NO_WCHAR_T
 
             const std::time_put<wchar_t> &wp =
@@ -287,10 +287,10 @@ run_test (int, char**)
 
             wio.imbue (loc);
             wsb.pubsetp (data.wcs_, RW_COUNT_OF (data.wcs_));
-            
+
             *wp.put (std::ostreambuf_iterator<wchar_t>(&wsb),
                      wio, L' ', &data.time_, data.format_) = L'\0';
-            
+
             rw_fatal (!wio.fail (), __FILE__, __LINE__,
                       "time_put<wchar_t>::put(..., %c) "
                       "failed for locale(%#s)",

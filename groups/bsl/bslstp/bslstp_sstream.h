@@ -126,23 +126,24 @@ public:                         // Typedefs.
   typedef basic_stringbuf<_CharT, _Traits, _Alloc>  _Self;
   typedef basic_string<_CharT, _Traits, _Alloc>     _String;
 
-  BSLALG_DECLARE_NESTED_TRAITS(basic_stringbuf,
-                   BloombergLP::bslalg_PassthroughTraitBslmaAllocator<_Alloc>);
+  BSLALG_DECLARE_NESTED_TRAITS(
+                  basic_stringbuf,
+                  BloombergLP::bslalg::PassthroughTraitBslmaAllocator<_Alloc>);
 
 public:                         // Constructors, destructor.
   explicit basic_stringbuf(::std::ios_base::openmode __mode
-                                      = ::std::ios_base::in | ::std::ios_base::out);
+                                 = ::std::ios_base::in | ::std::ios_base::out);
   explicit basic_stringbuf(const _String& __s, std::ios_base::openmode __mode
-                                      = std::ios_base::in | std::ios_base::out);
+                                     = std::ios_base::in | std::ios_base::out);
   // Constructors with allocators.
   explicit basic_stringbuf(const allocator_type& __a);
   explicit basic_stringbuf(std::ios_base::openmode __mode,
+                           const allocator_type&   __a);
+  explicit basic_stringbuf(const _String&        __s,
                            const allocator_type& __a);
-  explicit basic_stringbuf(const _String& __s,
-                           const allocator_type& __a);
-  explicit basic_stringbuf(const _String& __s,
+  explicit basic_stringbuf(const _String&          __s,
                            std::ios_base::openmode __mode,
-                           const allocator_type& __a);
+                           const allocator_type&   __a);
   virtual ~basic_stringbuf();
 
 public:                         // Get or set the string.
@@ -169,9 +170,9 @@ protected:                      // Overridden virtual member functions.
   virtual _Base* setbuf(_CharT* __buf, ::std::streamsize __n);
   virtual pos_type seekoff(off_type __off, std::ios_base::seekdir __dir,
                            std::ios_base::openmode __mode
-                                      = std::ios_base::in | std::ios_base::out);
+                                     = std::ios_base::in | std::ios_base::out);
   virtual pos_type seekpos(pos_type __pos, std::ios_base::openmode __mode
-                                      = std::ios_base::in | std::ios_base::out);
+                                     = std::ios_base::in | std::ios_base::out);
 
 private:                        // Helper functions.
   // Append the internal buffer to the string if necessary.
@@ -207,22 +208,23 @@ public:                         // Typedefs
   typedef basic_string<_CharT, _Traits, _Alloc>     _String;
   typedef basic_stringbuf<_CharT, _Traits, _Alloc>  _Buf;
 
-  BSLALG_DECLARE_NESTED_TRAITS(basic_istringstream,
-                   BloombergLP::bslalg_PassthroughTraitBslmaAllocator<_Alloc>);
+  BSLALG_DECLARE_NESTED_TRAITS(
+                  basic_istringstream,
+                  BloombergLP::bslalg::PassthroughTraitBslmaAllocator<_Alloc>);
 
 public:                         // Constructors, destructor.
   basic_istringstream(std::ios_base::openmode __mode = std::ios_base::in);
-  basic_istringstream(const _String& __str,
+  basic_istringstream(const _String&          __str,
                       std::ios_base::openmode __mode = std::ios_base::in);
   // Constructors with allocators.
   basic_istringstream(const allocator_type& __a);
   basic_istringstream(std::ios_base::openmode __mode,
+                      const allocator_type&   __a);
+  basic_istringstream(const _String&        __str,
                       const allocator_type& __a);
-  basic_istringstream(const _String& __str,
-                      const allocator_type& __a);
-  basic_istringstream(const _String& __str,
+  basic_istringstream(const _String&          __str,
                       std::ios_base::openmode __mode,
-                      const allocator_type& __a);
+                      const allocator_type&   __a);
   ~basic_istringstream();
 
 public:                         // Member functions
@@ -259,22 +261,23 @@ public:                         // Typedefs
   typedef basic_string<_CharT, _Traits, _Alloc>     _String;
   typedef basic_stringbuf<_CharT, _Traits, _Alloc>  _Buf;
 
-  BSLALG_DECLARE_NESTED_TRAITS(basic_ostringstream,
-                   BloombergLP::bslalg_PassthroughTraitBslmaAllocator<_Alloc>);
+  BSLALG_DECLARE_NESTED_TRAITS(
+                  basic_ostringstream,
+                  BloombergLP::bslalg::PassthroughTraitBslmaAllocator<_Alloc>);
 
 public:                         // Constructors, destructor.
   basic_ostringstream(std::ios_base::openmode __mode = std::ios_base::out);
-  basic_ostringstream(const _String& __str,
+  basic_ostringstream(const _String&          __str,
                       std::ios_base::openmode __mode = std::ios_base::out);
   // Constructors with allocators.
   basic_ostringstream(const allocator_type& __a);
   basic_ostringstream(std::ios_base::openmode __mode,
+                      const allocator_type&   __a);
+  basic_ostringstream(const _String&        __str,
                       const allocator_type& __a);
-  basic_ostringstream(const _String& __str,
-                      const allocator_type& __a);
-  basic_ostringstream(const _String& __str,
+  basic_ostringstream(const _String&          __str,
                       std::ios_base::openmode __mode,
-                      const allocator_type& __a);
+                      const allocator_type&   __a);
   ~basic_ostringstream();
 
 public:                         // Member functions.
@@ -314,8 +317,9 @@ public:                         // Typedefs
 
   typedef std::ios_base::openmode openmode;
 
-  BSLALG_DECLARE_NESTED_TRAITS(basic_stringstream,
-                   BloombergLP::bslalg_PassthroughTraitBslmaAllocator<_Alloc>);
+  BSLALG_DECLARE_NESTED_TRAITS(
+                  basic_stringstream,
+                  BloombergLP::bslalg::PassthroughTraitBslmaAllocator<_Alloc>);
 
 public:                         // Constructors, destructor.
   basic_stringstream(openmode __mod = std::ios_base::in | std::ios_base::out);
@@ -323,12 +327,12 @@ public:                         // Constructors, destructor.
                      openmode __mod = std::ios_base::in | std::ios_base::out);
   // Constructors with allocators.
   basic_stringstream(const allocator_type& __a);
-  basic_stringstream(openmode __mod,
+  basic_stringstream(openmode              __mod,
                      const allocator_type& __a);
-  basic_stringstream(const _String& __str,
+  basic_stringstream(const _String&        __str,
                      const allocator_type& __a);
-  basic_stringstream(const _String& __str,
-                     openmode __mod,
+  basic_stringstream(const _String&        __str,
+                     openmode              __mod,
                      const allocator_type& __a);
   ~basic_stringstream();
 
@@ -412,8 +416,8 @@ basic_stringbuf<_CharT, _Traits, _Alloc>
 template <class _CharT, class _Traits, class _Alloc>
 basic_stringbuf<_CharT, _Traits, _Alloc>
   ::basic_stringbuf(const basic_string<_CharT, _Traits, _Alloc>& __s,
-          std::ios_base::openmode __mode,  const allocator_type& __a)
-    : ::std::basic_streambuf<_CharT, _Traits>(), _M_mode(__mode), _M_str(__s, __a)
+                    std::ios_base::openmode __mode,  const allocator_type& __a)
+ : ::std::basic_streambuf<_CharT, _Traits>(), _M_mode(__mode), _M_str(__s, __a)
 {
   _M_set_ptrs();
 }
@@ -699,9 +703,10 @@ basic_stringbuf<_CharT, _Traits, _Alloc>::setbuf(_CharT*, ::std::streamsize __n)
 
 template <class _CharT, class _Traits, class _Alloc>
 typename basic_stringbuf < _CharT , _Traits , _Alloc > :: pos_type
-basic_stringbuf<_CharT, _Traits, _Alloc>::seekoff(off_type __off,
-            std::ios_base::seekdir __dir,
-            std::ios_base::openmode __mode)
+basic_stringbuf<_CharT, _Traits, _Alloc>::seekoff(
+                                                off_type __off,
+                                                std::ios_base::seekdir __dir,
+                                                std::ios_base::openmode __mode)
 {
   bool __imode  = false;
   bool __omode = false;

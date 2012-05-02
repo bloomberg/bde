@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2008 Rogue Wave Software. Inc.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros

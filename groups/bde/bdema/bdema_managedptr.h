@@ -697,6 +697,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_utility.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 // Robo code relying on transitively #including this deprecated component, but
@@ -776,8 +780,6 @@ namespace bsl
 }
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
                     // ==================================
                     // private class bdema_ManagedPtr_Ref

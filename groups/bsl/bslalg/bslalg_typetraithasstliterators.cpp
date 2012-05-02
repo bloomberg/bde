@@ -1,4 +1,4 @@
-// bslalg_typetraithasstliterators.cpp                  -*-C++-*-
+// bslalg_typetraithasstliterators.cpp                                -*-C++-*-
 #include <bslalg_typetraithasstliterators.h>
 
 #include <bsls_ident.h>
@@ -6,7 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

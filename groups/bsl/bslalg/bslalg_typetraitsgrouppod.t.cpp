@@ -1,4 +1,4 @@
-// bslalg_typetraitsgrouppod.t.cpp                  -*-C++-*-
+// bslalg_typetraitsgrouppod.t.cpp                                    -*-C++-*-
 
 #include <bslalg_typetraitsgrouppod.h>
 
@@ -65,7 +65,7 @@ int verbose = 0;
 int veryVerbose = 0;
 int veryVeryVerbose = 0;
 
-typedef bslalg_TypeTraitsGroupPod  Obj;
+typedef bslalg::TypeTraitsGroupPod  Obj;
 
 //=============================================================================
 //                  USAGE EXAMPLE
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitGroupPod;
+        //   class bslalg::TypeTraitGroupPod;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

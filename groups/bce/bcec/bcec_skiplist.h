@@ -361,11 +361,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
 template <class KEY, class DATA> class bcec_SkipList;
-class bslma_Allocator;
-
 template <class KEY, class DATA>
 bool operator==(const bcec_SkipList<KEY, DATA>& lhs,
                 const bcec_SkipList<KEY, DATA>& rhs);

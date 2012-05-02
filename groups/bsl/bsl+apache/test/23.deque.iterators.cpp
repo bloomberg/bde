@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <cstddef>    // for size_t
@@ -123,17 +123,17 @@ void test_iterators (std::size_t N, int dir, T*)
 
         rw_assert (Value (N - i) == i0 [N_diff - 2 * i_diff - 1], 0, __LINE__,
                    "Expected value of iterator::operator[](%d) to be %d; "
-                   "got %d.", N_diff - 2 * i_diff - 1, Value (N - i), 
+                   "got %d.", N_diff - 2 * i_diff - 1, Value (N - i),
                    i0 [N_diff - 2 * i_diff - 1]);
 
         rw_assert (Value (N - i) == i1 [Difference (-1)], 0, __LINE__,
                    "Expected value of iterator::operator[](%d) to be %d; "
-                   "got %d.", Difference (-1), Value (N - i), 
+                   "got %d.", Difference (-1), Value (N - i),
                    i1 [Difference (-1)]);
 
         rw_assert (Value (i + 1) == i1 [2 * i_diff - N_diff], 0, __LINE__,
                    "Expected value of iterator::operator[](%d) to be %d; "
-                   "got %d.", 2 * i_diff - N_diff, Value (i + 1), 
+                   "got %d.", 2 * i_diff - N_diff, Value (i + 1),
                    i1 [2 * i_diff - N_diff]);
 
         // exercise operator-(deque::iterator, deque::iterator)
@@ -206,7 +206,7 @@ void test_iterators (std::size_t N, int dir, T*)
                        "Expected ++iterator(it) == it + 1.");
 
             rw_assert (i0 < i2, 0, __LINE__,
-                       "Expected it < ++iterator(it)."); 
+                       "Expected it < ++iterator(it).");
 
             rw_assert (!(i2 < i0), 0, __LINE__,
                        "Expected !(++iterator (it) < it) to yield true.");
@@ -247,18 +247,18 @@ void test_iterators (std::size_t N, int dir, T*)
                        "Expected it - (--iterator (it) + 1) == 0.");
         }
 
-        rw_assert (i2 == i0, 0, __LINE__, 
+        rw_assert (i2 == i0, 0, __LINE__,
                    "Expected iterators to be equal.");
-        rw_assert (i3 == i0, 0, __LINE__, 
+        rw_assert (i3 == i0, 0, __LINE__,
                    "Expected iterators to be equal.");
-        rw_assert (i2 == i3, 0, __LINE__, 
+        rw_assert (i2 == i3, 0, __LINE__,
                    "Expected iterators to be equal.");
 
-        rw_assert (!(i2 < i0), 0, __LINE__, 
+        rw_assert (!(i2 < i0), 0, __LINE__,
                    "Expected iterators to be equal.");
-        rw_assert (!(i3 < i0), 0, __LINE__, 
+        rw_assert (!(i3 < i0), 0, __LINE__,
                    "Expected iterators to be equal.");
-        rw_assert (!(i2 < i3), 0, __LINE__, 
+        rw_assert (!(i2 < i3), 0, __LINE__,
                    "Expected iterators to be equal.");
     }
 }

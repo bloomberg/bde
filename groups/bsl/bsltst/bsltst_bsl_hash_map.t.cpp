@@ -110,8 +110,8 @@ int verbose         = 0;
 int veryVerbose     = 0;
 int veryVeryVerbose = 0;
 
-bslma_TestAllocator tda;
-bslma_TestAllocator ta;
+bslma::TestAllocator tda;
+bslma::TestAllocator ta;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -141,11 +141,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================
@@ -187,22 +187,22 @@ class Cargo {
 
 public:
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
     enum { BULK_STORAGE = 4000 };
 
-    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
     explicit
-    Cargo(bslma_Allocator *a = 0) {
+    Cargo(bslma::Allocator *a = 0) {
         QV_("Default:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BULK_STORAGE);
     }
-    Cargo(const Cargo& in, bslma_Allocator* a = 0) {
+    Cargo(const Cargo& in, bslma::Allocator* a = 0) {
         QV_("Copy:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BULK_STORAGE);
         std::memcpy(d_p, in.d_p, BULK_STORAGE);
     }
@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_DefaultAllocatorGuard guard(&tda);
+    bslma::DefaultAllocatorGuard guard(&tda);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
@@ -580,8 +580,9 @@ int main(int argc, char *argv[])
             }
 
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
-            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
+                         tda.numBytesInUse() == defaultMemUsed);
+            LOOP2_ASSERT(
+                      ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
         }
 
@@ -605,7 +606,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -629,7 +630,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
         }
 
@@ -659,7 +660,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
             ASSERT(EqualInt::s_used);
         }
@@ -690,7 +691,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
             ASSERT(EqualInt::s_used);
         }
@@ -721,10 +722,11 @@ int main(int argc, char *argv[])
                 hm.insert(bsl::make_pair(0, cx));
             }
 
-            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(
+                      ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -745,10 +747,11 @@ int main(int argc, char *argv[])
                 hm.insert(bsl::make_pair(0, cx));
             }
 
-            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(
+                      ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -773,20 +776,20 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
         }
 
         {
             bsl::hash_multimap<int, Cargo, HashInt> hm(v.begin(), v.end(), 10,
-                                                                    HashInt());
+                                                       HashInt());
             (void) hm.count(0);
         }
 
         {
             HashInt::s_used = false;
             bsl::hash_multimap<int, Cargo, HashInt> hm(v.begin(), v.end(), 10,
-                                                                          &ta);
+                                                       &ta);
 
             int memUsed = ta.numBytesInUse();
 
@@ -800,7 +803,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
         }
 
@@ -830,7 +833,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
             ASSERT(EqualInt::s_used);
         }
@@ -863,14 +866,14 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
             ASSERT(EqualInt::s_used);
         }
 
         {
             bsl::hash_multimap<int, Cargo, HashInt, EqualInt> hm(v.begin(),
-                                                                  v.end(), 10);
+                                                                 v.end(), 10);
             (void) hm.count(0);
         }
       } break;
@@ -951,10 +954,11 @@ int main(int argc, char *argv[])
                 hm.insert(bsl::make_pair(i, cx));
             }
 
-            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(
+                      ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -977,7 +981,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -1001,7 +1005,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
         }
 
@@ -1031,7 +1035,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
             ASSERT(EqualInt::s_used);
         }
@@ -1061,7 +1065,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
             ASSERT(EqualInt::s_used);
         }
@@ -1092,10 +1096,11 @@ int main(int argc, char *argv[])
                 hm.insert(bsl::make_pair(i, cx));
             }
 
-            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(
+                      ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -1116,10 +1121,11 @@ int main(int argc, char *argv[])
                 hm.insert(bsl::make_pair(i, cx));
             }
 
-            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(
+                      ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -1144,13 +1150,13 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
         }
 
         {
             bsl::hash_map<int, Cargo, HashInt> hm(v.begin(), v.end(), 10,
-                                                                    HashInt());
+                                                  HashInt());
             (void) hm.count(0);
         }
 
@@ -1170,7 +1176,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
         }
 
@@ -1200,7 +1206,7 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
             ASSERT(EqualInt::s_used);
         }
@@ -1232,14 +1238,14 @@ int main(int argc, char *argv[])
 
             ASSERT(ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
-                                        tda.numBytesInUse() == defaultMemUsed);
+                         tda.numBytesInUse() == defaultMemUsed);
             ASSERT(HashInt::s_used);
             ASSERT(EqualInt::s_used);
         }
 
         {
             bsl::hash_map<int, Cargo, HashInt, EqualInt> hm(v.begin(),
-                                                                  v.end(), 10);
+                                                            v.end(), 10);
             (void) hm.count(0);
         }
       } break;

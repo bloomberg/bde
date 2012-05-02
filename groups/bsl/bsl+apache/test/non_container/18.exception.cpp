@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2007 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #if TEST_RW_EXTENSIONS
@@ -677,7 +677,7 @@ test_rw_throw ()
 
         std::sprintf (result, strings [en + 5], __FILE__, str,
                       empty, empty, empty);
-        
+
         try {
             // expect an exception
             _RW::__rw_throw (expect [en + 4], __FILE__, str,
@@ -908,7 +908,7 @@ test_runtime ()
     rw_info (0, 0, __LINE__, "runtime support for exceptions");
 
 
-    // using static to avoid gcc 3.x warning: variable 
+    // using static to avoid gcc 3.x warning: variable
     // might be clobbered by `longjmp' or `vfork'
 
     for (static unsigned i = 0; E_error != rt_exceptions [i]; ++i) {

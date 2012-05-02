@@ -1,4 +1,4 @@
-// bslmf_typelist.t.cpp            -*-C++-*-
+// bslmf_typelist.t.cpp                                               -*-C++-*-
 
 #include <bslmf_typelist.h>
 
@@ -19,29 +19,29 @@ using namespace std;
 //  defined by it's corresponding Type<N> typedef and TypeOf<N> typedef are
 //  correct.
 //-----------------------------------------------------------------------------
-// [ 2] bslmf_TypeList
-// [ 2] bslmf_TypeListTypeOf
-// [ 3] bslmf_TypeList0
-// [ 3] bslmf_TypeList1
-// [ 3] bslmf_TypeList2
-// [ 3] bslmf_TypeList3
-// [ 3] bslmf_TypeList4
-// [ 3] bslmf_TypeList5
-// [ 3] bslmf_TypeList6
-// [ 3] bslmf_TypeList7
-// [ 3] bslmf_TypeList8
-// [ 3] bslmf_TypeList9
-// [ 3] bslmf_TypeList10
-// [ 3] bslmf_TypeList11
-// [ 3] bslmf_TypeList12
-// [ 3] bslmf_TypeList13
-// [ 3] bslmf_TypeList14
-// [ 3] bslmf_TypeList15
-// [ 3] bslmf_TypeList16
-// [ 3] bslmf_TypeList17
-// [ 3] bslmf_TypeList18
-// [ 3] bslmf_TypeList19
-// [ 3] bslmf_TypeList20
+// [ 2] bslmf::TypeList
+// [ 2] bslmf::TypeListTypeOf
+// [ 3] bslmf::TypeList0
+// [ 3] bslmf::TypeList1
+// [ 3] bslmf::TypeList2
+// [ 3] bslmf::TypeList3
+// [ 3] bslmf::TypeList4
+// [ 3] bslmf::TypeList5
+// [ 3] bslmf::TypeList6
+// [ 3] bslmf::TypeList7
+// [ 3] bslmf::TypeList8
+// [ 3] bslmf::TypeList9
+// [ 3] bslmf::TypeList10
+// [ 3] bslmf::TypeList11
+// [ 3] bslmf::TypeList12
+// [ 3] bslmf::TypeList13
+// [ 3] bslmf::TypeList14
+// [ 3] bslmf::TypeList15
+// [ 3] bslmf::TypeList16
+// [ 3] bslmf::TypeList17
+// [ 3] bslmf::TypeList18
+// [ 3] bslmf::TypeList19
+// [ 3] bslmf::TypeList20
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -75,7 +75,7 @@ namespace {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bslmf_TypeListNil Nil;
+typedef bslmf::TypeListNil Nil;
 
 struct T1  {};
 struct T2  {};
@@ -114,14 +114,18 @@ struct ListAsserter0 {
     {
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
     }
 };
@@ -133,27 +137,33 @@ struct ListAsserter1 {
         ASSERT(1 == (IsSame<A1, typename LIST::Type1>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
     }
 };
@@ -166,35 +176,43 @@ struct ListAsserter2 {
         ASSERT(1 == (IsSame<A2, typename LIST::Type2>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
     }
 };
@@ -208,43 +226,53 @@ struct ListAsserter3 {
         ASSERT(1 == (IsSame<A3, typename LIST::Type3>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
     }
 };
@@ -259,51 +287,63 @@ struct ListAsserter4 {
         ASSERT(1 == (IsSame<A4, typename LIST::Type4>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
     }
 };
@@ -319,59 +359,73 @@ struct ListAsserter5 {
         ASSERT(1 == (IsSame<A5, typename LIST::Type5>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
     }
 };
@@ -389,67 +443,83 @@ struct ListAsserter6 {
         ASSERT(1 == (IsSame<A6, typename LIST::Type6>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
     }
 };
@@ -468,75 +538,93 @@ struct ListAsserter7 {
         ASSERT(1 == (IsSame<A7, typename LIST::Type7>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
     }
 };
@@ -556,83 +644,103 @@ struct ListAsserter8 {
         ASSERT(1 == (IsSame<A8, typename LIST::Type8>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
     }
 };
@@ -653,91 +761,113 @@ struct ListAsserter9 {
         ASSERT(1 == (IsSame<A9, typename LIST::Type9>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
     }
 };
@@ -759,99 +889,123 @@ struct ListAsserter10 {
         ASSERT(1 == (IsSame<A10, typename LIST::Type10>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
     }
 };
@@ -875,107 +1029,133 @@ struct ListAsserter11 {
         ASSERT(1 == (IsSame<A11, typename LIST::Type11>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                       typename bslmf_TypeListTypeOf<11, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<11, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                            typename LIST::template TypeOf<11>::Type>::VALUE));
+                     typename LIST::template TypeOf<11>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A11,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
+        ASSERT(1 == (
+                   IsSame<A11,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<12>::TypeOrDefault>::VALUE));
     }
 };
@@ -1000,115 +1180,143 @@ struct ListAsserter12 {
         ASSERT(1 == (IsSame<A12, typename LIST::Type12>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                       typename bslmf_TypeListTypeOf<11, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<11, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                       typename bslmf_TypeListTypeOf<12, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<12, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                            typename LIST::template TypeOf<11>::Type>::VALUE));
+                     typename LIST::template TypeOf<11>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                            typename LIST::template TypeOf<12>::Type>::VALUE));
+                     typename LIST::template TypeOf<12>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
-              typename bslmf_TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A11,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A12,
+             typename bslmf::TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
+        ASSERT(1 == (
+                   IsSame<A11,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
+        ASSERT(1 == (
+                   IsSame<A12,
                    typename LIST::template TypeOf<12>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<13>::TypeOrDefault>::VALUE));
     }
 };
@@ -1134,123 +1342,153 @@ struct ListAsserter13 {
         ASSERT(1 == (IsSame<A13, typename LIST::Type13>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                       typename bslmf_TypeListTypeOf<11, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<11, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                       typename bslmf_TypeListTypeOf<12, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<12, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                       typename bslmf_TypeListTypeOf<13, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<13, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                            typename LIST::template TypeOf<11>::Type>::VALUE));
+                     typename LIST::template TypeOf<11>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                            typename LIST::template TypeOf<12>::Type>::VALUE));
+                     typename LIST::template TypeOf<12>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                            typename LIST::template TypeOf<13>::Type>::VALUE));
+                     typename LIST::template TypeOf<13>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
-              typename bslmf_TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
-              typename bslmf_TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A11,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A12,
+             typename bslmf::TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A13,
+             typename bslmf::TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
+        ASSERT(1 == (
+                   IsSame<A11,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
+        ASSERT(1 == (
+                   IsSame<A12,
                    typename LIST::template TypeOf<12>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
+        ASSERT(1 == (
+                   IsSame<A13,
                    typename LIST::template TypeOf<13>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<14>::TypeOrDefault>::VALUE));
     }
 };
@@ -1277,131 +1515,163 @@ struct ListAsserter14 {
         ASSERT(1 == (IsSame<A14, typename LIST::Type14>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                       typename bslmf_TypeListTypeOf<11, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<11, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                       typename bslmf_TypeListTypeOf<12, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<12, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                       typename bslmf_TypeListTypeOf<13, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<13, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                       typename bslmf_TypeListTypeOf<14, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<14, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                            typename LIST::template TypeOf<11>::Type>::VALUE));
+                     typename LIST::template TypeOf<11>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                            typename LIST::template TypeOf<12>::Type>::VALUE));
+                     typename LIST::template TypeOf<12>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                            typename LIST::template TypeOf<13>::Type>::VALUE));
+                     typename LIST::template TypeOf<13>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                            typename LIST::template TypeOf<14>::Type>::VALUE));
+                     typename LIST::template TypeOf<14>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
-              typename bslmf_TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
-              typename bslmf_TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
-              typename bslmf_TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A11,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A12,
+             typename bslmf::TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A13,
+             typename bslmf::TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A14,
+             typename bslmf::TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
+        ASSERT(1 == (
+                   IsSame<A11,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
+        ASSERT(1 == (
+                   IsSame<A12,
                    typename LIST::template TypeOf<12>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
+        ASSERT(1 == (
+                   IsSame<A13,
                    typename LIST::template TypeOf<13>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
+        ASSERT(1 == (
+                   IsSame<A14,
                    typename LIST::template TypeOf<14>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<15>::TypeOrDefault>::VALUE));
     }
 };
@@ -1429,139 +1699,173 @@ struct ListAsserter15 {
         ASSERT(1 == (IsSame<A15, typename LIST::Type15>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                       typename bslmf_TypeListTypeOf<11, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<11, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                       typename bslmf_TypeListTypeOf<12, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<12, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                       typename bslmf_TypeListTypeOf<13, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<13, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                       typename bslmf_TypeListTypeOf<14, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<14, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                       typename bslmf_TypeListTypeOf<15, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<15, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                            typename LIST::template TypeOf<11>::Type>::VALUE));
+                     typename LIST::template TypeOf<11>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                            typename LIST::template TypeOf<12>::Type>::VALUE));
+                     typename LIST::template TypeOf<12>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                            typename LIST::template TypeOf<13>::Type>::VALUE));
+                     typename LIST::template TypeOf<13>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                            typename LIST::template TypeOf<14>::Type>::VALUE));
+                     typename LIST::template TypeOf<14>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                            typename LIST::template TypeOf<15>::Type>::VALUE));
+                     typename LIST::template TypeOf<15>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
-              typename bslmf_TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
-              typename bslmf_TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
-              typename bslmf_TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
-              typename bslmf_TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A11,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A12,
+             typename bslmf::TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A13,
+             typename bslmf::TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A14,
+             typename bslmf::TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A15,
+             typename bslmf::TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
+        ASSERT(1 == (
+                   IsSame<A11,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
+        ASSERT(1 == (
+                   IsSame<A12,
                    typename LIST::template TypeOf<12>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
+        ASSERT(1 == (
+                   IsSame<A13,
                    typename LIST::template TypeOf<13>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
+        ASSERT(1 == (
+                   IsSame<A14,
                    typename LIST::template TypeOf<14>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
+        ASSERT(1 == (
+                   IsSame<A15,
                    typename LIST::template TypeOf<15>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<16>::TypeOrDefault>::VALUE));
     }
 };
@@ -1591,147 +1895,183 @@ struct ListAsserter16 {
         ASSERT(1 == (IsSame<A16, typename LIST::Type16>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                       typename bslmf_TypeListTypeOf<11, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<11, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                       typename bslmf_TypeListTypeOf<12, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<12, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                       typename bslmf_TypeListTypeOf<13, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<13, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                       typename bslmf_TypeListTypeOf<14, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<14, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                       typename bslmf_TypeListTypeOf<15, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<15, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A16,
-                       typename bslmf_TypeListTypeOf<16, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<16, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                            typename LIST::template TypeOf<11>::Type>::VALUE));
+                     typename LIST::template TypeOf<11>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                            typename LIST::template TypeOf<12>::Type>::VALUE));
+                     typename LIST::template TypeOf<12>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                            typename LIST::template TypeOf<13>::Type>::VALUE));
+                     typename LIST::template TypeOf<13>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                            typename LIST::template TypeOf<14>::Type>::VALUE));
+                     typename LIST::template TypeOf<14>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                            typename LIST::template TypeOf<15>::Type>::VALUE));
+                     typename LIST::template TypeOf<15>::Type>::VALUE));
         ASSERT(1 == (IsSame<A16,
-                            typename LIST::template TypeOf<16>::Type>::VALUE));
+                     typename LIST::template TypeOf<16>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
-              typename bslmf_TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
-              typename bslmf_TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
-              typename bslmf_TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
-              typename bslmf_TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A16,
-              typename bslmf_TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A11,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A12,
+             typename bslmf::TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A13,
+             typename bslmf::TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A14,
+             typename bslmf::TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A15,
+             typename bslmf::TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A16,
+             typename bslmf::TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
+        ASSERT(1 == (
+                   IsSame<A11,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
+        ASSERT(1 == (
+                   IsSame<A12,
                    typename LIST::template TypeOf<12>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
+        ASSERT(1 == (
+                   IsSame<A13,
                    typename LIST::template TypeOf<13>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
+        ASSERT(1 == (
+                   IsSame<A14,
                    typename LIST::template TypeOf<14>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
+        ASSERT(1 == (
+                   IsSame<A15,
                    typename LIST::template TypeOf<15>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A16,
+        ASSERT(1 == (
+                   IsSame<A16,
                    typename LIST::template TypeOf<16>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<17, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<17, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<17>::TypeOrDefault>::VALUE));
     }
 };
@@ -1762,155 +2102,193 @@ struct ListAsserter17 {
         ASSERT(1 == (IsSame<A17, typename LIST::Type17>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                       typename bslmf_TypeListTypeOf<11, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<11, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                       typename bslmf_TypeListTypeOf<12, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<12, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                       typename bslmf_TypeListTypeOf<13, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<13, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                       typename bslmf_TypeListTypeOf<14, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<14, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                       typename bslmf_TypeListTypeOf<15, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<15, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A16,
-                       typename bslmf_TypeListTypeOf<16, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<16, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A17,
-                       typename bslmf_TypeListTypeOf<17, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<17, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                            typename LIST::template TypeOf<11>::Type>::VALUE));
+                     typename LIST::template TypeOf<11>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                            typename LIST::template TypeOf<12>::Type>::VALUE));
+                     typename LIST::template TypeOf<12>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                            typename LIST::template TypeOf<13>::Type>::VALUE));
+                     typename LIST::template TypeOf<13>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                            typename LIST::template TypeOf<14>::Type>::VALUE));
+                     typename LIST::template TypeOf<14>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                            typename LIST::template TypeOf<15>::Type>::VALUE));
+                     typename LIST::template TypeOf<15>::Type>::VALUE));
         ASSERT(1 == (IsSame<A16,
-                            typename LIST::template TypeOf<16>::Type>::VALUE));
+                     typename LIST::template TypeOf<16>::Type>::VALUE));
         ASSERT(1 == (IsSame<A17,
-                            typename LIST::template TypeOf<17>::Type>::VALUE));
+                     typename LIST::template TypeOf<17>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
-              typename bslmf_TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
-              typename bslmf_TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
-              typename bslmf_TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
-              typename bslmf_TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A16,
-              typename bslmf_TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A17,
-              typename bslmf_TypeListTypeOf<17, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A11,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A12,
+             typename bslmf::TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A13,
+             typename bslmf::TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A14,
+             typename bslmf::TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A15,
+             typename bslmf::TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A16,
+             typename bslmf::TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A17,
+             typename bslmf::TypeListTypeOf<17, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
+        ASSERT(1 == (
+                   IsSame<A11,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
+        ASSERT(1 == (
+                   IsSame<A12,
                    typename LIST::template TypeOf<12>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
+        ASSERT(1 == (
+                   IsSame<A13,
                    typename LIST::template TypeOf<13>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
+        ASSERT(1 == (
+                   IsSame<A14,
                    typename LIST::template TypeOf<14>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
+        ASSERT(1 == (
+                   IsSame<A15,
                    typename LIST::template TypeOf<15>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A16,
+        ASSERT(1 == (
+                   IsSame<A16,
                    typename LIST::template TypeOf<16>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A17,
+        ASSERT(1 == (
+                   IsSame<A17,
                    typename LIST::template TypeOf<17>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<18, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<18, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<18>::TypeOrDefault>::VALUE));
     }
 };
@@ -1942,163 +2320,203 @@ struct ListAsserter18 {
         ASSERT(1 == (IsSame<A18, typename LIST::Type18>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                       typename bslmf_TypeListTypeOf<11, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<11, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                       typename bslmf_TypeListTypeOf<12, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<12, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                       typename bslmf_TypeListTypeOf<13, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<13, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                       typename bslmf_TypeListTypeOf<14, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<14, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                       typename bslmf_TypeListTypeOf<15, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<15, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A16,
-                       typename bslmf_TypeListTypeOf<16, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<16, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A17,
-                       typename bslmf_TypeListTypeOf<17, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<17, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A18,
-                       typename bslmf_TypeListTypeOf<18, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<18, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                            typename LIST::template TypeOf<11>::Type>::VALUE));
+                     typename LIST::template TypeOf<11>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                            typename LIST::template TypeOf<12>::Type>::VALUE));
+                     typename LIST::template TypeOf<12>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                            typename LIST::template TypeOf<13>::Type>::VALUE));
+                     typename LIST::template TypeOf<13>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                            typename LIST::template TypeOf<14>::Type>::VALUE));
+                     typename LIST::template TypeOf<14>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                            typename LIST::template TypeOf<15>::Type>::VALUE));
+                     typename LIST::template TypeOf<15>::Type>::VALUE));
         ASSERT(1 == (IsSame<A16,
-                            typename LIST::template TypeOf<16>::Type>::VALUE));
+                     typename LIST::template TypeOf<16>::Type>::VALUE));
         ASSERT(1 == (IsSame<A17,
-                            typename LIST::template TypeOf<17>::Type>::VALUE));
+                     typename LIST::template TypeOf<17>::Type>::VALUE));
         ASSERT(1 == (IsSame<A18,
-                            typename LIST::template TypeOf<18>::Type>::VALUE));
+                     typename LIST::template TypeOf<18>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
-              typename bslmf_TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
-              typename bslmf_TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
-              typename bslmf_TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
-              typename bslmf_TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A16,
-              typename bslmf_TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A17,
-              typename bslmf_TypeListTypeOf<17, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A18,
-              typename bslmf_TypeListTypeOf<18, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A11,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A12,
+             typename bslmf::TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A13,
+             typename bslmf::TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A14,
+             typename bslmf::TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A15,
+             typename bslmf::TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A16,
+             typename bslmf::TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A17,
+             typename bslmf::TypeListTypeOf<17, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A18,
+             typename bslmf::TypeListTypeOf<18, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
+        ASSERT(1 == (
+                   IsSame<A11,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
+        ASSERT(1 == (
+                   IsSame<A12,
                    typename LIST::template TypeOf<12>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
+        ASSERT(1 == (
+                   IsSame<A13,
                    typename LIST::template TypeOf<13>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
+        ASSERT(1 == (
+                   IsSame<A14,
                    typename LIST::template TypeOf<14>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
+        ASSERT(1 == (
+                   IsSame<A15,
                    typename LIST::template TypeOf<15>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A16,
+        ASSERT(1 == (
+                   IsSame<A16,
                    typename LIST::template TypeOf<16>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A17,
+        ASSERT(1 == (
+                   IsSame<A17,
                    typename LIST::template TypeOf<17>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A18,
+        ASSERT(1 == (
+                   IsSame<A18,
                    typename LIST::template TypeOf<18>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<19, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<19, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<19>::TypeOrDefault>::VALUE));
     }
 };
@@ -2131,171 +2549,213 @@ struct ListAsserter19 {
         ASSERT(1 == (IsSame<A19, typename LIST::Type19>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                       typename bslmf_TypeListTypeOf<11, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<11, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                       typename bslmf_TypeListTypeOf<12, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<12, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                       typename bslmf_TypeListTypeOf<13, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<13, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                       typename bslmf_TypeListTypeOf<14, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<14, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                       typename bslmf_TypeListTypeOf<15, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<15, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A16,
-                       typename bslmf_TypeListTypeOf<16, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<16, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A17,
-                       typename bslmf_TypeListTypeOf<17, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<17, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A18,
-                       typename bslmf_TypeListTypeOf<18, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<18, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A19,
-                       typename bslmf_TypeListTypeOf<19, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<19, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                            typename LIST::template TypeOf<11>::Type>::VALUE));
+                     typename LIST::template TypeOf<11>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                            typename LIST::template TypeOf<12>::Type>::VALUE));
+                     typename LIST::template TypeOf<12>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                            typename LIST::template TypeOf<13>::Type>::VALUE));
+                     typename LIST::template TypeOf<13>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                            typename LIST::template TypeOf<14>::Type>::VALUE));
+                     typename LIST::template TypeOf<14>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                            typename LIST::template TypeOf<15>::Type>::VALUE));
+                     typename LIST::template TypeOf<15>::Type>::VALUE));
         ASSERT(1 == (IsSame<A16,
-                            typename LIST::template TypeOf<16>::Type>::VALUE));
+                     typename LIST::template TypeOf<16>::Type>::VALUE));
         ASSERT(1 == (IsSame<A17,
-                            typename LIST::template TypeOf<17>::Type>::VALUE));
+                     typename LIST::template TypeOf<17>::Type>::VALUE));
         ASSERT(1 == (IsSame<A18,
-                            typename LIST::template TypeOf<18>::Type>::VALUE));
+                     typename LIST::template TypeOf<18>::Type>::VALUE));
         ASSERT(1 == (IsSame<A19,
-                            typename LIST::template TypeOf<19>::Type>::VALUE));
+                     typename LIST::template TypeOf<19>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
-              typename bslmf_TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
-              typename bslmf_TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
-              typename bslmf_TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
-              typename bslmf_TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A16,
-              typename bslmf_TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A17,
-              typename bslmf_TypeListTypeOf<17, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A18,
-              typename bslmf_TypeListTypeOf<18, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A19,
-              typename bslmf_TypeListTypeOf<19, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A11,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A12,
+             typename bslmf::TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A13,
+             typename bslmf::TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A14,
+             typename bslmf::TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A15,
+             typename bslmf::TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A16,
+             typename bslmf::TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A17,
+             typename bslmf::TypeListTypeOf<17, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A18,
+             typename bslmf::TypeListTypeOf<18, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A19,
+             typename bslmf::TypeListTypeOf<19, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
+        ASSERT(1 == (
+                   IsSame<A11,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
+        ASSERT(1 == (
+                   IsSame<A12,
                    typename LIST::template TypeOf<12>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
+        ASSERT(1 == (
+                   IsSame<A13,
                    typename LIST::template TypeOf<13>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
+        ASSERT(1 == (
+                   IsSame<A14,
                    typename LIST::template TypeOf<14>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
+        ASSERT(1 == (
+                   IsSame<A15,
                    typename LIST::template TypeOf<15>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A16,
+        ASSERT(1 == (
+                   IsSame<A16,
                    typename LIST::template TypeOf<16>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A17,
+        ASSERT(1 == (
+                   IsSame<A17,
                    typename LIST::template TypeOf<17>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A18,
+        ASSERT(1 == (
+                   IsSame<A18,
                    typename LIST::template TypeOf<18>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A19,
+        ASSERT(1 == (
+                   IsSame<A19,
                    typename LIST::template TypeOf<19>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<20, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<20, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<20>::TypeOrDefault>::VALUE));
     }
 };
@@ -2329,179 +2789,223 @@ struct ListAsserter20 {
         ASSERT(1 == (IsSame<A20, typename LIST::Type20>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                        typename bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                        typename bslmf_TypeListTypeOf<2, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<2, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                        typename bslmf_TypeListTypeOf<3, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<3, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                        typename bslmf_TypeListTypeOf<4, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<4, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                        typename bslmf_TypeListTypeOf<5, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<5, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                        typename bslmf_TypeListTypeOf<6, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<6, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                        typename bslmf_TypeListTypeOf<7, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<7, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                        typename bslmf_TypeListTypeOf<8, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<8, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                        typename bslmf_TypeListTypeOf<9, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<9, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                       typename bslmf_TypeListTypeOf<10, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<10, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                       typename bslmf_TypeListTypeOf<11, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<11, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                       typename bslmf_TypeListTypeOf<12, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<12, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                       typename bslmf_TypeListTypeOf<13, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<13, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                       typename bslmf_TypeListTypeOf<14, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<14, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                       typename bslmf_TypeListTypeOf<15, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<15, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A16,
-                       typename bslmf_TypeListTypeOf<16, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<16, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A17,
-                       typename bslmf_TypeListTypeOf<17, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<17, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A18,
-                       typename bslmf_TypeListTypeOf<18, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<18, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A19,
-                       typename bslmf_TypeListTypeOf<19, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<19, LIST>::Type>::VALUE));
         ASSERT(1 == (IsSame<A20,
-                       typename bslmf_TypeListTypeOf<20, LIST>::Type>::VALUE));
+                     typename bslmf::TypeListTypeOf<20, LIST>::Type>::VALUE));
 
         ASSERT(1 == (IsSame<A1,
-                            typename LIST::template TypeOf<1>::Type>::VALUE));
+                     typename LIST::template TypeOf<1>::Type>::VALUE));
         ASSERT(1 == (IsSame<A2,
-                            typename LIST::template TypeOf<2>::Type>::VALUE));
+                     typename LIST::template TypeOf<2>::Type>::VALUE));
         ASSERT(1 == (IsSame<A3,
-                            typename LIST::template TypeOf<3>::Type>::VALUE));
+                     typename LIST::template TypeOf<3>::Type>::VALUE));
         ASSERT(1 == (IsSame<A4,
-                            typename LIST::template TypeOf<4>::Type>::VALUE));
+                     typename LIST::template TypeOf<4>::Type>::VALUE));
         ASSERT(1 == (IsSame<A5,
-                            typename LIST::template TypeOf<5>::Type>::VALUE));
+                     typename LIST::template TypeOf<5>::Type>::VALUE));
         ASSERT(1 == (IsSame<A6,
-                            typename LIST::template TypeOf<6>::Type>::VALUE));
+                     typename LIST::template TypeOf<6>::Type>::VALUE));
         ASSERT(1 == (IsSame<A7,
-                            typename LIST::template TypeOf<7>::Type>::VALUE));
+                     typename LIST::template TypeOf<7>::Type>::VALUE));
         ASSERT(1 == (IsSame<A8,
-                            typename LIST::template TypeOf<8>::Type>::VALUE));
+                     typename LIST::template TypeOf<8>::Type>::VALUE));
         ASSERT(1 == (IsSame<A9,
-                            typename LIST::template TypeOf<9>::Type>::VALUE));
+                     typename LIST::template TypeOf<9>::Type>::VALUE));
         ASSERT(1 == (IsSame<A10,
-                            typename LIST::template TypeOf<10>::Type>::VALUE));
+                     typename LIST::template TypeOf<10>::Type>::VALUE));
         ASSERT(1 == (IsSame<A11,
-                            typename LIST::template TypeOf<11>::Type>::VALUE));
+                     typename LIST::template TypeOf<11>::Type>::VALUE));
         ASSERT(1 == (IsSame<A12,
-                            typename LIST::template TypeOf<12>::Type>::VALUE));
+                     typename LIST::template TypeOf<12>::Type>::VALUE));
         ASSERT(1 == (IsSame<A13,
-                            typename LIST::template TypeOf<13>::Type>::VALUE));
+                     typename LIST::template TypeOf<13>::Type>::VALUE));
         ASSERT(1 == (IsSame<A14,
-                            typename LIST::template TypeOf<14>::Type>::VALUE));
+                     typename LIST::template TypeOf<14>::Type>::VALUE));
         ASSERT(1 == (IsSame<A15,
-                            typename LIST::template TypeOf<15>::Type>::VALUE));
+                     typename LIST::template TypeOf<15>::Type>::VALUE));
         ASSERT(1 == (IsSame<A16,
-                            typename LIST::template TypeOf<16>::Type>::VALUE));
+                     typename LIST::template TypeOf<16>::Type>::VALUE));
         ASSERT(1 == (IsSame<A17,
-                            typename LIST::template TypeOf<17>::Type>::VALUE));
+                     typename LIST::template TypeOf<17>::Type>::VALUE));
         ASSERT(1 == (IsSame<A18,
-                            typename LIST::template TypeOf<18>::Type>::VALUE));
+                     typename LIST::template TypeOf<18>::Type>::VALUE));
         ASSERT(1 == (IsSame<A19,
-                            typename LIST::template TypeOf<19>::Type>::VALUE));
+                     typename LIST::template TypeOf<19>::Type>::VALUE));
         ASSERT(1 == (IsSame<A20,
-                            typename LIST::template TypeOf<20>::Type>::VALUE));
+                     typename LIST::template TypeOf<20>::Type>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
-               typename bslmf_TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
-               typename bslmf_TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
-               typename bslmf_TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
-               typename bslmf_TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
-               typename bslmf_TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
-               typename bslmf_TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
-               typename bslmf_TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
-               typename bslmf_TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
-               typename bslmf_TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
-              typename bslmf_TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
-              typename bslmf_TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
-              typename bslmf_TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
-              typename bslmf_TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
-              typename bslmf_TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
-              typename bslmf_TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A16,
-              typename bslmf_TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A17,
-              typename bslmf_TypeListTypeOf<17, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A18,
-              typename bslmf_TypeListTypeOf<18, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A19,
-              typename bslmf_TypeListTypeOf<19, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A20,
-              typename bslmf_TypeListTypeOf<20, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A1,
+              typename bslmf::TypeListTypeOf<1, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A2,
+              typename bslmf::TypeListTypeOf<2, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A3,
+              typename bslmf::TypeListTypeOf<3, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A4,
+              typename bslmf::TypeListTypeOf<4, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A5,
+              typename bslmf::TypeListTypeOf<5, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A6,
+              typename bslmf::TypeListTypeOf<6, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A7,
+              typename bslmf::TypeListTypeOf<7, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A8,
+              typename bslmf::TypeListTypeOf<8, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<A9,
+              typename bslmf::TypeListTypeOf<9, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A10,
+             typename bslmf::TypeListTypeOf<10, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A11,
+             typename bslmf::TypeListTypeOf<11, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A12,
+             typename bslmf::TypeListTypeOf<12, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A13,
+             typename bslmf::TypeListTypeOf<13, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A14,
+             typename bslmf::TypeListTypeOf<14, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A15,
+             typename bslmf::TypeListTypeOf<15, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A16,
+             typename bslmf::TypeListTypeOf<16, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A17,
+             typename bslmf::TypeListTypeOf<17, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A18,
+             typename bslmf::TypeListTypeOf<18, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A19,
+             typename bslmf::TypeListTypeOf<19, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<A20,
+             typename bslmf::TypeListTypeOf<20, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<A1,
+        ASSERT(1 == (
+                    IsSame<A1,
                     typename LIST::template TypeOf<1>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A2,
+        ASSERT(1 == (
+                    IsSame<A2,
                     typename LIST::template TypeOf<2>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A3,
+        ASSERT(1 == (
+                    IsSame<A3,
                     typename LIST::template TypeOf<3>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A4,
+        ASSERT(1 == (
+                    IsSame<A4,
                     typename LIST::template TypeOf<4>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A5,
+        ASSERT(1 == (
+                    IsSame<A5,
                     typename LIST::template TypeOf<5>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A6,
+        ASSERT(1 == (
+                    IsSame<A6,
                     typename LIST::template TypeOf<6>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A7,
+        ASSERT(1 == (
+                    IsSame<A7,
                     typename LIST::template TypeOf<7>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A8,
+        ASSERT(1 == (
+                    IsSame<A8,
                     typename LIST::template TypeOf<8>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A9,
+        ASSERT(1 == (
+                    IsSame<A9,
                     typename LIST::template TypeOf<9>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A10,
+        ASSERT(1 == (
+                   IsSame<A10,
                    typename LIST::template TypeOf<10>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A11,
+        ASSERT(1 == (
+                   IsSame<A11,
                    typename LIST::template TypeOf<11>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A12,
+        ASSERT(1 == (
+                   IsSame<A12,
                    typename LIST::template TypeOf<12>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A13,
+        ASSERT(1 == (
+                   IsSame<A13,
                    typename LIST::template TypeOf<13>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A14,
+        ASSERT(1 == (
+                   IsSame<A14,
                    typename LIST::template TypeOf<14>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A15,
+        ASSERT(1 == (
+                   IsSame<A15,
                    typename LIST::template TypeOf<15>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A16,
+        ASSERT(1 == (
+                   IsSame<A16,
                    typename LIST::template TypeOf<16>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A17,
+        ASSERT(1 == (
+                   IsSame<A17,
                    typename LIST::template TypeOf<17>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A18,
+        ASSERT(1 == (
+                   IsSame<A18,
                    typename LIST::template TypeOf<18>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A19,
+        ASSERT(1 == (
+                   IsSame<A19,
                    typename LIST::template TypeOf<19>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<A20,
+        ASSERT(1 == (
+                   IsSame<A20,
                    typename LIST::template TypeOf<20>::TypeOrDefault>::VALUE));
 
         // Test out-of-bounds indices.
 
-        ASSERT(1 == (IsSame<Nil,
-               typename bslmf_TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
-              typename bslmf_TypeListTypeOf<21, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+              IsSame<Nil,
+              typename bslmf::TypeListTypeOf<0, LIST>::TypeOrDefault>::VALUE));
+        ASSERT(1 == (
+             IsSame<Nil,
+             typename bslmf::TypeListTypeOf<21, LIST>::TypeOrDefault>::VALUE));
 
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                    IsSame<Nil,
                     typename LIST::template TypeOf<0>::TypeOrDefault>::VALUE));
-        ASSERT(1 == (IsSame<Nil,
+        ASSERT(1 == (
+                   IsSame<Nil,
                    typename LIST::template TypeOf<21>::TypeOrDefault>::VALUE));
     }
 };
@@ -2533,104 +3037,104 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING BSLMF_TYPELIST0 .. BSLMF_TYPELIST20"
                             "\n===========================================\n");
 
-        typedef bslmf_TypeList0 LIST0;
+        typedef bslmf::TypeList0 LIST0;
         ASSERT(0 == LIST0::LENGTH);
         ListAsserter0<LIST0>::listAssert();
 
-        typedef bslmf_TypeList1<T1> LIST1;
+        typedef bslmf::TypeList1<T1> LIST1;
         ASSERT(1 == LIST1::LENGTH);
         ListAsserter1<LIST1,T1>::listAssert();
 
-        typedef bslmf_TypeList2<T1,T2> LIST2;
+        typedef bslmf::TypeList2<T1,T2> LIST2;
         ASSERT(2 == LIST2::LENGTH);
         ListAsserter2<LIST2,T1,T2>::listAssert();
 
-        typedef bslmf_TypeList3<T1,T2,T3> LIST3;
+        typedef bslmf::TypeList3<T1,T2,T3> LIST3;
         ASSERT(3 == LIST3::LENGTH);
         ListAsserter3<LIST3,T1,T2,T3>::listAssert();
 
-        typedef bslmf_TypeList4<T1,T2,T3,T4> LIST4;
+        typedef bslmf::TypeList4<T1,T2,T3,T4> LIST4;
         ASSERT(4 == LIST4::LENGTH);
         ListAsserter4<LIST4,T1,T2,T3,T4>::listAssert();
 
-        typedef bslmf_TypeList5<T1,T2,T3,T4,T5> LIST5;
+        typedef bslmf::TypeList5<T1,T2,T3,T4,T5> LIST5;
         ASSERT(5 == LIST5::LENGTH);
         ListAsserter5<LIST5,T1,T2,T3,T4,T5>::listAssert();
 
-        typedef bslmf_TypeList6<T1,T2,T3,T4,T5,T6> LIST6;
+        typedef bslmf::TypeList6<T1,T2,T3,T4,T5,T6> LIST6;
         ASSERT(6 == LIST6::LENGTH);
         ListAsserter6<LIST6,T1,T2,T3,T4,T5,T6>::listAssert();
 
-        typedef bslmf_TypeList7<T1,T2,T3,T4,T5,T6,T7> LIST7;
+        typedef bslmf::TypeList7<T1,T2,T3,T4,T5,T6,T7> LIST7;
         ASSERT(7 == LIST7::LENGTH);
         ListAsserter7<LIST7,T1,T2,T3,T4,T5,T6,T7>::listAssert();
 
-        typedef bslmf_TypeList8<T1,T2,T3,T4,T5,T6,T7,T8> LIST8;
+        typedef bslmf::TypeList8<T1,T2,T3,T4,T5,T6,T7,T8> LIST8;
         ASSERT(8 == LIST8::LENGTH);
         ListAsserter8<LIST8,T1,T2,T3,T4,T5,T6,T7,T8>::listAssert();
 
-        typedef bslmf_TypeList9<T1,T2,T3,T4,T5,T6,T7,T8,T9> LIST9;
+        typedef bslmf::TypeList9<T1,T2,T3,T4,T5,T6,T7,T8,T9> LIST9;
         ASSERT(9 == LIST9::LENGTH);
         ListAsserter9<LIST9,T1,T2,T3,T4,T5,T6,T7,T8,T9>::listAssert();
 
-        typedef bslmf_TypeList10<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> LIST10;
+        typedef bslmf::TypeList10<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> LIST10;
         ASSERT(10 == LIST10::LENGTH);
         ListAsserter10<LIST10,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>::listAssert();
 
-        typedef bslmf_TypeList11<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> LIST11;
+        typedef bslmf::TypeList11<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> LIST11;
         ASSERT(11 == LIST11::LENGTH);
         ListAsserter11<LIST11,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>::
                                                                   listAssert();
 
-        typedef bslmf_TypeList12<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>
+        typedef bslmf::TypeList12<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>
                                                                         LIST12;
         ASSERT(12 == LIST12::LENGTH);
         ListAsserter12<LIST12,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>::
                                                                   listAssert();
 
-        typedef bslmf_TypeList13<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>
+        typedef bslmf::TypeList13<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>
                                                                         LIST13;
         ASSERT(13 == LIST13::LENGTH);
         ListAsserter13<LIST13,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>::
                                                                   listAssert();
 
-        typedef bslmf_TypeList14<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
+        typedef bslmf::TypeList14<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
                                                                    T14> LIST14;
         ASSERT(14 == LIST14::LENGTH);
         ListAsserter14<LIST14,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
                                                             T14>::listAssert();
 
-        typedef bslmf_TypeList15<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
+        typedef bslmf::TypeList15<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
                                                                T14,T15> LIST15;
         ASSERT(15 == LIST15::LENGTH);
         ListAsserter15<LIST15,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                             T15>::listAssert();
 
-        typedef bslmf_TypeList16<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
+        typedef bslmf::TypeList16<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
                                                            T14,T15,T16> LIST16;
         ASSERT(16 == LIST16::LENGTH);
         ListAsserter16<LIST16,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                         T15,T16>::listAssert();
 
-        typedef bslmf_TypeList17<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
+        typedef bslmf::TypeList17<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
                                                        T14,T15,T16,T17> LIST17;
         ASSERT(17 == LIST17::LENGTH);
         ListAsserter17<LIST17,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                     T15,T16,T17>::listAssert();
 
-        typedef bslmf_TypeList18<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
+        typedef bslmf::TypeList18<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
                                                    T14,T15,T16,T17,T18> LIST18;
         ASSERT(18 == LIST18::LENGTH);
         ListAsserter18<LIST18,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                 T15,T16,T17,T18>::listAssert();
 
-        typedef bslmf_TypeList19<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
+        typedef bslmf::TypeList19<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
                                                T14,T15,T16,T17,T18,T19> LIST19;
         ASSERT(19 == LIST19::LENGTH);
         ListAsserter19<LIST19,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                             T15,T16,T17,T18,T19>::listAssert();
 
-        typedef bslmf_TypeList20<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
+        typedef bslmf::TypeList20<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,
                                            T14,T15,T16,T17,T18,T19,T20> LIST20;
         ASSERT(20 == LIST20::LENGTH);
         ListAsserter20<LIST20,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
@@ -2650,103 +3154,103 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING BSLMF_TYPELIST"
                             "\n======================\n");
 
-        typedef bslmf_TypeList<> LIST0;
+        typedef bslmf::TypeList<> LIST0;
         ASSERT(0 == LIST0::LENGTH);
         ListAsserter0<LIST0>::listAssert();
 
-        typedef bslmf_TypeList<T1> LIST1;
+        typedef bslmf::TypeList<T1> LIST1;
         ASSERT(1 == LIST1::LENGTH);
         ListAsserter1<LIST1,T1>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2> LIST2;
+        typedef bslmf::TypeList<T1,T2> LIST2;
         ASSERT(2 == LIST2::LENGTH);
         ListAsserter2<LIST2,T1,T2>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3> LIST3;
+        typedef bslmf::TypeList<T1,T2,T3> LIST3;
         ASSERT(3 == LIST3::LENGTH);
         ListAsserter3<LIST3,T1,T2,T3>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4> LIST4;
+        typedef bslmf::TypeList<T1,T2,T3,T4> LIST4;
         ASSERT(4 == LIST4::LENGTH);
         ListAsserter4<LIST4,T1,T2,T3,T4>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5> LIST5;
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5> LIST5;
         ASSERT(5 == LIST5::LENGTH);
         ListAsserter5<LIST5,T1,T2,T3,T4,T5>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6> LIST6;
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6> LIST6;
         ASSERT(6 == LIST6::LENGTH);
         ListAsserter6<LIST6,T1,T2,T3,T4,T5,T6>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7> LIST7;
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7> LIST7;
         ASSERT(7 == LIST7::LENGTH);
         ListAsserter7<LIST7,T1,T2,T3,T4,T5,T6,T7>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8> LIST8;
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8> LIST8;
         ASSERT(8 == LIST8::LENGTH);
         ListAsserter8<LIST8,T1,T2,T3,T4,T5,T6,T7,T8>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9> LIST9;
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9> LIST9;
         ASSERT(9 == LIST9::LENGTH);
         ListAsserter9<LIST9,T1,T2,T3,T4,T5,T6,T7,T8,T9>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> LIST10;
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10> LIST10;
         ASSERT(10 == LIST10::LENGTH);
         ListAsserter10<LIST10,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> LIST11;
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11> LIST11;
         ASSERT(11 == LIST11::LENGTH);
         ListAsserter11<LIST11,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11>::
                                                                   listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> LIST12;
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12> LIST12;
         ASSERT(12 == LIST12::LENGTH);
         ListAsserter12<LIST12,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12>::
                                                                   listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>
                                                                         LIST13;
         ASSERT(13 == LIST13::LENGTH);
         ListAsserter13<LIST13,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13>::
                                                                   listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>
                                                                         LIST14;
         ASSERT(14 == LIST14::LENGTH);
         ListAsserter14<LIST14,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14>::
                                                                   listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                                    T15> LIST15;
         ASSERT(15 == LIST15::LENGTH);
         ListAsserter15<LIST15,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                             T15>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                                T15,T16> LIST16;
         ASSERT(16 == LIST16::LENGTH);
         ListAsserter16<LIST16,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                         T15,T16>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                            T15,T16,T17> LIST17;
         ASSERT(17 == LIST17::LENGTH);
         ListAsserter17<LIST17,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                     T15,T16,T17>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                        T15,T16,T17,T18> LIST18;
         ASSERT(18 == LIST18::LENGTH);
         ListAsserter18<LIST18,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                 T15,T16,T17,T18>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                    T15,T16,T17,T18,T19> LIST19;
         ASSERT(19 == LIST19::LENGTH);
         ListAsserter19<LIST19,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                             T15,T16,T17,T18,T19>::listAssert();
 
-        typedef bslmf_TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
+        typedef bslmf::TypeList<T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
                                                T15,T16,T17,T18,T19,T20> LIST20;
         ASSERT(20 == LIST20::LENGTH);
         ListAsserter20<LIST20,T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13,T14,
@@ -2777,14 +3281,14 @@ int main(int argc, char *argv[])
         }
 
         {
-            typedef bslmf_TypeList<T1, T2> LIST;
+            typedef bslmf::TypeList<T1, T2> LIST;
             ASSERT(2 == LIST::LENGTH);
 
             ASSERT(1 == (IsSame<T1, LIST::Type1>::VALUE));
             ASSERT(1 == (IsSame<T2, LIST::Type2>::VALUE));
 
             ASSERT(1 == (IsSame<T1,
-                                bslmf_TypeListTypeOf<1, LIST>::Type>::VALUE));
+                         bslmf::TypeListTypeOf<1, LIST>::Type>::VALUE));
 
             ASSERT(1 == (IsSame<T2, LIST::TypeOf<2>::Type>::VALUE));
         }
