@@ -445,9 +445,9 @@ unix-AIX-*-*-CC64   _   ASFLAGS     = -a64
 unix-AIX-*-*-xlc    64  ASFLAGS     = -a64
 #done
 
-unix-           _   RANLIB          = $(RETRY_ON_EXIT) true $@
-# unix-         _   RANLIB          = $(RETRY_ON_EXIT) ranlib $@
-windows-            _   RANLIB          =
+unix-                   _   RANLIB          = $(RETRY_ON_EXIT) true $@
+!! unix-Darwin-*-*-*    _   RANLIB          = $(RETRY_ON_EXIT) ranlib $@
+windows-                _   RANLIB          =
 
 windows-        _   RC      = rc
 windows-        _   RCFLAGS     = /r /n

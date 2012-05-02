@@ -31,17 +31,7 @@
 
 
 #include <testdefs.h>
-#include <bslstl_allocator.h>
-
-//_RWSTD_NAMESPACE (std) {
-//
-//// declare to avoid dragging in all of <memory>
-//// (yes, it is undefined for programs to do that)
-//template <class T>
-//class allocator;
-//
-//}   // namespace std
-
+#include <memory>
 
 struct _TEST_EXPORT SharedAlloc
 {
