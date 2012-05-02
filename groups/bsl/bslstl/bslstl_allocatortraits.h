@@ -55,12 +55,12 @@ BSLS_IDENT("$Id: $")
 // compilers that don't support variadic templates) and the
 // allocator-propagation traits.  The implementations of these features within
 // this component are tuned to Bloomberg's needs.  The 'construct' member
-// function will automatically forward the iterator to the constructed object
+// function will automatically forward the allocator to the constructed object
 // iff the 'ALLOC' parameter is convertible from 'bslma::Allocator*' and the
 // object being constructed has the 'bslalg::TypeTraitUsesBslmaAllocator' type
 // trait, as per standard Bloomberg practice.  The
 // 'select_on_container_copy_construction' static member will return a
-// default-constructed allocator iff 'ALLOC' is convertible to from
+// default-constructed allocator iff 'ALLOC' is convertible from
 // 'bslma::Allocator*' because bslma allocators should not be copied when a
 // container is copy-constructed; otherwise this function will return a copy
 // of the allocator, as per C++03 container rules.  The other propagation
@@ -348,16 +348,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
-#include <bslalg_hastrait.h>
-#endif
-
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
+#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
+#include <bslalg_scalardestructionprimitives.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_ALLOCATOR
@@ -380,26 +376,26 @@ namespace bsl {
 
 template <class ALLOCATOR_TYPE>
 struct allocator_traits {
-    // This class supports the complete interface for of the C++11
-    // 'allocator_traits' class, which provides a uniform mechanism for
-    // accessing nested types within, and operations on, any
+    // This class supports the complete interface of the C++11
+    // 'allocator_traits' class template, which provides a uniform mechanism
+    // for accessing nested types within, and operations on, any
     // standard-conforming allocator.  This version of 'allocator_traits'
     // supports Bloomberg's 'bslma' allocator model by automatically detecting
-    // when the parameterized, 'ALLOCATOR_TYPE', is convertible from
+    // when the parameterized 'ALLOCATOR_TYPE' is convertible from
     // 'bslma::Allocator' (called a bslma-compatible allocator).  For
-    // bslma-compatible allocators, the 'construct' methods forwards the
-    // allocator to the element's constructor, when possible, and
+    // bslma-compatible allocators, the 'construct' methods forward the
+    // allocator to the new element's constructor, when possible, and
     // 'select_on_container_copy_constructor' returns a default-constructed
     // 'ALLOCATOR_TYPE'.  Otherwise, 'construct' simply forwards its arguments
-    // to the element's constructor unchanged and
+    // to the new element's constructor unchanged and
     // 'select_on_container_copy_constructor' returns its argument unchanged,
     // as per C++03 rules.  This implementation supports C++03 allocators and
-    //
     // bslma-compatible allocators; it is not fully-standard-conforming in
     // that it does not support every combination of propagation traits and
     // does not deduce data types that are not specified in the allocator.
 
   private:
+    // PRIVATE TYPES
     typedef BloombergLP::bslmf::MetaInt<0> FalseType;
     typedef BloombergLP::bslmf::MetaInt<1> TrueType;
 
@@ -416,8 +412,8 @@ struct allocator_traits {
         // Return 'allocator'.  Note that this function is called only when
         // 'ALLOCATOR_TYPE' is not a bslma allocator.
 
-    static ALLOCATOR_TYPE selectOnCopyConstruct(const ALLOCATOR_TYPE&,
-                                                TrueType);
+    static
+    ALLOCATOR_TYPE selectOnCopyConstruct(const ALLOCATOR_TYPE&, TrueType);
         // Return a default constructed 'ALLOCATOR_TYPE' object.  Note that
         // this function is called only when 'ALLOCATOR_TYPE' is bslma
         // allocator.
@@ -479,9 +475,9 @@ struct allocator_traits {
                            size_type       n);
         // Invoke 'allocator.deallocate(elementAddr, n)'.  The behavior is
         // undefined unless the specified 'elementAddr' was returned from
-        // a prior call to the 'allocate' method of the specified 'allocator',
-        // and has not yet been passed to a 'deallocate' call of the same
-        // object.
+        // a prior call to the 'allocate' method of an allocator that compares
+        // equal to the specified 'allocator', and has not yet been passed to
+        // a 'deallocate' call of such an allocator object.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES

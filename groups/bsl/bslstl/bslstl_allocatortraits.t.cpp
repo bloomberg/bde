@@ -4,6 +4,7 @@
 #include <bslstl_allocator.h>
 
 #include <bslalg_typetraitsgroupstlsequence.h>
+#include <bslalg_typetraits.h>
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
