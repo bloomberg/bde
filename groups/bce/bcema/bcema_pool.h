@@ -269,6 +269,10 @@ BDES_IDENT("$Id: $")
 #include <bdema_infrequentdeleteblocklist.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -301,10 +305,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISPOLYMORPHIC
 #include <bslmf_ispolymorphic.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 #endif
