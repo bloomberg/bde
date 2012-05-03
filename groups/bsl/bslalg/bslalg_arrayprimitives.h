@@ -527,6 +527,7 @@ struct ArrayPrimitives_Imp {
         // 'TARGET_TYPE' has the traits for which the enumerator equal to 'N'
         // is named.
 
+        IS_POINTER_POINTER              = 5,
         IS_FUNDAMENTAL_OR_POINTER       = 4,
         HAS_TRIVIAL_DEFAULT_CTOR_TRAITS = 3,
         BITWISE_COPYABLE_TRAITS         = 2,
@@ -721,6 +722,12 @@ struct ArrayPrimitives_Imp {
         // is ignored.  The last argument is for removing overload ambiguities
         // and is not used.
 
+    template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+    static void copyConstruct(TARGET_TYPE                *toBegin,
+                              FWD_ITER                    fromBegin,
+                              FWD_ITER                    fromEnd,
+                              ALLOCATOR                  *allocator,
+                              bslmf::MetaInt<IS_POINTER_POINTER> *);
     template <class TARGET_TYPE, class ALLOCATOR>
     static void copyConstruct(
                             TARGET_TYPE                             *toBegin,
@@ -793,6 +800,14 @@ struct ArrayPrimitives_Imp {
         // The last argument is for removing overload ambiguities and is not
         // used.
 
+    template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+    static void insert(TARGET_TYPE                             *toBegin,
+                       TARGET_TYPE                             *toEnd,
+                       FWD_ITER                                 fromBegin,
+                       FWD_ITER                                 fromEnd,
+                       size_type                                numElements,
+                       ALLOCATOR                               *allocator,
+                       bslmf::MetaInt<IS_POINTER_POINTER>      *);
     template <class TARGET_TYPE, class ALLOCATOR>
     static void insert(TARGET_TYPE                             *toBegin,
                        TARGET_TYPE                             *toEnd,
@@ -1009,16 +1024,22 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
+    typedef typename bslmf::IsPointer<FWD_ITER>::ELEMENT_TYPE FwdElement;
     enum {
+        ARE_POINTER_POINTERS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
+                               bslmf::IsPointer<FWD_ITER>::VALUE &&
+                               bslmf::IsPointer<FwdElement>::VALUE,
         IS_BITWISECOPYABLE  = HasTrait<TARGET_TYPE,
                                        TypeTraitBitwiseCopyable>::VALUE,
         CAN_USE_BITWISECOPY = bslmf::IsConvertible<FWD_ITER,
                                                    const TARGET_TYPE *>::VALUE,
-
-        VALUE = IS_BITWISECOPYABLE && CAN_USE_BITWISECOPY
-              ? Imp::BITWISE_COPYABLE_TRAITS
-              : Imp::NIL_TRAITS
+        VALUE = ARE_POINTER_POINTERS
+              ? Imp::IS_POINTER_POINTER
+              : IS_BITWISECOPYABLE && CAN_USE_BITWISECOPY
+                ? Imp::BITWISE_COPYABLE_TRAITS
+                : Imp::NIL_TRAITS
     };
+
     ArrayPrimitives_Imp::copyConstruct(toBegin,
                                        fromBegin,
                                        fromEnd,
@@ -1294,7 +1315,11 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
         return;                                                       // RETURN
     }
 
+    typedef typename bslmf::IsPointer<FWD_ITER>::ELEMENT_TYPE FwdElement;
     enum {
+        ARE_POINTER_POINTERS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
+                               bslmf::IsPointer<FWD_ITER>::VALUE &&
+                               bslmf::IsPointer<FwdElement>::VALUE,
         IS_BITWISEMOVEABLE  = HasTrait<TARGET_TYPE,
                                        TypeTraitBitwiseMoveable>::VALUE,
         CAN_USE_BITWISECOPY = bslmf::IsConvertible<FWD_ITER,
@@ -1303,8 +1328,9 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
                                      TypeTraitBitwiseCopyable>::VALUE
                               && CAN_USE_BITWISECOPY,
 
-        VALUE = IS_BITWISECOPYABLE ? Imp::BITWISE_COPYABLE_TRAITS
-              : IS_BITWISEMOVEABLE ? Imp::BITWISE_MOVEABLE_TRAITS
+        VALUE = ARE_POINTER_POINTERS ? Imp::IS_POINTER_POINTER
+              : IS_BITWISECOPYABLE   ? Imp::BITWISE_COPYABLE_TRAITS
+              : IS_BITWISEMOVEABLE   ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
     ArrayPrimitives_Imp::insert(toBegin,
@@ -1736,6 +1762,21 @@ void ArrayPrimitives_Imp::uninitializedFillN(
 
                     // *** 'copyConstruct' overloads: ***
 
+template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+inline
+void ArrayPrimitives_Imp::copyConstruct(TARGET_TYPE                *toBegin,
+                                        FWD_ITER                    fromBegin,
+                                        FWD_ITER                    fromEnd,
+                                        ALLOCATOR                  *allocator,
+                                        bslmf::MetaInt<IS_POINTER_POINTER> *)
+{
+    copyConstruct((void **) toBegin,
+                  (void * const *) fromBegin,
+                  (void * const *) fromEnd,
+                  allocator,
+                  (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
+}
+
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
 void ArrayPrimitives_Imp::copyConstruct(
@@ -2075,6 +2116,27 @@ void ArrayPrimitives_Imp::insert(TARGET_TYPE                *toBegin,
 }
 
                   // *** 'insert' with 'FWD_ITER' overloads: ***
+
+
+template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+inline
+void ArrayPrimitives_Imp::insert(
+                          TARGET_TYPE                             *toBegin,
+                          TARGET_TYPE                             *toEnd,
+                          FWD_ITER                                 fromBegin,
+                          FWD_ITER                                 fromEnd,
+                          size_type                                numElements,
+                          ALLOCATOR                               *allocator,
+                          bslmf::MetaInt<IS_POINTER_POINTER>      *)
+{
+    insert((void **) toBegin,
+           (void **) toEnd,
+           (void * const *) fromBegin,
+           (void * const *) fromEnd,
+           numElements,
+           allocator,
+           (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
+}
 
 template <class TARGET_TYPE, class ALLOCATOR>
 inline
