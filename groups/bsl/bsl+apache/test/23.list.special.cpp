@@ -151,6 +151,7 @@ static int list_swap_called;
 #undef std
 
 namespace bsl {
+
     // define an explicit specialization of the list::swap() member
     // to verify tha the non-member swap function calls the member
 

@@ -1,4 +1,4 @@
-// bslma_bufferallocator.t.cpp  -*-C++-*-
+// bslma_bufferallocator.t.cpp                                        -*-C++-*-
 
 #include <bslma_bufferallocator.h>
 
@@ -42,9 +42,9 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // [2] static void *allocateFromBuffer(cs, buf, bsz, sz, strategy);
 // [2] static void *allocateFromBuffer(cs, buf, bsz, sz, alignment);
-// [3] bslma_BufferAllocator(buf, bsz, callback);
-// [3] bslma_BufferAllocator(buf, bsz, strategy, callback);
-// [3] ~bslma_BufferAllocator();
+// [3] bslma::BufferAllocator(buf, bsz, callback);
+// [3] bslma::BufferAllocator(buf, bsz, strategy, callback);
+// [3] ~bslma::BufferAllocator();
 // [3] void *allocate(sz);
 // [3] void deallocate(addr);
 // [4] void print() const;
@@ -97,7 +97,7 @@ static void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bslma_BufferAllocator Obj;
+typedef bslma::BufferAllocator Obj;
 
 //=============================================================================
 //                        FILE-STATIC HELPER FUNCTIONS
@@ -106,25 +106,25 @@ typedef bslma_BufferAllocator Obj;
 static inline
 int calcAlign(int size)
 {
-    return bsls_AlignmentUtil::calculateAlignmentFromSize(size);
+    return bsls::AlignmentUtil::calculateAlignmentFromSize(size);
 }
 
 static inline
 int calcOffset(void *address, int alignment)
 {
-    return bsls_AlignmentUtil::calculateAlignmentOffset(address, alignment);
+    return bsls::AlignmentUtil::calculateAlignmentOffset(address, alignment);
 }
 
 static int globalLastCallbackArg;
 static int globalCallbackCnt;
 
 // Idiom for calling an allocator and converting 'std::bad_alloc' to
-// 'bsls_StdExceptionTranslator::bad_alloc'
+// 'bsls::StdExceptionTranslator::bad_alloc'
 struct AllocArgs
 {
-    bslma_Allocator            *d_alloc;
-    bslma_Allocator::size_type  d_size;
-    void                       *d_retValue;
+    bslma::Allocator            *d_alloc;
+    bslma::Allocator::size_type  d_size;
+    void                        *d_retValue;
 };
 
 static void *allocCallback(int size)
@@ -142,14 +142,14 @@ class my_ShortArray {
     short *d_array_p; // dynamically-allocated array of short integers
     int d_size;       // physical size of the 'd_array_p' array (elements)
     int d_length;     // logical length of the 'd_array_p' array (elements)
-    bslma_Allocator *d_allocator_p; // holds (but does not own) allocator
+    bslma::Allocator *d_allocator_p; // holds (but does not own) allocator
 
   private:
     void increaseSize(); // Increase the capacity by at least one element.
 
   public:
     // CREATORS
-    my_ShortArray(bslma_Allocator *basicAllocator);
+    my_ShortArray(bslma::Allocator *basicAllocator);
         // Create an empty array using the specified 'basicAllocator' to
         // supply memory.
     // ...
@@ -163,7 +163,7 @@ class my_ShortArray {
 enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 // ...
 
-my_ShortArray::my_ShortArray(bslma_Allocator *basicAllocator)
+my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(basicAllocator)
@@ -194,7 +194,7 @@ inline void my_ShortArray::append(int value)
 
 inline static
 void reallocate(short **array, int newSize, int length,
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified
     // 'newSize' using the specified 'basicAllocator' or global new
     // operator.  The specified 'length' number of leading elements are
@@ -259,8 +259,8 @@ int main(int argc, char *argv[])
 
         {
             static char memory[1024];
-            bslma_BufferAllocator allocator(memory, sizeof memory,
-                                            callbackFunc);
+            bslma::BufferAllocator allocator(memory, sizeof memory,
+                                             callbackFunc);
             my_ShortArray mA(&allocator);
             const my_ShortArray& A = mA;
             mA.append(123);
@@ -358,12 +358,12 @@ int main(int argc, char *argv[])
             // configure allocator
             Obj::AlignmentStrategy strategy =
                 i ? Obj::NATURAL_ALIGNMENT : Obj::MAXIMUM_ALIGNMENT;
-            bslma_BufferAllocator a(memory, MEM_SZ, strategy);
+            bslma::BufferAllocator a(memory, MEM_SZ, strategy);
             const int allocSz = 8;
             a.allocate(allocSz);
             const int offset = calcOffset(memory,
                                           i ? calcAlign(allocSz)
-                                     : bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                                    : bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 
             // configure expected value buffer
             const int BUF_SZ =  1000;     // Big enough to hold output.
@@ -387,7 +387,7 @@ int main(int argc, char *argv[])
             // test and verify output
             char buf[BUF_SZ];  memset(buf, XX, BUF_SZ); // unset
 
-            // Because bslma is a low-level utility, bslma_TestAllocator does
+            // Because bslma is a low-level utility, bslma::TestAllocator does
             // not have a function to print to ostream, and thus cannot print
             // to a strstream.  The print() member function always prints to
             // 'stdout'.  The code below forks a process and captures stdout
@@ -439,9 +439,9 @@ int main(int argc, char *argv[])
         //   function mechanism is not tested in this case.
         //
         // Testing:
-        //   bslma_BufferAllocator(buf, bsz, callback);
-        //   bslma_BufferAllocator(buf, bsz, strategy, callback);
-        //   ~bslma_BufferAllocator();
+        //   bslma::BufferAllocator(buf, bsz, callback);
+        //   bslma::BufferAllocator(buf, bsz, strategy, callback);
+        //   ~bslma::BufferAllocator();
         //   void *allocate(sz);
         //   void deallocate(addr);
         // --------------------------------------------------------------------
@@ -1022,7 +1022,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing 'allocateFromBuffer'." << endl;
         {
-            typedef bsls_AlignmentUtil T;
+            typedef bsls::AlignmentUtil T;
             enum {
                 FOUR_BYTE_ALIGN = 0,
                 EIGHT_BYTE_ALIGN = 1,
@@ -1035,13 +1035,13 @@ int main(int argc, char *argv[])
             for (int ti = FOUR_BYTE_ALIGN; ti < NUM_ALIGN; ++ti) {
                 switch (ti) {
                   case FOUR_BYTE_ALIGN: {
-                      buf = (bsls_Types::UintPtr) memory % 8 == 4
+                      buf = (bsls::Types::UintPtr) memory % 8 == 4
                             ? memory : memory + 4;
                       if (verbose)
                           cout << "\tUsing 4-byte aligned buffer." << endl;
                   } break;
                   case EIGHT_BYTE_ALIGN: {
-                      buf = (bsls_Types::UintPtr) memory % 8 == 4
+                      buf = (bsls::Types::UintPtr) memory % 8 == 4
                             ? memory + 4 : memory;
                       if (verbose)
                           cout << "\tUsing 8-byte aligned buffer." << endl;
@@ -1123,7 +1123,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        typedef bsls_AlignmentUtil T;
+        typedef bsls::AlignmentUtil T;
 
         const int BUF_SZ = 64;
         char buffer[BUF_SZ];
@@ -1133,7 +1133,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Trying bufferAllocator w/ default ctor." << endl;
         {
-            bslma_BufferAllocator a(buffer, BUF_SZ);
+            bslma::BufferAllocator a(buffer, BUF_SZ);
             char *freePtr = buffer;
 
             for (int i = 0; i < SIZE_LEN; ++i) {
@@ -1155,7 +1155,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, ! willFail);
                     LOOP_ASSERT(i, freePtr <= ret);
                     LOOP_ASSERT(i, ret + SIZE[i] <= buffer + BUF_SZ);
-                    LOOP_ASSERT(i, 0 == bsls_Types::UintPtr(ret)
+                    LOOP_ASSERT(i, 0 == bsls::Types::UintPtr(ret)
                                                       % T::BSLS_MAX_ALIGNMENT);
                     freePtr = ret + SIZE[i];
                     a.deallocate(ret);
@@ -1173,8 +1173,9 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < SIZE_LEN; ++i) {
                 const int sz = SIZE[i];
-                char *ret = (char *) Obj::allocateFromBuffer(&cursor, buffer,
-                                      BUF_SZ, sz, Obj::NATURAL_ALIGNMENT);
+                char *ret = (char *) Obj::allocateFromBuffer(
+                                           &cursor, buffer,
+                                           BUF_SZ, sz, Obj::NATURAL_ALIGNMENT);
                 if (0 == ret) {
                     int offset =
                         calcOffset(buffer + cursor, calcAlign(sz));
@@ -1183,8 +1184,9 @@ int main(int argc, char *argv[])
                 else {
                     LOOP_ASSERT(i, buffer + cursor == ret + sz);
                     LOOP_ASSERT(i, ret + sz <= buffer + BUF_SZ);
-                    LOOP_ASSERT(i,
-                      0 == bsls_Types::UintPtr(ret) % calcAlign(sz));
+                    LOOP_ASSERT(
+                               i,
+                               0 == bsls::Types::UintPtr(ret) % calcAlign(sz));
                 }
             }
         }
@@ -1197,8 +1199,9 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < SIZE_LEN; ++i) {
                 const int sz = SIZE[i];
-                char *ret = (char *) Obj::allocateFromBuffer(&cursor, buffer,
-                                                       BUF_SZ, sz, ALIGN);
+                char *ret = (char *) Obj::allocateFromBuffer(
+                                                            &cursor, buffer,
+                                                            BUF_SZ, sz, ALIGN);
                 if (0 == ret) {
                     int offset =
                         calcOffset(buffer + cursor, ALIGN);
@@ -1208,7 +1211,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(i, buffer + cursor == ret + sz);
                     LOOP_ASSERT(i, ret + sz <= buffer + BUF_SZ);
                     LOOP_ASSERT(i,
-                      0 == bsls_Types::UintPtr(ret) % ALIGN);
+                                0 == bsls::Types::UintPtr(ret) % ALIGN);
                 }
             }
         }

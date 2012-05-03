@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an STL-compliant vector class.
 //
 //@CLASSES:
-//   bsl::vector: STL-compatible vector template
+//  bsl::vector: STL-compatible vector template
 //
 //@SEE_ALSO: bslstl_deque
 //
@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_vector.h>' instead and use 'bsl::vector' directly.  This component
-// implements a dynamic array class that supports the 'bslma_Allocator' model
+// implements a dynamic array class that supports the 'bslma::Allocator' model
 // and is suitable for use as an implementation of the 'std::vector' class
 // template.
 //
@@ -180,7 +180,7 @@ template <class VALUE_TYPE>
 class Vector_ImpBase {
     // This class describes the basic layout for a vector class, to be included
     // into the 'Vector_Imp' layout *before* the allocator (provided by
-    // 'bslstl_ContainerBase') to take better advantage of cache prefetching.
+    // 'bslstl::ContainerBase') to take better advantage of cache prefetching.
     // It is parameterized by 'VALUE_TYPE' only, and implements the portion of
     // 'Vector_Imp' that does not need to know about its parameterized
     // 'ALLOCATOR' (in order to generate shorter debug strings).  This class
@@ -338,9 +338,9 @@ class Vector_ImpBase {
 
 template <class VALUE_TYPE, class ALLOCATOR = bsl::allocator<VALUE_TYPE> >
 class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
-                 , private BloombergLP::bslstl_ContainerBase<ALLOCATOR> {
+                 , private BloombergLP::bslstl::ContainerBase<ALLOCATOR> {
     // This class template provides an STL-compliant 'vector' that conforms to
-    // the 'bslma_Allocator' model.  For the requirements of a vector class,
+    // the 'bslma::Allocator' model.  For the requirements of a vector class,
     // consult the second revision of the "ISO/IEC 14882 Programming Language
     // C++ (Working Paper, 2009)".  In particular, this implementation offers
     // the general rules that:
@@ -384,7 +384,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
 
   private:
     // PRIVATE TYPES
-    typedef BloombergLP::bslstl_ContainerBase<ALLOCATOR> VectorContainerBase;
+    typedef BloombergLP::bslstl::ContainerBase<ALLOCATOR> VectorContainerBase;
         // Container base type, containing the allocator and applying
         // empty base class optimization (EBO) whenever appropriate.
 
@@ -421,7 +421,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     void privateInsertDispatch(const_iterator                   position,
                                INPUT_ITER                       count,
                                INPUT_ITER                       value,
-                               BloombergLP::bslstl_UtilIterator,
+                               BloombergLP::bslstl::UtilIterator,
                                int);
         // Match integral type for 'INPUT_ITER'.
 
@@ -429,22 +429,22 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
     void privateInsertDispatch(const_iterator             position,
                                INPUT_ITER                 first,
                                INPUT_ITER                 last,
-                               BloombergLP::bslmf_AnyType,
-                               BloombergLP::bslmf_AnyType);
+                               BloombergLP::bslmf::AnyType,
+                               BloombergLP::bslmf::AnyType);
         // Match non-integral type for 'INPUT_ITER'.
 
     template <class INPUT_ITER>
-    void privateInsert(const_iterator                 position,
-                       INPUT_ITER                     first,
-                       INPUT_ITER                     last,
-                       const std::input_iterator_tag&);
+    void privateInsert(const_iterator position,
+                       INPUT_ITER     first,
+                       INPUT_ITER     last,
+                       const          std::input_iterator_tag&);
         // Specialized insertion for input iterators.
 
     template <class FWD_ITER>
-    void privateInsert(const_iterator                   position,
-                       FWD_ITER                         first,
-                       FWD_ITER                         last,
-                       const std::forward_iterator_tag&);
+    void privateInsert(const_iterator position,
+                       FWD_ITER       first,
+                       FWD_ITER       last,
+                       const          std::forward_iterator_tag&);
         // Specialized insertion for forward, bidirectional, and random-access
         // iterators.
 
@@ -461,7 +461,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
   public:
     // TRAITS
     typedef BloombergLP::
-            bslalg_TypeTraitsGroupStlSequence<VALUE_TYPE,
+            bslalg::TypeTraitsGroupStlSequence<VALUE_TYPE,
                                               ALLOCATOR>  VectorTypeTraits;
 
     BSLALG_DECLARE_NESTED_TRAITS(Vector_Imp, VectorTypeTraits);
@@ -514,7 +514,7 @@ class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
         // Create a vector that has the same value as the specified 'original'
         // vector.  Optionally specify an 'allocator' used to supply memory.
         // If 'allocator' is not specified, then if 'ALLOCATOR' is convertible
-        // from 'bslma_Allocator *', the currently installed default
+        // from 'bslma::Allocator *', the currently installed default
         // allocator is used, otherwise the 'original' allocator is used (as
         // mandated per the ISO standard).
 
@@ -798,7 +798,7 @@ class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
         // Create a vector that has the same value as the specified 'original'
         // vector.  Optionally specify an allocator 'alloc' used to supply
         // memory.  If 'alloc' is not specified, then if 'ALLOCATOR' is
-        // convertible from 'bslma_Allocator *', the currently installed
+        // convertible from 'bslma::Allocator *', the currently installed
         // default allocator is used, otherwise the 'original' allocator is
         // used (as mandated per the ISO standard).
 
@@ -1312,7 +1312,7 @@ void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
                           // =======================
 
 template<class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
-                    = BloombergLP::bslmf_IsFundamental<BSLSTL_ITERATOR>::VALUE>
+                   = BloombergLP::bslmf::IsFundamental<BSLSTL_ITERATOR>::VALUE>
 struct Vector_DeduceIteratorCategory {
     typedef typename bsl::iterator_traits<BSLSTL_ITERATOR>::iterator_category
                                                                           type;
@@ -1320,13 +1320,13 @@ struct Vector_DeduceIteratorCategory {
 
 template<class BSLSTL_ITERATOR>
 struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
-    typedef BloombergLP::bslmf_Nil type;
+    typedef BloombergLP::bslmf::Nil type;
 };
 
 
 template<class BSLSTL_ITERATOR>
 struct Vector_IsRandomAccessIterator :
-       BloombergLP::bslmf_IsSame<
+       BloombergLP::bslmf::IsSame<
          typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
                                                bsl::random_access_iterator_tag>
 {
@@ -1338,13 +1338,13 @@ struct Vector_RangeCheck {
     // pair of iterators do *not* form a valid range.  This support is offered
     // only for random access iterators, and identifies only the case of two
     // valid iterators into the same range forming a "reverse" range.  Note
-    // that these two functions declared using 'bslmf_EnableIf' must be
+    // that these two functions declared using 'bslmf::EnableIf' must be
     // defined inline in the class definition due to a bug in the Microsoft
     // C++ compiler (see 'bslmf_enableif').
 
     template<class BSLSTL_ITERATOR>
     static
-    typename BloombergLP::bslmf_EnableIf<
+    typename BloombergLP::bslmf::EnableIf<
            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
     isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
         // Return 'false' as we know of no way to identify an input iterator
@@ -1355,7 +1355,7 @@ struct Vector_RangeCheck {
 
     template<class BSLSTL_ITERATOR>
     static
-    typename BloombergLP::bslmf_EnableIf<
+    typename BloombergLP::bslmf::EnableIf<
            Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
     isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
         // Return 'true' if 'first <= last', and 'false' otherwise.  Behavior
@@ -1427,7 +1427,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::operator[](size_type position)
 {
-    typedef BloombergLP::bsls_Types::UintPtr Uint;
+    typedef BloombergLP::bsls::Types::UintPtr Uint;
 
     BSLS_ASSERT_SAFE(static_cast<Uint>(size()) > static_cast<Uint>(position));
 
@@ -1438,13 +1438,13 @@ template <class VALUE_TYPE>
 typename Vector_ImpBase<VALUE_TYPE>::reference
 Vector_ImpBase<VALUE_TYPE>::at(size_type position)
 {
-    typedef BloombergLP::bsls_Types::UintPtr Uint;
+    typedef BloombergLP::bsls::Types::UintPtr Uint;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                    static_cast<Uint>(position) >= static_cast<Uint>(size()))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
-                               "vector<...>::at(position): invalid position");
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
+                                "vector<...>::at(position): invalid position");
     }
     return d_dataBegin[position];
 }
@@ -1574,7 +1574,7 @@ inline
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::operator[](size_type position) const
 {
-    typedef BloombergLP::bsls_Types::UintPtr Uint;
+    typedef BloombergLP::bsls::Types::UintPtr Uint;
 
     BSLS_ASSERT_SAFE(static_cast<Uint>(size()) > static_cast<Uint>(position));
 
@@ -1585,12 +1585,12 @@ template <class VALUE_TYPE>
 typename Vector_ImpBase<VALUE_TYPE>::const_reference
 Vector_ImpBase<VALUE_TYPE>::at(size_type position) const
 {
-    typedef BloombergLP::bsls_Types::UintPtr Uint;
+    typedef BloombergLP::bsls::Types::UintPtr Uint;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(static_cast<Uint>(position) >=
                                                   static_cast<Uint>(size()))) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                           "const vector<...>::at(position): invalid position");
     }
     return d_dataBegin[position];
@@ -1666,7 +1666,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
                                      const_iterator                   position,
                                      INPUT_ITER                       count,
                                      INPUT_ITER                       value,
-                                     BloombergLP::bslstl_UtilIterator,
+                                     BloombergLP::bslstl::UtilIterator,
                                      int)
 {
     // 'count' and 'value' are integral types that just happen to be the same.
@@ -1684,8 +1684,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
                                            const_iterator             position,
                                            INPUT_ITER                 first,
                                            INPUT_ITER                 last,
-                                           BloombergLP::bslmf_AnyType,
-                                           BloombergLP::bslmf_AnyType)
+                                           BloombergLP::bslmf::AnyType,
+                                           BloombergLP::bslmf::AnyType)
 {
     // Dispatch based on iterator category.
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
@@ -1763,8 +1763,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(n > maxSize - this->size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
-                      "vector<...>::insert(pos,first,last): vector too long");
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                       "vector<...>::insert(pos,first,last): vector too long");
     }
 
     const size_type newSize = this->size() + n;
@@ -1776,7 +1776,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
         Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
-        BloombergLP::bslalg_ArrayPrimitives::destructiveMoveAndInsert(
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMoveAndInsert(
                                                        temp.d_dataBegin,
                                                        &this->d_dataEnd,
                                                        this->d_dataBegin,
@@ -1790,12 +1790,12 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
         Vector_Util::swap(&this->d_dataBegin, &temp.d_dataBegin);
     }
     else {
-        BloombergLP::bslalg_ArrayPrimitives::insert(pos,
-                                                    this->end(),
-                                                    first,
-                                                    last,
-                                                    n,
-                                                    this->bslmaAllocator());
+        BloombergLP::bslalg::ArrayPrimitives::insert(pos,
+                                                     this->end(),
+                                                     first,
+                                                     last,
+                                                     n,
+                                                     this->bslmaAllocator());
         this->d_dataEnd += n;
     }
 }
@@ -1811,7 +1811,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateMoveInsert(
     const size_type n = fromVector->size();
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(n > maxSize - this->size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                        "vector<...>::insert(pos,first,last): vector too long");
     }
 
@@ -1824,7 +1824,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateMoveInsert(
         Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
-        BloombergLP::bslalg_ArrayPrimitives::destructiveMoveAndMoveInsert(
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMoveAndMoveInsert(
                                                        temp.d_dataBegin,
                                                        &this->d_dataEnd,
                                                        &fromVector->d_dataEnd,
@@ -1839,7 +1839,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateMoveInsert(
         Vector_Util::swap(&this->d_dataBegin, &temp.d_dataBegin);
     }
     else {
-        BloombergLP::bslalg_ArrayPrimitives::moveInsert(
+        BloombergLP::bslalg::ArrayPrimitives::moveInsert(
                                                        pos,
                                                        this->end(),
                                                        &fromVector->d_dataEnd,
@@ -1883,7 +1883,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type        initialSize,
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(initialSize > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                                   "vector<...>::vector(n,v): vector too long");
     }
     if (initialSize > 0) {
@@ -1892,7 +1892,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type        initialSize,
                     this->d_capacity,
                     static_cast<VectorContainerBase *>(this));
 
-        BloombergLP::bslalg_ArrayPrimitives::defaultConstruct(
+        BloombergLP::bslalg::ArrayPrimitives::defaultConstruct(
                                                        this->d_dataBegin,
                                                        initialSize,
                                                        this->bslmaAllocator());
@@ -1911,7 +1911,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type         initialSize,
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(initialSize > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                               "vector<...>::insert(pos,n,v): vector too long");
     }
     if (initialSize > 0) {
@@ -1920,7 +1920,7 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type         initialSize,
                     this->d_capacity,
                     static_cast<VectorContainerBase *>(this));
 
-        BloombergLP::bslalg_ArrayPrimitives::uninitializedFillN(
+        BloombergLP::bslalg::ArrayPrimitives::uninitializedFillN(
                                                        this->d_dataBegin,
                                                        initialSize,
                                                        value,
@@ -1954,7 +1954,7 @@ Vector_Imp(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& original)
                     this->d_capacity,
                     static_cast<VectorContainerBase *>(this));
 
-        BloombergLP::bslalg_ArrayPrimitives::copyConstruct(
+        BloombergLP::bslalg::ArrayPrimitives::copyConstruct(
                                                        this->d_dataBegin,
                                                        original.begin(),
                                                        original.end(),
@@ -1978,7 +1978,7 @@ Vector_Imp(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& original,
                     this->d_capacity,
                     static_cast<VectorContainerBase *>(this));
 
-        BloombergLP::bslalg_ArrayPrimitives::copyConstruct(
+        BloombergLP::bslalg::ArrayPrimitives::copyConstruct(
                                                        this->d_dataBegin,
                                                        original.begin(),
                                                        original.end(),
@@ -1993,8 +1993,8 @@ template <class VALUE_TYPE, class ALLOCATOR>
 Vector_Imp<VALUE_TYPE, ALLOCATOR>::~Vector_Imp()
 {
     if (this->d_dataBegin) {
-        BloombergLP::
-                  bslalg_ArrayDestructionPrimitives::destroy(this->d_dataBegin,
+        BloombergLP::bslalg::ArrayDestructionPrimitives::destroy(
+                                                             this->d_dataBegin,
                                                              this->d_dataEnd);
         this->deallocateN(this->d_dataBegin, this->d_capacity);
     }
@@ -2049,7 +2049,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
 {
     if (newSize <= this->size()) {
-        BloombergLP::bslalg_ArrayDestructionPrimitives::destroy(
+        BloombergLP::bslalg::ArrayDestructionPrimitives::destroy(
                                                    this->d_dataBegin + newSize,
                                                    this->d_dataEnd);
         this->d_dataEnd = this->d_dataBegin + newSize;
@@ -2062,7 +2062,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
 
         if (newSize < this->d_capacity) {
 
-            BloombergLP::bslalg_ScalarPrimitives::defaultConstruct(
+            BloombergLP::bslalg::ScalarPrimitives::defaultConstruct(
                                                        this->d_dataEnd,
                                                        this->bslmaAllocator());
 
@@ -2075,8 +2075,8 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
         }
         else {
 
-            BloombergLP::bslalg_ConstructorProxy<VALUE_TYPE> defaultValue(
-                                      BloombergLP::bslma_Default::allocator());
+            BloombergLP::bslalg::ConstructorProxy<VALUE_TYPE> defaultValue(
+                                     BloombergLP::bslma::Default::allocator());
             insert(this->d_dataEnd,
                    newSize - this->size(),
                    defaultValue.object());
@@ -2089,7 +2089,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::resize(size_type         newSize,
                                                const VALUE_TYPE& value)
 {
     if (newSize < this->size()) {
-        BloombergLP::bslalg_ArrayDestructionPrimitives::destroy(
+        BloombergLP::bslalg::ArrayDestructionPrimitives::destroy(
                                                    this->d_dataBegin + newSize,
                                                    this->d_dataEnd);
         this->d_dataEnd = this->d_dataBegin + newSize;
@@ -2104,7 +2104,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::reserve(size_type newCapacity)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newCapacity > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                          "vector<...>::reserve(newCapacity): vector too long");
     }
     if (0 == this->d_capacity && 0 != newCapacity) {
@@ -2114,7 +2114,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::reserve(size_type newCapacity)
         Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
-        BloombergLP::bslalg_ArrayPrimitives::destructiveMove(
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMove(
                                                        temp.d_dataBegin,
                                                        this->d_dataBegin,
                                                        this->d_dataEnd,
@@ -2132,7 +2132,7 @@ inline
 void Vector_Imp<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
-        BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
+        BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
                                                        this->d_dataEnd,
                                                        value,
                                                        this->bslmaAllocator());
@@ -2150,7 +2150,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::pop_back()
 {
     BSLS_ASSERT_SAFE(!this->empty());
 
-    BloombergLP::bslalg_ScalarDestructionPrimitives
+    BloombergLP::bslalg::ScalarDestructionPrimitives
                                                   ::destroy(--this->d_dataEnd);
 }
 
@@ -2182,7 +2182,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                        numElements > maxSize - this->size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwLengthError(
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
                               "vector<...>::insert(pos,n,v): vector too long");
     }
 
@@ -2195,7 +2195,7 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
         Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
-        BloombergLP::bslalg_ArrayPrimitives::destructiveMoveAndInsert(
+        BloombergLP::bslalg::ArrayPrimitives::destructiveMoveAndInsert(
                                                        temp.d_dataBegin,
                                                        &this->d_dataEnd,
                                                        this->d_dataBegin,
@@ -2209,11 +2209,11 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
         Vector_Util::swap(&this->d_dataBegin, &temp.d_dataBegin);
     }
     else {
-        BloombergLP::bslalg_ArrayPrimitives::insert(pos,
-                                                    this->end(),
-                                                    value,
-                                                    numElements,
-                                                    this->bslmaAllocator());
+        BloombergLP::bslalg::ArrayPrimitives::insert(pos,
+                                                     this->end(),
+                                                     value,
+                                                     numElements,
+                                                     this->bslmaAllocator());
         this->d_dataEnd += numElements;
     }
 }
@@ -2230,14 +2230,14 @@ void Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator position,
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
 
     // If 'first' and 'last' are integral, then they are not iterators and we
-    // should call 'insert(position, first, last)', where 'first' is actually
-    // a misnamed count, and 'last' is a misnamed value.  We can assume that
-    // any fundamental type passed to this function is integral or else
-    // compilation errors will result.  The extra argument, 0, is to avoid an
-    // overloading ambiguity: In case 'first' is an integral type, it would be
-    // convertible both to 'bslstl_UtilIterator' and 'bslmf_AnyType'; but the 0
-    // will be an exact match to 'int', so the overload with
-    // 'bslstl_UtilIterator' will be preferred.
+    // should call 'insert(position, first, last)', where 'first' is actually a
+    // misnamed count, and 'last' is a misnamed value.  We can assume that any
+    // fundamental type passed to this function is integral or else compilation
+    // errors will result.  The extra argument, 0, is to avoid an overloading
+    // ambiguity: In case 'first' is an integral type, it would be convertible
+    // both to 'bslstl::UtilIterator' and 'bslmf::AnyType'; but the 0 will be
+    // an exact match to 'int', so the overload with 'bslstl::UtilIterator'
+    // will be preferred.
 
     privateInsertDispatch(position, first, last, first, 0);
 }
@@ -2265,7 +2265,8 @@ Vector_Imp<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first,
     BSLS_ASSERT_SAFE(last          <= this->end());
 
     const size_type n = last - first;
-    BloombergLP::bslalg_ArrayPrimitives::erase(const_cast<VALUE_TYPE *>(first),
+    BloombergLP::bslalg::ArrayPrimitives::erase(
+                                               const_cast<VALUE_TYPE *>(first),
                                                const_cast<VALUE_TYPE *>(last),
                                                this->d_dataEnd,
                                                this->bslmaAllocator());
@@ -2327,12 +2328,12 @@ inline
 bool operator==(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
-    return BloombergLP::bslalg_RangeCompare::equal(lhs.begin(),
-                                                   lhs.end(),
-                                                   lhs.size(),
-                                                   rhs.begin(),
-                                                   rhs.end(),
-                                                   rhs.size());
+    return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+                                                    lhs.end(),
+                                                    lhs.size(),
+                                                    rhs.begin(),
+                                                    rhs.end(),
+                                                    rhs.size());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -2348,12 +2349,12 @@ inline
 bool operator< (const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
                 const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
-    return 0 > BloombergLP::bslalg_RangeCompare::lexicographical(lhs.begin(),
-                                                                 lhs.end(),
-                                                                 lhs.size(),
-                                                                 rhs.begin(),
-                                                                 rhs.end(),
-                                                                 rhs.size());
+    return 0 > BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
+                                                                  lhs.end(),
+                                                                  lhs.size(),
+                                                                  rhs.begin(),
+                                                                  rhs.end(),
+                                                                  rhs.size());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>

@@ -314,7 +314,7 @@ void test_has_facet (const char *loc_name, const char *cname)
 
     const bool byname = loc_name
         && std::strcmp (loc_name, "C") && std::strcmp (loc_name, "POSIX");
- 
+
     facet_exists = std::has_facet<MessagesByname>(loc);
 
     rw_assert (byname == facet_exists, 0, __LINE__,
@@ -360,7 +360,7 @@ open_catalog (const std::messages<charT> &msgs,
 
     // expect is set to:
     //   *   0 (or greater) when the caller expects the call to open()
-    //         to succeed 
+    //         to succeed
     //   *  -1 when the caller expects the call to open() to fail
     //         by returning -1
     //   *  -2 (or less) when the caller expects the call to open()
@@ -824,7 +824,7 @@ run_test (int, char*[])
     // the C and POSIX locales.
     const int p = rw_putenv ("LC__FASTMSG=false");
     rw_note (!p, 0, __LINE__, "failed to set LC__FASTMSG");
-    
+
 #endif    // _RWSTD_OS_AIX
 
 #ifdef _RWSTD_NO_DYNAMIC_CAST

@@ -25,7 +25,7 @@
  * as applicable.
  *
  * Copyright 2003-2007 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_TESTDEFS_H_INCLUDED
@@ -100,7 +100,7 @@
 
 // _RWSTD_PRI{d,i,o,u,x}MAX: macros corresponding to those described
 // in 7.8.1 of C99; each of them expands to a character string literal
-// containing a conversion specifier, possibly modified by a length 
+// containing a conversion specifier, possibly modified by a length
 // modifier, suitable for use within the format argument of a formatted
 // input/output function when converting the corresponding integer type
 #if _RWSTD_LONG_SIZE < _RWSTD_LLONG_SIZE

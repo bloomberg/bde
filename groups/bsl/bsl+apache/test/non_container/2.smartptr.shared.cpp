@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #ifdef TEST_TR1
@@ -242,7 +242,7 @@ test_ctor ()
         rw_assert (pd1 == ptr_0.get (), 0, __LINE__,
                    "shared_ptr<Base_0>(Derived* = %#p).get() == %#p, got %#p",
                    pd1, (Base_0<int>*)pd1, ptr_0.get ());
-                   
+
         rw_assert (pd2 == ptr_1.get (), 0, __LINE__,
                    "shared_ptr<Base_1>(Derived* = %#p).get() == %#p, got %#p",
                    pd2, (Base_1<int>*)pd2, ptr_1.get ());
@@ -362,7 +362,7 @@ test_copy_ctor ()
                    ".get() == %#p, got %#p",
                    ptr_d.get (),
                    (v_Base_0_i*)ptr_d.get (), ptr_0.get ());
-                   
+
         rw_assert (ptr_d.get () == ptr_1.get (), 0, __LINE__,
                    "shared_ptr<Base_1>(const shared_ptr<Derived>(%#p))"
                    ".get() == %#p, got %#p",
@@ -865,7 +865,7 @@ test_casts ()
 
     {
         // dynamic_pointer_cast
-        
+
     }
 
     rw_warn (0, 0, 0,
@@ -886,16 +886,16 @@ test_deleter ()
 
 /**************************************************************************/
 
-static int no_ctor; 
-static int no_copy_ctor; 
-static int no_dtor; 
-static int no_assign; 
-static int no_modifiers; 
-static int no_observers; 
-static int no_comparison; 
-static int no_io; 
-static int no_specialized; 
-static int no_casts; 
+static int no_ctor;
+static int no_copy_ctor;
+static int no_dtor;
+static int no_assign;
+static int no_modifiers;
+static int no_observers;
+static int no_comparison;
+static int no_io;
+static int no_specialized;
+static int no_casts;
 static int no_deleter;
 
 
@@ -943,16 +943,16 @@ int main (int argc, char *argv[])
                     "|-no-specialized# "
                     "|-no-casts# "
                     "|-no-deleter# ",
-                    &no_ctor, 
-                    &no_copy_ctor, 
-                    &no_dtor, 
-                    &no_assign, 
-                    &no_modifiers, 
-                    &no_observers, 
-                    &no_comparison, 
-                    &no_io, 
-                    &no_specialized, 
-                    &no_casts, 
+                    &no_ctor,
+                    &no_copy_ctor,
+                    &no_dtor,
+                    &no_assign,
+                    &no_modifiers,
+                    &no_observers,
+                    &no_comparison,
+                    &no_io,
+                    &no_specialized,
+                    &no_casts,
                     &no_deleter);
 }
 #else // ! TEST_TR1

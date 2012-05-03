@@ -32,12 +32,12 @@ using namespace std;
 //                                  --------
 // The component under test has state, but not value.  State transitions must
 // be confirmed explicitly.  The timing functions can be verified to a
-// reasonable degree using the 'bsls_TimeUtil::get<...>Timer' functions
+// reasonable degree using the 'bsls::TimeUtil::get<...>Timer' functions
 // (with which the stopwatch class is implemented) to confirm "reasonable"
 // behavior.
 //-----------------------------------------------------------------------------
-// [ 2] bsls_Stopwatch();
-// [ 2] ~bsls_Stopwatch();
+// [ 2] bsls::Stopwatch();
+// [ 2] ~bsls::Stopwatch();
 // [ 3] void start();
 // [ 3] void stop();
 // [ 3] void reset();
@@ -93,10 +93,10 @@ static void aSsErT(int c, const char *s, int i)
 //                     GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_Stopwatch    Obj;
+typedef bsls::Stopwatch    Obj;
 
-typedef bsls_TimeUtil     TU;
-typedef bsls_Types::Int64 Int64;
+typedef bsls::TimeUtil     TU;
+typedef bsls::Types::Int64 Int64;
 
 typedef double (Obj::*AccumulatedTimeMethod)() const;
 
@@ -158,11 +158,11 @@ Int64 osSystemCall(RawTimerFunction timerFn)
     return timerFn();
 }
 
-static void shortDelay(double delayTime,
+static void shortDelay(double           delayTime,
                        RawTimerFunction rawTimerFunction)
 {
     const double frac = delayTime * 4.7;
-    const Int64 t0 = rawTimerFunction(); 
+    const Int64 t0 = rawTimerFunction();
     const Int64 tEnd = t0 + delayTime * 1e9;
 
     while ((*rawTimerFunction)() < tEnd) {
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Usage Example"
                           << "\n=====================" << endl;
 
-        bsls_Stopwatch s;
+        bsls::Stopwatch s;
         const double t0s = s.accumulatedSystemTime();  ASSERT(0.0 == t0s);
         const double t0u = s.accumulatedUserTime();    ASSERT(0.0 == t0u);
         const double t0w = s.accumulatedWallTime();    ASSERT(0.0 == t0w);
@@ -288,18 +288,18 @@ int main(int argc, char *argv[])
         // ATTEMPT TO REPRODUCE BUG PRODUCING NEGATIVE TIMES
         //
         // Concern:
-        //   bsls_Stopwatch is returning negative times in the field, attempt
+        //   bsls::Stopwatch is returning negative times in the field, attempt
         //   to reproduce here.
         //
         // Plan:
-        //   Call bsls_Stopwatch many times and see if it ever returns a
+        //   Call bsls::Stopwatch many times and see if it ever returns a
         //   negative time.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "Attempt to reproduce negative times bug\n"
                              "=======================================\n";
 
-        bsls_Stopwatch mX;    const bsls_Stopwatch& X = mX;
+        bsls::Stopwatch mX;    const bsls::Stopwatch& X = mX;
 
         const double delayTime = 1e-6;
 
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
         double const precision = 1e-3; // 1 msec
         double const finePrecision = 1e-8; // 10 nsecs
 
-        bsls_Stopwatch pt;
+        bsls::Stopwatch pt;
 
         ASSERT(0 == pt.accumulatedSystemTime());
         ASSERT(0 == pt.accumulatedUserTime());
@@ -424,7 +424,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   For a sequence of programmatically-generated delays (using timers
-        //   from the tested 'bsls_TimeUtil' class), confirm that each of the
+        //   from the tested 'bsls::TimeUtil' class), confirm that each of the
         //   above methods returns an expected value when invoked after the
         //   'start', 'stop', and' reset' methods.
         //
@@ -736,23 +736,25 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PERFORMANCE TEST I: USING WALL TIME TO MEASURE PERFORMANCE
         //
-        // Concerns: The various system calls used by bsls_Stopwatch can be
+        // Concerns: The various system calls used by bsls::Stopwatch can be
         //           expensive, so their costs should be measured.
         //
         // Plan:
-        //   1)  Use a 'bsls_Stopwatch' (in wall time mode) to time a reference
-        //       loop that calls a non-trivial function 'busyFunction'.  The
-        //       number of loop iterations is governed by 'verbose'.
+        //   1)  Use a 'bsls::Stopwatch' (in wall time mode) to time a
+        //       reference loop that calls a non-trivial function
+        //       'busyFunction'.  The number of loop iterations is governed by
+        //       'verbose'.
         //
-        //   2a) Use a 'bsls_Stopwatch' to time the reference loop instrumented
-        //       with a separate 'bsls_Stopwatch' instance started with the
-        //       (less expensive) 'start' method and calling 'elapsedTime'.
+        //   2a) Use a 'bsls::Stopwatch' to time the reference loop
+        //       instrumented with a separate 'bsls::Stopwatch' instance
+        //       started with the (less expensive) 'start' method and calling
+        //       'elapsedTime'.
         //
         //
-        //   2b) Use a 'bsls_Stopwatch' to time the reference loop instrumented
-        //       with a separate 'bsls_Stopwatch' instance started with the
-        //       (more expensive) 'start(true)' method and calling
-        //       'accumulatedTimes(double *, double *, double *)'.
+        //   2b) Use a 'bsls::Stopwatch' to time the reference loop
+        //       instrumented with a separate 'bsls::Stopwatch' instance
+        //       started with the (more expensive) 'start(true)' method and
+        //       calling 'accumulatedTimes(double *, double *, double *)'.
         //
         //   3)  Subtract the result obtained in (1) from each of the results
         //       obtained in (2a) and (2b), and normalize by the number of
@@ -765,8 +767,8 @@ int main(int argc, char *argv[])
         //         value than does the "correct" cpu-time mode.
         //
         // Testing:
-        //   Performance of the two main usage modes of 'bsls_Stopwatch', using
-        //   the wall-time mode to test.
+        //   Performance of the two main usage modes of 'bsls::Stopwatch',
+        //   using the wall-time mode to test.
         //
         // --------------------------------------------------------------------
 
@@ -776,7 +778,7 @@ int main(int argc, char *argv[])
         const double toNanoseconds = 1.0e9 / (double)numTrials;
 
         // Reference (baseline) loop -- using wall-time mode for timing
-        bsls_Stopwatch baselineWatch;
+        bsls::Stopwatch baselineWatch;
         baselineWatch.start();
         for (int i = 0; i < numTrials; ++i) {
             busyFunction();
@@ -787,10 +789,10 @@ int main(int argc, char *argv[])
         {
             cout << "\tProfiling use of start()/stop()/elapsedTime():"
                  << std::endl;
-            bsls_Stopwatch watch;
+            bsls::Stopwatch watch;
             watch.start();
             for (int i = 0; i < numTrials; ++i) {
-                bsls_Stopwatch w;
+                bsls::Stopwatch w;
                 w.start();
                 busyFunction();
                 w.stop();
@@ -806,9 +808,9 @@ int main(int argc, char *argv[])
         {
             cout << "\tProfiling use of start(true)/stop()/accumulatedTimes():"
                  << std::endl;
-            bsls_Stopwatch watch;
+            bsls::Stopwatch watch;
             watch.start();
-            bsls_Stopwatch w;
+            bsls::Stopwatch w;
             for (int i = 0; i < numTrials; ++i) {
                 w.start(true);
                 busyFunction();
@@ -828,23 +830,23 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PERFORMANCE TEST II: USING CPU + SYSTEM TIME TO MEASURE PERFORMANCE
         //
-        // Concerns: The various system calls used by bsls_Stopwatch can be
+        // Concerns: The various system calls used by bsls::Stopwatch can be
         //           expensive, so their costs should be measured.
         //
         // Plan:
-        //   1)  Use a 'bsls_Stopwatch' (in CPU time mode) to time a reference
+        //   1)  Use a 'bsls::Stopwatch' (in CPU time mode) to time a reference
         //       loop that calls a non-trivial function 'busyFunction'.  The
         //       number of loop iterations is governed by 'verbose'.
         //
-        //   2a) Use a 'bsls_Stopwatch' to time the reference loop instrumented
-        //       with a separate 'bsls_Stopwatch' instance started with the
-        //       (less expensive) 'start' method and calling 'elapsedTime'.
+        //   2a) Use a 'bsls::Stopwatch' to time the reference loop
+        //       instrumented with a separate 'bsls::Stopwatch' instance
+        //       started with the (less expensive) 'start' method and calling
+        //       'elapsedTime'.
         //
-        //
-        //   2b) Use a 'bsls_Stopwatch' to time the reference loop instrumented
-        //       with a separate 'bsls_Stopwatch' instance started with the
-        //       (more expensive) 'start(true)' method and calling
-        //       'accumulatedTimes(double *, double *, double *)'.
+        //   2b) Use a 'bsls::Stopwatch' to time the reference loop
+        //       instrumented with a separate 'bsls::Stopwatch' instance
+        //       started with the (more expensive) 'start(true)' method and
+        //       calling 'accumulatedTimes(double *, double *, double *)'.
         //
         //   3)  Subtract the result obtained in (1) from each of the results
         //       obtained in (2a) and (2b), and normalize by the number of
@@ -857,8 +859,8 @@ int main(int argc, char *argv[])
         //         mode.
         //
         // Testing:
-        //   Performance of the two main usage modes of 'bsls_Stopwatch', using
-        //   the CPU-time mode to test.
+        //   Performance of the two main usage modes of 'bsls::Stopwatch',
+        //   using the CPU-time mode to test.
         //
         // --------------------------------------------------------------------
 
@@ -868,7 +870,7 @@ int main(int argc, char *argv[])
         const double toNanoseconds = 1.0e9 / (double)numTrials;
 
         // Reference (baseline) loop --  using CPU-time mode for timing
-        bsls_Stopwatch baselineWatch;
+        bsls::Stopwatch baselineWatch;
         baselineWatch.start(true);
         for (int i = 0; i < numTrials; ++i) {
             busyFunction();
@@ -883,10 +885,10 @@ int main(int argc, char *argv[])
         {
             cout << "\tProfiling use of start()/stop()/elapsedTime():"
                  << std::endl;
-            bsls_Stopwatch testWatch;
+            bsls::Stopwatch testWatch;
             testWatch.start(true);
             for (int i = 0; i < numTrials; ++i) {
-                bsls_Stopwatch w;
+                bsls::Stopwatch w;
                 w.start();
                 busyFunction();
                 w.stop();
@@ -906,9 +908,9 @@ int main(int argc, char *argv[])
         {
             cout << "\tProfiling use of start(true)/stop()/accumulatedTimes():"
                  << std::endl;
-            bsls_Stopwatch testWatch;
+            bsls::Stopwatch testWatch;
             testWatch.start(true);
-            bsls_Stopwatch w;
+            bsls::Stopwatch w;
             for (int i = 0; i < numTrials; ++i) {
                 w.start(true);
                 busyFunction();

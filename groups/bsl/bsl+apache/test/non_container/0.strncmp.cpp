@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2004-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <valcmp.h>   // for rw_strncmp()

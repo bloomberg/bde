@@ -1,4 +1,4 @@
-// bslmf_arraytopointer.cpp        -*-C++-*-
+// bslmf_arraytopointer.cpp                                           -*-C++-*-
 #include <bslmf_arraytopointer.h>
 
 #include <bsls_ident.h>

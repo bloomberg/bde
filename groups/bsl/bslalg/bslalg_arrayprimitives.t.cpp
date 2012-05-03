@@ -54,7 +54,7 @@ using namespace std;
 // test code for bitwise-copyable/moveable test types as well as those that do
 // not have those traits.
 //-----------------------------------------------------------------------------
-// bslalg_ArrayPrimitives public interface:
+// bslalg::ArrayPrimitives public interface:
 // [ 2] void uninitializedFillN(T *dstB, ne, const T& v, *a);
 // [ 3] void copyConstruct(T *dstB, FWD srcB, FWD srcE, *a);
 // [ 4] void destructiveMove(T *dstB, T *srcB, T *srcE, *a);
@@ -118,7 +118,7 @@ namespace {
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bslalg_ArrayPrimitives        Obj;
+typedef bslalg::ArrayPrimitives        Obj;
 
 // TYPES
 class TestType;
@@ -140,13 +140,13 @@ typedef LargeBitwiseMoveableTestType<32>  XXL32;  // uses 'bslma' allocators
 typedef LargeBitwiseMoveableTestType<64>  XXL64;  // uses 'bslma' allocators
 typedef LargeBitwiseMoveableTestType<128> XXL128; // uses 'bslma' allocators
 
-typedef bsls_Types::Int64      Int64;
-typedef bsls_Types::Uint64     Uint64;
+typedef bsls::Types::Int64      Int64;
+typedef bsls::Types::Uint64     Uint64;
 
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose;
 
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 static int numDefaultCtorCalls = 0;
 static int numCharCtorCalls    = 0;
@@ -154,7 +154,7 @@ static int numCopyCtorCalls    = 0;
 static int numAssignmentCalls  = 0;
 static int numDestructorCalls  = 0;
 
-bslma_TestAllocator *Z;  // initialized at the start of main()
+bslma::TestAllocator *Z;  // initialized at the start of main()
 
                                // ==============
                                // class TestType
@@ -167,36 +167,36 @@ class TestType {
     // It could have the bit-wise moveable traits but we defer that trait to
     // the 'MoveableTestType'.
 
-    char            *d_data_p;
-    bslma_Allocator *d_allocator_p;
+    char             *d_data_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestType(bslma_Allocator *ba = 0)
+    TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numDefaultCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = '?';
     }
 
-    TestType(char c, bslma_Allocator *ba = 0)
+    TestType(char c, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCharCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = c;
     }
 
-    TestType(const TestType& original, bslma_Allocator *ba = 0)
+    TestType(const TestType& original, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCopyCtorCalls;
         if (&original != this) {
@@ -267,9 +267,9 @@ class TestTypeNoAlloc {
 
     // DATA
     union {
-        char                                   d_char;
-        char                                   d_fill[sizeof(TestType)];
-        bsls_AlignmentFromType<TestType>::Type d_align;
+        char                                    d_char;
+        char                                    d_fill[sizeof(TestType)];
+        bsls::AlignmentFromType<TestType>::Type d_align;
     } d_u;
 
   public:
@@ -339,22 +339,22 @@ class BitwiseMoveableTestType : public TestType {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
-    BitwiseMoveableTestType(bslma_Allocator *ba = 0)
+    BitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
     {
     }
 
-    BitwiseMoveableTestType(char c, bslma_Allocator *ba = 0)
+    BitwiseMoveableTestType(char c, bslma::Allocator *ba = 0)
     : TestType(c, ba)
     {
     }
 
     BitwiseMoveableTestType(const BitwiseMoveableTestType&  original,
-                            bslma_Allocator                *ba = 0)
+                            bslma::Allocator               *ba = 0)
     : TestType(original, ba)
     {
     }
@@ -371,7 +371,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     BitwiseCopyableTestType()
@@ -406,11 +406,11 @@ class LargeBitwiseMoveableTestType : public TestType {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(LargeBitwiseMoveableTestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
-    LargeBitwiseMoveableTestType(bslma_Allocator *ba = 0)
+    LargeBitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
     {
         for (int i = 0; i < FOOTPRINT; ++i) {
@@ -418,7 +418,7 @@ class LargeBitwiseMoveableTestType : public TestType {
         }
     }
 
-    LargeBitwiseMoveableTestType(char c, bslma_Allocator *ba = 0)
+    LargeBitwiseMoveableTestType(char c, bslma::Allocator *ba = 0)
     : TestType(c, ba)
     {
         for (int i = 0; i < FOOTPRINT; ++i) {
@@ -427,7 +427,7 @@ class LargeBitwiseMoveableTestType : public TestType {
     }
 
     LargeBitwiseMoveableTestType(const LargeBitwiseMoveableTestType&  original,
-                                 bslma_Allocator                     *ba = 0)
+                                 bslma::Allocator                    *ba = 0)
     : TestType(original, ba)
     {
         for (int i = 0; i < FOOTPRINT; ++i) {
@@ -486,7 +486,7 @@ class CleanupGuard {
                                            i < d_initialEndPtr_p - d_array_p) {
                     continue; // those elements have already been moved
                 }
-                bslalg_ScalarDestructionPrimitives::destroy(d_array_p + i);
+                bslalg::ScalarDestructionPrimitives::destroy(d_array_p + i);
             }
             else {
                 LOOP_ASSERT(i, '_' == c);
@@ -533,7 +533,7 @@ void cleanup(TYPE *array, const char *spec)
         char c = spec[i];
         if (isalpha(c)) {
             LOOP_ASSERT(i, array[i].datum() == c);
-            bslalg_ScalarDestructionPrimitives::destroy(array + i);
+            bslalg::ScalarDestructionPrimitives::destroy(array + i);
         }
         else {
             LOOP_ASSERT(i, '_' == c);
@@ -638,7 +638,7 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
         char c = spec[i];
         guard.setLength(i);
         if (isalpha(c)) {
-            bslalg_ScalarPrimitives::construct(array, c, Z);
+            bslalg::ScalarPrimitives::construct(array, c, Z);
         }
         else if ('_' == c) {
             continue;
@@ -755,8 +755,8 @@ void testRotate(bool bitwiseMoveableFlag,
 {
     const int MAX_SIZE = 32;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
     TYPE *buf = (TYPE*)&u.d_raw[0];
 
@@ -863,8 +863,8 @@ void testErase(bool bitwiseMoveableFlag,
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
     TYPE *buf = (TYPE*)&u.d_raw[0];
 
@@ -1019,16 +1019,16 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v;
 
     const char *DST_SPEC = "________________";  // add more as needed
     ASSERT(MAX_SIZE <= (int)strlen(DST_SPEC));
 
     {
-        bsls_ObjectBuffer<TYPE> mV;
-        bslalg_ScalarPrimitives::construct(&mV.object(), 'V', Z);
+        bsls::ObjectBuffer<TYPE> mV;
+        bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
         const TYPE& V = mV.object();
         ASSERT('V' == V.datum());
 
@@ -1109,7 +1109,7 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
                 cleanup(dstBuf, DST_EXP);
             }
         }
-        bslalg_ScalarDestructionPrimitives::destroy(&mV.object());
+        bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
     }
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1226,8 +1226,8 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
     const char *INPUT = "tuvwxyz";
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[2 * MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[2 * MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v, w;
 
     const char *DST_SPEC = "________________";  // add more as needed
@@ -1399,8 +1399,8 @@ void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
     const char *INPUT_EXP = "_______";  // after move
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[2 * MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[2 * MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v, w;
 
     const char *DST_SPEC = "________________";  // add more as needed
@@ -1566,13 +1566,13 @@ void testInsertValueN(bool bitwiseMoveableFlag,
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
 
     {
-        bsls_ObjectBuffer<TYPE> mV;
-        bslalg_ScalarPrimitives::construct(&mV.object(), 'V', Z);
+        bsls::ObjectBuffer<TYPE> mV;
+        bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
         const TYPE& V = mV.object();
         ASSERT('V' == V.datum());
 
@@ -1625,7 +1625,7 @@ void testInsertValueN(bool bitwiseMoveableFlag,
             }
 
         }
-        bslalg_ScalarDestructionPrimitives::destroy(&mV.object());
+        bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
     }
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1694,8 +1694,8 @@ void testInsertRange(bool bitwiseMoveableFlag,
     const char *INPUT = "tuvwxyz";
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[2 * MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[2 * MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v;
 
     TYPE *input = (TYPE*)&v.d_raw[MAX_SIZE];
@@ -1829,8 +1829,8 @@ void testMoveInsert(bool bitwiseMoveableFlag,
     const char *INPUT_EXP = "_______";  // after move
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[2 * MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[2 * MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u, v;
 
     if (veryVerbose) printf("\t\t...FWD_ITER = TYPE* (only)\n");
@@ -1968,8 +1968,8 @@ void testDestructiveMove(bool bitwiseMoveableFlag,
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
     TYPE *buf = (TYPE *)&u.d_raw[0];
 
@@ -2076,8 +2076,8 @@ void testCopyConstruct(bool bitwiseCopyableFlag,
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
     TYPE *buf = (TYPE *)&u.d_raw[0];
 
@@ -2223,14 +2223,14 @@ void testUninitializedFillN(bool bitwiseCopyableFlag,
 {
     const int MAX_SIZE = 26;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(TYPE)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(TYPE)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
     TYPE *buf = (TYPE*)&u.d_raw[0];
 
     {
-        bsls_ObjectBuffer<TYPE> mV;
-        bslalg_ScalarPrimitives::construct(&mV.object(), 'V', Z);
+        bsls::ObjectBuffer<TYPE> mV;
+        bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
         const TYPE& V = mV.object();
         ASSERT('V' == V.datum());
 
@@ -2267,7 +2267,7 @@ void testUninitializedFillN(bool bitwiseCopyableFlag,
             verify(buf, EXP);
             cleanup(buf, EXP);
         }
-        bslalg_ScalarDestructionPrimitives::destroy(&mV.object());
+        bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
     }
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -2286,9 +2286,9 @@ void testUninitializedFillNBCT(TYPE value)
     const int BUFFER_SIZE = MAX_SIZE * sizeof(TYPE);
 
     typedef union {
-        char                               d_raw[BUFFER_SIZE];
-        int                                d_enum;
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[BUFFER_SIZE];
+        int                                 d_enum;
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } Buffer;
 
     Buffer u;
@@ -2306,7 +2306,7 @@ void testUninitializedFillNBCT(TYPE value)
 
                 if (veryVerbose) {
                     printf("\t\tarraySz = %d, begin = %d, numElements = %d\n",
-                            arraySize, begin, numElements);
+                           arraySize, begin, numElements);
                 }
                 Obj::uninitializedFillN(&bufU[begin], numElements, value, Z);
 
@@ -2350,7 +2350,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -2837,7 +2837,7 @@ int main(int argc, char *argv[])
             const int bufferSize = rawBufferSize;
             char *buffer = rawBuffer;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (int j = 0; j < bufferSize; ++j) {
@@ -2880,9 +2880,9 @@ int main(int argc, char *argv[])
             timer.reset();
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                bslalg_ArrayPrimitives_Imp::bitwiseFillN(buffer,
-                                                         buffer[0],
-                                                         bufferSize);
+                bslalg::ArrayPrimitives_Imp::bitwiseFillN(buffer,
+                                                          buffer[0],
+                                                          bufferSize);
             }
             timer.stop();
             printf("fill<char>(1) - exp memcpy  : %f\n", timer.elapsedTime());
@@ -2893,7 +2893,7 @@ int main(int argc, char *argv[])
             const int bufferSize = rawBufferSize / sizeof(int);
             int *buffer = (int *)rawBuffer;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (int j = 0; j < bufferSize; ++j) {
@@ -2937,9 +2937,9 @@ int main(int argc, char *argv[])
             timer.reset();
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                bslalg_ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
-                                                         32,
-                                                         rawBufferSize);
+                bslalg::ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
+                                                          32,
+                                                          rawBufferSize);
             }
             timer.stop();
             printf("fill<int>(1) - exp memcpy  : %f\n", timer.elapsedTime());
@@ -2950,7 +2950,7 @@ int main(int argc, char *argv[])
             const int bufferSize = rawBufferSize / sizeof(double);
             double *buffer = (double *)rawBuffer;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (int j = 0; j < bufferSize; ++j) {
@@ -2995,9 +2995,9 @@ int main(int argc, char *argv[])
             buffer[0] = (double)numIter;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                bslalg_ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
-                                                         32,
-                                                         rawBufferSize);
+                bslalg::ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
+                                                          32,
+                                                          rawBufferSize);
             }
             timer.stop();
             printf("fill<double>(1) - exp memcpy : %f\n", timer.elapsedTime());
@@ -3008,7 +3008,7 @@ int main(int argc, char *argv[])
             const int bufferSize = rawBufferSize / sizeof(void *);
             void **buffer = (void **)rawBuffer;
 
-            bsls_Stopwatch timer;
+            bsls::Stopwatch timer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
                 for (int j = 0; j < bufferSize; ++j) {
@@ -3053,9 +3053,9 @@ int main(int argc, char *argv[])
             buffer[0] = (void *)buffer;
             timer.start();
             for (int i = 0; i < numIter; ++i) {
-                bslalg_ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
-                                                         32,
-                                                         rawBufferSize);
+                bslalg::ArrayPrimitives_Imp::bitwiseFillN(rawBuffer,
+                                                          32,
+                                                          rawBufferSize);
             }
             timer.stop();
             printf("fill<void *>(1) - exp memcpy : %f\n", timer.elapsedTime());

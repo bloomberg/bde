@@ -541,7 +541,7 @@ test_extractor (CharT*, Traits*, ArithmeticType*,
         TEST ("+3.", -1, -1, -1, 0, _e_, 3, 0, 9,  3);
         TEST ("-3.", -1, -1, -1, 0, _e_, 3, 0, 9, -3);
     }
-    else { 
+    else {
         TEST ("3.",  -1, -1, -1, 0, ___, 1, 0, 9,  3);
         TEST ("+3.", -1, -1, -1, 0, ___, 2, 0, 9,  3);
         TEST ("-3.", -1, -1, -1, 0, ___, 2, 0, 9, -3);
@@ -670,7 +670,7 @@ void info (const char *cname, const char *tname, const char *type)
                 "%{$CLASS!:@}",
                 "%{?}istream%{:}%{?}wistream"
                 "%{:}basic_istream<%s, %s>%{;}%{;}",
-                'c' == *cname && 's' == *tname, 
+                'c' == *cname && 's' == *tname,
                 'w' == *cname && 's' == *tname,
                 cname, tname);
 
@@ -750,7 +750,7 @@ test_shrt (CharT*, Traits*,
 
     test_extractor ((CharT*)0, (Traits*)0, (short*)0,
                     cname, tname, "short", "%hi");
-    
+
 #define TEST_SHRT(ss, fl, is, ex, ee, es, ne, fw, iv, ev)   \
     TEST (short, "%hi", ss, fl, is, ex, ee, es, ne, fw, iv, ev)
 
@@ -813,7 +813,7 @@ test_ushrt (CharT*, Traits*,
     TEST_SHRT ("99999",  -1, -1, -1, 0, _ef, 5, 0,  1, usmax);
 #elif 4 == _RWSTD_USHRT_SIZE
     const unsigned short usmax = 4294967295U;
-    
+
     TEST_SHRT ("4294967295", -1, -1, -1, 0, _e_, 10, 0, -1, usmax);
     TEST_SHRT ("4294967296", -1, -1, -1, 0, _ef, 10, 0, -1, usmax);
     TEST_SHRT ("9999999999", -1, -1, -1, 0, _ef, 10, 0, -1, usmax);

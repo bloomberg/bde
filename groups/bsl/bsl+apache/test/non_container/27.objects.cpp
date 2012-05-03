@@ -23,12 +23,12 @@
  * permissions and limitations under the License.
  *
  * Copyright 2000-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #include <driver.h>
 
-// If the following macro is defined, then new header provides 
+// If the following macro is defined, then new header provides
 // an implementation for operator new [] & delete []; undef them here
 // so that the test can provide its own implementation for these operators
 #undef _RWSTD_NO_OPERATOR_NEW_ARRAY
@@ -36,10 +36,10 @@
 
 
 #if defined (__IBMCPP__) && !defined (_RWSTD_NO_IMPLICIT_INCLUSION)
-  // disable implicit inclusion to work around 
-  // a limitation in IBM VisualAge 5.0.2.0 (PR #26959) 
+  // disable implicit inclusion to work around
+  // a limitation in IBM VisualAge 5.0.2.0 (PR #26959)
 
-#  define _RWSTD_NO_IMPLICIT_INCLUSION 
+#  define _RWSTD_NO_IMPLICIT_INCLUSION
 #endif
 
 #if !defined (_MSC_VER) || _MSC_VER > 1300

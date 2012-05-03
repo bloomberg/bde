@@ -1,4 +1,4 @@
-// bsltst_dual_hash_map.t.cpp                  -*-C++-*-
+// bsltst_dual_hash_map.t.cpp                                         -*-C++-*-
 #undef  BSL_OVERRIDES_STD
 #include <bsltst_dual_hash_map.h>
 
@@ -137,11 +137,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {

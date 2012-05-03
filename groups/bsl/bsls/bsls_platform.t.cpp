@@ -259,8 +259,8 @@ int main(int argc, char *argv[])
         // section of this component's header file.
 
         struct OsCpu {
-            bsls_Platform::Os  osType;
-            bsls_Platform::Cpu cpuType;
+            bsls::Platform::Os  osType;
+            bsls::Platform::Cpu cpuType;
         };
 
         if (veryVerbose) {

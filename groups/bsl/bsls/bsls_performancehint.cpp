@@ -1,4 +1,4 @@
-// bsls_performancehint.cpp                  -*-C++-*-
+// bsls_performancehint.cpp                                           -*-C++-*-
 #include <bsls_performancehint.h>
 
 #include <bsls_ident.h>
@@ -8,16 +8,20 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        // ---------------------------
-                        // struct bsls_PerformanceHint
-                        // ---------------------------
+namespace bsls {
+
+                        // ----------------------
+                        // struct PerformanceHint
+                        // ----------------------
 
 // CLASS METHODS
-void bsls_PerformanceHint::rarelyCalled()
+void PerformanceHint::rarelyCalled()
 {
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

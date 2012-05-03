@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2002-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // Usage:
@@ -331,7 +331,7 @@ int do_test (int         lineno,          // line number
         Streambuf<charT, Traits> sb (pnext, plast);
 
         IStreambufIter sbitnext (&sb);
-        IStreambufIter sbitlast; 
+        IStreambufIter sbitlast;
 
         NumGet<charT, IStreambufIter> ng;
         sbitlast = ng.get (sbitnext, sbitlast, iob, err, x);
@@ -848,19 +848,19 @@ test_shrt (CharType ctype, const char *cname,
     TEST (T, short (  12), "XII",         3, BASE (1), Eof);
     TEST (T, short ( 123), "CXXIII",      6, BASE (1), Eof);
     TEST (T, short (1234), "MCCXXXIV",    8, BASE (1), Eof);
-    TEST (T, short (2345), "MMCCCXLV",    8, BASE (1), Eof); 
+    TEST (T, short (2345), "MMCCCXLV",    8, BASE (1), Eof);
     TEST (T, short (3456), "MMMCDLVI",    8, BASE (1), Eof);
-    TEST (T, short (4567), "MMMMDLXVII", 10, BASE (1), Eof); 
-    TEST (T, short (4999), "MMMMCMXCIX", 10, BASE (1), Eof); 
-    TEST (T, short (5000), "5000",        4, BASE (1), Eof); 
-    TEST (T, short (5678), "5678",        4, BASE (1), Eof); 
+    TEST (T, short (4567), "MMMMDLXVII", 10, BASE (1), Eof);
+    TEST (T, short (4999), "MMMMCMXCIX", 10, BASE (1), Eof);
+    TEST (T, short (5000), "5000",        4, BASE (1), Eof);
+    TEST (T, short (5678), "5678",        4, BASE (1), Eof);
 
-    TEST (T, short (5001), "5001i",       4, BASE (1), Good); 
-    TEST (T, short (5002), "5002v",       4, BASE (1), Good); 
-    TEST (T, short (5003), "5003x",       4, BASE (1), Good); 
-    TEST (T, short (5004), "5004l",       4, BASE (1), Good); 
-    TEST (T, short (5005), "5005d",       4, BASE (1), Good); 
-    TEST (T, short (5006), "5006m",       4, BASE (1), Good); 
+    TEST (T, short (5001), "5001i",       4, BASE (1), Good);
+    TEST (T, short (5002), "5002v",       4, BASE (1), Good);
+    TEST (T, short (5003), "5003x",       4, BASE (1), Good);
+    TEST (T, short (5004), "5004l",       4, BASE (1), Good);
+    TEST (T, short (5005), "5005d",       4, BASE (1), Good);
+    TEST (T, short (5006), "5006m",       4, BASE (1), Good);
 
     rw_info (0, 0, 0, "extension: base 2 (ios_base::bin, binary)");
 
@@ -968,7 +968,7 @@ test_long (CharType ctype, const char *cname,
              cname, iname, tname);
 
     // 22.2.3.1, p2 -- integer grammar:
-    // 
+    //
     // integer   ::= [sign] units
     // sign      ::= plusminus [whitespace]
     // plusminus ::= '+' | '-'
@@ -1004,7 +1004,7 @@ test_long (CharType ctype, const char *cname,
     TEST (T, 0L, "0-",          1, 0, Good);
     TEST (T, 0L, "0+",          1, 0, Good);
     TEST (T, 0L, "0.",          1, 0, Good);
-    
+
     // long parsing of 0, base 10
     TEST (T, 0L, "0",          1, dec, Eof);
     TEST (T, 0L, "00",         2, dec, Eof);
@@ -1368,19 +1368,19 @@ test_long (CharType ctype, const char *cname,
     TEST (T,   12L, "XII",         3, BASE (1), Eof);
     TEST (T,  123L, "CXXIII",      6, BASE (1), Eof);
     TEST (T, 1234L, "MCCXXXIV",    8, BASE (1), Eof);
-    TEST (T, 2345L, "MMCCCXLV",    8, BASE (1), Eof); 
+    TEST (T, 2345L, "MMCCCXLV",    8, BASE (1), Eof);
     TEST (T, 3456L, "MMMCDLVI",    8, BASE (1), Eof);
-    TEST (T, 4567L, "MMMMDLXVII", 10, BASE (1), Eof); 
-    TEST (T, 4999L, "MMMMCMXCIX", 10, BASE (1), Eof); 
-    TEST (T, 5000L, "5000",        4, BASE (1), Eof); 
-    TEST (T, 5678L, "5678",        4, BASE (1), Eof); 
+    TEST (T, 4567L, "MMMMDLXVII", 10, BASE (1), Eof);
+    TEST (T, 4999L, "MMMMCMXCIX", 10, BASE (1), Eof);
+    TEST (T, 5000L, "5000",        4, BASE (1), Eof);
+    TEST (T, 5678L, "5678",        4, BASE (1), Eof);
 
-    TEST (T, 5001L, "5001i",       4, BASE (1), Good); 
-    TEST (T, 5002L, "5002v",       4, BASE (1), Good); 
-    TEST (T, 5003L, "5003x",       4, BASE (1), Good); 
-    TEST (T, 5004L, "5004l",       4, BASE (1), Good); 
-    TEST (T, 5005L, "5005d",       4, BASE (1), Good); 
-    TEST (T, 5006L, "5006m",       4, BASE (1), Good); 
+    TEST (T, 5001L, "5001i",       4, BASE (1), Good);
+    TEST (T, 5002L, "5002v",       4, BASE (1), Good);
+    TEST (T, 5003L, "5003x",       4, BASE (1), Good);
+    TEST (T, 5004L, "5004l",       4, BASE (1), Good);
+    TEST (T, 5005L, "5005d",       4, BASE (1), Good);
+    TEST (T, 5006L, "5006m",       4, BASE (1), Good);
 
     rw_info (0, 0, 0, "extension: base 2 (ios_base::bin, binary)");
 
@@ -2120,7 +2120,7 @@ test_pvoid (CharType ctype, const char *cname,
     // working around a SunPro bug (PR #28279)
     const char pvmax[]        = "0";
     const char pvmax_plus_1[] = "0xffffffffffffffffffffffffffffffff";
-#endif 
+#endif
 
 #define PVOIDSTR(name)   name, sizeof name - 1
 
@@ -2403,7 +2403,7 @@ void test_floating_point (CharType ctype, const char *cname,
                 continue;
 
             if (conv->decimal_point && '.' != *conv->decimal_point) {
-                rw_info (0, 0, 0, 
+                rw_info (0, 0, 0,
                          "num_get<%s, %s>::get(..., %s&) when "
                          "LC_NUMERIC=\"%s\"",
                          cname, iname, tname, name);

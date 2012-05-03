@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2004-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <bitset>      // for bitset
@@ -53,7 +53,7 @@ int bcmp (const std::bitset<N> &bset,
     for (std::size_t i = 0; i != N; ++i) {
 
         const char bit = bset [i] ? '1' : '0';
-        
+
         if (bit != str [N - i - 1])
             return -1;
     }
@@ -421,7 +421,7 @@ void test_string_ctor (std::bitset<N>*,
 
     catch (const std::out_of_range&) {
         caught = OutOfRange;
-    } 
+    }
     catch (const std::invalid_argument&) {
         caught = InvalidArgument;
     }

@@ -1,4 +1,4 @@
-// bslma_destructorguard.cpp    -*-C++-*-
+// bslma_destructorguard.cpp                                          -*-C++-*-
 #include <bslma_destructorguard.h>
 
 #include <bsls_ident.h>

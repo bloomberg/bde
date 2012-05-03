@@ -1,4 +1,4 @@
-// bslmf_isarray.t.cpp            -*-C++-*-
+// bslmf_isarray.t.cpp                                                -*-C++-*-
 
 #include <bslmf_isarray.h>
 
@@ -17,7 +17,7 @@ using namespace std;
 //                                --------
 // TBD
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_IsArray
+// [ 1] bslmf::IsArray
 // [ 2] USAGE EXAMPLE
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf_IsArray'.
+        //   Simple example illustrating use of 'bslmf::IsArray'.
         //
         // Concerns:
         //
@@ -98,134 +98,134 @@ int main(int argc, char *argv[])
 ///-----
 // For example:
 //..
-     ASSERT(1 == bslmf_IsArray<int    [5]>::VALUE);
-     ASSERT(0 == bslmf_IsArray<int  *    >::VALUE);
-     ASSERT(0 == bslmf_IsArray<int (*)[5]>::VALUE);
+     ASSERT(1 == bslmf::IsArray<int    [5]>::VALUE);
+     ASSERT(0 == bslmf::IsArray<int  *    >::VALUE);
+     ASSERT(0 == bslmf::IsArray<int (*)[5]>::VALUE);
 //..
-// Note that the 'bslmf_IsArray' meta-function also evaluates to true (1) when
+// Note that the 'bslmf::IsArray' meta-function also evaluates to true (1) when
 // applied to references to arrays:
 //..
-     ASSERT(1 == bslmf_IsArray<int (&)[5]>::VALUE);
+     ASSERT(1 == bslmf::IsArray<int (&)[5]>::VALUE);
 //..
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf_IsArray' with various types and verify
+        //   Instantiate 'bslmf::IsArray' with various types and verify
         //   that their 'VALUE' member is initialized properly.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "bslmf_IsArray" << endl
-                          << "=============" << endl;
+                          << "bslmf::IsArray" << endl
+                          << "==============" << endl;
 
-        ASSERT(1 == bslmf_IsArray<char          [1]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<char const    [1]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<char       (&)[1]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<char             >::VALUE);
-        ASSERT(0 == bslmf_IsArray<char const       >::VALUE);
-        ASSERT(0 == bslmf_IsArray<char        *    >::VALUE);
+        ASSERT(1 == bslmf::IsArray<char          [1]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<char const    [1]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<char       (&)[1]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<char             >::VALUE);
+        ASSERT(0 == bslmf::IsArray<char const       >::VALUE);
+        ASSERT(0 == bslmf::IsArray<char        *    >::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<void       *   [2]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<void const *   [2]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<void       *(&)[2]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<void       *      >::VALUE);
-        ASSERT(0 == bslmf_IsArray<void              >::VALUE);
+        ASSERT(1 == bslmf::IsArray<void       *   [2]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<void const *   [2]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<void       *(&)[2]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<void       *      >::VALUE);
+        ASSERT(0 == bslmf::IsArray<void              >::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<int                [3]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const          [3]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int volatile       [3]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const volatile [3]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int                   >::VALUE);
-        ASSERT(0 == bslmf_IsArray<int const             >::VALUE);
-        ASSERT(0 == bslmf_IsArray<int volatile          >::VALUE);
-        ASSERT(0 == bslmf_IsArray<int const volatile    >::VALUE);
+        ASSERT(1 == bslmf::IsArray<int                [3]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const          [3]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int volatile       [3]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const volatile [3]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int                   >::VALUE);
+        ASSERT(0 == bslmf::IsArray<int const             >::VALUE);
+        ASSERT(0 == bslmf::IsArray<int volatile          >::VALUE);
+        ASSERT(0 == bslmf::IsArray<int const volatile    >::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<int                (&)[4]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const          (&)[4]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int volatile       (&)[4]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const volatile (&)[4]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int                 &    >::VALUE);
-        ASSERT(0 == bslmf_IsArray<int const           &    >::VALUE);
-        ASSERT(0 == bslmf_IsArray<int volatile        &    >::VALUE);
-        ASSERT(0 == bslmf_IsArray<int const volatile  &    >::VALUE);
+        ASSERT(1 == bslmf::IsArray<int                (&)[4]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const          (&)[4]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int volatile       (&)[4]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const volatile (&)[4]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int                 &    >::VALUE);
+        ASSERT(0 == bslmf::IsArray<int const           &    >::VALUE);
+        ASSERT(0 == bslmf::IsArray<int volatile        &    >::VALUE);
+        ASSERT(0 == bslmf::IsArray<int const volatile  &    >::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<int                 * [5]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const           * [5]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int volatile        * [5]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const volatile  * [5]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int                (*)[5]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int const          (*)[5]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int volatile       (*)[5]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int const volatile (*)[5]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int                 *    >::VALUE);
-        ASSERT(0 == bslmf_IsArray<int const           *    >::VALUE);
-        ASSERT(0 == bslmf_IsArray<int volatile        *    >::VALUE);
-        ASSERT(0 == bslmf_IsArray<int const volatile  *    >::VALUE);
+        ASSERT(1 == bslmf::IsArray<int                 * [5]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const           * [5]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int volatile        * [5]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const volatile  * [5]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int                (*)[5]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int const          (*)[5]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int volatile       (*)[5]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int const volatile (*)[5]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int                 *    >::VALUE);
+        ASSERT(0 == bslmf::IsArray<int const           *    >::VALUE);
+        ASSERT(0 == bslmf::IsArray<int volatile        *    >::VALUE);
+        ASSERT(0 == bslmf::IsArray<int const volatile  *    >::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<int         [6][6]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const   [6][6]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int      (&)[6][6]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int       * [6][6]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int      (*)[6][6]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int         [6][6]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const   [6][6]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int      (&)[6][6]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int       * [6][6]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int      (*)[6][6]>::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<int *const    [6][6]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int *const (&)[6][6]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int *const (*)[6][6]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int *const    [6][6]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int *const (&)[6][6]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int *const (*)[6][6]>::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<void *[]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<void *[]>::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<int                []>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const          []>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int volatile       []>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const volatile []>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int                []>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const          []>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int volatile       []>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const volatile []>::VALUE);
 
 #ifndef BSLS_PLATFORM__CMP_MSVC
-        ASSERT(1 == bslmf_IsArray<int                (&)[]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const          (&)[]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int volatile       (&)[]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const volatile (&)[]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int                (&)[]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const          (&)[]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int volatile       (&)[]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const volatile (&)[]>::VALUE);
 #endif
 
-        ASSERT(1 == bslmf_IsArray<int                 * []>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const           * []>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int volatile        * []>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const volatile  * []>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int                (*)[]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int const          (*)[]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int volatile       (*)[]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int const volatile (*)[]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int                 * []>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const           * []>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int volatile        * []>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const volatile  * []>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int                (*)[]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int const          (*)[]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int volatile       (*)[]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int const volatile (*)[]>::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<int          [][7]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<int const    [][7]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int          [][7]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int const    [][7]>::VALUE);
 #ifndef BSLS_PLATFORM__CMP_MSVC
-        ASSERT(1 == bslmf_IsArray<int       (&)[][7]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int       (&)[][7]>::VALUE);
 #endif
-        ASSERT(1 == bslmf_IsArray<int        * [][7]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<int       (*)[][7]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int        * [][7]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int       (*)[][7]>::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<int *const    [][7]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int *const    [][7]>::VALUE);
 #ifndef BSLS_PLATFORM__CMP_MSVC
-        ASSERT(1 == bslmf_IsArray<int *const (&)[][7]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<int *const (&)[][7]>::VALUE);
 #endif
-        ASSERT(0 == bslmf_IsArray<int *const (*)[][7]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int *const (*)[][7]>::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<Enum          [8]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<Enum       (&)[8]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<Enum const (&)[8]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<Enum             >::VALUE);
+        ASSERT(1 == bslmf::IsArray<Enum          [8]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<Enum       (&)[8]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<Enum const (&)[8]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<Enum             >::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<Struct    [8]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<Struct (&)[8]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<Struct       >::VALUE);
+        ASSERT(1 == bslmf::IsArray<Struct    [8]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<Struct (&)[8]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<Struct       >::VALUE);
 
-        ASSERT(1 == bslmf_IsArray<Union    [8]>::VALUE);
-        ASSERT(1 == bslmf_IsArray<Union (&)[8]>::VALUE);
-        ASSERT(0 == bslmf_IsArray<Union       >::VALUE);
+        ASSERT(1 == bslmf::IsArray<Union    [8]>::VALUE);
+        ASSERT(1 == bslmf::IsArray<Union (&)[8]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<Union       >::VALUE);
 
-        ASSERT(0 == bslmf_IsArray<int  Struct::*    >::VALUE);
-        ASSERT(0 == bslmf_IsArray<int (Struct::*)[9]>::VALUE);
+        ASSERT(0 == bslmf::IsArray<int  Struct::*    >::VALUE);
+        ASSERT(0 == bslmf::IsArray<int (Struct::*)[9]>::VALUE);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

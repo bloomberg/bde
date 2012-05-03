@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Simplify exception constructs for non-exception builds
 //
 //@CLASSES:
-//   bsls_ExceptionUtil: namespace for exception utility functions
+//  bsls::ExceptionUtil: namespace for exception utility functions
 //
 //@SEE_ALSO:
 //
@@ -75,23 +75,23 @@ BSLS_IDENT("$Id: $")
 // enabled.  Note that the curly brace placement is identical to normal 'try'
 // and 'catch' constructs.  The outer 'try' block catches 'my_ExClass2':
 //..
-//          int caught = -1;
-//          BSLS_TRY {
+//  int caught = -1;
+//  BSLS_TRY {
 //..
 // The inner 'try' block catches 'my_ExClass1' and also has a "catch-all"
 // handler:
 //..
 //
-//              BSLS_TRY {
-//                  noThrowFunc();
-//                  doThrowSome(i);
+//  BSLS_TRY {
+//      noThrowFunc();
+//      doThrowSome(i);
 //
-//                  caught = 0; // Got here if no throw
-//              }
-//              BSLS_CATCH(my_ExClass1) {
-//                  caught = 1;
-//              }
-//              BSLS_CATCH(...) {
+//      caught = 0; // Got here if no throw
+//  }
+//  BSLS_CATCH(my_ExClass1) {
+//      caught = 1;
+//  }
+//  BSLS_CATCH(...) {
 //..
 // Within the catch-all handler, use the 'BSLS_RETHROW' macro to re-throw the
 // exception to the outer 'try' block:
@@ -187,12 +187,12 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_CATCH(X) else if (0)
 
 #   define BSLS_THROW(X)                                                    \
-    BloombergLP::bsls_Assert::invokeHandler("Tried to throw " #X            \
+    BloombergLP::bsls::Assert::invokeHandler("Tried to throw " #X           \
                                             " with exceptions disabled",    \
                                             __FILE__, __LINE__)
 
 #   define BSLS_RETHROW                                                     \
-    BloombergLP::bsls_Assert::invokeHandler("Tried to re-throw exception "  \
+    BloombergLP::bsls::Assert::invokeHandler("Tried to re-throw exception " \
                                             "with exceptions disabled",     \
                                             __FILE__, __LINE__)
 

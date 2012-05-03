@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -323,7 +323,7 @@ private:
     // the initial set of nodes is preallocated as part of this graph
     // object instance. additional blocks of nodes will be allocated
     // as is necessary by the get_new_node() member.
-    _rw_brace_node_buffer node_cache_;    
+    _rw_brace_node_buffer node_cache_;
     _rw_brace_node_buffer* nodes_; // pointer to last allocated node buffer
 
     // code for handling integer ranges
@@ -481,7 +481,7 @@ _rw_brace_graph::get_new_node ()
 _rw_brace_graph::_rw_brace_node*
 _rw_brace_graph::build_anything (const char* beg, const char* end)
 {
-    // 
+    //
     const char* open_brace = _rw_find_open_brace (beg, end);
     if (open_brace) {
 
@@ -489,12 +489,12 @@ _rw_brace_graph::build_anything (const char* beg, const char* end)
         _rw_brace_node* prefix = get_new_node ();
         if (!prefix)
             return 0;
-              
+
         prefix->str_ = beg;
         prefix->len_ = (open_brace - beg);
 
         _rw_brace_node* child = 0;
-        
+
         // try to build a character sequence expansion like {a..g}
         child = build_character_sequence (open_brace, end);
         if (!child) {
@@ -515,7 +515,7 @@ _rw_brace_graph::build_anything (const char* beg, const char* end)
 
         // we must have a valid child pointer at this point
         prefix->child_ = child;
-   
+
         return prefix;
     }
 
@@ -793,7 +793,7 @@ _rw_brace_graph::build_list (const char* beg, const char* end)
     _rw_brace_node* final_child = 0;
 
     while (mid) {
-    
+
         // create a child from whatever is between beg and end. that childs
         // next pointer will be the suffix we created above.
         _rw_brace_node* child = build_anything (beg, mid);
@@ -802,7 +802,7 @@ _rw_brace_graph::build_list (const char* beg, const char* end)
 
         if (!first_child)
             first_child = child;
-        
+
         // append new child to end of chain
         if (final_child)
             final_child->sibling_ = child;
@@ -923,7 +923,7 @@ bool _rw_brace_graph::brace_expand (_rw_recursion_context* self, char sep)
 
         return true;
     }
-    
+
     // iterate through all of the children of the node, thus finding all
     // other combinations
     _rw_recursion_context context (self);
@@ -1064,7 +1064,7 @@ char* rw_shell_expand (const char* shell_expr, size_t sz,
                 ;
 
             const size_t len = exp < term ? (term - exp) - 1 : 0;
-        
+
             if (is_first_expand)
                 app = result.append (exp, len);
             else if (result.append (&sep, 1))

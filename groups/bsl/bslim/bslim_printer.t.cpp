@@ -275,7 +275,7 @@ class BlockList {
         Block                              **d_addrPrevNext; // enable
                                                              // delete
 
-        bsls_AlignmentUtil::MaxAlignedType   d_memory;       // force
+        bsls::AlignmentUtil::MaxAlignedType  d_memory;       // force
                                                              // alignment
     };
 
@@ -283,8 +283,8 @@ class BlockList {
     Block           *d_head_p;      // address of first block of memory
                                     // (or 0)
 
-    bslma_Allocator *d_allocator_p; // memory allocator; held, but not
-                                    // owned
+    bslma::Allocator *d_allocator_p; // memory allocator; held, but not
+                                     // owned
 
   public:
     // ACCESSORS
@@ -498,7 +498,7 @@ int main(int argc, char *argv[])
         (void)data;  // used
         ostringstream out;
 
-        bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
             if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
@@ -677,10 +677,10 @@ int main(int argc, char *argv[])
 
                 ostringstream ptr;
                 ptr << hex << showbase
-                    << reinterpret_cast<bsls_Types::UintPtr>(data);
+                    << reinterpret_cast<bsls::Types::UintPtr>(data);
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                                            ptr.str().c_str());
+                         ptr.str().c_str());
                 const bsl::string EXPECTED(buf);
                 const bsl::string& ACTUAL = out.str();
 
@@ -786,7 +786,7 @@ int main(int argc, char *argv[])
 
             ostringstream ptr;
             ptr << hex << showbase
-                << reinterpret_cast<bsls_Types::UintPtr>(data);
+                << reinterpret_cast<bsls::Types::UintPtr>(data);
             char buf[999];
             snprintf(buf, 999, DATA[i].d_expected.c_str(), ptr.str().c_str());
             const bsl::string EXPECTED(buf);
@@ -988,10 +988,10 @@ int main(int argc, char *argv[])
 
                 ostringstream ptr;
                 ptr << hex << showbase
-                    << reinterpret_cast<bsls_Types::UintPtr>(data);
+                    << reinterpret_cast<bsls::Types::UintPtr>(data);
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                                            ptr.str().c_str());
+                         ptr.str().c_str());
                 const bsl::string EXPECTED(buf);
 
                 // void *
@@ -1442,10 +1442,10 @@ int main(int argc, char *argv[])
 
                 stringstream exp;
                 exp << hex << showbase
-                    << reinterpret_cast<bsls_Types::UintPtr>(data);
+                    << reinterpret_cast<bsls::Types::UintPtr>(data);
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                                            exp.str().c_str());
+                         exp.str().c_str());
                 const bsl::string EXPECTED(buf);
 
                 // void *
@@ -1554,7 +1554,7 @@ int main(int argc, char *argv[])
                 ptr << hex << showbase << data;
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                                     ptr.str().c_str(), *data);
+                         ptr.str().c_str(), *data);
                 const bsl::string EXPECTED(buf);
                 const bsl::string& ACTUAL = out.str();
 
@@ -1604,7 +1604,7 @@ int main(int argc, char *argv[])
                 ptr << hex << showbase << data;
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                                     ptr.str().c_str(), tData);
+                         ptr.str().c_str(), tData);
                 const bsl::string EXPECTED(buf);
                 const bsl::string& ACTUAL = out.str();
 
@@ -1645,10 +1645,10 @@ int main(int argc, char *argv[])
 
                 ostringstream ptr;
                 ptr << hex << showbase
-                    << reinterpret_cast<bsls_Types::UintPtr>(functionPtr);
+                    << reinterpret_cast<bsls::Types::UintPtr>(functionPtr);
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                   ptr.str().c_str());
+                         ptr.str().c_str());
                 const bsl::string EXPECTED(buf);
                 const bsl::string& ACTUAL = out.str();
 
@@ -2062,10 +2062,10 @@ int main(int argc, char *argv[])
                 if (ISHEX) {
                     stringstream exp;
                     exp << hex << showbase
-                        << static_cast<bsls_Types::UintPtr>(data);
+                        << static_cast<bsls::Types::UintPtr>(data);
                     char buf[999];
                     snprintf(buf, 999, DATA[i].d_expected.c_str(),
-                                                            exp.str().c_str());
+                             exp.str().c_str());
                     EXPECTED = buf;
                 }
                 else {

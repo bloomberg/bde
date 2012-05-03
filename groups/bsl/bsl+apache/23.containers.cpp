@@ -21,7 +21,7 @@
 * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
 * implied.   See  the License  for  the  specific language  governing
 * permissions and limitations under the License.
-* 
+*
 **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -470,7 +470,7 @@ _rw_list_sigcat (char** pbuf, size_t * pbufsize, ListIds::OverloadId which,
 
     case ListIds::erase_iter_iter:
         rw_asnprintf (pbuf, pbufsize,
-                      "%{+} (begin()%{?} + %zu%{;}, begin()%{?} + %zu%{;})", 
+                      "%{+} (begin()%{?} + %zu%{;}, begin()%{?} + %zu%{;})",
                       0 != tcase.off, tcase.off,
                       0 != range1_end, range1_end);
         break;
@@ -868,7 +868,7 @@ _rw_dispatch (T*, Allocator*,
     }
 
     const bool reverse_iter =
-           ContainerIds::ReverseIterator      == func.iter_id_ 
+           ContainerIds::ReverseIterator      == func.iter_id_
         || ContainerIds::ConstReverseIterator == func.iter_id_;
 
     const Data tdata (func, tcase);
@@ -879,7 +879,7 @@ _rw_dispatch (T*, Allocator*,
         const size_t func_id = tdata.func_.which_ & ContainerIds::fid_mask;
 
         const bool like_ctor =
-               ContainerIds::fid_ctor   == func_id 
+               ContainerIds::fid_ctor   == func_id
             || ContainerIds::fid_assign == func_id;
 
         // ctor and assignment operator require the full container reverse
@@ -1351,7 +1351,7 @@ _rw_run_test  (int                       argc,
     free (optbuf);
 
     return status;
-}   
+}
 
 
 

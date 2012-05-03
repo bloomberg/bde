@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for remove(), remove_copy(), ...
@@ -35,7 +35,7 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
@@ -43,28 +43,28 @@ _RWSTD_NAMESPACE (std) {
 
 template
 FwdIter<eq_comp<assign<base<> > > >
-remove (FwdIter<eq_comp<assign<base<> > > >, 
+remove (FwdIter<eq_comp<assign<base<> > > >,
         FwdIter<eq_comp<assign<base<> > > >,
         const eq_comp<assign<base<> > >&);
 
 template
 FwdIter<eq_comp<assign<base<> > > >
-remove_if (FwdIter<eq_comp<assign<base<> > > >, 
+remove_if (FwdIter<eq_comp<assign<base<> > > >,
            FwdIter<eq_comp<assign<base<> > > >,
            predicate<eq_comp<assign<base<> > > >);
 
 template
 OutputIter<eq_comp<assign<base<> > > >
-remove_copy (InputIter<eq_comp<assign<base<> > > >, 
+remove_copy (InputIter<eq_comp<assign<base<> > > >,
              InputIter<eq_comp<assign<base<> > > >,
-             OutputIter<eq_comp<assign<base<> > > >, 
+             OutputIter<eq_comp<assign<base<> > > >,
              const eq_comp<assign<base<> > >&);
 
 template
 OutputIter<eq_comp<assign<base<> > > >
-remove_copy_if (InputIter<eq_comp<assign<base<> > > >, 
+remove_copy_if (InputIter<eq_comp<assign<base<> > > >,
                 InputIter<eq_comp<assign<base<> > > >,
-                OutputIter<eq_comp<assign<base<> > > >, 
+                OutputIter<eq_comp<assign<base<> > > >,
                 predicate<eq_comp<assign<base<> > > >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
@@ -139,11 +139,11 @@ std::size_t EqualityPredicate<T>::funcalls_;
 template <class Iterator, class T, class Predicate>
 void test_remove (int line,
                   const char *src, const char val, std::size_t nrem,
-                  Iterator, NoIterator, const T*, 
+                  Iterator, NoIterator, const T*,
                   const Predicate*, RemoveTag tag)
 {
     static const char* const itname = type_name (Iterator (), (T*)0);
-    static const char* const fname = tag.use_predicate ? 
+    static const char* const fname = tag.use_predicate ?
         fnames_if [tag.fname_inx] : fnames [tag.fname_inx];
 
     // compute the length of the source sequence
@@ -181,7 +181,7 @@ void test_remove (int line,
 
     // verify that the returned iterator is set as expected
     bool success = end.cur_ == first.cur_ + (nsrc - nrem);
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: %s<%s>(\"%s\", ..., %#c) == first + %zu, got %zd",
                __LINE__, fname, itname, src, val,
                nsrc - nrem, end.cur_ - xsrc);
@@ -204,7 +204,7 @@ void test_remove (int line,
     success = true;
     for (std::size_t i = 1; i < nsrc - nrem && success; ++i) {
         success = xsrc [i - 1].id_ < xsrc [i].id_;
-        rw_assert (success, 0, line, 
+        rw_assert (success, 0, line,
                    "line %d: %s<%s>(\"%s\", ..., %#c) ==> \"%{X=#*.*}\"; "
                    "unstable at offset %zu element ids: %d and %d",
                    __LINE__, fname, itname, src, val,
@@ -214,11 +214,11 @@ void test_remove (int line,
 
 
     // verify that the values of elements in the range [end, last)
-    // are unchanged 
+    // are unchanged
     success = true;
     for (std::size_t i = nsrc - nrem; i != nsrc && success; ++i) {
         success = src [i] == xsrc [i].data_.val_;
-        rw_assert (success, 0, line, 
+        rw_assert (success, 0, line,
                    "line %d: %s<%s>(\"%s\", ..., %#c) ==> "
                    "\"%{X=*.*}\"; expected element value %#c",
                    __LINE__, fname, itname, src, val,
@@ -251,11 +251,11 @@ void test_remove (int line,
 template <class Iterator, class OutputIterator, class Predicate, class T>
 void test_remove (int line,
                   const char *src, const char val, std::size_t nrem,
-                  Iterator it, OutputIterator dummy, const T*, 
+                  Iterator it, OutputIterator dummy, const T*,
                   const Predicate*, RemoveCopyTag tag)
 {
     static const char* const itname = type_name (it, (T*)0);
-    static const char* const fname = tag.use_predicate ? 
+    static const char* const fname = tag.use_predicate ?
         fnames_if [tag.fname_inx] : fnames [tag.fname_inx];
 
     const std::size_t nsrc = std::strlen (src);
@@ -285,7 +285,7 @@ void test_remove (int line,
 
     // verify that the returned iterator is set as expected p 25.2.7.8
     bool success = end.cur_ == result.cur_ + (nsrc - nrem);
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: %s<%s>(\"%s\", ..., %#c) == first + %zu, got %zd",
                __LINE__, fname, itname, src, val, nsrc - nrem, end.cur_ - xsrc);
 
@@ -306,7 +306,7 @@ void test_remove (int line,
     success = true;
     for (std::size_t i = 1; i < nsrc - nrem && success; ++i) {
         success = xdst [i - 1].id_ < xdst [i].id_;
-        rw_assert (success, 0, line, 
+        rw_assert (success, 0, line,
                    "line %d: %s<%s>(\"%s\", ..., %#c) ==> \"%{X=#*.*}\"; "
                    "unstable at offset %zu: element ids: %d and %d",
                    __LINE__, fname, itname, src, val,
@@ -337,9 +337,9 @@ void test_remove (int line,
 /**************************************************************************/
 
 // exercises all four function templates
-template <class Iterator1, class Iterator2, class T, 
+template <class Iterator1, class Iterator2, class T,
           class Predicate, class Tag>
-void test_remove (Iterator1 it1, Iterator2 it2, 
+void test_remove (Iterator1 it1, Iterator2 it2,
                   const T*, const Predicate* pred, Tag tag)
 {
     static const char* const it1name = type_name (it1, (T*)0);
@@ -410,10 +410,10 @@ void test_remove (Iterator1 it1, Iterator2 it2,
 
 /**************************************************************************/
 
-template <class T, class Predicate, class Tag> 
+template <class T, class Predicate, class Tag>
 void test_remove (const T*, const Predicate* pred, Tag tag)
 {
-    rw_info (0, 0, 0,  
+    rw_info (0, 0, 0,
              "template <class %s, class T> "
              "std::%s (%1$s, %1$s, %s)",
              "ForwardIterator",
@@ -469,8 +469,8 @@ void test_remove (const T*)
 
 /**************************************************************************/
 
-template <class InputIterator, class T, class Predicate, class Tag> 
-void test_remove_copy (const InputIterator& iter, const T*, 
+template <class InputIterator, class T, class Predicate, class Tag>
+void test_remove_copy (const InputIterator& iter, const T*,
                        const Predicate* pred, Tag tag)
 {
     if (rw_opt_no_output_iter) {
@@ -504,10 +504,10 @@ void test_remove_copy (const InputIterator& iter, const T*,
 
 /**************************************************************************/
 
-template <class T, class Predicate, class Tag> 
+template <class T, class Predicate, class Tag>
 void test_remove_copy (const T*, const Predicate* pred, Tag tag)
 {
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "template "
              "<class InputIterator, class OutputIterator, class T> "
              "std::%s (InputIterator, InputIterator, "
@@ -596,7 +596,7 @@ int main (int argc, char *argv[])
                     "|-no-OutputIterator# "
                     "|-no-ForwardIterator# "
                     "|-no-BidirectionalIterator# "
-                    "|-no-RandomAccessIterator#",                    
+                    "|-no-RandomAccessIterator#",
                     &rw_opt_no_remove,
                     &rw_opt_no_remove_if,
                     &rw_opt_no_remove_copy,

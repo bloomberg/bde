@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2004-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_FILE_H_INCLUDED
@@ -62,7 +62,7 @@
 // writes chars using symbolic names from the Portable Character Set (PCS)
 // or using the <U00XX> notations for narrow characters outside that set
 // if teh second argument is 0, writes out the CHARMAP section of the locale
-// definition file for the Portable Character Set (in POSIX-compliant format) 
+// definition file for the Portable Character Set (in POSIX-compliant format)
 _TEST_EXPORT void
 pcs_write (void*, const char*);
 

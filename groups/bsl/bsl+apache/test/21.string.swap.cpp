@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <string>           // for string
@@ -102,11 +102,11 @@ str_test_cases [] = {
     TEST ("x@4096",        0),
 
     TEST (0,               ""),
-    TEST (0,               "<U0>"),       
-    TEST (0,               "abc@1024"),       
-    TEST (0,               "a<U0>b<U0>@2c"), 
-    TEST (0,               "x@4096"),   
- 
+    TEST (0,               "<U0>"),
+    TEST (0,               "abc@1024"),
+    TEST (0,               "a<U0>b<U0>@2c"),
+    TEST (0,               "x@4096"),
+
     TEST ("last",          "test")
 };
 
@@ -114,7 +114,7 @@ str_test_cases [] = {
 /**************************************************************************/
 
 template <class charT, class Traits, class Allocator>
-void test_swap (charT*, Traits*, 
+void test_swap (charT*, Traits*,
                 Allocator                       &a1,
                 Allocator                       &a2,
                 const StringTestCaseData<charT> &tdata)
@@ -201,25 +201,25 @@ void test_swap (charT*, Traits*,
 
             if (rg_calls) {
 
-                std::size_t n_op_assign  = 
+                std::size_t n_op_assign  =
                     rg_calls[UTMemFun::assign]  - n_total_op_assign;
-                std::size_t n_op_assign2 = 
+                std::size_t n_op_assign2 =
                     rg_calls[UTMemFun::assign2] - n_total_op_assign2;
-                std::size_t n_op_copy    = 
+                std::size_t n_op_copy    =
                     rg_calls[UTMemFun::copy]    - n_total_op_copy;
-                std::size_t n_op_move    = 
+                std::size_t n_op_move    =
                     rg_calls[UTMemFun::move]    - n_total_op_move;
 
-                bool success = 
+                bool success =
                     0 == (n_op_assign | n_op_assign2 | n_op_copy | n_op_move);
 #if TEST_RW_EXTENSIONS  // no such operations only if allocators are the same
-                rw_assert (success, 0, tcase.line, 
+                rw_assert (success, 0, tcase.line,
                            "line %d. %{$FUNCALL}: complexity: %zu assigns, "
                            "%zu assign2s, %zu copies, %zu moves", __LINE__,
                            n_op_assign, n_op_assign2, n_op_copy, n_op_move);
 #else
                 if (a1 == a2 && 0 != tcase.str) {
-                    rw_assert (success, 0, tcase.line, 
+                    rw_assert (success, 0, tcase.line,
                                "line %d. %{$FUNCALL}: complexity: %zu assigns, "
                                "%zu assign2s, %zu copies, %zu moves", __LINE__,
                                n_op_assign, n_op_assign2, n_op_copy, n_op_move);
@@ -236,11 +236,11 @@ void test_swap (charT*, Traits*,
             else {
 
                 const charT* const res_p1 = s_str.data ();
-                const charT* const res_p2 = 
+                const charT* const res_p2 =
                     tcase.arg ? s_arg.data () : s_str.data ();
 
                 const std::size_t res1_len = s_str.size ();
-                const std::size_t res2_len = 
+                const std::size_t res2_len =
                     tcase.arg ? s_arg.size () : s_str.size ();
 
 #if TEST_RW_EXTENSIONS  // the address of the string will be the same only if
@@ -249,7 +249,7 @@ void test_swap (charT*, Traits*,
                 rw_assert (res_p1 == p2 && res_p2 == p1, 0, tcase.line,
                            "line %d. %{$FUNCALL}: got offset %td from "
                            "expected value, arg.data (): got offset %td "
-                           "from expected value", 
+                           "from expected value",
                            __LINE__, p2 - res_p1, p1 - res_p2);
 
 #else
@@ -257,27 +257,27 @@ void test_swap (charT*, Traits*,
                 rw_assert (res_p1 == p2 && res_p2 == p1, 0, tcase.line,
                            "line %d. %{$FUNCALL}: got offset %td from "
                            "expected value, arg.data (): got offset %td "
-                           "from expected value", 
+                           "from expected value",
                            __LINE__, p2 - res_p1, p1 - res_p2);
                 }
 
 #endif
-                std::size_t match = 
+                std::size_t match =
                     rw_match (tcase.str, res_p2, res2_len);
 
                 rw_assert (match == tdata.strlen_, 0, tcase.line,
                            "line %d. %{$FUNCALL}: this == %{#*s}, got this = "
-                           "%{/*.*Gs}, differs at pos %zu", 
-                           __LINE__, int (src_len), src, int (sizeof (charT)), 
+                           "%{/*.*Gs}, differs at pos %zu",
+                           __LINE__, int (src_len), src, int (sizeof (charT)),
                            int (res1_len), res_p1, match);
 
                 match = rw_match (src, res_p1, res1_len);
 
                 rw_assert (match == srclen_, 0, tcase.line,
                            "line %d. %{$FUNCALL}: str == %{#*s}, got str = "
-                           "%{/*.*Gs}, differs at pos %zu",  
-                           __LINE__, int (tcase.str_len), tcase.str, 
-                           int (sizeof (charT)), int (res2_len), 
+                           "%{/*.*Gs}, differs at pos %zu",
+                           __LINE__, int (tcase.str_len), tcase.str,
+                           int (sizeof (charT)), int (res2_len),
                            res_p2, match);
             }
         }

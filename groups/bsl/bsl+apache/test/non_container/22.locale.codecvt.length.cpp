@@ -1,5 +1,5 @@
 /***************************************************************************
- * 
+ *
  * codecvt_length.cpp - test exercising the std::codecvt::length()
  *
  * $Id: 22.locale.codecvt.length.cpp 604041 2007-12-13 21:43:43Z sebor $
@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2004-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <bsls_platform.h>
@@ -376,7 +376,7 @@ test_wcodecvt_byname_algorithmic ()
     TEST ("\xc2\x80\xc0",     3, 0, 0);
     TEST ("\xc2\x80\xc0\x81", 3, 1, 2);
     TEST ("\xc2\x80\xc0\x82", 3, 2, 2);
-    
+
     STRICT ("\xc2\x80\xc2\x01", 4, 2, 2);
     RELAXD ("\xc2\x80\xc2\x01", 4, 2, 4);
 
@@ -438,7 +438,7 @@ test_wcodecvt_byname_table_based ()
     TEST ("333", 2, 1, 0);
     TEST ("333", 3, 1, 3);
     TEST ("333", 3, 2, 3);
- 
+
     TEST ("4444", 1, 1, 0);   // "4444" --> L'4'
     TEST ("4444", 2, 1, 0);
     TEST ("4444", 3, 1, 0);
@@ -504,7 +504,7 @@ test_wcodecvt_byname_libc_based ()
     // mb_chars [1] = "11";        // where "11" is a two-byte character
     // mb_chars [2] = "222";       // where "222" is a three-byte character
     // mb_chars [N] = "NNN...N";   // where "NNN...N" is an N-byte character
-    
+
     std::size_t mb_cur_max = 0;
 
     rw_mbchar_array_t mb_chars;
@@ -743,7 +743,7 @@ test_wcodecvt_byname_libc_based ()
     rw_sprintf (mb_string, "%s%s%s%s%s",
                 mb_chars [4], mb_chars [0], mb_chars [4], mb_chars [4],
                 mb_chars [4]);
-    
+
     //                        internT: 0      1  2      3      4      5
     //                        externT: <-----><-><-----><-----><-----><
     //                                "<55555><1><55555><55555><55555>"
