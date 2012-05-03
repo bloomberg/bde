@@ -142,6 +142,7 @@ BDES_IDENT_PRAGMA_ONCE
 #include <baescm_version.h>
 #endif
 
+#include <iostream>
 #ifndef INCLUDED_BDEAT_ATTRIBUTEINFO
 #include <bdeat_attributeinfo.h>
 #endif
@@ -528,7 +529,7 @@ struct SerializableObjectProxy_NullableAdapter {
     // if so, construct an object of this type (NullableAdapter) and then
     // invoke the accessor/manipulator on it.
 
-    SerializableObjectProxy *d_proxy_p; // held
+    SerializableObjectProxy *d_proxy_p;  // (held, not owned)
 };
 
                      // =============================
@@ -878,9 +879,9 @@ class SerializableObjectProxy {
         // 'MANIPULATOR' shall be a functor providing a method that can be
         // called as if it had the following signature:
         //..
+        // template <class TYPE>
         // int operator()(TYPE*, bdeat_TypeCategory::Simple)
         //..
-        // where 'TYPE' is the type of the element represented by this object.
         // The behavior in undefined unless this object represents a Simple
         // value.
 
@@ -992,12 +993,12 @@ class SerializableObjectProxy {
         // 'SerializableObjectProxy' for an object of 'T', the contained type
         // of the vector.
 
-    void loadArray(void                                           *array,
-                   int                                             length,
-                   int                                             elementSize,
-                   void                                           *begin,
-                   SerializableObjectProxyFunctions::Resizer       resizer,
-                   SerializableObjectProxyFunctions::Accessor      accessor);
+    void loadArray(void                                       *array,
+                   int                                         length,
+                   int                                         elementSize,
+                   void                                       *begin,
+                   SerializableObjectProxyFunctions::Resizer   resizer,
+                   SerializableObjectProxyFunctions::Accessor  accessor);
         // Populate this 'SerializableObjectProxy' to represent the specified
         // 'array', an instantiation of vector<T> for some type T, for
         // decoding.  The vector has the specified 'length', 'elementSize' in
@@ -1006,18 +1007,19 @@ class SerializableObjectProxy {
         // that populates a 'SerializableObjectProxy' to represent an object of
         // T.
 
-    void loadNullable(void                                      *object,
-                      SerializableObjectProxyFunctions::Accessor accessor);
+    void loadNullable(void                                       *object,
+                      SerializableObjectProxyFunctions::Accessor  accessor);
         // Populate this 'SerializableObjectProxy' to represent a Nullable
         // object for encoding containing the specified 'object', or having a
         // null value if 'object' is 0.  'accessor' is a function that
         // populates a proxy to represent 'object', or it is ignored if
         // 'object' is 0.
 
-    void loadNullable(void                                      *object,
-                 SerializableObjectProxyFunctions::Accessor      accessor,
-                 SerializableObjectProxyFunctions::Manipulator   valueMaker,
-                 SerializableObjectProxyFunctions::ObjectFetcher valueFetcher);
+    void loadNullable(
+                void                                            *object,
+                SerializableObjectProxyFunctions::Accessor       accessor,
+                SerializableObjectProxyFunctions::Manipulator    valueMaker,
+                SerializableObjectProxyFunctions::ObjectFetcher  valueFetcher);
         // Populate this 'SerializableObjectProxy' to represent the specified
         // Nullable 'object' for decoding.  'accessor' is a function that will
         // populate a proxy for the *contained* object within the nullable
@@ -1034,11 +1036,11 @@ class SerializableObjectProxy {
         // encoding.
 
     void loadEnumeration(
-               void                                           *address,
-               SerializableObjectProxyFunctions::IntSetter     intSetter,
-               SerializableObjectProxyFunctions::StringSetter  stringSetter,
-               const bdeat_EnumeratorInfo                     *infoArray,
-               int                                             infoArraySize);
+                void                                           *address,
+                SerializableObjectProxyFunctions::IntSetter     intSetter,
+                SerializableObjectProxyFunctions::StringSetter  stringSetter,
+                const bdeat_EnumeratorInfo                     *infoArray,
+                int                                             infoArraySize);
         // Populate this 'SerializableObjectProxy' to represent an enumerated
         // constant at the specified 'address', described by the specified
         // 'infoArray' of the specified 'infoArraySize', for decoding.
@@ -1082,6 +1084,20 @@ class SerializableObjectProxy {
     bool isNull() const;
         // Return 'true' if this object represents a Nullable value that is
         // currently null, and 'false' otherwise.
+
+    bool isValidForEncoding() const;
+       // Return 'true' if this object represents a Choice, Array, Enumeration,
+       // or Nullable for encoding; or a Sequence, Simple, or byte array 
+       // value.  Return 'false' otherwise.  Note that for Sequence, 
+       // Simple, and byte array values, both this function and also
+       // 'isValidForDecoding' always return 'true'. 
+
+    bool isValidForDecoding() const;
+       // Return 'true' if this object represents a Choice, Array, Enumeration,
+       // or Nullable for decoding; or a Sequence, Simple, or byte array 
+       // value.  Return 'false' otherwise.  Note that for Sequence, 
+       // Simple, and byte array values, both this function and also
+       // 'isValidForEncoding' always return 'true'. 
 
     bool choiceHasSelection(const char *selectionName,
                             int         selectionNameLength) const;
@@ -1171,9 +1187,9 @@ class SerializableObjectProxy {
         // shall be a functor providing a method that can be called as if it
         // had the following signature:
         //..
+        // template <class TYPE>
         // int operator()(const TYPE&, bdeat_TypeCategory::Simple)
         //..
-        // where 'TYPE' is the type of the element represented by this object.
         // The behavior in undefined unless this object represents a Simple
         // value.
 
@@ -1185,12 +1201,12 @@ class SerializableObjectProxy {
         // functor providing a method that can be called as if it had the
         // following signature:
         //..
-        // int operator()(const TYPE&)
+        //  int operator()(const TYPE&)
         //..
-        // where 'TYPE' is the type held in the array represented by this
-        // object.  The behavior is undefined unless this object represents a
-        // vector for encoding, and that vector has at least 'index+1'
-        // elements.
+        // where TYPE is 'SerializableObjectProxy' or
+        // 'SerializableObjectProxy_NullableAdapter'.  The behavior is
+        // undefined unless this object represents a vector for encoding, and
+        // that vector has at least 'index + 1' elements.
 
     int enumToInt() const;
         // Return the integer representation of the enumerated constant
@@ -1222,7 +1238,9 @@ void SerializableObjectProxy::reset()
 
 inline
 int SerializableObjectProxy::maxSupportedBdexVersion() const
-{ return -1; }
+{
+    return -1;
+}
 
 template <class STREAM>
 inline
@@ -1438,9 +1456,9 @@ int SerializableObjectProxy::manipulateContainedElement(
 
 template<typename ACCESSOR>
 int SerializableObjectProxy::accessContainedElement(
-                                 const SerializableObjectProxy& proxy,
-                                 ACCESSOR&                      accessor,
-                                 const bdeat_SelectionInfo&     info) {
+                                       const SerializableObjectProxy& proxy,
+                                       ACCESSOR&                      accessor,
+                                       const bdeat_SelectionInfo&     info) {
     if (proxy.category() ==
         bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY) {
         SerializableObjectProxy_NullableAdapter adapter = {
@@ -1455,9 +1473,9 @@ int SerializableObjectProxy::accessContainedElement(
 
 template<typename ACCESSOR>
 int SerializableObjectProxy::accessContainedElement(
-                                    const SerializableObjectProxy& proxy,
-                                    ACCESSOR&                      accessor,
-                                    const bdeat_AttributeInfo&     info) {
+                                       const SerializableObjectProxy& proxy,
+                                       ACCESSOR&                      accessor,
+                                       const bdeat_AttributeInfo&     info) {
     if (proxy.category() ==
         bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY) {
         SerializableObjectProxy_NullableAdapter adapter = {
@@ -1480,8 +1498,7 @@ int SerializableObjectProxy::manipulateNullable(MANIPULATOR& manipulator)
     SerializableObjectProxy proxy;
     info.d_accessor(&proxy, info.d_fetcher(d_object_p));
 
-    return bdeat_TypeCategoryUtil::manipulateByCategory(&proxy,
-                                                        manipulator);
+    return bdeat_TypeCategoryUtil::manipulateByCategory(&proxy, manipulator);
 }
 
 template<typename ACCESSOR>
@@ -1542,12 +1559,7 @@ int SerializableObjectProxy::sequenceAccessAttributes(ACCESSOR& accessor) const
     {
         info.d_accessor(&elementProxy, *this, i);
 
-        BSLS_ASSERT_SAFE(elementProxy.d_objectInfo.is<ChoiceEncodeInfo>() ||
-                         elementProxy.d_objectInfo.is<SequenceInfo>() ||
-                         elementProxy.d_objectInfo.is<ArrayEncodeInfo>() ||
-                         elementProxy.d_objectInfo.is<EnumEncodeInfo>() ||
-                         elementProxy.d_objectInfo.is<NullableEncodeInfo>() ||
-                         elementProxy.d_objectInfo.is<SimplePointer>());
+        BSLS_ASSERT_SAFE(elementProxy.isValidForEncoding());
 
         int rc = accessContainedElement(elementProxy,
                                         accessor,
@@ -1561,19 +1573,13 @@ int SerializableObjectProxy::sequenceAccessAttributes(ACCESSOR& accessor) const
 
 template<typename MANIPULATOR>
 int SerializableObjectProxy::sequenceManipulateAttribute(
-                                             MANIPULATOR& manipulator,
-                                             int          id)
+                                                      MANIPULATOR& manipulator,
+                                                      int          id)
 {
     SerializableObjectProxy elementProxy;
     const bdeat_AttributeInfo *info;
     if (0 == loadSequenceElementDecodeProxy(&elementProxy, &info, id)) {
-
-        BSLS_ASSERT_SAFE(elementProxy.d_objectInfo.is<ChoiceDecodeInfo>() ||
-                         elementProxy.d_objectInfo.is<SequenceInfo>() ||
-                         elementProxy.d_objectInfo.is<ArrayDecodeInfo>() ||
-                         elementProxy.d_objectInfo.is<EnumDecodeInfo>() ||
-                         elementProxy.d_objectInfo.is<NullableDecodeInfo>() ||
-                         elementProxy.d_objectInfo.is<SimplePointer>());
+        BSLS_ASSERT_SAFE(elementProxy.isValidForDecoding());
 
         return manipulateContainedElement(&elementProxy, manipulator, *info);
                                                                       // RETURN
@@ -1583,21 +1589,16 @@ int SerializableObjectProxy::sequenceManipulateAttribute(
 
 template<typename MANIPULATOR>
 int SerializableObjectProxy::sequenceManipulateAttribute(
-                                             MANIPULATOR&  manipulator,
-                                             const char   *attributeName,
-                                             int           nameLength)
+                                                   MANIPULATOR&  manipulator,
+                                                   const char   *attributeName,
+                                                   int           nameLength)
 {
     SerializableObjectProxy elementProxy;
     const bdeat_AttributeInfo *info;
     if (0 == loadSequenceElementDecodeProxy(&elementProxy, &info,
                                  attributeName, nameLength))
     {
-        BSLS_ASSERT_SAFE(elementProxy.d_objectInfo.is<ChoiceDecodeInfo>() ||
-                         elementProxy.d_objectInfo.is<SequenceInfo>() ||
-                         elementProxy.d_objectInfo.is<ArrayDecodeInfo>() ||
-                         elementProxy.d_objectInfo.is<EnumDecodeInfo>() ||
-                         elementProxy.d_objectInfo.is<NullableDecodeInfo>() ||
-                         elementProxy.d_objectInfo.is<SimplePointer>());
+        BSLS_ASSERT_SAFE(elementProxy.isValidForDecoding());
 
         return manipulateContainedElement(&elementProxy, manipulator, *info);
                                                                       // RETURN
@@ -1607,7 +1608,7 @@ int SerializableObjectProxy::sequenceManipulateAttribute(
 
 template<typename ACCESSOR>
 int SerializableObjectProxy::sequenceAccessAttribute(ACCESSOR& accessor,
-                                                     int id) const
+                                                     int       id) const
 {
     BSLS_ASSERT_SAFE(d_objectInfo.is<SequenceInfo>());
 
@@ -1636,18 +1637,17 @@ int SerializableObjectProxy::sequenceAccessAttribute(ACCESSOR& accessor,
 
 template<typename ACCESSOR>
 int SerializableObjectProxy::arrayAccessElement(ACCESSOR& accessor,
-                                                int index) const
+                                                int       index) const
 {
     SerializableObjectProxy elementProxy;
     loadArrayElementEncodeProxy(&elementProxy, index);
 
-    return accessContainedElement(elementProxy,
-                                  accessor);
+    return accessContainedElement(elementProxy, accessor);
 }
 
 template<typename MANIPULATOR>
 int SerializableObjectProxy::arrayManipulateElement(MANIPULATOR& manipulator,
-                                                    int index)
+                                                    int          index)
 {
     SerializableObjectProxy elementProxy;
     loadArrayElementDecodeProxy(&elementProxy, index);
@@ -1674,6 +1674,29 @@ bool SerializableObjectProxy::isByteArrayValue() const
         d_objectInfo.the<ArrayEncodeInfo>().d_accessor == 0;
 }
 
+inline
+bool SerializableObjectProxy::isValidForEncoding() const
+{
+    return isByteArrayValue() ||
+        d_objectInfo.is<ChoiceEncodeInfo>() ||
+        d_objectInfo.is<SequenceInfo>() ||
+        d_objectInfo.is<ArrayEncodeInfo>() ||
+        d_objectInfo.is<EnumEncodeInfo>() ||
+        d_objectInfo.is<NullableEncodeInfo>() ||
+        d_objectInfo.is<SimplePointer>();
+}
+
+inline
+bool SerializableObjectProxy::isValidForDecoding() const
+{
+    return isByteArrayValue() ||
+        d_objectInfo.is<ChoiceDecodeInfo>() ||
+        d_objectInfo.is<SequenceInfo>() ||
+        d_objectInfo.is<ArrayDecodeInfo>() ||
+        d_objectInfo.is<EnumDecodeInfo>() ||
+        d_objectInfo.is<NullableDecodeInfo>() ||
+        d_objectInfo.is<SimplePointer>();
+}
 
 }  // close namespace baea
 
@@ -1706,8 +1729,6 @@ bdeat_TypeCategory::Value bdeat_typeCategorySelect(
     return object.category();
 }
 
-}  // close namespace bdeat_TypeCategoryFunctions
-
 template <typename ACCESSOR>
 inline
 int bdeat_typeCategoryAccessSimple(
@@ -1720,16 +1741,16 @@ int bdeat_typeCategoryAccessSimple(
 template <typename MANIPULATOR>
 inline
 int bdeat_typeCategoryManipulateSimple(
-                               baea::SerializableObjectProxy *object,
-                               MANIPULATOR&                     manipulator)
+                                    baea::SerializableObjectProxy *object,
+                                    MANIPULATOR&                   manipulator)
 {
     return object->manipulateSimple(manipulator);
 }
 
 template <typename MANIPULATOR>
 int bdeat_typeCategoryManipulateArray(
-                                  baea::SerializableObjectProxy *object,
-                                  MANIPULATOR&                     manipulator)
+                                    baea::SerializableObjectProxy *object,
+                                    MANIPULATOR&                   manipulator)
 {
     if (object->isByteArrayValue()) {
         bsl::vector<char>* arrayPtr =
@@ -1743,8 +1764,8 @@ int bdeat_typeCategoryManipulateArray(
 
 template <typename ACCESSOR>
 int bdeat_typeCategoryAccessArray(
-                               const baea::SerializableObjectProxy& object,
-                               ACCESSOR&                              accessor)
+                                 const baea::SerializableObjectProxy& object,
+                                 ACCESSOR&                            accessor)
 {
     if (object.isByteArrayValue()) {
         const bsl::vector<char>* arrayPtr =
@@ -1758,8 +1779,8 @@ int bdeat_typeCategoryAccessArray(
 
 template <typename ACCESSOR>
 int bdeat_typeCategoryAccessNullableValue(
-                               const baea::SerializableObjectProxy& object,
-                               ACCESSOR&                              accessor)
+                                 const baea::SerializableObjectProxy& object,
+                                 ACCESSOR&                            accessor)
 {
     if (object.category() == bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY
         && !object.isNull())
@@ -1771,8 +1792,8 @@ int bdeat_typeCategoryAccessNullableValue(
 
 template <typename MANIPULATOR>
 int bdeat_typeCategoryManipulateNullableValue(
-                                  baea::SerializableObjectProxy* object,
-                                  MANIPULATOR&                     manipulator)
+                                    baea::SerializableObjectProxy* object,
+                                    MANIPULATOR&                   manipulator)
 {
     if (object->category() ==
         bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY)
@@ -1783,6 +1804,7 @@ int bdeat_typeCategoryManipulateNullableValue(
     return -1;
 }
 
+}  // close namespace bdeat_TypeCategoryFunctions
 
 // ============================================================================
 //           'bdeat_enumfunctions' overloads and specializations
@@ -1791,7 +1813,7 @@ namespace bdeat_EnumFunctions {
 
 // META-FUNCTIONS
 bslmf_MetaInt<1> isEnumerationMetaFunction(
-                                      const baea::SerializableObjectProxy&);
+                                         const baea::SerializableObjectProxy&);
     // This function can be overloaded to support partial specialization
     // (Sun5.2 compiler is unable to partially specialize the 'struct'
     // below).  Note that this function is has no definition and should not
@@ -1817,16 +1839,16 @@ int bdeat_enumFromInt(baea::SerializableObjectProxy* result,
 
 
 inline
-void bdeat_enumToString(bsl::string *result,
-                        const baea::SerializableObjectProxy& object)
+void bdeat_enumToString(bsl::string                          *result,
+                        const baea::SerializableObjectProxy&  object)
 {
     *result = object.enumToString();
 }
 
 inline
-int bdeat_enumFromString(baea::SerializableObjectProxy* result,
-                         const char *stringValue,
-                         int         stringLength)
+int bdeat_enumFromString(baea::SerializableObjectProxy *result,
+                         const char                    *stringValue,
+                         int                            stringLength)
 {
     return result->enumFromString(stringValue, stringLength);
 }
@@ -1866,8 +1888,8 @@ void bdeat_arrayResize(baea::SerializableObjectProxy* object, int newSize)
 template <typename ACCESSOR>
 inline
 int bdeat_arrayAccessElement(const baea::SerializableObjectProxy& object,
-                             ACCESSOR& accessor,
-                             int index)
+                             ACCESSOR&                            accessor,
+                             int                                  index)
 {
     return object.arrayAccessElement(accessor, index);
 }
@@ -1875,10 +1897,10 @@ int bdeat_arrayAccessElement(const baea::SerializableObjectProxy& object,
 template <typename MANIPULATOR>
 inline
 int bdeat_arrayManipulateElement(baea::SerializableObjectProxy* object,
-                                 MANIPULATOR& accessor,
-                                 int index)
+                                 MANIPULATOR&                   manipulator,
+                                 int                            index)
 {
-    return object->arrayManipulateElement(accessor, index);
+    return object->arrayManipulateElement(manipulator, index);
 }
 
 }  // close namespace bdeat_ArrayFunctions
@@ -1899,8 +1921,8 @@ struct IsSequence<baea::SerializableObjectProxy> {
 template <typename ACCESSOR>
 inline
 int bdeat_sequenceAccessAttributes(
-                               const baea::SerializableObjectProxy& object,
-                               ACCESSOR&                              accessor)
+                                 const baea::SerializableObjectProxy& object,
+                                 ACCESSOR&                            accessor)
 {
     return object.sequenceAccessAttributes(accessor);
 }
@@ -1957,7 +1979,7 @@ bool bdeat_sequenceHasAttribute(const baea::SerializableObjectProxy&  object,
 namespace bdeat_NullableValueFunctions {
 
 bslmf_MetaInt<1> isNullableValueMetaFunction(
-                       const baea::SerializableObjectProxy_NullableAdapter&);
+                         const baea::SerializableObjectProxy_NullableAdapter&);
 
 template <>
 struct IsNullableValue<baea::SerializableObjectProxy_NullableAdapter> {
@@ -1971,14 +1993,14 @@ struct ValueType<baea::SerializableObjectProxy_NullableAdapter> {
 
 inline
 bool bdeat_nullableValueIsNull(
-                 const baea::SerializableObjectProxy_NullableAdapter& object)
+                   const baea::SerializableObjectProxy_NullableAdapter& object)
 {
     return object.d_proxy_p->isNull();
 }
 
 inline
 void bdeat_nullableValueMakeValue(
-                      baea::SerializableObjectProxy_NullableAdapter *object)
+                         baea::SerializableObjectProxy_NullableAdapter *object)
 {
     object->d_proxy_p->makeValue();
 }
@@ -1997,8 +2019,8 @@ int bdeat_nullableValueManipulateValue(
 template <typename ACCESSOR>
 inline
 int bdeat_nullableValueAccessValue(
-               const baea::SerializableObjectProxy_NullableAdapter& object,
-               ACCESSOR&                                              accessor)
+                 const baea::SerializableObjectProxy_NullableAdapter& object,
+                 ACCESSOR&                                            accessor)
 {
     return accessor(*object.d_proxy_p);
 }
@@ -2010,7 +2032,7 @@ namespace bdeat_TypeName_Overloadable {
 
 inline
 const char *bdeat_TypeName_className(
-                                 const baea::SerializableObjectProxy& object)
+                                   const baea::SerializableObjectProxy& object)
      // Return the type name of the type represented by the specified
      // 'object', or 0 if there is no such name.
 {
@@ -2040,45 +2062,47 @@ int bdeat_choiceSelectionId(const baea::SerializableObjectProxy& object)
 template <typename ACCESSOR>
 inline
 int bdeat_choiceAccessSelection(const baea::SerializableObjectProxy& object,
-                                ACCESSOR&             accessor)
+                                ACCESSOR&                            accessor)
 {
     return object.choiceAccessSelection(accessor);
 }
 
 inline
-bool bdeat_choiceHasSelection(const baea::SerializableObjectProxy&  object,
-                              const char                 *selectionName,
-                              int                         selectionNameLength)
+bool bdeat_choiceHasSelection(
+                     const baea::SerializableObjectProxy&  object,
+                     const char                           *selectionName,
+                     int                                   selectionNameLength)
 {
     return object.choiceHasSelection(selectionName, selectionNameLength);
 }
 
 inline
-bool bdeat_choiceHasSelection(const baea::SerializableObjectProxy&  object,
-                              int                         selectionId)
+bool bdeat_choiceHasSelection(const baea::SerializableObjectProxy& object,
+                              int                                  selectionId)
 {
     return object.choiceHasSelection(selectionId);
 }
 
 inline
-int bdeat_choiceMakeSelection(baea::SerializableObjectProxy*  object,
-                              int                   selectionId)
+int bdeat_choiceMakeSelection(baea::SerializableObjectProxy *object,
+                              int                            selectionId)
 {
     return object->choiceMakeSelection(selectionId);
 }
 
 inline
-int bdeat_choiceMakeSelection(baea::SerializableObjectProxy  *object,
-                              const char           *selectionName,
-                              int                   selectionNameLength)
+int bdeat_choiceMakeSelection(
+                            baea::SerializableObjectProxy *object,
+                            const char                    *selectionName,
+                            int                            selectionNameLength)
 {
     return object->choiceMakeSelection(selectionName, selectionNameLength);
 }
 
 template <typename MANIPULATOR>
 inline
-int bdeat_choiceManipulateSelection(baea::SerializableObjectProxy* object,
-                                    MANIPULATOR&         manipulator)
+int bdeat_choiceManipulateSelection(baea::SerializableObjectProxy *object,
+                                    MANIPULATOR&                   manipulator)
 {
     return object->choiceManipulateSelection(manipulator);
 }

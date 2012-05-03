@@ -1,7 +1,7 @@
 // baea_serializableobjectproxyutil.t.cpp   -*-C++-*-
 
 #include <baea_serializableobjectproxyutil.h>
-#include <baea_serializableobjectproxyutil.h>
+#include <baea_serializableobjectproxy.h>
 
 #include <baea_messages.h>
 
@@ -31,6 +31,15 @@ using namespace BloombergLP::baea;
 
 using bsl::cout;
 using bsl::endl;
+
+// ============================================================================
+//                             TEST PLAN
+// ----------------------------------------------------------------------------
+//                             Overview
+//                             --------
+// [  ] void makeEncodeProxy(SerializableObjectProxy *proxy, TYPE *object);
+// [  ] void makeDecodeProxy(SerializableObjectProxy *proxy, TYPE *object);
+
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -66,6 +75,21 @@ static void aSsErT(int c, const char *s, int i)
                          << #K << ": " << K << "\n";\
                aSsErT(1, #X, __LINE__); } }
 
+#define LOOP0_ASSERT ASSERT
+#define LOOP1_ASSERT LOOP_ASSERT
+
+//=============================================================================
+//                  STANDARD BDE VARIADIC ASSERT TEST MACROS
+//-----------------------------------------------------------------------------
+
+#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
+#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
+
+#define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
+#define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
+
+#define ASSERTV(...) LOOPN_ASSERT(NUM_ARGS(__VA_ARGS__), __VA_ARGS__)
+
 //=============================================================================
 //                  SEMI-STANDARD TEST OUTPUT MACROS
 //-----------------------------------------------------------------------------
@@ -85,6 +109,9 @@ static int verbose = 0;
 static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
+
+typedef baea::SerializableObjectProxy     Proxy;
+typedef baea::SerializableObjectProxyUtil Obj;
 
 const char LOG_CATEGORY[] = "BAEA_SERIALIZABLEOBJECTPROXYUTIL.TEST";
 
@@ -1230,6 +1257,19 @@ int main(int argc, char *argv[])
                                                   bael_Severity::BAEL_OFF);
 
     switch (test) { case 0: // Zero is always the leading case.
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING SIMPLE TYPE
+        // --------------------------------------------------------------------
+
+        char object;
+        Proxy proxy;
+
+        Obj::makeEncodeProxy(&proxy, &object);
+        ASSERTV(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY == proxy.category());
+
+
+      } break;
       case 7: {
         // --------------------------------------------------------------------
         // XML decoder feature test

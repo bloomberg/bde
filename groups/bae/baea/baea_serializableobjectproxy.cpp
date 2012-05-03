@@ -39,26 +39,26 @@ bool areEqual(const char* string1, int length1,
 // SerializableObjectProxy directly.
 
 int SerializableObjectProxy::manipulateContainedElement(
-                 SerializableObjectProxy  *proxy,
+                 SerializableObjectProxy                           *proxy,
                  bdef_Function<int(*)(SerializableObjectProxy*)>&  manipulator)
 {
     return manipulator(proxy);
 }
 
 int SerializableObjectProxy::manipulateContainedElement(
-              SerializableObjectProxy  *proxy,
+              SerializableObjectProxy                            *proxy,
               bdef_Function<int(*)(SerializableObjectProxy*,
                                    const bdeat_SelectionInfo&)>&  manipulator,
-              const bdeat_SelectionInfo& info)
+              const bdeat_SelectionInfo&                          info)
 {
     return manipulator(proxy, info);
 }
 
 int SerializableObjectProxy::manipulateContainedElement(
-              SerializableObjectProxy  *proxy,
+              SerializableObjectProxy                            *proxy,
               bdef_Function<int(*)(SerializableObjectProxy*,
                                    const bdeat_AttributeInfo&)>&  manipulator,
-              const bdeat_AttributeInfo& info)
+              const bdeat_AttributeInfo&                          info)
 {
     return manipulator(proxy, info);
 }
@@ -192,17 +192,18 @@ void SerializableObjectProxy::loadSimple(bdet_TimeTz* value)
 }
 
 void SerializableObjectProxy::loadChoice(
-                       int selectionId,
-                       void *object,
-                       const bdeat_SelectionInfo *info,
-                       const char *className,
-                       SerializableObjectProxyFunctions::Accessor accessor)
+                        int                                        selectionId,
+                        void                                      *object,
+                        const bdeat_SelectionInfo                 *info,
+                        const char                                *className,
+                        SerializableObjectProxyFunctions::Accessor accessor)
 {
     d_object_p = object;
     d_category = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(
-                                ChoiceEncodeInfo(selectionId, info,
-                                                 accessor, className));
+    new (d_objectInfoArena.buffer()) ObjectInfo(ChoiceEncodeInfo(selectionId,
+                                                                 info,
+                                                                 accessor,
+                                                                 className));
 }
 
 void SerializableObjectProxy::loadChoice(
@@ -367,12 +368,12 @@ void SerializableObjectProxy::loadSequence(
 }
 
 void SerializableObjectProxy::loadArray(
-                  void                                            *array,
-                  int                                              length,
-                  int                                              elementSize,
-                  void                                            *begin,
-                  SerializableObjectProxyFunctions::Resizer        resizer,
-                  SerializableObjectProxyFunctions::Accessor       accessor)
+                       void                                       *array,
+                       int                                         length,
+                       int                                         elementSize,
+                       void                                       *begin,
+                       SerializableObjectProxyFunctions::Resizer   resizer,
+                       SerializableObjectProxyFunctions::Accessor  accessor)
 {
     d_object_p = array;
     d_category = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
@@ -382,16 +383,16 @@ void SerializableObjectProxy::loadArray(
 }
 
 void SerializableObjectProxy::loadArray(
-                       int length,
-                       int elementSize,
-                       void *begin,
-                       SerializableObjectProxyFunctions::Accessor accessor)
+                        int                                        length,
+                        int                                        elementSize,
+                        void                                      *begin,
+                        SerializableObjectProxyFunctions::Accessor accessor)
 {
     d_object_p = begin;
     d_category = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(
-                                         ArrayEncodeInfo(length, elementSize,
-                                                         accessor));
+    new (d_objectInfoArena.buffer()) ObjectInfo(ArrayEncodeInfo(length,
+                                                                elementSize,
+                                                                accessor));
 }
 
 void SerializableObjectProxy::loadEnumeration(
@@ -427,10 +428,10 @@ void SerializableObjectProxy::loadNullable(
 }
 
 void SerializableObjectProxy::loadNullable(
-                 void *object,
-                 SerializableObjectProxyFunctions::Accessor accessor,
-                 SerializableObjectProxyFunctions::Manipulator valueMaker,
-                 SerializableObjectProxyFunctions::ObjectFetcher valueFetcher)
+                 void                                            *object,
+                 SerializableObjectProxyFunctions::Accessor       accessor,
+                 SerializableObjectProxyFunctions::Manipulator    valueMaker,
+                 SerializableObjectProxyFunctions::ObjectFetcher  valueFetcher)
 {
     d_object_p = object;
     d_category = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
@@ -449,8 +450,7 @@ int SerializableObjectProxy::enumFromInt(int value)
 {
     BSLS_ASSERT(d_objectInfo.is<EnumDecodeInfo>());
 
-    return d_objectInfo.the<EnumDecodeInfo>().d_intSetter(d_object_p,
-                                                          value);
+    return d_objectInfo.the<EnumDecodeInfo>().d_intSetter(d_object_p, value);
 }
 
 int SerializableObjectProxy::enumFromString(const char *value, int length)
@@ -501,8 +501,9 @@ bool SerializableObjectProxy::sequenceHasAttribute(int attributeId) const
     return false;
 }
 
-bool SerializableObjectProxy::sequenceHasAttribute(const char* name,
-                                                   int nameLength) const
+bool SerializableObjectProxy::sequenceHasAttribute(
+                                                  const char* name,
+                                                  int         nameLength) const
 {
     BSLS_ASSERT(d_objectInfo.is<SequenceInfo>());
 
