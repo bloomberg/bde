@@ -471,15 +471,23 @@ int main(int argc, char *argv[])
             bslma_DefaultAllocatorGuard allocGuard(&da);
             Obj agg1;
             agg1.setSchemaPointer(schema.ptr());
-            agg1.setRecordDefPointer(recName);
+            agg1.setRecordDefPointer(schema->lookupRecord(recName.c_str()));
             agg1.setDataType(ET::BDEM_LIST);
             agg1.setDataPointer(&list1);
 
-            (schema, recName, ET::BDEM_VOID, &ta1);
-            agg1.setField("Double1.2", 3.4);
-            agg1.setField("List1.3", "Date2.3", "2006-02-16");
-            agg1.field("List1.4").makeValue();
-            agg1.setField("List1.4", "String1.1", "List in list");
+            Obj   agg2, agg3, agg4, agg5;
+            Error error;
+            int rc = agg1.setField(&agg2, &error, "Double1.2", 3.4);
+            ASSERT(!rc);
+            rc = agg1.setField(&agg2, &error, "List1.3", "Date2.3",
+                               "2006-02-16");
+            ASSERT(!rc);
+            rc = agg1.getField(&agg2, &error, "List1.4");
+            ASSERT(!rc);
+            agg2.makeValue();
+            rc = agg1.setField(&agg2, &error, "List1.4",
+                               "String1.1", "List in list");
+            ASSERT(!rc);
 
             const int ta1BlocksUsed = ta1.numBlocksInUse();
             ASSERT(0 == da.numBlocksInUse());
