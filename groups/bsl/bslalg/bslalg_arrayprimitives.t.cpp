@@ -144,6 +144,7 @@ typedef LargeBitwiseMoveableTestType<128> XXL128; // uses 'bslma' allocators
 
 typedef bsls::Types::Int64      Int64;
 typedef bsls::Types::Uint64     Uint64;
+typedef bsls::Types::UintPtr    UintPtr;
 
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose;
@@ -157,6 +158,12 @@ static int numAssignmentCalls  = 0;
 static int numDestructorCalls  = 0;
 
 bslma::TestAllocator *Z;  // initialized at the start of main()
+
+template <class C>
+char getValue(const C& c)
+{
+    return c.datum();
+}
 
                                 // ===========
                                 // FuncPtrType
@@ -188,31 +195,289 @@ struct InitFuncPtrArray<END, END> {
     }
 };
 
-InitFuncPtrArray< 0,  31> initFuncPtrArray0;
-InitFuncPtrArray<32,  63> initFuncPtrArray32;
-InitFuncPtrArray<64,  95> initFuncPtrArray64;
-InitFuncPtrArray<96, 127> initFuncPtrArray96;
+InitFuncPtrArray<  0,  15> initFuncPtrArray0;
+InitFuncPtrArray< 16,  31> initFuncPtrArray16;
+InitFuncPtrArray< 32,  47> initFuncPtrArray32;
+InitFuncPtrArray< 48,  63> initFuncPtrArray48;
+InitFuncPtrArray< 64,  79> initFuncPtrArray64;
+InitFuncPtrArray< 80,  95> initFuncPtrArray80;
+InitFuncPtrArray< 96, 111> initFuncPtrArray96;
+InitFuncPtrArray<112, 127> initFuncPtrArray112;
 
-
-template <class C>
-char getValue(const C& c)
-{
-    return c.datum();
-}
 
 char getValue(const FuncPtrType& fpt)
 {
     return (char) (*fpt)();
 }
 
+void setValue(FuncPtrType *fpt, char ch)
+{
+    *fpt = funcPtrArray[ch];
+}
+
+                              // =============
+                              // MemberFuncPtr
+                              // =============
+
+struct Thing {
+    template <int N>
+    int memberFuncTemplate()
+    {
+        return N;
+    }
+};
+
+typedef int (Thing::*MemberFuncPtrType)();
+typedef MemberFuncPtrType MFPT;
+
+MemberFuncPtrType memberFuncPtrArray[128];
+
+template <int FROM, int TO>
+struct InitMemberFuncPtrArray {
+    InitMemberFuncPtrArray()
+    {
+        memberFuncPtrArray[FROM] = &Thing::memberFuncTemplate<FROM>;
+        InitMemberFuncPtrArray<FROM + 1, TO> recurse;
+    }
+};
+template <int END>
+struct InitMemberFuncPtrArray<END, END> {
+    InitMemberFuncPtrArray()
+    {
+        memberFuncPtrArray[END] = &Thing::memberFuncTemplate<END>;
+    }
+};
+
+InitMemberFuncPtrArray<  0,  15> initMemberFuncPtrArray0;
+InitMemberFuncPtrArray< 16,  31> initMemberFuncPtrArray16;
+InitMemberFuncPtrArray< 32,  47> initMemberFuncPtrArray32;
+InitMemberFuncPtrArray< 48,  63> initMemberFuncPtrArray48;
+InitMemberFuncPtrArray< 64,  79> initMemberFuncPtrArray64;
+InitMemberFuncPtrArray< 80,  95> initMemberFuncPtrArray80;
+InitMemberFuncPtrArray< 96, 111> initMemberFuncPtrArray96;
+InitMemberFuncPtrArray<112, 127> initMemberFuncPtrArray112;
+
+
+char getValue(const MemberFuncPtrType& mfpt)
+{
+    Thing t;
+    return (char) (t.*mfpt)();
+}
+
+void setValue(MemberFuncPtrType *mfpt, char ch)
+{
+    *mfpt = memberFuncPtrArray[ch];
+}
+
+                                // ==========
+                                // char types
+                                // ==========
+
 void setValue(char *c, char ch)
 {
     *c = ch;
 }
 
-void setValue(FuncPtrType *fpt, char ch)
+void setValue(signed char *c, char ch)
 {
-    *fpt = funcPtrArray[ch];
+    *c = ch;
+}
+
+void setValue(unsigned char *c, char ch)
+{
+    *c = ch;
+}
+
+char getValue(const char& c)
+{
+    return c;
+}
+
+char getValue(const signed char& c)
+{
+    return c;
+}
+
+char getValue(const unsigned char& c)
+{
+    return c;
+}
+                                // ===========
+                                // short types
+                                // ===========
+
+void setValue(short *s, char ch)
+{
+    *s = ch;
+}
+
+void setValue(unsigned short *s, char ch)
+{
+    *s = ch;
+}
+
+char getValue(const short& s)
+{
+    return (char) s;
+}
+
+char getValue(const unsigned short& s)
+{
+    return (char) s;
+}
+
+                                // =========
+                                // int types
+                                // =========
+
+void setValue(int *pi, char ch)
+{
+    *pi = ch;
+}
+
+void setValue(unsigned int *pi, char ch)
+{
+    *pi = ch;
+}
+
+char getValue(const int& i)
+{
+    return (char) i;
+}
+
+char getValue(const unsigned int& i)
+{
+    return (char) i;
+}
+
+                                // ==========
+                                // long types
+                                // ==========
+
+void setValue(long *pl, char ch)
+{
+    *pl = ch;
+}
+
+void setValue(unsigned long *pl, char ch)
+{
+    *pl = ch;
+}
+
+char getValue(const long& ll)
+{
+    return (char) ll;
+}
+
+char getValue(const unsigned long& ll)
+{
+    return (char) ll;
+}
+
+                            // =====================
+                            // 64 bit integral types
+                            // =====================
+
+void setValue(Int64 *p64, char ch)
+{
+    *p64 = ch;
+}
+
+void setValue(Uint64 *p64, char ch)
+{
+    *p64 = ch;
+}
+
+char getValue(const Int64& i64)
+{
+    return (char) i64;
+}
+
+char getValue(const Uint64& u64)
+{
+    return (char) u64;
+}
+
+                            // ====================
+                            // floating point types
+                            // ====================
+
+void setValue(float *pf, char ch)
+{
+    *pf = (int) ch;
+}
+
+void setValue(double *pf, char ch)
+{
+    *pf = (int) ch;
+}
+
+void setValue(long double *pf, char ch)
+{
+    *pf = (int) ch;
+}
+
+char getValue(const float& f)
+{
+    return (char) ((int) f & 0xff);
+}
+
+char getValue(const double& f)
+{
+    return (char) ((int) f & 0xff);
+}
+
+char getValue(const long double& f)
+{
+    return (char) ((int) f & 0xff);
+}
+
+                                // ========
+                                // void *'s
+                                // ========
+
+void setValue(void **pvs, char ch)
+{
+    *pvs = (void *) (UintPtr) ch;
+}
+
+void setValue(const void **pvs, char ch)
+{
+    *pvs = (const void *) (UintPtr) ch;
+}
+
+char getValue(void * const& vs)
+{
+    return (char) ((UintPtr) vs & 0xff);
+}
+
+char getValue(const void * const& vs)
+{
+    return (char) ((UintPtr) vs & 0xff);
+}
+
+                                // =======
+                                // int *'s
+                                // =======
+
+void setValue(int **pis, char ch)
+{
+    *pis = (int *) (UintPtr) ch;
+}
+
+void setValue(const int **pis, char ch)
+{
+    *pis = (const int *) (UintPtr) ch;
+}
+
+char getValue(int * const& is)
+{
+    return (char) ((UintPtr) is & 0xff);
+}
+
+char getValue(const int * const& is)
+{
+    return (char) ((UintPtr) is & 0xff);
 }
 
                            // ======================
@@ -223,7 +488,6 @@ struct ConstructEnabler {
     // DATA
     char d_c;
 
-
     ConstructEnabler() : d_c(0) {}
     explicit
     ConstructEnabler(char ch) : d_c(ch) {}
@@ -233,25 +497,35 @@ struct ConstructEnabler {
         return *this;
     }
 
-    operator FuncPtrType() const {
+    operator FuncPtrType() const
+    {
         FuncPtrType fpt;
         setValue(&fpt, d_c);
         return fpt;
     }
+
+    operator char() const 
+    {
+        return d_c;
+    }
+
+    operator void *() const
+    {
+        return (void *) (UintPtr) d_c;
+    }
+
+    operator int *() const
+    {
+        return (int *) (UintPtr) d_c;
+    }
+
+    operator MemberFuncPtrType() const
+    {
+        MemberFuncPtrType mfpt;
+        setValue(&mfpt, d_c);
+        return mfpt;
+    }
 };
-
-void setValue(ConstructEnabler *cE, char ch)
-{
-    cE->d_c = ch;
-}
-
-char getValue(const ConstructEnabler& cE)
-{
-    return cE.d_c;
-}
-
-ConstructEnabler ce('5');
-FuncPtrType fpt(ce);
 
                                // ==============
                                // class TestType
@@ -927,6 +1201,7 @@ const int NUM_DATA_8 = sizeof DATA_8 / sizeof *DATA_8;
 
 template <class TYPE>
 void testRotate(bool bitwiseMoveableFlag,
+                bool,
                 bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_8' elements of
     // the 'DATA_8' array, that rotating by 'd_m' positions the entries
@@ -1035,6 +1310,7 @@ const int NUM_DATA_7 = sizeof DATA_7 / sizeof *DATA_7;
 
 template <class TYPE>
 void testErase(bool,
+               bool,
                bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_7' elements of
     // the 'DATA_7' array, that erasing the 'd_ne' entries at
@@ -2160,6 +2436,7 @@ const int NUM_DATA_4 = sizeof DATA_4 / sizeof *DATA_4;
 
 template <class TYPE>
 void testDestructiveMove(bool bitwiseMoveableFlag,
+                         bool, // bitwiseCopyableFlag
                          bool exceptionSafetyFlag = false)
 {
     const int MAX_SIZE = 16;
@@ -2267,7 +2544,8 @@ static const struct {
 const int NUM_DATA_3 = sizeof DATA_3 / sizeof *DATA_3;
 
 template <class TYPE>
-void testCopyConstruct(bool bitwiseCopyableFlag,
+void testCopyConstruct(bool, // bitwiseMoveableFlag
+                       bool bitwiseCopyableFlag,
                        bool exceptionSafetyFlag = false)
 {
     const int MAX_SIZE = 16;
@@ -2420,7 +2698,8 @@ static const struct {
 const int NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
 
 template <typename TYPE>
-void testUninitializedFillN(bool bitwiseCopyableFlag,
+void testUninitializedFillN(bool, // bitwiseMoveableFlag
+                            bool bitwiseCopyableFlag,
                             bool exceptionSafetyFlag = false)
     // This test function verifies, for each of the 'NUM_DATA_2' elements of
     // the 'DATA_2' array, that initializing the 'd_ne' entries starting from
@@ -2543,6 +2822,95 @@ void testUninitializedFillNBCT(TYPE value)
 }
 
 //=============================================================================
+//                          GAUNTLET MACRO
+// Passed 'func', which should be a template of a function whose single
+// template parameter is the type to be stored into the array, and which takes
+// 3 boolean arguments telling
+//    - the template parameter is a bitwise moveable type
+//    - the template parameter is a bitwise copyable type
+//    - exception testing is to be done.
+//
+// Run 'func' on a whole gauntlet of different types.
+//=============================================================================
+
+#define GAUNTLET(func) do {                                                   \
+        if (verbose) printf("\t...with TestTypeNoAlloc.\n");                  \
+        func<TNA>(false, false);                                              \
+                                                                              \
+        if (verbose) printf("\t...with TestType.\n");                         \
+        func<T>(false, false);                                                \
+                                                                              \
+        if (verbose) printf("\t...with BitwiseMoveableTestType.\n");          \
+        func<BMT>(true, false);                                               \
+                                                                              \
+        if (verbose) printf("\t...with BitwiseCopyableTestType.\n");          \
+        func<BCT>(true, true);                                                \
+                                                                              \
+        if (verbose) printf("\t...with FuncPtrType.\n");                      \
+        func<FPT>(true, true);                                                \
+                                                                              \
+        if (verbose) printf("\t...with MemberFuncPtrType.\n");                \
+        func<MFPT>(true, true);                                               \
+                                                                              \
+        if (verbose) printf("\t...with char.\n");                             \
+        func<char>(true, true);                                               \
+                                                                              \
+        if (verbose) printf("\t...with char.\n");                             \
+        func<signed char>(true, true);                                        \
+                                                                              \
+        if (verbose) printf("\t...with char.\n");                             \
+        func<unsigned char>(true, true);                                      \
+                                                                              \
+        if (verbose) printf("\t...with short.\n");                            \
+        func<short>(true, true);                                              \
+                                                                              \
+        if (verbose) printf("\t...with unsigned short.\n");                   \
+        func<unsigned short>(true, true);                                     \
+                                                                              \
+        if (verbose) printf("\t...with int.\n");                              \
+        func<int>(true, true);                                                \
+                                                                              \
+        if (verbose) printf("\t...with unsigned int.\n");                     \
+        func<unsigned int>(true, true);                                       \
+                                                                              \
+        if (verbose) printf("\t...with long.\n");                             \
+        func<long>(true, true);                                               \
+                                                                              \
+        if (verbose) printf("\t...with unsigned long.\n");                    \
+        func<unsigned long>(true, true);                                      \
+                                                                              \
+        if (verbose) printf("\t...with Int64.\n");                            \
+        func<Int64>(true, true);                                              \
+                                                                              \
+        if (verbose) printf("\t...with Uint64.\n");                           \
+        func<Uint64>(true, true);                                             \
+                                                                              \
+        if (verbose) printf("\t...with float.\n");                            \
+        func<float>(true, true);                                              \
+                                                                              \
+        if (verbose) printf("\t...with double.\n");                           \
+        func<double>(true, true);                                             \
+                                                                              \
+        if (verbose) printf("\t...with long double.\n");                      \
+        func<long double>(true, true);                                        \
+                                                                              \
+        if (verbose) printf("\t...with 'void *'.\n");                         \
+        func<void *>(true, true);                                             \
+                                                                              \
+        if (verbose) printf("\t...with 'const void *'.\n");                   \
+        func<const void *>(true, true);                                       \
+                                                                              \
+        if (verbose) printf("\t...with 'int *'.\n");                          \
+        func<int *>(true, true);                                              \
+                                                                              \
+        if (verbose) printf("\t...with 'const int *'.\n");                    \
+        func<const int *>(true, true);                                        \
+                                                                              \
+        if (verbose) printf("\tException test.\n");                           \
+        func<T>(false, false, true);                                          \
+    } while (false)
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -2581,42 +2949,23 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting 'rotate'\n");
 
-        if (verbose) printf("\n\t...with 'char'.\n");
-        testRotate<char>(true);
+        GAUNTLET(testRotate);
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testRotate<TNA>(false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testRotate<T>(false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testRotate<BMT>(true);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testRotate<BCT>(true);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testRotate<FPT>(true);
-
-        if (verbose) printf("\n\t...with VeryLargeBitwiseMoveableTypes.\n");
+        if (verbose) printf("\nTesting 'rotate'"
+                                   "...with VeryLargeBitwiseMoveableTypes.\n");
 
         if (verbose) printf("\t\t...with 8 extra bytes.\n");
-        testRotate<XXL8>(true);
+        testRotate<XXL8>(true, false);
         if (verbose) printf("\t\t...with 16 extra bytes.\n");
-        testRotate<XXL16>(true);
+        testRotate<XXL16>(true, false);
         if (verbose) printf("\t\t...with 24 extra bytes.\n");
-        testRotate<XXL24>(true);
+        testRotate<XXL24>(true, false);
         if (verbose) printf("\t\t...with 32 extra bytes.\n");
-        testRotate<XXL32>(true);
+        testRotate<XXL32>(true, false);
         if (verbose) printf("\t\t...with 64 extra bytes.\n");
-        testRotate<XXL64>(true);
+        testRotate<XXL64>(true, false);
         if (verbose) printf("\t\t...with 128 extra bytes.\n");
-        testRotate<XXL128>(true);
-
-        if (verbose) printf("\n\tException test.\n");
-        testRotate<T>(false, true);
-
+        testRotate<XXL128>(true, false);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -2634,24 +2983,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'erase'."
                             "\n================\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testErase<TNA>(false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testErase<T>(false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testErase<BMT>(true);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testErase<BCT>(true);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testErase<FPT>(true);
-
-        if (verbose) printf("\n\tException test.\n");
-        testErase<T>(false, true);
-
+        GAUNTLET(testErase);
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -2674,64 +3006,19 @@ int main(int argc, char *argv[])
         if (verbose)
             printf("\nTesting 'destructiveMoveAndInsert(...).\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testDestructiveMoveAndInsertValueN<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testDestructiveMoveAndInsertValueN<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testDestructiveMoveAndInsertValueN<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testDestructiveMoveAndInsertValueN<BCT>(true, true);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testDestructiveMoveAndInsertValueN<FPT>(true, true);
+        GAUNTLET(testDestructiveMoveAndInsertValueN);
 
         if (verbose)
             printf("\nTesting 'destructiveMoveAndInsert(T *dstB, T *dstE, "
                                              "FWD srcB, FWD srcE, ne, *a)'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testDestructiveMoveAndInsertRange<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testDestructiveMoveAndInsertRange<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testDestructiveMoveAndInsertRange<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testDestructiveMoveAndInsertRange<BCT>(true, true);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testDestructiveMoveAndInsertRange<FPT>(true, true);
+        GAUNTLET(testDestructiveMoveAndInsertRange);
 
         if (verbose)
             printf("\nTesting 'destructiveMoveAndMoveInsert(T *dstB, T *dstE, "
                                              "FWD srcB, FWD srcE, ne, *a)'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testDestructiveMoveAndMoveInsert<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testDestructiveMoveAndMoveInsert<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testDestructiveMoveAndMoveInsert<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testDestructiveMoveAndMoveInsert<BCT>(true, true);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testDestructiveMoveAndMoveInsert<FPT>(true, true);
-
-        if (verbose) printf("\nException test.\n");
-        testDestructiveMoveAndInsertValueN<T>(false, false, true);
-        testDestructiveMoveAndInsertRange<T>(false, false, true);
-        testDestructiveMoveAndMoveInsert<T>(false, false, true);
-
+        GAUNTLET(testDestructiveMoveAndMoveInsert);
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -2756,64 +3043,19 @@ int main(int argc, char *argv[])
             printf("\nTesting 'insert(T *dstB, T *dstE, "
                                                      "const T& v, ne, *a)'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testInsertValueN<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testInsertValueN<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testInsertValueN<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testInsertValueN<BCT>(true, true);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testInsertValueN<FPT>(true, true);
+        GAUNTLET(testInsertValueN);
 
         if (verbose)
             printf("\nTesting 'insert(T *dstB, T *dstE, "
                                              "FWD srcB, FWD srcE, ne, *a)'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testInsertRange<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testInsertRange<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testInsertRange<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testInsertRange<FPT>(true, true);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testInsertRange<BCT>(true, true);
+        GAUNTLET(testInsertRange);
 
         if (verbose)
             printf("\nTesting 'moveInsert(T *dstB, T *dstE, T **srcEp, "
                                              "FWD srcB, FWD srcE, ne, *a)'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testMoveInsert<TNA>(false, false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testMoveInsert<T>(false, false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testMoveInsert<BMT>(true, false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testMoveInsert<BCT>(true, true);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testMoveInsert<FPT>(true, true);
-
-        if (verbose) printf("\nException test.\n");
-        testInsertValueN<T>(false, false, true);
-        testInsertRange<T>(false, false, true);
-        testMoveInsert<T>(false, false, true);
-
+        GAUNTLET(testMoveInsert);
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -2832,24 +3074,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting 'destructiveMove'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testDestructiveMove<TNA>(false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testDestructiveMove<T>(false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testDestructiveMove<BMT>(true);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testDestructiveMove<FPT>(true);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testDestructiveMove<BCT>(true);
-
-        if (verbose) printf("\n\tException test.\n");
-        testDestructiveMove<T>(false, true);
-
+        GAUNTLET(testDestructiveMove);
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2868,24 +3093,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTesting 'copyConstruct'\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testCopyConstruct<TNA>(false);
-
-        if (verbose) printf("\n\t...with TestType.\n");
-        testCopyConstruct<T>(false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testCopyConstruct<BMT>(false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testCopyConstruct<BCT>(true);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testCopyConstruct<FPT>(true);
-
-        if (verbose) printf("\n\tException test.\n");
-        testCopyConstruct<T>(false, true);
-
+        GAUNTLET(testCopyConstruct);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2899,23 +3107,11 @@ int main(int argc, char *argv[])
         //   void uninitializedFillN(T *b, ne, const T& v, *a);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting 'uninitializedFillN'"
-                            "\n============================\n");
 
-        if (verbose) printf("\n\t...with TestTypeNoAlloc.\n");
-        testUninitializedFillN<TNA>(false);
+        if (verbose) printf("Testing 'uninitializedFillN'\n"
+                            "============================\n");
 
-        if (verbose) printf("\n\t...with TestType.\n");
-        testUninitializedFillN<T>(false);
-
-        if (verbose) printf("\n\t...with BitwiseMoveableTestType.\n");
-        testUninitializedFillN<BMT>(false);
-
-        if (verbose) printf("\n\t...with BitwiseCopyableTestType.\n");
-        testUninitializedFillN<BCT>(false);
-
-        if (verbose) printf("\n\t...with FuncPtrType.\n");
-        testUninitializedFillN<FPT>(false);
+        GAUNTLET(testUninitializedFillN);
 
         if (verbose) printf("\n\t...with fundamental and pointer types.\n");
         {
@@ -2947,7 +3143,7 @@ int main(int argc, char *argv[])
             testUninitializedFillNBCT<short>(0);
             testUninitializedFillNBCT<short>(123);
             testUninitializedFillNBCT<short>(0x5b5b);
-            testUninitializedFillNBCT<unsigned char>(~0);
+            testUninitializedFillNBCT<short>(~0);
 
             if (verbose) printf("LINE = %d, TYPE = unsigned short\n", L_);
             testUninitializedFillNBCT<unsigned short>(0);
@@ -3017,10 +3213,6 @@ int main(int argc, char *argv[])
             testUninitializedFillNBCT<const int *>((const int*)&test);
             testUninitializedFillNBCT<const int *>((const int*)~0LL);
         }
-
-        if (verbose) printf("\n\tException test.\n");
-        testUninitializedFillN<T>(false, true);
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
