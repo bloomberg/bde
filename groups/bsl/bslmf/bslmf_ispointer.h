@@ -33,6 +33,30 @@ BSLS_IDENT("$Id: $")
 //  static const int a6 = bslmf::IsPointer<MyType*      >::VALUE; // a6 == 1
 //  static const int a7 = bslmf::IsPointer<PMT          >::VALUE; // a7 == 1
 //..
+// This type also provides the public type 'ELEMENT_TYPE' to yield the type
+// to which a pointer points.  If the type parameter to the class is not
+// a pointer type, 'ELEMENT_TYPE' will yield a struct that will not coincide
+// with anything defined by the user.
+//..
+//  typedef MyType **Woof;
+//  typedef bslmf::IsPointer<Woof>::ELEMENT_TYPE WoofElem;
+//  static const int a11 = bslmf::IsPointer<Woof>::VALUE &&
+//                                bslmf::IsPointer<WoofElem>::VALUE; // a11 = 1
+//  static const int a12 = bslmf::IsPointer<Woof>::VALUE &&
+//                            bslmf::IsFundamental<WoofElem>::VALUE; // a12 = 0
+//  typedef int *Meow;
+//  typedef bslmf::IsPointer<Meow>::ELEMENT_TYPE MeowElem;
+//  static const int a13 = bslmf::IsPointer<Meow>::VALUE &&
+//                                bslmf::IsPointer<MeowElem>::VALUE; // a13 = 0
+//  static const int a14 = bslmf::IsPointer<Woof>::VALUE &&
+//                            bslmf::IsFundamental<MeowElem>::VALUE; // a14 = 1
+//
+//  typedef bslmf::IsPointer<MyType>::ELEMENT_TYPE MyTypeElem;
+//  static const int a15 = bslmf::IsPointer<MyType>::VALUE &&
+//                              bslmf::IsPointer<MyTypeElem>::VALUE; // a15 = 0
+//  static const int a16 = bslmf::IsPointer<MyType>::VALUE &&
+//                          bslmf::IsFundamental<MyTypeElem>::VALUE; // a16 = 0
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -50,25 +74,36 @@ namespace bslmf {
                          // struct IsPointer
                          // ================
 
-template <typename T>
+template <typename TYPE>
 struct IsPointer : MetaInt<0>
 {
+    struct NotAPointer {};
+    typedef NotAPointer ELEMENT_TYPE;
+
     // This class implements a meta-function for checking if a type is a
     // pointer.
 };
 
 // Specializations for pointer types
-template <typename T>
-struct IsPointer<T*> : MetaInt<1> { };
+template <typename TYPE>
+struct IsPointer<TYPE *> : MetaInt<1> {
+    typedef TYPE ELEMENT_TYPE;
+};
 
-template <typename T>
-struct IsPointer<T* const> : MetaInt<1> { };
+template <typename TYPE>
+struct IsPointer<TYPE * const> : MetaInt<1> {
+    typedef TYPE ELEMENT_TYPE;
+};
 
-template <typename T>
-struct IsPointer<T* volatile> : MetaInt<1> { };
+template <typename TYPE>
+struct IsPointer<TYPE * volatile> : MetaInt<1> {
+    typedef TYPE ELEMENT_TYPE;
+};
 
-template <typename T>
-struct IsPointer<T* const volatile> : MetaInt<1> { };
+template <typename TYPE>
+struct IsPointer<TYPE * const volatile> : MetaInt<1> {
+    typedef TYPE ELEMENT_TYPE;
+};
 
 }  // close package namespace
 
