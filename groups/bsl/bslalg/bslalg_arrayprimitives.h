@@ -193,6 +193,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_ispointer.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
 #endif
@@ -1770,11 +1774,18 @@ void ArrayPrimitives_Imp::copyConstruct(TARGET_TYPE                *toBegin,
                                         ALLOCATOR                  *allocator,
                                         bslmf::MetaInt<IS_POINTER_POINTER> *)
 {
-    copyConstruct((void **) toBegin,
-                  (void * const *) fromBegin,
-                  (void * const *) fromEnd,
-                  allocator,
-                  (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
+    typedef typename bslmf::RemovePtrCvq<TARGET_TYPE>::Type NoConstTargetType;
+    typedef typename bslmf::RemovePtrCvq<FWD_ITER>::ValueType
+                                                           NoConstFwdIterValue;
+    typedef typename bslmf::RemovePtrCvq<NoConstFwdIterValue>::ValueType
+                                                      NoConstFwdIterValueValue;
+
+    copyConstruct(
+           (void *       *) const_cast<NoConstTargetType *>(toBegin),
+           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromBegin),
+           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromEnd),
+           allocator,
+           (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -2129,10 +2140,16 @@ void ArrayPrimitives_Imp::insert(
                           ALLOCATOR                               *allocator,
                           bslmf::MetaInt<IS_POINTER_POINTER>      *)
 {
-    insert((void **) toBegin,
-           (void **) toEnd,
-           (void * const *) fromBegin,
-           (void * const *) fromEnd,
+    typedef typename bslmf::RemovePtrCvq<TARGET_TYPE>::Type NoConstTargetType;
+    typedef typename bslmf::RemovePtrCvq<FWD_ITER>::ValueType
+                                                           NoConstFwdIterValue;
+    typedef typename bslmf::RemovePtrCvq<NoConstFwdIterValue>::ValueType
+                                                      NoConstFwdIterValueValue;
+
+    insert((void *       *) const_cast<NoConstTargetType *>(toBegin),
+           (void *       *) const_cast<NoConstTargetType *>(toEnd),
+           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromBegin),
+           (void * const *) const_cast<NoConstFwdIterValueValue **>(fromEnd),
            numElements,
            allocator,
            (bslmf::MetaInt<BITWISE_COPYABLE_TRAITS> *) 0);
