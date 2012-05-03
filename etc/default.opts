@@ -143,7 +143,7 @@
 !! unix-AIX-*-*-gcc           _       BDE_COMPILERVERSION_FLAG = 3.4.3
 !! unix-AIX-*-*-xlc           _       BDE_COMPILERVERSION_FLAG = 10.1
 !! unix-Linux                 _       BDE_COMPILERVERSION_FLAG = 3.4.6
-!! unix-Linux-x86_64-2.6.18   _       BDE_COMPILERVERSION_FLAG = 4.3.5
+!! unix-Linux-x86_64-2.6.18   _       BDE_COMPILERVERSION_FLAG = 4.1.2
 !! unix-Linux-i686-2.6.32     _       BDE_COMPILERVERSION_FLAG = 4.4.3
 !! unix-FreeBSD               _       BDE_COMPILERVERSION_FLAG = 4.2.1
 !! unix-Cygwin                _       BDE_COMPILERVERSION_FLAG = 3.4.1
@@ -591,11 +591,14 @@ unix-Linux-*-*-*             _  DEF_ENDLDFLAGS = -lrt
 # add "-Wl,-rpath -Wl,/opt/swt/install/gcc-4.3.5/lib" to 4.3.5 link lines to add search
 # path for .so files
 
-unix-Linux-*-*-gcc-4.*        _  RPATH_LIBDIR = lib
-!! unix-Linux-*-*-gcc-4.*     64 RPATH_LIBDIR = lib64
+unix-Linux-*-*-gcc-4.2        _  RPATH_LIBDIR = lib
+!! unix-Linux-*-*-gcc-4.2     64 RPATH_LIBDIR = lib64
 
-unix-Linux-*-*-gcc-4.*          _  RPATH_FLAGS = -Wl,-rpath -Wl,/opt/swt/install/gcc-$(GCC_VER)/$(RPATH_LIBDIR)
-!! unix-Linux-*-*-gcc-def       _  RPATH_FLAGS =
+unix-Linux-*-*-gcc-4.2          _  RPATH_FLAGS = -Wl,-rpath -Wl,/opt/swt/install/gcc-$(GCC_VER)/$(RPATH_LIBDIR)
+
+# we don't want these options for the "built-in" gcc 4.1.2 on RHEL5
+!! unix-Linux-*-*-gcc-def                   _  RPATH_FLAGS =
+!! unix-Linux-x86_64-2.6.18-gcc-4.1.2       _  RPATH_FLAGS =
 
 unix-Linux-*-*-*        _   DEF_ENDLDFLAGS = $(RPATH_FLAGS)
 
@@ -908,7 +911,7 @@ windows         _   MT_LIBTYPE  = L
     -Wwrite-strings -Wno-unused-value -Wno-char-subscripts -Wsign-compare \
     -Wparentheses
 
-*-*-*-*-gcc-4 _  GCCEXTRAWFLAGS  = -Wlogical-op -Wstrict-overflow -Wvla \
+*-*-*-*-gcc-4.2 _  GCCEXTRAWFLAGS  = -Wlogical-op -Wstrict-overflow -Wvla \
     -Wvolatile-register-var -fdiagnostics-show-option
 
 !! *-*-*-*-gcc-clang _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
@@ -1042,6 +1045,7 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 
 !! unix-Linux-*-*-gcc-3.4.6            _  COMPILERPATH = /usr/bin
 !! unix-Linux-*-*-gcc-4                _  COMPILERPATH = /opt/swt/install/gcc-$(GCC_VER)/bin
+!! unix-Linux-*-2.6.18-gcc-4.1.2            _  COMPILERPATH = /usr/bin
 #!! unix-Linux-i686-2.6.32-gcc-4.3.5    _  COMPILERPATH = /usr/bin
 
 !! unix-Linux-*-*-gcc                  _  CXX          = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
