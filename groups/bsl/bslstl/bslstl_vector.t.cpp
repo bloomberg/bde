@@ -31,6 +31,7 @@
 #include <cstdlib>
 #include <cstddef>
 
+
 using namespace BloombergLP;
 using namespace std;
 using namespace bsl;
@@ -899,6 +900,16 @@ class LimitAllocator : public ALLOC {
     // ACCESSORS
     size_type max_size() const { return d_limit; }
 };
+
+//=============================================================================
+//                            Test Case 22
+//=============================================================================
+
+template <int N>
+int myFunc()
+{
+    return N;
+}
 
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
@@ -3293,7 +3304,7 @@ void TestDriver<TYPE,ALLOC>::testCase17()
                                                 : REALLOC ? INIT_LENGTH
                                                           : INIT_LENGTH - POS;
 
-                        const int EXP_ALLOCS  = REALLOC + typeAllocs +
+                        const int EXP_ALLOCS  = REALLOC + TYPE_ALLOCS +
                                                      NUM_ELEMENTS * TYPE_ALLOC;
 
                         LOOP4_ASSERT(INIT_LINE, INIT_LENGTH, INIT_CAP, j,
@@ -7987,6 +7998,65 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 22: {
+        // --------------------------------------------------------------------
+        // RANGE INSERT FUNCION PTR BUG
+        //
+        // Concerns:
+        //   In DRQS 31711031, it was observed that a c'tor insert range from
+        //   an array of function ptrs broke 'g++'.  Reproduce the bug.
+        //
+        // Diagnosis:
+        //   Vector is specialized for ptr types, and the specialization
+        //   assumes that any pointer type can be cast or copy c'ted into a
+        //   'void *', but for function ptrs on g++, this is not the case.
+        //   Disabled test.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nRange insert function ptr bug <<NOT FIXED>>\n"
+                              "===========================================\n");
+
+        typedef int (*FuncPtr)();
+        static FuncPtr funcPtrs[] = { &myFunc<0>, &myFunc<1>, &myFunc<2>,
+                                      &myFunc<3>, &myFunc<4>, &myFunc<5>,
+                                      &myFunc<6>, &myFunc<7>, &myFunc<8>,
+                                      &myFunc<9> };
+        enum { ARRAY_SIZE = sizeof(funcPtrs) /  sizeof(*funcPtrs) };
+
+        vector<FuncPtr> v(funcPtrs + 0, funcPtrs + ARRAY_SIZE);
+        for (int i = 0; i < 10; ++i) {
+            LOOP2_ASSERT(i, (*v[i])(), i == (*v[i])());
+        }
+
+        v.clear();
+
+        const FuncPtr * const cFuncPtrs = funcPtrs;
+
+        v.insert(v.begin(), cFuncPtrs, cFuncPtrs + 10);
+        for (int i = 0; i < 10; ++i) {
+            LOOP2_ASSERT(i, (*v[i])(), i == (*v[i])());
+        }
+
+        v.clear();
+
+        v.insert(v.begin(),     funcPtrs + 5, funcPtrs + 10);
+        v.insert(v.begin(),     funcPtrs + 0, funcPtrs + 2);
+        v.insert(v.begin() + 2, funcPtrs + 2, funcPtrs + 5);
+        for (int i = 0; i < 10; ++i) {
+            LOOP2_ASSERT(i, (*v[i])(), i == (*v[i])());
+        }
+
+        const vector<FuncPtr>& cv = v;
+        vector<FuncPtr> w(cv);
+        for (int i = 0; i < 10; ++i) {
+            LOOP2_ASSERT(i, (w[i])(), i == (*w[i])());
+        }
+        w.insert(w.begin() + 5, cv.begin(), cv.begin() + 10);
+        for (int i = 0; i < 20; ++i) {
+            const int match = i - (i < 5 ? 0 : i < 15 ? 5 : 10);
+            LOOP2_ASSERT(i, (w[i])(), match == (*w[i])());
+        }
+      } break;
       case 21: {
         // --------------------------------------------------------------------
         // TESTING EXCEPTIONS
