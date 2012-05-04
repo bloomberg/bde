@@ -199,6 +199,22 @@ void aSsErT(bool b, const char *s, int i)
     if (!(X)) { P_(I) P_(J) P_(K) P(L)\
                 aSsErT(!(X), #X, __LINE__); } }
 
+#define LOOP5_ASSERT(I,J,K,L,M,X) { \
+    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P(M)\
+                aSsErT(!(X), #X, __LINE__); } }
+
+#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
+    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P_(M) P(N)\
+                aSsErT(!(X), #X, __LINE__); } }
+
+#define LOOP7_ASSERT(I,J,K,L,M,N,R,X) { \
+    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P_(M) P_(N) P(R)\
+                aSsErT(!(X), #X, __LINE__); } }
+
+#define LOOP8_ASSERT(I,J,K,L,M,N,R,S,X) { \
+    if (!(X)) { P_(I) P_(J) P_(K) P_(L) P_(M) P_(N) P_(R) P(S)\
+                aSsErT(!(X), #X, __LINE__); } }
+
 #define LOOP0_ASSERT ASSERT
 #define LOOP1_ASSERT LOOP_ASSERT
 
@@ -206,8 +222,8 @@ void aSsErT(bool b, const char *s, int i)
 //                  STANDARD BDE VARIADIC ASSERT TEST MACROS
 //-----------------------------------------------------------------------------
 
-#define NUM_ARGS_IMPL(X5, X4, X3, X2, X1, X0, N, ...)   N
-#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 5, 4, 3, 2, 1, 0, "")
+#define NUM_ARGS_IMPL(X8, X7, X6, X5, X4, X3, X2, X1, X0, N, ...)   N
+#define NUM_ARGS(...) NUM_ARGS_IMPL(__VA_ARGS__, 8, 7, 6, 5, 4, 3, 2, 1, 0, "")
 
 #define LOOPN_ASSERT_IMPL(N, ...) LOOP ## N ## _ASSERT(__VA_ARGS__)
 #define LOOPN_ASSERT(N, ...)      LOOPN_ASSERT_IMPL(N, __VA_ARGS__)
@@ -461,32 +477,31 @@ bool expectToAllocate(int n)
 }
 
 template<class CONTAINER, class VALUES>
-int verifyContainer(const CONTAINER&  container,
-                    const VALUES&     expectedValues,
-                    size_t            expectedSize)
+void emptyNVerifyStack(stack<typename CONTAINER::value_type,
+                             CONTAINER> *pmX,
+                       const VALUES&     expectedValues,
+                       size_t            expectedSize,
+                       const int         LINE)
     // Verify the specified 'container' has the specified 'expectedSize' and
     // contains the same values as the array in the specified 'expectedValues'.
     // Return 0 if 'container' has the expected values, and a non-zero value
     // otherwise.
 {
-    ASSERTV(expectedSize, container.size(), expectedSize == container.size());
+    const char *cont = ContainerName<CONTAINER>::name();
+    const char *val  = ValueName<typename CONTAINER::value_type>::name();
 
-    if(expectedSize != container.size()) {
-        return -1;                                                    // RETURN
+    ASSERTV(cont, val, LINE, expectedSize, pmX->size(),
+                                                  expectedSize == pmX->size());
+
+    if(expectedSize != pmX->size()) {
+        return;                                                       // RETURN
     }
 
-    typename CONTAINER::const_iterator it = container.cbegin();
-    for (size_t i = 0; i < expectedSize; ++i) {
-        ASSERTV(it != container.cend());
-        ASSERTV(i, expectedValues[i], *it, expectedValues[i] == *it);
-
-        if (bsltf::TemplateTestFacility::getValue(expectedValues[i])
-            != bsltf::TemplateTestFacility::getValue(*it)) {
-            return i + 1;                                             // RETURN
-        }
-        ++it;
+    for (int i = expectedSize - 1; i >= 0; --i) {
+        ASSERTV(cont, val, i, LINE, expectedValues[i], pmX->top(),
+                                              expectedValues[i] == pmX->top());
+        pmX->pop();
     }
-    return 0;
 }
 
 
@@ -687,16 +702,11 @@ class TestDriver {
     typedef typename Obj::reference       reference;
     typedef typename Obj::const_reference const_reference;
     typedef typename Obj::size_type       size_type;
+    typedef CONTAINER                     container_type;
     typedef typename Obj::allocator_type  allocator_type;
         // Shorthands
 
     typedef bsltf::TestValuesArray<value_type> TestValues;
-
-
-    enum { EMPTY_WILL_ALLOC = bslmf_IsSame<CONTAINER,
-                                           deque<value_type> >::VALUE };
-        // Creating an empty 'deque' allocates memory, creating an empty
-        // 'vector' does not.
 
   private:
     // TEST APPARATUS
@@ -750,6 +760,20 @@ class TestDriver {
                                const int          LINE);
         // Pop the elements out of 'obj', verifying that they exacttly match
         // the first 'numTestValues' elements in 'testValues'.
+
+    static bool typeAlloc()
+    {
+        return bslalg_HasTrait<value_type,
+                               bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    }
+
+    static bool emptyWillAlloc()
+    {
+        // Creating an empty 'deque' allocates memory, creating an empty
+        // 'vector' does not.
+
+        return bslmf_IsSame<CONTAINER, deque<value_type> >::VALUE;
+    }
 
   public:
     // TEST CASES
@@ -814,10 +838,10 @@ class TestDriver {
 
     static void testCase4();
         // Test basic accessors ('size', 'cbegin', 'cend' and 'get_allocator').
+#endif
 
     static void testCase3();
         // Test generator functions 'ggg', and 'gg'.
-#endif
 
     static void testCase2();
         // Test primary manipulators ('push' and 'pop').
@@ -844,7 +868,7 @@ int TestDriver<CONTAINER>::ggg(Obj        *object,
 
     for (int i = 0; spec[i]; ++i) {
         if ('A' <= spec[i] && spec[i] <= 'Z') {
-            object->insert(VALUES[spec[i] - 'A']);
+            object->push(VALUES[spec[i] - 'A']);
         }
         else {
             if (verbose) {
@@ -1011,13 +1035,13 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
         {
             Obj mX(BEGIN, END);  const Obj& X = mX;
 
-            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, 0 == emptyNVerifyStack(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
                     TYPE_ALLOC * LENGTH == da.numBlocksInUse());
 
             Obj mY(X);  const Obj& Y = mY;
 
-            ASSERTV(LINE, 0 == verifyContainer(Y, EXP, LENGTH));
+            ASSERTV(LINE, 0 == emptyNVerifyStack(Y, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
                     2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
 
@@ -1025,7 +1049,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
 
             mZ.swap(mX);
 
-            ASSERTV(LINE, 0 == verifyContainer(Z, EXP, LENGTH));
+            ASSERTV(LINE, 0 == emptyNVerifyStack(Z, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
                     2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
@@ -1035,7 +1059,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
         {
             Obj mX;  const Obj& X = mX;
             mX.insert(BEGIN, END);
-            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, 0 == emptyNVerifyStack(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
                     TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
@@ -1049,7 +1073,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase22()
 
                 ASSERTV(LINE, tj, LENGTH, CONT[tj] == *(RESULT.first));
             }
-            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, 0 == emptyNVerifyStack(X, EXP, LENGTH));
             ASSERTV(LINE, da.numBlocksInUse(),
                     TYPE_ALLOC * LENGTH == da.numBlocksInUse());
         }
@@ -1173,18 +1197,18 @@ void TestDriver<KEY, COMP, ALLOC>::testCase21()
         {
             Obj mX(BEGIN, END, C);  const Obj& X = mX;
 
-            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, 0 == emptyNVerifyStack(X, EXP, LENGTH));
             ASSERTV(LINE, C == X.key_comp());
 
             Obj mY(X);  const Obj& Y = mY;
 
-            ASSERTV(LINE, 0 == verifyContainer(Y, EXP, LENGTH));
+            ASSERTV(LINE, 0 == emptyNVerifyStack(Y, EXP, LENGTH));
             ASSERTV(LINE, C == Y.key_comp());
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.swap(mX);
 
-            ASSERTV(LINE, 0 == verifyContainer(Z, EXP, LENGTH));
+            ASSERTV(LINE, 0 == emptyNVerifyStack(Z, EXP, LENGTH));
             ASSERTV(LINE, C == Z.key_comp());
             ASSERTV(LINE, COMP() == X.key_comp());
         }
@@ -1194,7 +1218,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase21()
         {
             Obj mX(C);  const Obj& X = mX;
             mX.insert(BEGIN, END);
-            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, 0 == emptyNVerifyStack(X, EXP, LENGTH));
         }
 
         CONT.resetIterators();
@@ -1206,7 +1230,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase21()
 
                 ASSERTV(LINE, tj, LENGTH, CONT[tj] == *(RESULT.first));
             }
-            ASSERTV(LINE, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, 0 == emptyNVerifyStack(X, EXP, LENGTH));
         }
 
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
@@ -1716,7 +1740,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase17()
             if (tj == CONT.size()) {
                 ASSERTV(LINE, oam.isTotalSame());
             }
-            ASSERTV(LINE, tj, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, tj, 0 == emptyNVerifyStack(X, EXP, LENGTH));
 
             ASSERTV(LINE, tj, oa.numBlocksTotal(), oa.numBlocksInUse(),
                     oa.numBlocksTotal() == oa.numBlocksInUse());
@@ -1922,7 +1946,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase16()
                         }
                         ASSERTV(LINE, tj, SIZE, SIZE + 1 == X.size());
                         ASSERTV(LINE, tj,
-                                0 == verifyContainer(X,
+                                0 == emptyNVerifyStack(X,
                                                      TestValues(EXPECTED),
                                                      SIZE + 1));
                     }
@@ -1931,7 +1955,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase16()
                         ASSERTV(LINE, tj, A,  B,  B == A);
                         ASSERTV(LINE, tj, SIZE == X.size());
                         ASSERTV(LINE, tj,
-                                0 == verifyContainer(X,
+                                0 == emptyNVerifyStack(X,
                                                      TestValues(EXPECTED),
                                                      SIZE));
                     }
@@ -2037,7 +2061,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase16()
                         }
                         ASSERTV(LINE, tj, SIZE, SIZE + 1 == X.size());
                         ASSERTV(LINE, tj,
-                                0 == verifyContainer(X,
+                                0 == emptyNVerifyStack(X,
                                                      TestValues(EXPECTED),
                                                      SIZE + 1));
                     }
@@ -2046,7 +2070,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase16()
                         ASSERTV(LINE, tj, A,  B,  B == A);
                         ASSERTV(LINE, tj, SIZE == X.size());
                         ASSERTV(LINE, tj,
-                                0 == verifyContainer(X,
+                                0 == emptyNVerifyStack(X,
                                                      TestValues(EXPECTED),
                                                      SIZE));
                     }
@@ -2176,7 +2200,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase15()
                     }
                     ASSERTV(LINE, tj, SIZE, SIZE + 1 == X.size());
                     ASSERTV(LINE, tj,
-                            0 == verifyContainer(X,
+                            0 == emptyNVerifyStack(X,
                                                  TestValues(EXPECTED),
                                                  SIZE + 1));
                 }
@@ -2185,7 +2209,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase15()
                     ASSERTV(LINE, tj, A,  B,  B == A);
                     ASSERTV(LINE, tj, SIZE == X.size());
                     ASSERTV(LINE, tj,
-                            0 == verifyContainer(X,
+                            0 == emptyNVerifyStack(X,
                                                  TestValues(EXPECTED),
                                                  SIZE));
                 }
@@ -2242,13 +2266,13 @@ void TestDriver<KEY, COMP, ALLOC>::testCase15()
 
                 if (IS_UNIQ) {
                     ASSERTV(LINE, tj,
-                            0 == verifyContainer(X,
+                            0 == emptyNVerifyStack(X,
                                                  TestValues(EXPECTED),
                                                  SIZE + 1));
                 }
                 else {
                     ASSERTV(LINE, tj,
-                            0 == verifyContainer(X,
+                            0 == emptyNVerifyStack(X,
                                                  TestValues(EXPECTED),
                                                  SIZE));
                 }
@@ -2793,7 +2817,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
                 CONT.resetIterators();
 
                 Obj mX(BEGIN, END, COMP(), &sa);
-                ASSERTV(LINE, mX, 0 == verifyContainer(mX, EXP, LENGTH));
+                ASSERTV(LINE, mX, 0 == emptyNVerifyStack(mX, EXP, LENGTH));
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
@@ -4012,34 +4036,31 @@ void TestDriver<KEY, COMP, ALLOC>::testCase4()
 
                 bslma_DefaultAllocatorGuard dag(&da);
 
-                Obj                 *objPtr;
-                bslma_TestAllocator *objAllocatorPtr;
 
-                switch (CONFIG) {
-                  case 'a': {
-                      objPtr = new (fa) Obj();
-                      objAllocatorPtr = &da;
-                  } break;
-                  case 'b': {
-                      objPtr = new (fa) Obj(0);
-                      objAllocatorPtr = &da;
-                  } break;
-                  case 'c': {
-                      objPtr = new (fa) Obj(&sa1);
-                      objAllocatorPtr = &sa1;
-                  } break;
-                  case 'd': {
-                      objPtr = new (fa) Obj(&sa2);
-                      objAllocatorPtr = &sa2;
-                  } break;
-                  default: {
-                      ASSERTV(CONFIG, !"Bad allocator config.");
-                  } break;
-                }
+                bslma_TestAllocator& oa = 'a' == CONFIG || 'b' == CONFIG
+                                          ? da
+                                          : 'c' == CONFIG
+                                            ? sa1
+                                            : sa2;
+                bslma_TestAllocator& noa = &oa != &da ? da : sa1;
+
+                bslma_TestAllocatorMonitor  oam(&oa);
+                bslma_TestAllocatorMonitor noam(&noa);
+
+                Obj& mX = 'a' == CONFIG
+                          ? * new (fa) Obj()
+                          : 'b' == CONFIG
+                            ? * new (fa) Obj(0)
+                            : 'c' == CONFIG
+                              ? * new (fa) Obj(&sa1)
+                              : * new (fa) Obj(&sa2);
+                const Obj& X = mX;
+
+                ASSERT( oam.isTotalSame() == !emptyWillAlloc());
+                ASSERT(noam.isTotalSame());
 
                 Obj& mX = *objPtr;  const Obj& X = gg(&mX, SPEC);
-                bslma_TestAllocator&  oa = *objAllocatorPtr;
-                bslma_TestAllocator& noa = ('c' == CONFIG || 'd' == CONFIG)
+                bslma_TestAllocator& noa = 'c' == CONFIG || 'd' == CONFIG
                                          ? da
                                          : sa1;
 
@@ -4086,9 +4107,10 @@ void TestDriver<KEY, COMP, ALLOC>::testCase4()
         }
     }
 }
+#endif
 
-template <class KEY, class COMP, class ALLOC>
-void TestDriver<KEY, COMP, ALLOC>::testCase3()
+template <class CONTAINER>
+void TestDriver<CONTAINER>::testCase3()
 {
     // ------------------------------------------------------------------------
     // TESTING PRIMITIVE GENERATOR FUNCTIONS gg AND ggg:
@@ -4125,6 +4147,11 @@ void TestDriver<KEY, COMP, ALLOC>::testCase3()
     //   int ggg(set<K,A> *object, const char *spec, int verbose = 1);
     // ------------------------------------------------------------------------
 
+    const char *cont = ContainerName<container_type>::name();
+    const char *val  = ValueName<value_type>::name();
+
+    if (verbose) { P_(cont);  P(val); }
+
     bslma_TestAllocator oa(veryVeryVerbose);
 
     if (verbose) printf("\nTesting generator on valid specs.\n");
@@ -4157,10 +4184,12 @@ void TestDriver<KEY, COMP, ALLOC>::testCase3()
             const int         curLen = (int)strlen(SPEC);
 
             Obj mX(&oa);
-            const Obj& X = gg(&mX, SPEC);   // original spec
+            const Obj& X = gg(&mX, SPEC);
 
-            Obj mY(&oa);
-            const Obj& Y = gg(&mY, SPEC);    // extended spec
+            const Obj& Y =  g(     SPEC);
+
+            ASSERT(&mX == &X);
+            ASSERT(Y   == X);
 
             if (curLen != oldLen) {
                 if (verbose) printf("\tof length %d:\n", curLen);
@@ -4168,16 +4197,10 @@ void TestDriver<KEY, COMP, ALLOC>::testCase3()
                 oldLen = curLen;
             }
 
-            if (veryVerbose) {
-                printf("\t\tSpec = \"%s\"\n", SPEC);
-                T_ T_ T_ P(X);
-                T_ T_ T_ P(Y);
-            }
-
             ASSERTV(LINE, LENGTH == X.size());
             ASSERTV(LINE, LENGTH == Y.size());
-            ASSERTV(0 == verifyContainer(X, EXP, LENGTH));
-            ASSERTV(0 == verifyContainer(Y, EXP, LENGTH));
+            emptyNVerifyStack(&mX,                   EXP, LENGTH, L_);
+            emptyNVerifyStack(const_cast<Obj *>(&Y), EXP, LENGTH, L_);
         }
     }
 
@@ -4244,7 +4267,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase3()
         }
     }
 }
-#endif
 
 template <class CONTAINER>
 void TestDriver<CONTAINER>::testCase2()
@@ -4351,14 +4373,10 @@ void TestDriver<CONTAINER>::testCase2()
     //   stack(const stack& stack, bslma_allocator *);
     // ------------------------------------------------------------------------
 
-    const bool TYPE_ALLOC = bslalg_HasTrait<
-                                    value_type,
-                                    bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
-
-    const char *cont = ContainerName<CONTAINER>::name();
+    const char *cont = ContainerName<container_type>::name();
     const char *val  = ValueName<value_type>::name();
 
-    if (verbose) { P_(cont);  P_(val);  P(TYPE_ALLOC); }
+    if (verbose) { P_(cont);  P_(val);  P(typeAlloc()); }
 
     const TestValues VALUES;  // contains 52 distinct increasing values
 
@@ -4408,7 +4426,7 @@ void TestDriver<CONTAINER>::testCase2()
 
             // Verify no allocation from the object/non-object allocators.
 
-            ASSERTV(CONFIG, EMPTY_WILL_ALLOC == !!oa.numBlocksTotal());
+            ASSERTV(CONFIG, emptyWillAlloc() == !!oa.numBlocksTotal());
 
             ASSERTV(LENGTH, CONFIG, 0 == X.size());
             ASSERTV(LENGTH, CONFIG, X.empty());
@@ -4443,7 +4461,7 @@ void TestDriver<CONTAINER>::testCase2()
                     // Verify no temporary memory is allocated from the object
                     // allocator.
 
-                    if (1 == LENGTH && !TYPE_ALLOC) {
+                    if (1 == LENGTH && !typeAlloc()) {
                         // If the vector grows, the old vector will be
                         // deallocated, so only do this test on '1 == LENGTH'.
 
@@ -4481,7 +4499,7 @@ void TestDriver<CONTAINER>::testCase2()
 
                 ASSERT(X == *copyPtr);
 
-                ASSERT((0 < LENGTH || EMPTY_WILL_ALLOC) ==
+                ASSERT((0 < LENGTH || emptyWillAlloc()) ==
                                                         oaMonitor.isTotalUp());
 
                 emptyAndVerify(copyPtr, VALUES, LENGTH, L_);
@@ -4521,7 +4539,7 @@ void TestDriver<CONTAINER>::testCase2()
 
                 ASSERT(X == *cCopyPtr);
 
-                ASSERT((0 < LENGTH || EMPTY_WILL_ALLOC) ==
+                ASSERT((0 < LENGTH || emptyWillAlloc()) ==
                                                         oaMonitor.isTotalUp());
 
                 if ('a' == CONFIG) {
@@ -4585,7 +4603,7 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
         ASSERTV(0    == X.size());
         ASSERTV(true == X.empty());
         ASSERTV(0    == defaultAllocator.numBytesInUse());
-        ASSERTV(EMPTY_WILL_ALLOC == (0 != objectAllocator.numBytesInUse()));
+        ASSERTV(emptyWillAlloc() == (0 != objectAllocator.numBytesInUse()));
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -4982,6 +5000,7 @@ int main(int argc, char *argv[])
 
         BSLTF_RUN_EACH_TYPE(TestDriver, testCase4, BSLTF_TEST_TYPES_REGULAR);
       } break;
+#endif
       case 3: {
         // --------------------------------------------------------------------
         // GENERATOR FUNCTIONS 'gg' and 'ggg'
@@ -4990,9 +5009,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'gg'"
                             "\n============\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase3, BSLTF_TEST_TYPES_REGULAR);
+        if (verbose) printf("deque ---------------------------------------\n");
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase3, TEST_TYPES_REGULAR(deque));
+        if (verbose) printf("vector --------------------------------------\n");
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase3, TEST_TYPES_REGULAR(vector));
       } break;
-#endif
       case 2: {
         // --------------------------------------------------------------------
         // PRIMARY MANIPULATORS
