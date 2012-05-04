@@ -57,7 +57,7 @@ void printError(const char *text, const char *file, int line)
     }
 
     fprintf(stderr,
-                 "Assertion failed: %s, file %s, line %d\n", text, file, line);
+            "Assertion failed: %s, file %s, line %d\n", text, file, line);
 
     fflush(stderr);  // Not necessary for the default 'stderr', but just
                      // in case it has been reopened as a buffered stream.
@@ -177,12 +177,14 @@ bool extractComponentName(const char **componentName,
 
 namespace BloombergLP {
 
-                            // ---------------------
-                            // class bsls_AssertTest
-                            // ---------------------
+namespace bsls {
+
+                            // ----------------
+                            // class AssertTest
+                            // ----------------
 
 // CLASS METHODS
-bool bsls_AssertTest::isValidAssertBuild(const char *specString)
+bool AssertTest::isValidAssertBuild(const char *specString)
 {
     if (specString) {
         switch (*specString) {
@@ -196,14 +198,14 @@ bool bsls_AssertTest::isValidAssertBuild(const char *specString)
     return false;
 }
 
-bool bsls_AssertTest::isValidExpected(char specChar)
+bool AssertTest::isValidExpected(char specChar)
 {
     return 'F' == specChar || 'P' == specChar;
 }
 
                         // Testing Apparatus
 
-bool bsls_AssertTest::tryProbe(char expectedResult)
+bool AssertTest::tryProbe(char expectedResult)
 {
     if (!isValidExpected(expectedResult)) {
         printf("Invalid 'expectedResult' passed to 'tryProbe': '%c'\n",
@@ -213,10 +215,9 @@ bool bsls_AssertTest::tryProbe(char expectedResult)
     return 'P' == expectedResult;
 }
 
-bool bsls_AssertTest::catchProbe(
-                            char                             expectedResult,
-                            const bsls_AssertTestException&  caughtException,
-                            const char                      *componentFileName)
+bool AssertTest::catchProbe(char                        expectedResult,
+                            const AssertTestException&  caughtException,
+                            const char                 *componentFileName)
 {
     // First we must validate each argument, in order to write a diagnostic
     // message to the console.
@@ -283,7 +284,7 @@ bool bsls_AssertTest::catchProbe(
     return true;
 }
 
-bool bsls_AssertTest::tryProbeRaw(char expectedResult)
+bool AssertTest::tryProbeRaw(char expectedResult)
 {
     if (!isValidExpected(expectedResult)) {
         printf("Invalid 'expectedResult' passed to a 'tryProbeRaw': '%c'\n",
@@ -293,7 +294,7 @@ bool bsls_AssertTest::tryProbeRaw(char expectedResult)
     return 'P' == expectedResult;
 }
 
-bool bsls_AssertTest::catchProbeRaw(char expectedResult)
+bool AssertTest::catchProbeRaw(char expectedResult)
 {
     if (!isValidExpected(expectedResult)) {
         printf("Invalid 'expectedResult' passed to a 'catchProbeRaw': '%c'\n",
@@ -304,19 +305,21 @@ bool bsls_AssertTest::catchProbeRaw(char expectedResult)
 }
 
 BSLS_ASSERTTEST_NORETURN
-void bsls_AssertTest::failTestDriver(const char *text,
-                                     const char *file,
-                                     int         line)
+void AssertTest::failTestDriver(const char *text,
+                                const char *file,
+                                int         line)
 {
 #ifdef BDE_BUILD_TARGET_EXC
-    throw bsls_AssertTestException(text, file, line);
+    throw AssertTestException(text, file, line);
 #else
     printError(text, file, line);
     abort();
 #endif
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

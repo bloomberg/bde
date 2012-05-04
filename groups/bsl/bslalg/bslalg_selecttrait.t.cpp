@@ -1,4 +1,4 @@
-// bslalg_selecttrait.t.cpp                  -*-C++-*-
+// bslalg_selecttrait.t.cpp                                           -*-C++-*-
 
 #include <bslalg_selecttrait.h>
 
@@ -25,10 +25,10 @@ using namespace std;
 // type as a bit-field from the test driver of 'bslalg_TypeTraits', which can
 // be reused systematically.
 //
-// 'bslalg_SelectTrait' is used to select a particular trait from a list of
+// 'bslalg::SelectTrait' is used to select a particular trait from a list of
 // candidate traits for a particular type.  It does not matter which trait is
-// used for testing.  'bslalg_TypeTraitBitwiseMoveable' and
-// 'bslalg_TypeTraitUsesBslmaAllocator' will be used in this case.
+// used for testing.  'bslalg::TypeTraitBitwiseMoveable' and
+// 'bslalg::TypeTraitUsesBslmaAllocator' will be used in this case.
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 //==========================================================================
@@ -107,30 +107,31 @@ unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
 
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitBitwiseMoveable>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::VALUE
             ? TRAIT_BITWISEMOVEABLE
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitBitwiseCopyable>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
             ? TRAIT_BITWISECOPYABLE
             : 0;
-    result |= bslalg_HasTrait<TYPE,
-                           bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE
+    result |= bslalg::HasTrait<TYPE,
+                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
             ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
             : 0;
-    result |= bslalg_HasTrait<TYPE,
-                              bslalg_TypeTraitBitwiseEqualityComparable>::VALUE
+    result |= bslalg::HasTrait<TYPE,
+                             bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
             ? TRAIT_BITWISEEQUALITYCOMPARABLE
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitPair>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
             ? TRAIT_PAIR
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE
+    result |= bslalg::HasTrait<TYPE,
+                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE
             ? TRAIT_USESBSLMAALLOCATOR
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitHasStlIterators>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASSTLITERATORS
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitHasStlIterators>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASPOINTERSEMANTICS
             : 0;
     return result;
@@ -170,18 +171,18 @@ struct my_NilTraitClass {
 
 struct my_BitwiseMoveableClass {
     BSLALG_DECLARE_NESTED_TRAITS(my_BitwiseMoveableClass,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 };
 
 struct my_UsesBslmaAllocatorClass {
     BSLALG_DECLARE_NESTED_TRAITS(my_UsesBslmaAllocatorClass,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 };
 
 struct my_BothTraitsClass {
     BSLALG_DECLARE_NESTED_TRAITS2(my_BothTraitsClass,
-                                  bslalg_TypeTraitBitwiseMoveable,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                  bslalg::TypeTraitBitwiseMoveable,
+                                  bslalg::TypeTraitUsesBslmaAllocator);
 };
 
 //=============================================================================
@@ -208,7 +209,7 @@ int main(int argc, char *argv[])
         //   1. That the proper trait is selected from multiple traits.
         //   2. That the proper trait is selected regardless of where the
         //      proper trait is specified in the list of traits.
-        //   3. That the order of traits listed in 'bslalg_SelectTrait'
+        //   3. That the order of traits listed in 'bslalg::SelectTrait'
         //      reflects the precedence of traits selection.
         //   4. That candidate traits doesn't get passed onto the class when
         //      none of the traits matched.
@@ -217,11 +218,11 @@ int main(int argc, char *argv[])
         //   Using four helper classes, 'my_NilTraitClass',
         //   'my_BitwiseMoveableClass', 'my_UsesBslmaAllocatorClass',
         //   'my_BothTraitsClass', check that the type traits being assigned
-        //   to them are correct using 'bslalg_SelectTrait' with various
+        //   to them are correct using 'bslalg::SelectTrait' with various
         //   ordering according to the list of concerns.
         //
         // Testing:
-        //   bslalg_SelectTrait<typename TYPE, typename TRAIT1...>::Type;
+        //   bslalg::SelectTrait<typename TYPE, typename TRAIT1...>::Type;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
@@ -229,96 +230,96 @@ int main(int argc, char *argv[])
 
         // Regular select
         {
-            typedef bslalg_SelectTrait<
+            typedef bslalg::SelectTrait<
                         my_BitwiseMoveableClass,
-                        bslalg_TypeTraitBitwiseMoveable>::Type TestType;
-            ASSERT((1 == bslmf_IsSame<TestType,
-                                     bslalg_TypeTraitBitwiseMoveable>::VALUE));
+                        bslalg::TypeTraitBitwiseMoveable>::Type TestType;
+            ASSERT((1 == bslmf::IsSame<TestType,
+                                    bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
 
         {
-            typedef bslalg_SelectTrait<
+            typedef bslalg::SelectTrait<
                         my_UsesBslmaAllocatorClass,
-                        bslalg_TypeTraitUsesBslmaAllocator>::Type TestType;
-            ASSERT((1 == bslmf_IsSame<TestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+                        bslalg::TypeTraitUsesBslmaAllocator>::Type TestType;
+            ASSERT((1 == bslmf::IsSame<TestType,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
         }
 
         {
-            typedef bslalg_SelectTrait<
+            typedef bslalg::SelectTrait<
                         my_BitwiseMoveableClass,
-                        bslalg_TypeTraitUsesBslmaAllocator,
-                        bslalg_TypeTraitBitwiseMoveable>::Type TestType;
-            ASSERT((1 == bslmf_IsSame<TestType,
-                                     bslalg_TypeTraitBitwiseMoveable>::VALUE));
+                        bslalg::TypeTraitUsesBslmaAllocator,
+                        bslalg::TypeTraitBitwiseMoveable>::Type TestType;
+            ASSERT((1 == bslmf::IsSame<TestType,
+                                    bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
 
         // Test the order of traits
         {
-            typedef bslalg_SelectTrait<
-                               my_BothTraitsClass,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitBitwiseMoveable>::Type TestType;
+            typedef bslalg::SelectTrait<
+                              my_BothTraitsClass,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitBitwiseMoveable>::Type TestType;
 
-            ASSERT((1 == bslmf_IsSame<TestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+            ASSERT((1 == bslmf::IsSame<TestType,
+                                 bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
         }
         {
-            typedef bslalg_SelectTrait<
-                            my_BothTraitsClass,
-                            bslalg_TypeTraitBitwiseMoveable,
-                            bslalg_TypeTraitUsesBslmaAllocator>::Type TestType;
-            ASSERT((1 == bslmf_IsSame<TestType,
-                                     bslalg_TypeTraitBitwiseMoveable>::VALUE));
+            typedef bslalg::SelectTrait<
+                           my_BothTraitsClass,
+                           bslalg::TypeTraitBitwiseMoveable,
+                           bslalg::TypeTraitUsesBslmaAllocator>::Type TestType;
+            ASSERT((1 == bslmf::IsSame<TestType,
+                                    bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
         {
-            typedef bslalg_SelectTrait<
-                               my_BitwiseMoveableClass,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitBitwiseMoveable>::Type TestType;
+            typedef bslalg::SelectTrait<
+                              my_BitwiseMoveableClass,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitBitwiseMoveable>::Type TestType;
 
-            ASSERT((1 == bslmf_IsSame<TestType,
-                                     bslalg_TypeTraitBitwiseMoveable>::VALUE));
+            ASSERT((1 == bslmf::IsSame<TestType,
+                                    bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
         {
-            typedef bslalg_SelectTrait<
-                               my_BitwiseMoveableClass,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitBitwiseMoveable>::Type TestType;
-            ASSERT((1 == bslmf_IsSame<TestType,
-                                     bslalg_TypeTraitBitwiseMoveable>::VALUE));
+            typedef bslalg::SelectTrait<
+                              my_BitwiseMoveableClass,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitBitwiseMoveable>::Type TestType;
+            ASSERT((1 == bslmf::IsSame<TestType,
+                                    bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
         {
-            typedef bslalg_SelectTrait<
-                               my_BitwiseMoveableClass,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitBitwiseMoveable>::Type TestType;
-            ASSERT((1 == bslmf_IsSame<TestType,
-                                     bslalg_TypeTraitBitwiseMoveable>::VALUE));
+            typedef bslalg::SelectTrait<
+                              my_BitwiseMoveableClass,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitBitwiseMoveable>::Type TestType;
+            ASSERT((1 == bslmf::IsSame<TestType,
+                                    bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
         {
-            typedef bslalg_SelectTrait<
-                               my_BitwiseMoveableClass,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitUsesBslmaAllocator,
-                               bslalg_TypeTraitBitwiseMoveable>::Type TestType;
-            ASSERT((1 == bslmf_IsSame<TestType,
-                                     bslalg_TypeTraitBitwiseMoveable>::VALUE));
+            typedef bslalg::SelectTrait<
+                              my_BitwiseMoveableClass,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitUsesBslmaAllocator,
+                              bslalg::TypeTraitBitwiseMoveable>::Type TestType;
+            ASSERT((1 == bslmf::IsSame<TestType,
+                                    bslalg::TypeTraitBitwiseMoveable>::VALUE));
         }
 
         // Test that traits wouldn't be added on when there's no match.
         {
-            typedef bslalg_SelectTrait<
-                            my_NilTraitClass,
-                            bslalg_TypeTraitBitwiseMoveable,
-                            bslalg_TypeTraitUsesBslmaAllocator>::Type TestType;
-            ASSERT((1 == bslmf_IsSame<TestType,
-                                      bslalg_TypeTraitNil>::VALUE));
+            typedef bslalg::SelectTrait<
+                           my_NilTraitClass,
+                           bslalg::TypeTraitBitwiseMoveable,
+                           bslalg::TypeTraitUsesBslmaAllocator>::Type TestType;
+            ASSERT((1 == bslmf::IsSame<TestType,
+                                      bslalg::TypeTraitNil>::VALUE));
         }
 
       } break;

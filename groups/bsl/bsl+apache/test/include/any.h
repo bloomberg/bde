@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_ANY_H_INCLUDED

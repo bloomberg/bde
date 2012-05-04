@@ -6,9 +6,9 @@
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
-//@DESCRIPTION: This prologue header is intended to be included at the start
-// of each bsl-supplied C++ standard library header file.  The header ensures
-// that 'std' is not defined as a macro while the header is being processed,
+//@DESCRIPTION: This prologue header is intended to be included at the start of
+// each bsl-supplied C++ standard library header file.  The header ensures that
+// 'std' is not defined as a macro while the header is being processed,
 // including in nested headers.  It also defines standard namespaces and the
 // relationships between them.  The inclusion of this file at the start of a
 // header must be paired with the inclusion of 'bsl_stdhdrs_epilogue.h' at the

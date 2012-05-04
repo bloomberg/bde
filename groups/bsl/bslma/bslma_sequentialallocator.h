@@ -12,26 +12,26 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use 'bdema_sequentialallocator' instead.
 //
 //@CLASSES:
-//   bslma_SequentialAllocator: fast variable-size memory allocator
+//  bslma::SequentialAllocator: fast variable-size memory allocator
 //
 //@AUTHOR: Jeffrey Mendelsohn (jmendels)
 //
 //@SEE_ALSO: bdema_sequentialallocator
 //
 //@DESCRIPTION: This component provides an allocator,
-// 'bslma_SequentialAllocator', that implements the 'bslma_ManagedAllocator'
-// protocol and allocates memory blocks of any requested size, from an
-// internal buffer (pool) or a user-supplied buffer.  If an allocation request
-// exceeds the remaining free memory space in the pool, the pool either 1)
-// replenishes its buffer with new memory to satisfy the request, or 2)
-// returns a separate memory block, depending on whether the request size
-// exceeds an optionally specified maximum buffer size.  By default, buffer
-// growth is not capped.  The 'release' method releases all memory allocated
-// through this allocator, as does the destructor.  Note, however, that
-// individual allocated blocks of memory cannot be separately deallocated.
+// 'bslma::SequentialAllocator', that implements the 'bslma::ManagedAllocator'
+// protocol and allocates memory blocks of any requested size, from an internal
+// buffer (pool) or a user-supplied buffer.  If an allocation request exceeds
+// the remaining free memory space in the pool, the pool either 1) replenishes
+// its buffer with new memory to satisfy the request, or 2) returns a separate
+// memory block, depending on whether the request size exceeds an optionally
+// specified maximum buffer size.  By default, buffer growth is not capped.
+// The 'release' method releases all memory allocated through this allocator,
+// as does the destructor.  Note, however, that individual allocated blocks of
+// memory cannot be separately deallocated.
 //..
 //   ,-------------------------.
-//  ( bslma_SequentialAllocator )
+//  ( bslma::SequentialAllocator )
 //   `-------------------------'
 //                |         ctor/dtor
 //                |         allocateAndExpand
@@ -40,45 +40,45 @@ BSLS_IDENT("$Id: $")
 //                |         truncate
 //                V
 //    ,----------------------.
-//   ( bslma_ManagedAllocator )
+//   ( bslma::ManagedAllocator )
 //    `----------------------'
 //                |        release
 //                V
 //       ,----------------.
-//      (  bslma_Allocator )
+//      (  bslma::Allocator )
 //       `----------------'
 //                       allocate
 //                       deallocate
 //..
 ///Alignment Strategy
 ///------------------
-// The 'bslma_SequentialPool' allocates memory using one of the two alignment
+// The 'bslma::SequentialPool' allocates memory using one of the two alignment
 // strategies (defined in 'bslma_bufferallocator') optionally specified at
 // construction: 1) MAXIMUM ALIGNMENT or 2) NATURAL ALIGNMENT.
 //..
-//     MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with
-//     the most restrictive alignment on the host platform.  The value is
-//     defined by 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+//  MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with
+//  the most restrictive alignment on the host platform.  The value is
+//  defined by 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
 //
-//     NATURAL ALIGNMENT: This strategy allocates memory whose alignment
-//     depends on the requested number of bytes.  An object of a fundamental
-//     type ('int', etc.) is *naturally* *aligned* when it's size evenly
-//     divides its address.  An object of an aggregate type has natural
-//     alignment if the alignment of the most-restrictively aligned sub-object
-//     evenly divides the address of the aggregate.  Natural alignment is
-//     always at least as restrictive as the compiler's required alignment.
-//     When only the size of an aggregate is known, and not its composition,
-//     we compute the alignment by finding the largest integral power of 2 (up
-//     to and including 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides
-//     the requested (non-zero) number of bytes.  This computed alignment is
-//     guaranteed to be at least as restrictive as any sub-object within the
-//     aggregate.
+//  NATURAL ALIGNMENT: This strategy allocates memory whose alignment
+//  depends on the requested number of bytes.  An object of a fundamental
+//  type ('int', etc.) is *naturally* *aligned* when it's size evenly
+//  divides its address.  An object of an aggregate type has natural
+//  alignment if the alignment of the most-restrictively aligned sub-object
+//  evenly divides the address of the aggregate.  Natural alignment is
+//  always at least as restrictive as the compiler's required alignment.
+//  When only the size of an aggregate is known, and not its composition,
+//  we compute the alignment by finding the largest integral power of 2 (up
+//  to and including 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides
+//  the requested (non-zero) number of bytes.  This computed alignment is
+//  guaranteed to be at least as restrictive as any sub-object within the
+//  aggregate.
 //..
 // The default strategy is NATURAL ALIGNMENT.
 //
 ///Optional 'buffer' Parameter
 ///---------------------------
-// A buffer can be supplied to a 'bslma_SequentialAllocator' object at
+// A buffer can be supplied to a 'bslma::SequentialAllocator' object at
 // construction in which case the allocator will try to satisfy allocation
 // requests using this buffer before switching to a dynamically-allocated
 // internal pool.  Once the allocator is using an internal pool, it will not
@@ -98,9 +98,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Internal Buffer Growth
 ///----------------------
-// A 'bslma_SequentialAllocator' replenishes its internal buffer if the current
-// buffer cannot satisfy an allocation request.  It does so by one of two
-// growth strategies:
+// A 'bslma::SequentialAllocator' replenishes its internal buffer if the
+// current buffer cannot satisfy an allocation request.  It does so by one of
+// two growth strategies:
 //..
 //  * Constant Growth: The new buffer is always of the same size as the
 //    current buffer (possibly supplied at construction).
@@ -110,8 +110,8 @@ BSLS_IDENT("$Id: $")
 //..
 // If a 'bufferSize' (and corresponding 'buffer') or 'initialSize' is supplied
 // at construction, the sign of its value implicitly specifies which growth
-// strategy to use.  A positive value indicates Constant Growth, whereas a
-// a negative value indicates Geometric Growth.  If neither 'bufferSize' nor
+// strategy to use.  A positive value indicates Constant Growth, whereas a a
+// negative value indicates Geometric Growth.  If neither 'bufferSize' nor
 // 'initialSize' is supplied, Geometric Growth is used.  The optional
 // 'maxBufferSize' parameter may be used to place a cap on Geometric Growth
 // ('maxBufferSize' is ignored if Constant Growth is in effect).  If no value
@@ -124,19 +124,19 @@ BSLS_IDENT("$Id: $")
 ///-----
 // Allocators are often supplied to objects requiring dynamically-allocated
 // memory at construction.  For example, consider the following
-// 'my_DoubleStack' class, parameterized by a 'bslma_Allocator':
+// 'my_DoubleStack' class, parameterized by a 'bslma::Allocator':
 //..
 //  // my_doublestack.h
 //  // ...
 //
-//  class bslma_Allocator;
+//  namespace bslma { class Allocator; }
 //
 //  class my_DoubleStack {
 //      // DATA
-//      double          *d_stack_p;      // dynamically-allocated array
-//      int              d_size;         // physical capacity this stack
-//      int              d_length;       // next available index in stack
-//      bslma_Allocator *d_allocator_p;  // memory allocator (held, not owned)
+//      double           *d_stack_p;      // dynamically-allocated array
+//      int               d_size;         // physical capacity this stack
+//      int               d_length;       // next available index in stack
+//      bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 //
 //      // FRIENDS
 //      friend class my_DoubleStackIter;
@@ -148,9 +148,9 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_DoubleStack(bslma_Allocator       *basicAllocator = 0);
+//      my_DoubleStack(bslma::Allocator       *basicAllocator = 0);
 //      my_DoubleStack(const my_DoubleStack&  original,
-//                     bslma_Allocator       *basicAllocator = 0);
+//                     bslma::Allocator       *basicAllocator = 0);
 //      ~my_DoubleStack();
 //
 //      // MANIPULATORS
@@ -184,9 +184,9 @@ BSLS_IDENT("$Id: $")
 // allocator is supplied, the implementation itself must either conditionally
 // invoke global 'new' and 'delete' explicitly whenever dynamic memory must be
 // managed (BAD IDEA) or (GOOD IDEA) install a default allocator that adapts
-// use of these global operators to the 'bslma_allocator' interface.  In
-// actual practice, however, we might want the default to be run-time settable
-// from a central location (see 'bslma_default').
+// use of these global operators to the 'bslma_allocator' interface.  In actual
+// practice, however, we might want the default to be run-time settable from a
+// central location (see 'bslma_default').
 //..
 //  // my_doublestack.cpp
 //  // ...
@@ -199,7 +199,7 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //
 //  // CREATORS
-//  my_DoubleStack::my_DoubleStack(bslma_Allocator *basicAllocator)
+//  my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
 //  : d_size(INITIAL_SIZE)
 //  , d_length(0)
 //  , d_allocator_p(basicAllocator)
@@ -227,7 +227,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  static
 //  void reallocate(double **array, int newSize, int length,
-//                  bslma_Allocator *basicAllocator)
+//                  bslma::Allocator *basicAllocator)
 //      // Reallocate memory in the specified 'array' to have the specified
 //      // 'newSize' using the specified 'basicAllocator'.  The specified
 //      // 'length' number of leading elements are preserved.  Given that the
@@ -277,38 +277,41 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-class bslma_Allocator;
 
-                       // ===============================
-                       // class bslma_SequentialAllocator
-                       // ===============================
+namespace bslma {
 
-class bslma_SequentialAllocator : public bslma_ManagedAllocator {
-    // This class implements the 'bslma_ManagedAllocator' protocol to provide a
-    // fast allocator of arbitrarily-sized blocks of memory.  Both the
-    // 'release' method and the destructor atomically delete all memory managed
-    // by this allocator; the 'deallocate' method, however, has no effect for
-    // this class.
+class Allocator;
+
+                       // =========================
+                       // class SequentialAllocator
+                       // =========================
+
+class SequentialAllocator : public ManagedAllocator {
+    // This class implements the 'ManagedAllocator' protocol to provide a fast
+    // allocator of arbitrarily-sized blocks of memory.  Both the 'release'
+    // method and the destructor atomically delete all memory managed by this
+    // allocator; the 'deallocate' method, however, has no effect for this
+    // class.
 
     // DATA
-    bslma_SequentialPool d_sequentialPool;  // sequential pool mechanism
+    SequentialPool d_sequentialPool;  // sequential pool mechanism
 
     // NOT IMPLEMENTED
-    bslma_SequentialAllocator(const bslma_SequentialAllocator&);
-    bslma_SequentialAllocator& operator=(const bslma_SequentialAllocator&);
+    SequentialAllocator(const SequentialAllocator&);
+    SequentialAllocator& operator=(const SequentialAllocator&);
 
   public:
     // CREATORS
-    explicit bslma_SequentialAllocator(bslma_Allocator *basicAllocator = 0);
-    explicit bslma_SequentialAllocator(
-                 bslma_BufferAllocator::AlignmentStrategy  strategy,
-                 bslma_Allocator                          *basicAllocator = 0);
-    explicit bslma_SequentialAllocator(int              initialSize,
-                                       bslma_Allocator *basicAllocator = 0);
-    bslma_SequentialAllocator(
-                 int                                       initialSize,
-                 bslma_BufferAllocator::AlignmentStrategy  strategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+    explicit SequentialAllocator(Allocator *basicAllocator = 0);
+    explicit SequentialAllocator(
+                       BufferAllocator::AlignmentStrategy  strategy,
+                       Allocator                          *basicAllocator = 0);
+    explicit SequentialAllocator(int        initialSize,
+                                 Allocator *basicAllocator = 0);
+    SequentialAllocator(
+                       int                                 initialSize,
+                       BufferAllocator::AlignmentStrategy  strategy,
+                       Allocator                          *basicAllocator = 0);
         // Create a sequential allocator for allocating memory blocks from an
         // internal buffer.  Optionally specify an alignment 'strategy' used to
         // align allocated memory blocks.  If 'strategy' is not specified,
@@ -328,15 +331,14 @@ class bslma_SequentialAllocator : public bslma_ManagedAllocator {
         // will have sufficient capacity to satisfy the request.  If *Geometric
         // Growth* is in effect, no limit is imposed on the size of buffers.
 
-    bslma_SequentialAllocator(
-                 char                                     *buffer,
-                 int                                       bufferSize,
-                 bslma_Allocator                          *basicAllocator = 0);
-    bslma_SequentialAllocator(
-                 char                                     *buffer,
-                 int                                       bufferSize,
-                 bslma_BufferAllocator::AlignmentStrategy  strategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+    SequentialAllocator(char      *buffer,
+                        int        bufferSize,
+                        Allocator *basicAllocator = 0);
+    SequentialAllocator(
+                       char                               *buffer,
+                       int                                 bufferSize,
+                       BufferAllocator::AlignmentStrategy  strategy,
+                       Allocator                          *basicAllocator = 0);
         // Create a sequential allocator for allocating memory blocks initially
         // from the specified 'buffer' the size (in bytes) of which is
         // indicated by the absolute value of the specified 'bufferSize'.
@@ -354,14 +356,14 @@ class bslma_SequentialAllocator : public bslma_ManagedAllocator {
         // sufficient capacity to satisfy the request.  If *Geometric Growth*
         // is in effect, no limit is imposed on the size of buffers.
 
-    bslma_SequentialAllocator(int              initialSize,
-                              int              maxBufferSize,
-                              bslma_Allocator *basicAllocator = 0);
-    bslma_SequentialAllocator(
-                 int                                       initialSize,
-                 int                                       maxBufferSize,
-                 bslma_BufferAllocator::AlignmentStrategy  strategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+    SequentialAllocator(int        initialSize,
+                        int        maxBufferSize,
+                        Allocator *basicAllocator = 0);
+    SequentialAllocator(
+                       int                                 initialSize,
+                       int                                 maxBufferSize,
+                       BufferAllocator::AlignmentStrategy  strategy,
+                       Allocator                          *basicAllocator = 0);
         // Create a sequential allocator for allocating memory blocks from an
         // internal buffer the initial size (in bytes) of which is indicated by
         // the absolute value of the specified 'initialSize'.  The specified
@@ -386,17 +388,16 @@ class bslma_SequentialAllocator : public bslma_ManagedAllocator {
         // overridden by a sufficiently large value passed to 'allocate' or
         // 'reserveCapacity'.
 
-    bslma_SequentialAllocator(
-                 char                                     *buffer,
-                 int                                       bufferSize,
-                 int                                       maxBufferSize,
-                 bslma_Allocator                          *basicAllocator = 0);
-    bslma_SequentialAllocator(
-                 char                                     *buffer,
-                 int                                       bufferSize,
-                 int                                       maxBufferSize,
-                 bslma_BufferAllocator::AlignmentStrategy  strategy,
-                 bslma_Allocator                          *basicAllocator = 0);
+    SequentialAllocator(char      *buffer,
+                        int        bufferSize,
+                        int        maxBufferSize,
+                        Allocator *basicAllocator = 0);
+    SequentialAllocator(
+                       char                               *buffer,
+                       int                                 bufferSize,
+                       int                                 maxBufferSize,
+                       BufferAllocator::AlignmentStrategy  strategy,
+                       Allocator                          *basicAllocator = 0);
         // Create a sequential allocator for allocating memory blocks initially
         // from the specified 'buffer' the size (in bytes) of which is
         // indicated by the absolute value of the specified 'bufferSize'.  The
@@ -421,7 +422,7 @@ class bslma_SequentialAllocator : public bslma_ManagedAllocator {
         // 'maxBufferSize' may be overridden by a sufficiently large value
         // passed to 'allocate' or 'reserveCapacity'.
 
-    virtual ~bslma_SequentialAllocator();
+    virtual ~SequentialAllocator();
         // Destroy this sequential allocator and release all associated memory.
 
     // MANIPULATORS
@@ -441,8 +442,8 @@ class bslma_SequentialAllocator : public bslma_ManagedAllocator {
     void *allocateAndExpand(int *size, int maxNumBytes);
         // Return memory of at least the specified '*size' and at most the
         // specified 'maxNumBytes'.  Also return the actual amount of memory
-        // allocated in '*size'.  If '*size' is 0, no memory is allocated and
-        // 0 is returned.  The behavior is undefined unless
+        // allocated in '*size'.  If '*size' is 0, no memory is allocated and 0
+        // is returned.  The behavior is undefined unless
         // '0 <= *size <= maxNumBytes'.
 
     virtual void deallocate(void *address);
@@ -461,13 +462,13 @@ class bslma_SequentialAllocator : public bslma_ManagedAllocator {
     int expand(void *address, int originalNumBytes, int maxNumBytes);
         // Increase the amount of memory allocated at the specified 'address'
         // from the specified 'originalNumBytes' to the maximum amount easily
-        // obtainable up to the specified 'maxNumBytes'.  Return the amount
-        // of memory available at 'address' after the expansion.  The behavior
-        // is undefined unless the call to this allocator that provided the
+        // obtainable up to the specified 'maxNumBytes'.  Return the amount of
+        // memory available at 'address' after the expansion.  The behavior is
+        // undefined unless the call to this allocator that provided the
         // 'address' was performed with the 'originalNumBytes' and
-        // 'originalNumBytes < maxNumBytes'.  Note that this function will
-        // not expand the memory unless there have been no allocations since
-        // the allocation for 'originalNumBytes'.
+        // 'originalNumBytes < maxNumBytes'.  Note that this function will not
+        // expand the memory unless there have been no allocations since the
+        // allocation for 'originalNumBytes'.
 
     virtual void release();
         // Release all memory currently allocated through this allocator.
@@ -484,9 +485,9 @@ class bslma_SequentialAllocator : public bslma_ManagedAllocator {
         // 'newNumBytes'.  Return the amount of memory available at 'address'
         // after the truncation.  The behavior is undefined unless the call to
         // this allocator that provided the 'address' was performed with the
-        // 'originalNumBytes' and 'newNumBytes <= originalNumBytes'.  Note
-        // that this function will not truncate the memory unless there have
-        // been no allocations since the allocation for 'originalNumBytes'.
+        // 'originalNumBytes' and 'newNumBytes <= originalNumBytes'.  Note that
+        // this function will not truncate the memory unless there have been no
+        // allocations since the allocation for 'originalNumBytes'.
 };
 
 // ============================================================================
@@ -495,155 +496,159 @@ class bslma_SequentialAllocator : public bslma_ManagedAllocator {
 
 // CREATORS
 inline
-bslma_SequentialAllocator::bslma_SequentialAllocator(
-                                               bslma_Allocator *basicAllocator)
+SequentialAllocator::SequentialAllocator(Allocator *basicAllocator)
 : d_sequentialPool(basicAllocator)
 {
 }
 
 inline
-bslma_SequentialAllocator::bslma_SequentialAllocator(
-                      bslma_BufferAllocator::AlignmentStrategy  strategy,
-                      bslma_Allocator                          *basicAllocator)
+SequentialAllocator::SequentialAllocator(
+                            BufferAllocator::AlignmentStrategy  strategy,
+                            Allocator                          *basicAllocator)
 : d_sequentialPool(strategy, basicAllocator)
 {
 }
 
 inline
-bslma_SequentialAllocator::bslma_SequentialAllocator(
-                                               int              initialSize,
-                                               bslma_Allocator *basicAllocator)
+SequentialAllocator::SequentialAllocator(int        initialSize,
+                                         Allocator *basicAllocator)
 : d_sequentialPool(initialSize, basicAllocator)
 {
 }
 
 inline
-bslma_SequentialAllocator::bslma_SequentialAllocator(
-                      int                                       initialSize,
-                      bslma_BufferAllocator::AlignmentStrategy  strategy,
-                      bslma_Allocator                          *basicAllocator)
+SequentialAllocator::SequentialAllocator(
+                            int                                 initialSize,
+                            BufferAllocator::AlignmentStrategy  strategy,
+                            Allocator                          *basicAllocator)
 : d_sequentialPool(initialSize, strategy, basicAllocator)
 {
 }
 
 inline
-bslma_SequentialAllocator::bslma_SequentialAllocator(
-                                               char            *buffer,
-                                               int              bufferSize,
-                                               bslma_Allocator *basicAllocator)
+SequentialAllocator::SequentialAllocator(char      *buffer,
+                                         int        bufferSize,
+                                         Allocator *basicAllocator)
 : d_sequentialPool(buffer, bufferSize, basicAllocator)
 {
 }
 
 inline
-bslma_SequentialAllocator::bslma_SequentialAllocator(
-                      char                                     *buffer,
-                      int                                       bufferSize,
-                      bslma_BufferAllocator::AlignmentStrategy  strategy,
-                      bslma_Allocator                          *basicAllocator)
+SequentialAllocator::SequentialAllocator(
+                            char                               *buffer,
+                            int                                 bufferSize,
+                            BufferAllocator::AlignmentStrategy  strategy,
+                            Allocator                          *basicAllocator)
 : d_sequentialPool(buffer, bufferSize, strategy, basicAllocator)
 {
 }
 
 inline
-bslma_SequentialAllocator::bslma_SequentialAllocator(
-                                               int              initialSize,
-                                               int              maxBufferSize,
-                                               bslma_Allocator *basicAllocator)
+SequentialAllocator::SequentialAllocator(int        initialSize,
+                                         int        maxBufferSize,
+                                         Allocator *basicAllocator)
 : d_sequentialPool(initialSize, maxBufferSize, basicAllocator)
 {
 }
 
 inline
-bslma_SequentialAllocator::bslma_SequentialAllocator(
-                      int                                       initialSize,
-                      int                                       maxBufferSize,
-                      bslma_BufferAllocator::AlignmentStrategy  strategy,
-                      bslma_Allocator                          *basicAllocator)
+SequentialAllocator::SequentialAllocator(
+                            int                                 initialSize,
+                            int                                 maxBufferSize,
+                            BufferAllocator::AlignmentStrategy  strategy,
+                            Allocator                          *basicAllocator)
 : d_sequentialPool(initialSize, maxBufferSize, strategy, basicAllocator)
 {
 }
 
 inline
-bslma_SequentialAllocator::bslma_SequentialAllocator(
-                                               char            *buffer,
-                                               int              bufferSize,
-                                               int              maxBufferSize,
-                                               bslma_Allocator *basicAllocator)
+SequentialAllocator::SequentialAllocator(char      *buffer,
+                                         int        bufferSize,
+                                         int        maxBufferSize,
+                                         Allocator *basicAllocator)
 : d_sequentialPool(buffer, bufferSize, maxBufferSize, basicAllocator)
 {
 }
 
 inline
-bslma_SequentialAllocator::bslma_SequentialAllocator(
-                      char                                     *buffer,
-                      int                                       bufferSize,
-                      int                                       maxBufferSize,
-                      bslma_BufferAllocator::AlignmentStrategy  strategy,
-                      bslma_Allocator                          *basicAllocator)
+SequentialAllocator::SequentialAllocator(
+                            char                               *buffer,
+                            int                                 bufferSize,
+                            int                                 maxBufferSize,
+                            BufferAllocator::AlignmentStrategy  strategy,
+                            Allocator                          *basicAllocator)
 : d_sequentialPool(buffer, bufferSize, maxBufferSize, strategy, basicAllocator)
 {
 }
 
 // MANIPULATORS
 inline
-void *bslma_SequentialAllocator::allocate(size_type numBytes)
+void *SequentialAllocator::allocate(size_type numBytes)
 {
     return d_sequentialPool.allocate(static_cast<int>(numBytes));
 }
 
 inline
-void *bslma_SequentialAllocator::allocateAndExpand(int *size)
+void *SequentialAllocator::allocateAndExpand(int *size)
 {
     return d_sequentialPool.allocateAndExpand(size);
 }
 
 inline
-void *bslma_SequentialAllocator::allocateAndExpand(int *size, int maxNumBytes)
+void *SequentialAllocator::allocateAndExpand(int *size, int maxNumBytes)
 {
     return d_sequentialPool.allocateAndExpand(size, maxNumBytes);
 }
 
 inline
-void bslma_SequentialAllocator::deallocate(void *)
+void SequentialAllocator::deallocate(void *)
 {
 }
 
 inline
-int bslma_SequentialAllocator::expand(void *address, int originalNumBytes)
+int SequentialAllocator::expand(void *address, int originalNumBytes)
 {
     return d_sequentialPool.expand(address, originalNumBytes);
 }
 
 inline
-int bslma_SequentialAllocator::expand(void *address,
-                                      int   originalNumBytes,
-                                      int   maxNumBytes)
+int SequentialAllocator::expand(void *address,
+                                int   originalNumBytes,
+                                int   maxNumBytes)
 {
     return d_sequentialPool.expand(address, originalNumBytes, maxNumBytes);
 }
 
 inline
-void bslma_SequentialAllocator::release()
+void SequentialAllocator::release()
 {
     d_sequentialPool.release();
 }
 
 inline
-void bslma_SequentialAllocator::reserveCapacity(int numBytes)
+void SequentialAllocator::reserveCapacity(int numBytes)
 {
     d_sequentialPool.reserveCapacity(numBytes);
 }
 
 inline
-int bslma_SequentialAllocator::truncate(void *address,
-                                         int  originalNumBytes,
-                                         int  newNumBytes)
+int SequentialAllocator::truncate(void *address,
+                                  int   originalNumBytes,
+                                  int   newNumBytes)
 {
     return d_sequentialPool.truncate(address, originalNumBytes, newNumBytes);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::SequentialAllocator bslma_SequentialAllocator;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

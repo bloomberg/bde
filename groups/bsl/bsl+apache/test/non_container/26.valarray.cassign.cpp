@@ -59,7 +59,7 @@ make_array (const T*, const char *s, std::size_t *psize)
         const double val = std::strtod (s, &end);
 
         unsigned long repeat = 1;
-        
+
         if ('@' == *end) {
             // process repeat directive (e.g., "123@5" expands into
             // 5 copies of the number 123)
@@ -145,7 +145,7 @@ void
 delete_array (const UserClass *array, std::size_t nelems)
 {
     UserClass* const a = _RWSTD_CONST_CAST (UserClass*, array);
-    
+
     for (std::size_t i = 0; i != nelems; ++i)
         (a + i)->~UserClass ();
 
@@ -176,7 +176,7 @@ make_array (const UserClass*, const char *s, std::size_t *psize)
         const double val = std::strtod (s, &end);
 
         unsigned long repeat = 1;
-        
+
         if ('@' == *end) {
             // process repeat directive (e.g., "123@5" expands into
             // 5 copies of the number 123)
@@ -304,7 +304,7 @@ test_op_assign (const T*,
     rw_assert (&res == &lhs_va, 0, line,
                "line %d == %#p, got %#p",
                __LINE__, fname, &lhs_va, &res);
-    
+
 
     // verify the size of the array
     rw_assert (lhs_va.size () == nelems, 0, line,
@@ -314,7 +314,7 @@ test_op_assign (const T*,
     if (pcounter) {
         // verify that the assignment didn't leak any objects
         nobjects = *pcounter - nobjects;
-        
+
         rw_assert (0 == nobjects, 0, line,
                    "line %d. %s constucted %zu objects, expected %zu",
                    __LINE__, fname, nobjects, nelems);
@@ -554,7 +554,7 @@ void test_xor_assign (const T*, const char *tname, const char *opname)
     OP ("1", "0", "1");
     OP ("1", "1", "0");
     OP ("3", "0", "3");
-    OP ("3", "1", "2"); 
+    OP ("3", "1", "2");
     OP ("3", "2", "1");
     OP ("3", "3", "0");
 
@@ -563,7 +563,7 @@ void test_xor_assign (const T*, const char *tname, const char *opname)
     OP ("1@12", "0@12", "1@12");
     OP ("1@13", "1@13", "0@13");
     OP ("3@14", "0@14", "3@14");
-    OP ("3@15", "1@15", "2@15"); 
+    OP ("3@15", "1@15", "2@15");
     OP ("3@16", "2@16", "1@16");
     OP ("3@17", "3@17", "0@17");
 }
@@ -591,7 +591,7 @@ void test_and_assign (const T*, const char *tname, const char *opname)
     OP ("1", "0", "0");
     OP ("1", "1", "1");
     OP ("3", "0", "0");
-    OP ("3", "1", "1"); 
+    OP ("3", "1", "1");
     OP ("3", "2", "2");
     OP ("3", "3", "3");
 
@@ -600,7 +600,7 @@ void test_and_assign (const T*, const char *tname, const char *opname)
     OP ("1@12", "0@12", "0@12");
     OP ("1@13", "1@13", "1@13");
     OP ("3@14", "0@14", "0@14");
-    OP ("3@15", "1@15", "1@15"); 
+    OP ("3@15", "1@15", "1@15");
     OP ("3@16", "2@16", "2@16");
     OP ("3@17", "3@17", "3@17");
 }
@@ -628,7 +628,7 @@ void test_or_assign (const T*, const char *tname, const char *opname)
     OP ("1", "0", "1");
     OP ("1", "1", "1");
     OP ("3", "0", "3");
-    OP ("3", "1", "3"); 
+    OP ("3", "1", "3");
     OP ("3", "2", "3");
     OP ("3", "3", "3");
 
@@ -637,7 +637,7 @@ void test_or_assign (const T*, const char *tname, const char *opname)
     OP ("1@12", "0@12", "1@12");
     OP ("1@13", "1@13", "1@13");
     OP ("3@14", "0@14", "3@14");
-    OP ("3@15", "1@15", "3@15"); 
+    OP ("3@15", "1@15", "3@15");
     OP ("3@16", "2@16", "3@16");
     OP ("3@17", "3@17", "3@17");
 }
@@ -665,7 +665,7 @@ void test_shl_assign (const T*, const char *tname, const char *opname)
     OP ("1", "0", "1");
     OP ("1", "1", "2");
     OP ("3", "0", "3");
-    OP ("3", "1", "6"); 
+    OP ("3", "1", "6");
     OP ("3", "2", "12");
     OP ("3", "3", "24");
 
@@ -674,7 +674,7 @@ void test_shl_assign (const T*, const char *tname, const char *opname)
     OP ("1@12", "0@12", "1@12");
     OP ("1@13", "1@13", "2@13");
     OP ("3@14", "0@14", "3@14");
-    OP ("3@15", "1@15", "6@15"); 
+    OP ("3@15", "1@15", "6@15");
     OP ("3@16", "2@16", "12@16");
     OP ("3@17", "3@17", "24@17");
 }
@@ -702,7 +702,7 @@ void test_shr_assign (const T*, const char *tname, const char *opname)
     OP ("1",  "0", "1");
     OP ("2",  "1", "1");
     OP ("3",  "0", "3");
-    OP ("6",  "1", "3"); 
+    OP ("6",  "1", "3");
     OP ("12", "2", "3");
     OP ("24", "3", "3");
 
@@ -711,7 +711,7 @@ void test_shr_assign (const T*, const char *tname, const char *opname)
     OP ("1@21",  "0@21", "1@21");
     OP ("2@21",  "1@21", "1@21");
     OP ("3@21",  "0@21", "3@21");
-    OP ("6@21",  "1@21", "3@21"); 
+    OP ("6@21",  "1@21", "3@21");
     OP ("12@21", "2@21", "3@21");
     OP ("24@21", "3@21", "3@21");
 }

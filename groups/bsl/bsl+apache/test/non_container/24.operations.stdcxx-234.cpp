@@ -42,6 +42,7 @@ distance<X> (X, X) { return 0; }
 #else
 distance<X> (const X&, const X&) { return 0; }
 #endif
+
 } // namespace std
 
 int main ()

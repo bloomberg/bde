@@ -107,7 +107,7 @@ void test_capacity (Vector::size_type nelems)
 
     if (size) {
         begin = &v [0];
-            
+
         // verify 23.2.4.2, p5: no reallocation takes place until
         // the size of the container would exceed its capacity
         for (Vector::size_type i = 0; i != v.capacity () - size; ++i) {

@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <string>           // for string
@@ -50,7 +50,7 @@ static const char* const exceptions[] = {
 
 // used to exercise
 // operator[] (size_type)
-static const StringTestCase 
+static const StringTestCase
 op_index_size_test_cases [] = {
 
 #undef TEST
@@ -61,41 +61,41 @@ op_index_size_test_cases [] = {
     }
 
     //    +--------------------------------------- controlled sequence
-    //    |                     +----------------- index 
-    //    |                     |   +------------- expected result 
-    //    |                     |   |     
-    //    V                     V   V     
-    TEST ("a",                  0, 'a' ), 
+    //    |                     +----------------- index
+    //    |                     |   +------------- expected result
+    //    |                     |   |
+    //    V                     V   V
+    TEST ("a",                  0, 'a' ),
 
     TEST ("<U0>",               0, '\0'),
 
-    TEST ("abc",                0, 'a' ),  
-    TEST ("abc",                1, 'b' ),  
-    TEST ("abc",                2, 'c' ),  
+    TEST ("abc",                0, 'a' ),
+    TEST ("abc",                1, 'b' ),
+    TEST ("abc",                2, 'c' ),
 
-    TEST ("<U0>ab<U0><U0>c",    0, '\0'), 
+    TEST ("<U0>ab<U0><U0>c",    0, '\0'),
 
-    TEST ("a<U0>b<U0><U0>c",    0, 'a' ),  
+    TEST ("a<U0>b<U0><U0>c",    0, 'a' ),
     TEST ("a<U0>b<U0><U0>c",    1, '\0'),
-    TEST ("a<U0>b<U0><U0>c",    2, 'b' ),  
-    TEST ("a<U0>b<U0><U0>c",    3, '\0'), 
+    TEST ("a<U0>b<U0><U0>c",    2, 'b' ),
+    TEST ("a<U0>b<U0><U0>c",    3, '\0'),
     TEST ("a<U0>b<U0><U0>c",    4, '\0'),
-    TEST ("a<U0>b<U0><U0>c",    5, 'c' ),   
+    TEST ("a<U0>b<U0><U0>c",    5, 'c' ),
 
-    TEST ("a<U0>bc<U0><U0>",    5, '\0'), 
+    TEST ("a<U0>bc<U0><U0>",    5, '\0'),
 
-    TEST ("x@4096",             0, 'x' ),  
-    TEST ("x@4096",          2048, 'x' ), 
-    TEST ("x@4096",          4095, 'x' ), 
+    TEST ("x@4096",             0, 'x' ),
+    TEST ("x@4096",          2048, 'x' ),
+    TEST ("x@4096",          4095, 'x' ),
 
-    TEST ("last",               3, 't' )  
+    TEST ("last",               3, 't' )
 };
 
 /**************************************************************************/
 
 // used to exercise
-// operator[] (size_type) const 
-static const StringTestCase 
+// operator[] (size_type) const
+static const StringTestCase
 op_index_const_size_test_cases [] = {
 
 #undef TEST
@@ -106,49 +106,49 @@ op_index_const_size_test_cases [] = {
     }
 
     //    +--------------------------------------- controlled sequence
-    //    |                     +----------------- index 
-    //    |                     |   +------------- expected result 
-    //    |                     |   |     
-    //    V                     V   V     
-    TEST ("a",                  0, 'a' ),  
-    TEST ("a",                  1, NPOS), 
+    //    |                     +----------------- index
+    //    |                     |   +------------- expected result
+    //    |                     |   |
+    //    V                     V   V
+    TEST ("a",                  0, 'a' ),
+    TEST ("a",                  1, NPOS),
 
-    TEST ("",                   0, NPOS), 
+    TEST ("",                   0, NPOS),
 
     TEST ("<U0>",               0, '\0'),
-    TEST ("<U0>",               1, NPOS), 
+    TEST ("<U0>",               1, NPOS),
 
-    TEST ("abc",                0, 'a' ),  
-    TEST ("abc",                1, 'b' ),  
-    TEST ("abc",                2, 'c' ),  
-    TEST ("abc",                3, NPOS), 
+    TEST ("abc",                0, 'a' ),
+    TEST ("abc",                1, 'b' ),
+    TEST ("abc",                2, 'c' ),
+    TEST ("abc",                3, NPOS),
 
-    TEST ("<U0>ab<U0><U0>c",    0, '\0'), 
+    TEST ("<U0>ab<U0><U0>c",    0, '\0'),
 
-    TEST ("a<U0>b<U0><U0>c",    0, 'a' ),  
+    TEST ("a<U0>b<U0><U0>c",    0, 'a' ),
     TEST ("a<U0>b<U0><U0>c",    1, '\0'),
-    TEST ("a<U0>b<U0><U0>c",    2, 'b' ),  
-    TEST ("a<U0>b<U0><U0>c",    3, '\0'), 
+    TEST ("a<U0>b<U0><U0>c",    2, 'b' ),
+    TEST ("a<U0>b<U0><U0>c",    3, '\0'),
     TEST ("a<U0>b<U0><U0>c",    4, '\0'),
-    TEST ("a<U0>b<U0><U0>c",    5, 'c' ),  
-    TEST ("a<U0>b<U0><U0>c",    6, NPOS), 
+    TEST ("a<U0>b<U0><U0>c",    5, 'c' ),
+    TEST ("a<U0>b<U0><U0>c",    6, NPOS),
 
-    TEST ("a<U0>bc<U0><U0>",    5, '\0'), 
+    TEST ("a<U0>bc<U0><U0>",    5, '\0'),
 
-    TEST ("x@4096",             0, 'x' ),  
-    TEST ("x@4096",          2048, 'x' ), 
-    TEST ("x@4096",          4095, 'x' ), 
+    TEST ("x@4096",             0, 'x' ),
+    TEST ("x@4096",          2048, 'x' ),
+    TEST ("x@4096",          4095, 'x' ),
     TEST ("x@4096",          4096, NPOS),
 
-    TEST ("last",               3, 't' )  
+    TEST ("last",               3, 't' )
 };
 
 /**************************************************************************/
 
 // used to exercise
 // at (size_type)
-// at (size_type) const 
-static const StringTestCase 
+// at (size_type) const
+static const StringTestCase
 at_size_test_cases [] = {
 
 #define at_const_size_test_cases    at_size_test_cases
@@ -161,9 +161,9 @@ at_size_test_cases [] = {
     }
 
     //    +--------------------------------------- controlled sequence
-    //    |                     +----------------- index 
-    //    |                     |  +-------------- expected result 
-    //    |                     |  |        +----- exception info 
+    //    |                     +----------------- index
+    //    |                     |  +-------------- expected result
+    //    |                     |  |        +----- exception info
     //    |                     |  |        |      0 - no exception
     //    |                     |  |        |      1 - out_of_range
     //    |                     |  |        |
@@ -204,7 +204,7 @@ at_size_test_cases [] = {
 /**************************************************************************/
 
 template <class charT, class Traits, class Allocator>
-void test_access (charT, Traits*, Allocator*, 
+void test_access (charT, Traits*, Allocator*,
                   const StringFunc     &func,
                   const StringTestCase &tcase)
 {
@@ -217,7 +217,7 @@ void test_access (charT, Traits*, Allocator*,
     std::size_t str_len = sizeof wstr_buf / sizeof *wstr_buf;
     charT* wstr = rw_expand (wstr_buf, tcase.str, tcase.str_len, &str_len);
 
-    // construct the string object 
+    // construct the string object
     /* const */ String str (wstr, str_len);
     const       String const_str = str;
 

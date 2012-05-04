@@ -60,7 +60,7 @@ static const char* const exceptions[] = {
 static const StringTestCase
 size_void_test_cases [] = {
 
-#define length_void_test_cases  size_void_test_cases 
+#define length_void_test_cases  size_void_test_cases
 
 #undef TEST
 #define TEST(str, res) {                    \
@@ -71,9 +71,9 @@ size_void_test_cases [] = {
 
     //    +--------------------------------------- controlled sequence
     //    |                    +------------------ expected result
-    //    |                    |                   
-    //    |                    |                   
-    //    V                    V                   
+    //    |                    |
+    //    |                    |
+    //    V                    V
     TEST (0,                   0),
     TEST ("",                  0),
 
@@ -125,25 +125,25 @@ max_size_void_test_cases [] = {
     }
 
     //    +------------------------------ controlled sequence
-    //    |                
-    //    |                               
-    //    |                               
-    //    V                             
-    TEST (0),     
-    TEST (""),   
+    //    |
+    //    |
+    //    |
+    //    V
+    TEST (0),
+    TEST (""),
 
-    TEST ("<U0>"),    
-    TEST ("a"),       
+    TEST ("<U0>"),
+    TEST ("a"),
 
-    TEST ("test string"), 
-    TEST ("a<U0>b<U0>c<U0>@2"),  
+    TEST ("test string"),
+    TEST ("a<U0>b<U0>c<U0>@2"),
 
-    TEST ("x@128"),     
-    TEST ("x@207"),    
-    TEST ("x@2284"),   
-    TEST ("x@3695"), 
+    TEST ("x@128"),
+    TEST ("x@207"),
+    TEST ("x@2284"),
+    TEST ("x@3695"),
 
-    TEST ("last")        
+    TEST ("last")
 
 };
 
@@ -168,7 +168,7 @@ resize_size_val_test_cases [] = {
     //    |                      |     |    |      +- exception info
     //    |                      |     |    |      |     0 - no exception
     //    |                      |     |    |      |     1 - length_error
-    //    |                      |     |    |      |    
+    //    |                      |     |    |      |
     //    |                      |     |    |      +-----------+
     //    V                      V     V    V                  V
     TEST ("",                    0,   'a',  "",                0),
@@ -239,7 +239,7 @@ resize_size_test_cases [] = {
     //    |                      |    |              |      0 - no exception
     //    |                      |    |              |      1 - length_error
     //    |                      |    |              |
-    //    V                      V    V              V    
+    //    V                      V    V              V
     TEST ("",                    0,   "",            0),
     TEST ("",                    5,   "",            0),
     TEST ("",                  334,   "",            0),
@@ -302,30 +302,30 @@ capacity_void_test_cases [] = {
     }
 
     //    +------------------------------ controlled sequence
-    //    |                
-    //    |                               
-    //    |                               
-    //    V  
-    TEST (0), 
-    TEST (""),   
+    //    |
+    //    |
+    //    |
+    //    V
+    TEST (0),
+    TEST (""),
 
-    TEST ("<U0>"),    
-    TEST ("a"),       
+    TEST ("<U0>"),
+    TEST ("a"),
 
-    TEST ("test string"), 
-    TEST ("a<U0>b<U0>c<U0>@2"),  
+    TEST ("test string"),
+    TEST ("a<U0>b<U0>c<U0>@2"),
 
-    TEST ("x@128"),     
-    TEST ("x@207"),    
+    TEST ("x@128"),
+    TEST ("x@207"),
     TEST ("x@334"),
     TEST ("x@540"),
     TEST ("x@873"),
     TEST ("x@1412"),
-    TEST ("x@2284"),   
-    TEST ("x@3695"), 
-    TEST ("x@4096"), 
+    TEST ("x@2284"),
+    TEST ("x@3695"),
+    TEST ("x@4096"),
 
-    TEST ("last") 
+    TEST ("last")
 };
 
 /**************************************************************************/
@@ -347,8 +347,8 @@ reserve_size_test_cases [] = {
     //    |                      |    +----------- exception info
     //    |                      |    |               0 - no exception
     //    |                      |    |               1 - length_error
-    //    |                      |    |    
-    //    V                      V    V    
+    //    |                      |    |
+    //    V                      V    V
     TEST ("",                    0,   0),
     TEST ("",                    5,   0),
     TEST ("",                  334,   0),
@@ -407,8 +407,8 @@ reserve_void_test_cases [] = {
 
     //    +----------------------------- controlled sequence
     //    |
-    //    |                
-    //    V               
+    //    |
+    //    V
     TEST (""),
     TEST ("<U0>"),
     TEST ("a"),
@@ -443,30 +443,30 @@ clear_void_test_cases [] = {
     }
 
     //    +------------------------------ controlled sequence
-    //    |                
-    //    |                               
-    //    |                               
-    //    V  
-    TEST (0), 
-    TEST (""),   
+    //    |
+    //    |
+    //    |
+    //    V
+    TEST (0),
+    TEST (""),
 
-    TEST ("<U0>"),    
-    TEST ("a"),       
+    TEST ("<U0>"),
+    TEST ("a"),
 
-    TEST ("test string"), 
-    TEST ("a<U0>b<U0>c<U0>@2"),  
+    TEST ("test string"),
+    TEST ("a<U0>b<U0>c<U0>@2"),
 
-    TEST ("x@128"),     
-    TEST ("x@207"),    
+    TEST ("x@128"),
+    TEST ("x@207"),
     TEST ("x@334"),
     TEST ("x@540"),
     TEST ("x@873"),
     TEST ("x@1412"),
-    TEST ("x@2284"),   
-    TEST ("x@3695"), 
-    TEST ("x@4096"), 
+    TEST ("x@2284"),
+    TEST ("x@3695"),
+    TEST ("x@4096"),
 
-    TEST ("last") 
+    TEST ("last")
 };
 
 /**************************************************************************/
@@ -484,21 +484,21 @@ empty_void_test_cases [] = {
     }
 
     //    +------------------------------ controlled sequence
-    //    |              +--------------- expected result              
-    //    |              |                     
-    //    |              |                     
+    //    |              +--------------- expected result
+    //    |              |
+    //    |              |
     //    V              V
-    TEST (0,             1), 
-    TEST ("",            1),   
+    TEST (0,             1),
+    TEST ("",            1),
 
-    TEST ("<U0>",        0),    
-    TEST ("a",           0),       
-    TEST ("<U0>ab<U0>c", 0),  
+    TEST ("<U0>",        0),
+    TEST ("a",           0),
+    TEST ("<U0>ab<U0>c", 0),
 
-    TEST ("x@128",       0),     
-    TEST ("x@3695",      0), 
+    TEST ("x@128",       0),
+    TEST ("x@3695",      0),
 
-    TEST ("last",        0) 
+    TEST ("last",        0)
 };
 
 /**************************************************************************/
@@ -534,7 +534,7 @@ void test_capacity (charT, Traits*, Allocator*,
     // the state of the object after an exception)
     const StringState str_state (rw_get_string_state (str));
 
-    const charT arg_val = -1 != tcase.val ? 
+    const charT arg_val = -1 != tcase.val ?
         make_char (char (tcase.val), (charT*)0)
       : make_char (char (), (charT*)0);
 
@@ -634,7 +634,7 @@ void test_capacity (charT, Traits*, Allocator*,
             }
 
             // verify the returned value
-            if (func.which_ == StringIds::size_void 
+            if (func.which_ == StringIds::size_void
                 || func.which_ == StringIds::length_void
                 || func.which_ == StringIds::empty_void) {
                     rw_assert (res == tcase.nres, 0, tcase.line,
@@ -648,7 +648,7 @@ void test_capacity (charT, Traits*, Allocator*,
 
                 rw_assert (cur_sz <= res && res <= max_sz, 0, tcase.line,
                            "line %d. %{$FUNCALL} == %zu, "
-                           "expected %zu < res < %zu", 
+                           "expected %zu < res < %zu",
                            __LINE__, res, cur_sz, max_sz);
             }
 
@@ -669,7 +669,7 @@ void test_capacity (charT, Traits*, Allocator*,
                                "%zu, got %zu", __LINE__, tcase.size, res);
             }
 
-            if (func.which_ == StringIds::resize_size_val 
+            if (func.which_ == StringIds::resize_size_val
                 || func.which_ == StringIds::clear_void) {
 
                 // verfiy that strings length are equal
@@ -789,8 +789,8 @@ void test_capacity (charT, Traits*, Allocator*,
 
 #else   // if defined (_RWSTD_NO_REPLACEABLE_NEW_DELETE)
 
-    const std::size_t expect_throws = 
-        (StringIds::UserAlloc == func.alloc_id_) 
+    const std::size_t expect_throws =
+        (StringIds::UserAlloc == func.alloc_id_)
       ? str_state.capacity_ < str.capacity () : 0;
 
 #endif   // _RWSTD_NO_REPLACEABLE_NEW_DELETE

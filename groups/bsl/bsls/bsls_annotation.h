@@ -15,8 +15,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a suite of preprocessor macros that
 // define compiler-specific compile-time annotations.  These macros, which
-// correspond to various compiler features, can be used to annotate code
-// for specific compile-time safety checks.
+// correspond to various compiler features, can be used to annotate code for
+// specific compile-time safety checks.
 //
 // For the most part, these compile-time annotations are supported only when
 // the 'BSLS_PLATFORM__CMP_GNU' preprocessor macro is defined.  Other compilers
@@ -146,8 +146,8 @@ BSLS_IDENT("$Id: $")
 // Annotations cannot be specified on function definitions, only on
 // declarations.
 //
-// Variable annotations must be specified after the variable declaration,
-// prior to the terminating semi-colon:
+// Variable annotations must be specified after the variable declaration, prior
+// to the terminating semi-colon:
 //..
 //  int foo BSLS_ANNOTATION_ABC BSLS_ANNOTATION_XYZ;
 //..

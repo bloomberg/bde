@@ -6,12 +6,14 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        // -----------------------
-                        // struct bsls_BlockGrowth
-                        // -----------------------
+namespace bsls {
+
+                        // ------------------
+                        // struct BlockGrowth
+                        // ------------------
 
 // CLASS METHODS
-const char *bsls_BlockGrowth::toAscii(bsls_BlockGrowth::Strategy value)
+const char *BlockGrowth::toAscii(BlockGrowth::Strategy value)
 {
 #define CASE(X) case(BSLS_ ## X): return #X;
 
@@ -24,7 +26,9 @@ const char *bsls_BlockGrowth::toAscii(bsls_BlockGrowth::Strategy value)
 #undef CASE
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

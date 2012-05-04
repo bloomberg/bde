@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an STL-compliant bitset class.
 //
 //@CLASSES:
-//   bsl::bitset: STL-compatible bitset template
+//  bsl::bitset: STL-compatible bitset template
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
@@ -215,8 +215,8 @@ class bitset {
         // Clear the bits unused by the bitset in 'd_data', namely, bits
         // 'BITSETSIZE * BITSPERINT - 1' to N (where bit count starts at 0).
 
-    void clearUnusedBits(BloombergLP::bslmf_MetaInt<0>);
-    void clearUnusedBits(BloombergLP::bslmf_MetaInt<1>);
+    void clearUnusedBits(BloombergLP::bslmf::MetaInt<0>);
+    void clearUnusedBits(BloombergLP::bslmf::MetaInt<1>);
         // Implementations of 'clearUnusedBits', overloaded by whether there
         // are any unused bits.
 
@@ -517,7 +517,7 @@ void bitset<N>::copyString(const native_std::basic_string<CHAR_TYPE,
         }
         else if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(bit != '0')) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl_StdExceptUtil::throwInvalidArgument(
+            BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument(
                                              "string for bitset constructor "
                                              "must be '0' or '1'");
         }
@@ -549,7 +549,7 @@ void bitset<N>::copyString(const bsl::basic_string<CHAR_TYPE,
         }
         else if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(bit != '0')) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl_StdExceptUtil::throwInvalidArgument(
+            BloombergLP::bslstl::StdExceptUtil::throwInvalidArgument(
                                              "string for bitset constructor "
                                              "must be '0' or '1'");
         }
@@ -562,18 +562,18 @@ void bitset<N>::clearUnusedBits()
 {
     enum { VALUE = N % BITSPERINT ? 1 : 0 };
 
-    clearUnusedBits(BloombergLP::bslmf_MetaInt<VALUE>());
+    clearUnusedBits(BloombergLP::bslmf::MetaInt<VALUE>());
 }
 
 template <std::size_t N>
 inline
-void bitset<N>::clearUnusedBits(BloombergLP::bslmf_MetaInt<0>)
+void bitset<N>::clearUnusedBits(BloombergLP::bslmf::MetaInt<0>)
 {
 }
 
 template <std::size_t N>
 inline
-void bitset<N>::clearUnusedBits(BloombergLP::bslmf_MetaInt<1>)
+void bitset<N>::clearUnusedBits(BloombergLP::bslmf::MetaInt<1>)
 {
     const unsigned int offset = N % BITSPERINT;  // never 0
 
@@ -659,7 +659,7 @@ bitset(const    native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos > str.size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                                                "'pos > str.size()' for bitset "
                                                "constructor");
     }
@@ -679,7 +679,7 @@ bitset(const    native_std::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos > str.size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                                                "'pos > str.size()' for bitset "
                                                "constructor");
     }
@@ -699,7 +699,7 @@ bitset(const    bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos > str.size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                                                "'pos > str.size()' for bitset "
                                                "constructor");
     }
@@ -720,7 +720,7 @@ bitset(const    bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos > str.size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                                                "'pos > str.size()' for bitset "
                                                "constructor");
     }
@@ -766,8 +766,9 @@ bitset<N>& bitset<N>::operator<<=(std::size_t pos)
         const std::size_t offset = pos % BITSPERINT;
 
         if (shift) {
-            std::memmove(d_data + shift, d_data,
-                                           (BITSETSIZE - shift) * BYTESPERINT);
+            std::memmove(d_data + shift,
+                         d_data,
+                         (BITSETSIZE - shift) * BYTESPERINT);
             std::memset(d_data, 0, shift * BYTESPERINT);
         }
 
@@ -794,8 +795,9 @@ bitset<N>& bitset<N>::operator>>=(std::size_t pos)
         const std::size_t offset = pos % BITSPERINT;
 
         if (shift) {
-            std::memmove(d_data, d_data + shift,
-                                           (BITSETSIZE - shift) * BYTESPERINT);
+            std::memmove(d_data,
+                         d_data + shift,
+                         (BITSETSIZE - shift) * BYTESPERINT);
             std::memset(d_data + BITSETSIZE - shift, 0, shift * BYTESPERINT);
         }
 
@@ -1000,7 +1002,7 @@ bool bitset<N>::test(size_t pos) const
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(pos >= N)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl_StdExceptUtil::throwOutOfRange(
+        BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
                                         "out_of_range in bsl::bitset<>::test");
     }
     return operator[](pos);
@@ -1016,8 +1018,8 @@ unsigned long bitset<N>::to_ulong() const
     for (std::size_t i = BSLSTL_INTS_IN_LONG; i < BITSETSIZE; ++i) {
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(d_data[i])) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            BloombergLP::bslstl_StdExceptUtil::throwOverflowError(
-                                       "overflow in bsl::bitset<>::to_ulong");
+            BloombergLP::bslstl::StdExceptUtil::throwOverflowError(
+                                        "overflow in bsl::bitset<>::to_ulong");
         }
     }
 
@@ -1104,7 +1106,7 @@ std::basic_ostream<CHAR_TYPE, TRAITS>&
 operator<<(std::basic_ostream<CHAR_TYPE, TRAITS>& os, const bitset<N>& x)
 {
     basic_string<CHAR_TYPE, TRAITS, allocator<CHAR_TYPE> > tmp (
-            x.template to_string<CHAR_TYPE, TRAITS, allocator<CHAR_TYPE> >());
+             x.template to_string<CHAR_TYPE, TRAITS, allocator<CHAR_TYPE> >());
     return os << tmp;
 }
 

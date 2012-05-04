@@ -113,9 +113,11 @@ BDES_IDENT("$Id: $")
 #include <bslma_newdeleteallocator.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
 typedef bslma_NewDeleteAllocator bdema_NewDeleteAllocator;
     // This class provides direct access to the (system-supplied) global

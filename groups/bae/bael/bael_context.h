@@ -214,6 +214,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 #if defined(BSLS_PLATFORM__CMP_MSVC) && defined(PASSTHROUGH)
     // Note: on Windows -> WinGDI.h:#define PASSTHROUGH 19
@@ -222,8 +226,6 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
                         // ==================
                         // class bael_Context

@@ -1,4 +1,4 @@
-// bslalg_bitwiseeqpassthroughtrait.t.cpp                  -*-C++-*-
+// bslalg_bitwiseeqpassthroughtrait.t.cpp                             -*-C++-*-
 
 #include <bslalg_bitwiseeqpassthroughtrait.h>
 
@@ -7,7 +7,7 @@
 
 #include <bslmf_issame.h>
 
-#include <bsls_types.h>  // for testing only 
+#include <bsls_types.h>  // for testing only
 
 #include <cstdio>
 #include <cstdlib>
@@ -87,14 +87,14 @@ class my_NoPaddingClass {
 
   public:
     BSLALG_DECLARE_NESTED_TRAITS(my_NoPaddingClass,
-                                 bslalg_TypeTraitBitwiseEqualityComparable);
+                                 bslalg::TypeTraitBitwiseEqualityComparable);
 };
 
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 // This class simplifies the declaration of
-// 'bslalg_TypeTraitBitwiseEqualityComparable' trait for a class with multiple
+// 'bslalg::TypeTraitBitwiseEqualityComparable' trait for a class with multiple
 // data members.  This is especially useful for attribute classes.  For
 // example, suppose we have an unconstrained attribute class 'Point':
 //..
@@ -105,8 +105,9 @@ class my_NoPaddingClass {
         int d_y;
 
       public:
-        BSLALG_DECLARE_NESTED_TRAITS(my_Point,
-                                    bslalg_TypeTraitBitwiseEqualityComparable);
+        BSLALG_DECLARE_NESTED_TRAITS(
+                                   my_Point,
+                                   bslalg::TypeTraitBitwiseEqualityComparable);
 
         // ...
     };
@@ -118,7 +119,7 @@ class my_NoPaddingClass {
     class my_ColorPoint {
 
         // PRIVATE TYPES
-        typedef bslalg_BitwiseEqPassthroughTrait<my_Point, int>::Type BEC;
+        typedef bslalg::BitwiseEqPassthroughTrait<my_Point, int>::Type BEC;
 
         // DATA
         my_Point d_point;
@@ -133,7 +134,7 @@ class my_NoPaddingClass {
 // Instead of having to check whether 'Point' is bitwise equality comparable,
 // and whether the combination of 'Point' and 'int' inside the class results in
 // a bitwise equality comparable class, the use of
-// 'bslalg_BitwiseEqPassthroughTrait' encapsulates all the meta-programming
+// 'bslalg::BitwiseEqPassthroughTrait' encapsulates all the meta-programming
 // check.
 
 //=============================================================================
@@ -162,7 +163,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Assert that the class 'my_ColorPoint' does have the
-        //   'bslalg_TypeTraitBitwiseEqualityComparable' trait.
+        //   'bslalg::TypeTraitBitwiseEqualityComparable' trait.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -171,9 +172,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============");
 
-        ASSERT((1 == bslalg_HasTrait<
+        ASSERT((1 == bslalg::HasTrait<
                         my_ColorPoint,
-                        bslalg_TypeTraitBitwiseEqualityComparable>::VALUE));
+                        bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
 
       } break;
       case 1: {
@@ -182,67 +183,69 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That the class properly pass on
-        //   'bslalg_TypeTraitBitwiseEqualityComparable' when applicable, and
+        //   'bslalg::TypeTraitBitwiseEqualityComparable' when applicable, and
         //   does not pass on any trait when not applicable.
         //
         // Plan:
         //   Assert the different scenarios.
         //
         // Testing:
-        //   class bslalg_BitwiseEqPassthroughTrait;
+        //   class bslalg::BitwiseEqPassthroughTrait;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        #define OBJ bslalg_BitwiseEqPassthroughTrait
-        typedef bslalg_TypeTraitBitwiseEqualityComparable Bec;
+        #define OBJ bslalg::BitwiseEqPassthroughTrait
+        typedef bslalg::TypeTraitBitwiseEqualityComparable Bec;
         typedef my_NoPaddingClass Npc;
         typedef my_PaddingClass Pc;
 
         // Check fundamental types
-        ASSERT((1 == bslmf_IsSame<OBJ<char>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<unsigned char>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<signed char>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<short>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<unsigned short>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<int>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<unsigned int>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<bsls_Types::Int64>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<bsls_Types::Uint64>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<float>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<double>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<char *>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<void *>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<const void *>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<void * const>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<char>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<unsigned char>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<signed char>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<short>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<unsigned short>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<int>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<unsigned int>::Type, Bec>::VALUE));
+        ASSERT((1 ==
+                bslmf::IsSame<OBJ<bsls::Types::Int64>::Type, Bec>::VALUE));
+        ASSERT((1 ==
+                bslmf::IsSame<OBJ<bsls::Types::Uint64>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<float>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<double>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<char *>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<void *>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<const void *>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<void * const>::Type, Bec>::VALUE));
 
         // Check for types without padding
-        ASSERT((0 == bslmf_IsSame<OBJ<my_PaddingClass>::Type, Bec>::VALUE));
-        ASSERT((1 == bslmf_IsSame<OBJ<my_NoPaddingClass>::Type, Bec>::VALUE));
+        ASSERT((0 == bslmf::IsSame<OBJ<my_PaddingClass>::Type, Bec>::VALUE));
+        ASSERT((1 == bslmf::IsSame<OBJ<my_NoPaddingClass>::Type, Bec>::VALUE));
 
         // Check for a combination of all 9
-        ASSERT((1 == bslmf_IsSame<OBJ<Npc,Npc,Npc,Npc,Npc,Npc,Npc,Npc,Npc
+        ASSERT((1 == bslmf::IsSame<OBJ<Npc,Npc,Npc,Npc,Npc,Npc,Npc,Npc,Npc
                                                         >::Type, Bec>::VALUE));
 
         // Check with a type that is not bitwise equality comparable.
-        ASSERT((0 == bslmf_IsSame<OBJ<Pc,Npc,Npc,Npc,Npc,Npc,Npc,Npc,Npc
+        ASSERT((0 == bslmf::IsSame<OBJ<Pc,Npc,Npc,Npc,Npc,Npc,Npc,Npc,Npc
                                                         >::Type, Bec>::VALUE));
-        ASSERT((0 == bslmf_IsSame<OBJ<Npc,Pc,Npc,Npc,Npc,Npc,Npc,Npc,Npc
+        ASSERT((0 == bslmf::IsSame<OBJ<Npc,Pc,Npc,Npc,Npc,Npc,Npc,Npc,Npc
                                                         >::Type, Bec>::VALUE));
-        ASSERT((0 == bslmf_IsSame<OBJ<Npc,Npc,Pc,Npc,Npc,Npc,Npc,Npc,Npc
+        ASSERT((0 == bslmf::IsSame<OBJ<Npc,Npc,Pc,Npc,Npc,Npc,Npc,Npc,Npc
                                                         >::Type, Bec>::VALUE));
-        ASSERT((0 == bslmf_IsSame<OBJ<Npc,Npc,Npc,Pc,Npc,Npc,Npc,Npc,Npc
+        ASSERT((0 == bslmf::IsSame<OBJ<Npc,Npc,Npc,Pc,Npc,Npc,Npc,Npc,Npc
                                                         >::Type, Bec>::VALUE));
-        ASSERT((0 == bslmf_IsSame<OBJ<Npc,Npc,Npc,Npc,Pc,Npc,Npc,Npc,Npc
+        ASSERT((0 == bslmf::IsSame<OBJ<Npc,Npc,Npc,Npc,Pc,Npc,Npc,Npc,Npc
                                                         >::Type, Bec>::VALUE));
-        ASSERT((0 == bslmf_IsSame<OBJ<Npc,Npc,Npc,Npc,Npc,Pc,Npc,Npc,Npc
+        ASSERT((0 == bslmf::IsSame<OBJ<Npc,Npc,Npc,Npc,Npc,Pc,Npc,Npc,Npc
                                                         >::Type, Bec>::VALUE));
-        ASSERT((0 == bslmf_IsSame<OBJ<Npc,Npc,Npc,Npc,Npc,Npc,Pc,Npc,Npc
+        ASSERT((0 == bslmf::IsSame<OBJ<Npc,Npc,Npc,Npc,Npc,Npc,Pc,Npc,Npc
                                                         >::Type, Bec>::VALUE));
-        ASSERT((0 == bslmf_IsSame<OBJ<Npc,Npc,Npc,Npc,Npc,Npc,Npc,Pc,Npc
+        ASSERT((0 == bslmf::IsSame<OBJ<Npc,Npc,Npc,Npc,Npc,Npc,Npc,Pc,Npc
                                                         >::Type, Bec>::VALUE));
-        ASSERT((0 == bslmf_IsSame<OBJ<Npc,Npc,Npc,Npc,Npc,Npc,Npc,Npc, Pc
+        ASSERT((0 == bslmf::IsSame<OBJ<Npc,Npc,Npc,Npc,Npc,Npc,Npc,Npc, Pc
                                                         >::Type, Bec>::VALUE));
 
       } break;

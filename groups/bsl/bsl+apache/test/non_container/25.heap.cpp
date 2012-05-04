@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // MSVC 6.0 gets an ICE in std::__adjust_heap() in <algorithm.cc>
@@ -40,56 +40,56 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 // 25.3.6.1 - push_heap [lib.push.heap]
 template
 void
-push_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+push_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
            RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 void
-push_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
-           RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+push_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
+           RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
            binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
 
 // 25.3.6.2 - pop_heap [lib.pop.heap]
 template
 void
-pop_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+pop_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
           RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 void
-pop_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
-          RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+pop_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
+          RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
           binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
 
 // 25.3.6.3 - make_heap [lib.make.heap]
 template
 void
-make_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+make_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
            RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 void
-make_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
-           RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+make_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
+           RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
            binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
 
 // 25.3.6.4 - sort_heap [lib.sort.heap]
 template
 void
-sort_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+sort_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
                 RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >);
 
 template
 void
-sort_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
-           RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >, 
+sort_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
+           RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
            binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
@@ -99,7 +99,7 @@ sort_heap (RandomAccessIter<lt_comp<assign<base<cpy_ctor> > > >,
 /**************************************************************************/
 
 template <class T>
-struct Less 
+struct Less
 {
     static std::size_t funcalls_;
 
@@ -133,7 +133,7 @@ bool is_heap (const T* seq, const std::size_t len)
   std::size_t parent = 0;
   for (std::size_t child = 1; child < len; ++child) {
 
-      if (seq [parent].data_.val_ < seq [child].data_.val_) 
+      if (seq [parent].data_.val_ < seq [child].data_.val_)
           return false;
 
       if ((child & 1) == 0)
@@ -190,20 +190,20 @@ void test_heap_operation (int               line,
     case 1: HEAP_OP (std::push_heap); ops = ilog2 (nsrc); break;
     case 2: HEAP_OP (std::pop_heap);  ops = 2 * ilog2 (nsrc); break;
     case 3: HEAP_OP (std::sort_heap); ops = nsrc * ilog2 (nsrc); break;
-    }            
+    }
 
-    const std::size_t n_ops_lt = ppred ? 
+    const std::size_t n_ops_lt = ppred ?
         Predicate::funcalls_ : T::n_total_op_lt_ - last_n_op_lt;
 
     const std::size_t len = 2 != finx ? nsrc : nsrc - 1;
 
     if (2 == finx) {     // pop_heap special verification
-        // verify that the maximal element is in 
+        // verify that the maximal element is in
         // the end of the sequence: 25.3.6.2, p2
         rw_assert (val == xsrc[nsrc - 1].data_.val_, 0, line,
                    "line %d std::%s <%s%{?}, %s%{;}> (\"%s\", ...) ==> "
                    "\"%{X=*.*}\", last is %#c, expected %#c",
-                   __LINE__, fname, itname, ppred, funname, src, 
+                   __LINE__, fname, itname, ppred, funname, src,
                    int (nsrc), -1, xsrc, xsrc [nsrc - 1].data_.val_, val);
     }
 
@@ -212,27 +212,27 @@ void test_heap_operation (int               line,
         rw_assert (is_sorted_lt (xsrc, xsrc_end), 0, line,
                    "line %d std::%s <%s%{?}, %s%{;}> (\"%s\", ...) ==> "
                    "\"%{X=*.*}\" is not sorted",
-                   __LINE__, fname, itname, ppred, funname, src, 
+                   __LINE__, fname, itname, ppred, funname, src,
                    int (nsrc), -1, xsrc);
     }
-    else {  
-        // verify that we got a heap: 
+    else {
+        // verify that we got a heap:
         // 25.3.6.1, p2; 25.3.6.2, p2; 25.3.6.3, p1
         rw_assert (is_heap (xsrc, len), 0, line,
                    "line %d std::%s <%s%{?}, %s%{;}> (\"%s\", ...) ==> "
                    "\"%{X=*.*}\" is not a heap",
-                   __LINE__, fname, itname, ppred, funname, src, 
+                   __LINE__, fname, itname, ppred, funname, src,
                    int (len), -1, xsrc);
     }
 
-    // verify the complexity: 
+    // verify the complexity:
     // 25.3.6.1, p3; 25.3.6.2, p3; 25.3.6.3, p2; 25.3.6.4, p2
     rw_assert (n_ops_lt <= ops, 0, line,
                "line %d std::%s <%s%{?}, %s%{;}> (\"%s\", ...) ==> "
                "\"%{X=*.*}\" complexity: got %zu invocations of %s, "
                "expected no more %zu",
-               __LINE__, fname, itname, ppred, funname, src, 
-               int (nsrc), -1, xsrc, n_ops_lt, 
+               __LINE__, fname, itname, ppred, funname, src,
+               int (nsrc), -1, xsrc, n_ops_lt,
                ppred ? "predicate" : "operator< ()", ops);
 
     delete[] xsrc;
@@ -409,7 +409,7 @@ void test_heap_operations (const T*,
                            const Predicate *ppred)
 {
     if (rw_opt_no_make_heap) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "std::make_heap test disabled");
     }
     else {
@@ -417,7 +417,7 @@ void test_heap_operations (const T*,
     }
 
     if (rw_opt_no_push_heap) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "std::push_heap test disabled");
     }
     else {
@@ -425,7 +425,7 @@ void test_heap_operations (const T*,
     }
 
     if (rw_opt_no_pop_heap) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "std::pop_heap test disabled");
     }
     else {
@@ -433,7 +433,7 @@ void test_heap_operations (const T*,
     }
 
     if (rw_opt_no_sort_heap) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "std::sort_heap test disabled");
     }
     else {
@@ -448,7 +448,7 @@ static int run_test (int, char*[])
     test_heap_operations ((UserClass*)0, (Less<UserClass>*)0);
 
     if (rw_opt_no_predicate) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "heap operations predicate test disabled");
     }
     else {

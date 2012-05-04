@@ -40,7 +40,7 @@ using namespace BloombergLP;
 // test code for bitwise-copyable/moveable test types as well as those that do
 // not have those traits.
 //-----------------------------------------------------------------------------
-// bslalg_ArrayPrimitives public interface:
+// bslalg::ArrayPrimitives public interface:
 // [ 2] void destroy(T *dstB, T *dstE);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -105,7 +105,7 @@ namespace {
 //                  GLOBAL TYPEDEFS/CONSTANTS/TYPES FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bslalg_ArrayDestructionPrimitives  Obj;
+typedef bslalg::ArrayDestructionPrimitives  Obj;
 
 // TYPES
 class TestType;
@@ -116,13 +116,13 @@ typedef TestType                      T;    // uses 'bslma' allocators
 typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
 typedef BitwiseCopyableTestType       BCT;  // does not use 'bslma' allocators
 
-typedef bsls_Types::Int64      Int64;
-typedef bsls_Types::Uint64     Uint64;
+typedef bsls::Types::Int64      Int64;
+typedef bsls::Types::Uint64     Uint64;
 
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose;
 
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 static int numDefaultCtorCalls = 0;
 static int numCharCtorCalls    = 0;
@@ -130,7 +130,7 @@ static int numCopyCtorCalls    = 0;
 static int numAssignmentCalls  = 0;
 static int numDestructorCalls  = 0;
 
-bslma_TestAllocator *Z;  // initialized at the start of main()
+bslma::TestAllocator *Z;  // initialized at the start of main()
 
                                // ==============
                                // class TestType
@@ -143,36 +143,36 @@ class TestType {
     // It could have the bit-wise moveable traits but we defer that trait to
     // the 'MoveableTestType'.
 
-    char            *d_data_p;
-    bslma_Allocator *d_allocator_p;
+    char             *d_data_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestType(bslma_Allocator *ba = 0)
+    TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numDefaultCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = '?';
     }
 
-    TestType(char c, bslma_Allocator *ba = 0)
+    TestType(char c, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCharCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = c;
     }
 
-    TestType(const TestType& original, bslma_Allocator *ba = 0)
+    TestType(const TestType& original, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCopyCtorCalls;
         if (&original != this) {
@@ -243,9 +243,9 @@ class TestTypeNoAlloc {
 
     // DATA
     union {
-        char                                   d_char;
-        char                                   d_fill[sizeof(TestType)];
-        bsls_AlignmentFromType<TestType>::Type d_align;
+        char                                    d_char;
+        char                                    d_fill[sizeof(TestType)];
+        bsls::AlignmentFromType<TestType>::Type d_align;
     } d_u;
 
   public:
@@ -296,7 +296,7 @@ class TestTypeNoAlloc {
 };
 
 bool operator==(const TestTypeNoAlloc& lhs,
-               const TestTypeNoAlloc& rhs)
+                const TestTypeNoAlloc& rhs)
 {
     ASSERT(isalpha(lhs.datum()));
     ASSERT(isalpha(rhs.datum()));
@@ -315,7 +315,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     BitwiseCopyableTestType()
@@ -497,7 +497,7 @@ int ggg(TYPE *array, const char *spec, int verboseFlag = 1)
         char c = spec[i];
         guard.setLength(i);
         if (isalpha(c)) {
-            bslalg_ScalarPrimitives::construct(array, c, Z);
+            bslalg::ScalarPrimitives::construct(array, c, Z);
         }
         else if ('_' == c) {
             continue;
@@ -562,8 +562,8 @@ void testDestroy(bool bitwiseCopyableFlag)
 {
     const int MAX_SIZE = 16;
     static union {
-        char                               d_raw[MAX_SIZE * sizeof(T)];
-        bsls_AlignmentUtil::MaxAlignedType d_align;
+        char                                d_raw[MAX_SIZE * sizeof(T)];
+        bsls::AlignmentUtil::MaxAlignedType d_align;
     } u;
     T *buf = (T*)&u.d_raw[0];
 
@@ -610,7 +610,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -640,7 +640,8 @@ int main(int argc, char *argv[])
 
         if(verbose) printf("\nNegative testing\n");
         {
-            bsls_AssertFailureHandlerGuard g(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard g(
+                    bsls::AssertTest::failTestDriver);
 
             int * null = 0;
             ASSERT_SAFE_PASS(Obj::destroy(null, null));
@@ -678,20 +679,20 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        bslma_TestAllocator ta(veryVerbose);
+        bslma::TestAllocator ta(veryVerbose);
 
         numDestructorCalls = 0;
         {
             const int NUM_OBJECTS = 8;
             const T   VALUE('a');
 
-            bsls_ObjectBuffer<T> array[NUM_OBJECTS];
+            bsls::ObjectBuffer<T> array[NUM_OBJECTS];
             T *buffer = &array[0].object();
 
             for (int i = 0; i < NUM_OBJECTS; ++i) {
-                bslalg_ScalarPrimitives::copyConstruct(buffer + i,
-                                                       VALUE,
-                                                       &ta);
+                bslalg::ScalarPrimitives::copyConstruct(buffer + i,
+                                                        VALUE,
+                                                        &ta);
             }
 
             Obj::destroy(buffer, buffer + NUM_OBJECTS);
@@ -706,13 +707,13 @@ int main(int argc, char *argv[])
             const int NUM_OBJECTS = 8;
             const TNA VALUE('a');
 
-            bsls_ObjectBuffer<TNA> array[NUM_OBJECTS];
+            bsls::ObjectBuffer<TNA> array[NUM_OBJECTS];
             TNA *buffer = &array[0].object();
 
             for (int i = 0; i < NUM_OBJECTS; ++i) {
-                bslalg_ScalarPrimitives::copyConstruct(buffer + i,
-                                                       VALUE,
-                                                       &ta);
+                bslalg::ScalarPrimitives::copyConstruct(buffer + i,
+                                                        VALUE,
+                                                        &ta);
             }
 
             Obj::destroy(buffer, buffer + NUM_OBJECTS);
@@ -726,13 +727,13 @@ int main(int argc, char *argv[])
             const int NUM_OBJECTS = 8;
             const BCT VALUE('a');
 
-            bsls_ObjectBuffer<BCT> array[NUM_OBJECTS];
+            bsls::ObjectBuffer<BCT> array[NUM_OBJECTS];
             BCT *buffer = &array[0].object();
 
             for (int i = 0; i < NUM_OBJECTS; ++i) {
-                bslalg_ScalarPrimitives::copyConstruct(buffer + i,
-                                                       VALUE,
-                                                       &ta);
+                bslalg::ScalarPrimitives::copyConstruct(buffer + i,
+                                                        VALUE,
+                                                        &ta);
             }
 
             Obj::destroy(buffer, buffer + NUM_OBJECTS);

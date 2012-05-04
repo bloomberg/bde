@@ -57,14 +57,14 @@ using namespace std;
 // [ 2] BSLS_ASSERT(X)
 // [ 2] BSLS_ASSERT_OPT(X)
 // [ 4] typedef void (*Handler)(const char *, const char *, int);
-// [ 1] static void setFailureHandler(bsls_Assert::Handler function);
+// [ 1] static void setFailureHandler(bsls::Assert::Handler function);
 // [ 1] static void lockAssertAdministration();
-// [ 1] static bsls_Assert::Handler failureHandler();
+// [ 1] static bsls::Assert::Handler failureHandler();
 // [ 1] static void invokeHandler(const char *t, const char *f, int);
 // [ 4] static void failAbort(const char *t, const char *f, int line);
 // [-3] static void failSleep(const char *t, const char *f, int line);
 // [ 4] static void failThrow(const char *t, const char *f, int line);
-// [ 5] class bsls_AssertFailureHandlerGuard
+// [ 5] class bsls::AssertFailureHandlerGuard
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 //
@@ -82,12 +82,12 @@ using namespace std;
 // [ 2] CONCERN: any one assert mode overrides all BDE_BUILD_TARGETs
 // [ 3] CONCERN: ubiquitously detect multiply-defined assertion-mode flags
 // [ 5] CONCERN: that locking does not stop the handlerGuard from working
-// [-1] CONCERN: 'bsls_Assert::failAbort' aborts
-// [-1] CONCERN: 'bsls_Assert::failAbort' prints to 'stderr' not 'stdout'
-// [-2] CONCERN: 'bsls_Assert::failThrow' aborts in non-exception build
-// [-2] CONCERN: 'bsls_Assert::failThrow' prints to 'stderr' for NON-EXC
-// [-3] CONCERN: 'bsls_Assert::failSleep' sleeps forever
-// [-3] CONCERN: 'bsls_Assert::failSleep' prints to 'stderr' not 'stdout'
+// [-1] CONCERN: 'bsls::Assert::failAbort' aborts
+// [-1] CONCERN: 'bsls::Assert::failAbort' prints to 'stderr' not 'stdout'
+// [-2] CONCERN: 'bsls::Assert::failThrow' aborts in non-exception build
+// [-2] CONCERN: 'bsls::Assert::failThrow' prints to 'stderr' for NON-EXC
+// [-3] CONCERN: 'bsls::Assert::failSleep' sleeps forever
+// [-3] CONCERN: 'bsls::Assert::failSleep' prints to 'stderr' not 'stdout'
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //--------------------------------------------------------------------------
@@ -232,7 +232,7 @@ static void testDriverHandler(const char *text, const char *file, int line)
 BSLS_ASSERT_NORETURN
 static void testDriverPrint(const char *text, const char *file, int line)
     // Format, in verbose mode, the specified expression 'text', 'file' name,
-    // and 'line' number the same way as the 'bsls_Assert::failAbort'
+    // and 'line' number the same way as the 'bsls::Assert::failAbort'
     // assertion-failure handler function might, but on 'cout' instead of
     // 'cerr'.  Then throw an 'std::exception' object provided that
     // 'BDE_BUILD_TARGET_EXC' is defined; otherwise, abort the program.
@@ -262,7 +262,7 @@ static void testDriverPrint(const char *text, const char *file, int line)
 //-----------------------------------------------------------------------------
 
 struct BadBoy {
-    // Bogus 'struct' used for testing: calls 'bsls_Assert::failThrow' on
+    // Bogus 'struct' used for testing: calls 'bsls::Assert::failThrow' on
     // destruction to ensure that it does not rethrow with an exception
     // pending (see case -2).
 
@@ -272,9 +272,9 @@ struct BadBoy {
 
     ~BadBoy() {
         if (globalVeryVerbose) cout << "BadBoy Destroyed!" << endl;
-        bsls_Assert::failThrow("'failThrow' handler called from ~BadBoy",
-                               "f.c",
-                               9);
+        bsls::Assert::failThrow("'failThrow' handler called from ~BadBoy",
+                                "f.c",
+                                9);
      }
 };
 
@@ -293,7 +293,7 @@ void TestConfigurationMacros();
 // directly, (3) how to configure, at runtime, the behavior resulting from an
 // assertion failure using "off-the-shelf" handler methods, (4) how to create
 // your own custom assertion-failure handler function.  (5) proper use of
-// 'bsls_AssertFailureHandlerGuard' to install, temporarily, an
+// 'bsls::AssertFailureHandlerGuard' to install, temporarily, an
 // exception-producing assert handler, and (6) how "ASSERT" macros would be
 // used in conjunction with portions of the code that are instantiated only
 // when 'BDE_BUILD_TARGET_SAFE_2' is defined.
@@ -442,7 +442,7 @@ void TestConfigurationMacros();
         bool someCondition = a && b && !c;
 
         if (someCondition) {
-            bsls_Assert::invokeHandler("Bad News", __FILE__, __LINE__);
+            bsls::Assert::invokeHandler("Bad News", __FILE__, __LINE__);
         }
     }
 //..
@@ -453,58 +453,58 @@ void TestConfigurationMacros();
 //  Abort (core dumped)
 //..
 //
-///3. Runtime Configuration of the 'bsls_Assert' Facility
+///3. Runtime Configuration of the 'bsls::Assert' Facility
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // By default, any assertion failure will result in the invocation of the
-// 'bsls_Assert::failAbort' handler function.  We can replace this behavior
+// 'bsls::Assert::failAbort' handler function.  We can replace this behavior
 // with that of one of the other static failure handler methods supplied in
-// 'bsls_Assert' as follows.  Let's assume we are at the top of our application
-// called 'myMain' (which would typically be 'main'):
+// 'bsls::Assert' as follows.  Let's assume we are at the top of our
+// application called 'myMain' (which would typically be 'main'):
 //..
     void myMain()
     {
 //..
 // First observe that the default assertion-failure handler function is, in
-// fact, 'bsls_Assert::failAbort':
+// fact, 'bsls::Assert::failAbort':
 //..
-        ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
+        ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
 //..
 // Next, we install a new assertion-failure handler function,
-// 'bsls_Assert::failSleep', from the suite of "off-the-shelf" handlers
-// provided as 'static' methods of 'bsls_Assert':
+// 'bsls::Assert::failSleep', from the suite of "off-the-shelf" handlers
+// provided as 'static' methods of 'bsls::Assert':
 //..
-        bsls_Assert::setFailureHandler(&bsls_Assert::failSleep);
+        bsls::Assert::setFailureHandler(&bsls::Assert::failSleep);
 //..
-// Observe that 'bsls_Assert::failSleep' is the new, currently-installed
+// Observe that 'bsls::Assert::failSleep' is the new, currently-installed
 // assertion-failure handler:
 //..
-        ASSERT(&bsls_Assert::failSleep == bsls_Assert::failureHandler());
+        ASSERT(&bsls::Assert::failSleep == bsls::Assert::failureHandler());
 //..
 // Note that if we were to explicitly invoke the current assertion-failure
 // handler as follows:
 //..
-//      bsls_Assert::invokeHandler("message", "file", 27);  // This will hang!
+//  bsls::Assert::invokeHandler("message", "file", 27);  // This will hang!
 //..
-// the program will hang since 'bsls_Assert::failSleep' repeatedly sleeps for
+// the program will hang since 'bsls::Assert::failSleep' repeatedly sleeps for
 // a period of time within an infinite loop.  Thus, this assertion-failure
 // handler is useful for hanging a process so that a debugger may be attached
 // to it.
 //
 // We may now decide to disable the 'setFailureHandler' method using the
-// 'bsls_Assert::lockAssertAdministration()' method to ensure that no one else
+// 'bsls::Assert::lockAssertAdministration()' method to ensure that no one else
 // will override our decision globally.  Note, however, that the
-// 'bsls_AssertFailureHandlerGuard' is not affected, and can still be used to
+// 'bsls::AssertFailureHandlerGuard' is not affected, and can still be used to
 // supplant the currently installed handler (see below):
 //..
-        bsls_Assert::lockAssertAdministration();
+        bsls::Assert::lockAssertAdministration();
 //..
 // Attempting to change the currently installed handler now will fail:
 //..
-        bsls_Assert::setFailureHandler(&bsls_Assert::failAbort);
+        bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
 
-        ASSERT(&bsls_Assert::failAbort != bsls_Assert::failureHandler());
+        ASSERT(&bsls::Assert::failAbort != bsls::Assert::failureHandler());
 
-        ASSERT(&bsls_Assert::failSleep == bsls_Assert::failureHandler());
+        ASSERT(&bsls::Assert::failSleep == bsls::Assert::failureHandler());
     }
 //..
 //
@@ -513,7 +513,7 @@ void TestConfigurationMacros();
 // Sometimes, especially during testing, we may need to write our own custom
 // assertion-failure handler function.  The only requirements are that the
 // function have the same prototype (i.e., the same respective parameter and
-// return types) as the 'bsls_Assert::Handle' 'typedef', and that the function
+// return types) as the 'bsls::Assert::Handle' 'typedef', and that the function
 // should not return (i.e., it must 'abort', 'exit', 'terminate', 'throw', or
 // hang).  To illustrate, we will create a 'static' method at file scope that
 // conforms to the required structure (notice the explicit use of 'std::printf'
@@ -552,17 +552,17 @@ void TestConfigurationMacros();
     {
 //..
 // First, let's observe that we can assign this new function to a function
-// pointer of type 'bsls_Assert::Handler':
+// pointer of type 'bsls::Assert::Handler':
 //..
-        bsls_Assert::Handler f = &ourFailureHandler;
+        bsls::Assert::Handler f = &ourFailureHandler;
 //..
 // Now we can install it just as we would any any other handler:
 //..
-        bsls_Assert::setFailureHandler(&::ourFailureHandler);
+        bsls::Assert::setFailureHandler(&::ourFailureHandler);
 //..
 // We can now invoke the default handler directly:
 //..
-        bsls_Assert::invokeHandler("str1", "str2", 3);
+        bsls::Assert::invokeHandler("str1", "str2", 3);
     }
 //..
 // With the resulting output as follows:
@@ -571,11 +571,11 @@ void TestConfigurationMacros();
 //  Abort (core dumped)
 //..
 //
-///5. Using the 'bsls_AssertFailureHandlerGuard'
+///5. Using the 'bsls::AssertFailureHandlerGuard'
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Sometimes we may want to replace, temporarily (i.e., within some local
 // lexical scope), the currently installed assertion-failure handler function.
-// In particular, we sometimes use the 'bsls_AssertFailureHandlerGuard' class
+// In particular, we sometimes use the 'bsls::AssertFailureHandlerGuard' class
 // to replace the current handler with one that throws an exception (because we
 // know that such an exception is safe in the local context).  Let's start with
 // the simple factorial function below, which validates, in "debug mode" (or
@@ -604,17 +604,17 @@ void TestConfigurationMacros();
 // calls below this function to be handled by throwing an exception, which is
 // then caught by the wrapper and reported to the caller as a "bad" status.
 // Hence, when within the runtime scope of this function, we want to install,
-// temporarily, the assertion-failure handler 'bsls_Assert::failThrow', which,
-// when invoked, causes an 'bsls_AssertTestException' object to be thrown.
+// temporarily, the assertion-failure handler 'bsls::Assert::failThrow', which,
+// when invoked, causes an 'bsls::AssertTestException' object to be thrown.
 // (Note that we are not advocating this approach for "recovery", but rather
 // for an orderly shut-down, or perhaps during testing.)  The
-// 'bsls_AssertFailureHandlerGuard' class is provided for just this purpose:
+// 'bsls::AssertFailureHandlerGuard' class is provided for just this purpose:
 //..
-    ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
+    ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
 
-    bsls_AssertFailureHandlerGuard guard(&bsls_Assert::failThrow);
+    bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
 
-    ASSERT(&bsls_Assert::failThrow == bsls_Assert::failureHandler());
+    ASSERT(&bsls::Assert::failThrow == bsls::Assert::failureHandler());
 //..
 // Next we open up a 'try' block, and somewhere within the 'try' we
 // "accidentally" invoke 'fact' with an out-of-contract value (i.e., '-1'):
@@ -631,7 +631,7 @@ void TestConfigurationMacros();
             // ...
         }
     #ifdef BDE_BUILD_TARGET_EXC
-        catch (const bsls_AssertTestException& e) {
+        catch (const bsls::AssertTestException& e) {
             result = BAD;
             if (verboseFlag) {
                 std::cout << "Internal Error: "
@@ -645,19 +645,19 @@ void TestConfigurationMacros();
     }
 //..
 // Assuming exceptions are enabled (i.e., 'BDE_BUILD_TARGET_EXC' is defined),
-// if an 'bsls_AssertTestException' occurs below this wrapper function, the
+// if an 'bsls::AssertTestException' occurs below this wrapper function, the
 // exception will be caught, a message will be printed to 'stdout', e.g.,
 //..
 //  Internal Error: bsls_assert.t.cpp:500: 0 <= n
 //..
 // and the 'wrapperFunc' function will return a bad status (i.e., 1) to its
-// caller.  Note that if exceptions are not enabled, 'bsls_Assert::failThrow'
-// will behave as 'bsls_Assert::failAbort', and dump core immediately:
+// caller.  Note that if exceptions are not enabled, 'bsls::Assert::failThrow'
+// will behave as 'bsls::Assert::failAbort', and dump core immediately:
 //..
 // Assertion failed: 0 <= n, file bsls_assert.t.cpp, line 500
 // Abort (core dumped)
 //..
-// Finally note that the 'bsls_AssertFailureHandlerGuard' is not thread-aware.
+// Finally note that the 'bsls::AssertFailureHandlerGuard' is not thread-aware.
 // In particular, a guard that is created in one thread will also affect the
 // failure handlers that are used in other threads.  Care should be taken when
 // using this guard when more than a single thread is executing.
@@ -861,9 +861,9 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILD_TARGET_SAFE_2
         if (veryVerbose) cout << "\tSAFE MODE 2 *is* defined." << endl;
 
-        // bsls_Assert::setFailureHandler(::testDriverPrint);  
+        // bsls::Assert::setFailureHandler(::testDriverPrint);
                                                           // for usage example
-        bsls_Assert::setFailureHandler(::testDriverHandler);
+        bsls::Assert::setFailureHandler(::testDriverHandler);
                                                           // for regression
         globalReset();
         ASSERT(false == globalAssertFiredFlag);
@@ -896,11 +896,11 @@ int main(int argc, char *argv[])
                           << "================" << endl;
 
         if (verbose) cout <<
-                       "\n5. Using the bsls_AssertFailureHandlerGuard" << endl;
+                      "\n5. Using the bsls::AssertFailureHandlerGuard" << endl;
 
         // See usage examples section at top of this file.
 
-        ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
+        ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
 
 #ifndef BDE_BUILD_TARGET_OPT
     #if defined(BDE_BUILD_TARGET_EXC) ||                                      \
@@ -914,7 +914,7 @@ int main(int argc, char *argv[])
 
     #endif
 #endif
-        ASSERT(&bsls_Assert::failAbort == bsls_Assert::failureHandler());
+        ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
 
       } break;
       case 10: {
@@ -971,7 +971,7 @@ int main(int argc, char *argv[])
                           << "================" << endl;
 
         if (verbose) cout <<
-               "\n3. Runtime Configuration of the bsls_Assert Facility"<< endl;
+              "\n3. Runtime Configuration of the bsls::Assert Facility"<< endl;
 
         // See usage examples section at top of this file.
 
@@ -1003,7 +1003,7 @@ int main(int argc, char *argv[])
 
         // See usage examples section at top of this file.
 
-        bsls_Assert::setFailureHandler(::testDriverPrint);
+        bsls::Assert::setFailureHandler(::testDriverPrint);
 
         ASSERTION_TEST_BEGIN
         someFunc(1, 1, 0);
@@ -1073,7 +1073,7 @@ int main(int argc, char *argv[])
         // 'failSleep' handler.  Verify restoration on the way out.
         //
         // Testing:
-        //   class bsls_AssertFailureHandlerGuard
+        //   class bsls::AssertFailureHandlerGuard
         //   CONCERN: that locking does not stop the handlerGuard from working
         // --------------------------------------------------------------------
 
@@ -1083,34 +1083,34 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nVerify initial assert handler." << endl;
 
-        ASSERT(bsls_Assert::failAbort == bsls_Assert::failureHandler());
+        ASSERT(bsls::Assert::failAbort == bsls::Assert::failureHandler());
 
         if (verbose) cout << "\nCreate guard with 'testDriverHandler' handler."
                                                                        << endl;
         {
-            bsls_AssertFailureHandlerGuard guard(::testDriverHandler);
+            bsls::AssertFailureHandlerGuard guard(::testDriverHandler);
 
             if (verbose) cout << "\nVerify new assert handler." << endl;
 
-            ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
+            ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
 
             if (verbose) cout << "\nLock administration." << endl;
 
-            bsls_Assert::lockAssertAdministration();
+            bsls::Assert::lockAssertAdministration();
 
             if (verbose) cout << "\nRe-verify new assert handler." << endl;
 
-            ASSERT(testDriverHandler == bsls_Assert::failureHandler());
+            ASSERT(testDriverHandler == bsls::Assert::failureHandler());
 
             if (verbose) cout <<
                      "\nCreate second guard with 'failSleep' handler." << endl;
             {
-                bsls_AssertFailureHandlerGuard guard(bsls_Assert::failSleep);
+                bsls::AssertFailureHandlerGuard guard(bsls::Assert::failSleep);
 
                 if (verbose) cout << "\nVerify newer assert handler." << endl;
 
-                ASSERT(bsls_Assert::failSleep ==
-                                                bsls_Assert::failureHandler());
+                ASSERT(bsls::Assert::failSleep ==
+                                               bsls::Assert::failureHandler());
 
                 if (verbose) cout <<
                  "\nDestroy guard created with '::failSleep' handler." << endl;
@@ -1118,7 +1118,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\nVerify new assert handler." << endl;
 
-            ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
+            ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
 
             if (verbose) cout <<
                   "\nDestroy guard created with '::testDriverHandler' handler."
@@ -1127,7 +1127,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nVerify initial assert handler." << endl;
 
-        ASSERT(bsls_Assert::failAbort == bsls_Assert::failureHandler());
+        ASSERT(bsls::Assert::failAbort == bsls::Assert::failureHandler());
 
       } break;
       case 4: {
@@ -1137,7 +1137,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //   1. That each of the assertion failure handlers provided herein
         //      behaves as advertized and (at least) matches the signature
-        //      of the 'bsls_Assert::Handler' 'typedef'
+        //      of the 'bsls::Assert::Handler' 'typedef'
         //
         // Plan:
         //   1. Verify each handler's behavior.  Unfortunately, we cannot
@@ -1158,7 +1158,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'void failAbort(const char *t, "
                              "const char *f, int line);'" << endl;
         {
-            bsls_Assert::Handler f = bsls_Assert::failAbort;
+            bsls::Assert::Handler f = bsls::Assert::failAbort;
             if (veryVerbose) {
                 cout << "\t(Aborting behavior must be tested by hand.)" <<
                                                                           endl;
@@ -1169,7 +1169,7 @@ int main(int argc, char *argv[])
                              "const char *f, int line);'" << endl;
         {
 
-            bsls_Assert::Handler f = bsls_Assert::failThrow;
+            bsls::Assert::Handler f = bsls::Assert::failThrow;
 
 #ifdef BDE_BUILD_TARGET_EXC
             const char *text = "Test text";
@@ -1183,7 +1183,7 @@ int main(int argc, char *argv[])
             try {
                 f(text, file, line);
             }
-            catch (bsls_AssertTestException) {
+            catch (bsls::AssertTestException) {
                 if (veryVerbose) cout << "\tException Text Succeeded!" << endl;
             }
             catch (...) {
@@ -1309,8 +1309,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nInstall 'testDriverHandler' assertion-handler."
                                                                        << endl;
 
-        bsls_Assert::setFailureHandler(&testDriverHandler);
-        ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
+        bsls::Assert::setFailureHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
 
         if (veryVerbose) cout << "\tSet up all but line numbers now. " << endl;
 
@@ -1663,8 +1663,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   BREATHING TEST
         //   CONCERN: By default, the 'bde_assert::failAbort' is used.
-        //   static void setFailureHandler(bsls_Assert::Handler function);
-        //   static bsls_Assert::Handler failureHandler();
+        //   static void setFailureHandler(bsls::Assert::Handler function);
+        //   static bsls::Assert::Handler failureHandler();
         //   static void invokeHandler(const char *t, const char *f, int);
         //   static void lockAssertAdministration();
         // --------------------------------------------------------------------
@@ -1677,13 +1677,13 @@ int main(int argc, char *argv[])
            "\nVerify that the correct assert callback is installed by default."
                                                                        << endl;
 
-        ASSERT(bsls_Assert::failAbort == bsls_Assert::failureHandler());
+        ASSERT(bsls::Assert::failAbort == bsls::Assert::failureHandler());
 
         if (verbose) cout <<
            "\nVerify that we can install a new assert callback." << endl;
 
-        bsls_Assert::setFailureHandler(&testDriverHandler);
-        ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
+        bsls::Assert::setFailureHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
 
         if (verbose) cout <<
            "\nVerify that 'invokeHandler' properly transmits its arguments."
@@ -1693,7 +1693,7 @@ int main(int argc, char *argv[])
         ASSERT(false        == globalAssertFiredFlag);
 
         ASSERTION_TEST_BEGIN
-        bsls_Assert::invokeHandler("ExPrEsSiOn", "FiLe", -12345678);
+        bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", -12345678);
         ASSERTION_TEST_END
 
         ASSERT(     true == globalAssertFiredFlag);
@@ -1705,10 +1705,10 @@ int main(int argc, char *argv[])
            "\nVerify that 'lockAssertAdminisration' blocks callback changes."
                                                                        << endl;
 
-        bsls_Assert::lockAssertAdministration();
+        bsls::Assert::lockAssertAdministration();
 
-        bsls_Assert::setFailureHandler(&bsls_Assert::failAbort);
-        ASSERT(::testDriverHandler == bsls_Assert::failureHandler());
+        bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
+        ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
 
 #ifdef BSLS_ASSERT_LEVEL_NONE
         if (verbose) cout <<
@@ -1793,15 +1793,15 @@ int main(int argc, char *argv[])
         //   2. That it prints a message to 'stderr'.
         //
         // Plan:
-        //   Call 'bsls_Assert::failAbort' after blocking the signal.
+        //   Call 'bsls::Assert::failAbort' after blocking the signal.
         //
         // Testing:
-        //   CONCERN: 'bsls_Assert::failAbort' aborts
-        //   CONCERN: 'bsls_Assert::failAbort' prints to 'cerr' not 'cout'
+        //   CONCERN: 'bsls::Assert::failAbort' aborts
+        //   CONCERN: 'bsls::Assert::failAbort' prints to 'cerr' not 'cout'
         // --------------------------------------------------------------------
 
-        cout << endl << "Manual Testing 'bsls_Assert::failAbort'" << endl
-                     << "=======================================" << endl;
+        cout << endl << "Manual Testing 'bsls::Assert::failAbort'" << endl
+                     << "========================================" << endl;
 
 #ifdef BSLS_PLATFORM__OS_UNIX
         sigset_t newset;
@@ -1817,7 +1817,7 @@ int main(int argc, char *argv[])
         cerr << "THE FOLLOWING SHOULD PRINT ON STDERR:\n"
                 "Assertion failed: 0 != 0, file myfile.cpp, line 123" << endl;
 
-        bsls_Assert::failAbort("0 != 0", "myfile.cpp", 123);
+        bsls::Assert::failAbort("0 != 0", "myfile.cpp", 123);
 
         ASSERT(0 && "Should not be reached");
       } break;
@@ -1832,18 +1832,18 @@ int main(int argc, char *argv[])
         //   1b) That it behaves as failAbort for non-exception builds.
         //
         // Plan:
-        //   1a) Call bsls_Assert::failThrow from within the dtor of a
+        //   1a) Call bsls::Assert::failThrow from within the dtor of a
         //       test object on the stack after a throw.
         //
-        //   1b) Call 'bsls_Assert::failAbort' after blocking the signal.
+        //   1b) Call 'bsls::Assert::failAbort' after blocking the signal.
         //
         // Testing:
-        //   CONCERN: 'bsls_Assert::failAbort' aborts
-        //   CONCERN: 'bsls_Assert::failAbort' prints to 'cerr' not 'cout'
+        //   CONCERN: 'bsls::Assert::failAbort' aborts
+        //   CONCERN: 'bsls::Assert::failAbort' prints to 'cerr' not 'cout'
         // --------------------------------------------------------------------
 
-        cout << endl << "Manual Testing 'bsls_Assert::failThrow'" << endl
-                     << "=======================================" << endl;
+        cout << endl << "Manual Testing 'bsls::Assert::failThrow'" << endl
+                     << "========================================" << endl;
 
 #if BDE_BUILD_TARGET_EXC
 
@@ -1857,7 +1857,7 @@ int main(int argc, char *argv[])
              << endl;
 
         try {
-            BadBoy bad;        // calls 'bsls_Assert::failThrow' on destruction
+            BadBoy bad;       // calls 'bsls::Assert::failThrow' on destruction
 
             if (veryVerbose) cout << "About to throw \"stuff\"" << endl;
 
@@ -1885,7 +1885,7 @@ int main(int argc, char *argv[])
         cerr << "THE FOLLOWING SHOULD PRINT ON STDERR:\n"
                 "Assertion failed: 0 != 0, file myfile.cpp, line 123" << endl;
 
-        bsls_Assert::failAbort("0 != 0", "myfile.cpp", 123);
+        bsls::Assert::failAbort("0 != 0", "myfile.cpp", 123);
 
         ASSERT(0 && "Should not be reached");
 #endif
@@ -1899,21 +1899,21 @@ int main(int argc, char *argv[])
         //   2. That it prints a message to 'stderr'.
         //
         // Plan:
-        //   Call 'bsls_Assert::failSleep'.  Then observe that a diagnostic is
+        //   Call 'bsls::Assert::failSleep'.  Then observe that a diagnostic is
         //   printed to 'stderr' and the program hangs.
         //
         // Testing:
-        //   CONCERN: 'bsls_Assert::failSleep' sleeps forever
-        //   CONCERN: 'bsls_Assert::failSleep' prints to 'cerr' not 'cout'
+        //   CONCERN: 'bsls::Assert::failSleep' sleeps forever
+        //   CONCERN: 'bsls::Assert::failSleep' prints to 'cerr' not 'cout'
         // --------------------------------------------------------------------
 
-        cout << endl << "Manual Testing 'bsls_Assert::failSleep'" << endl
-                     << "=======================================" << endl;
+        cout << endl << "Manual Testing 'bsls::Assert::failSleep'" << endl
+                     << "========================================" << endl;
 
         cerr << "THE FOLLOWING SHOULD PRINT ON STDERR (BEFORE HANGING):\n"
                 "Assertion failed: 0 != 0, file myfile.cpp, line 123" << endl;
 
-        bsls_Assert::failSleep("0 != 0", "myfile.cpp", 123);
+        bsls::Assert::failSleep("0 != 0", "myfile.cpp", 123);
 
         ASSERT(0 && "Should not be reached");
       } break;
@@ -2102,7 +2102,7 @@ void TestConfigurationMacros()
     if (globalVerbose) cout << "\nWe need to write a running commentary"
                             << endl;
 
-    bsls_Assert::setFailureHandler(&AssertFailed::failMacroTest);
+    bsls::Assert::setFailureHandler(&AssertFailed::failMacroTest);
 
 //===================== (NO BUILD FLAGS SET) ===============================//
 

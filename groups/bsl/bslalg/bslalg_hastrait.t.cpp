@@ -18,16 +18,16 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// 'bslalg_HasTrait' is tested in a similar fashion to 'bslalg_TypeTraits'.  In
-// fact, 'bslalg_TypeTraits' has a replicate of 'bslalg_HasTrait' within its
-// test driver.  This is because the effects of applying a trait to a class can
-// only be tested by an observer that attempts to use or look at the traits,
-// which is precisely what 'bslalg_HasTrait' does.
+// 'bslalg::HasTrait' is tested in a similar fashion to 'bslalg_TypeTraits'.
+// In fact, 'bslalg_TypeTraits' has a replicate of 'bslalg::HasTrait' within
+// its test driver.  This is because the effects of applying a trait to a class
+// can only be tested by an observer that attempts to use or look at the
+// traits, which is precisely what 'bslalg::HasTrait' does.
 //
 // Therefore, this component will have the exact same test driver as
 // 'bslalg_TypeTraits', but with the private 'HasTrait' class within
 // 'bslalg_TypeTraits' removed to test the true implementation of
-// 'bslalg_HasTrait'.
+// 'bslalg::HasTrait'.
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 //==========================================================================
@@ -104,30 +104,31 @@ unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
 
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitBitwiseMoveable>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::VALUE
             ? TRAIT_BITWISEMOVEABLE
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitBitwiseCopyable>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
             ? TRAIT_BITWISECOPYABLE
             : 0;
-    result |= bslalg_HasTrait<TYPE,
-                           bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE
+    result |= bslalg::HasTrait<TYPE,
+                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
             ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
             : 0;
-    result |= bslalg_HasTrait<TYPE,
-                              bslalg_TypeTraitBitwiseEqualityComparable>::VALUE
+    result |= bslalg::HasTrait<TYPE,
+                             bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
             ? TRAIT_BITWISEEQUALITYCOMPARABLE
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitPair>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
             ? TRAIT_PAIR
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE
+    result |= bslalg::HasTrait<TYPE,
+                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE
             ? TRAIT_USESBSLMAALLOCATOR
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitHasStlIterators>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASSTLITERATORS
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitHasStlIterators>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASPOINTERSEMANTICS
             : 0;
     return result;
@@ -176,22 +177,22 @@ namespace BloombergLP {
 
     template <>
         struct bslalg_TypeTraits<my_Class1>
-        : bslalg_TypeTraitUsesBslmaAllocator {};
+        : bslalg::TypeTraitUsesBslmaAllocator {};
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 template <class T>
 struct my_Class2
 {
     // Class template that has nested type traits
     BSLALG_DECLARE_NESTED_TRAITS(my_Class2,
-                                 BloombergLP::bslalg_TypeTraitsGroupPod);
+                                 BloombergLP::bslalg::TypeTraitsGroupPod);
 };
 
 struct my_Class4
 {
     // Class with no special traits but has conversion from 'void*'.
-    // Used to check against false positives for 'bslma_Allocator*' traits.
+    // Used to check against false positives for 'bslma::Allocator*' traits.
     my_Class4(void*);
 };
 
@@ -199,17 +200,17 @@ struct my_Class5
 {
     // Class with no special traits but has conversion from anything.  Used
     // the check against false positives for nested traits and
-    // 'bslma_Allocator*' traits.
+    // 'bslma::Allocator*' traits.
     template <class T> my_Class5(const T& t);
     template <class T> my_Class5(const volatile T& t);
 
 #if defined(BSLS_PLATFORM__CMP_IBM) || defined(BSLS_PLATFORM__OS_LINUX)
     // Workaround for AIX xlC 6.0 and and Linux gcc compilers.  Without this
     // declaration, the compiler tries to instantiate the templated
-    // constructors when probing for 'bslma_Allocator*' conversions.  This
+    // constructors when probing for 'bslma::Allocator*' conversions.  This
     // declaration short-circuits the traits-sniffing logic so that it will
-    // not probe for conversion from 'bslma_Allocator*'.
-    BSLALG_DECLARE_NESTED_TRAITS(my_Class5, bslalg_TypeTraitNil);
+    // not probe for conversion from 'bslma::Allocator*'.
+    BSLALG_DECLARE_NESTED_TRAITS(my_Class5, bslalg::TypeTraitNil);
 #endif
 };
 
@@ -281,8 +282,8 @@ int main(int argc, char *argv[])
         TRAIT_TEST(unsigned short, TRAIT_EQPOD);
         TRAIT_TEST(int, TRAIT_EQPOD);
         TRAIT_TEST(unsigned int, TRAIT_EQPOD);
-        TRAIT_TEST(bsls_Types::Int64, TRAIT_EQPOD);
-        TRAIT_TEST(bsls_Types::Uint64, TRAIT_EQPOD);
+        TRAIT_TEST(bsls::Types::Int64, TRAIT_EQPOD);
+        TRAIT_TEST(bsls::Types::Uint64, TRAIT_EQPOD);
         TRAIT_TEST(float, TRAIT_EQPOD);
         TRAIT_TEST(double, TRAIT_EQPOD);
         TRAIT_TEST(char*, TRAIT_EQPOD);

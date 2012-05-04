@@ -9,6 +9,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsl_iomanip.h>
 
 namespace BloombergLP {
+
 namespace bslim {
 
                         // -------------
@@ -117,11 +118,11 @@ bool Printer::suppressInitialIndentFlag() const
 
 // CLASS METHODS
 void Printer_Helper::printRaw(
-                          bsl::ostream& stream,
-                          char          data,
-                          int           ,
-                          int           spacesPerLevel,
-                          bslmf_MetaInt<Printer_Selector::BSLIM_FUNDAMENTAL> *)
+           bsl::ostream&                                        stream,
+           char                                                 data,
+           int                                                  ,
+           int                                                  spacesPerLevel,
+           bslmf::MetaInt<Printer_Selector::BSLIM_FUNDAMENTAL> *)
 {
 #define HANDLE_CONTROL_CHAR(value) case value: stream << #value; break;
     if (bsl::isprint(data)) {
@@ -141,7 +142,7 @@ void Printer_Helper::printRaw(
             bsl::ios_base::fmtflags fmtFlags = stream.flags();
             stream << bsl::hex
                    << bsl::showbase
-                   << static_cast<bsls_Types::UintPtr>(data);
+                   << static_cast<bsls::Types::UintPtr>(data);
             stream.flags(fmtFlags);
         }
     }
@@ -153,11 +154,11 @@ void Printer_Helper::printRaw(
 }
 
 void Printer_Helper::printRaw(
-                          bsl::ostream& stream,
-                          bool          data,
-                          int           ,
-                          int           spacesPerLevel,
-                          bslmf_MetaInt<Printer_Selector::BSLIM_FUNDAMENTAL> *)
+           bsl::ostream&                                        stream,
+           bool                                                 data,
+           int                                                  ,
+           int                                                  spacesPerLevel,
+           bslmf::MetaInt<Printer_Selector::BSLIM_FUNDAMENTAL> *)
 {
     bsl::ios_base::fmtflags fmtFlags = stream.flags();
     stream << bsl::boolalpha
@@ -169,11 +170,12 @@ void Printer_Helper::printRaw(
     }
 }
 
-void Printer_Helper::printRaw(bsl::ostream&  stream,
-                              const char    *data,
-                              int            ,
-                              int            spacesPerLevel,
-                              bslmf_MetaInt<Printer_Selector::BSLIM_POINTER> *)
+void Printer_Helper::printRaw(
+               bsl::ostream&                                    stream,
+               const char                                      *data,
+               int                                              ,
+               int                                              spacesPerLevel,
+               bslmf::MetaInt<Printer_Selector::BSLIM_POINTER> *)
 {
     if (0 == data) {
         stream << "NULL";
@@ -186,11 +188,12 @@ void Printer_Helper::printRaw(bsl::ostream&  stream,
     }
 }
 
-void Printer_Helper::printRaw(bsl::ostream&  stream,
-                              const void    *data,
-                              int            ,
-                              int            spacesPerLevel,
-                              bslmf_MetaInt<Printer_Selector::BSLIM_POINTER> *)
+void Printer_Helper::printRaw(
+               bsl::ostream&                                    stream,
+               const void                                      *data,
+               int                                              ,
+               int                                              spacesPerLevel,
+               bslmf::MetaInt<Printer_Selector::BSLIM_POINTER> *)
 {
     if (0 == data) {
         stream << "NULL";
@@ -199,7 +202,7 @@ void Printer_Helper::printRaw(bsl::ostream&  stream,
         bsl::ios_base::fmtflags fmtFlags = stream.flags();
         stream << bsl::hex
                << bsl::showbase
-               << reinterpret_cast<bsls_Types::UintPtr>(data);
+               << reinterpret_cast<bsls::Types::UintPtr>(data);
         stream.flags(fmtFlags);
     }
     if (spacesPerLevel >= 0) {
@@ -207,8 +210,9 @@ void Printer_Helper::printRaw(bsl::ostream&  stream,
     }
 }
 
-}  // close namespace bslim
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // NOTICE:

@@ -306,9 +306,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_utility.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bcep_EventSchedulerEventHandle;
 class bcep_EventSchedulerRecurringEventHandle;
 

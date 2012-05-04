@@ -259,7 +259,7 @@ thread_func (void*)
             put_data (data, np, std::ostreambuf_iterator<char>(&nsb),
                       nio, ' ', '\0');
 
-            RW_ASSERT (!nio.fail ()); 
+            RW_ASSERT (!nio.fail ());
             RW_ASSERT (!rw_strncmp (ncs, data.ncs_));
         }
 
@@ -279,7 +279,7 @@ thread_func (void*)
             put_data (data, wp, std::ostreambuf_iterator<wchar_t>(&wsb),
                       wio, L' ', L'\0');
 
-            RW_ASSERT (!wio.fail ()); 
+            RW_ASSERT (!wio.fail ());
             RW_ASSERT (!rw_strncmp (wcs, data.wcs_));
 
 #endif   // _RWSTD_NO_WCHAR_T

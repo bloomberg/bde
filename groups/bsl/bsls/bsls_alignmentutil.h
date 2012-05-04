@@ -10,13 +10,13 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide constants, types, and operations related to alignment.
 //
 //@CLASSES:
-//  bsls_AlignmentUtil: namespace for alignment functions, types, and constants
+//  bsls::AlignmentUtil: namespace for alignment functions, types, and constants
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwa)
 //
 //@SEE_ALSO: bslma_bufferimputil
 //
-//@DESCRIPTION: This component defines a 'struct', 'bsls_AlignmentUtil', which
+//@DESCRIPTION: This component defines a 'struct', 'bsls::AlignmentUtil', which
 // serves as a namespace for compile-time constants, types, and operations
 // associated with alignment on the current platform.
 //
@@ -57,10 +57,10 @@ BSLS_IDENT("$Id: $")
 // block returned must also have an alignment that is sufficient for any
 // conceivable object of that size.  To achieve a fully factored
 // implementation, we might choose to provide a low-level helper function
-// 'naturallyAlign' that, given the 'address' of the next available byte in
-// the larger chunk along with the requested block 'size' (in bytes), returns
-// the first appropriately (or *naturally*) aligned address for the requested
-// block at or after 'address':
+// 'naturallyAlign' that, given the 'address' of the next available byte in the
+// larger chunk along with the requested block 'size' (in bytes), returns the
+// first appropriately (or *naturally*) aligned address for the requested block
+// at or after 'address':
 //..
 //  void *naturallyAlign(void **currentAddress, int size);
 //      // Return the closest memory address at or after the specified
@@ -74,10 +74,11 @@ BSLS_IDENT("$Id: $")
 //..
 //  void *naturallyAlign(void **currentAddress, std::size_t size)
 //  {
-//      int   alignment = bsls_AlignmentUtil::calculateAlignmentFromSize(size);
-//      int   offset    = bsls_AlignmentUtil::calculateAlignmentOffset(
+//      int   alignment = bsls::AlignmentUtil::calculateAlignmentFromSize(
+//                                                              size);
+//      int   offset    = bsls::AlignmentUtil::calculateAlignmentOffset(
 //                                                             *currentAddress,
-//                                                             alignment);
+//                                                              alignment);
 //      char *result    = static_cast<char *>(*currentAddress) + offset;
 //      *currentAddress = result + size;
 //      return result;
@@ -106,48 +107,48 @@ BSLS_IDENT("$Id: $")
 //  {
 //      const int BUFFER_SIZE = 1024;
 //      union {
-//          bsls_AlignmentUtil::MaxAlignedType d_dummy;  // force max. align.
-//          char                               d_buffer[BUFFER_SIZE];
+//          bsls::AlignmentUtil::MaxAlignedType d_dummy;  // force max. align.
+//          char                                d_buffer[BUFFER_SIZE];
 //      } buffer;
 //..
-// Next we use the 'bsls_AlignmentUtil' functions directly to confirm that
+// Next we use the 'bsls::AlignmentUtil' functions directly to confirm that
 // 'buffer' is sufficiently aligned to accommodate a 'MaxAlignedType' object:
 //..
-//      int alignment = bsls_AlignmentFromType<
-//                                  bsls_AlignmentUtil::MaxAlignedType>::VALUE;
-//      int offset    = bsls_AlignmentUtil::calculateAlignmentOffset(
-//                                                             buffer.d_buffer,
-//                                                             alignment);
-//      assert(0 == offset);  // sufficient alignment
+//  int alignment = bsls::AlignmentFromType<
+//                              bsls::AlignmentUtil::MaxAlignedType>::VALUE;
+//  int offset    = bsls::AlignmentUtil::calculateAlignmentOffset(
+//                                                         buffer.d_buffer,
+//                                                         alignment);
+//  assert(0 == offset);  // sufficient alignment
 //..
 // Below we perform various memory allocations using our 'naturallyAlign'
 // helper function:
 //..
-//      void *p         = static_cast<void *>(buffer.d_buffer);
+//  void *p         = static_cast<void *>(buffer.d_buffer);
 //
-//      void *charPtr   = naturallyAlign(&p, sizeof(char));
+//  void *charPtr   = naturallyAlign(&p, sizeof(char));
 //
-//      void *shortPtr5 = naturallyAlign(&p, 5 * sizeof(short));
+//  void *shortPtr5 = naturallyAlign(&p, 5 * sizeof(short));
 //..
 // Note that the address held in 'shortPtr' is numerically divisible by the
 // alignment of a 'short' on the current platform:
 //..
-//      assert(0 == ((static_cast<char *>(shortPtr5) - buffer.d_buffer) %
-//                                      bsls_AlignmentFromType<short>::VALUE));
+//  assert(0 == ((static_cast<char *>(shortPtr5) - buffer.d_buffer) %
+//                                  bsls::AlignmentFromType<short>::VALUE));
 //
-//      assert(bsls_AlignmentUtil::is2ByteAligned(shortPtr5));
+//  assert(bsls::AlignmentUtil::is2ByteAligned(shortPtr5));
 //..
 // Next we use 'naturallyAlign' to allocate a block of appropriate size and
 // sufficient alignment to store a 'MyType' object:
 //..
-//      void *objPtr = naturallyAlign(&p, sizeof(MyType));
+//  void *objPtr = naturallyAlign(&p, sizeof(MyType));
 //..
 // Note that the alignment of the address held in 'objPtr' is numerically
 // divisible by the actual alignment requirement:
 //..
-//      assert(0 == bsls_AlignmentUtil::calculateAlignmentOffset(
-//                                     objPtr,
-//                                     bsls_AlignmentFromType<MyType>::VALUE));
+//      assert(0 == bsls::AlignmentUtil::calculateAlignmentOffset(
+//                                    objPtr,
+//                                    bsls::AlignmentFromType<MyType>::VALUE));
 //  }
 //..
 // Assuming 'buffer' has sufficient capacity, and the alignments for 'char',
@@ -162,11 +163,11 @@ BSLS_IDENT("$Id: $")
 //  ^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^---^-
 //  0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18
 //..
-// Note that on an atypical 32-bit platform where a 'double' is 4-byte
-// aligned, the actual alignment of 'MyType' would be 4, but its natural
-// alignment would still be 8 because its size would be 16; it is highly
-// unlikely that 'MyType' would have an actual (and therefore natural)
-// alignment of 4 on a 64-bit platform when using default compiler settings.
+// Note that on an atypical 32-bit platform where a 'double' is 4-byte aligned,
+// the actual alignment of 'MyType' would be 4, but its natural alignment would
+// still be 8 because its size would be 16; it is highly unlikely that 'MyType'
+// would have an actual (and therefore natural) alignment of 4 on a 64-bit
+// platform when using default compiler settings.
 
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
@@ -204,11 +205,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                            // =========================
-                            // struct bsls_AlignmentUtil
-                            // =========================
+namespace bsls {
 
-struct bsls_AlignmentUtil {
+                            // ====================
+                            // struct AlignmentUtil
+                            // ====================
+
+struct AlignmentUtil {
     // This 'struct' provides a namespace for a suite of compile-time
     // constants, types, and pure procedures that provide platform-dependent
     // alignment information.
@@ -240,7 +243,7 @@ struct bsls_AlignmentUtil {
         double       d_double;
         long double  d_longDouble;
 #if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
-        bsls_AlignmentImp8ByteAlignedType
+        AlignmentImp8ByteAlignedType
                      d_8bytesAlignedType;
 #endif
     };
@@ -251,11 +254,11 @@ struct bsls_AlignmentUtil {
         // Define the minimal value that satisfies the alignment requirements
         // for all types.
 
-        BSLS_MAX_ALIGNMENT = bsls_AlignmentFromType<MaxAlignedUnion>::VALUE
+        BSLS_MAX_ALIGNMENT = AlignmentFromType<MaxAlignedUnion>::VALUE
     };
 
     // TYPES
-    typedef bsls_AlignmentToType<BSLS_MAX_ALIGNMENT>::Type MaxAlignedType;
+    typedef AlignmentToType<BSLS_MAX_ALIGNMENT>::Type MaxAlignedType;
         // Alias for a primitive type that has the most stringent alignment
         // requirement.
 
@@ -290,13 +293,13 @@ struct bsls_AlignmentUtil {
 
     static bool is4ByteAligned(const void *address);
         // Return 'true' if the specified 'address' is aligned on a 4-byte
-        // boundary (i.e., the numerical value of 'address' is evenly
-        // divisible by 4), and 'false' otherwise.
+        // boundary (i.e., the numerical value of 'address' is evenly divisible
+        // by 4), and 'false' otherwise.
 
     static bool is8ByteAligned(const void *address);
         // Return 'true' if the specified 'address' is aligned on an 8-byte
-        // boundary (i.e., the numerical value of 'address' is evenly
-        // divisible by 8), and 'false' otherwise.
+        // boundary (i.e., the numerical value of 'address' is evenly divisible
+        // by 8), and 'false' otherwise.
 
     static std::size_t roundUpToMaximalAlignment(std::size_t size);
         // Return the specified 'size' (in bytes) rounded up to the smallest
@@ -312,13 +315,13 @@ struct bsls_AlignmentUtil {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                            // ---------------------
-                            // struct bsls_Alignment
-                            // ---------------------
+                            // ----------------
+                            // struct Alignment
+                            // ----------------
 
 // CLASS METHODS
 inline
-int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t size)
+int AlignmentUtil::calculateAlignmentFromSize(std::size_t size)
 {
     ///IMPLEMENTATION NOTE
     ///-------------------
@@ -382,8 +385,8 @@ int bsls_AlignmentUtil::calculateAlignmentFromSize(std::size_t size)
 }
 
 inline
-int bsls_AlignmentUtil::calculateAlignmentOffset(const void *address,
-                                                 int         alignment)
+int AlignmentUtil::calculateAlignmentOffset(const void *address,
+                                            int         alignment)
 {
     BSLS_ASSERT_SAFE(1 <= alignment);
     BSLS_ASSERT_SAFE(0 == (alignment & (alignment - 1)));
@@ -408,25 +411,25 @@ int bsls_AlignmentUtil::calculateAlignmentOffset(const void *address,
 }
 
 inline
-bool bsls_AlignmentUtil::is2ByteAligned(const void *address)
+bool AlignmentUtil::is2ByteAligned(const void *address)
 {
     return 0 == (reinterpret_cast<std::size_t>(address) & 0x1);
 }
 
 inline
-bool bsls_AlignmentUtil::is4ByteAligned(const void *address)
+bool AlignmentUtil::is4ByteAligned(const void *address)
 {
     return 0 == (reinterpret_cast<std::size_t>(address) & 0x3);
 }
 
 inline
-bool bsls_AlignmentUtil::is8ByteAligned(const void *address)
+bool AlignmentUtil::is8ByteAligned(const void *address)
 {
     return 0 == (reinterpret_cast<std::size_t>(address) & 0x7);
 }
 
 inline
-std::size_t bsls_AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
+std::size_t AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
 {
     BSLS_ASSERT_SAFE(size <= std::numeric_limits<std::size_t>::max()
                            - BSLS_MAX_ALIGNMENT + 1);
@@ -435,7 +438,16 @@ std::size_t bsls_AlignmentUtil::roundUpToMaximalAlignment(std::size_t size)
                                                           * BSLS_MAX_ALIGNMENT;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::AlignmentUtil bsls_AlignmentUtil;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

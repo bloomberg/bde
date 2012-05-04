@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 #include <list>             // for list
@@ -121,17 +121,17 @@ cont_test_cases [] = {
 #if TEST_RW_EXTENSIONS  // these tests run too slowly and doesn't add value
     TEST ("x@4096",        0),
     TEST (0,               ""),
-    TEST (0,               "<U0>"),       
-    TEST (0,               "abc@1024"),       
-    TEST (0,               "a<U0>b<U0>@2c"), 
-    TEST (0,               "x@4096"),   
+    TEST (0,               "<U0>"),
+    TEST (0,               "abc@1024"),
+    TEST (0,               "a<U0>b<U0>@2c"),
+    TEST (0,               "x@4096"),
 #else
     TEST ("x@64",          0),
     TEST (0,               ""),
-    TEST (0,               "<U0>"),       
-    TEST (0,               "abc@32"),       
-    TEST (0,               "a<U0>b<U0>@2c"), 
-    TEST (0,               "x@64"),   
+    TEST (0,               "<U0>"),
+    TEST (0,               "abc@32"),
+    TEST (0,               "a<U0>b<U0>@2c"),
+    TEST (0,               "x@64"),
 #endif
 
     TEST ("last",          "test")
@@ -151,14 +151,19 @@ static int list_swap_called;
 #undef std
 
 namespace bsl {
+
     // define an explicit specialization of the list::swap() member
     // to verify tha the non-member swap function calls the member
+
+#if !defined(BSLS_PLATFORM__CMP_CLANG)
 
 _RWSTD_SPECIALIZED_FUNCTION
 void ListType::swap (ListType&)
 {
     ++list_swap_called;
 }
+
+#endif
 
 }   // namespace std
 #define std bsl
@@ -173,7 +178,7 @@ void test_std_swap ()
 
     tested = true;
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "Testing std::swap (std::list&, std::list&) "
              "calls std::list::swap");
 
@@ -273,7 +278,7 @@ void test_swap (T*,
                                     | UserClass::n_total_copy_ctor_
                                     | UserClass::n_total_op_assign_);
 
-                rw_assert (success, 0, tcase.line, 
+                rw_assert (success, 0, tcase.line,
                            "line %d. %{$FUNCALL}: complexity: %zu def ctors, "
                            "%zu copy ctors, %zu assigns", __LINE__,
                            UserClass::n_total_def_ctor_,
@@ -283,7 +288,7 @@ void test_swap (T*,
 
             if (0 == tcase.str) {
 
-                rw_assert (0 == arg_list.size (), 0, tcase.line, 
+                rw_assert (0 == arg_list.size (), 0, tcase.line,
                            "line %d. %{$FUNCALL}: expected 0 size, "
                            "got %zu",  __LINE__, arg_list.size ());
             }

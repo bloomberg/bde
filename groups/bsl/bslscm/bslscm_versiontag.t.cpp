@@ -1,4 +1,4 @@
-// bslscm_versiontag.t.cpp    -*-C++-*-
+// bslscm_versiontag.t.cpp                                            -*-C++-*-
 
 #include <bslscm_versiontag.h>
 

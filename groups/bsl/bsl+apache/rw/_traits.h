@@ -1,4 +1,4 @@
-// _traits.h                  -*-C++-*-
+// _traits.h                                                          -*-C++-*-
 #ifndef INCLUDED__TRAITS
 #define INCLUDED__TRAITS
 

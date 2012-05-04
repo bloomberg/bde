@@ -23,12 +23,12 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test contains the simple meta-function 'bslmf_If'.  The
+// The component under test contains the simple meta-function 'bslmf::If'.  The
 // meta-function is tested by enumeration of all combinations of (1) 'true' and
 // 'false' conditions, and (2) defaulting of zero, one, or two of the type
-// arguments to 'bslmf_Nil'.
+// arguments to 'bslmf::Nil'.
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>
+// [ 1] bslmf::If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -73,17 +73,17 @@ template <bool COND>
 void testFunction() {}
 
 template <bool COND>
-typename bslmf_EnableIf<COND, void>::type testFunction(){}
+typename bslmf::EnableIf<COND, void>::type testFunction(){}
 
 
 template <bool COND>
-typename bslmf_EnableIf<COND, int>::type testMutuallyExclusiveFunction()
+typename bslmf::EnableIf<COND, int>::type testMutuallyExclusiveFunction()
 {
     return 1;
 }
 
 template <bool COND>
-typename bslmf_EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
+typename bslmf::EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 {
     return 2;
 }
@@ -95,7 +95,7 @@ typename bslmf_EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 
 ///Usage
 //------
-// The following snippets of code illustrate basic use of the 'bslmf_EnableIf'
+// The following snippets of code illustrate basic use of the 'bslmf::EnableIf'
 // meta-function.  We will demonstrate how to use this utility to control
 // overload sets with three increasingly complex examples.
 //
@@ -125,7 +125,7 @@ typename bslmf_EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 //..
 // Now we can implement a generic 'Swap' function template that will invoke the
 // member swap operation for any type that specialized our trait.  The use of
-// 'bslmf_EnableIf' to declare the result type causes an attempt to deduce the
+// 'bslmf::EnableIf' to declare the result type causes an attempt to deduce the
 // type 'T' to fail unless the specified condition is 'true', and this falls
 // under the "Substitution Failure Is Not An Error" (SFINAE) clause of the C++
 // standard, so the compiler will look for a more suitable overload rather than
@@ -136,14 +136,14 @@ typename bslmf_EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 // will ever be present in an overload set.
 //..
     template<class T>
-    typename bslmf_EnableIf<HasMemberSwap<T>::VALUE>::type
+    typename bslmf::EnableIf<HasMemberSwap<T>::VALUE>::type
     Swap(T& a, T& b)
     {
         a.swap(b);
     }
 
     template<class T>
-    typename bslmf_EnableIf< ! HasMemberSwap<T>::VALUE>::type
+    typename bslmf::EnableIf< ! HasMemberSwap<T>::VALUE>::type
     Swap(T& a, T& b)
     {
         T temp(a);
@@ -255,7 +255,7 @@ typename bslmf_EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
    }
 //..
 // For the next example, we will demonstrate the use of the second template
-// parameter in the 'bslmf_EnableIf' template, which serves as the "result"
+// parameter in the 'bslmf::EnableIf' template, which serves as the "result"
 // type if the test condition passes.  Assume we want to write a generic
 // function to allow us to cast between pointers of different types.  If the
 // types are polymorphic, we can use 'dynamic_cast' to potentially cast between
@@ -265,8 +265,8 @@ typename bslmf_EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 //
 //..
     template<class TO, class FROM>
-    typename bslmf_EnableIf<bslmf_IsPolymorphic<FROM>::VALUE &&
-                                                bslmf_IsPolymorphic<TO>::VALUE,
+    typename bslmf::EnableIf<bslmf::IsPolymorphic<FROM>::VALUE &&
+                                               bslmf::IsPolymorphic<TO>::VALUE,
                             TO>::type *
     smart_cast(FROM *from)
         // Returns a pointer to the specified 'TO' type if the specified 'from'
@@ -277,8 +277,8 @@ typename bslmf_EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
     }
 
     template<class TO, class FROM>
-    typename bslmf_EnableIf<not(bslmf_IsPolymorphic<FROM>::VALUE &&
-                                               bslmf_IsPolymorphic<TO>::VALUE),
+    typename bslmf::EnableIf<not(bslmf::IsPolymorphic<FROM>::VALUE &&
+                                              bslmf::IsPolymorphic<TO>::VALUE),
                             TO>::type *
     smart_cast(FROM *from)
         // Return the specified 'from' pointer value cast as a pointer to type
@@ -351,11 +351,11 @@ typename bslmf_EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 // iterator type, forming a valid range.  We need to avoid calling this
 // constructor unless the deduced type really is an iterator, otherwise a
 // compile-error will occur trying to instantiate that constructor with an
-// incompatible argument type.  We use 'bslmf_EnableIf' to create a deduction
+// incompatible argument type.  We use 'bslmf::EnableIf' to create a deduction
 // context where SFINAE can kick in.  Note that we cannot deduce the '::type'
 // result of a metafunction, and there is no result type (as with a regular
 // function) to decorate, so we add an extra dummy argument using a pointer
-// type (produced from 'bslma_EnableIf::type') with a default null argument:
+// type (produced from 'bslma::EnableIf::type') with a default null argument:
 //..
     template<class T>
     class MyVector {
@@ -375,8 +375,8 @@ typename bslmf_EnableIf<!COND, int>::type testMutuallyExclusiveFunction()
 
         template<typename FORWARD_ITERATOR>
         MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
-                    typename bslmf_EnableIf<
-                                  !bslmf_IsFundamental<FORWARD_ITERATOR>::VALUE
+                    typename bslmf::EnableIf<
+                                 !bslmf::IsFundamental<FORWARD_ITERATOR>::VALUE
                                                                  >::type * = 0)
             // Create a 'MyVector' object having the same sequence of values as
             // found in range described by the iterators '[first, last)'.
@@ -545,19 +545,19 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // TESTING BSLMF_ENABLEIF
-        //   Test the 'bslmf_EnableIf' meta-function.
+        //   Test the 'bslmf::EnableIf' meta-function.
         //
         // Concerns:
         //:  1 If the supplied boolean template parameter is true, then
-        //:    'bslmf_EnableIf' provides a type named 'type' matching the
+        //:    'bslmf::EnableIf' provides a type named 'type' matching the
         //:     second template parameter.
         //:
         //:  2 If the supplied boolean template parameter is 'false', then
-        //:    'bslmf_EnableIf' does not provide a type named 'type'.
+        //:    'bslmf::EnableIf' does not provide a type named 'type'.
         // Plan:
-        //:  1 For a series of possible types, instantiate 'bslmf_EnableIf'
+        //:  1 For a series of possible types, instantiate 'bslmf::EnableIf'
         //:    with a first parameter 'true' and the second parameter of the
-        //:    test type.  Verify that 'bslmf_EnableIf' defines a type 'type'
+        //:    test type.  Verify that 'bslmf::EnableIf' defines a type 'type'
         //:    matching the second template parameter type. (C-1)
         //:
         //:  2 Create a two instances of a template function parameterized on
@@ -571,7 +571,7 @@ int main(int argc, char *argv[])
         //:
         //:  3 Create a two instances of a template function parameterized on
         //:    a boolean, the first simply returns void, and the second returns
-        //:    a 'bslmf_EnableIf' supplied the boolean parameter value. (C-2)
+        //:    a 'bslmf::EnableIf' supplied the boolean parameter value. (C-2)
         //:
         //:    1 Instantiate this template function for 'false' to verify
         //:      enable-if removes the second implementation from the overload
@@ -583,56 +583,56 @@ int main(int argc, char *argv[])
         //:      ambiguous function declaration).
         //
         // Testing:
-        //   bslmf_EnableIf<CONDITION, RESULT_TYPE>
+        //   bslmf::EnableIf<CONDITION, RESULT_TYPE>
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n"
-                            "bslmf_EnableIf\n"
-                            "==============\n");
+                            "bslmf::EnableIf\n"
+                            "===============\n");
 
         if (veryVerbose) printf("\nTest the return type\n");
 
         {
             {
                 const bool R =
-                    bslmf_IsSame<bool,
-                                 bslmf_EnableIf<true, bool>::type >::VALUE;
+                    bslmf::IsSame<bool,
+                                  bslmf::EnableIf<true, bool>::type >::VALUE;
                 ASSERT(R);
             }
             {
                 const bool R =
-                    bslmf_IsSame<int,
-                                 bslmf_EnableIf<true, int>::type >::VALUE;
+                    bslmf::IsSame<int,
+                                  bslmf::EnableIf<true, int>::type >::VALUE;
                 ASSERT(R);
             }
             {
                 const bool R =
-                    bslmf_IsSame<void *,
-                                 bslmf_EnableIf<true, void *>::type >::VALUE;
+                    bslmf::IsSame<void *,
+                                  bslmf::EnableIf<true, void *>::type >::VALUE;
                 ASSERT(R);
             }
             {
                 const bool R =
-                    bslmf_IsSame<const void *,
-                           bslmf_EnableIf<true, const void *>::type >::VALUE;
+                    bslmf::IsSame<const void *,
+                            bslmf::EnableIf<true, const void *>::type >::VALUE;
                 ASSERT(R);
             }
             {
                 const bool R =
-                  bslmf_IsSame<const volatile void *,
-                    bslmf_EnableIf<true, const volatile void *>::type >::VALUE;
+                  bslmf::IsSame<const volatile void *,
+                   bslmf::EnableIf<true, const volatile void *>::type >::VALUE;
                 ASSERT(R);
             }
             {
                 const bool R =
-                  bslmf_IsSame<DummyClass,
-                    bslmf_EnableIf<true, DummyClass>::type >::VALUE;
+                  bslmf::IsSame<DummyClass,
+                    bslmf::EnableIf<true, DummyClass>::type >::VALUE;
                 ASSERT(R);
             }
             {
                 const bool R =
-                  bslmf_IsSame<DummyClass&,
-                    bslmf_EnableIf<true, DummyClass&>::type >::VALUE;
+                  bslmf::IsSame<DummyClass&,
+                    bslmf::EnableIf<true, DummyClass&>::type >::VALUE;
                 ASSERT(R);
             }
         }

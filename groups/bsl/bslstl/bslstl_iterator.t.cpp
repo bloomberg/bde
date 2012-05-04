@@ -1,4 +1,4 @@
-// bslstl_iterator.t.cpp                  -*-C++-*-
+// bslstl_iterator.t.cpp                                              -*-C++-*-
 
 #include <bslstl_iterator.h>
 #include <bslstl_allocator.h>
@@ -80,7 +80,7 @@ class MyFixedSizeArray
     MyFixedSizeArray(int length, const ALLOC& alloc = ALLOC());
 
     MyFixedSizeArray(const MyFixedSizeArray& rhs,
-                        const ALLOC&               alloc = ALLOC());
+                     const ALLOC&            alloc = ALLOC());
 
     ~MyFixedSizeArray();
 
@@ -242,7 +242,7 @@ bool operator==(const MyFixedSizeArray<T,ALLOC>& lhs,
     return true;
 }
 
-} // close namespace mine
+}  // close namespace mine
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
 
         MyFixedSizeArray<int, bsl::allocator<int> > a1(5);
                 ASSERT(5 == a1.length());
-                ASSERT(bslma_Default::defaultAllocator() == a1.allocator());
+                ASSERT(bslma::Default::defaultAllocator() == a1.allocator());
 
         for (int i = 0; i < a1.length(); ++i) {
             a1[i] = i + 1;

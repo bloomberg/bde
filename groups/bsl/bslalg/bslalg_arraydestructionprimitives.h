@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide primitive algorithms that destroy arrays.
 //
 //@CLASSES:
-//  bslalg_ArrayDestructionPrimitives: namespace for array algorithms
+//  bslalg::ArrayDestructionPrimitives: namespace for array algorithms
 //
 //@SEE_ALSO: bslalg_scalarprimitives, bslalg_typetraits
 //
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Trait                             Note
 //  -----                             -------------------------------------
-//  bslalg_TypeTraitBitwiseCopyable   Expressed in English as "TYPE has the
+//  bslalg::TypeTraitBitwiseCopyable  Expressed in English as "TYPE has the
 //                                    bit-wise copyable trait", or "TYPE is
 //                                    bit-wise copyable", this trait also
 //                                    implies that destructor calls can be
@@ -73,32 +73,34 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                  // ========================================
-                  // struct bslalg_ArrayDestructionPrimitives
-                  // ========================================
+namespace bslalg {
 
-struct bslalg_ArrayDestructionPrimitives {
+                  // =================================
+                  // struct ArrayDestructionPrimitives
+                  // =================================
+
+struct ArrayDestructionPrimitives {
     // This 'struct' provides a namespace for a suite of utility functions that
     // destroy arrays of elements of the parameterized type 'TARGET_TYPE'.
-    // Depending on the traits of 'TARGET_TYPE', the destructor may be
-    // invoked, or not (optimized away by no-op).
+    // Depending on the traits of 'TARGET_TYPE', the destructor may be invoked,
+    // or not (optimized away by no-op).
 
     // PRIVATE CLASS METHODS
     template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE        *begin,
                         TARGET_TYPE        *end,
-                        bslmf_MetaInt<1>);
+                        bslmf::MetaInt<1>);
     template <class TARGET_TYPE>
     static void destroy(TARGET_TYPE        *begin,
                         TARGET_TYPE        *end,
-                        bslmf_MetaInt<0>);
+                        bslmf::MetaInt<0>);
         // Destroy each instance of 'TARGET_TYPE' in the array beginning at the
         // specified 'begin' address and ending immediately before the
         // specified 'end' address.  Use the destructor of the parameterized
         // 'TARGET_TYPE', or do nothing if the 'TARGET_TYPE' is bit-wise
-        // copyable (i.e., if the last argument is of type 'bslmf_MetaInt<1>').
-        // Note that the last argument is for overloading resolution only and
-        // its value is ignored.
+        // copyable (i.e., if the last argument is of type
+        // 'bslmf::MetaInt<1>').  Note that the last argument is for
+        // overloading resolution only and its value is ignored.
 
   public:
     // CLASS METHODS
@@ -119,21 +121,21 @@ struct bslalg_ArrayDestructionPrimitives {
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                  // ----------------------------------------
-                  // struct bslalg_ArrayDestructionPrimitives
-                  // ----------------------------------------
+                  // ---------------------------------
+                  // struct ArrayDestructionPrimitives
+                  // ---------------------------------
 
 // PRIVATE CLASS METHODS
 template <class TARGET_TYPE>
 inline
-void bslalg_ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
-                                                TARGET_TYPE       *end,
-                                                bslmf_MetaInt<1>)
+void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
+                                         TARGET_TYPE       *end,
+                                         bslmf::MetaInt<1>)
 {
     // 'BitwiseCopyable' is a valid surrogate for 'HasTrivialDestructor'.
 
 #ifdef BDE_BUILD_TARGET_SAFE
-    bsls_Types::size_type numBytes = (const char*)end - (const char*)begin;
+    bsls::Types::size_type numBytes = (const char*)end - (const char*)begin;
     std::memset(begin, 0xa5, numBytes);
 #else
     (void)begin;
@@ -142,9 +144,9 @@ void bslalg_ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
 }
 
 template <class TARGET_TYPE>
-void bslalg_ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
-                                                TARGET_TYPE       *end,
-                                                bslmf_MetaInt<0>)
+void ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
+                                         TARGET_TYPE       *end,
+                                         bslmf::MetaInt<0>)
 {
     for (; begin != end; ++begin) {
         begin->~TARGET_TYPE();
@@ -154,20 +156,28 @@ void bslalg_ArrayDestructionPrimitives::destroy(TARGET_TYPE       *begin,
 // CLASS METHODS
 template <class TARGET_TYPE>
 inline
-void bslalg_ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
-                                                TARGET_TYPE *end)
+void ArrayDestructionPrimitives::destroy(TARGET_TYPE *begin,
+                                         TARGET_TYPE *end)
 {
     BSLS_ASSERT_SAFE(begin || !end);
     BSLS_ASSERT_SAFE(end   || !begin);
     BSLS_ASSERT_SAFE(begin <= end);
 
-    typedef typename bslalg_HasTrait<
-                                  TARGET_TYPE,
-                                  bslalg_TypeTraitBitwiseCopyable>::Type Trait;
+    typedef typename HasTrait<TARGET_TYPE,
+                              TypeTraitBitwiseCopyable>::Type Trait;
     destroy(begin, end, Trait());
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::ArrayDestructionPrimitives bslalg_ArrayDestructionPrimitives;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

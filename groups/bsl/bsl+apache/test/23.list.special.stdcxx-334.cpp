@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 #include <list>
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     const char dst [] = "destination string";
 
     typedef std::list <char, Alloc> List;
-    
+
     Alloc a1;
     Alloc a2;
 

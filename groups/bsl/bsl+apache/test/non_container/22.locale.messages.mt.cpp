@@ -263,7 +263,7 @@ run_test (int, char**)
 
     rw_info (0, 0, 0, "exercising std::messages<char>");
 
-    int result = 
+    int result =
         rw_thread_pool (0, std::size_t (rw_opt_nthreads), 0,
                         thread_func, 0);
 
@@ -280,7 +280,7 @@ run_test (int, char**)
 
     rw_info (0, 0, 0, "exercising std::messages<wchar_t>");
 
-    result = 
+    result =
         rw_thread_pool (0, std::size_t (rw_opt_nthreads), 0,
                         thread_func, 0);
 
@@ -296,7 +296,7 @@ run_test (int, char**)
     rw_info (0, 0, 0, "exercising std::messages<char> and "
                       "std::messages<wchar_t>");
 
-    result = 
+    result =
         rw_thread_pool (0, std::size_t (rw_opt_nthreads), 0,
                         thread_func, 0);
 
@@ -313,7 +313,7 @@ run_test (int, char**)
 #ifndef _RWSTD_NO_WCHAR_T
 
     (wmsgs.close) (wcatalog);
-    
+
 #endif // _RWSTD_NO_WCHAR_T
 
     std::remove (CAT_NAME);

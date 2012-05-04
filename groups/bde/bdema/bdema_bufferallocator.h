@@ -205,9 +205,11 @@ BDES_IDENT("$Id: $")
 #include <bslma_bufferallocator.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
 typedef bslma_BufferAllocator bdema_BufferAllocator;
     // This 'class' defines a concrete, fixed-size buffer allocator

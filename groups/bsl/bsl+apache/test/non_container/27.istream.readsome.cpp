@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2003-2007 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <istream>
@@ -142,7 +142,7 @@ memfun_info (int line, const char *cname, const char *tname)
                 "%{$ISTREAM!:@}",
                 "%{?}istream%{:}%{?}wistream"
                 "%{:}basic_istream<%s, %s>%{;}%{;}",
-                'c' == *cname && 'c' == *tname, 
+                'c' == *cname && 'c' == *tname,
                 'w' == *cname && 'c' == *tname,
                 cname, tname);
 
@@ -380,7 +380,7 @@ void test_readsome (const charT*, const Traits*,
     // iterate over all possible settings of the stream state
     for (unsigned i = 0; i != nstates; ++i) {
 
-        // call readsome(..., j) to extract j characters 
+        // call readsome(..., j) to extract j characters
         for (unsigned j = 0; j != cbuf_size - 1; ++j) {
 
             // have underflow() fail after the `k-th' extraction

@@ -106,7 +106,7 @@ test_mask_array (int         line,
                  const char *args,
                  const char *result,
                  int         nmatch)
-                     
+
 {
     typedef int T;
 

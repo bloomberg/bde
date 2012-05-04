@@ -363,7 +363,7 @@ thread_func (void*)
                            std::istreambuf_iterator<char>(),
                            nio);
 
-            RW_ASSERT (!nio.fail ()); 
+            RW_ASSERT (!nio.fail ());
         }
 
         // both specializations may be tested at the same time
@@ -384,7 +384,7 @@ thread_func (void*)
                            std::istreambuf_iterator<wchar_t>(),
                            wio);
 
-            RW_ASSERT (!wio.fail ()); 
+            RW_ASSERT (!wio.fail ());
 
 #endif   // _RWSTD_NO_WCHAR_T
 

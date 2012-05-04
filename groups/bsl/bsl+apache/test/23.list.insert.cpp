@@ -433,7 +433,7 @@ struct InsertRange: ContRangeBase<List> {
     InsertRange () { }
 
     virtual List&
-    operator() (List &lst, 
+    operator() (List &lst,
                 const ContainerTestCaseData<ListVal>& tdata) const {
 
         // create a pair of iterators into the list object being modified
@@ -463,7 +463,7 @@ struct InsertRangeOverload: ContRangeBase<List>
     InsertRangeOverload () { }
 
     virtual List&
-    operator() (List &lst, 
+    operator() (List &lst,
                 const ContainerTestCaseData<ListVal>& tdata) const {
 
         // create a pair of iterators into the list object being modified
@@ -475,7 +475,7 @@ struct InsertRangeOverload: ContRangeBase<List>
 
         const std::size_t srclen_ = tdata.arglen_;
 
-        const std::size_t off = 
+        const std::size_t off =
             reverse_iter ? srclen_ - tdata.off2_ - tdata.ext2_ : tdata.off2_;
         const std::size_t ext = tdata.ext2_;
 
@@ -586,7 +586,7 @@ void test_insert (T*, Allocator*,
 
 #else   // if defined (_RWSTD_NO_EXCEPTIONS)
 
-        if (tcase.bthrow) 
+        if (tcase.bthrow)
             return;
 
 #endif   // _RWSTD_NO_EXCEPTIONS
@@ -698,8 +698,8 @@ void test_insert (T*, Allocator*,
             // verify that strings length are equal
             rw_assert (tdata.reslen_ == got_size, 0, tcase.line,
                        "line %d. %{$FUNCALL} expected \"%{X=*}\" with length "
-                       "%zu, got %{/*.*Gs} with length %zu", __LINE__, 
-                       cwidth, int (tdata.reslen_), tdata.res_, tdata.reslen_, 
+                       "%zu, got %{/*.*Gs} with length %zu", __LINE__,
+                       cwidth, int (tdata.reslen_), tdata.res_, tdata.reslen_,
                        1, int (got_size), got, got_size);
 
             if (tdata.reslen_ == got_size) {

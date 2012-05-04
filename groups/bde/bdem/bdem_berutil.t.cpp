@@ -16,6 +16,9 @@
 #include <bsls_platformutil.h>
 #include <bsls_stopwatch.h>
 
+#include <bdeimp_dateutil.h>
+#include <bdeimp_prolepticdateutil.h>
+
 #include <bdesb_memoutstreambuf.h>            // for testing only
 #include <bdesb_fixedmemoutstreambuf.h>       // for testing only
 #include <bdesb_fixedmeminstreambuf.h>        // for testing only
@@ -118,6 +121,9 @@ static int veryVeryVerbose = 0;
 
 typedef bdem_BerUtil Util;
 typedef bslstl_StringRef StringRef;
+
+typedef bdeimp_ProlepticDateUtil ProlepticDateUtil;
+typedef bdeimp_DateUtil          DateUtil;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -293,7 +299,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -310,6 +316,2797 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING 'putValue' for date/time components
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING 'putValue' for date/time"
+                               << "\n================================"
+                               << bsl::endl;
+
+        if (verbose) bsl::cout << "\nTesting Date." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  year   month   day   opt  exp
+  //----  -----  -----   ---   ---  ---
+  {   L_, 2020,      1,    1,    1, "01 00"                       },
+  {   L_, 2020,      1,    1,    0, "0a 323032 302d3031 2d3031"   },
+
+  {   L_, 2020,      1,    2,    1, "01 01"                       },
+  {   L_, 2020,      1,    2,    0, "0a 323032 302d3031 2d3032"   },
+
+  {   L_, 2020,      1,   31,    1, "01 1E"                       },
+  {   L_, 2020,      1,   31,    0, "0a 323032 302d3031 2d3331"   },
+
+  {   L_, 2020,      2,    1,    1, "01 1F"                       },
+  {   L_, 2020,      2,    1,    0, "0a 323032 302d3032 2d3031"   },
+
+  {   L_, 2020,      2,   28,    1, "01 3A"                       },
+  {   L_, 2020,      2,   28,    0, "0a 323032 302d3032 2d3238"   },
+
+  {   L_, 2020,      2,   29,    1, "01 3B"                       },
+  {   L_, 2020,      2,   29,    0, "0a 323032 302d3032 2d3239"   },
+
+  {   L_, 2020,      3,    1,    1, "01 3C"                       },
+  {   L_, 2020,      3,    1,    0, "0a 323032 302d3033 2d3031"   },
+
+  {   L_, 2020,      5,    7,    1, "01 7F"                       },
+  {   L_, 2020,      5,    7,    0, "0a 323032 302d3035 2d3037"   },
+
+  {   L_, 2020,      5,    8,    1, "02 0080"                     },
+  {   L_, 2020,      5,    8,    0, "0a 323032 302d3035 2d3038"   },
+
+  {   L_, 2020,     12,   31,    1, "02 016D"                     },
+  {   L_, 2020,     12,   31,    0, "0a 323032 302d3132 2d3331"   },
+
+  {   L_, 2021,      1,    1,    1, "02 016E"                     },
+  {   L_, 2021,      1,    1,    0, "0a 323032 312d3031 2d3031"   },
+
+  {   L_, 2023,     12,   31,    1, "02 05B4"                     },
+  {   L_, 2023,     12,   31,    0, "0a 323032 332d3132 2d3331"   },
+
+  {   L_, 2024,      1,    1,    1, "02 05B5"                     },
+  {   L_, 2024,      1,    1,    0, "0a 323032 342d3031 2d3031"   },
+
+  {   L_, 2099,     12,   31,    1, "02 7223"                     },
+  {   L_, 2099,     12,   31,    0, "0a 323039 392d3132 2d3331"   },
+
+  {   L_, 2100,      1,    1,    1, "02 7224"                     },
+  {   L_, 2100,      1,    1,    0, "0a 323130 302d3031 2d3031"   },
+
+  {   L_, 2100,      2,   28,    1, "02 725E"                     },
+  {   L_, 2100,      2,   28,    0, "0a 323130 302d3032 2d3238"   },
+
+  {   L_, 2100,      3,    1,    1, "02 725F"                     },
+  {   L_, 2100,      3,    1,    0, "0a 323130 302d3033 2d3031"   },
+
+  {   L_, 2109,      9,   18,    1, "02 7FFF"                     },
+  {   L_, 2109,      9,   18,    0, "0a 323130 392d3039 2d3138"   },
+
+  {   L_, 2109,      9,   19,    1, "03 008000"                   },
+  {   L_, 2109,      9,   19,    0, "0a 323130 392d3039 2d3139"   },
+
+  {   L_, 2119,     12,   31,    1, "03 008EAB"                   },
+  {   L_, 2119,     12,   31,    0, "0a 323131 392d3132 2d3331"   },
+
+  {   L_, 2120,      1,    1,    1, "03 008EAC"                   },
+  {   L_, 2120,      1,    1,    0, "0a 323132 302d3031 2d3031"   },
+
+  {   L_, 2019,     12,   31,    1, "01 FF"                       },
+  {   L_, 2019,     12,   31,    0, "0a 323031 392d3132 2d3331"   },
+
+  {   L_, 2019,      8,   26,    1, "01 80"                       },
+  {   L_, 2019,      8,   26,    0, "0a 323031 392d3038 2d3236"   },
+
+  {   L_, 2019,      8,   25,    1, "02 FF7F"                     },
+  {   L_, 2019,      8,   25,    0, "0a 323031 392d3038 2d3235"   },
+
+  {   L_, 2016,      2,   28,    1, "02 FA85"                     },
+  {   L_, 2016,      2,   28,    0, "0a 323031 362d3032 2d3238"   },
+
+  {   L_, 2016,      2,   29,    1, "02 FA86"                     },
+  {   L_, 2016,      2,   29,    0, "0a 323031 362d3032 2d3239"   },
+
+  {   L_, 2016,      3,    1,    1, "02 FA87"                     },
+  {   L_, 2016,      3,    1,    0, "0a 323031 362d3033 2d3031"   },
+
+  {   L_, 2012,      2,   28,    1, "02 F4D0"                     },
+  {   L_, 2012,      2,   28,    0, "0a 323031 322d3032 2d3238"   },
+
+  {   L_, 2012,      2,   29,    1, "02 F4D1"                     },
+  {   L_, 2012,      2,   29,    0, "0a 323031 322d3032 2d3239"   },
+
+  {   L_, 2012,      3,    1,    1, "02 F4D2"                     },
+  {   L_, 2012,      3,    1,    0, "0a 323031 322d3033 2d3031"   },
+
+  {   L_, 2000,      2,   28,    1, "02 E3B1"                     },
+  {   L_, 2000,      2,   28,    0, "0a 323030 302d3032 2d3238"   },
+
+  {   L_, 2000,      2,   29,    1, "02 E3B2"                     },
+  {   L_, 2000,      2,   29,    0, "0a 323030 302d3032 2d3239"   },
+
+  {   L_, 2000,      3,    1,    1, "02 E3B3"                     },
+  {   L_, 2000,      3,    1,    0, "0a 323030 302d3033 2d3031"   },
+
+  {   L_, 1930,      4,   15,    1, "02 8000"                     },
+  {   L_, 1930,      4,   15,    0, "0a 313933 302d3034 2d3135"   },
+
+  {   L_, 1930,      4,   14,    1, "03 FF7FFF"                   },
+  {   L_, 1930,      4,   14,    0, "0a 313933 302d3034 2d3134"   },
+
+  {   L_, 1066,     10,   14,    1, "03 FAB005"                   },
+  {   L_, 1066,     10,   14,    0, "0a 313036 362d3130 2d3134"   },
+
+  {   L_, 9999,     12,   31,    1, "03 2C794A"                   },
+  {   L_, 9999,     12,   31,    0, "0a 393939 392d3132 2d3331"   },
+
+  {   L_,    1,      1,    1,    1, "03 F4BF70"                   },
+  {   L_,    1,      1,    1,    0, "0a 303030 312d3031 2d3031"   },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   YEAR  = DATA[i].d_year;
+                const int   MONTH = DATA[i].d_month;
+                const int   DAY   = DATA[i].d_day;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                                                              MONTH,
+                                                              DAY));
+
+                if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_Date VALUE(YEAR, MONTH, DAY);
+
+                bdesb_MemOutStreamBuf osb;
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+
+                bdet_Date value;
+                int numBytesConsumed = 0;
+
+                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                ASSERT(SUCCESS == Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+                ASSERT(0   == isb.length());
+                ASSERT(LEN == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting DateTz." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                int         d_tzoffset;  // time zone offset
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  year   month   day   off   opt  exp
+  //----  -----  -----   ---   ---   ---  ---
+  {   L_, 2020,      1,    1,    0,    1, "01 00"                            },
+  {   L_, 2020,      1,    1,    0,    0,
+                                 "10 323032 302d3031 2d30312B 30303A30 30"   },
+
+  {   L_, 2020,      1,    1, 1439,    1, "04 059F0000"                      },
+  {   L_, 2020,      1,    1,  840,    0,
+                                 "10 323032 302d3031 2d30312B 31343A30 30"   },
+
+  {   L_, 2020,      1,    1,-1439,    1, "04 FA610000"                      },
+  {   L_, 2020,      1,    1, -840,    0,
+                                 "10 323032 302d3031 2d30312D 31343A30 30"   },
+
+  {   L_, 2020,      1,    2,    0,    1, "01 01"                            },
+  {   L_, 2020,      1,    2,    0,    0,
+                                 "10 323032 302d3031 2d30322B 30303A30 30"   },
+
+  {   L_, 2020,      1,    2, 1439,    1, "04 059F0001"                      },
+  {   L_, 2020,      1,    2,  840,    0,
+                                 "10 323032 302d3031 2d30322B 31343A30 30"   },
+
+  {   L_, 2020,      1,    2,-1439,    1, "04 FA610001"                      },
+  {   L_, 2020,      1,    2, -840,    0,
+                                 "10 323032 302d3031 2d30322D 31343A30 30"   },
+
+  {   L_, 2019,     12,   31,    0,    1, "01 FF"                            },
+  {   L_, 2019,     12,   31,    0,    0,
+                                 "10 323031 392d3132 2d33312B 30303A30 30"   },
+
+  {   L_, 2019,     12,   31, 1439,    1, "04 059FFFFF"                      },
+  {   L_, 2019,     12,   31,  840,    0,
+                                 "10 323031 392d3132 2d33312B 31343A30 30"   },
+
+  {   L_, 2019,     12,   31,-1439,    1, "04 FA61FFFF"                      },
+  {   L_, 2019,     12,   31, -840,    0,
+                                 "10 323031 392d3132 2d33312D 31343A30 30"   },
+
+  {   L_,    1,      1,    1,    0,    1, "03 F4BF70"                        },
+  {   L_,    1,      1,    1,    0,    0,
+                                 "10 303030 312d3031 2d30312B 30303A30 30"   },
+
+  {   L_,    1,      1,    1, 1439,    1, "05 059FF4BF 70"                   },
+  {   L_,    1,      1,    1,  840,    0,
+                                 "10 303030 312d3031 2d30312B 31343A30 30"   },
+
+  {   L_,    1,      1,    1,-1439,    1, "05 FA61F4BF 70"                   },
+  {   L_,    1,      1,    1, -840,    0,
+                                 "10 303030 312d3031 2d30312D 31343A30 30"   },
+
+  {   L_, 2020,      5,    7,    0,    1, "01 7F"                            },
+  {   L_, 2020,      5,    7,    0,    0,
+                                 "10 323032 302d3035 2d30372B 30303A30 30"   },
+
+  {   L_, 2020,      5,    7, 1439,    1, "04 059F007F"                      },
+  {   L_, 2020,      5,    7,  840,    0,
+                                 "10 323032 302d3035 2d30372B 31343A30 30"   },
+
+  {   L_, 2020,      5,    7,-1439,    1, "04 FA61007F"                      },
+  {   L_, 2020,      5,    7, -840,    0,
+                                 "10 323032 302d3035 2d30372D 31343A30 30"   },
+
+  {   L_, 2020,      5,    8,    0,    1, "02 0080"                          },
+  {   L_, 2020,      5,    8,    0,    0,
+                                 "10 323032 302d3035 2d30382B 30303A30 30"   },
+
+  {   L_, 2020,      5,    8, 1439,    1, "04 059F0080"                      },
+  {   L_, 2020,      5,    8,  840,    0,
+                                 "10 323032 302d3035 2d30382B 31343A30 30"   },
+
+  {   L_, 2020,      5,    8,-1439,    1, "04 FA610080"                      },
+  {   L_, 2020,      5,    8, -840,    0,
+                                 "10 323032 302d3035 2d30382D 31343A30 30"   },
+
+  {   L_, 2109,      9,   18,    0,    1, "02 7FFF"                          },
+  {   L_, 2109,      9,   18,    0,    0,
+                                 "10 323130 392d3039 2d31382B 30303A30 30"   },
+
+  {   L_, 2109,      9,   18, 1439,    1, "04 059F7FFF"                      },
+  {   L_, 2109,      9,   18,  840,    0,
+                                 "10 323130 392d3039 2d31382B 31343A30 30"   },
+
+  {   L_, 2109,      9,   18,-1439,    1, "04 FA617FFF"                      },
+  {   L_, 2109,      9,   18, -840,    0,
+                                 "10 323130 392d3039 2d31382D 31343A30 30"   },
+
+  {   L_, 2109,      9,   19,    0,    1, "03 008000"                        },
+  {   L_, 2109,      9,   19,    0,    0,
+                                 "10 323130 392d3039 2d31392B 30303A30 30"   },
+
+  {   L_, 2109,      9,   19, 1439,    1, "05 059F008000"                    },
+  {   L_, 2109,      9,   19,  840,    0,
+                                 "10 323130 392d3039 2d31392B 31343A30 30"   },
+
+  {   L_, 2109,      9,   19,-1439,    1, "05 FA61008000"                    },
+  {   L_, 2109,      9,   19, -840,    0,
+                                 "10 323130 392d3039 2d31392D 31343A30 30"   },
+
+  {   L_, 2019,      8,   26,    0,    1, "01 80"                            },
+  {   L_, 2019,      8,   26,    0,    0,
+                                 "10 323031 392d3038 2d32362B 30303A30 30"   },
+
+  {   L_, 2019,      8,   26, 1439,    1, "04 059FFF80"                      },
+  {   L_, 2019,      8,   26,  840,    0,
+                                 "10 323031 392d3038 2d32362B 31343A30 30"   },
+
+  {   L_, 2019,      8,   26,-1439,    1, "04 FA61FF80"                      },
+  {   L_, 2019,      8,   26, -840,    0,
+                                 "10 323031 392d3038 2d32362D 31343A30 30"   },
+
+  {   L_, 2019,      8,   25,    0,    1, "02 FF7F"                          },
+  {   L_, 2019,      8,   25,    0,    0,
+                                 "10 323031 392d3038 2d32352B 30303A30 30"   },
+
+  {   L_, 2019,      8,   25, 1439,    1, "04 059FFF7F"                      },
+  {   L_, 2019,      8,   25,  840,    0,
+                                 "10 323031 392d3038 2d32352B 31343A30 30"   },
+
+  {   L_, 2019,      8,   25,-1439,    1, "04 FA61FF7F"                      },
+  {   L_, 2019,      8,   25, -840,    0,
+                                 "10 323031 392d3038 2d32352D 31343A30 30"   },
+
+  {   L_, 1930,      4,   15,    0,    1, "02 8000"                          },
+  {   L_, 1930,      4,   15,    0,    0,
+                                 "10 313933 302d3034 2d31352B 30303A30 30"   },
+
+  {   L_, 1930,      4,   15, 1439,    1, "04 059F8000"                      },
+  {   L_, 1930,      4,   15,  840,    0,
+                                 "10 313933 302d3034 2d31352B 31343A30 30"   },
+
+  {   L_, 1930,      4,   15,-1439,    1, "04 FA618000"                      },
+  {   L_, 1930,      4,   15, -840,    0,
+                                 "10 313933 302d3034 2d31352D 31343A30 30"   },
+
+  {   L_, 1930,      4,   14,    0,    1, "03 FF7FFF"                        },
+  {   L_, 1930,      4,   14,    0,    0,
+                                 "10 313933 302d3034 2d31342B 30303A30 30"   },
+
+  {   L_, 1930,      4,   14, 1439,    1, "05 059FFF7FFF"                    },
+  {   L_, 1930,      4,   14,  840,    0,
+                                 "10 313933 302d3034 2d31342B 31343A30 30"   },
+
+  {   L_, 1930,      4,   14,-1439,    1, "05 FA61FF7FFF"                    },
+  {   L_, 1930,      4,   14, -840,    0,
+                                 "10 313933 302d3034 2d31342D 31343A30 30"   },
+
+  {   L_, 1066,     10,   14,    0,    1, "03 FAB005"                        },
+  {   L_, 1066,     10,   14,    0,    0,
+                                 "10 313036 362d3130 2d31342B 30303A30 30"   },
+
+  {   L_, 1066,     10,   14, 1439,    1, "05 059FFAB0 05"                   },
+  {   L_, 1066,     10,   14,  840,    0,
+                                 "10 313036 362d3130 2d31342B 31343A30 30"   },
+
+  {   L_, 1066,     10,   14,-1439,    1, "05 FA61FAB0 05"                   },
+  {   L_, 1066,     10,   14, -840,    0,
+                                 "10 313036 362d3130 2d31342D 31343A30 30"   },
+
+  {   L_, 9999,     12,   31,    0,    1, "03 2C794A"                        },
+  {   L_, 9999,     12,   31,    0,    0,
+                                 "10 393939 392d3132 2d33312B 30303A30 30"   },
+
+  {   L_, 9999,     12,   31, 1439,    1, "05 059F2C79 4A"                   },
+  {   L_, 9999,     12,   31,  840,    0,
+                                 "10 393939 392d3132 2d33312B 31343A30 30"   },
+
+  {   L_, 9999,     12,   31,-1439,    1, "05 FA612C79 4A"                   },
+  {   L_, 9999,     12,   31, -840,    0,
+                                 "10 393939 392d3132 2d33312D 31343A30 30"   },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   YEAR  = DATA[i].d_year;
+                const int   MONTH = DATA[i].d_month;
+                const int   DAY   = DATA[i].d_day;
+                const int   OFF   = DATA[i].d_tzoffset;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                                                              MONTH,
+                                                              DAY));
+
+                if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(EXP) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_DateTz VALUE(bdet_Date(YEAR, MONTH, DAY), OFF);
+
+                bdesb_MemOutStreamBuf osb;
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+
+                bdet_DateTz value;
+                int numBytesConsumed = 0;
+
+                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                ASSERT(SUCCESS == Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+                ASSERT(0   == isb.length());
+                ASSERT(LEN == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting Time." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_hour;      // hour under test
+                int         d_min;       // min under test
+                int         d_sec;       // sec under test
+                int         d_milliSec;  // milliSec under test
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  hour   min  sec  ms   opt  exp
+  //----  -----  ---  ---  ---  ---  ---
+  {   L_,     0,   0,   0,   0,   1, "01 00"                                 },
+  {   L_,     0,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"         },
+
+  {   L_,     0,   0,   0, 127,   1, "01 7F"                                 },
+  {   L_,     0,   0,   0, 127,   0, "0C 30303A30 303A3030 2E313237"         },
+
+  {   L_,     0,   0,   0, 128,   1, "02 0080"                               },
+  {   L_,     0,   0,   0, 128,   0, "0C 30303A30 303A3030 2E313238"         },
+
+  {   L_,     0,   0,   0, 255,   1, "02 00FF"                               },
+  {   L_,     0,   0,   0, 255,   0, "0C 30303A30 303A3030 2E323535"         },
+
+  {   L_,     0,   0,   0, 256,   1, "02 0100"                               },
+  {   L_,     0,   0,   0, 256,   0, "0C 30303A30 303A3030 2E323536"         },
+
+  {   L_,     0,   0,  32, 767,   1, "02 7FFF"                               },
+  {   L_,     0,   0,  32, 767,   0, "0C 30303A30 303A3332 2E373637"         },
+
+  {   L_,     0,   0,  32, 768,   1, "03 008000"                             },
+  {   L_,     0,   0,  32, 768,   0, "0C 30303A30 303A3332 2E373638"         },
+
+  {   L_,     2,  19,  48, 607,   1, "03 7FFFFF"                             },
+  {   L_,     2,  19,  48, 607,   0, "0C 30323A31 393A3438 2E363037"         },
+
+  {   L_,     2,  19,  48, 608,   1, "04 00800000"                           },
+  {   L_,     2,  19,  48, 608,   0, "0C 30323A31 393A3438 2E363038"         },
+
+  {   L_,    12,  33,  45, 999,   1, "04 02B2180F"                           },
+  {   L_,    12,  33,  45, 999,   0, "0C 31323A33 333A3435 2E393939"         },
+
+  {   L_,    23,  59,  59, 999,   1, "04 05265BFF"                           },
+  {   L_,    23,  59,  59, 999,   0, "0C 32333A35 393A3539 2E393939"         },
+
+  {   L_,    24,   0,   0,   0,   1, "01 00"                                 },
+  // TBD: Current doesnt work
+//   {   L_,    24,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"      },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   HOUR  = DATA[i].d_hour;
+                const int   MIN   = DATA[i].d_min;
+                const int   SECS  = DATA[i].d_sec;
+                const int   MSEC  = DATA[i].d_milliSec;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                if (veryVerbose) { P_(HOUR) P_(MIN) P_(SECS) P(MSEC) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_Time VALUE(HOUR, MIN, SECS, MSEC);
+
+                bdesb_MemOutStreamBuf osb;
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+
+                bdet_Time value;
+                int numBytesConsumed = 0;
+
+                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                ASSERT(SUCCESS == Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+                ASSERT(0   == isb.length());
+                ASSERT(LEN == numBytesConsumed);
+                if (24 == HOUR) {
+                    LOOP_ASSERT(value, bdet_Time(0) == value);
+                }
+                else {
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting TimeTz." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_hour;      // hour under test
+                int         d_min;       // min under test
+                int         d_sec;       // sec under test
+                int         d_milliSec;  // milliSec under test
+                int         d_offset;    // offset
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  hour   min  sec  ms     off  opt  exp
+  //----  -----  ---  ---  ---    ---  ---  ---
+  {   L_,     0,   0,   0,   0,     0,  1, "01 00"                           },
+  {   L_,     0,   0,   0,   0,     0,  0,
+                               "12 30303A30 303A3030 2E303030 2B30303A 3030" },
+
+  {   L_,     0,   0,   0,   0,  1439,  1, "05 059F0000 00"                  },
+  {   L_,     0,   0,   0,   0,   840,  0,
+                               "12 30303A30 303A3030 2E303030 2B31343A 3030" },
+
+  {   L_,     0,   0,   0,   0, -1439,  1, "05 FA610000 00"                  },
+  {   L_,     0,   0,   0,   0,  -840,  0,
+                               "12 30303A30 303A3030 2E303030 2D31343A 3030" },
+
+  {   L_,     0,   0,   0, 127,     0,  1, "01 7F"                           },
+  {   L_,     0,   0,   0, 127,     0,  0,
+                               "12 30303A30 303A3030 2E313237 2B30303A 3030" },
+
+  {   L_,     0,   0,   0, 127,  1439,  1, "05 059F0000 7F"                  },
+  {   L_,     0,   0,   0, 127,   840,  0,
+                               "12 30303A30 303A3030 2E313237 2B31343A 3030" },
+
+  {   L_,     0,   0,   0, 127, -1439,  1, "05 FA610000 7F"                  },
+  {   L_,     0,   0,   0, 127,  -840,  0,
+                               "12 30303A30 303A3030 2E313237 2D31343A 3030" },
+
+  {   L_,     0,   0,   0, 128,     0,  1, "02 0080"                         },
+  {   L_,     0,   0,   0, 128,     0,  0,
+                               "12 30303A30 303A3030 2E313238 2B30303A 3030" },
+
+  {   L_,     0,   0,   0, 128,  1439,  1, "05 059F0000 80"                  },
+  {   L_,     0,   0,   0, 128,   840,  0,
+                               "12 30303A30 303A3030 2E313238 2B31343A 3030" },
+
+  {   L_,     0,   0,   0, 128, -1439,  1, "05 FA610000 80"                  },
+  {   L_,     0,   0,   0, 128,  -840,  0,
+                               "12 30303A30 303A3030 2E313238 2D31343A 3030" },
+
+  {   L_,     0,   0,  32, 767,     0,  1, "02 7FFF"                         },
+  {   L_,     0,   0,  32, 767,     0,  0,
+                               "12 30303A30 303A3332 2E373637 2B30303A 3030" },
+
+  {   L_,     0,   0,  32, 767,  1439,  1, "05 059F007F FF"                  },
+  {   L_,     0,   0,  32, 767,   840,  0,
+                               "12 30303A30 303A3332 2E373637 2B31343A 3030" },
+
+  {   L_,     0,   0,  32, 767, -1439,  1, "05 FA61007F FF"                  },
+  {   L_,     0,   0,  32, 767,  -840,  0,
+                               "12 30303A30 303A3332 2E373637 2D31343A 3030" },
+
+  {   L_,     0,   0,  32, 768,     0,  1, "03 008000"                       },
+  {   L_,     0,   0,  32, 768,     0,  0,
+                               "12 30303A30 303A3332 2E373638 2B30303A 3030" },
+
+  {   L_,     0,   0,  32, 768,  1439,  1, "05 059F0080 00"                  },
+  {   L_,     0,   0,  32, 768,   840,  0,
+                               "12 30303A30 303A3332 2E373638 2B31343A 3030" },
+
+  {   L_,     0,   0,  32, 768, -1439,  1, "05 FA610080 00"                  },
+  {   L_,     0,   0,  32, 768,  -840,  0,
+                               "12 30303A30 303A3332 2E373638 2D31343A 3030" },
+
+  {   L_,     2,  19,  48, 607,     0,  1, "03 7FFFFF"                       },
+  {   L_,     2,  19,  48, 607,     0,  0,
+                               "12 30323A31 393A3438 2E363037 2B30303A 3030" },
+
+  {   L_,     2,  19,  48, 607,  1439,  1, "05 059F7FFFFF"                   },
+  {   L_,     2,  19,  48, 607,   840,  0,
+                               "12 30323A31 393A3438 2E363037 2B31343A 3030" },
+
+  {   L_,     2,  19,  48, 607, -1439,  1, "05 FA617FFFFF"                   },
+  {   L_,     2,  19,  48, 607,  -840,  0,
+                               "12 30323A31 393A3438 2E363037 2D31343A 3030" },
+
+  {   L_,     2,  19,  48, 608,     0,  1, "04 00800000"                     },
+  {   L_,     2,  19,  48, 608,     0,  0,
+                               "12 30323A31 393A3438 2E363038 2B30303A 3030" },
+
+  {   L_,     2,  19,  48, 608,  1439,  1, "06 059F0080 0000"                },
+  {   L_,     2,  19,  48, 608,   840,  0,
+                               "12 30323A31 393A3438 2E363038 2B31343A 3030" },
+
+  {   L_,     2,  19,  48, 608, -1439,  1, "06 FA610080 0000"                },
+  {   L_,     2,  19,  48, 608,  -840,  0,
+                               "12 30323A31 393A3438 2E363038 2D31343A 3030" },
+
+  {   L_,    12,  33,  45, 999,     0,  1, "04 02B2180F"                     },
+  {   L_,    12,  33,  45, 999,     0,  0,
+                               "12 31323A33 333A3435 2E393939 2B30303A 3030" },
+
+  {   L_,    12,  33,  45, 999,  1439,  1, "06 059F02B2 180F"                },
+  {   L_,    12,  33,  45, 999,   840,  0,
+                               "12 31323A33 333A3435 2E393939 2B31343A 3030" },
+
+  {   L_,    12,  33,  45, 999, -1439,  1, "06 FA6102B2 180F"                },
+  {   L_,    12,  33,  45, 999,  -840,  0,
+                               "12 31323A33 333A3435 2E393939 2D31343A 3030" },
+
+  {   L_,    23,  59,  59, 999,     0,  1, "04 05265BFF"                     },
+  {   L_,    23,  59,  59, 999,     0,  0,
+                               "12 32333A35 393A3539 2E393939 2B30303A 3030" },
+
+  {   L_,    23,  59,  59, 999,  1439,  1, "06 059F0526 5BFF"                },
+  {   L_,    23,  59,  59, 999,   840,  0,
+                               "12 32333A35 393A3539 2E393939 2B31343A 3030" },
+
+  {   L_,    23,  59,  59, 999, -1439,  1, "06 FA610526 5BFF"                },
+  {   L_,    23,  59,  59, 999,  -840,  0,
+                               "12 32333A35 393A3539 2E393939 2D31343A 3030" },
+
+  {   L_,    24,   0,   0,   0,     0,  1, "01 00"                           },
+  {   L_,    24,   0,   0,   0,  1439,  1, "05 059F0000 00"                  },
+  {   L_,    24,   0,   0,   0, -1439,  1, "05 FA610000 00"                  },
+  // TBD: Current doesnt work
+//   {   L_,    24,   0,   0,   0,   0, "0C 30303A30 303A3030 2E303030"      },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   HOUR  = DATA[i].d_hour;
+                const int   MIN   = DATA[i].d_min;
+                const int   SECS  = DATA[i].d_sec;
+                const int   MSEC  = DATA[i].d_milliSec;
+                const int   OFF   = DATA[i].d_offset;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                if (veryVerbose) { P_(HOUR) P_(MIN) P_(SECS) P_(MSEC) P(OFF) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_TimeTz VALUE(bdet_Time(HOUR, MIN, SECS, MSEC),
+                                        OFF);
+
+                bdesb_MemOutStreamBuf osb;
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+
+                bdet_TimeTz value;
+                int numBytesConsumed = 0;
+
+                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                ASSERT(SUCCESS == Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+                ASSERT(0   == isb.length());
+                ASSERT(LEN == numBytesConsumed);
+                if (24 == HOUR) {
+                    LOOP_ASSERT(value,
+                                bdet_TimeTz(bdet_Time(0), OFF) == value);
+                }
+                else {
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting Datetime." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                int         d_hour;      // hour under test
+                int         d_min;       // min under test
+                int         d_sec;       // sec under test
+                int         d_milliSec;  // milliSec under test
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  year  mon  day  hour   min  sec    ms    opt  exp
+  //----  ----- ---  ---  ----   ---  ---    --    ---  ---
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,     1,
+                                               "01 00"                       },
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,     0,
+                    "17 32303230 2d30312d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,    1,     1,
+                                               "01 01"                       },
+  {   L_, 2020,   1,   1,    0,    0,   0,    1,     0,
+                    "17 32303230 2d30312d 30315430 303A3030 3A30302E 303031" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,     1,
+                                               "01 7F"                       },
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,     0,
+                    "17 32303230 2d30312d 30315430 303A3030 3A30302E 313237" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,     1,
+                                               "02 0080"                     },
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,     0,
+                    "17 32303230 2d30312d 30315430 303A3030 3A30302E 313238" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  999,     1,
+                                               "02 03E7"                     },
+  {   L_, 2020,   1,   1,    0,    0,   0,  999,     0,
+                    "17 32303230 2d30312d 30315430 303A3030 3A30302E 393939" },
+
+  {   L_, 2020,   1,   1,    0,    0,   1,    0,     1,
+                                               "02 03E8"                     },
+  {   L_, 2020,   1,   1,    0,    0,   1,    0,     0,
+                    "17 32303230 2d30312d 30315430 303A3030 3A30312E 303030" },
+
+  {   L_, 2020,   1,   1,    0,    0,   1,    1,     1,
+                                               "02 03E9"                     },
+  {   L_, 2020,   1,   1,    0,    0,   1,    1,     0,
+                    "17 32303230 2d30312d 30315430 303A3030 3A30312E 303031" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,     1,
+                                               "02 7FFF"                     },
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,     0,
+                    "17 32303230 2d30312d 30315430 303A3030 3A33322E 373637" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,     1,
+                                               "03 008000"                   },
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,     0,
+                    "17 32303230 2d30312d 30315430 303A3030 3A33322E 373638" },
+
+  {   L_, 2020,   1,   1,    0,    0,  59,  999,     1,
+                                               "03 00EA5F"                   },
+  {   L_, 2020,   1,   1,    0,    0,  59,  999,     0,
+                    "17 32303230 2d30312d 30315430 303A3030 3A35392E 393939" },
+
+  {   L_, 2020,   1,   1,    0,    1,   0,    0,     1,
+                                               "03 00EA60"                   },
+  {   L_, 2020,   1,   1,    0,    1,   0,    0,     0,
+                    "17 32303230 2d30312d 30315430 303A3031 3A30302E 303030" },
+
+  {   L_, 2020,   1,   1,    0,    1,   0,    1,     1,
+                                               "03 00EA61"                   },
+  {   L_, 2020,   1,   1,    0,    1,   0,    1,     0,
+                    "17 32303230 2d30312d 30315430 303A3031 3A30302E 303031" },
+
+  {   L_, 2020,   1,   1,    0,   59,  59,  999,     1,
+                                               "03 36EE7F"                   },
+  {   L_, 2020,   1,   1,    0,   59,  59,  999,     0,
+                    "17 32303230 2d30312d 30315430 303A3539 3A35392E 393939" },
+
+  {   L_, 2020,   1,   1,    1,    0,   0,    0,     1,
+                                               "03 36EE80"                   },
+  {   L_, 2020,   1,   1,    1,    0,   0,    0,     0,
+                    "17 32303230 2d30312d 30315430 313A3030 3A30302E 303030" },
+
+  {   L_, 2020,   1,   1,    1,    0,   0,    1,     1,
+                                               "03 36EE81"                   },
+  {   L_, 2020,   1,   1,    1,    0,   0,    1,     0,
+                    "17 32303230 2d30312d 30315430 313A3030 3A30302E 303031" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,     1,
+                                               "03 7FFFFF"                   },
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,     0,
+                    "17 32303230 2d30312d 30315430 323A3139 3A34382E 363037" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,     1,
+                                               "04 00800000"                 },
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,     0,
+                    "17 32303230 2d30312d 30315430 323A3139 3A34382E 363038" },
+
+  {   L_, 2020,   1,   1,   23,   59,  59,  999,     1,
+                                               "04 05265BFF"                 },
+  {   L_, 2020,   1,   1,   23,   59,  59,  999,     0,
+                    "17 32303230 2d30312d 30315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2020,   1,   2,    0,    0,   0,    0,     1,
+                                               "04 05265C00"                 },
+  {   L_, 2020,   1,   2,    0,    0,   0,    0,     0,
+                    "17 32303230 2d30312d 30325430 303A3030 3A30302E 303030" },
+
+  {   L_, 2020,   1,   2,    0,    0,   0,    1,     1,
+                                               "04 05265C01"                 },
+  {   L_, 2020,   1,   2,    0,    0,   0,    1,     0,
+                    "17 32303230 2d30312d 30325430 303A3030 3A30302E 303031" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,     1,
+                                               "04 7FFFFFFF"                 },
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,     0,
+                    "17 32303230 2d30312d 32355432 303A3331 3A32332E 363437" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,     1,
+                                               "05 00800000 00"              },
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,     0,
+                    "17 32303230 2d30312d 32355432 303A3331 3A32332E 363438" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  649,     1,
+                                               "05 00800000 01"              },
+  {   L_, 2020,   1,  25,   20,   31,  23,  649,     0,
+                    "17 32303230 2d30312d 32355432 303A3331 3A32332E 363439" },
+
+  {   L_, 2020,   1,  31,   23,   59,  59,  999,     1,
+                                               "05 009FA523 FF"              },
+  {   L_, 2020,   1,  31,   23,   59,  59,  999,     0,
+                    "17 32303230 2d30312d 33315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2020,   2,   1,    0,    0,   0,    0,     1,
+                                               "05 009FA524 00"              },
+  {   L_, 2020,   2,   1,    0,    0,   0,    0,     0,
+                    "17 32303230 2d30322d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 2020,   2,   1,    0,    0,   0,    1,     1,
+                                               "05 009FA524 01"              },
+  {   L_, 2020,   2,   1,    0,    0,   0,    1,     0,
+                    "17 32303230 2d30322d 30315430 303A3030 3A30302E 303031" },
+
+  {   L_, 2020,   2,  28,   23,   59,  59,  999,     1,
+                                               "05 012FD733 FF"              },
+  {   L_, 2020,   2,  28,   23,   59,  59,  999,     0,
+                    "17 32303230 2d30322d 32385432 333A3539 3A35392E 393939" },
+
+  {   L_, 2020,   2,  29,    0,    0,   0,    0,     1,
+                                               "05 012FD734 00"              },
+  {   L_, 2020,   2,  29,    0,    0,   0,    0,     0,
+                    "17 32303230 2d30322d 32395430 303A3030 3A30302E 303030" },
+
+  {   L_, 2020,   2,  29,   23,   59,  59,  999,     1,
+                                               "05 0134FD8F FF"              },
+  {   L_, 2020,   2,  29,   23,   59,  59,  999,     0,
+                    "17 32303230 2d30322d 32395432 333A3539 3A35392E 393939" },
+
+  {   L_, 2020,   3,   1,    0,    0,   0,    0,     1,
+                                               "05 0134FD90 00"              },
+  {   L_, 2020,   3,   1,    0,    0,   0,    0,     0,
+                    "17 32303230 2d30332d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 2020,  12,  31,   23,   59,  59,  999,     1,
+                                               "05 075CD787 FF"              },
+  {   L_, 2020,  12,  31,   23,   59,  59,  999,     0,
+                    "17 32303230 2d31322d 33315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2021,   1,   1,    0,    0,   0,    0,     1,
+                                               "05 075CD788 00"              },
+  {   L_, 2021,   1,   1,    0,    0,   0,    0,     0,
+                    "17 32303231 2d30312d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 2023,  12,  31,   23,   59,  59,  999,     1,
+                                               "05 1D63EB0B FF"              },
+  {   L_, 2023,  12,  31,   23,   59,  59,  999,     0,
+                    "17 32303233 2d31322d 33315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2024,   1,   1,    0,    0,   0,    0,     1,
+                                               "05 1D63EB0C 00"              },
+  {   L_, 2024,   1,   1,    0,    0,   0,    0,     0,
+                    "17 32303234 2d30312d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 2024,   1,   1,    0,    0,   0,    1,     1,
+                                               "05 1D63EB0C 01"              },
+  {   L_, 2024,   1,   1,    0,    0,   0,    1,     0,
+                    "17 32303234 2d30312d 30315430 303A3030 3A30302E 303031" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,     1,
+                                               "05 7FFFFFFF FF"              },
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,     0,
+                    "17 32303337 2d30362d 30325432 313A3536 3A35332E 383837" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,     1,
+                                               "06 00800000 0000"            },
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,     0,
+                    "17 32303337 2d30362d 30325432 313A3536 3A35332E 383838" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  889,     1,
+                                               "06 00800000 0001"            },
+  {   L_, 2037,   6,   2,   21,   56,  53,  889,     0,
+                    "17 32303337 2d30362d 30325432 313A3536 3A35332E 383839" },
+
+  {   L_, 2099,  12,  31,   23,   59,  59,  999,     1,
+                                               "06 024BCE5C EFFF"            },
+  {   L_, 2099,  12,  31,   23,   59,  59,  999,     0,
+                    "17 32303939 2d31322d 33315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2100,   1,   1,    0,    0,   0,    0,     1,
+                                               "06 024BCE5C F000"            },
+  {   L_, 2100,   1,   1,    0,    0,   0,    0,     0,
+                    "17 32313030 2d30312d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,     1,
+                                               "06 7FFFFFFF FFFF"            },
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,     0,
+                    "17 36343739 2d31302d 31375430 323A3435 3A35352E 333237" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,     1,
+                                               "09 00000080 00000000 00"     },
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,     0,
+                    "17 36343739 2d31302d 31375430 323A3435 3A35352E 333238" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  329,     1,
+                                               "09 00000080 00000000 01"     },
+  {   L_, 6479,  10,  17,    2,   45,  55,  329,     0,
+                    "17 36343739 2d31302d 31375430 323A3435 3A35352E 333239" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,     1,
+                                               "01 FF"                       },
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,     0,
+                    "17 32303139 2d31322d 33315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,     1,
+                                               "01 80"                       },
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,     0,
+                    "17 32303139 2d31322d 33315432 333A3539 3A35392E 383732" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,     1,
+                                               "02 FF7F"                     },
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,     0,
+                    "17 32303139 2d31322d 33315432 333A3539 3A35392E 383731" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,    1,     1,
+                                               "02 FC19"                     },
+  {   L_, 2019,  12,  31,   23,   59,  59,    1,     0,
+                    "17 32303139 2d31322d 33315432 333A3539 3A35392E 303031" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,    0,     1,
+                                               "02 FC18"                     },
+  {   L_, 2019,  12,  31,   23,   59,  59,    0,     0,
+                    "17 32303139 2d31322d 33315432 333A3539 3A35392E 303030" },
+
+  {   L_, 2019,  12,  31,   23,   59,  58,  999,     1,
+                                               "02 FC17"                     },
+  {   L_, 2019,  12,  31,   23,   59,  58,  999,     0,
+                    "17 32303139 2d31322d 33315432 333A3539 3A35382E 393939" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,     1,
+                                               "02 8000"                     },
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,     0,
+                    "17 32303139 2d31322d 33315432 333A3539 3A32372E 323332" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,     1,
+                                               "03 FF7FFF"                   },
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,     0,
+                    "17 32303139 2d31322d 33315432 333A3539 3A32372E 323331" },
+
+  {   L_, 2019,  12,  31,   23,   59,   0,    1,     1,
+                                               "03 FF15A1"                   },
+  {   L_, 2019,  12,  31,   23,   59,   0,    1,     0,
+                    "17 32303139 2d31322d 33315432 333A3539 3A30302E 303031" },
+
+  {   L_, 2019,  12,  31,   23,   59,   0,    0,     1,
+                                               "03 FF15A0"                   },
+  {   L_, 2019,  12,  31,   23,   59,   0,    0,     0,
+                    "17 32303139 2d31322d 33315432 333A3539 3A30302E 303030" },
+
+  {   L_, 2019,  12,  31,   23,   58,  59,  999,     1,
+                                               "03 FF159F"                   },
+  {   L_, 2019,  12,  31,   23,   58,  59,  999,     0,
+                    "17 32303139 2d31322d 33315432 333A3538 3A35392E 393939" },
+
+  {   L_, 2019,  12,  31,   23,    0,   0,    1,     1,
+                                               "03 C91181"                   },
+  {   L_, 2019,  12,  31,   23,    0,   0,    1,     0,
+                    "17 32303139 2d31322d 33315432 333A3030 3A30302E 303031" },
+
+  {   L_, 2019,  12,  31,   23,    0,   0,    0,     1,
+                                               "03 C91180"                   },
+  {   L_, 2019,  12,  31,   23,    0,   0,    0,     0,
+                    "17 32303139 2d31322d 33315432 333A3030 3A30302E 303030" },
+
+  {   L_, 2019,  12,  31,   22,   59,  59,  999,     1,
+                                               "03 C9117F"                   },
+  {   L_, 2019,  12,  31,   22,   59,  59,  999,     0,
+                    "17 32303139 2d31322d 33315432 323A3539 3A35392E 393939" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,     1,
+                                               "03 800000"                   },
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,     0,
+                    "17 32303139 2d31322d 33315432 313A3430 3A31312E 333932" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,     1,
+                                               "04 FF7FFFFF"                 },
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,     0,
+                    "17 32303139 2d31322d 33315432 313A3430 3A31312E 333931" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,     1,
+                                               "04 80000000"                 },
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,     0,
+                    "17 32303139 2d31322d 30375430 333A3238 3A33362E 333532" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,     1,
+                                               "05 FF7FFFFF FF"              },
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,     0,
+                    "17 32303139 2d31322d 30375430 333A3238 3A33362E 333531" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,     1,
+                                               "05 80000000 00"              },
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,     0,
+                    "17 32303032 2d30372d 33315430 323A3033 3A30362E 313132" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,     1,
+                                               "06 FF7FFFFF FFFF"            },
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,     0,
+                    "17 32303032 2d30372d 33315430 323A3033 3A30362E 313131" },
+
+  {   L_,    1,   1,   1,    0,    0,   0,    0,     1,
+                                               "06 C60D8F6C 4000"            },
+  {   L_,    1,   1,   1,    0,    0,   0,    0,     0,
+                    "17 30303031 2d30312d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,     1,
+                                               "09 000000E5 0873B8F3 FF"     },
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,     0,
+                    "17 39393939 2d31322d 33315432 333A3539 3A35392E 393939" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   YEAR  = DATA[i].d_year;
+                const int   MONTH = DATA[i].d_month;
+                const int   DAY   = DATA[i].d_day;
+                const int   HOUR  = DATA[i].d_hour;
+                const int   MIN   = DATA[i].d_min;
+                const int   SECS  = DATA[i].d_sec;
+                const int   MSEC  = DATA[i].d_milliSec;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                                                              MONTH,
+                                                              DAY));
+
+                if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY)
+                                   P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_Datetime VALUE(YEAR, MONTH, DAY,
+                                          HOUR, MIN, SECS, MSEC);
+
+                bdesb_MemOutStreamBuf osb;
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+
+                bdet_Datetime value;
+                int numBytesConsumed = 0;
+
+                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                ASSERT(SUCCESS == Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+                ASSERT(0   == isb.length());
+                ASSERT(LEN == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting DatetimeTz." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                int         d_hour;      // hour under test
+                int         d_min;       // min under test
+                int         d_sec;       // sec under test
+                int         d_milliSec;  // milliSec under test
+                int         d_offset;    // timezone offset
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  year  mon  day  hour   min  sec    ms    off    opt  exp
+  //----  ----- ---  ---  ----   ---  ---    --    ---    ---  ---
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,     0,     1,
+                                               "01 00"                       },
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,     0,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A30302E 3030302B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,   1439,     1,
+                                               "07 059F0000 000000"          },
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,    840,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A30302E 3030302B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,  -1439,     1,
+                                               "07 FA610000 000000"          },
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,   -840,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A30302E 3030302D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,     0,     1,
+                                               "01 7F"                       },
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,     0,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132372B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,   1439,     1,
+                                               "07 059F0000 00007F"          },
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,    840,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132372B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,  -1439,     1,
+                                               "07 FA610000 00007F"          },
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,   -840,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132372D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,     0,     1,
+                                               "02 0080"                     },
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,     0,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132382B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,   1439,     1,
+                                               "07 059F0000 000080"          },
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,    840,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132382B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,  -1439,     1,
+                                               "07 FA610000 000080"          },
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,   -840,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132382D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,     0,     1,
+                                               "02 7FFF"                     },
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,     0,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736372B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,  1439,     1,
+                                               "07 059F0000 007FFF"          },
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,   840,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736372B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  767, -1439,     1,
+                                               "07 FA610000 007FFF"          },
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,  -840,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736372D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,     0,     1,
+                                               "03 008000"                   },
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,     0,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736382B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,  1439,     1,
+                                               "07 059F0000 008000"          },
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,   840,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736382B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  768, -1439,     1,
+                                               "07 FA610000 008000"          },
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,  -840,     0,
+      "1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736382D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,     0,     1,
+                                               "03 7FFFFF"                   },
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,     0,     0,
+      "1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630372B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,  1439,     1,
+                                               "07 059F0000 7FFFFF"          },
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,   840,     0,
+      "1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630372B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  607, -1439,     1,
+                                               "07 FA610000 7FFFFF"          },
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,  -840,     0,
+      "1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630372D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,     0,     1,
+                                               "04 00800000"                 },
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,     0,     0,
+      "1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630382B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,  1439,     1,
+                                               "07 059F0000 800000"          },
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,   840,     0,
+      "1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630382B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  608, -1439,     1,
+                                               "07 FA610000 800000"          },
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,  -840,     0,
+      "1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630382D 31343A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,     0,     1,
+                                               "04 7FFFFFFF"                 },
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,     0,     0,
+      "1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634372B 30303A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,  1439,     1,
+                                               "07 059F007F FFFFFF"          },
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,   840,     0,
+      "1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634372B 31343A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  647, -1439,     1,
+                                               "07 FA61007F FFFFFF"          },
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,  -840,     0,
+      "1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634372D 31343A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,     0,     1,
+                                               "05 00800000 00"              },
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,     0,     0,
+      "1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634382B 30303A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,  1439,     1,
+                                               "07 059F0080 000000"          },
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,   840,     0,
+      "1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634382B 31343A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  648, -1439,     1,
+                                               "07 FA610080 000000"          },
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,  -840,     0,
+      "1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634382D 31343A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,     0,     1,
+                                               "05 7FFFFFFF FF"              },
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,     0,     0,
+      "1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838372B 30303A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,  1439,     1,
+                                               "07 059F7FFF FFFFFF"          },
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,   840,     0,
+      "1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838372B 31343A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  887, -1439,     1,
+                                               "07 FA617FFF FFFFFF"          },
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,  -840,     0,
+      "1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838372D 31343A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,     0,     1,
+                                               "06 00800000 0000"            },
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,     0,     0,
+      "1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838382B 30303A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,  1439,     1,
+                                               "08 059F0080 00000000"        },
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,   840,     0,
+      "1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838382B 31343A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  888, -1439,     1,
+                                               "08 FA610080 00000000"        },
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,  -840,     0,
+      "1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838382D 31343A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,     0,     1,
+                                               "06 7FFFFFFF FFFF"            },
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,     0,     0,
+      "1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332372B 30303A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,  1439,     1,
+                                               "08 059F7FFF FFFFFFFF"        },
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,   840,     0,
+      "1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332372B 31343A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  327, -1439,     1,
+                                               "08 FA617FFF FFFFFFFF"        },
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,  -840,     0,
+      "1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332372D 31343A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,     0,     1,
+                                               "09 00000080 00000000 00 "    },
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,     0,     0,
+      "1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332382B 30303A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,  1439,     1,
+                                               "09 059F0080 00000000 00"     },
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,   840,     0,
+      "1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332382B 31343A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  328, -1439,     1,
+                                               "09 FA610080 00000000 00"     },
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,  -840,     0,
+      "1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332382D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,     0,     1,
+                                               "01 FF"                       },
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,     0,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A35392E 3939392B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,  1439,     1,
+                                               "07 059FFFFF FFFFFF"          },
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,   840,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A35392E 3939392B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  999, -1439,     1,
+                                               "07 FA61FFFF FFFFFF"          },
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,  -840,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A35392E 3939392D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,     0,     1,
+                                               "01 80"                       },
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,     0,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837322B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,  1439,     1,
+                                               "07 059FFFFF FFFF80"          },
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,   840,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837322B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  872, -1439,     1,
+                                               "07 FA61FFFF FFFF80"          },
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,  -840,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837322D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,     0,     1,
+                                               "02 FF7F"                     },
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,     0,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837312B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,  1439,     1,
+                                               "07 059FFFFF FFFF7F"          },
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,   840,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837312B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  871, -1439,     1,
+                                               "07 FA61FFFF FFFF7F"          },
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,  -840,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837312D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,     0,     1,
+                                               "02 8000"                     },
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,     0,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233322B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,  1439,     1,
+                                               "07 059FFFFF FF8000"          },
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,   840,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233322B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  232, -1439,     1,
+                                               "07 FA61FFFF FF8000"          },
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,  -840,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233322D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,     0,     1,
+                                               "03 FF7FFF"                   },
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,     0,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233312B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,  1439,     1,
+                                               "07 059FFFFF FF7FFF"          },
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,   840,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233312B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  231, -1439,     1,
+                                               "07 FA61FFFF FF7FFF"          },
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,  -840,     0,
+      "1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233312D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,     0,     1,
+                                               "03 800000"                   },
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,     0,     0,
+      "1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339322B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,  1439,     1,
+                                               "07 059FFFFF 800000"          },
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,   840,     0,
+      "1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339322B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  392, -1439,     1,
+                                               "07 FA61FFFF 800000"          },
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,  -840,     0,
+      "1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339322D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,     0,     1,
+                                               "04 FF7FFFFF"                 },
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,     0,     0,
+      "1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339312B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,  1439,     1,
+                                               "07 059FFFFF 7FFFFF"          },
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,   840,     0,
+      "1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339312B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  391, -1439,     1,
+                                               "07 FA61FFFF 7FFFFF"          },
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,  -840,     0,
+      "1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339312D 31343A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,     0,     1,
+                                               "04 80000000"                 },
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,     0,     0,
+      "1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335322B 30303A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,  1439,     1,
+                                               "07 059FFF80 000000"          },
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,   840,     0,
+      "1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335322B 31343A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  352, -1439,     1,
+                                               "07 FA61FF80 000000"          },
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,  -840,     0,
+      "1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335322D 31343A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,     0,     1,
+                                               "05 FF7FFFFF FF"              },
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,     0,     0,
+      "1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335312B 30303A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,  1439,     1,
+                                               "07 059FFF7F FFFFFF"          },
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,   840,     0,
+      "1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335312B 31343A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  351, -1439,     1,
+                                               "07 FA61FF7F FFFFFF"          },
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,  -840,     0,
+      "1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335312D 31343A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,     0,     1,
+                                               "05 80000000 00"              },
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,     0,     0,
+      "1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131322B 30303A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,  1439,     1,
+                                               "07 059F8000 000000"          },
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,   840,     0,
+      "1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131322B 31343A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  112, -1439,     1,
+                                               "07 FA618000 000000"          },
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,  -840,     0,
+      "1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131322D 31343A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,     0,     1,
+                                               "06 FF7FFFFF FFFF"            },
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,     0,     0,
+      "1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131312B 30303A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,  1439,     1,
+                                               "08 059FFF7F FFFFFFFF"        },
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,   840,     0,
+      "1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131312B 31343A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  111, -1439,     1,
+                                               "08 FA61FF7F FFFFFFFF"        },
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,  -840,     0,
+      "1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131312D 31343A30 30" },
+
+  {   L_,    1,   1,   1,    0,    0,   0,    0,     0,     1,
+                                               "06 C60D8F6C 4000"            },
+  {   L_,    1,   1,   1,    0,    0,   0,    0,     0,     0,
+      "1D 30303031 2d30312d 30315430 303A3030 3A30302E 3030302B 30303A30 30" },
+
+  {   L_,    1,   1,   1,    0,    0,   0,    0,  1439,     1,
+                                               "08 059FC60D 8F6C4000"        },
+  {   L_,    1,   1,   1,    0,    0,   0,    0,   840,     0,
+      "1D 30303031 2d30312d 30315430 303A3030 3A30302E 3030302B 31343A30 30" },
+
+  {   L_,    1,   1,   1,    0,    0,   0,    0, -1439,     1,
+                                               "08 FA61C60D 8F6C4000"        },
+  {   L_,    1,   1,   1,    0,    0,   0,    0,  -840,     0,
+      "1D 30303031 2d30312d 30315430 303A3030 3A30302E 3030302D 31343A30 30" },
+
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,     0,     1,
+                                               "09 000000E5 0873B8F3 FF"     },
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,     0,     0,
+      "1D 39393939 2d31322d 33315432 333A3539 3A35392E 3939392B 30303A30 30" },
+
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,  1439,     1,
+                                               "09 059F00E5 0873B8F3 FF"     },
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,   840,     0,
+      "1D 39393939 2d31322d 33315432 333A3539 3A35392E 3939392B 31343A30 30" },
+
+  {   L_, 9999,  12,  31,   23,   59,  59,  999, -1439,     1,
+                                               "09 FA6100E5 0873B8F3 FF"     },
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,  -840,     0,
+      "1D 39393939 2d31322d 33315432 333A3539 3A35392E 3939392D 31343A30 30" },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   YEAR  = DATA[i].d_year;
+                const int   MONTH = DATA[i].d_month;
+                const int   DAY   = DATA[i].d_day;
+                const int   HOUR  = DATA[i].d_hour;
+                const int   MIN   = DATA[i].d_min;
+                const int   SECS  = DATA[i].d_sec;
+                const int   MSEC  = DATA[i].d_milliSec;
+                const int   OFF   = DATA[i].d_offset;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                                                              MONTH,
+                                                              DAY));
+
+                if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF)
+                                   P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_DatetimeTz VALUE(bdet_Datetime(YEAR, MONTH, DAY,
+                                                          HOUR, MIN, SECS,
+                                                          MSEC),
+                                            OFF);
+
+                bdesb_MemOutStreamBuf osb;
+                ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+
+                bdet_DatetimeTz value;
+                int numBytesConsumed = 0;
+
+                bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                ASSERT(SUCCESS == Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+                ASSERT(0   == isb.length());
+                ASSERT(LEN == numBytesConsumed);
+                LOOP2_ASSERT(VALUE, value, VALUE == value);
+            }
+        }
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING BRUTE FORCE 'putValue'/'getValue' for date/time components
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout
+                            << "\nTESTING 'putValue', 'getValue' for date/time"
+                            << "\n============================================"
+                            << bsl::endl;
+
+        bdem_BerEncoderOptions options;
+        options.setEncodeDateAndTimeTypesAsBinary(true);
+        const bdem_BerEncoderOptions DEFOPTS;
+
+        if (verbose) bsl::cout << "\nTesting Date Brute force." << bsl::endl;
+        {
+            const int YEARS[] = { 1, 4, 96, 100, 400, 500, 800, 1000, 1600,
+                                  1700, 1751, 1752, 1753, 1930, 2000, 2010,
+                                  2012, 2019, 2020, 2021, 6478, 6479, 6480,
+                                  9998, 9999 };
+            const int NUM_YEARS = sizeof YEARS / sizeof *YEARS;
+
+            const int MONTHS[] = { 1, 2, 5, 8, 9, 12 };
+            const int NUM_MONTHS = sizeof MONTHS / sizeof *MONTHS;
+
+            const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
+            const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
+
+            for (int i = 0; i <= NUM_YEARS; ++i) {
+            for (int j = 0; j <= NUM_MONTHS; ++j) {
+            for (int k = 0; k <= NUM_DAYS; ++k) {
+
+                const int YEAR  = YEARS[i];
+                const int MONTH = MONTHS[j];
+                const int DAY   = DAYS[k];
+
+                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                 && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
+
+                    if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
+
+                    const bdet_Date VALUE(YEAR, MONTH, DAY);
+                    bdet_Date value;
+
+                    const int OFF1 = 0, OFF2 = -840, OFF3 = 840;
+                    const bdet_DateTz VALUE1(bdet_Date(YEAR, MONTH, DAY),
+                                             OFF1);
+                    const bdet_DateTz VALUE2(bdet_Date(YEAR, MONTH, DAY),
+                                             OFF2);
+                    const bdet_DateTz VALUE3(bdet_Date(YEAR, MONTH, DAY),
+                                             OFF3);
+                    bdet_DateTz value1, value2, value3;
+
+                    {
+                        bdesb_MemOutStreamBuf osb;
+                        ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                        const int LENGTH = osb.length();
+
+                        if (veryVerbose) {
+                            cout << "Output Buffer:";
+                            printBuffer(osb.data(), osb.length());
+                        }
+                        int numBytesConsumed = 0;
+
+                        bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                      osb.length());
+                        ASSERT(SUCCESS == Util::getValue(&isb,
+                                                         &value,
+                                                         &numBytesConsumed));
+                        ASSERT(0      == isb.length());
+                        ASSERT(LENGTH == numBytesConsumed);
+                        LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    }
+
+                    {
+                        bdesb_MemOutStreamBuf osb;
+                        ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                        const int LENGTH = osb.length();
+
+                        if (veryVerbose) {
+                            cout << "Output Buffer:";
+                            printBuffer(osb.data(), osb.length());
+                        }
+                        int numBytesConsumed = 0;
+
+                        bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                      osb.length());
+                        ASSERT(SUCCESS == Util::getValue(&isb,
+                                                         &value,
+                                                         &numBytesConsumed));
+                        ASSERT(0      == isb.length());
+                        ASSERT(LENGTH == numBytesConsumed);
+                        LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    }
+
+                    {
+                        bdesb_MemOutStreamBuf osb1, osb2, osb3;
+
+                        ASSERT(0 == Util::putValue(&osb1, VALUE1, &options));
+                        const int LENGTH1 = osb1.length();
+
+                        ASSERT(0 == Util::putValue(&osb2, VALUE2, &options));
+                        const int LENGTH2 = osb2.length();
+
+                        ASSERT(0 == Util::putValue(&osb3, VALUE3, &options));
+                        const int LENGTH3 = osb3.length();
+
+                        if (veryVerbose) {
+                            cout << "Output Buffer:";
+                            printBuffer(osb1.data(), osb1.length());
+                            printBuffer(osb2.data(), osb2.length());
+                            printBuffer(osb3.data(), osb3.length());
+                        }
+                        int nbc1 = 0, nbc2 = 0, nbc3 = 0;
+
+                        bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                       osb1.length());
+                        bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                       osb2.length());
+                        bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                       osb3.length());
+
+                        ASSERT(SUCCESS == Util::getValue(&isb1,
+                                                         &value1,
+                                                         &nbc1));
+                        ASSERT(SUCCESS == Util::getValue(&isb2,
+                                                         &value2,
+                                                         &nbc2));
+                        ASSERT(SUCCESS == Util::getValue(&isb3,
+                                                         &value3,
+                                                         &nbc3));
+
+                        ASSERT(0       == isb1.length());
+                        ASSERT(0       == isb2.length());
+                        ASSERT(0       == isb3.length());
+
+                        ASSERT(LENGTH1 == nbc1);
+                        ASSERT(LENGTH2 == nbc2);
+                        ASSERT(LENGTH3 == nbc3);
+
+                        LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                        LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                        LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                    }
+
+                    {
+                        bdesb_MemOutStreamBuf osb1, osb2, osb3;
+
+                        ASSERT(0 == Util::putValue(&osb1, VALUE1, &DEFOPTS));
+                        const int LENGTH1 = osb1.length();
+
+                        ASSERT(0 == Util::putValue(&osb2, VALUE2, &DEFOPTS));
+                        const int LENGTH2 = osb2.length();
+
+                        ASSERT(0 == Util::putValue(&osb3, VALUE3, &DEFOPTS));
+                        const int LENGTH3 = osb3.length();
+
+                        if (veryVerbose) {
+                            cout << "Output Buffer:";
+                            printBuffer(osb1.data(), osb1.length());
+                            printBuffer(osb2.data(), osb2.length());
+                            printBuffer(osb3.data(), osb3.length());
+                        }
+                        int nbc1 = 0, nbc2 = 0, nbc3 = 0;
+
+                        bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                       osb1.length());
+                        bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                       osb2.length());
+                        bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                       osb3.length());
+
+                        ASSERT(SUCCESS == Util::getValue(&isb1,
+                                                         &value1,
+                                                         &nbc1));
+                        ASSERT(SUCCESS == Util::getValue(&isb2,
+                                                         &value2,
+                                                         &nbc2));
+                        ASSERT(SUCCESS == Util::getValue(&isb3,
+                                                         &value3,
+                                                         &nbc3));
+
+                        ASSERT(0       == isb1.length());
+                        ASSERT(0       == isb2.length());
+                        ASSERT(0       == isb3.length());
+
+                        ASSERT(LENGTH1 == nbc1);
+                        ASSERT(LENGTH2 == nbc2);
+                        ASSERT(LENGTH3 == nbc3);
+
+                        LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                        LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                        LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                    }
+                }
+            }
+            }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting Time Brute force." << bsl::endl;
+        {
+            for (int hour = 0; hour <= 23; ++hour) {
+                for (int min = 0; min < 60; ++min) {
+                    for (int sec = 0; sec < 60; ++sec) {
+
+                        if (veryVerbose) { P_(hour) P_(min) P(sec) }
+
+                        const int MS1 = 0, MS2 = 500, MS3 = 999;
+                        const int OFF1 = 0, OFF2 = -840, OFF3 = 840;
+                        const bdet_TimeTz VALUE1(bdet_Time(hour,
+                                                           min,
+                                                           sec,
+                                                           MS1),
+                                                 OFF1);
+                        const bdet_TimeTz VALUE2(bdet_Time(hour,
+                                                           min,
+                                                           sec,
+                                                           MS2),
+                                                 OFF2);
+                        const bdet_TimeTz VALUE3(bdet_Time(hour,
+                                                           min,
+                                                           sec,
+                                                           MS3),
+                                                 OFF3);
+                        bdet_TimeTz value1, value2, value3;
+
+                        {
+                            const int MS = 0;
+                            const bdet_Time VALUE(hour, min, sec, MS);
+                            bdet_Time value;
+
+                            bdesb_MemOutStreamBuf osb;
+                            ASSERT(0 == Util::putValue(&osb,
+                                                       VALUE,
+                                                       &options));
+                            const int LENGTH = osb.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb.data(), osb.length());
+                            }
+                            int numBytesConsumed = 0;
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &value,
+                                                           &numBytesConsumed));
+                            ASSERT(0      == isb.length());
+                            ASSERT(LENGTH == numBytesConsumed);
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        }
+
+                        {
+                            const int MS = 999;
+                            const bdet_Time VALUE(hour, min, sec, MS);
+                            bdet_Time value;
+
+                            bdesb_MemOutStreamBuf osb;
+                            ASSERT(0 == Util::putValue(&osb,
+                                                       VALUE,
+                                                       &options));
+                            const int LENGTH = osb.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb.data(), osb.length());
+                            }
+                            int numBytesConsumed = 0;
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &value,
+                                                           &numBytesConsumed));
+                            ASSERT(0      == isb.length());
+                            ASSERT(LENGTH == numBytesConsumed);
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+
+                            ASSERT(0 == Util::putValue(&osb1,
+                                                       VALUE1,
+                                                       &options));
+                            const int LENGTH1 = osb1.length();
+
+                            ASSERT(0 == Util::putValue(&osb2,
+                                                       VALUE2,
+                                                       &options));
+                            const int LENGTH2 = osb2.length();
+
+                            ASSERT(0 == Util::putValue(&osb3,
+                                                       VALUE3,
+                                                       &options));
+                            const int LENGTH3 = osb3.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+                            int nbc1 = 0, nbc2 = 0, nbc3 = 0;
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(SUCCESS == Util::getValue(&isb1,
+                                                             &value1,
+                                                             &nbc1));
+                            ASSERT(SUCCESS == Util::getValue(&isb2,
+                                                             &value2,
+                                                             &nbc2));
+                            ASSERT(SUCCESS == Util::getValue(&isb3,
+                                                             &value3,
+                                                             &nbc3));
+
+                            ASSERT(0       == isb1.length());
+                            ASSERT(0       == isb2.length());
+                            ASSERT(0       == isb3.length());
+
+                            ASSERT(LENGTH1 == nbc1);
+                            ASSERT(LENGTH2 == nbc2);
+                            ASSERT(LENGTH3 == nbc3);
+
+                            LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                            LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                            LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                        }
+
+                        {
+                            const int MS = 0;
+                            const bdet_Time VALUE(hour, min, sec, MS);
+                            bdet_Time value;
+
+                            bdesb_MemOutStreamBuf osb;
+                            ASSERT(0 == Util::putValue(&osb,
+                                                       VALUE,
+                                                       &DEFOPTS));
+                            const int LENGTH = osb.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb.data(), osb.length());
+                            }
+                            int numBytesConsumed = 0;
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &value,
+                                                           &numBytesConsumed));
+                            ASSERT(0      == isb.length());
+                            ASSERT(LENGTH == numBytesConsumed);
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        }
+
+                        {
+                            const int MS = 999;
+                            const bdet_Time VALUE(hour, min, sec, MS);
+                            bdet_Time value;
+
+                            bdesb_MemOutStreamBuf osb;
+                            ASSERT(0 == Util::putValue(&osb,
+                                                       VALUE,
+                                                       &DEFOPTS));
+                            const int LENGTH = osb.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb.data(), osb.length());
+                            }
+                            int numBytesConsumed = 0;
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &value,
+                                                           &numBytesConsumed));
+                            ASSERT(0      == isb.length());
+                            ASSERT(LENGTH == numBytesConsumed);
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+
+                            ASSERT(0 == Util::putValue(&osb1,
+                                                       VALUE1,
+                                                       &DEFOPTS));
+                            const int LENGTH1 = osb1.length();
+
+                            ASSERT(0 == Util::putValue(&osb2,
+                                                       VALUE2,
+                                                       &DEFOPTS));
+                            const int LENGTH2 = osb2.length();
+
+                            ASSERT(0 == Util::putValue(&osb3,
+                                                       VALUE3,
+                                                       &DEFOPTS));
+                            const int LENGTH3 = osb3.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+                            int nbc1 = 0, nbc2 = 0, nbc3 = 0;
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(SUCCESS == Util::getValue(&isb1,
+                                                             &value1,
+                                                             &nbc1));
+                            ASSERT(SUCCESS == Util::getValue(&isb2,
+                                                             &value2,
+                                                             &nbc2));
+                            ASSERT(SUCCESS == Util::getValue(&isb3,
+                                                             &value3,
+                                                             &nbc3));
+
+                            ASSERT(0       == isb1.length());
+                            ASSERT(0       == isb2.length());
+                            ASSERT(0       == isb3.length());
+
+                            ASSERT(LENGTH1 == nbc1);
+                            ASSERT(LENGTH2 == nbc2);
+                            ASSERT(LENGTH3 == nbc3);
+
+                            LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                            LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                            LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting Datetime Brute force."
+                               << bsl::endl;
+        {
+            const int YEARS[] = { 1, 4, 96, 100, 400, 500, 800, 1000, 1600,
+                                  1700, 1751, 1752, 1753, 1930, 2000, 2010,
+                                  2012, 2019, 2020, 2021, 6478, 6479, 6480,
+                                  9998, 9999 };
+            const int NUM_YEARS = sizeof YEARS / sizeof *YEARS;
+
+            const int MONTHS[] = { 1, 2, 5, 8, 9, 12 };
+            const int NUM_MONTHS = sizeof MONTHS / sizeof *MONTHS;
+
+            const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
+            const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
+
+            for (int di = 0; di <= NUM_YEARS; ++di) {
+            for (int dj = 0; dj <= NUM_MONTHS; ++dj) {
+            for (int dk = 0; dk <= NUM_DAYS; ++dk) {
+
+                const int YEAR  = YEARS[di];
+                const int MONTH = MONTHS[dj];
+                const int DAY   = DAYS[dk];
+
+                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                 && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
+
+                    const int HOURS[] = { 0, 12, 23 };
+                    const int NUM_HOURS = sizeof HOURS / sizeof *HOURS;
+
+                    const int MINS[] = { 0, 30, 59 };
+                    const int NUM_MINS = sizeof MINS / sizeof *MINS;
+
+                    const int SECONDS[] = { 0, 30, 59 };
+                    const int NUM_SECS = sizeof SECONDS / sizeof *SECONDS;
+
+                    for (int ti = 0; ti < NUM_HOURS; ++ti) {
+                    for (int tj = 0; tj < NUM_MINS; ++tj) {
+                    for (int tk = 0; tk < NUM_SECS; ++tk) {
+
+                        const int HOUR = HOURS[ti];
+                        const int MIN  = MINS[tj];
+                        const int SECS = SECONDS[tk];
+
+                        if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
+                        if (veryVerbose) { P_(HOUR) P_(MIN) P(SECS) }
+
+                        const int MS = 0;
+                        const bdet_Date DATE(YEAR, MONTH, DAY);
+                        const bdet_Time TIME(HOUR, MIN, SECS, MS);
+                        const bdet_Datetime VALUE(DATE, TIME);
+                        bdet_Datetime value;
+
+                        const int MS1 = 0, MS2 = 500, MS3 = 999;
+                        const int OFF1 = 0, OFF2 = -840, OFF3 = 840;
+                        const bdet_Date DATE1(YEAR, MONTH, DAY);
+                        const bdet_Time TIME1(HOUR, MIN, SECS, MS1);
+
+                        const bdet_Date DATE2(YEAR, MONTH, DAY);
+                        const bdet_Time TIME2(HOUR, MIN, SECS, MS2);
+
+                        const bdet_Date DATE3(YEAR, MONTH, DAY);
+                        const bdet_Time TIME3(HOUR, MIN, SECS, MS3);
+
+                        const bdet_Datetime DT1(DATE1, TIME1);
+                        const bdet_Datetime DT2(DATE2, TIME2);
+                        const bdet_Datetime DT3(DATE3, TIME3);
+
+                        const bdet_DatetimeTz VALUE1(DT1, OFF1);
+                        const bdet_DatetimeTz VALUE2(DT2, OFF2);
+                        const bdet_DatetimeTz VALUE3(DT3, OFF3);
+
+                        bdet_DatetimeTz value1, value2, value3;
+
+                        {
+                            bdesb_MemOutStreamBuf osb;
+                            ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                            const int LENGTH = osb.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb.data(), osb.length());
+                            }
+                            int numBytesConsumed = 0;
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &value,
+                                                           &numBytesConsumed));
+                            ASSERT(0      == isb.length());
+                            ASSERT(LENGTH == numBytesConsumed);
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+
+                            ASSERT(0 == Util::putValue(&osb1,
+                                                       VALUE1,
+                                                       &options));
+                            const int LENGTH1 = osb1.length();
+
+                            ASSERT(0 == Util::putValue(&osb2,
+                                                       VALUE2,
+                                                       &options));
+                            const int LENGTH2 = osb2.length();
+
+                            ASSERT(0 == Util::putValue(&osb3,
+                                                       VALUE3,
+                                                       &options));
+                            const int LENGTH3 = osb3.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+                            int nbc1 = 0, nbc2 = 0, nbc3 = 0;
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(SUCCESS == Util::getValue(&isb1,
+                                                             &value1,
+                                                             &nbc1));
+                            ASSERT(SUCCESS == Util::getValue(&isb2,
+                                                             &value2,
+                                                             &nbc2));
+                            ASSERT(SUCCESS == Util::getValue(&isb3,
+                                                             &value3,
+                                                             &nbc3));
+
+                            ASSERT(0       == isb1.length());
+                            ASSERT(0       == isb2.length());
+                            ASSERT(0       == isb3.length());
+
+                            ASSERT(LENGTH1 == nbc1);
+                            ASSERT(LENGTH2 == nbc2);
+                            ASSERT(LENGTH3 == nbc3);
+
+                            LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                            LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                            LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb;
+                            ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                            const int LENGTH = osb.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb.data(), osb.length());
+                            }
+                            int numBytesConsumed = 0;
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(SUCCESS == Util::getValue(
+                                                           &isb,
+                                                           &value,
+                                                           &numBytesConsumed));
+                            ASSERT(0      == isb.length());
+                            ASSERT(LENGTH == numBytesConsumed);
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+
+                            ASSERT(0 == Util::putValue(&osb1,
+                                                       VALUE1,
+                                                       &DEFOPTS));
+                            const int LENGTH1 = osb1.length();
+
+                            ASSERT(0 == Util::putValue(&osb2,
+                                                       VALUE2,
+                                                       &DEFOPTS));
+                            const int LENGTH2 = osb2.length();
+
+                            ASSERT(0 == Util::putValue(&osb3,
+                                                       VALUE3,
+                                                       &DEFOPTS));
+                            const int LENGTH3 = osb3.length();
+
+                            if (veryVerbose) {
+                                cout << "Output Buffer:";
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+                            int nbc1 = 0, nbc2 = 0, nbc3 = 0;
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(SUCCESS == Util::getValue(&isb1,
+                                                             &value1,
+                                                             &nbc1));
+                            ASSERT(SUCCESS == Util::getValue(&isb2,
+                                                             &value2,
+                                                             &nbc2));
+                            ASSERT(SUCCESS == Util::getValue(&isb3,
+                                                             &value3,
+                                                             &nbc3));
+
+                            ASSERT(0       == isb1.length());
+                            ASSERT(0       == isb2.length());
+                            ASSERT(0       == isb3.length());
+
+                            ASSERT(LENGTH1 == nbc1);
+                            ASSERT(LENGTH2 == nbc2);
+                            ASSERT(LENGTH3 == nbc3);
+
+                            LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                            LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                            LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                        }
+                    }
+                    }
+                    }
+                }
+            }
+            }
+            }
+        }
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING 'putValue' & 'getValue' for date/time components
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout
+                            << "\nTESTING 'putValue', 'getValue' for date/time"
+                            << "\n============================================"
+                            << bsl::endl;
+
+        bdem_BerEncoderOptions options;
+        options.setEncodeDateAndTimeTypesAsBinary(true);
+        const bdem_BerEncoderOptions DEFOPTS;
+
+        if (verbose) bsl::cout << "\nDefine data" << bsl::endl;
+
+        static const struct {
+            int d_lineNum;   // source line number
+            int d_year;      // year under test
+            int d_month;     // month under test
+            int d_day;       // day under test
+            int d_hour;      // hour under test
+            int d_minutes;   // minutes under test
+            int d_seconds;   // seconds under test
+            int d_milliSecs; // milli seconds under test
+            int d_tzoffset;  // time zone offset
+        } DATA[] = {
+   //line no.  year   month   day   hour    min   sec    ms  offset
+   //-------   -----  -----   ---   ----    ---   ---    --  ------
+    {      L_,      1,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,     45     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,   -840     },
+
+    {      L_,      1,     1,    1,     1,     1,    1,    1,      0     },
+    {      L_,      1,     1,    1,     1,     1,    1,    1,    500     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,   -840     },
+
+    {      L_,      1,     1,    1,     1,    23,   59,   59,      0     },
+    {      L_,      1,     1,    1,     1,    23,   59,   59,    840     },
+    {      L_,      1,     1,    1,     1,    23,   59,   59,   -840     },
+
+    {      L_,      1,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,    2,     0,     0,    0,    0,    840     },
+    {      L_,      1,     1,    2,     0,     0,    0,    0,   -840     },
+
+    {      L_,      1,     1,    2,     1,     1,    1,    1,      0     },
+    {      L_,      1,     1,    2,     1,     1,    1,    1,    500     },
+
+    {      L_,      1,     1,    2,     1,    23,   59,   59,      0     },
+    {      L_,      1,     1,    2,     1,    23,   59,   59,    500     },
+    {      L_,      1,     1,    2,     1,    23,   59,   59,   -500     },
+
+    {      L_,      1,     1,   10,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,   10,     1,     1,    1,    1,     99     },
+
+    {      L_,      1,     1,   30,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,   31,     0,     0,    0,    0,    840     },
+    {      L_,      1,     1,   31,     0,     0,    0,    0,   -840     },
+
+    {      L_,      1,     2,    1,     0,     0,    0,    0,      0     },
+    {      L_,      1,     2,    1,    23,    59,   59,    0,    840     },
+
+    {      L_,      1,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,      1,    12,   31,    23,    59,   59,    0,    840     },
+
+    {      L_,      2,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      2,     1,    1,    23,    59,   59,    0,    840     },
+
+    {      L_,      4,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      4,     1,    1,    23,    59,   59,    0,    840     },
+
+    {      L_,      4,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,      4,     2,   28,    23,    59,   59,    0,    840     },
+    {      L_,      4,     2,   28,    23,    59,   59,    0,   -840     },
+
+    {      L_,      4,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,      4,     2,   29,    23,    59,   59,    0,    840     },
+    {      L_,      4,     2,   29,    23,    59,   59,    0,   -840     },
+
+    {      L_,      4,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,      4,     3,    1,    23,    59,   59,    0,    840     },
+    {      L_,      4,     3,    1,    23,    59,   59,    0,   -840     },
+
+    {      L_,      8,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,      8,     2,   28,    23,    59,   59,    0,    840     },
+
+    {      L_,      8,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,      8,     2,   29,    23,    59,   59,    0,    840     },
+
+    {      L_,      8,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,      8,     3,    1,    23,    59,   59,    0,    840     },
+
+    {      L_,    100,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    100,     2,   28,    23,    59,   59,    0,    840     },
+    {      L_,    100,     2,   28,    23,    59,   59,    0,   -840     },
+
+    {      L_,    100,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    100,     3,    1,    23,    59,   59,    0,    840     },
+    {      L_,    100,     3,    1,    23,    59,   59,    0,   -840     },
+
+    {      L_,    400,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    400,     2,   28,    23,    59,   59,    0,    840     },
+    {      L_,    400,     2,   28,    23,    59,   59,    0,   -840     },
+
+    {      L_,    400,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,    400,     2,   29,    23,    59,   59,    0,    840     },
+    {      L_,    400,     2,   29,    23,    59,   59,    0,   -840     },
+
+    {      L_,    400,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    400,     3,    1,    23,    59,   59,    0,    840     },
+    {      L_,    400,     3,    1,    23,    59,   59,    0,   -840     },
+
+    {      L_,    500,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    500,     2,   28,    23,    59,   59,    0,    840     },
+
+    {      L_,    500,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    500,     3,    1,    23,    59,   59,    0,    840     },
+
+    {      L_,    800,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    800,     2,   28,    23,    59,   59,    0,    840     },
+
+    {      L_,    800,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,    800,     2,   29,    23,    59,   59,    0,    840     },
+
+    {      L_,    800,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    800,     3,    1,    23,    59,   59,    0,    840     },
+
+    {      L_,   1000,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   1000,     2,   28,    23,    59,   59,    0,    840     },
+
+    {      L_,   1000,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   1000,     3,    1,    23,    59,   59,    0,    840     },
+
+    {      L_,   2000,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     2,   28,    23,    59,   59,    0,    840     },
+
+    {      L_,   2000,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     2,   29,    23,    59,   59,    0,    840     },
+
+    {      L_,   2000,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     3,    1,    23,    59,   59,    0,    840     },
+
+    {      L_,   2016,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2017,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2018,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2019,    12,   31,     0,     0,    0,    0,      0     },
+
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,    840     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,   -840     },
+
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,      0     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,    840     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,   -840     },
+
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,    840     },
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,   -840     },
+
+    {      L_,   2020,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     2,   28,    23,    59,   59,    0,    840     },
+    {      L_,   2020,     2,   28,    23,    59,   59,    0,   -840     },
+
+    {      L_,   2020,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     2,   29,    23,    59,   59,    0,    840     },
+    {      L_,   2020,     2,   29,    23,    59,   59,    0,   -840     },
+
+    {      L_,   2020,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     3,    1,    23,    59,   59,    0,    840     },
+    {      L_,   2020,     3,    1,    23,    59,   59,    0,   -840     },
+
+    {      L_,   2021,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,   2022,     1,    2,     0,     0,    0,    0,      0     },
+
+    {      L_,   9999,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   9999,     2,   28,    23,    59,   59,    0,    840     },
+    {      L_,   9999,     2,   28,    23,    59,   59,    0,   -840     },
+
+    {      L_,   9999,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   9999,     3,    1,    23,    59,   59,    0,    840     },
+    {      L_,   9999,     3,    1,    23,    59,   59,    0,   -840     },
+
+    {      L_,   9999,    12,   30,     0,     0,    0,    0,      0     },
+    {      L_,   9999,    12,   30,    23,    59,   59,    0,    840     },
+
+    {      L_,   9999,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   9999,    12,   31,    23,    59,   59,    0,    840     },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
+        {
+            typedef bdet_Date Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+
+                const Type VALUE(Y, M, D); Type value;
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0      == isb.length());
+                    ASSERT(LENGTH == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0      == isb.length());
+                    ASSERT(LENGTH == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_DateTz'." << bsl::endl;
+        {
+            typedef bdet_DateTz Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+                const int OFF  = DATA[i].d_tzoffset;
+
+                const Type VALUE(bdet_Date(Y, M, D), OFF); Type value;
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Time'." << bsl::endl;
+        {
+            typedef bdet_Time Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+
+                const Type VALUE(H, MM, S, MS); Type value;
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_TimeTz'." << bsl::endl;
+        {
+            typedef bdet_TimeTz Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+                const int OFF  = DATA[i].d_tzoffset;
+
+                const Type VALUE(bdet_Time(H, MM, S, MS), OFF); Type value;
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Datetime'." << bsl::endl;
+        {
+            typedef bdet_Datetime Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+
+                const Type VALUE(Y, M, D, H, MM, S, MS); Type value;
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_DatetimeTz'." << bsl::endl;
+        {
+            typedef bdet_DatetimeTz Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+                const int OFF  = DATA[i].d_tzoffset;
+
+                const Type VALUE(bdet_Datetime(Y, M, D, H, MM, S, MS), OFF);
+                Type value;
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &options));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    ASSERT(0 == Util::putValue(&osb, VALUE, &DEFOPTS));
+                    const int LENGTH = osb.length();
+
+                    if (veryVerbose) {
+                        cout << "Output Buffer:";
+                        printBuffer(osb.data(), osb.length());
+                    }
+                    int numBytesConsumed = 0;
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(SUCCESS == Util::getValue(&isb,
+                                                     &value,
+                                                     &numBytesConsumed));
+                    ASSERT(0       == isb.length());
+                    ASSERT(LENGTH  == numBytesConsumed);
+                    LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
+                }
+            }
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -625,6 +3422,8 @@ int main(int argc, char *argv[])
                             << "\n============================================"
                             << bsl::endl;
 
+        bdem_BerEncoderOptions options;
+
         if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
         {
             typedef bdet_Date Type;
@@ -634,7 +3433,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
@@ -675,7 +3474,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
@@ -716,7 +3515,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
@@ -758,7 +3557,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
@@ -798,7 +3597,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 
@@ -839,7 +3638,7 @@ int main(int argc, char *argv[])
             const int   LENGTH = numOctets(EXP);
 
             bdesb_MemOutStreamBuf osb;
-            ASSERT(0      == Util::putValue(&osb, VALUE));
+            ASSERT(0      == Util::putValue(&osb, VALUE, &options));
             ASSERT(LENGTH == osb.length());
             ASSERT(0      == compareBuffers(osb.data(), EXP));
 

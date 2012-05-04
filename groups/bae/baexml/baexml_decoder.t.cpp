@@ -107,6 +107,7 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_typeinfo.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 
@@ -14378,8 +14379,6 @@ namespace bdeat_CustomizedTypeFunctions {
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test { class MySequenceWithAttributes; }
 namespace test { class Address; }

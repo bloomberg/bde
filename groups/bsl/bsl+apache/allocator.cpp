@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -285,7 +285,7 @@ _rw_check_leaks (int line, size_t expect_blocks, size_t expect_bytes)
 
 _TEST_EXPORT void
 rw_check_leaks (const SharedAlloc *palloc        /* =  0 */,
-                int                line          /* =  0 */, 
+                int                line          /* =  0 */,
                 size_t             expect_blocks /* =  0 */,
                 size_t             expect_bytes  /* = -1 */)
 {

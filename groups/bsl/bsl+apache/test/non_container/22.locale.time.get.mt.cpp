@@ -25,7 +25,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2002-2007 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 #include <ios>        // for ios
 #include <iterator>   // for ostreambuf_iterator
@@ -84,10 +84,10 @@ struct MyTimeData
     // the type specifier
     char format_;
 
-    // narrow representations of time_ given the 
+    // narrow representations of time_ given the
     // locale_name_ and the format_
     char ncs_ [BufferSize];
-    
+
 #ifndef _RWSTD_NO_WCHAR_T
 
     // wide representations of time_
@@ -182,7 +182,7 @@ thread_func (void*)
 
             nio.imbue (loc);
             nsb.pubsetg (data.ncs_, RW_COUNT_OF (data.ncs_));
-            
+
             const std::istreambuf_iterator<char> iter (&nsb);
             const std::istreambuf_iterator<char> end;
 
@@ -237,7 +237,7 @@ thread_func (void*)
             const std::istreambuf_iterator<wchar_t> end;
 
             std::memset (&local, 0, sizeof local);
-            
+
             switch (data.format_) {
             case 'X':
                 wg.get_time (iter, end, wio, state, &local);
@@ -344,7 +344,7 @@ run_test (int, char**)
             const std::time_put<char> &np =
                 std::use_facet<std::time_put<char> >(loc);
 
-            const std::time_get<char> &ng = 
+            const std::time_get<char> &ng =
                 std::use_facet<std::time_get<char> >(loc);
 
             std::ios::iostate state = std::ios::goodbit;

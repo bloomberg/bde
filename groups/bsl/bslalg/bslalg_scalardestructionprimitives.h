@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide primitive algorithms that destroy scalars.
 //
 //@CLASSES:
-//   bslalg_ScalarDestructionPrimitives: namespace for scalar algorithms
+//  bslalg::ScalarDestructionPrimitives: namespace for scalar algorithms
 //
 //@SEE_ALSO: bslalg_scalarprimitives, bslalg_typetraits
 //
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  Trait                             Note
 //  -------------------------------   -------------------------------------
-//  bslalg_TypeTraitBitwiseCopyable   Expressed in English as "TYPE has the
+//  bslalg::TypeTraitBitwiseCopyable  Expressed in English as "TYPE has the
 //                                    bit-wise copyable trait", or "TYPE is
 //                                    bit-wise copyable", this trait also
 //                                    implies that destructor calls can be
@@ -68,26 +68,28 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                  // =========================================
-                  // struct bslalg_ScalarDestructionPrimitives
-                  // =========================================
+namespace bslalg {
 
-struct bslalg_ScalarDestructionPrimitives {
+                  // ==================================
+                  // struct ScalarDestructionPrimitives
+                  // ==================================
+
+struct ScalarDestructionPrimitives {
     // This 'struct' provides a namespace for a suite of utility functions that
     // destroy elements of the parameterized type 'TARGET_TYPE'.  Depending on
-    // the traits of 'TARGET_TYPE', the destructor may be invoked or not
-    // (i.e., optimized away as a no-op).
+    // the traits of 'TARGET_TYPE', the destructor may be invoked or not (i.e.,
+    // optimized away as a no-op).
 
   private:
     // PRIVATE CLASS METHODS
     template <typename TARGET_TYPE>
-    static void destroy(TARGET_TYPE *address, bslmf_MetaInt<1>);
+    static void destroy(TARGET_TYPE *address, bslmf::MetaInt<1>);
     template <typename TARGET_TYPE>
-    static void destroy(TARGET_TYPE *address, bslmf_MetaInt<0>);
+    static void destroy(TARGET_TYPE *address, bslmf::MetaInt<0>);
         // Destroy the object of the parameterized 'TARGET_TYPE' at the
         // specified 'address' if the second argument is of type
-        // 'bslmf_MetaInt<0>', and do nothing otherwise.  This method is a
-        // no-op if the second argument is of type 'bslmf_MetaInt<1>',
+        // 'bslmf::MetaInt<0>', and do nothing otherwise.  This method is a
+        // no-op if the second argument is of type 'bslmf::MetaInt<1>',
         // indicating that the object at 'address' is bit-wise copyable.  Note
         // that the second argument is for overload resolution only and its
         // value is ignored.
@@ -97,26 +99,26 @@ struct bslalg_ScalarDestructionPrimitives {
     template <typename TARGET_TYPE>
     static void destroy(TARGET_TYPE *object);
         // Destroy the specified 'object' of the parameterized 'TARGET_TYPE',
-        // as if by calling the 'TARGET_TYPE' destructor, but do not
-        // deallocate the memory occupied by 'object'.  Note that the
-        // destructor may deallocate other memory owned by 'object'.  Also note
-        // that this function is a no-op if the 'TARGET_TYPE' has the trivial
-        // destructor trait.
+        // as if by calling the 'TARGET_TYPE' destructor, but do not deallocate
+        // the memory occupied by 'object'.  Note that the destructor may
+        // deallocate other memory owned by 'object'.  Also note that this
+        // function is a no-op if the 'TARGET_TYPE' has the trivial destructor
+        // trait.
 };
 
 // ===========================================================================
 //                  INLINE AND TEMPLATE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                  // -----------------------------------------
-                  // struct bslalg_ScalarDestructionPrimitives
-                  // -----------------------------------------
+                  // ----------------------------------
+                  // struct ScalarDestructionPrimitives
+                  // ----------------------------------
 
 // PRIVATE CLASS METHODS
 template <typename TARGET_TYPE>
 inline
-void bslalg_ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
-                                                 bslmf_MetaInt<1>)
+void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
+                                          bslmf::MetaInt<1>)
 {
     // No-op.
 
@@ -127,14 +129,19 @@ void bslalg_ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
 #endif
 }
 
+}  // close package namespace
+
 #ifdef BSLS_PLATFORM__CMP_MSVC
 #pragma warning( push )           //  For some reason, VC2008 does not detect
 #pragma warning( disable : 4100 ) //  that 'address' is used.
 #endif
+
+namespace bslalg {
+
 template <typename TARGET_TYPE>
 inline
-void bslalg_ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
-                                                 bslmf_MetaInt<0>)
+void ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
+                                          bslmf::MetaInt<0>)
 {
 #ifndef BSLS_PLATFORM__CMP_SUN
     address->~TARGET_TYPE();
@@ -142,28 +149,41 @@ void bslalg_ScalarDestructionPrimitives::destroy(TARGET_TYPE       *address,
     // Workaround for a bug in Sun's CC whereby destructors cannot be called on
     // 'const' objects of polymorphic types.
 
-    typedef bslmf_RemoveCvq<TARGET_TYPE>::Type NoCvqType;
+    typedef bslmf::RemoveCvq<TARGET_TYPE>::Type NoCvqType;
     const_cast<NoCvqType *>(address)->~NoCvqType();
 #endif
 }
+
+}  // close package namespace
+
 #ifdef BSLS_PLATFORM__CMP_MSVC
 #pragma warning( pop )
 #endif
 
+namespace bslalg {
+
 // CLASS METHODS
 template <typename TARGET_TYPE>
 inline
-void bslalg_ScalarDestructionPrimitives::destroy(TARGET_TYPE *object)
+void ScalarDestructionPrimitives::destroy(TARGET_TYPE *object)
 {
     BSLS_ASSERT_SAFE(object);
 
-    typedef typename bslalg_HasTrait<
-                                  TARGET_TYPE,
-                                  bslalg_TypeTraitBitwiseCopyable>::Type Trait;
+    typedef typename HasTrait<TARGET_TYPE,
+                              TypeTraitBitwiseCopyable>::Type Trait;
     destroy(object, Trait());
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::ScalarDestructionPrimitives bslalg_ScalarDestructionPrimitives;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 
