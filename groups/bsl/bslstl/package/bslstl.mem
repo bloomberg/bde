@@ -20,6 +20,7 @@ bslstl_set
 bslstl_setcomparator
 bslstl_simplepool
 bslstl_stdexceptutil
+bslstl_stack
 bslstl_string
 bslstl_stringref
 bslstl_stringrefdata
