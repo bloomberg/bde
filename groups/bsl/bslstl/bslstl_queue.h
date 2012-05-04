@@ -391,8 +391,7 @@ queue<VALUE, CONTAINER>&
 queue<VALUE, CONTAINER>::operator=(const queue& rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
-        queue other(rhs);
-        this->swap(other);
+        c = rhs.c;
     }
     return *this;
 }
@@ -635,8 +634,8 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::operator=(
                                                      const priority_queue& rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
-        priority_queue other(rhs);
-        this->swap(other);
+        c    = rhs.c;
+        comp = rhs.comp;
     }
     return *this;
 }
