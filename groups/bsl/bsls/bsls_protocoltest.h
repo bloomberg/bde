@@ -18,10 +18,7 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alexei Zakharov (azakharov7)
 //
-//@DESCRIPTION:  THIS COMPONENT SHOULD *NOT* BE USED OUTSIDE OF THE BDE
-// LIBRARIES AT THIS TIME.
-//
-// This component provides classes and macros that simplify the
+//@DESCRIPTION: This component provides classes and macros that simplify the
 // creation of test drivers for protocol (i.e., pure abstract interface)
 // classes.
 //
