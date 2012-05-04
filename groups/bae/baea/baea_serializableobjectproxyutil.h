@@ -137,7 +137,7 @@ BDES_IDENT_PRAGMA_ONCE
 //
 // baea::SerializableObjectProxy encodeProxy;
 // baea::SerializableObjectProxyUtil::makeEncodeProxy(&encodeProxy,
-//                                                      &message1);
+//                                                    &message1);
 // bdesb_MemOutStreamBuf osb;
 // encoder.encode(&osb, encodeProxy);
 //
@@ -412,11 +412,12 @@ class SerializableObjectProxyUtil_ChoiceManipulatorProxy {
     const bdeat_SelectionInfo *d_selectionInfo_p; // info for current selection
 
   public:
-    SerializableObjectProxyUtil_ChoiceManipulatorProxy(
+    explicit SerializableObjectProxyUtil_ChoiceManipulatorProxy(
                                                 SerializableObjectProxy* proxy)
     : d_proxy_p(proxy)
     , d_selectionInfo_p(0)
-    {}
+    {
+    }
 
     template <typename TYPE>
     int operator()(const TYPE& object, const bdeat_SelectionInfo& info);
@@ -450,7 +451,8 @@ class SerializableObjectProxyUtil_ChoiceAccessorProxy {
     : d_proxy_p(proxy)
     , d_selectionId(selectionId)
     , d_className(className)
-    {}
+    {
+    }
 
     template <typename TYPE>
     int operator()(const TYPE& object, const bdeat_SelectionInfo& info);
@@ -532,10 +534,11 @@ class SerializableObjectProxyUtil_SequenceAccessorProxy
     SerializableObjectProxy *d_proxy_p; // held
 
   public:
-    SerializableObjectProxyUtil_SequenceAccessorProxy(
+    explicit SerializableObjectProxyUtil_SequenceAccessorProxy(
                                          SerializableObjectProxy* proxy)
     : d_proxy_p(proxy)
-    {}
+    {
+    }
 
     template <typename TYPE>
     int operator()(const TYPE& object, const bdeat_AttributeInfo&);
@@ -551,10 +554,11 @@ class SerializableObjectProxyUtil_SequenceManipulatorProxy
     SerializableObjectProxy *d_proxy_p; // held
 
   public:
-    SerializableObjectProxyUtil_SequenceManipulatorProxy(
+    explicit SerializableObjectProxyUtil_SequenceManipulatorProxy(
                                           SerializableObjectProxy* proxy)
     : d_proxy_p(proxy)
-    {}
+    {
+    }
 
     template <typename TYPE>
     int operator()(const TYPE& object, const bdeat_AttributeInfo&);

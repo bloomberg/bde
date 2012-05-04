@@ -606,51 +606,6 @@ void* nullableValueFetcher(void *object)
     return &nullableValue->value();
 }
 
-/*
-template <class TYPE>
-struct NullableManipulator {
-    bdeut_NullableValue<TYPE> d_value;
-    int                       d_rc;
-
-    NullableManipulator() : d_value(), d_rc(0) {}
-
-    int operator() (SerializableObjectProxy *object,
-                    const bdeat_TypeCategory::Array&)
-    {
-        const int size = d_value.size();
-
-        bdeat_ArrayFunctions::bdeat_arrayResize(object, size);
-
-        for (int i = 0; i < size; ++i) {
-            ArrayElementManipulator<TYPE> manipulator;
-            manipulator.d_value = d_value[i];
-            bdeat_ArrayFunctions::bdeat_arrayManipulateElement(object,
-                                                               manipulator,
-                                                               i);
-        }
-        return d_rc;
-    }
-
-    int operator() (bsl::vector<char> *object,
-                    const bdeat_TypeCategory::Array&)
-    {
-        if (bslmf_IsSame<TYPE, char>::VALUE) {
-
-            // 'd_value' is guranteed to be 'bsl::vector<char>', but the cast
-            // is necessary to compile if 'TYPE' is not 'char'.
-
-            bsl::vector<char>& value =
-                                 reinterpret_cast<bsl::vector<char>&>(d_value);
-            *object = value;
-        }
-        else {
-            ASSERT(!"Should be unreachable");
-        }
-        return d_rc;
-    }
-};
-*/
-
 }  // close unamed namespace
 
 // ============================================================================

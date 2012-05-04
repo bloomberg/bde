@@ -1222,6 +1222,52 @@ void constructTestObjects(std::vector<baea::FeatureTestMessage>* objects)
 }
 
 //=============================================================================
+//                      TEST ACCESSORS AND MANIPULATORS
+//-----------------------------------------------------------------------------
+
+template <class TYPE>
+struct SimpleAccessor {
+    TYPE d_value;
+
+    SimpleAccessor() : d_value() {};
+
+    int operator()(const TYPE& value, bdeat_TypeCategory::Simple)
+    {
+        d_value = value;
+        return 0;
+    }
+
+    template <class OTHER_TYPE, class OTHER_CATEGORY>
+    int operator()(const OTHER_TYPE&, const OTHER_CATEGORY&)
+    {
+        // needed to compile due to nullable adapter, but should not be called
+        BSLS_ASSERT(!"Should be unreachable");
+        return -1;
+    }
+};
+
+template <class TYPE>
+struct SimpleManipulator {
+    TYPE d_value;
+
+    SimpleManipulator() : d_value() {};
+
+    int operator()(TYPE *value, bdeat_TypeCategory::Simple)
+    {
+        *value = d_value;
+        return 0;
+    }
+
+    template <class OTHER_TYPE, class OTHER_CATEGORY>
+    int operator()(OTHER_TYPE *, const OTHER_CATEGORY&)
+    {
+        // needed to compile due to nullable adapter, but should not be called
+        BSLS_ASSERT(!"Should be unreachable");
+        return -1;
+    }
+};
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -1245,16 +1291,16 @@ int main(int argc, char *argv[])
     bael_Severity::Level            passthrough = bael_Severity::BAEL_OFF;
     bael_LoggerManager::initSingleton(&observer, configuration);
 
-    if (verbose)                    passthrough = bael_Severity::BAEL_WARN;
-    if (veryVerbose)                passthrough = bael_Severity::BAEL_INFO;
-    if (veryVeryVerbose)            passthrough = bael_Severity::BAEL_DEBUG;
-    if (veryVeryVeryVerbose)        passthrough = bael_Severity::BAEL_TRACE;
+    if (verbose)             passthrough = bael_Severity::BAEL_WARN;
+    if (veryVerbose)         passthrough = bael_Severity::BAEL_INFO;
+    if (veryVeryVerbose)     passthrough = bael_Severity::BAEL_DEBUG;
+    if (veryVeryVeryVerbose) passthrough = bael_Severity::BAEL_TRACE;
 
     bael_LoggerManager::singleton().setDefaultThresholdLevels(
-                                                  bael_Severity::BAEL_OFF,
-                                                  passthrough,
-                                                  bael_Severity::BAEL_OFF,
-                                                  bael_Severity::BAEL_OFF);
+                                                       bael_Severity::BAEL_OFF,
+                                                       passthrough,
+                                                       bael_Severity::BAEL_OFF,
+                                                       bael_Severity::BAEL_OFF);
 
     switch (test) { case 0: // Zero is always the leading case.
       case 8: {
@@ -1262,12 +1308,32 @@ int main(int argc, char *argv[])
         // TESTING SIMPLE TYPE
         // --------------------------------------------------------------------
 
-        char object;
-        Proxy proxy;
+        using namespace bdeat_TypeCategoryFunctions;
+        {
+            char object = 1;
+            Proxy proxy;
 
-        Obj::makeEncodeProxy(&proxy, &object);
-        ASSERTV(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY == proxy.category());
+            Obj::makeEncodeProxy(&proxy, &object);
+            ASSERTV(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY == proxy.category());
 
+            SimpleAccessor<char> accessor;
+
+            ASSERTV(0 == bdeat_typeCategoryAccessSimple(proxy, accessor));
+            ASSERTV(1 == accessor.d_value);
+        }
+        {
+            char object = 1;
+            Proxy proxy;
+
+            Obj::makeDecodeProxy(&proxy, &object);
+            ASSERTV(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY == proxy.category());
+
+            SimpleManipulator<char> manipulator;
+            manipulator.d_value = 0;
+
+            ASSERTV(0 == bdeat_typeCategoryManipulateSimple(&proxy, manipulator));
+            ASSERTV(0 == object);
+        }
 
       } break;
       case 7: {
@@ -1316,7 +1382,6 @@ int main(int argc, char *argv[])
         }
 
       } break;
-
       case 6: {
         // --------------------------------------------------------------------
         // BER decoder feature test
@@ -1357,7 +1422,6 @@ int main(int argc, char *argv[])
         }
 
       } break;
-
       case 5: {
         // --------------------------------------------------------------------
         // XML encoder feature test
@@ -1402,7 +1466,6 @@ int main(int argc, char *argv[])
         }
 
       } break;
-
       case 4: {
         // --------------------------------------------------------------------
         // BER encoder feature test
@@ -1438,7 +1501,6 @@ int main(int argc, char *argv[])
         }
 
       } break;
-
       case 3: {
         // --------------------------------------------------------------------
         // XML breathing test
@@ -1647,7 +1709,6 @@ int main(int argc, char *argv[])
                numBytesEncoded, numIter * objects.size(),
                wallTime, userTime, systemTime);
       } break;
-
       case -1: {
         // --------------------------------------------------------------------
         // Codec performance test: GENERATED
