@@ -23,6 +23,11 @@
 
 #include <algorithm>
 
+#include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
+#include <bsltf_stdtestallocator.h>
+
+
 // ============================================================================
 //                          ADL SWAP TEST HELPER
 // ----------------------------------------------------------------------------
@@ -231,11 +236,6 @@ static bool veryVeryVeryVerbose;
 const char UNINITIALIZED_VALUE = '_';
 const char DEFAULT_VALUE       = 'z';
 
-const char DEFAULT_VALUES[]    =
-                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-size_t     NUM_DEFAULT_VALUES  =
-                              sizeof(DEFAULT_VALUES) / sizeof(*DEFAULT_VALUES);
-
 // Define default data for testing 'bsl::queue'.
 
 struct DefaultQDataRow {
@@ -287,6 +287,7 @@ const DefaultQDataRow DEFAULT_QDATA[] = {
     { L_,  "ABCDEFGHIJKLMNOPQ",},
     { L_,  "DHBIMACOPELGFKNJQ",},
 };
+
 static
 const int DEFAULT_NUM_QDATA = sizeof DEFAULT_QDATA / sizeof *DEFAULT_QDATA;
 
@@ -297,13 +298,13 @@ struct DefaultPQDataRow {
     const char *d_spec;     // specification string, for input to 'gg' function
     const char *d_results;  // expected element values
 };
+
 static
 const DefaultPQDataRow DEFAULT_PQDATA[] = {
     //line spec                 results
     //---- ----                 -------
     { L_,  "",                  "" },
     { L_,  "A",                 "A" },
-#if 0
     { L_,  "B",                 "B" },
     { L_,  "AA",                "AA"},
     { L_,  "AB",                "BA" },
@@ -341,8 +342,10 @@ const DefaultPQDataRow DEFAULT_PQDATA[] = {
     { L_,  "PONMLKJIGHFEDCBA",  "PONMLKJIHGFEDCBA" },
     { L_,  "ABCDEFGHIJKLMNOPQ", "QPONMLKJIHGFEDCBA" },
     { L_,  "DHBIMACOPELGFKNJQ", "QPONMLKJIHGFEDCBA" },
-#endif
 };
+
+typedef bsltf::AllocTestType TestValueType;
+
 static
 const int DEFAULT_NUM_PQDATA = sizeof DEFAULT_PQDATA / sizeof *DEFAULT_PQDATA;
 
@@ -353,12 +356,6 @@ int NUM_SPECIAL_INT_VALUES     =
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
-
-static int numDefaultCtorCalls = 0;
-static int numCharCtorCalls    = 0;
-static int numCopyCtorCalls    = 0;
-static int numAssignmentCalls  = 0;
-static int numDestructorCalls  = 0;
 
 // Fundamental-type-specific print functions.
 inline void dbg_print(bool b) { printf(b ? "true" : "false"); fflush(stdout); }
@@ -442,273 +439,137 @@ struct ExceptionGuard {
     }
 };
 
+namespace {
+
+bool g_enableLessThanFunctorFlag = true;
+
+                       // ====================
+                       // class TestComparator
+                       // ====================
+
+template <class TYPE>
+class TestComparator {
+    // This test class provides a mechanism that defines a function-call
+    // operator that compares two objects of the parameterized 'TYPE'.  The
+    // function-call operator is implemented with integer comparison using
+    // integers converted from objects of 'TYPE' by the class method
+    // 'TemplateTestFacility::getValue'.  The function-call operator also
+    // increments a global counter used to keep track the method call count.
+    // Object of this class can be identified by an id passed on construction.
+
+    // DATA
+    int         d_id;           // identifier for the functor
+    bool        d_compareLess;  // indicate whether this object use '<' or '>'
+    mutable int d_count;        // number of times 'operator()' is called
+
+  public:
+    // CLASS METHOD
+    static void disableFunctor()
+        // Disable all objects of 'TestComparator' such that an 'ASSERT' will
+        // be triggered if 'operator()' is invoked
+    {
+        g_enableLessThanFunctorFlag = false;
+    }
+
+    static void enableFunctor()
+        // Enable all objects of 'TestComparator' such that 'operator()' may
+        // be invoked
+    {
+        g_enableLessThanFunctorFlag = true;
+    }
+
+    // CREATORS
+    //! TestComparator(const TestComparator& original) = default;
+        // Create a copy of the specified 'original'.
+
+    explicit TestComparator(int id = 0, bool compareLess = true)
+        // Create a 'TestComparator'.  Optionally, specify 'id' that can be
+        // used to identify the object.
+    : d_id(id)
+    , d_compareLess(compareLess)
+    , d_count(0)
+    {
+    }
+
+    // ACCESSORS
+    bool operator() (const TYPE& lhs, const TYPE& rhs) const
+        // Increment a counter that records the number of times this method is
+        // called.   Return 'true' if the integer representation of the
+        // specified 'lhs' is less than integer representation of the specified
+        // 'rhs'.
+    {
+        if (!g_enableLessThanFunctorFlag) {
+            ASSERTV(!"'TestComparator' was invoked when it was disabled");
+        }
+
+        ++d_count;
+
+        if (d_compareLess) {
+            return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
+                 < bsltf::TemplateTestFacility::getValue<TYPE>(rhs);  // RETURN
+        }
+        else {
+            return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
+                 > bsltf::TemplateTestFacility::getValue<TYPE>(rhs);  // RETURN
+        }
+    }
+
+    bool operator== (const TestComparator& rhs) const
+    {
+        return (id() == rhs.id() && d_compareLess == rhs.d_compareLess);
+    }
+
+    int id() const
+        // Return the 'id' of this object.
+    {
+        return d_id;
+    }
+
+    size_t count() const
+        // Return the number of times 'operator()' is called.
+    {
+        return d_count;
+    }
+};
+
+template <class TYPE>
+class GreaterThanFunctor {
+    // This test class provides a mechanism that defines a function-call
+    // operator that compares two objects of the parameterized 'TYPE'.  The
+    // function-call operator is implemented with integer comparison using
+    // integers converted from objects of 'TYPE' by the class method
+    // 'TemplateTestFacility::getValue'.
+
+  public:
+    // ACCESSORS
+    bool operator() (const TYPE& lhs, const TYPE& rhs) const
+        // Return 'true' if the integer representation of the specified 'lhs'
+        // is less than integer representation of the specified 'rhs'.
+    {
+        return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
+             > bsltf::TemplateTestFacility::getValue<TYPE>(rhs);
+    }
+};
+
+// FREE OPERATORS
+template <class TYPE>
+bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
+    // Return 'true' if the integer representation of the specified 'lhs' is
+    // less than integer representation of the specified 'rhs'.
+{
+    return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
+         < bsltf::TemplateTestFacility::getValue<TYPE>(rhs);
+}
+
+}  // close unnamed namespace
+
 
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
 
-                               // ==============
-                               // class TestType
-                               // ==============
-
-class TestType {
-    // This test type contains a 'char' in some allocated storage.  It counts
-    // the number of default and copy constructions, assignments, and
-    // destructions.  It has no traits other than using a 'bslma' allocator.
-    // It could have the bit-wise moveable traits but we defer that trait to
-    // the 'MoveableTestType'.
-
-  private:
-    char            *d_data_p;
-    bslma_Allocator *d_allocator_p;
-
-  public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
-
-    // CREATORS
-    explicit
-    TestType(bslma_Allocator *ba = 0)
-    : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
-    {
-        ++numDefaultCtorCalls;
-        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
-        *d_data_p = DEFAULT_VALUE;
-    }
-
-    explicit
-    TestType(char c, bslma_Allocator *ba = 0)
-    : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
-    {
-        ++numCharCtorCalls;
-        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
-        *d_data_p = c;
-    }
-
-    TestType(const TestType& original, bslma_Allocator *ba = 0)
-    : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
-    {
-        ++numCopyCtorCalls;
-
-        d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
-        *d_data_p = *original.d_data_p;
-    }
-
-    ~TestType() {
-        ++numDestructorCalls;
-        *d_data_p = UNINITIALIZED_VALUE;
-        d_allocator_p->deallocate(d_data_p);
-        d_data_p = 0;
-        d_allocator_p = 0;
-    }
-
-    // MANIPULATORS
-    TestType& operator=(const TestType& rhs)
-    {
-        ++numAssignmentCalls;
-        if (BSLS_UTIL_ADDRESSOF(rhs) != this) {
-            char *newData = (char *)d_allocator_p->allocate(sizeof(char));
-            *d_data_p = UNINITIALIZED_VALUE;
-            d_allocator_p->deallocate(d_data_p);
-            d_data_p  = newData;
-            *d_data_p = *rhs.d_data_p;
-        }
-        return *this;
-    }
-
-    void setDatum(char c) {
-        *d_data_p = c;
-    }
-
-    // ACCESSORS
-    char value() const {
-        return *d_data_p;
-    }
-
-    bslma_Allocator *allocator() const {
-        return d_allocator_p;
-    }
-
-    void print() const
-    {
-        if (d_data_p) {
-            ASSERT(isalpha(*d_data_p));
-            printf("%c (int: %d)\n", *d_data_p, (int)*d_data_p);
-        } else {
-            printf("VOID\n");
-        }
-    }
-};
-
-// FREE OPERATORS
-bool operator==(const TestType& lhs, const TestType& rhs)
-{
-    ASSERT(isalpha(lhs.value()));
-    ASSERT(isalpha(rhs.value()));
-
-    return lhs.value() == rhs.value();
-}
-
-bool operator==(const char lhs, const TestType& rhs)
-{
-    ASSERT(isalpha(rhs.value()));
-
-    return lhs == rhs.value();
-}
-
-bool operator==(const TestType &lhs, const char rhs)
-{
-    ASSERT(isalpha(lhs.value()));
-
-    return lhs.value() == rhs;
-}
-
-bool operator!=(const TestType& lhs, const TestType& rhs)
-{
-    ASSERT(isalpha(lhs.value()));
-    ASSERT(isalpha(rhs.value()));
-
-    return lhs.value() != rhs.value();
-}
-
-bool operator<(const TestType& lhs, const TestType& rhs)
-{
-    ASSERT(isalpha(lhs.value()));
-    ASSERT(isalpha(rhs.value()));
-
-    return lhs.value() < rhs.value();
-}
-
-// test type specific print function
-void dbg_print(const TestType& rhs) {
-    printf("%c", rhs.value());
-    fflush(stdout);
-}
-
-template <class VALUE, class CONTAINER>
-void populateContainer(CONTAINER& container, const char *spec, size_t length)
-{
-    for (size_t i = 0;i < length; ++i) {
-        container.push_back(VALUE(spec[i]));
-    }
-}
-             
-                       // =====================
-                       // class TestTypeNoAlloc
-                       // =====================
-
-class TestTypeNoAlloc {
-    // This test type has footprint and interface identical to 'TestType'.  It
-    // also counts the number of default and copy constructions, assignments,
-    // and destructions.  It does not allocate, and thus could have the
-    // bit-wise copyable trait, but we defer this to the
-    // 'BitwiseCopyableTestType'.
-
-    // DATA
-    union {
-        char  d_char;
-        char  d_fill[sizeof(TestType)];
-    } d_u;
-
-  public:
-    // CREATORS
-    TestTypeNoAlloc()
-    {
-        d_u.d_char = DEFAULT_VALUE;
-        ++numDefaultCtorCalls;
-    }
-
-    explicit
-    TestTypeNoAlloc(char c)
-    {
-        d_u.d_char = c;
-        ++numCharCtorCalls;
-    }
-
-    TestTypeNoAlloc(const TestTypeNoAlloc&  original)
-    {
-        d_u.d_char = original.d_u.d_char;
-        ++numCopyCtorCalls;
-    }
-
-    ~TestTypeNoAlloc()
-    {
-        ++numDestructorCalls;
-        d_u.d_char = '_';
-    }
-
-    // MANIPULATORS
-    TestTypeNoAlloc& operator=(const TestTypeNoAlloc& rhs)
-    {
-        ++numAssignmentCalls;
-        d_u.d_char = rhs.d_u.d_char;
-        return *this;
-    }
-
-    // ACCESSORS
-    char value() const
-    {
-        return d_u.d_char;
-    }
-
-    void print() const
-    {
-        ASSERT(isalpha(d_u.d_char));
-        printf("%c (int: %d)\n", d_u.d_char, (int)d_u.d_char);
-    }
-};
-
-// FREE OPERATORS
-bool operator==(const TestTypeNoAlloc& lhs, const TestTypeNoAlloc& rhs)
-{
-    ASSERT(isalpha(lhs.value()));
-    ASSERT(isalpha(rhs.value()));
-
-    return lhs.value() == rhs.value();
-}
-
-bool operator==(const char lhs, const TestTypeNoAlloc& rhs)
-{
-    ASSERT(isalpha(rhs.value()));
-
-    return lhs == rhs.value();
-}
-
-bool operator==(const TestTypeNoAlloc &lhs, const char rhs)
-{
-    ASSERT(isalpha(lhs.value()));
-
-    return lhs.value() == rhs;
-}
-
-bool operator!=(const TestTypeNoAlloc& lhs, const TestTypeNoAlloc& rhs)
-{
-    ASSERT(isalpha(lhs.value()));
-    ASSERT(isalpha(rhs.value()));
-
-    return lhs.value() != rhs.value();
-}
-
-bool operator<(const TestTypeNoAlloc& lhs, const TestTypeNoAlloc& rhs)
-{
-    ASSERT(isalpha(lhs.value()));
-    ASSERT(isalpha(rhs.value()));
-
-    return lhs.value() < rhs.value();
-}
-
-// test type specific print function
-void dbg_print(const TestTypeNoAlloc& rhs) {
-    printf("%c", rhs.value());
-    fflush(stdout);
-}
-
-
 // 'queue' specific print function
+
 template <class VALUE, class CONTAINER>
 void dbg_print(const bsl::queue<VALUE, CONTAINER>& q)
 {
@@ -717,14 +578,17 @@ void dbg_print(const bsl::queue<VALUE, CONTAINER>& q)
     }
     else {
         printf("size: %d, front: ", q.size());
-        dbg_print(q.front());
+        dbg_print(static_cast<char>(
+                    bsltf::TemplateTestFacility::getValue(q.front())));
         printf(", back: ");
-        dbg_print(q.back());
+        dbg_print(static_cast<char>(
+                    bsltf::TemplateTestFacility::getValue(q.back())));
     }
     fflush(stdout);
 }
 
 // 'priority_queue' specific print function
+
 template <class VALUE, class CONTAINER, class COMPARATOR>
 void dbg_print(const bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>& pq)
 {
@@ -733,81 +597,10 @@ void dbg_print(const bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>& pq)
     }
     else {
         printf("size: %d, top: ", pq.size());
-        dbg_print(pq.top());
+        dbg_print(static_cast<char>(
+                    bsltf::TemplateTestFacility::getValue(pq.top())));
     }
     fflush(stdout);
-}
-
-// 'priority_queue' specific compare equal function
-template <class VALUE, class CONTAINER, class COMPARATOR>
-bool is_equal(bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>& lhs,
-              bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>& rhs)
-{
-    bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&scratch);
-
-    if (lhs.size() != rhs.size()) {
-        return false;                                                 // RETURN
-    }
-    while (!lhs.empty() && !rhs.empty()) {
-        if (lhs.top() != rhs.top()) {
-            return false;                                             // RETURN
-        }
-        lhs.pop();
-        rhs.pop();
-    }
-    if (!lhs.empty() || !rhs.empty()) {
-        return false;                                                 // RETURN
-    }
-    return true;
-}
-
-template <class VALUE, class CONTAINER>
-bool use_same_allocator(bsl::queue<VALUE, CONTAINER>& q,
-                       int                           TYPE_ALLOC,
-                       bslma_TestAllocator          *ta)
-{
-    bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&scratch);
-
-    if (0 == TYPE_ALLOC)  // If 'VALUE' does not use allocator, return true.
-        return true;                                                  // RETURN
-    const bsls_Types::Int64 BB = ta->numBlocksTotal();
-    const bsls_Types::Int64  B = ta->numBlocksInUse();
-
-    q.push(VALUE('A'));
-
-    const bsls_Types::Int64 AA = ta->numBlocksTotal();
-    const bsls_Types::Int64  A = ta->numBlocksInUse();
-
-    if (BB + TYPE_ALLOC <= AA && B + TYPE_ALLOC <= A)
-        return true;                                                  // RETURN
-    return false;
-}
-
-template <class VALUE, class CONTAINER, class COMPARATOR>
-bool use_same_allocator(bsl::priority_queue<VALUE,
-                                            CONTAINER,
-                                            COMPARATOR>& pq,
-                       int                               TYPE_ALLOC,
-                       bslma_TestAllocator              *ta)
-{
-    bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    bslma_DefaultAllocatorGuard guard(&scratch);
-
-    if (0 == TYPE_ALLOC)  // If 'VALUE' does not use allocator, return true.
-        return true;                                                  // RETURN
-    const bsls_Types::Int64 BB = ta->numBlocksTotal();
-    const bsls_Types::Int64  B = ta->numBlocksInUse();
-
-    pq.push(VALUE('A'));
-
-    const bsls_Types::Int64 AA = ta->numBlocksTotal();
-    const bsls_Types::Int64  A = ta->numBlocksInUse();
-
-    if (BB + TYPE_ALLOC <= AA && B + TYPE_ALLOC <= A)
-        return true;                                                  // RETURN
-    return false;
 }
 
 // generic debug print function (3-arguments)
@@ -842,6 +635,8 @@ class QTestDriver {
     typedef typename Obj::size_type       size_type;
     typedef typename Obj::container_type  container_type;
         // shorthands
+
+    typedef bsltf::TestValuesArray<typename Obj::value_type> TestValues;
 
   private:
     // TEST APPARATUS
@@ -889,9 +684,18 @@ class QTestDriver {
         // Return, by value, a new object corresponding to the specified
         // 'spec'.
 
-    static int verifyObject(Obj&        container,
-                            const char *expectedValues,
-                            size_t      expectedSize);
+    template <class VALUES>
+    static int verify_object(Obj&          object,
+                             const VALUES& expectedValues,
+                             size_t        expectedSize);
+
+    static bool use_same_allocator(Obj&                 object,
+                                   int                  TYPE_ALLOC,
+                                   bslma_TestAllocator *ta);
+
+    static void populate_container(CONTAINER&        container,
+                                   const char*       SPEC,
+                                   size_t            length);
 
   public:
 
@@ -939,7 +743,9 @@ class QTestDriver {
                             // class PQTestDriver
                             // ------------------
 
-template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class VALUE,
+          class CONTAINER  = deque<VALUE>,
+          class COMPARATOR = TestComparator<VALUE> >
 class PQTestDriver {
     // Test driver class for 'priority_queue'
 
@@ -955,6 +761,8 @@ class PQTestDriver {
     typedef typename Obj::size_type       size_type;
     typedef typename Obj::container_type  container_type;
         // shorthands
+
+    typedef bsltf::TestValuesArray<typename Obj::value_type> TestValues;
 
   private:
     // TEST APPARATUS
@@ -1002,9 +810,20 @@ class PQTestDriver {
         // Return, by value, a new object corresponding to the specified
         // 'spec'.
 
-    static int verifyPriorityQueue(Obj&        container,
-                                   const char *expectedValues,
-                                   size_t      expectedSize);
+    template <class VALUES>
+    static int verify_object(Obj&          object,
+                             const VALUES& expectedValues,
+                             size_t        expectedSize);
+
+    static bool use_same_allocator(Obj&                 object,
+                                   int                  TYPE_ALLOC,
+                                   bslma_TestAllocator *ta);
+
+    static void populate_container(CONTAINER&        container,
+                                   const char*       SPEC,
+                                   size_t            length);
+
+    static bool is_equal(Obj& lhs, Obj& rhs);
 
   public:
 
@@ -1056,29 +875,68 @@ class PQTestDriver {
                                // --------------
 
 template <class VALUE, class CONTAINER>
-int QTestDriver<VALUE, CONTAINER>::verifyObject(
-                                              Obj&              container,
-                                              const char*       expectedValues,
-                                              size_t            expectedSize)
-    // Verify the specified 'container' has the specified 'expectedSize' and
+template <class VALUES>
+int QTestDriver<VALUE, CONTAINER>::verify_object(Obj&          object,
+                                                const VALUES& expectedValues,
+                                                size_t        expectedSize)
+    // Verify the specified 'object' has the specified 'expectedSize' and
     // contains the same values as the array in the specified 'expectedValues'.
-    // Return 0 if 'container' has the expected values, and a non-zero value
+    // Return 0 if 'object' has the expected values, and a non-zero value
     // otherwise.
 {
-    ASSERTV(expectedSize, container.size(), expectedSize == container.size());
+    ASSERTV(expectedSize, object.size(), expectedSize == object.size());
 
-    if(expectedSize != container.size()) {
+    if(expectedSize != object.size()) {
         return -1;                                                    // RETURN
     }
 
     for (size_t i = 0; i < expectedSize; ++i) {
-        if (!(container.front() == VALUE(expectedValues[i]))) {
+        if (!(object.front() == expectedValues[i])) {
             return i + 1;                                             // RETURN
         }
-        container.pop();
+        object.pop();
     }
     return 0;
 }
+
+template <class VALUE, class CONTAINER>
+bool QTestDriver<VALUE, CONTAINER>::use_same_allocator(
+                                               Obj&                 object,
+                                               int                  TYPE_ALLOC,
+                                               bslma_TestAllocator *ta)
+{
+    bslma_DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
+    const TestValues VALUES;
+
+    if (0 == TYPE_ALLOC)  // If 'VALUE' does not use allocator, return true.
+        return true;                                                  // RETURN
+    const bsls_Types::Int64 BB = ta->numBlocksTotal();
+    const bsls_Types::Int64  B = ta->numBlocksInUse();
+
+    object.push(VALUES[0]);
+
+    const bsls_Types::Int64 AA = ta->numBlocksTotal();
+    const bsls_Types::Int64  A = ta->numBlocksInUse();
+
+    if (BB + TYPE_ALLOC <= AA && B + TYPE_ALLOC <= A)
+        return true;                                                  // RETURN
+    return false;
+}
+
+template <class VALUE, class CONTAINER>
+void QTestDriver<VALUE, CONTAINER>::populate_container(
+                                                   CONTAINER&        container,
+                                                   const char*       SPEC,
+                                                   size_t            length)
+{
+    bslma_DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
+    const TestValues VALUES;
+
+    for (size_t i = 0;i < length; ++i) {
+        container.push_back(VALUES[SPEC[i] - 'A']);
+    }
+}
+
 
 template <class VALUE, class CONTAINER>
 int QTestDriver<VALUE, CONTAINER>::ggg(Obj        *object,
@@ -1086,12 +944,13 @@ int QTestDriver<VALUE, CONTAINER>::ggg(Obj        *object,
                                        int         verbose)
 {
     bslma_DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
+    const TestValues VALUES;
 
     enum { SUCCESS = -1 };
 
     for (int i = 0; spec[i]; ++i) {
         if ('A' <= spec[i] && spec[i] <= 'Z') {
-            object->push(VALUE(spec[i]));
+            object->push(VALUES[spec[i] - 'A']);
         }
         else {
             if (verbose) {
@@ -1126,29 +985,92 @@ QTestDriver<VALUE, CONTAINER>::g(const char *spec)
 // ----------------------------------------------------------------------------
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
-int PQTestDriver<VALUE, CONTAINER, COMPARATOR>::verifyPriorityQueue(
-                                                    Obj&        container,
-                                                    const char *expectedValues,
-                                                    size_t      expectedSize)
-    // Verify the specified 'container' has the specified 'expectedSize' and
+template <class VALUES>
+int PQTestDriver<VALUE, CONTAINER, COMPARATOR>::verify_object(
+                                                  Obj&          object,
+                                                  const VALUES& expectedValues,
+                                                  size_t        expectedSize)
+    // Verify the specified 'object' has the specified 'expectedSize' and
     // contains the same values as the array in the specified 'expectedValues'.
-    // Return 0 if 'container' has the expected values, and a non-zero value
+    // Return 0 if 'object' has the expected values, and a non-zero value
     // otherwise.
 {
-    ASSERTV(expectedSize, container.size(), expectedSize == container.size());
+    ASSERTV(expectedSize, object.size(), expectedSize == object.size());
 
-    if(expectedSize != container.size()) {
+    if(expectedSize != object.size()) {
         return -1;                                                    // RETURN
     }
 
     for (size_t i = 0; i < expectedSize; ++i) {
-        if (!(container.top() == VALUE(expectedValues[i]))) {
+        if (!(object.top() == expectedValues[i])) {
             return i + 1;                                             // RETURN
         }
-        container.pop();
+        object.pop();
     }
     return 0;
 }
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+bool PQTestDriver<VALUE, CONTAINER, COMPARATOR>::use_same_allocator(
+                                               Obj&                 object,
+                                               int                  TYPE_ALLOC,
+                                               bslma_TestAllocator *ta)
+{
+    bslma_DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
+    const TestValues VALUES;
+
+    if (0 == TYPE_ALLOC)  // If 'VALUE' does not use allocator, return true.
+        return true;                                                  // RETURN
+    const bsls_Types::Int64 BB = ta->numBlocksTotal();
+    const bsls_Types::Int64  B = ta->numBlocksInUse();
+
+    object.push(VALUES[0]);
+
+    const bsls_Types::Int64 AA = ta->numBlocksTotal();
+    const bsls_Types::Int64  A = ta->numBlocksInUse();
+
+    if (BB + TYPE_ALLOC <= AA && B + TYPE_ALLOC <= A)
+        return true;                                                  // RETURN
+    return false;
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::populate_container(
+                                                   CONTAINER&        container,
+                                                   const char*       SPEC,
+                                                   size_t            length)
+{
+    bslma_DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
+    const TestValues VALUES;
+
+    for (size_t i = 0;i < length; ++i) {
+        container.push_back(VALUES[SPEC[i] - 'A']);
+    }
+}
+
+// 'priority_queue' specific compare equal function
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+bool PQTestDriver<VALUE, CONTAINER, COMPARATOR>::is_equal(Obj& lhs, Obj& rhs)
+{
+    bslma_DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
+
+    if (lhs.size() != rhs.size()) {
+        return false;                                                 // RETURN
+    }
+    while (!lhs.empty() && !rhs.empty()) {
+        if (lhs.top() != rhs.top()) {
+            return false;                                             // RETURN
+        }
+        lhs.pop();
+        rhs.pop();
+    }
+    if (!lhs.empty() || !rhs.empty()) {
+        return false;                                                 // RETURN
+    }
+    return true;
+}
+
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
 int PQTestDriver<VALUE, CONTAINER, COMPARATOR>::ggg(Obj        *object,
@@ -1156,12 +1078,13 @@ int PQTestDriver<VALUE, CONTAINER, COMPARATOR>::ggg(Obj        *object,
                                                     int         verbose)
 {
     bslma_DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
+    const TestValues VALUES;
 
     enum { SUCCESS = -1 };
 
     for (int i = 0; spec[i]; ++i) {
         if ('A' <= spec[i] && spec[i] <= 'Z') {
-            object->push(VALUE(spec[i]));
+            object->push(VALUES[spec[i] - 'A']);
         }
         else {
             if (verbose) {
@@ -1279,7 +1202,7 @@ void QTestDriver<VALUE, CONTAINER>::testCase12()
     //:       5 All object memory is released when the object is destroyed.
     //:         (C-8)
     //:
-    //:     6 Use the helper function 'is_same_allocator' to verify each
+    //:     6 Use the helper function 'use_same_allocator' to verify each
     //:       underlying attribute capable of allocating memory to ensure
     //:       that its object allocator is properly installed.  (C-2..4)
     //:
@@ -1299,6 +1222,7 @@ void QTestDriver<VALUE, CONTAINER>::testCase12()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE    = DATA[ti].d_line;
             const char       *SPEC    = DATA[ti].d_spec;
+            const TestValues  EXP(DATA[ti].d_spec);
             const size_t      LENGTH  = strlen(DATA[ti].d_spec);
 
             if (verbose) { P_(LINE) P_(SPEC) P(LENGTH); }
@@ -1311,7 +1235,7 @@ void QTestDriver<VALUE, CONTAINER>::testCase12()
                 // Insert test data to a container.
 
                 CONTAINER container;
-                populateContainer<VALUE, CONTAINER>(container, SPEC, LENGTH);
+                populate_container(container, SPEC, LENGTH);
 
                 bslma_TestAllocator da("default",   veryVeryVeryVerbose);
                 bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
@@ -1350,6 +1274,12 @@ void QTestDriver<VALUE, CONTAINER>::testCase12()
                 bslma_TestAllocator&  oa = *objAllocatorPtr;
                 bslma_TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
+                // Verify no temporary memory is allocated from the object
+                // allocator.
+
+                ASSERTV(LINE, CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
+                        oa.numBlocksTotal() == oa.numBlocksInUse());
+
                 // Ensure the first row of the table contains the
                 // default-constructed value.
 
@@ -1359,16 +1289,10 @@ void QTestDriver<VALUE, CONTAINER>::testCase12()
                     firstFlag = false;
                 }
 
-                // Verify no temporary memory is allocated from the object
-                // allocator.
-
-                ASSERTV(LINE, CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
-                        oa.numBlocksTotal() == oa.numBlocksInUse());
-
                 // Verify the expected attributes values.
 
                 ASSERTV(LINE, SPEC, LENGTH,
-                        0 == verifyObject(mX, SPEC, LENGTH));
+                        0 == verify_object(mX, EXP, LENGTH));
 
                 // Verify any attribute allocators are installed properly.
 
@@ -2062,6 +1986,7 @@ void QTestDriver<VALUE, CONTAINER>::testCase7()
     {
         const int NUM_DATA                      = DEFAULT_NUM_QDATA;
         const DefaultQDataRow (&DATA)[NUM_DATA] = DEFAULT_QDATA;
+        const TestValues VALUES;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const char *const SPEC   = DATA[ti].d_spec;
@@ -2108,7 +2033,7 @@ void QTestDriver<VALUE, CONTAINER>::testCase7()
                     printf("\t\t\t\tBefore Insert: "); P(Y1);
                 }
 
-                Y1.push(VALUE('A'));
+                Y1.push(VALUES[0]);
 
                 if (veryVerbose) {
                     printf("\t\t\t\tAfter Insert : ");
@@ -2155,7 +2080,7 @@ void QTestDriver<VALUE, CONTAINER>::testCase7()
                 const bsls_Types::Int64 CC = oa.numBlocksTotal();
                 const bsls_Types::Int64  C = oa.numBlocksInUse();
 
-                Y11.push(VALUE('A'));
+                Y11.push(VALUES[0]);
 
                 const bsls_Types::Int64 DD = oa.numBlocksTotal();
                 const bsls_Types::Int64  D = oa.numBlocksInUse();
@@ -2398,6 +2323,7 @@ void QTestDriver<VALUE, CONTAINER>::testCase4()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
+            const TestValues  EXP(DATA[ti].d_spec);
             const int         LENGTH = strlen(DATA[ti].d_spec);
 
             if (verbose) { P_(LINE) P_(LENGTH) P(SPEC); }
@@ -2451,10 +2377,8 @@ void QTestDriver<VALUE, CONTAINER>::testCase4()
 
                 ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
                 if (LENGTH) {
-                    ASSERTV(LINE, SPEC, CONFIG,
-                            DATA[ti].d_spec[0] == X.front());
-                    ASSERTV(LINE, SPEC, CONFIG,
-                            DATA[ti].d_spec[LENGTH - 1] == X.back());
+                    ASSERTV(LINE, SPEC, CONFIG,          EXP[0] == X.front());
+                    ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] == X.back ());
                 }
                 ASSERT(oam.isTotalSame());
 
@@ -2534,7 +2458,7 @@ void QTestDriver<VALUE, CONTAINER>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const size_t      LENGTH = strlen(DATA[ti].d_spec);
-            const char *const RESULT = DATA[ti].d_spec;
+            const TestValues  EXP(DATA[ti].d_spec);
             const int         curLen = (int)strlen(SPEC);
 
             Obj mX(&oa);
@@ -2555,8 +2479,8 @@ void QTestDriver<VALUE, CONTAINER>::testCase3()
 
             ASSERTV(LINE, LENGTH == X.size());
             ASSERTV(LINE, LENGTH == Y.size());
-            ASSERTV(0 == verifyObject(mX, RESULT, LENGTH));
-            ASSERTV(0 == verifyObject(mY, RESULT, LENGTH));
+            ASSERTV(0 == verify_object(mX, EXP, LENGTH));
+            ASSERTV(0 == verify_object(mY, EXP, LENGTH));
         }
     }
 
@@ -2709,6 +2633,8 @@ void QTestDriver<VALUE, CONTAINER>::testCase2()
 
     if (verbose) { P(TYPE_ALLOC); }
 
+    const TestValues VALUES;  // contains 52 distinct increasing values
+
     const size_t MAX_LENGTH = 9;
 
     for (size_t ti = 1; ti < MAX_LENGTH; ++ti) {
@@ -2774,11 +2700,11 @@ void QTestDriver<VALUE, CONTAINER>::testCase2()
             for (size_t tj = 0; tj < LENGTH; ++tj) {
                 bslma_TestAllocatorMonitor tam(&oa);
 
-                mX.push(VALUE(DEFAULT_VALUES[tj]));
+                mX.push(VALUES[tj]);
                 ASSERTV(LENGTH, CONFIG, tj + 1 == X.size());
 
-                ASSERTV(X.front().value() == DEFAULT_VALUES[0]);
-                ASSERTV(X.back ().value() == DEFAULT_VALUES[tj]);
+                ASSERTV(X.front() == VALUES[0]);
+                ASSERTV(X.back () == VALUES[tj]);
 
                 if (0 < TYPE_ALLOC) {
                     //ASSERTV(CONFIG, tam.isTotalUp());
@@ -2808,8 +2734,8 @@ void QTestDriver<VALUE, CONTAINER>::testCase2()
                     ASSERTV(true == X.empty());
                 }
                 else {
-                    ASSERTV(X.front().value() == DEFAULT_VALUES[tj + 1]);
-                    ASSERTV(X.back ().value() == DEFAULT_VALUES[LENGTH - 1]);
+                    ASSERTV(X.front() == VALUES[tj + 1]);
+                    ASSERTV(X.back () == VALUES[LENGTH - 1]);
                 }
 
                 const bsls_Types::Int64 A  = oa.numBlocksInUse();
@@ -3033,6 +2959,257 @@ void QTestDriver<VALUE, CONTAINER>::testCase1(const VALUE  *testValues,
 }
 
 // ----------------------------------------------------------------------------
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
+{
+    // ------------------------------------------------------------------------
+    // VALUE (TEMPLATE) CONSTRUCTORS:
+    //
+    // Concern:
+    //: 1 The object is constructed with all values in the user-supplied
+    //:   container in the same order.
+    //:
+    //: 2 If an allocator is NOT supplied to the value constructor, the
+    //:   default allocator in effect at the time of construction becomes
+    //:   the object allocator for the resulting object.
+    //:
+    //: 3 If an allocator IS supplied to the value constructor, that
+    //:   allocator becomes the object allocator for the resulting object.
+    //:
+    //: 4 Supplying a null allocator address has the same effect as not
+    //:   supplying an allocator.
+    //:
+    //: 5 Supplying an allocator to the value constructor has no effect
+    //:   on subsequent object values.
+    //:
+    //: 6 Any memory allocation is from the user-supplied allocator if
+    //:   supplied, and otherwise the default allocator.
+    //:
+    //: 7 Every object releases any allocated memory at destruction.
+    //:
+    //: 8 QoI: Creating an object having the default-constructed value
+    //:   allocates no memory.
+    //:
+    // Plan:
+    //: 1 Using the table-driven technique:
+    //:
+    //:   1 Specify a set of (unique) valid object values.
+    //:
+    //: 2 For each row (representing a distinct object value, 'V') in the table
+    //:   described in P-1:  (C-1..7)
+    //:
+    //:   1 Execute an inner loop creating seven distinct objects, in turn,
+    //:     each object having the same value, 'V', but configured differently
+    //:     identified by 'CONFIG':
+    //:     'a': passing a comparator, a container populated with 'V', but
+    //:          without passing an allocator;
+    //:
+    //:     'b': passing the begin and end iterators of a container populated
+    //:          with 'V', but without passing an allocator;
+    //:
+    //:     'c': passing the begin and end iterators of a container populated
+    //:          with 'V', and an empty container, but without passing an
+    //:          allocator;
+    //:
+    //:     'd': passing a comparator, and an explicit null allocator;
+    //:
+    //:     'e': passing a comparator, a container populated with 'V', and an
+    //:          explicit null allocator;
+    //:
+    //:     'f': passing a comparator, and the address of a test allocator
+    //:          distinct from the default allocator;
+    //:
+    //:     'g': passing a comparator, a container populated with 'V', and the
+    //:          address of a test allocator distinct from the default
+    //:          allocator.
+    //:
+    //:   2 For each of the seven iterations in P-2.1:  (C-1..7)
+    //:
+    //:     1 Insert the test data to a specialized container, create a default
+    //:       comparator, and obtain begin and end iterators of the populated
+    //:       container.
+    //:
+    //:     2 Create three 'bslma_TestAllocator' objects, and install one as
+    //:       the current default allocator (note that a ubiquitous test
+    //:       allocator is already installed as the global allocator).
+    //:
+    //:     3 Choose the value constructor depending on 'CONFIG' to dynamically
+    //:       create an object using the container in P-2.2.1, with its object
+    //:       allocator configured appropriately (see P-2.2.2), supplying all
+    //:       the arguments as 'const'; use a distinct test allocator for the
+    //:       object's footprint.
+    //:
+    //:     4 Verify that all of the attributes of each object have their
+    //:       expected values.  (C-1, 5)
+    //:
+    //:     5 Use the appropriate test allocators to verify that:
+    //:       (C-2..4, 6..7)
+    //:
+    //:       1 An object that IS expected to allocate memory does so from the
+    //:         object allocator (the number of allocations in use).  (C-6)
+    //:
+    //:       2 An object that is expected NOT to allocate memory does not
+    //:         allocate memory.
+    //:
+    //:       3 If an allocator was supplied at construction (P-2.1c) and
+    //:         'CONFIG' is not 'g', the non-object allocator doesn't allocate
+    //:         any memory.  (C-6)
+    //:
+    //:       4 All object memory is released when the object is destroyed.
+    //:         (C-7)
+    //:
+    //:     6 Use the helper function 'use_same_allocator' to verify each
+    //:       underlying attribute capable of allocating memory to ensure
+    //:       that its object allocator is properly installed.  (C-2..4)
+    //:
+    // Testing:
+    //   queue(const CONTAINER& container);
+    //   queue(const CONTAINER& container, const ALLOCATOR& allocator);
+    // ------------------------------------------------------------------------
+
+    const int TYPE_ALLOC =
+           bslalg_HasTrait<VALUE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+
+    const int NUM_DATA                       = DEFAULT_NUM_PQDATA;
+    const DefaultPQDataRow (&DATA)[NUM_DATA] = DEFAULT_PQDATA;
+
+    if (verbose) printf("\nTesting value constructors.\n");
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE    = DATA[ti].d_line;
+            const char       *SPEC    = DATA[ti].d_spec;
+            const TestValues  EXP(DATA[ti].d_results);
+            const size_t      LENGTH  = strlen(DATA[ti].d_spec);
+            const TestValues  EXP0("");
+            const size_t      LENGTH0 = 0;
+
+            if (verbose) { P_(LINE) P_(SPEC) P(LENGTH); }
+
+            for (char cfg = 'a'; cfg <= 'g'; ++cfg) {
+                const char CONFIG = cfg;  // how we specify the allocator
+
+                if (veryVerbose) { T_ T_ P(CONFIG) }
+
+                // Initialize user-supplied data.  Some value constructors
+                // take user-supplied container, some use user-supplied
+                // iterators.
+
+                CONTAINER container, CONT0;
+                populate_container(container, SPEC, LENGTH);
+
+                typename CONTAINER::iterator BEGIN = container.begin();
+                typename CONTAINER::iterator END   = container.end();
+
+                COMPARATOR comparator;
+
+                bslma_TestAllocator da("default",   veryVeryVeryVerbose);
+                bslma_TestAllocator fa("footprint", veryVeryVeryVerbose);
+                bslma_TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                // Install default allocator.
+
+                bslma_DefaultAllocatorGuard dag(&da);
+
+                Obj                 *objPtr;
+                bslma_TestAllocator *objAllocatorPtr;
+
+                switch (CONFIG) {
+                  case 'a': {
+                      objPtr = new (fa) Obj(comparator, container);
+                      objAllocatorPtr = &da;
+                  } break;
+                  case 'b': {
+                      objPtr = new (fa) Obj(BEGIN, END);
+                      objAllocatorPtr = &da;
+                  } break;
+                  case 'c': {
+                      objPtr = new (fa) Obj(BEGIN, END, comparator, CONT0);
+                      objAllocatorPtr = &da;
+                  } break;
+                  case 'd': {
+                      objPtr = new (fa) Obj(comparator, (bslma_Allocator*)0);
+                      objAllocatorPtr = &da;
+                  } break;
+                  case 'e': {
+                      objPtr = new (fa) Obj(comparator,
+                                            container,
+                                            (bslma_Allocator*)0);
+                      objAllocatorPtr = &da;
+                  } break;
+                  case 'f': {
+                      objPtr = new (fa) Obj(comparator, &sa);
+                      objAllocatorPtr = &sa;
+                  } break;
+                  case 'g': {
+                      objPtr = new (fa) Obj(comparator, container, &sa);
+                      objAllocatorPtr = &sa;
+                  } break;
+                  default: {
+                      ASSERTV(LINE, CONFIG, !"Bad allocator config.");
+                  } break;
+                }
+                ASSERTV(LINE, CONFIG, sizeof(Obj) == fa.numBytesInUse());
+
+                Obj& mX = *objPtr;  const Obj& X = mX;
+
+                if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
+
+                bslma_TestAllocator&  oa = *objAllocatorPtr;
+                bslma_TestAllocator& noa = 'f' > CONFIG ? sa : da;
+
+                // Ensure the first row of the table contains the
+                // default-constructed value.
+
+                static bool firstFlag = true;
+                if (firstFlag) {
+                    bslma_DefaultAllocatorGuard guard(
+                                       &bslma_NewDeleteAllocator::singleton());
+                    Obj objTemp;
+                    ASSERTV(LINE, CONFIG, objTemp, *objPtr,
+                            is_equal(objTemp, *objPtr));
+                    firstFlag = false;
+                }
+
+                // Verify the expected attributes values.
+
+                if ('d' == CONFIG || 'f' == CONFIG) {
+                    ASSERTV(LINE, SPEC, LENGTH, CONFIG,
+                            0 == verify_object(mX, EXP0, LENGTH0));
+                }
+                else {
+                    ASSERTV(LINE, SPEC, LENGTH, CONFIG,
+                            0 == verify_object(mX, EXP, LENGTH));
+                }
+
+                // Verify any attribute allocators are installed properly.
+
+                ASSERTV(LINE, CONFIG, use_same_allocator(mX, TYPE_ALLOC, &oa));
+
+                // Verify no allocation from the non-object allocator.
+
+                if ('g' != CONFIG) {
+                    ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
+                }
+
+                // Reclaim dynamically allocated object under test.
+
+                fa.deleteObject(objPtr);
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                        0 == da.numBlocksInUse());
+                ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                        0 == fa.numBlocksInUse());
+                ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
+                        0 == sa.numBlocksInUse());
+
+            }  // end foreach configuration
+        }  // end foreach row
+    }
+}
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
 void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase11()
@@ -3689,9 +3866,9 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
     if (verbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d.\n", TYPE_ALLOC);
     {
-        const int NUM_DATA                      = DEFAULT_NUM_QDATA;
-        const DefaultQDataRow (&DATA)[NUM_DATA] = DEFAULT_QDATA;
-        const VALUE v = VALUE('A');
+        const int NUM_DATA                       = DEFAULT_NUM_PQDATA;
+        const DefaultPQDataRow (&DATA)[NUM_DATA] = DEFAULT_PQDATA;
+        const TestValues VALUES;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const char *const SPEC   = DATA[ti].d_spec;
@@ -3751,7 +3928,7 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
                     printf("\t\t\t\tBefore Insert: "); P(Y1);
                 }
 
-                Y1.push(v);
+                Y1.push(VALUES[0]);
 
                 if (veryVerbose) {
                     printf("\t\t\t\tAfter Insert : ");
@@ -3799,7 +3976,7 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
                 const bsls_Types::Int64 CC = oa.numBlocksTotal();
                 const bsls_Types::Int64  C = oa.numBlocksInUse();
 
-                Y11.push(v);
+                Y11.push(VALUES[0]);
 
                 const bsls_Types::Int64 DD = oa.numBlocksTotal();
                 const bsls_Types::Int64  D = oa.numBlocksInUse();
@@ -3866,6 +4043,7 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase4()
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
+            const TestValues  EXP(DATA[ti].d_results);
             const int         LENGTH = strlen(DATA[ti].d_results);
 
             if (verbose) { P_(LINE) P_(LENGTH) P(SPEC); }
@@ -3919,8 +4097,7 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase4()
 
                 ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
                 if (LENGTH) {
-                    ASSERTV(LINE, SPEC, CONFIG,
-                            DATA[ti].d_results[0] == X.top());
+                    ASSERTV(LINE, SPEC, CONFIG, EXP[0] == X.top());
                 }
                 ASSERT(oam.isTotalSame());
 
@@ -4000,7 +4177,7 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase3()
             const int         LINE   = DATA[ti].d_line;
             const char *const SPEC   = DATA[ti].d_spec;
             const size_t      LENGTH = strlen(DATA[ti].d_results);
-            const char *const RESULT = DATA[ti].d_results;
+            const TestValues  EXP(DATA[ti].d_results);
             const int         curLen = (int)strlen(SPEC);
 
             Obj mX(&oa);
@@ -4021,8 +4198,8 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase3()
 
             ASSERTV(LINE, LENGTH == X.size());
             ASSERTV(LINE, LENGTH == Y.size());
-            ASSERTV(0 == verifyPriorityQueue(mX, RESULT, LENGTH));
-            ASSERTV(0 == verifyPriorityQueue(mY, RESULT, LENGTH));
+            ASSERTV(0 == verify_object(mX, EXP, LENGTH));
+            ASSERTV(0 == verify_object(mY, EXP, LENGTH));
         }
     }
 
@@ -4176,6 +4353,8 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
 
     if (verbose) { P(TYPE_ALLOC); }
 
+    const TestValues VALUES;  // contains 52 distinct increasing values
+
     const size_t MAX_LENGTH = 9;
 
     for (size_t ti = 1; ti < MAX_LENGTH; ++ti) {
@@ -4208,7 +4387,7 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
                   objAllocatorPtr = &da;
               } break;
               case 'b': {
-                  objPtr = new (fa) Obj(0);
+                  objPtr = new (fa) Obj((bslma_Allocator*)0);
                   objAllocatorPtr = &da;
               } break;
               case 'c': {
@@ -4241,10 +4420,10 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
             for (size_t tj = 0; tj < LENGTH; ++tj) {
                 bslma_TestAllocatorMonitor tam(&oa);
 
-                mX.push(VALUE(DEFAULT_VALUES[tj]));
+                mX.push(VALUES[tj]);
                 ASSERTV(LENGTH, CONFIG, tj + 1 == X.size());
 
-                ASSERTV(X.top().value() == DEFAULT_VALUES[tj]);
+                ASSERTV(X.top() == VALUES[tj]);
 
                 if (0 < TYPE_ALLOC) {
                     ASSERTV(CONFIG, tam.isInUseUp());
@@ -4273,8 +4452,7 @@ void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
                     ASSERTV(true == X.empty());
                 }
                 else {
-                    ASSERTV(X.top().value() ==
-                                              DEFAULT_VALUES[LENGTH - 2 - tj]);
+                    ASSERTV(X.top() == VALUES[LENGTH - 2 - tj]);
                 }
 
                 const bsls_Types::Int64 A  = oa.numBlocksInUse();
@@ -4495,7 +4673,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Value Constructor"
                             "\n=========================\n");
 
-        QTestDriver<char>::testCase12();
+        BSLTF_RUN_EACH_TYPE(QTestDriver,
+                            testCase12,
+                            BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(PQTestDriver,
+                            testCase12,
+                            BSLTF_TEST_TYPES_REGULAR);
+        PQTestDriver<TestValueType, vector<TestValueType> >::testCase12();
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -4505,46 +4689,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'g'"
                             "\n===========\n");
 
-        if (verbose) printf("\n... on 'queue' with 'char'.\n");
-        QTestDriver<char>::testCase11();
-
-        if (verbose) printf("\n... on 'queue' with 'TestType'.\n");
-        QTestDriver<TestType>::testCase11();
-
-        if (verbose) printf("\n... on 'queue' with 'TestTypeNoAlloc'.\n");
-        QTestDriver<TestTypeNoAlloc>::testCase11();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'char' and 'deque'.\n");
-        PQTestDriver<char, deque<char>, std::less<char> >::testCase11();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'TestType' and 'deque'.\n");
-        PQTestDriver<TestType,
-                     deque<TestType>,
-                     std::less<TestType> >::testCase11();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNoAlloc' and 'deque'.\n");
-        PQTestDriver<TestTypeNoAlloc,
-                     deque<TestTypeNoAlloc>,
-                     std::less<TestTypeNoAlloc> >::testCase11();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'char' and 'vector'.\n");
-        PQTestDriver<char, vector<char>, std::less<char> >::testCase11();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNo' and 'vector'.\n");
-        PQTestDriver<TestType,
-                     vector<TestType>,
-                     std::less<TestType> >::testCase11();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNoAlloc' and 'vector'.\n");
-        PQTestDriver<TestTypeNoAlloc,
-                     vector<TestTypeNoAlloc>,
-                     std::less<TestTypeNoAlloc> >::testCase11();
+        BSLTF_RUN_EACH_TYPE(QTestDriver,
+                            testCase11,
+                            BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(PQTestDriver,
+                            testCase11,
+                            BSLTF_TEST_TYPES_REGULAR);
+        PQTestDriver<TestValueType, vector<TestValueType> >::testCase11();
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -4565,46 +4716,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Assignment Operator"
                             "\n===========================\n");
 
-        if (verbose) printf("\n... on 'queue' with 'char'.\n");
-        QTestDriver<char>::testCase9();
-
-        if (verbose) printf("\n... on 'queue' with 'TestType'.\n");
-        QTestDriver<TestType>::testCase9();
-
-        if (verbose) printf("\n... on 'queue' with 'TestTypeNoAlloc'.\n");
-        QTestDriver<TestTypeNoAlloc>::testCase9();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'char' and 'deque'.\n");
-        PQTestDriver<char, deque<char>, std::less<char> >::testCase9();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'TestType' and 'deque'.\n");
-        PQTestDriver<TestType,
-                     deque<TestType>,
-                     std::less<TestType> >::testCase9();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNoAlloc' and 'deque'.\n");
-        PQTestDriver<TestTypeNoAlloc,
-                     deque<TestTypeNoAlloc>,
-                     std::less<TestTypeNoAlloc> >::testCase9();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'char' and 'vector'.\n");
-        PQTestDriver<char, vector<char>, std::less<char> >::testCase9();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNo' and 'vector'.\n");
-        PQTestDriver<TestType,
-                     vector<TestType>,
-                     std::less<TestType> >::testCase9();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNoAlloc' and 'vector'.\n");
-        PQTestDriver<TestTypeNoAlloc,
-                     vector<TestTypeNoAlloc>,
-                     std::less<TestTypeNoAlloc> >::testCase9();
+        BSLTF_RUN_EACH_TYPE(QTestDriver,  testCase9, BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(PQTestDriver, testCase9, BSLTF_TEST_TYPES_REGULAR);
+        PQTestDriver<TestValueType, vector<TestValueType> >::testCase9();
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -4614,47 +4728,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nMANIPULATOR AND FREE FUNCTION 'swap'"
                             "\n====================================\n");
 
-        if (verbose) printf("\n... on 'queue' with 'char'.\n");
-        QTestDriver<char>::testCase8();
-
-        if (verbose) printf("\n... on 'queue' with 'TestType'.\n");
-        QTestDriver<TestType>::testCase8();
-
-        if (verbose) printf("\n... on 'queue' with 'TestTypeNoAlloc'.\n");
-        QTestDriver<TestTypeNoAlloc>::testCase8();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'char' and 'deque'.\n");
-        PQTestDriver<char, deque<char>, std::less<char> >::testCase8();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'TestType' and 'deque'.\n");
-        PQTestDriver<TestType,
-                     deque<TestType>,
-                     std::less<TestType> >::testCase8();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNoAlloc' and 'deque'.\n");
-        PQTestDriver<TestTypeNoAlloc,
-                     deque<TestTypeNoAlloc>,
-                     std::less<TestTypeNoAlloc> >::testCase8();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'char' and 'vector'.\n");
-        PQTestDriver<char, vector<char>, std::less<char> >::testCase8();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNo' and 'vector'.\n");
-        PQTestDriver<TestType,
-                     vector<TestType>,
-                     std::less<TestType> >::testCase8();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNoAlloc' and 'vector'.\n");
-        PQTestDriver<TestTypeNoAlloc,
-                     vector<TestTypeNoAlloc>,
-                     std::less<TestTypeNoAlloc> >::testCase8();
-
+        BSLTF_RUN_EACH_TYPE(QTestDriver,  testCase8, BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(PQTestDriver, testCase8, BSLTF_TEST_TYPES_REGULAR);
+        PQTestDriver<TestValueType, vector<TestValueType> >::testCase8();
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -4664,46 +4740,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Copy Constructors"
                             "\n=========================\n");
 
-        if (verbose) printf("\n... on 'queue' with 'char'.\n");
-        QTestDriver<char>::testCase7();
-
-        if (verbose) printf("\n... on 'queue' with 'TestType'.\n");
-        QTestDriver<TestType>::testCase7();
-
-        if (verbose) printf("\n... on 'queue' with 'TestTypeNoAlloc'.\n");
-        QTestDriver<TestTypeNoAlloc>::testCase7();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'char' and 'deque'.\n");
-        PQTestDriver<char, deque<char>, std::less<char> >::testCase7();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'TestType' and 'deque'.\n");
-        PQTestDriver<TestType,
-                     deque<TestType>,
-                     std::less<TestType> >::testCase7();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNoAlloc' and 'deque'.\n");
-        PQTestDriver<TestTypeNoAlloc,
-                     deque<TestTypeNoAlloc>,
-                     std::less<TestTypeNoAlloc> >::testCase7();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'char' and 'vector'.\n");
-        PQTestDriver<char, vector<char>, std::less<char> >::testCase7();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNo' and 'vector'.\n");
-        PQTestDriver<TestType,
-                     vector<TestType>,
-                     std::less<TestType> >::testCase7();
-
-        if (verbose) printf("\n... on 'priority_queue' with "
-                            "'TestTypeNoAlloc' and 'vector'.\n");
-        PQTestDriver<TestTypeNoAlloc,
-                     vector<TestTypeNoAlloc>,
-                     std::less<TestTypeNoAlloc> >::testCase7();
+        BSLTF_RUN_EACH_TYPE(QTestDriver,  testCase7, BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(PQTestDriver, testCase7, BSLTF_TEST_TYPES_REGULAR);
+        PQTestDriver<TestValueType, vector<TestValueType> >::testCase7();
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -4713,14 +4752,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Equality Operators"
                             "\n==========================\n");
 
-        if (verbose) printf("\n... on 'queue' with 'char'.\n");
-        QTestDriver<char>::testCase6();
-
-        if (verbose) printf("\n... on 'queue' with 'TestType'.\n");
-        QTestDriver<TestType>::testCase6();
-
-        if (verbose) printf("\n... on 'queue' with 'TestTypeNoAlloc'.\n");
-        QTestDriver<TestTypeNoAlloc>::testCase6();
+        BSLTF_RUN_EACH_TYPE(QTestDriver, testCase6, BSLTF_TEST_TYPES_REGULAR);
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -4742,28 +4774,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Basic Accessors"
                             "\n=======================\n");
 
-        if (verbose) printf("\n... on 'queue' with 'char'.\n");
-        QTestDriver<char>::testCase4();
-
-        if (verbose) printf("\n... on 'queue' with 'TestType'.\n");
-        QTestDriver<TestType>::testCase4();
-
-        if (verbose) printf("\n... on 'queue' with 'TestTypeNoAlloc'.\n");
-        QTestDriver<TestTypeNoAlloc>::testCase4();
-
-        if (verbose) printf("\n... on 'priority_queue' with 'char'.\n");
-        PQTestDriver<char, deque<char>, std::less<char> >::testCase4();
-
-        if (verbose) printf("\n... on 'priority_queue' with 'TestType'.\n");
-        PQTestDriver<TestType,
-                     deque<TestType>,
-                     std::less<TestType> >::testCase4();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'TestTypeNoAlloc'.\n");
-        PQTestDriver<TestTypeNoAlloc,
-                     deque<TestTypeNoAlloc>,
-                     std::less<TestTypeNoAlloc> >::testCase4();
+        BSLTF_RUN_EACH_TYPE(QTestDriver,  testCase4, BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(PQTestDriver, testCase4, BSLTF_TEST_TYPES_REGULAR);
+        PQTestDriver<TestValueType, vector<TestValueType> >::testCase4();
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -4773,28 +4786,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'gg'"
                             "\n============\n");
 
-        if (verbose) printf("\n... on 'queue' with 'char'.\n");
-        QTestDriver<char>::testCase3();
-
-        if (verbose) printf("\n... on 'queue' with 'TestType'.\n");
-        QTestDriver<TestType>::testCase3();
-
-        if (verbose) printf("\n... on 'queue' with 'TestTypeNoAlloc'.\n");
-        QTestDriver<TestTypeNoAlloc>::testCase3();
-
-        if (verbose) printf("\n... on 'priority_queue' with 'char'.\n");
-        PQTestDriver<char, deque<char>, std::less<char> >::testCase3();
-
-        if (verbose) printf("\n... on 'priority_queue' with 'TestType'.\n");
-        PQTestDriver<TestType,
-                     deque<TestType>,
-                     std::less<TestType> >::testCase3();
-
-        if (verbose)
-            printf("\n... on 'priority_queue' with 'TestTypeNoAlloc'.\n");
-        PQTestDriver<TestTypeNoAlloc,
-                     deque<TestTypeNoAlloc>,
-                     std::less<TestTypeNoAlloc> >::testCase3();
+        BSLTF_RUN_EACH_TYPE(QTestDriver,  testCase3, BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(PQTestDriver, testCase3, BSLTF_TEST_TYPES_REGULAR);
+        PQTestDriver<TestValueType, vector<TestValueType> >::testCase3();
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -4804,15 +4798,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Primary Manipulators"
                             "\n============================\n");
 
-            QTestDriver<TestType>::testCase2();
-            QTestDriver<TestTypeNoAlloc>::testCase2();
-
-            PQTestDriver<TestType,
-                         deque<TestType>,
-                         std::less<TestType> >::testCase2();
-            PQTestDriver<TestTypeNoAlloc,
-                         deque<TestTypeNoAlloc>,
-                         std::less<TestTypeNoAlloc> >::testCase2();
+        BSLTF_RUN_EACH_TYPE(QTestDriver,  testCase2, BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(PQTestDriver, testCase2, BSLTF_TEST_TYPES_REGULAR);
+        PQTestDriver<TestValueType, vector<TestValueType> >::testCase2();
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -4832,6 +4820,10 @@ int main(int argc, char *argv[])
                                                        SPECIAL_INT_VALUES,
                                                        NUM_SPECIAL_INT_VALUES);
         PQTestDriver<int, deque<int>, std::less<int> >::testCase1(
+                                                       std::less<int>(),
+                                                       SPECIAL_INT_VALUES,
+                                                       NUM_SPECIAL_INT_VALUES);
+        PQTestDriver<int, vector<int>, std::less<int> >::testCase1(
                                                        std::less<int>(),
                                                        SPECIAL_INT_VALUES,
                                                        NUM_SPECIAL_INT_VALUES);

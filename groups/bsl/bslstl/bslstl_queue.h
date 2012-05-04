@@ -541,7 +541,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(container)
 , comp(comparator)
 {
-    make_heap(c.begin(), c.end(), comp);
+    native_std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -551,8 +551,8 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                        INPUT_ITERATOR    first,
                                                        INPUT_ITERATOR    last)
 {
-    insert(c.end(), first, last);
-    make_heap(c.begin(), c.end(), comp);
+    c.insert(c.end(), first, last);
+    native_std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -566,8 +566,8 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(container)
 , comp(comparator)
 {
-    insert(c.end(), first, last);
-    make_heap(c.begin(), c.end(), comp);
+    c.insert(c.end(), first, last);
+    native_std::make_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
@@ -585,7 +585,7 @@ inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
                                                     const ALLOCATOR& allocator)
 : c(allocator)
-, comp(native_std::less<typename CONTAINER::value_type>())
+, comp(COMPARATOR())
 {
 }
 
@@ -610,6 +610,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 : c(container, allocator)
 , comp(comparator)
 {
+    native_std::make_heap(c.begin(), c.end(), comp);
 }
 
 
@@ -646,14 +647,14 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::push(
                                                        const value_type& value)
 {
     c.push_back(value);
-    push_heap(c.begin(), c.end(), comp);
+    native_std::push_heap(c.begin(), c.end(), comp);
 }
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::pop()
 {
-    pop_heap(c.begin(), c.end(), comp);
+    native_std::pop_heap(c.begin(), c.end(), comp);
     c.pop_back();
 }
 
