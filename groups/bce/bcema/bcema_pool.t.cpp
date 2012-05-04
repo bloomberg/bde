@@ -8,8 +8,8 @@
 #include <bcemt_qlock.h>
 #include <bdef_bind.h>
 #include <bdema_infrequentdeleteblocklist.h>
-#include <bslma_testAllocator.h>          // for testing only
-#include <bslma_testAllocatorexception.h> // for testing only
+#include <bslma_testallocator.h>          // for testing only
+#include <bslma_testallocatorexception.h> // for testing only
 #include <bsls_alignmentutil.h>
 #include <bsls_platform.h>
 
@@ -145,7 +145,7 @@ static int veryVeryVerbose;
 
 struct InfrequentDeleteBlock {
     InfrequentDeleteBlock          *d_next_p;
-    bsls::AligmentUtil::MaxAlignedType  d_memory;  // force alignment
+    bsls::AlignmentUtil::MaxAlignedType  d_memory;  // force alignment
 };
 
 // This type is copied from 'bcema_pool.cpp' to determine the internal limits
@@ -194,7 +194,7 @@ struct LLink {
 
     union {
         bces_AtomicUtil::Int               d_refCount;
-        bsls::AligmentUtil::MaxAlignedType d_dummy;
+        bsls::AlignmentUtil::MaxAlignedType d_dummy;
     };
     LLink *d_next_p;
 };
@@ -208,7 +208,7 @@ static int blockSize(int numBytes)
 
     if (numBytes) {
         numBytes += sizeof(InfrequentDeleteBlock) - 1;
-        numBytes &= ~(bsls::AligmentUtil::BSLS_MAX_ALIGNMENT - 1);
+        numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
     }
 
     return numBytes;
@@ -230,7 +230,7 @@ inline static int poolObjectSize(int size)
     const int HEADER_SIZE = offsetof(LLink, d_next_p);
     return roundUp(size + HEADER_SIZE < (int)sizeof(LLink)
                    ? sizeof(LLink) : size + HEADER_SIZE,
-                   bsls::AligmentUtil::BSLS_MAX_ALIGNMENT);
+                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
 static void scribble(char *address, int size)
@@ -1223,10 +1223,10 @@ int main(int argc, char *argv[]) {
         const int NUM_STRATEGIES = sizeof STRATEGIES / sizeof *STRATEGIES;
 
         static const int BLOCK_SIZES[] = {
-            bsls::AligmentUtil::BSLS_MAX_ALIGNMENT,
-            bsls::AligmentUtil::BSLS_MAX_ALIGNMENT * 2,
-            bsls::AligmentUtil::BSLS_MAX_ALIGNMENT * 3,
-            bsls::AligmentUtil::BSLS_MAX_ALIGNMENT * 4,
+            bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT,
+            bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT * 2,
+            bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT * 3,
+            bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT * 4,
         };
         const int NUM_BLOCK_SIZES = sizeof BLOCK_SIZES / sizeof *BLOCK_SIZES;
 
