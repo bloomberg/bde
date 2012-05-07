@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -546,6 +546,116 @@ int main(int argc, char *argv[])
     }
 //..
 
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // MANIPULATORS
+        //   This case tests that the state of the monitor can be correctly
+        //   updated with the 'reset' function.
+        //
+        // Concerns:
+        //: 1 When using a single allocator, verify that 'reset' will update
+        //:   the monitor's state to a state that has changed since the monitor
+        //:   was created.
+        //: 2 Confirm that, when an allocator other than the allocator supplied
+        //:   at construction is passed to 'reset', that the state of the
+        //:   monitor correctly reflects the state of the new allocator when
+        //:   'reset' is called.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "MANIPULATORS\n"
+                             "============\n";
+
+        Ta oa;
+        void *ptrs[10];
+
+        Tam tam(&oa);
+
+        ptrs[0] = oa.allocate(10);
+
+        ASSERT(tam.isInUseUp());
+        ASSERT(tam.isMaxUp());
+        ASSERT(tam.isTotalUp());
+
+        // After reset, state of 'tam' sees no allocation.
+
+        tam.reset();
+
+        ASSERT(tam.isInUseSame());
+        ASSERT(tam.isMaxSame());
+        ASSERT(tam.isTotalSame());
+
+        // 'tam' follows new allocations by same allocator.
+
+        ptrs[1] = oa.allocate(100);
+
+        ASSERT(!tam.isInUseSame());
+        ASSERT(!tam.isMaxSame());
+        ASSERT(!tam.isTotalSame());
+
+        // Change 'tam' to track a new allocator.
+
+        Ta ob;
+
+        ptrs[2] = ob.allocate(50);
+
+        tam.reset(&ob);
+
+        ASSERT(tam.isInUseSame());
+        ASSERT(tam.isMaxSame());
+        ASSERT(tam.isTotalSame());
+
+        // 'tam' sees allocation by new allocator.
+
+        ptrs[3] = ob.allocate(100);
+
+        ASSERT(tam.isInUseUp());
+        ASSERT(tam.isMaxUp());
+        ASSERT(tam.isTotalUp());
+
+        // 'reset' with no args updates state.
+
+        tam.reset();
+
+        ASSERT(tam.isInUseSame());
+        ASSERT(tam.isMaxSame());
+        ASSERT(tam.isTotalSame());
+
+        // 'tam' still track 'ob'.
+
+        ptrs[4] = ob.allocate(100);
+
+        ASSERT(tam.isInUseUp());
+        ASSERT(tam.isMaxUp());
+        ASSERT(tam.isTotalUp());
+
+        // 'tam' is ignoring 'oa'.
+
+        tam.reset();
+
+        ptrs[5] = oa.allocate(25);
+
+        ASSERT(tam.isInUseSame());
+        ASSERT(tam.isMaxSame());
+        ASSERT(tam.isTotalSame());
+
+        // 'tam' still tracks 'ob'.
+
+        ptrs[6] = ob.allocate(60);
+
+        ASSERT(tam.isInUseUp());
+        ASSERT(tam.isMaxUp());
+        ASSERT(tam.isTotalUp());
+
+        // Clean up.
+
+        oa.deallocate(ptrs[0]);
+        oa.deallocate(ptrs[1]);
+        ob.deallocate(ptrs[2]);
+        ob.deallocate(ptrs[3]);
+        ob.deallocate(ptrs[4]);
+        oa.deallocate(ptrs[5]);
+        ob.deallocate(ptrs[6]);
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -887,7 +997,7 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int LINE  =  DATA[ti].d_line;
+//              const int LINE  =  DATA[ti].d_line;
                 Ta&       TA    = *DATA[ti].d_ta_p;
                 void     *PRIOR =  DATA[ti].d_mem_p;
 
