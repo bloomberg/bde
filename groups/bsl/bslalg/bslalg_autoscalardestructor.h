@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a proctor for destroying an object.
 //
 //@CLASSES:
-//  bslalg_AutoScalarDestructor: exception-neutrality proctor for an object
+//  bslalg::AutoScalarDestructor: exception-neutrality proctor for an object
 //
 //@SEE_ALSO: bslma_autodestructor, bslalg_scalardestructionprimitives
 //
@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // otherwise-unmanaged instance of a user-defined type.  If not explicitly
 // released, the instance managed by the proctor object is automatically
 // destroyed by the proctor's destructor, using the
-// 'bslalg_ScalarDestructionPrimitives' utility.
+// 'bslalg::ScalarDestructionPrimitives' utility.
 //
 ///Usage
 ///-----
@@ -39,12 +39,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                     // =================================
-                     // class bslalg_AutoScalarDestructor
-                     // =================================
+namespace bslalg {
+
+                     // ==========================
+                     // class AutoScalarDestructor
+                     // ==========================
 
 template <class OBJECT_TYPE>
-class bslalg_AutoScalarDestructor {
+class AutoScalarDestructor {
     // This 'class' provides a specialized proctor object that, upon
     // destruction and unless the 'release' method is called, destroys the
     // guarded object of the parameterized 'OBJECT_TYPE'.
@@ -54,17 +56,17 @@ class bslalg_AutoScalarDestructor {
 
   private:
     // NOT IMPLEMENTED
-    bslalg_AutoScalarDestructor(const bslalg_AutoScalarDestructor&);
-    bslalg_AutoScalarDestructor& operator=(const bslalg_AutoScalarDestructor&);
+    AutoScalarDestructor(const AutoScalarDestructor&);
+    AutoScalarDestructor& operator=(const AutoScalarDestructor&);
 
   public:
     // CREATORS
-    bslalg_AutoScalarDestructor(OBJECT_TYPE *object);
+    AutoScalarDestructor(OBJECT_TYPE *object);
         // Create a guard object, proctoring the specified 'object' of the
         // parameterized 'OBJECT_TYPE' (if non-zero), that will invoke the
         // destructor of 'object' upon destruction.
 
-    ~bslalg_AutoScalarDestructor();
+    ~AutoScalarDestructor();
         // Call the destructor on the object of the parameterized 'OBJECT_TYPE'
         // that is proctored by this guard object, if any, and destroy this
         // object.
@@ -85,44 +87,55 @@ class bslalg_AutoScalarDestructor {
 //                      TEMPLATE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                     // ---------------------------------
-                     // class bslalg_AutoScalarDestructor
-                     // ---------------------------------
+                     // --------------------------
+                     // class AutoScalarDestructor
+                     // --------------------------
 
 // CREATORS
 template <class OBJECT_TYPE>
 inline
-bslalg_AutoScalarDestructor<OBJECT_TYPE>::bslalg_AutoScalarDestructor(
-                                                           OBJECT_TYPE *object)
+AutoScalarDestructor<OBJECT_TYPE>::AutoScalarDestructor(OBJECT_TYPE *object)
 : d_object_p(object)
 {
 }
 
 template <class OBJECT_TYPE>
 inline
-bslalg_AutoScalarDestructor<OBJECT_TYPE>::~bslalg_AutoScalarDestructor()
+AutoScalarDestructor<OBJECT_TYPE>::~AutoScalarDestructor()
 {
     if (d_object_p) {
-        bslalg_ScalarDestructionPrimitives::destroy(d_object_p);
+        ScalarDestructionPrimitives::destroy(d_object_p);
     }
 }
 
 // MANIPULATORS
 template <class OBJECT_TYPE>
 inline
-void bslalg_AutoScalarDestructor<OBJECT_TYPE>::release()
+void AutoScalarDestructor<OBJECT_TYPE>::release()
 {
     d_object_p = 0;
 }
 
 template <class OBJECT_TYPE>
 inline
-void bslalg_AutoScalarDestructor<OBJECT_TYPE>::reset(OBJECT_TYPE *object)
+void AutoScalarDestructor<OBJECT_TYPE>::reset(OBJECT_TYPE *object)
 {
     d_object_p = object;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_AutoScalarDestructor
+#undef bslalg_AutoScalarDestructor
+#endif
+#define bslalg_AutoScalarDestructor bslalg::AutoScalarDestructor
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

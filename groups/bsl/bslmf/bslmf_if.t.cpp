@@ -1,4 +1,4 @@
-// bslmf_if.t.cpp            -*-C++-*-
+// bslmf_if.t.cpp                                                     -*-C++-*-
 
 #include <bslmf_if.h>
 
@@ -15,12 +15,12 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test contains the simple meta-function 'bslmf_If'.  The
+// The component under test contains the simple meta-function 'bslmf::If'.  The
 // meta-function is tested by enumeration of all combinations of (1) 'true' and
 // 'false' conditions, and (2) defaulting of zero, one, or two of the type
-// arguments to 'bslmf_Nil'.
+// arguments to 'bslmf::Nil'.
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>
+// [ 1] bslmf::If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -56,7 +56,7 @@ static void aSsErT(int c, const char *s, int i) {
 namespace {
 
     // 'SizeOf' is a meta-function that returns the non-zero size of its type
-    // argument, or 0 for 'bslmf_Nil'.
+    // argument, or 0 for 'bslmf::Nil'.
 
     template <class T>
     struct SizeOf {
@@ -64,7 +64,7 @@ namespace {
     };
 
     template <>
-    struct SizeOf<bslmf_Nil> {
+    struct SizeOf<bslmf::Nil> {
         static const size_t VALUE = 0;
     };
 
@@ -80,40 +80,40 @@ namespace {
     const size_t False = SIZEOF(FalseType);
     const size_t Nil   = 0;
 
-    typedef bslmf_If<true, TrueType, FalseType>::Type CT0;
+    typedef bslmf::If<true, TrueType, FalseType>::Type CT0;
     const size_t C0 = SIZEOF(CT0);                        // True
 
-    typedef bslmf_If<false, TrueType, FalseType>::Type CT1;
+    typedef bslmf::If<false, TrueType, FalseType>::Type CT1;
     const size_t C1 = SIZEOF(CT1);                        // False
 
-    typedef bslmf_If<true>::Type CT2;
+    typedef bslmf::If<true>::Type CT2;
     const size_t C2 = SIZEOF(CT2);                        // Nil
 
-    typedef bslmf_If<false>::Type CT3;
+    typedef bslmf::If<false>::Type CT3;
     const size_t C3 = SIZEOF(CT3);                        // Nil
 
-    typedef bslmf_If<true, TrueType>::Type CT4;
+    typedef bslmf::If<true, TrueType>::Type CT4;
     const size_t C4 = SIZEOF(CT4);                        // True
 
-    typedef bslmf_If<false, TrueType>::Type CT5;
+    typedef bslmf::If<false, TrueType>::Type CT5;
     const size_t C5 = SIZEOF(CT5);                        // Nil
 
-    typedef bslmf_If<true, TrueType, FalseType>::Type CT10;
+    typedef bslmf::If<true, TrueType, FalseType>::Type CT10;
     const size_t C10 = SIZEOF(CT10);                      // True
 
-    typedef bslmf_If<false, TrueType, FalseType>::Type CT11;
+    typedef bslmf::If<false, TrueType, FalseType>::Type CT11;
     const size_t C11 = SIZEOF(CT11);                      // False
 
-    typedef bslmf_If<true>::Type CT12;
+    typedef bslmf::If<true>::Type CT12;
     const size_t C12 = SIZEOF(CT12);                      // Nil
 
-    typedef bslmf_If<false>::Type CT13;
+    typedef bslmf::If<false>::Type CT13;
     const size_t C13 = SIZEOF(CT13);                      // Nil
 
-    typedef bslmf_If<true, TrueType>::Type CT14;
+    typedef bslmf::If<true, TrueType>::Type CT14;
     const size_t C14 = SIZEOF(CT14);                      // True
 
-    typedef bslmf_If<false, TrueType>::Type CT15;
+    typedef bslmf::If<false, TrueType>::Type CT15;
     const size_t C15 = SIZEOF(CT15);                      // Nil
 
 }  // close namespace 'anonymous'
@@ -124,16 +124,16 @@ namespace {
 
 ///Usage
 //------
-// The following snippets of code illustrate basic use of the 'bslmf_If'
+// The following snippets of code illustrate basic use of the 'bslmf::If'
 // meta-function.  The examples make use of the following declarations to
 // identify the type that is selected by a given constant integral expression:
 //..
     enum TypeCode { T_UNKNOWN = 0, T_CHAR = 1, T_INT = 2, T_NIL = 3 };
 
-    TypeCode whatType(char)      { return T_CHAR; }
-    TypeCode whatType(int)       { return T_INT; }
-    TypeCode whatType(bslmf_Nil) { return T_NIL; }
-    TypeCode whatType(...)       { return T_UNKNOWN; }
+    TypeCode whatType(char)       { return T_CHAR; }
+    TypeCode whatType(int)        { return T_INT; }
+    TypeCode whatType(bslmf::Nil) { return T_NIL; }
+    TypeCode whatType(...)        { return T_UNKNOWN; }
 //..
 
 //=============================================================================
@@ -168,20 +168,20 @@ int main(int argc, char *argv[])
                                   << "=============" << endl;
 
 // In the following example, the meta-function condition (the first argument to
-// 'bslmf_If') evaluates to true (non-zero).  Thus, 'bslmf_If<...>::Type' is a
-// synonym for 'int'; i.e., it "evaluates" (at compile time) to 'int':
+// 'bslmf::If') evaluates to true (non-zero).  Thus, 'bslmf::If<...>::Type' is
+// a synonym for 'int'; i.e., it "evaluates" (at compile time) to 'int':
 //..
      typedef int  T1;  ASSERT(1 <  sizeof(T1));
      typedef char T2;  ASSERT(1 == sizeof(T2));
 
-     typedef bslmf_If<(sizeof(T1) > sizeof(T2)), T1, T2>::Type LargerType;
+     typedef bslmf::If<(sizeof(T1) > sizeof(T2)), T1, T2>::Type LargerType;
      ASSERT(T_INT == whatType(LargerType()));
 //..
 // In the next example, the condition argument evaluates to false (zero).  In
-// this case, 'bslmf_If<...>::Type' evaluates to 'bslmf_Nil' since the third
+// this case, 'bslmf::If<...>::Type' evaluates to 'bslmf::Nil' since the third
 // template argument (the "else" type) is not explicitly specified:
 //..
-     typedef bslmf_If<(sizeof(T2) > 1), int>::Type Type2;
+     typedef bslmf::If<(sizeof(T2) > 1), int>::Type Type2;
      ASSERT(T_NIL == whatType(Type2()));
 //..
 
@@ -190,27 +190,27 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // TESTING BSLMF_IF
-        //   Test the 'bslmf_If' meta-function.
+        //   Test the 'bslmf::If' meta-function.
         //
         // Concerns:
         //   - That 'true' and 'false' conditions select the first and second
         //     type arguments, respectively.
         //   - That selected types that are not explicitly specified resolve to
-        //     the default 'bslmf_Nil' type.
+        //     the default 'bslmf::Nil' type.
         //
         // Plan:
         //   - Provide distinct type arguments with both 'true' and 'false'
         //     conditions and verify that the correct type is selected.
         //   - Repeat the tests such that:
-        //      1. The second type parameter (only) defaults to 'bslmf_Nil'.
-        //      2. Both type parameters default to 'bslmf_Nil'.
+        //      1. The second type parameter (only) defaults to 'bslmf::Nil'.
+        //      2. Both type parameters default to 'bslmf::Nil'.
         //
         // Testing:
-        //   bslmf_If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>
+        //   bslmf::If<CONDITION, IF_TRUE_TYPE, IF_FALSE_TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "bslmf_If" << endl
-                          << "========" << endl;
+        if (verbose) cout << "bslmf::If" << endl
+                          << "=========" << endl;
 
         ASSERT(1 == True);
         ASSERT(1 <  False);

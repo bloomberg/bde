@@ -621,12 +621,14 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 
 namespace BloombergLP {
 
 // FORWARD DECLARATIONS
-
-class bslma_Allocator;
 
 struct bdecs_HashTable2DefaultTraits;
 struct bdecs_HashTable2DefaultHash1;

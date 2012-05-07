@@ -1,4 +1,4 @@
-// bsltst_dual_deque.t.cpp                  -*-C++-*-
+// bsltst_dual_deque.t.cpp                                            -*-C++-*-
 #undef BSL_OVERRIDES_STD
 #include <bsltst_dual_deque.h>
 
@@ -121,11 +121,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
 
         ASSERT(false == sameType(bsl::deque<int>(), std::deque<int>()));
         ASSERT(false == sameType(bsl::deque<int>(),
-                                                   native_std::deque<int>()));
+                                 native_std::deque<int>()));
         ASSERT(true  == usesBslmaAllocator(bsl::deque<int>()));
         ASSERT(false == usesBslmaAllocator(std::deque<int>()));
         ASSERT(false == usesBslmaAllocator(native_std::deque<int>()));
@@ -176,11 +176,11 @@ int main(int argc, char *argv[])
         ASSERT(false == sameType(bsl::deque<int>::iterator(),
                                  std::deque<int>::iterator()));
         ASSERT(false == sameType(bsl::deque<int>::iterator(),
-                          native_std::deque<int>::iterator()));
+                                 native_std::deque<int>::iterator()));
         ASSERT(false == usesBslmaAllocator(bsl::deque<int>::iterator()));
         ASSERT(false == usesBslmaAllocator(std::deque<int>::iterator()));
         ASSERT(false == usesBslmaAllocator(
-                                    native_std::deque<int>::iterator()));
+                                          native_std::deque<int>::iterator()));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

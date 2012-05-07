@@ -1,4 +1,4 @@
-// bslalg_typetraitbitwisecopyable.t.cpp                  -*-C++-*-
+// bslalg_typetraitbitwisecopyable.t.cpp                              -*-C++-*-
 
 #include <bslalg_typetraitbitwisecopyable.h>
 
@@ -65,7 +65,7 @@ int verbose = 0;
 int veryVerbose = 0;
 int veryVeryVerbose = 0;
 
-typedef bslalg_TypeTraitBitwiseCopyable  Obj;
+typedef bslalg::TypeTraitBitwiseCopyable  Obj;
 
 //=============================================================================
 //                  USAGE EXAMPLE
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitBitwiseCopyable;
+        //   class bslalg::TypeTraitBitwiseCopyable;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

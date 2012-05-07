@@ -12,14 +12,14 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use 'bdema_bufferedsequentialallocator' instead.
 //
 //@CLASSES:
-//   bslma_BufferAllocator: memory allocator from user-supplied buffer
+//  bslma::BufferAllocator: memory allocator from user-supplied buffer
 //
 //@AUTHOR: John Lakos (jlakos)
 //
 //@SEE_ALSO: bdema_bufferedsequentialallocator, bdema_bufferimputil
 //
-//@DESCRIPTION: This component provides an allocator, 'bslma_BufferAllocator',
-// that implements the 'bslma_Allocator' protocol and sequentially allocates
+//@DESCRIPTION: This component provides an allocator, 'bslma::BufferAllocator',
+// that implements the 'bslma::Allocator' protocol and sequentially allocates
 // memory blocks from a fixed-size buffer that is supplied by the user at
 // construction.  If an allocation request exceeds the remaining space in the
 // buffer, the return value is the result of invoking an optional callback
@@ -28,12 +28,12 @@ BSLS_IDENT("$Id: $")
 // allocating memory directly from a user-specified buffer:
 //..
 //   ,---------------------.
-//  ( bslma_BufferAllocator )
+//  ( bslma::BufferAllocator )
 //   `---------------------'
 //              |         ctor
 //              V
 //      ,---------------.
-//     ( bslma_Allocator )
+//     ( bslma::Allocator )
 //      `---------------'
 //                      allocate
 //                      deallocate
@@ -41,49 +41,50 @@ BSLS_IDENT("$Id: $")
 //..
 ///ALIGNMENT STRATEGY
 ///------------------
-// The 'bslma_BufferAllocator' allocates memory using one of the two alignment
+// The 'bslma::BufferAllocator' allocates memory using one of the two alignment
 // strategies: 1) MAXIMUM ALIGNMENT or 2) NATURAL ALIGNMENT.
 //..
-//     MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with
-//     the most restrictive alignment on the host platform.  The value is
-//     defined in 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'.
+//  MAXIMUM ALIGNMENT: This strategy always allocates memory aligned with
+//  the most restrictive alignment on the host platform.  The value is
+//  defined in 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT'.
 //
-//     NATURAL ALIGNMENT: This strategy allocates memory whose alignment
-//     depends on the requested number of bytes.  An object of a fundamental
-//     type ('int', etc.) is *naturally* *aligned* when it's size evenly
-//     divides its address.  An object of an aggregate type has natural
-//     alignment if the alignment of the most-restrictively aligned sub-object
-//     evenly divides the address of the aggregate.  Natural alignment is
-//     always at least as restrictive as the compiler's required alignment.
-//     When only the size of an aggregate is known, and not its composition,
-//     we compute the alignment by finding the largest integral power of 2 (up
-//     to and including 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides
-//     the requested (non-zero) number of bytes.  This computed alignment is
-//     guaranteed to be at least as restrictive as any sub-object within the
-//     aggregate.
+//  NATURAL ALIGNMENT: This strategy allocates memory whose alignment
+//  depends on the requested number of bytes.  An object of a fundamental
+//  type ('int', etc.) is *naturally* *aligned* when it's size evenly
+//  divides its address.  An object of an aggregate type has natural
+//  alignment if the alignment of the most-restrictively aligned sub-object
+//  evenly divides the address of the aggregate.  Natural alignment is
+//  always at least as restrictive as the compiler's required alignment.
+//  When only the size of an aggregate is known, and not its composition,
+//  we compute the alignment by finding the largest integral power of 2 (up
+//  to and including 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT') that divides
+//  the requested (non-zero) number of bytes.  This computed alignment is
+//  guaranteed to be at least as restrictive as any sub-object within the
+//  aggregate.
 //..
 ///Usage
 ///-----
-// The 'bslma_BufferAllocator' class defined in this component is commonly used
-// to allocate memory from a static buffer that does not require "deletion".
-// The following snippet of code creates an array that obtains its memory from
-// a fixed-sized buffer, but through the 'bslma_Allocator' protocol:
+// The 'bslma::BufferAllocator' class defined in this component is commonly
+// used to allocate memory from a static buffer that does not require
+// "deletion".  The following snippet of code creates an array that obtains its
+// memory from a fixed-sized buffer, but through the 'bslma::Allocator'
+// protocol:
 //..
 //  // my_shortarray.h
 //
 //  // ...
 //
-//  class bslma_Allocator;
+//  namespace bslma { class Allocator; }
 //
 //  class my_ShortArray {
-//      short           *d_array_p;      // dynamically-allocated array of
-//                                       // 'short' integers
+//      short            *d_array_p;      // dynamically-allocated array of
+//                                        // 'short' integers
 //
-//      int              d_size;         // physical size of 'd_array_p'
+//      int               d_size;         // physical size of 'd_array_p'
 //
-//      int              d_length;       // logical length of 'd_array_p'
+//      int               d_length;       // logical length of 'd_array_p'
 //
-//      bslma_Allocator *d_allocator_p;  // memory allocator (held, not owned)
+//      bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 //
 //    private:
 //      // PRIVATE MANIPULATORS
@@ -91,7 +92,7 @@ BSLS_IDENT("$Id: $")
 //
 //    public:
 //      // CREATORS
-//      my_ShortArray(bslma_Allocator *basicAllocator);
+//      my_ShortArray(bslma::Allocator *basicAllocator);
 //          // Create an empty array using the specified 'basicAllocator' to
 //          // supply memory.
 //      // ...
@@ -110,7 +111,7 @@ BSLS_IDENT("$Id: $")
 //  enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 //  // ...
 //
-//  my_ShortArray::my_ShortArray(bslma_Allocator *basicAllocator)
+//  my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 //  : d_size(INITIAL_SIZE)
 //  , d_length(0)
 //  , d_allocator_p(basicAllocator)
@@ -142,7 +143,7 @@ BSLS_IDENT("$Id: $")
 //
 //  static
 //  void reallocate(short **array, int newSize, int length,
-//                  bslma_Allocator *basicAllocator)
+//                  bslma::Allocator *basicAllocator)
 //      // Reallocate memory in the specified 'array' to the specified
 //      // 'newSize' using the specified 'basicAllocator' or global new
 //      // operator.  The specified 'length' number of leading elements are
@@ -188,7 +189,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //  // ...
 //      static char memory[1024];  // No alignment issue; see below.
-//      bslma_BufferAllocator allocator(memory, sizeof memory, callbackFunc);
+//      bslma::BufferAllocator allocator(memory, sizeof memory, callbackFunc);
 //
 //      my_ShortArray mA(allocator);
 //      const my_ShortArray& A = mA;
@@ -198,7 +199,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Note that in the 'main' function above, 'memory' does not need to be aligned
-// because 'bslma_BufferAllocator::allocate' internally performs alignment for
+// because 'bslma::BufferAllocator::allocate' internally performs alignment for
 // each requested memory block based on the allocator's alignment strategy.
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -211,16 +212,17 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ===========================
-                        // class bslma_BufferAllocator
-                        // ===========================
+namespace bslma {
 
-class bslma_BufferAllocator : public bslma_Allocator {
-    // This 'class' provides a concrete buffer allocator that
-    // implements the 'bslma_Allocator' interface, and allocates memory
-    // blocks from a fixed-size buffer that is supplied by the user at
-    // construction.  The allocator can supply memory that can be maximally
-    // (default) or naturally aligned.
+                        // =====================
+                        // class BufferAllocator
+                        // =====================
+
+class BufferAllocator : public Allocator {
+    // This 'class' provides a concrete buffer allocator that implements the
+    // 'Allocator' interface, and allocates memory blocks from a fixed-size
+    // buffer that is supplied by the user at construction.  The allocator can
+    // supply memory that can be maximally (default) or naturally aligned.
 
   public:
     // TYPES
@@ -233,13 +235,13 @@ class bslma_BufferAllocator : public bslma_Allocator {
 
         MAXIMUM_ALIGNMENT,  // Default.  Return memory on maximally-aligned
                             // boundary
-                            // 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT'
-                            // (as required for ANSI standard allocators).
+                            // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT' (as
+                            // required for ANSI standard allocators).
 
         NATURAL_ALIGNMENT   // Return memory aligned on a boundary that is the
                             // largest power of two dividing the requested size
                             // (up to
-                            // 'bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT').
+                            // 'bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT').
     };
 
   private:
@@ -251,8 +253,8 @@ class bslma_BufferAllocator : public bslma_Allocator {
     AllocCallback      d_allocCallback; // function handling buffer overflow
 
     // NOT IMPLEMENTED
-    bslma_BufferAllocator(const bslma_BufferAllocator&);
-    bslma_BufferAllocator& operator=(const bslma_BufferAllocator&);
+    BufferAllocator(const BufferAllocator&);
+    BufferAllocator& operator=(const BufferAllocator&);
 
   public:
     // CLASS METHODS
@@ -261,11 +263,11 @@ class bslma_BufferAllocator : public bslma_Allocator {
                                     size_type          bufSize,
                                     size_type          size,
                                     AlignmentStrategy  strategy);
-    static void *allocateFromBuffer(int               *cursor,
-                                    char              *buffer,
-                                    size_type          bufSize,
-                                    size_type          size,
-                                    int                alignment);
+    static void *allocateFromBuffer(int       *cursor,
+                                    char      *buffer,
+                                    size_type  bufSize,
+                                    size_type  size,
+                                    int        alignment);
         // Allocate a memory block of the specified 'size' from the specified
         // 'buffer' at the specified 'cursor' position.  Return the address of
         // the allocated memory block if 'buffer' contains enough available
@@ -274,30 +276,30 @@ class bslma_BufferAllocator : public bslma_Allocator {
         // specified alignment 'strategy' (or 'alignment' value) to allocate
         // memory.  If 'size' is 0, do not allocate memory and return zero.
         // The behavior is undefined unless '0 < = bufSize', '0 <= size',
-        // '0 < alignment <= bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT', and
+        // '0 < alignment <= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT', and
         // alignment is an integral power of 2.
 
     // CREATORS
-    bslma_BufferAllocator(char          *buffer,
-                          size_type      bufSize,
-                          AllocCallback  allocCallback = 0);
+    BufferAllocator(char          *buffer,
+                    size_type      bufSize,
+                    AllocCallback  allocCallback = 0);
         // Create a buffer allocator for allocating memory blocks from the
         // specified 'buffer' of the specified 'bufSize'.  Optionally specify a
         // callback function 'allocCallback' that is invoked when a call to
         // 'allocate' cannot be fulfilled from 'buffer'.  Note that maximum
         // alignment is used when allocating memory.
 
-    bslma_BufferAllocator(char              *buffer,
-                          size_type          bufSize,
-                          AlignmentStrategy  strategy,
-                          AllocCallback      allocCallback = 0);
+    BufferAllocator(char              *buffer,
+                    size_type          bufSize,
+                    AlignmentStrategy  strategy,
+                    AllocCallback      allocCallback = 0);
         // Create a buffer allocator for allocating memory blocks from the
         // specified 'buffer' of the specified 'bufSize'.  Use the specified
         // alignment 'strategy' to allocate memory.  Optionally specify a
         // callback function 'allocCallback' that is invoked when a call to
         // 'allocate' cannot be fulfilled from 'buffer'.
 
-    ~bslma_BufferAllocator();
+    ~BufferAllocator();
         // Destroy this buffer allocator.
 
     // MANIPULATORS
@@ -313,9 +315,9 @@ class bslma_BufferAllocator : public bslma_Allocator {
         // '0 <= size'.  Note that the alignment of the address returned
         // depends on the alignment strategy ('MAXIMUM_ALIGNMENT' or
         // 'NATURAL_ALIGNMENT') specified at construction of this buffer
-        // allocator.  Also note that it is up to the callback function
-        // whether to return zero or throw an exception if this buffer
-        // allocator is unable to satisfy the request.
+        // allocator.  Also note that it is up to the callback function whether
+        // to return zero or throw an exception if this buffer allocator is
+        // unable to satisfy the request.
 
     void deallocate(void *address);
         // This function has no effect for this buffer allocator.
@@ -330,15 +332,15 @@ class bslma_BufferAllocator : public bslma_Allocator {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ---------------------------
-                        // class bslma_BufferAllocator
-                        // ---------------------------
+                        // ---------------------
+                        // class BufferAllocator
+                        // ---------------------
 
 // CREATORS
 inline
-bslma_BufferAllocator::bslma_BufferAllocator(char          *buffer,
-                                             size_type      bufSize,
-                                             AllocCallback  allocCallback)
+BufferAllocator::BufferAllocator(char          *buffer,
+                                 size_type      bufSize,
+                                 AllocCallback  allocCallback)
 : d_strategy(MAXIMUM_ALIGNMENT)
 , d_cursor(0)
 , d_buffer_p(buffer)
@@ -348,10 +350,10 @@ bslma_BufferAllocator::bslma_BufferAllocator(char          *buffer,
 }
 
 inline
-bslma_BufferAllocator::bslma_BufferAllocator(char              *buffer,
-                                             size_type          bufSize,
-                                             AlignmentStrategy  strategy,
-                                             AllocCallback      allocCallback)
+BufferAllocator::BufferAllocator(char              *buffer,
+                                 size_type          bufSize,
+                                 AlignmentStrategy  strategy,
+                                 AllocCallback      allocCallback)
 : d_strategy(strategy)
 , d_cursor(0)
 , d_buffer_p(buffer)
@@ -362,11 +364,20 @@ bslma_BufferAllocator::bslma_BufferAllocator(char              *buffer,
 
 // MANIPULATORS
 inline
-void bslma_BufferAllocator::deallocate(void *)
+void BufferAllocator::deallocate(void *)
 {
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslma::BufferAllocator bslma_BufferAllocator;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

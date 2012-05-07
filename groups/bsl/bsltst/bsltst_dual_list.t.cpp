@@ -1,4 +1,4 @@
-// bsltst_dual_list.t.cpp                  -*-C++-*-
+// bsltst_dual_list.t.cpp                                             -*-C++-*-
 #undef  BSL_OVERRIDES_STD
 #include <bsltst_dual_list.h>
 
@@ -123,11 +123,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================
@@ -178,12 +178,11 @@ int main(int argc, char *argv[])
         ASSERT(false == sameType(bsl::list<int>::iterator(),
                                  std::list<int>::iterator()));
         ASSERT(false == sameType(bsl::list<int>::iterator(),
-                          native_std::list<int>::iterator()));
+                                 native_std::list<int>::iterator()));
 
         ASSERT(false == usesBslmaAllocator(bsl::list<int>::iterator()));
         ASSERT(false == usesBslmaAllocator(std::list<int>::iterator()));
-        ASSERT(false == usesBslmaAllocator(
-                                    native_std::list<int>::iterator()));
+        ASSERT(false == usesBslmaAllocator(native_std::list<int>::iterator()));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

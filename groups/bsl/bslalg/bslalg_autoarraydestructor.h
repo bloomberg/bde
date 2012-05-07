@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a proctor for destroying arrays.
 //
 //@CLASSES:
-//  bslalg_AutoArrayDestructor: exception-neutrality proctor for arrays
+//  bslalg::AutoArrayDestructor: exception-neutrality proctor for arrays
 //
 //@SEE_ALSO: bslma_autodestructor
 //
@@ -25,12 +25,12 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 // The usage example is nearly identical to that of 'bslma_autodestructor', so
-// we will only quote and adapt a small portion of that usage example.
-// Namely, we will focus on an array that supports arbitrary user-defined
-// types, and suppose that we want to implement insertion of an arbitrary
-// number of elements at some (intermediate) position in the array, taking care
-// that if an element copy constructor or assignment operator throws, the whole
-// array is left in a valid (but unspecified) state.
+// we will only quote and adapt a small portion of that usage example.  Namely,
+// we will focus on an array that supports arbitrary user-defined types, and
+// suppose that we want to implement insertion of an arbitrary number of
+// elements at some (intermediate) position in the array, taking care that if
+// an element copy constructor or assignment operator throws, the whole array
+// is left in a valid (but unspecified) state.
 //
 // Consider the implementation of the 'insert' method for a templatized array
 // below.  The proctor's *origin* is set (at construction) to refer to the
@@ -41,7 +41,7 @@ BSLS_IDENT("$Id: $")
 //   _____ _____ _____ _____ _____ _____ _____ _____
 //  | "A" | "B" | "C" | "D" | "E" |xxxxx|xxxxx|xxxxx|
 //  `=====^=====^=====^=====^=====^=====^=====^====='
-//  my_Array                                  ^----- bslalg_AutoArrayDestructor
+//  my_Array                                  ^----- AutoArrayDestructor
 //  (length = 5)
 //
 //              Figure: Use of proctor for my_Array::insert
@@ -56,8 +56,8 @@ BSLS_IDENT("$Id: $")
 //   _____ _____ _____ _____ _____ _____ _____ _____
 //  | "A" | "B" | "C" | "D" |xxxxx|xxxxx| "E" |xxxxx|
 //  `=====^=====^=====^=====^=====^=====^=====^====='
-//  my_Array                            ^     ^ bslalg_AutoArrayDestructor::end
-//  (length = 4)                        `---- bslalg_AutoArrayDestructor::begin
+//  my_Array                            ^     ^ AutoArrayDestructor::end
+//  (length = 4)                        `---- AutoArrayDestructor::begin
 //
 //              Figure: Configuration after shifting up one element
 //..
@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 //      int   origLen = d_length;
 //      TYPE *src     = &d_array_p[d_length];
 //      TYPE *src     = &d_array_p[d_length + numItems];
-//      bslalg_AutoArrayDestructor<TYPE> autoDtor(dest, dest);
+//      bslalg::AutoArrayDestructor<TYPE> autoDtor(dest, dest);
 //
 //      for (int i = d_length; i > dstIndex; --i, --d_length) {
 //          dest = autoDtor.moveBegin(-1);  // decrement destination
@@ -91,9 +91,9 @@ BSLS_IDENT("$Id: $")
 //      d_length = origLen + numItems;
 //  }
 //..
-// Note that in the 'insert' example above, we illustrate exception
-// neutrality, but not alias safety (i.e., in the case when 'item' is a
-// reference into the portion of the array at 'dstIndex' or beyond).
+// Note that in the 'insert' example above, we illustrate exception neutrality,
+// but not alias safety (i.e., in the case when 'item' is a reference into the
+// portion of the array at 'dstIndex' or beyond).
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -114,12 +114,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ================================
-                        // class bslalg_AutoArrayDestructor
-                        // ================================
+namespace bslalg {
+
+                        // =========================
+                        // class AutoArrayDestructor
+                        // =========================
 
 template <class OBJECT_TYPE>
-class bslalg_AutoArrayDestructor {
+class AutoArrayDestructor {
     // This 'class' provides a specialized proctor object that, upon
     // destruction and unless the 'release' method has been called, destroys
     // the elements in a segment of an array of parameterized type
@@ -134,55 +136,54 @@ class bslalg_AutoArrayDestructor {
 
   private:
     // NOT IMPLEMENTED
-    bslalg_AutoArrayDestructor(const bslalg_AutoArrayDestructor&);
-    bslalg_AutoArrayDestructor& operator=(const bslalg_AutoArrayDestructor&);
+    AutoArrayDestructor(const AutoArrayDestructor&);
+    AutoArrayDestructor& operator=(const AutoArrayDestructor&);
 
   public:
     // TYPES
     typedef std::ptrdiff_t difference_type;
 
     // CREATORS
-    bslalg_AutoArrayDestructor(OBJECT_TYPE *begin, OBJECT_TYPE *end);
+    AutoArrayDestructor(OBJECT_TYPE *begin, OBJECT_TYPE *end);
         // Create an array exception guard object for the sequence of elements
         // of the parameterized 'OBJECT_TYPE' delimited by the range specified
         // by '[ begin, end )'.  The behavior is undefined unless
         // 'begin <= end' and each element in the range '[ begin, end )' has
         // been initialized.
 
-    ~bslalg_AutoArrayDestructor();
+    ~AutoArrayDestructor();
         // Call the destructor on each of the elements of the parameterized
         // 'OBJECT_TYPE' delimited by the range '[ begin(), end() )' and
         // destroy this array exception guard.
 
     // MANIPULATORS
     OBJECT_TYPE *moveBegin(difference_type offset = -1);
-        // Move the begin pointer by the specified 'offset', and return the
-        // new begin pointer.
+        // Move the begin pointer by the specified 'offset', and return the new
+        // begin pointer.
 
     OBJECT_TYPE *moveEnd(difference_type offset = 1);
         // Move the end pointer by the specified 'offset', and return the new
         // end pointer.
 
     void release();
-        // Set the range of elements guarded by this object to be empty.
-        // Note that 'begin() == end()' following this operation, but the
-        // specific value is unspecified.
+        // Set the range of elements guarded by this object to be empty.  Note
+        // that 'begin() == end()' following this operation, but the specific
+        // value is unspecified.
 };
 
 // ===========================================================================
 //                          INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                      // --------------------------------
-                      // class bslalg_AutoArrayDestructor
-                      // --------------------------------
+                      // -------------------------
+                      // class AutoArrayDestructor
+                      // -------------------------
 
 // CREATORS
 template <class OBJECT_TYPE>
 inline
-bslalg_AutoArrayDestructor<OBJECT_TYPE>::bslalg_AutoArrayDestructor(
-                                                            OBJECT_TYPE *begin,
-                                                            OBJECT_TYPE *end)
+AutoArrayDestructor<OBJECT_TYPE>::AutoArrayDestructor(OBJECT_TYPE *begin,
+                                                      OBJECT_TYPE *end)
 : d_begin_p(begin)
 , d_end_p(end)
 {
@@ -192,18 +193,18 @@ bslalg_AutoArrayDestructor<OBJECT_TYPE>::bslalg_AutoArrayDestructor(
 
 template <class OBJECT_TYPE>
 inline
-bslalg_AutoArrayDestructor<OBJECT_TYPE>::~bslalg_AutoArrayDestructor()
+AutoArrayDestructor<OBJECT_TYPE>::~AutoArrayDestructor()
 {
     BSLS_ASSERT_SAFE(!d_begin_p == !d_end_p);
     BSLS_ASSERT_SAFE(d_begin_p <= d_end_p);
 
-    bslalg_ArrayDestructionPrimitives::destroy(d_begin_p, d_end_p);
+    ArrayDestructionPrimitives::destroy(d_begin_p, d_end_p);
 }
 
 // MANIPULATORS
 template <class OBJECT_TYPE>
 inline
-OBJECT_TYPE *bslalg_AutoArrayDestructor<OBJECT_TYPE>::moveBegin(
+OBJECT_TYPE *AutoArrayDestructor<OBJECT_TYPE>::moveBegin(
                                                         difference_type offset)
 {
     BSLS_ASSERT_SAFE(d_begin_p || 0 == offset);
@@ -215,8 +216,7 @@ OBJECT_TYPE *bslalg_AutoArrayDestructor<OBJECT_TYPE>::moveBegin(
 
 template <class OBJECT_TYPE>
 inline
-OBJECT_TYPE *bslalg_AutoArrayDestructor<OBJECT_TYPE>::moveEnd(
-                                                        difference_type offset)
+OBJECT_TYPE *AutoArrayDestructor<OBJECT_TYPE>::moveEnd(difference_type offset)
 {
     BSLS_ASSERT_SAFE(d_end_p || 0 == offset);
     BSLS_ASSERT_SAFE(d_end_p - d_begin_p >= -offset);
@@ -227,12 +227,24 @@ OBJECT_TYPE *bslalg_AutoArrayDestructor<OBJECT_TYPE>::moveEnd(
 
 template <class OBJECT_TYPE>
 inline
-void bslalg_AutoArrayDestructor<OBJECT_TYPE>::release()
+void AutoArrayDestructor<OBJECT_TYPE>::release()
 {
     d_begin_p = d_end_p;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_AutoArrayDestructor
+#undef bslalg_AutoArrayDestructor
+#endif
+#define bslalg_AutoArrayDestructor bslalg::AutoArrayDestructor
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

@@ -1,4 +1,4 @@
-// bsls_ident.t.cpp    -*-C++-*-
+// bsls_ident.t.cpp                                                   -*-C++-*-
 
 
 

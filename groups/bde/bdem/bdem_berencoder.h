@@ -909,7 +909,7 @@ int bdem_BerEncoder::encodeImpl(const TYPE&                  value,
                                              tagClass,
                                              bdem_BerConstants::BDEM_PRIMITIVE,
                                              tagNumber);
-    rc |= bdem_BerUtil::putValue(d_streamBuf, value);
+    rc |= bdem_BerUtil::putValue(d_streamBuf, value, d_options);
 
     return rc;
 }
@@ -1069,7 +1069,9 @@ int bdem_BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
     bdeat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
     bdem_BerUniversalTagNumber::Value tagNumber
-           = bdem_BerUniversalTagNumber::select(value, d_formattingMode);
+           = bdem_BerUniversalTagNumber::select(value,
+                                                d_formattingMode,
+                                                d_encoder->options());
 
     if (d_encoder->encodeImpl(value,
                               bdem_BerConstants::BDEM_UNIVERSAL,

@@ -23,10 +23,10 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
-#include <algorithm>    // for set_symmetric_difference 
+#include <algorithm>    // for set_symmetric_difference
 #include <cstddef>      // for size_t
 
 #include <alg_test.h>
@@ -35,13 +35,13 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
-template 
+template
 OutputIter<lt_comp<assign<base<cpy_ctor> > > >
 set_symmetric_difference (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                           InputIter<lt_comp<assign<base<cpy_ctor> > > >,
@@ -49,11 +49,11 @@ set_symmetric_difference (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                           InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                           OutputIter<lt_comp<assign<base<cpy_ctor> > > >);
 
-template 
+template
 OutputIter<lt_comp<assign<base<cpy_ctor> > > >
 set_symmetric_difference (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                           InputIter<lt_comp<assign<base<cpy_ctor> > > >,
-                          InputIter<lt_comp<assign<base<cpy_ctor> > > >,  
+                          InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                           InputIter<lt_comp<assign<base<cpy_ctor> > > >,
                           OutputIter<lt_comp<assign<base<cpy_ctor> > > >,
                         binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
@@ -128,9 +128,9 @@ struct SetSymDifference: SetSymDifferenceBase
         const OutputIterator result (xdst, xdst, xdst_end);
 
         const OutputIterator ret = ppred ?
-            std::set_symmetric_difference (first1, last1, first2, last2, 
+            std::set_symmetric_difference (first1, last1, first2, last2,
                                            result, *ppred)
-          : std::set_symmetric_difference (first1, last1, first2, last2, 
+          : std::set_symmetric_difference (first1, last1, first2, last2,
                                            result);
 
         // silence EDG eccp 3.7 and prior remark #550-D:
@@ -183,26 +183,26 @@ void test_set_sym_difference (int                         line,
     const Less* const ppred = predicate ? &pred : 0;
 
     UserClass* xdst_res = alg.set_sym_difference (xsrc1, xsrc1_end,
-                                          xsrc2, xsrc2_end, 
+                                          xsrc2, xsrc2_end,
                                           xdst, xdst_end, ppred);
 
     // check the returned value
     bool success = xdst_res == xdst_end;
     rw_assert (success, 0, line,
                "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
-               "got res + %td, expected res + %zu", 
-               __LINE__, algname, it1name, it2name, outname, predicate, 
+               "got res + %td, expected res + %zu",
+               __LINE__, algname, it1name, it2name, outname, predicate,
                funname, src1, src2, xdst_res - xdst, ndst);
 
     //quit here to avoid the running out of the array boundaries
-    if (! success) {    
+    if (! success) {
         delete[] xsrc1;
         delete[] xsrc2;
         delete[] xdst;
         return;
     }
 
-    std::size_t n_ops_lt = ppred ? 
+    std::size_t n_ops_lt = ppred ?
         Less::funcalls_ : UserClass::n_total_op_lt_ - last_n_op_lt;
 
     // verify the algorithm correctness
@@ -221,8 +221,8 @@ void test_set_sym_difference (int                         line,
 
     rw_assert (success, 0, line,
                "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
-               " ==> \"%{X=*.*}\", expected \"%s\"", 
-               __LINE__, algname, it1name, it2name, outname, predicate, 
+               " ==> \"%{X=*.*}\", expected \"%s\"",
+               __LINE__, algname, it1name, it2name, outname, predicate,
                funname, src1, src2, int (ndst), i, xdst, res);
 
     // verfiy that only elements from first sequence sequence were taken
@@ -253,7 +253,7 @@ void test_set_sym_difference (int                         line,
                    "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...)"
                    " ==> \"%{X=*.*}\" not stable : elements %#c==%#c have "
                    "ids %d >= %d ",
-                   __LINE__, algname, it1name, it2name, outname, predicate, 
+                   __LINE__, algname, it1name, it2name, outname, predicate,
                    funname, src1, src2, int (ndst), i, xdst,
                    xdst[i - 1].data_.val_, xdst[i].data_.val_,
                    xdst[i - 1].origin_, xdst[i].origin_);
@@ -274,7 +274,7 @@ void test_set_sym_difference (int                         line,
 
 /**************************************************************************/
 
-void test_set_sym_difference (const SetSymDifferenceBase &alg, 
+void test_set_sym_difference (const SetSymDifferenceBase &alg,
                               bool                        predicate)
 {
     const char* const it1name = alg.iter_names [0];
@@ -291,7 +291,7 @@ void test_set_sym_difference (const SetSymDifferenceBase &alg,
     test_set_sym_difference (__LINE__, src1, sizeof src1 -1,    \
                              src2, sizeof src2 - 1,             \
                              res, sizeof res - 1,               \
-                             nf, predicate, alg)  
+                             nf, predicate, alg)
 
     //    +------------------------------ first set
     //    |        +--------------------- second set
@@ -373,7 +373,7 @@ void gen_set_sym_difference_test (const InputIterator1 &it1,
 }
 
 template <class InputIterator1>
-void gen_set_sym_difference_test (const InputIterator1 &it1, 
+void gen_set_sym_difference_test (const InputIterator1 &it1,
                                   bool                  predicate)
 {
     if (0 == rw_opt_no_input_iter)

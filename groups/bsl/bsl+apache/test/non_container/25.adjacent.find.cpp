@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2004-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>   // for adjacent_find()
@@ -132,7 +132,7 @@ void do_test (int             line,     // line number of test case
 
     // verify that the returned iterator is set as expected
     int success = res.cur_ == first.cur_ + resoff;
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: adjacent_find<%s>(it = \"%s\", ...)"
                " == (it + %zu), got (it + %td)",
                __LINE__, itname, src,
@@ -158,11 +158,11 @@ void do_test (int             line,     // line number of test case
     }
 
     success = std::size_t (n_expect_pred) == n_total_pred;
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: adjacent_find<%s>(\"%s\", ...) "
                "invoked %s %zu times, expected %td",
                __LINE__, itname, src,
-               predname ? predname : "operator==()", 
+               predname ? predname : "operator==()",
                n_total_pred, n_expect_pred);
 }
 
@@ -173,9 +173,9 @@ void run_tests (ForwardIterator dummy_iter, const T*, const char* predname)
 {
     static const char* const itname = type_name (dummy_iter, (T*)0);
 
-    rw_info (0, 0, 0, "std::adjacent_find (%s, %1$s%{?}, %s%{;})", 
+    rw_info (0, 0, 0, "std::adjacent_find (%s, %1$s%{?}, %s%{;})",
              itname, 0 != predname, predname);
-    
+
 #define TEST(src, off) \
     do_test (__LINE__, src, std::size_t (off), dummy_iter, \
              (UserClass*)0, predname)
@@ -228,10 +228,10 @@ void run_tests (ForwardIterator dummy_iter, const T*, const char* predname)
 /* extern */ int rw_opt_no_rnd_iter;     // --no-RandomAccessIterator
 /* extern */ int rw_opt_no_predicate;    // --no-Predicate
 
-static 
+static
 void test_adjacent_find (const char* predname)
 {
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "template <class %s%{?}, class %s%{;}> "
              "%1$s std::adjacent_find (%1$s, %1$s%{?}, %3$s%{;})",
              "ForwardIterator", 0 != predname, "BinaryPredicate",
@@ -272,7 +272,7 @@ run_test (int, char*[])
     else {
         test_adjacent_find ("EqualityPredicate<UserClass, UserClass>");
     }
-                
+
     return 0;
 }
 

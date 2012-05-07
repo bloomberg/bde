@@ -1,4 +1,4 @@
-// bslmf_forwardingtype.cpp        -*-C++-*-
+// bslmf_forwardingtype.cpp                                           -*-C++-*-
 #include <bslmf_forwardingtype.h>
 
 #include <bsls_ident.h>

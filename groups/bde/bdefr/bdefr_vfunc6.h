@@ -163,9 +163,11 @@ BDES_IDENT("$Id: $")
 #include <bdescm_version.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                         // ==================
                         // class bdefr_Vfunc6

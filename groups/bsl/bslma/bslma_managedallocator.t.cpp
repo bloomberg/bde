@@ -1,4 +1,4 @@
-// bslma_managedallocator.t.cpp      -*-C++-*-
+// bslma_managedallocator.t.cpp                                       -*-C++-*-
 
 #include <bslma_managedallocator.h>
 
@@ -14,7 +14,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// The goal of this 'bslma_ManagedAllocator' test suite is to verify that a
+// The goal of this 'bslma::ManagedAllocator' test suite is to verify that a
 // concrete derived class compiles and links, and to provide a meaningful
 // usage example illustrating the power of the added facility a managed
 // allocator provides over an ordinary allocator.
@@ -32,7 +32,7 @@ using namespace std;
 // corresponding constant for each method is recorded after each method's
 // invocation.
 //-----------------------------------------------------------------------------
-// [1] virtual ~bslma_ManagedAllocator();
+// [1] virtual ~bslma::ManagedAllocator();
 // [1] virtual void *allocate(size) = 0;
 // [1] virtual void deallocate(address) = 0;
 // [1] virtual void release() = 0;
@@ -71,7 +71,7 @@ static void aSsErT(int c, const char *s, int i)
 
 static int globalTestAllocatorDtorCalled;
 
-class TestAllocator : public bslma_ManagedAllocator {
+class TestAllocator : public bslma::ManagedAllocator {
     // Test class used to verify protocol.
 
     int  d_fun; // Holds value indicating the most recent method invoked.
@@ -99,7 +99,7 @@ class TestAllocator : public bslma_ManagedAllocator {
 //                     (FOR USE BY USAGE EXAMPLE)
 //-----------------------------------------------------------------------------
 
-class LinkedListMA : public bslma_ManagedAllocator {
+class LinkedListMA : public bslma::ManagedAllocator {
 
     class Node {
     public:
@@ -608,7 +608,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Our primary concern is that a class derived from
-        //   'bslma_ManagedAllocator' works as expected.
+        //   'bslma::ManagedAllocator' works as expected.
         //
         // Plan:
         //   Create a 'TestAllocator' and invoke its 'allocate', 'deallocate'
@@ -619,7 +619,7 @@ int main(int argc, char *argv[])
         //   to non-zero.
         //
         // Testing:
-        //   virtual ~bslma_ManagedAllocator();
+        //   virtual ~bslma::ManagedAllocator();
         //   virtual void *allocate(size) = 0;
         //   virtual void deallocate(address) = 0;
         //   virtual void release() = 0;
@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
             TestAllocator myA;
             ASSERT(0 == globalTestAllocatorDtorCalled);
 
-            bslma_ManagedAllocator& a = myA;
+            bslma::ManagedAllocator& a = myA;
             ASSERT(0 == myA.fun());
 
             ASSERT(&myA == a.allocate(100));

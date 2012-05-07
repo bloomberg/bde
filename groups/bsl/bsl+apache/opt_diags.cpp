@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -135,7 +135,7 @@ _rw_vt100_colors[] = {
     { FG_BLU, ESC_END, "blue",    "" },
     { FG_MAG, ESC_END, "magenta", "" },
     { FG_CYN, ESC_END, "cyan",    "" },
-    { FG_WHT, ESC_END, "white",   "" } 
+    { FG_WHT, ESC_END, "white",   "" }
 };
 
 
@@ -332,7 +332,7 @@ _rw_setopt_diags (int argc, char *argv[])
                     size_t len = size_t (end - parg);
 
                     if (sizeof diag_msgs [sev].code < len) {
-                        
+
                         // name too long
                         fprintf (stderr,
                                  "%s:%d: name too long at position %d: %s\n",

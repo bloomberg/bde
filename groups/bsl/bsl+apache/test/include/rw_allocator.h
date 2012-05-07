@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_ALLOCATOR_INCLUDED
@@ -210,7 +210,7 @@ public:
         new (ptr) value_type (val);
     }
 
-    void destroy (pointer ptr) { 
+    void destroy (pointer ptr) {
         pal_->funcall (pal_->m_destroy);
         ptr->~T ();
     }

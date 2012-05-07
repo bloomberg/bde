@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for partition, stable_partition
@@ -35,7 +35,7 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
@@ -60,7 +60,7 @@ stable_partition (BidirIter<assign<base<cpy_ctor> > >,
 /**************************************************************************/
 
 template <class T>
-struct GreaterThanPredicate 
+struct GreaterThanPredicate
 {
     static std::size_t funcalls_;
 
@@ -90,14 +90,14 @@ template<class T> std::size_t GreaterThanPredicate<T>::funcalls_;
 
 // exercises std::partition() and std::stable_partition()
 template <class T, class Iterator, class Predicate>
-void test_partitions (int                   line, 
+void test_partitions (int                   line,
                       const char           *src,
                       const char           *dst,
                       const int             value,
                       const std::size_t     offset,
-                      const Iterator       &it, 
+                      const Iterator       &it,
                       const Predicate      *,
-                      const T*, 
+                      const T*,
                       bool                  stable)
 {
     const char* const itname  = type_name (it, (T*)0);
@@ -121,8 +121,8 @@ void test_partitions (int                   line,
 
     const Predicate pred (value, 0 /* dummy */);
 
-    const Iterator res = 
-            stable ? std::stable_partition (first, last, pred) 
+    const Iterator res =
+            stable ? std::stable_partition (first, last, pred)
                    : std::partition (first, last, pred);
 
     // check that there is no leaked objects
@@ -134,8 +134,8 @@ void test_partitions (int                   line,
     rw_assert (success, 0, line,
                "line %d: std::%s <%s, %s>(\"%s\", ...) ==> \"%{X=*.*}\", "
                "number of objects changed on %d: %s detected",
-               __LINE__, fname, itname, funname, src, 
-               int (nsrc), -1, xsrc, t_n_objs_diff, 
+               __LINE__, fname, itname, funname, src,
+               int (nsrc), -1, xsrc, t_n_objs_diff,
                t_n_objs_diff > 0 ? "memory leak" : "unexpected dtor call");
 
     // check that the returned iterator points to the expected element
@@ -143,7 +143,7 @@ void test_partitions (int                   line,
     rw_assert (success, 0, line,
                "line %d: std::%s <%s, %s>(\"%s\", ...) ==> \"%{X=*.*}\", "
                "returned iterator it = first + %td, expected first + %zu",
-               __LINE__, fname, itname, funname, src, int (nsrc), 
+               __LINE__, fname, itname, funname, src, int (nsrc),
                -1, xsrc, res.cur_ - first.cur_, offset);
 
     // check 25.2.12, p2 & p5
@@ -158,7 +158,7 @@ void test_partitions (int                   line,
     rw_assert (success, 0, line,
                "line %d: std::%s <%s, %s>(\"%s\", ...) "
                "==> \"%{X=*.*}\", at %zu got: %#c !> %#c",
-               __LINE__, fname, itname, funname, src, int (nsrc), 
+               __LINE__, fname, itname, funname, src, int (nsrc),
                -1, xsrc, i + 1, xsrc[i].data_.val_, value);
 
 
@@ -172,7 +172,7 @@ void test_partitions (int                   line,
     rw_assert (success, 0, line,
                "line %d: std::%s <%s, %s>(\"%s\", ...) "
                "==> \"%{X=*.*}\", at %zu got: %#c !<= %#c",
-               __LINE__, fname, itname, funname, src, int (nsrc), 
+               __LINE__, fname, itname, funname, src, int (nsrc),
                -1, xsrc, i + 1, xsrc[i].data_.val_, value);
 
 
@@ -216,7 +216,7 @@ void test_partitions (int                   line,
                    "line %d: std::%s <%s, %s>(\"%s\", ...) ==> \"%{X=*.*}\", "
                    "expected \"%{X=*.*}\", realtive order broken at %zu, "
                    "%#c != %#c",
-                   __LINE__, fname, itname, funname, src, 
+                   __LINE__, fname, itname, funname, src,
                    int (nsrc), int (i), xsrc, int (ndst), int (i), xdst,
                    i, xsrc[i].data_.val_, xdst[i].data_.val_);
     }
@@ -228,12 +228,12 @@ void test_partitions (int                   line,
 /**************************************************************************/
 
 template <class T, class Iterator>
-void test_partitions (const Iterator &it, 
-                      const T* , 
+void test_partitions (const Iterator &it,
+                      const T* ,
                       bool            stable)
 {
     const char* const itname = type_name (it, (T*)0);
-    const char* const fname = 
+    const char* const fname =
         stable ? "stable_partition" : "partition";
     const char* const funname = GreaterThanPredicate<T>::name();
 
@@ -246,7 +246,7 @@ void test_partitions (const Iterator &it,
                      (GreaterThanPredicate<T>*)0, (T*)0, stable)
 
     // stable_partition fails this test
-    TEST ("abcdefghij", "abcdefghij",  0,  10); 
+    TEST ("abcdefghij", "abcdefghij",  0,  10);
 
     TEST ("abcdefghij", "bcdefghija", 'a',  9);
     TEST ("abcdefghij", "cdefghijab", 'b',  8);
@@ -274,7 +274,7 @@ void test_partitions (const Iterator &it,
     TEST ("jihgfedcba", "jihgfedcba", 'j',  0);
 
     // stable_partition fails this test
-    TEST ("a", "a", 0, 1);  
+    TEST ("a", "a", 0, 1);
 
     TEST ("a", "a", 'a', 0);
 }
@@ -290,23 +290,23 @@ void test_partitions (const Iterator &it,
 template <class T>
 void test_partitions (const T*, bool stable)
 {
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "template <class %s, class %s> %1$s %s (%1$s, %1$s, %2$s)",
-             "BidirectionalIterator", "Predicate", 
+             "BidirectionalIterator", "Predicate",
              stable ? "stable_partition" : "partition");
 
     if (rw_opt_no_bidir_iter) {
         rw_note (0, __FILE__, __LINE__, "BidirectionalIterator test disabled");
     }
     else {
-        test_partitions (BidirIter<T>(), (T*)0, stable); 
+        test_partitions (BidirIter<T>(), (T*)0, stable);
     }
 
     if (rw_opt_no_rnd_iter) {
         rw_note (0, __FILE__, __LINE__, "RandomAccessIterator test disabled");
     }
     else {
-        test_partitions (RandomAccessIter<T>(), (T*)0, stable);  
+        test_partitions (RandomAccessIter<T>(), (T*)0, stable);
     }
 }
 
@@ -322,7 +322,7 @@ static int run_test (int, char*[])
     }
 
     if (rw_opt_no_stable_partition) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "std::stable_partition test disabled");
     }
     else {
@@ -342,7 +342,7 @@ int main (int argc, char *argv[])
                     "|-no-partition# "
                     "|-no-stable_partition# "
                     "|-no-BidirectionalIterator# "
-                    "|-no-RandomAccessIterator", 
+                    "|-no-RandomAccessIterator",
                     &rw_opt_no_partition,
                     &rw_opt_no_stable_partition,
                     &rw_opt_no_bidir_iter,

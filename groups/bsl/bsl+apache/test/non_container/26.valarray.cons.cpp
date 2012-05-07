@@ -141,7 +141,7 @@ void
 delete_array (const UserClass *array, std::size_t nelems)
 {
     UserClass* const a = _RWSTD_CONST_CAST (UserClass*, array);
-    
+
     for (std::size_t i = 0; i != nelems; ++i)
         (a + i)->~UserClass ();
 
@@ -238,7 +238,7 @@ test_ctor (const T*, const char *tname, CtorId which, bool copy,
         // invoke the copy ctor
         pva = new std::valarray<T>(*pva);
     }
-        
+
     // verify the size of the array
     rw_assert (pva->size () == nelems, 0, line,
                "line %d. %s.size() == %zu, got %zu",
@@ -248,7 +248,7 @@ test_ctor (const T*, const char *tname, CtorId which, bool copy,
         // compute the number of objects of type T constructed
         // by the ctor (valid only for T=UserClass)
         nobjects = *pcounter - nobjects;
-        
+
         rw_assert (nobjects == nelems, 0, line,
                    "line %d. %s constucted %zu objects, expected %zu",
                    __LINE__, fname, nobjects, nelems);

@@ -1,4 +1,4 @@
-// bslmf_metaint.t.cpp            -*-C++-*-
+// bslmf_metaint.t.cpp                                                -*-C++-*-
 
 #include <bslmf_metaint.h>
 
@@ -15,7 +15,7 @@ using namespace std;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_MetaInt
+// [ 1] bslmf::MetaInt
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 //=============================================================================
@@ -53,19 +53,19 @@ static void aSsErT(int c, const char *s, int i) {
 // verify that the 'VALUE' member is evaluated at compile-time
 
 enum {
-    C0 = 1 + bslmf_MetaInt<0>::VALUE,  // 1
-    C1 = 1 + bslmf_MetaInt<1>::VALUE,  // 2
-    C2 = 1 + bslmf_MetaInt<2>::VALUE   // 3
+    C0 = 1 + bslmf::MetaInt<0>::VALUE,  // 1
+    C1 = 1 + bslmf::MetaInt<1>::VALUE,  // 2
+    C2 = 1 + bslmf::MetaInt<2>::VALUE   // 3
 };
 
 template <class T>
-void doSomethingImp(T *t, bslmf_MetaInt<0>)
+void doSomethingImp(T *t, bslmf::MetaInt<0>)
 {
     // slow but generic implementation
 }
 
 template <class T>
-void doSomethingImp(T *t, bslmf_MetaInt<1>)
+void doSomethingImp(T *t, bslmf::MetaInt<1>)
 {
     // fast implementation (works only for some T's)
 }
@@ -73,7 +73,7 @@ void doSomethingImp(T *t, bslmf_MetaInt<1>)
 template <class T, bool IsFast>
 void doSomething(T *t)
 {
-    doSomethingImp(t, bslmf_MetaInt<IsFast>());
+    doSomethingImp(t, bslmf::MetaInt<IsFast>());
 }
 
 void f()
@@ -88,10 +88,10 @@ void f()
 template <int V>
 int g()
 {
-    bslmf_MetaInt<V> i;
+    bslmf::MetaInt<V> i;
     std::cout << i.VALUE << std::endl;
-    std::cout << bslmf_MetaInt<V>::VALUE << std::endl;
-    return bslmf_MetaInt<V>::VALUE;
+    std::cout << bslmf::MetaInt<V>::VALUE << std::endl;
+    return bslmf::MetaInt<V>::VALUE;
 }
 
 void h()
@@ -137,24 +137,24 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf_MetaInt' with various constant integral
+        //   Instantiate 'bslmf::MetaInt' with various constant integral
         //   values and verify that their 'VALUE' member is initialized
         //   properly.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "bslmf_MetaInt" << endl
-                          << "=============" << endl;
+                          << "bslmf::MetaInt" << endl
+                          << "==============" << endl;
 
         ASSERT(1 == C0);
         ASSERT(2 == C1);
         ASSERT(3 == C2);
 
-        bslmf_MetaInt<0> i0; ASSERT(0 == i0.VALUE);
-        bslmf_MetaInt<1> i1; ASSERT(1 == i1.VALUE);
-        bslmf_MetaInt<2> i2; ASSERT(2 == i2.VALUE);
+        bslmf::MetaInt<0> i0; ASSERT(0 == i0.VALUE);
+        bslmf::MetaInt<1> i1; ASSERT(1 == i1.VALUE);
+        bslmf::MetaInt<2> i2; ASSERT(2 == i2.VALUE);
 
-        ASSERT(-5 == bslmf_MetaInt<(unsigned)-5>::VALUE);
+        ASSERT(-5 == bslmf::MetaInt<(unsigned)-5>::VALUE);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

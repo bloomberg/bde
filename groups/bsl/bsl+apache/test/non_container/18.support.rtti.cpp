@@ -23,16 +23,16 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2008 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
-#include <rw/_defs.h> 
+#include <rw/_defs.h>
 #if defined (__IBMCPP__) && !defined (_RWSTD_NO_IMPLICIT_INCLUSION)
-// Disable implicit inclusion to work around 
-// a limitation in IBM's VisualAge 5.0.2.0 (see PR#26959) 
+// Disable implicit inclusion to work around
+// a limitation in IBM's VisualAge 5.0.2.0 (see PR#26959)
 
-#  define _RWSTD_NO_IMPLICIT_INCLUSION 
-#endif 
+#  define _RWSTD_NO_IMPLICIT_INCLUSION
+#endif
 
 /**************************************************************************/
 
@@ -192,7 +192,7 @@ run_test (int, char* [])
         std::bad_cast bc2 (bc);
 
         // 18.5.2, p4 - assignment
-        std::bad_cast& (std::bad_cast::*p_op_assign)(const std::bad_cast&) 
+        std::bad_cast& (std::bad_cast::*p_op_assign)(const std::bad_cast&)
             _PTR_THROWS (()) = &std::bad_cast::operator=;
 
         // 18.5.2, p5
@@ -274,7 +274,7 @@ run_test (int, char* [])
             // 18.5.2, p5
             if (bc_what)
                 rw_assert (0 == rw_strncmp (bc.what (), bc.what ()),
-                           0, __LINE__, 
+                           0, __LINE__,
                            "bad_cast::what() const: \"%s\" != \"%s\"",
                            bc.what (), bc.what ());
         }

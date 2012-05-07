@@ -94,12 +94,14 @@ BDES_IDENT_RCSID(bdem_berutil_cpp,"$Id$ $CSID$")
 //    into IEEE representation.  This varies depending on whether the number is
 //    being streamed in is a normalized/denormalized number.  The exponent of a
 //    denormalized will have an extremely low exponent value (less than -1022
-//    to be precise). If a number is denormalized, 'NUM_MANTISSA_BITS - shift'
+//    to be precise).  If a number is denormalized, 'NUM_MANTISSA_BITS - shift'
 //    is added to the exponent and the mantissa shifted by the opposite amount.
 // 5. The bias value is added to the exponent to get its final value.
 // 6. Assemble the double value from the mantissa, exponent, and sign values.
 
 #include <bdem_berutil.h>
+
+#include <bdeimp_prolepticdateutil.h>
 
 #include <bdepu_iso8601.h>
 
@@ -197,7 +199,34 @@ enum {
     REAL_MULTIPLE_EXPONENT_OCTETS      = 4,
 
     REAL_BASE_SHIFT                    = 4,
-    REAL_SCALE_FACTOR_SHIFT            = 2
+    REAL_SCALE_FACTOR_SHIFT            = 2,
+
+    EPOCH_SERIAL_DATE                  = 737425,  // Serial date for 1/1/2020
+
+    HOURS_PER_DAY                      = 24,
+    MINUTES_PER_HOUR                   = 60,
+    SECONDS_PER_MINUTE                 = 60,
+
+    MILLISECS_PER_SEC                  = 1000,
+    MILLISECS_PER_MIN                 = SECONDS_PER_MINUTE * MILLISECS_PER_SEC,
+    MILLISECS_PER_HOUR                 = MINUTES_PER_HOUR * MILLISECS_PER_MIN,
+    MILLISECS_PER_DAY                  = 86400000,
+
+    TIMEZONE_LENGTH                    = 2,
+    MIN_OFFSET                         = -1439,
+    MAX_OFFSET                         = 1439,
+
+    MAX_BINARY_DATE_LENGTH             = 3,
+    MAX_BINARY_TIME_LENGTH             = 4,
+    MAX_BINARY_DATETIME_LENGTH         = 6,
+
+    MIN_BINARY_DATETZ_LENGTH           = MAX_BINARY_DATE_LENGTH + 1,
+    MIN_BINARY_TIMETZ_LENGTH           = MAX_BINARY_TIME_LENGTH + 1,
+    MIN_BINARY_DATETIMETZ_LENGTH       = MAX_BINARY_DATETIME_LENGTH + 1,
+
+    MAX_BINARY_DATETZ_LENGTH           = 5,
+    MAX_BINARY_TIMETZ_LENGTH           = 6,
+    MAX_BINARY_DATETIMETZ_LENGTH       = 9
 };
 
 // HELPER FUNCTIONS
@@ -268,6 +297,9 @@ inline
 int getValueUsingIso8601(bsl::streambuf *streamBuf,
                          TYPE           *value,
                          int             length)
+    // Load into the specified 'value' the object in the ISO 8601 format of
+    // the specified 'length' reading from the specified 'streamBuf'.  Return
+    // 0 on success and a non-zero value otherwise.
 {
     enum { FAILURE = -1 };
 
@@ -299,10 +331,107 @@ template <typename TYPE>
 inline
 int putValueUsingIso8601(bsl::streambuf *streamBuf,
                          const TYPE&     value)
+    // Write to the specified 'streamBuf' the length and the value of the
+    // specified 'value' in the ISO 8601 format.  Return 0 on success and a
+    // non-zero value otherwise.
 {
     char buf[bdepu_Iso8601::BDEPU_MAX_DATETIME_STRLEN];
     int len = bdepu_Iso8601::generate(buf, value, sizeof(buf));
     return bdem_BerUtil_Imp::putStringValue(streamBuf, buf, len);
+}
+
+void getTimezoneOffset(bsl::streambuf *streamBuf, short *offset)
+    // Read from the specified 'streamBuf' and load into the specified
+    // 'offset' the value of the time zone offset.
+{
+    const int firstOctet  = streamBuf->sbumpc();
+    const int secondOctet = streamBuf->sbumpc();
+
+    *offset = (short) ((firstOctet << 8) | secondOctet);
+}
+
+void putTimezoneOffset(bsl::streambuf *streamBuf, short offset)
+    // Write to the specified 'streamBuf' the value of the specified time zone
+    // 'offset'.  The behavior is undefined unless
+    // 'MIN_OFFSET <= offset <= MAX_OFFSET'.
+{
+    BSLS_ASSERT(MIN_OFFSET <= offset);
+    BSLS_ASSERT(offset <= MAX_OFFSET);
+
+    streamBuf->sputc((char )((offset & 0xFF00) >> 8));
+    streamBuf->sputc((char) (offset & 0xFF));
+}
+
+void putTimezoneOffsetAndIntegerPadding(bsl::streambuf *streamBuf,
+                                        int             offset,
+                                        char            padChar,
+                                        int             totalDataLength,
+                                        int             additionalOctets)
+    // Write to the specified 'streamBuf' the value of the specified time zone
+    // 'offset' and the specified 'totalDataLength' of the data value being
+    // serialized.  In addition write to 'streamBuf' the specified
+    // 'additionalOctets' having the specified 'padChar' value.  The behavior
+    // is undefined unless 'MIN_OFFSET <= offset <= MAX_OFFSET',
+    // '0 == padChar || -1 == padChar', '0 <= totalDataLength',
+    // '0 <= additionalOctets', and 'additionalOctets < totalDataLength'.
+{
+    BSLS_ASSERT(MIN_OFFSET <= offset);
+    BSLS_ASSERT(offset <= MAX_OFFSET);
+//     BSLS_ASSERT(0 == padChar || ((char) -1) == padChar);
+    BSLS_ASSERT(0 <= totalDataLength);
+    BSLS_ASSERT(0 <= additionalOctets);
+    BSLS_ASSERT(additionalOctets < totalDataLength);
+
+    char padBuffer[MIN_BINARY_DATETIMETZ_LENGTH];
+    bsl::memset(padBuffer, padChar, additionalOctets);
+
+    bdem_BerUtil_Imp::putLength(streamBuf, totalDataLength);
+    putTimezoneOffset(streamBuf, offset);
+
+#if BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
+    streamBuf->sputn(padBuffer, additionalOctets);
+#else
+    for (int i = 0; i < additionalOctets; ++i) {
+        streamBuf->sputc(padChar);
+    }
+#endif
+}
+
+bsls_Types::Int64 getSerialDateValue(const bdet_Date& value)
+    // Return the binary proleptic serial value, in number of days', of the
+    // specified date 'value' from the predefined epoch date.  Note that the
+    // serial value could be negative if 'value' occurs before the predefined
+    // epoch date.
+{
+    const int serialDate = bdeimp_ProlepticDateUtil::ymd2serial(value.year(),
+                                                                value.month(),
+                                                                value.day());
+
+    const bsls_Types::Int64 dateOffset = serialDate - EPOCH_SERIAL_DATE;
+
+    return dateOffset;
+}
+
+bsls_Types::Int64 getSerialTimeValue(const bdet_Time& value)
+    // Return the binary serial value, in number of milli seconds, of the
+    // specified time 'value' from midnight.
+{
+    const bdet_Time defaultTime;
+    return (value - defaultTime).totalMilliseconds();
+}
+
+bsls_Types::Int64 getSerialDatetimeValue(const bdet_Datetime& value)
+    // Return the binary serial value, in number of milli seconds, of the
+    // specified datetime 'value' from midnight of the predefined epoch date
+    // value.  Note that the serial value could be negative if the date
+    // corresponding to 'value' occurs before the predefined epoch date.
+{
+    const bsls_Types::Int64 serialDate = getSerialDateValue(value.date());
+    const bsls_Types::Int64 serialTime = getSerialTimeValue(value.time());
+    const bsls_Types::Int64 serialDatetime =
+                                   serialDate * MILLISECS_PER_DAY + serialTime;
+
+    return serialDatetime;
 }
 
 }  // close anonymous namespace
@@ -444,6 +573,305 @@ int bdem_BerUtil::putIdentifierOctets(bsl::streambuf              *streamBuf,
                           // -----------------------
                           // struct bdem_BerUtil_Imp
                           // -----------------------
+
+int bdem_BerUtil_Imp::getBinaryDateValue(bsl::streambuf *streamBuf,
+                                         bdet_Date      *value,
+                                         int             length)
+{
+    bsls_Types::Int64 serialDate;
+    getIntegerValue(streamBuf, &serialDate, length);
+
+    int year, month, day;
+    bdeimp_ProlepticDateUtil::serial2ymd(&year,
+                                         &month,
+                                         &day,
+                                         serialDate + EPOCH_SERIAL_DATE);
+
+    return value->setYearMonthDayIfValid(year, month, day);
+}
+
+int bdem_BerUtil_Imp::getBinaryTimeValue(bsl::streambuf *streamBuf,
+                                         bdet_Time      *value,
+                                         int             length)
+{
+    bsls_Types::Int64 serialTime;
+    getIntegerValue(streamBuf, &serialTime, length);
+
+    const int hour   = serialTime / MILLISECS_PER_HOUR;
+    const int minute = (serialTime - hour * MILLISECS_PER_HOUR)
+                                                           / MILLISECS_PER_MIN;
+    const int second = (serialTime
+                      - hour * MILLISECS_PER_HOUR
+                      - minute * MILLISECS_PER_MIN) / MILLISECS_PER_SEC;
+    const int millisec = serialTime
+                       - hour * MILLISECS_PER_HOUR
+                       - minute * MILLISECS_PER_MIN
+                       - second * MILLISECS_PER_SEC;
+
+    return value->setTimeIfValid(hour, minute, second, millisec);
+}
+
+int bdem_BerUtil_Imp::getBinaryDatetimeValue(bsl::streambuf *streamBuf,
+                                             bdet_Datetime  *value,
+                                             int             length)
+{
+    if (length > MIN_BINARY_DATETIMETZ_LENGTH) {
+        short offset;
+        getTimezoneOffset(streamBuf, &offset);
+
+        length -= TIMEZONE_LENGTH;
+    }
+
+    bsls_Types::Int64 serialDatetime;
+    getIntegerValue(streamBuf, &serialDatetime, length);
+
+    bsls_Types::Int64 serialDate = serialDatetime / MILLISECS_PER_DAY;
+
+    if (serialDatetime < 0) {
+        --serialDate;
+        if (EPOCH_SERIAL_DATE == -serialDate) {
+            ++serialDate;
+        }
+    }
+
+    const bsls_Types::Int64 serialTime = serialDatetime
+                                       - serialDate * MILLISECS_PER_DAY;
+
+    int hour   = serialTime / MILLISECS_PER_HOUR;
+
+    const int minute = (serialTime - hour * MILLISECS_PER_HOUR)
+                                                           / MILLISECS_PER_MIN;
+    const int second = (serialTime
+                      - hour * MILLISECS_PER_HOUR
+                      - minute * MILLISECS_PER_MIN) / MILLISECS_PER_SEC;
+    const int millisec = serialTime
+                       - hour * MILLISECS_PER_HOUR
+                       - minute * MILLISECS_PER_MIN
+                       - second * MILLISECS_PER_SEC;
+
+    if (24 == hour) {
+        hour = 0;
+        ++serialDate;
+    }
+
+    int year, month, day;
+    bdeimp_ProlepticDateUtil::serial2ymd(&year,
+                                         &month,
+                                         &day,
+                                         serialDate + EPOCH_SERIAL_DATE);
+
+    return value->setDatetimeIfValid(year,
+                                     month,
+                                     day,
+                                     hour,
+                                     minute,
+                                     second,
+                                     millisec);
+}
+
+int bdem_BerUtil_Imp::getBinaryDateTzValue(bsl::streambuf *streamBuf,
+                                           bdet_DateTz    *value,
+                                           int             length)
+{
+    short offset = 0;
+    if (length >= MIN_BINARY_DATETZ_LENGTH) {
+        getTimezoneOffset(streamBuf, &offset);
+
+        if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
+            *value = bdet_DateTz();
+            return -1;                                                // RETURN
+        }
+
+        length -= TIMEZONE_LENGTH;
+    }
+
+    bdet_Date localDate;
+    getBinaryDateValue(streamBuf, &localDate, length);
+
+    return value->validateAndSetDateTz(localDate, offset);
+}
+
+int bdem_BerUtil_Imp::getBinaryTimeTzValue(bsl::streambuf *streamBuf,
+                                           bdet_TimeTz    *value,
+                                           int             length)
+{
+    short offset = 0;
+    if (length >= MIN_BINARY_TIMETZ_LENGTH) {
+        getTimezoneOffset(streamBuf, &offset);
+
+        if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
+            *value = bdet_TimeTz();
+            return -1;                                                // RETURN
+        }
+
+        length -= TIMEZONE_LENGTH;
+    }
+
+    bdet_Time localTime;
+    getBinaryTimeValue(streamBuf, &localTime, length);
+
+    return value->validateAndSetTimeTz(localTime, offset);
+}
+
+int bdem_BerUtil_Imp::getBinaryDatetimeTzValue(bsl::streambuf  *streamBuf,
+                                               bdet_DatetimeTz *value,
+                                               int              length)
+{
+    short offset = 0;
+    if (length >= MIN_BINARY_DATETIMETZ_LENGTH) {
+        getTimezoneOffset(streamBuf, &offset);
+
+        if (offset < MIN_OFFSET || offset > MAX_OFFSET) {
+            *value = bdet_DatetimeTz();
+            return -1;                                                // RETURN
+        }
+
+        length -= TIMEZONE_LENGTH;
+    }
+
+    bdet_Datetime localDatetime;
+    getBinaryDatetimeValue(streamBuf, &localDatetime, length);
+    return value->validateAndSetDatetimeTz(localDatetime, offset);
+}
+
+int bdem_BerUtil_Imp::putBinaryDateValue(bsl::streambuf   *streamBuf,
+                                         const bdet_Date&  value)
+{
+    const bsls_Types::Int64 serialDate = getSerialDateValue(value);
+    const int               length     = numBytesToStream(serialDate);
+
+    BSLS_ASSERT(length <= MAX_BINARY_DATE_LENGTH);
+
+    putLength(streamBuf, length);
+    return putIntegerGivenLength(streamBuf, serialDate, length);
+}
+
+int bdem_BerUtil_Imp::putBinaryTimeValue(bsl::streambuf   *streamBuf,
+                                         const bdet_Time&  value)
+{
+    const bsls_Types::Int64 serialTime = getSerialTimeValue(value);
+    const int               length     = numBytesToStream(serialTime);
+
+    BSLS_ASSERT(length <= MAX_BINARY_TIME_LENGTH);
+
+    putLength(streamBuf, length);
+    return putIntegerGivenLength(streamBuf, serialTime, length);
+}
+
+int bdem_BerUtil_Imp::putBinaryDatetimeValue(bsl::streambuf       *streamBuf,
+                                             const bdet_Datetime&  value)
+{
+    const bsls_Types::Int64 serialDatetime = getSerialDatetimeValue(value);
+    int                     length         = numBytesToStream(serialDatetime);
+
+    if (length >= MIN_BINARY_DATETIMETZ_LENGTH) {
+        putLength(streamBuf, length + TIMEZONE_LENGTH);
+        putTimezoneOffset(streamBuf, 0);
+    }
+    else {
+        putLength(streamBuf, length);
+    }
+    return putIntegerGivenLength(streamBuf, serialDatetime, length);
+}
+
+int bdem_BerUtil_Imp::putBinaryDateTzValue(bsl::streambuf     *streamBuf,
+                                           const bdet_DateTz&  value)
+{
+    const bdet_Date& date   = value.localDate();
+    short            offset = value.offset();
+
+    if (!offset) {
+        return putBinaryDateValue(streamBuf, date);                   // RETURN
+    }
+
+    const bsls_Types::Int64 serialDate = getSerialDateValue(date);
+    int                     length     = numBytesToStream(serialDate)
+                                       + TIMEZONE_LENGTH;
+
+    if (length < MIN_BINARY_DATETZ_LENGTH) {
+        const char padChar          = serialDate < 0 ? 0xFF : 0;
+        const int  additionalOctets = MIN_BINARY_DATETZ_LENGTH - length;
+
+        putTimezoneOffsetAndIntegerPadding(streamBuf,
+                                           offset,
+                                           padChar,
+                                           MIN_BINARY_DATETZ_LENGTH,
+                                           additionalOctets);
+    }
+    else {
+        putLength(streamBuf, length);
+        putTimezoneOffset(streamBuf, offset);
+    }
+    return putIntegerGivenLength(streamBuf,
+                                 serialDate,
+                                 length - TIMEZONE_LENGTH);
+}
+
+int bdem_BerUtil_Imp::putBinaryTimeTzValue(bsl::streambuf     *streamBuf,
+                                           const bdet_TimeTz&  value)
+{
+    const bdet_Time& time   = value.localTime();
+    short            offset = value.offset();
+
+    if (!offset) {
+        return putBinaryTimeValue(streamBuf, time);                   // RETURN
+    }
+
+    const bsls_Types::Int64 serialTime = getSerialTimeValue(time);
+    const int               length     = numBytesToStream(serialTime)
+                                       + TIMEZONE_LENGTH;
+
+    if (length < MIN_BINARY_TIMETZ_LENGTH) {
+        const int additionalOctets = MIN_BINARY_TIMETZ_LENGTH - length;
+
+        putTimezoneOffsetAndIntegerPadding(streamBuf,
+                                           offset,
+                                           0,
+                                           MIN_BINARY_TIMETZ_LENGTH,
+                                           additionalOctets);
+    }
+    else {
+        putLength(streamBuf, length);
+        putTimezoneOffset(streamBuf, offset);
+    }
+    return putIntegerGivenLength(streamBuf,
+                                 serialTime,
+                                 length - TIMEZONE_LENGTH);
+}
+
+int bdem_BerUtil_Imp::putBinaryDatetimeTzValue(
+                                             bsl::streambuf         *streamBuf,
+                                             const bdet_DatetimeTz&  value)
+{
+    const bdet_Datetime& datetime = value.localDatetime();
+    short                offset   = value.offset();
+
+    if (!offset) {
+        return putBinaryDatetimeValue(streamBuf, datetime);           // RETURN
+    }
+
+    const bsls_Types::Int64 serialDatetime = getSerialDatetimeValue(datetime);
+    const int               length         = numBytesToStream(serialDatetime)
+                                           + TIMEZONE_LENGTH;
+
+    if (length < MIN_BINARY_DATETIMETZ_LENGTH) {
+        const char padChar          = serialDatetime < 0 ? 0xFF : 0;
+        const int  additionalOctets = MIN_BINARY_DATETIMETZ_LENGTH - length;
+
+        putTimezoneOffsetAndIntegerPadding(streamBuf,
+                                           offset,
+                                           padChar,
+                                           MIN_BINARY_DATETIMETZ_LENGTH,
+                                           additionalOctets);
+    }
+    else {
+        putLength(streamBuf, length);
+        putTimezoneOffset(streamBuf, offset);
+    }
+    return putIntegerGivenLength(streamBuf,
+                                 serialDatetime,
+                                 length - TIMEZONE_LENGTH);
+}
 
 int bdem_BerUtil_Imp::getDoubleValue(bsl::streambuf *stream,
                                      double         *value,
@@ -704,42 +1132,54 @@ int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bdet_Date      *value,
                                int             length)
 {
-    return getValueUsingIso8601(streamBuf, value, length);
+    return length > MAX_BINARY_DATE_LENGTH
+         ? getValueUsingIso8601(streamBuf, value, length)
+         : getBinaryDateValue(streamBuf, value, length);
 }
 
 int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bdet_Datetime  *value,
                                int             length)
 {
-    return getValueUsingIso8601(streamBuf, value, length);
+    return length > MAX_BINARY_DATETIMETZ_LENGTH
+         ? getValueUsingIso8601(streamBuf, value, length)
+         : getBinaryDatetimeValue(streamBuf, value, length);
 }
 
 int bdem_BerUtil_Imp::getValue(bsl::streambuf  *streamBuf,
                                bdet_DatetimeTz *value,
                                int              length)
 {
-    return getValueUsingIso8601(streamBuf, value, length);
+    return length > MAX_BINARY_DATETIMETZ_LENGTH
+         ? getValueUsingIso8601(streamBuf, value, length)
+         : getBinaryDatetimeTzValue(streamBuf, value, length);
 }
 
 int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bdet_DateTz    *value,
                                int             length)
 {
-    return getValueUsingIso8601(streamBuf, value, length);
+    return length > MAX_BINARY_DATETZ_LENGTH
+         ? getValueUsingIso8601(streamBuf, value, length)
+         : getBinaryDateTzValue(streamBuf, value, length);
 }
 
 int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bdet_Time      *value,
                                int             length)
 {
-    return getValueUsingIso8601(streamBuf, value, length);
+    return length > MAX_BINARY_TIME_LENGTH
+         ? getValueUsingIso8601(streamBuf, value, length)
+         : getBinaryTimeValue(streamBuf, value, length);
 }
 
 int bdem_BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
                                bdet_TimeTz    *value,
                                int             length)
 {
-    return getValueUsingIso8601(streamBuf, value, length);
+    return length > MAX_BINARY_TIMETZ_LENGTH
+         ? getValueUsingIso8601(streamBuf, value, length)
+         : getBinaryTimeTzValue(streamBuf, value, length);
 }
 
 int bdem_BerUtil_Imp::numBytesToStream(short value)
@@ -946,40 +1386,70 @@ int bdem_BerUtil_Imp::putLength(bsl::streambuf *streamBuf, int length)
     return putIntegerGivenLength(streamBuf, length, numOctets);
 }
 
-int bdem_BerUtil_Imp::putValue(bsl::streambuf   *streamBuf,
-                               const bdet_Date&  value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               const bdet_Date&              value,
+                               const bdem_BerEncoderOptions *options)
 {
-    return putValueUsingIso8601(streamBuf, value);
+    BSLS_ASSERT_SAFE(options);
+
+    return options && options->encodeDateAndTimeTypesAsBinary()
+         ? putBinaryDateValue(streamBuf, value)
+         : putValueUsingIso8601(streamBuf, value);
 }
 
-int bdem_BerUtil_Imp::putValue(bsl::streambuf       *streamBuf,
-                               const bdet_Datetime&  value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               const bdet_Datetime&          value,
+                               const bdem_BerEncoderOptions *options)
 {
-    return putValueUsingIso8601(streamBuf, value);
+    BSLS_ASSERT_SAFE(options);
+
+    return options && options->encodeDateAndTimeTypesAsBinary()
+         ? putBinaryDatetimeValue(streamBuf, value)
+         : putValueUsingIso8601(streamBuf, value);
 }
 
-int bdem_BerUtil_Imp::putValue(bsl::streambuf         *streamBuf,
-                               const bdet_DatetimeTz&  value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               const bdet_DatetimeTz&        value,
+                               const bdem_BerEncoderOptions *options)
 {
-    return putValueUsingIso8601(streamBuf, value);
+    BSLS_ASSERT_SAFE(options);
+
+    return options && options->encodeDateAndTimeTypesAsBinary()
+         ? putBinaryDatetimeTzValue(streamBuf, value)
+         : putValueUsingIso8601(streamBuf, value);
 }
 
-int bdem_BerUtil_Imp::putValue(bsl::streambuf     *streamBuf,
-                               const bdet_DateTz&  value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               const bdet_DateTz&            value,
+                               const bdem_BerEncoderOptions *options)
 {
-    return putValueUsingIso8601(streamBuf, value);
+    BSLS_ASSERT_SAFE(options);
+
+    return options && options->encodeDateAndTimeTypesAsBinary()
+         ? putBinaryDateTzValue(streamBuf, value)
+         : putValueUsingIso8601(streamBuf, value);
 }
 
-int bdem_BerUtil_Imp::putValue(bsl::streambuf   *streamBuf,
-                               const bdet_Time&  value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               const bdet_Time&              value,
+                               const bdem_BerEncoderOptions *options)
 {
-    return putValueUsingIso8601(streamBuf, value);
+    BSLS_ASSERT_SAFE(options);
+
+    return options && options->encodeDateAndTimeTypesAsBinary()
+         ? putBinaryTimeValue(streamBuf, value)
+         : putValueUsingIso8601(streamBuf, value);
 }
 
-int bdem_BerUtil_Imp::putValue(bsl::streambuf     *streamBuf,
-                               const bdet_TimeTz&  value)
+int bdem_BerUtil_Imp::putValue(bsl::streambuf               *streamBuf,
+                               const bdet_TimeTz&            value,
+                               const bdem_BerEncoderOptions *options)
 {
-    return putValueUsingIso8601(streamBuf, value);
+    BSLS_ASSERT_SAFE(options);
+
+    return options && options->encodeDateAndTimeTypesAsBinary()
+         ? putBinaryTimeTzValue(streamBuf, value)
+         : putValueUsingIso8601(streamBuf, value);
 }
 
 }  // close namespace BloombergLP

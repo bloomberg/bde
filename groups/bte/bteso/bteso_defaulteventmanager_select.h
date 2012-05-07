@@ -140,11 +140,13 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
 class bteso_TimeMetrics;
-class bslma_Allocator;
-
             // =======================================================
             // class bteso_DefaultEventManager<bteso_Platform::SELECT>
             // =======================================================

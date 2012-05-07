@@ -1,4 +1,4 @@
-// bslstl_util.cpp                  -*-C++-*-
+// bslstl_util.cpp                                                    -*-C++-*-
 #include <bslstl_util.h>
 
 #include <bsls_ident.h>
@@ -6,7 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

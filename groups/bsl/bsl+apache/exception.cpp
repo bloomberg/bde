@@ -21,14 +21,14 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
 #define _RWSTD_TEST_SRC
 
 #include <rw_exception.h>
-#include <driver.h>   
+#include <driver.h>
 #include <rw_printf.h>
 #include <string.h>         // for size_t, strcpy()
 #include <stdlib.h>         // for free()

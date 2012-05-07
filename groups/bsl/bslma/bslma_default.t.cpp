@@ -1,4 +1,4 @@
-// bslma_default.t.cpp                  -*-C++-*-
+// bslma_default.t.cpp                                                -*-C++-*-
 
 #include <bslma_default.h>
 
@@ -41,10 +41,10 @@ using namespace std;
 // [ 3] int setDefaultAllocator(*ba);
 // [ 2] void setDefaultAllocatorRaw(*ba);
 // [ 3] void lockDefaultAllocator();
-// [ 2] bslma_Allocator *defaultAllocator();
-// [ 4] bslma_Allocator *allocator(*ba = 0);
-// [ 9] bslma_Allocator *globalAllocator(*ba = 0);
-// [ 9] bslma_Allocator *setGlobalAllocator(*ba);
+// [ 2] bslma::Allocator *defaultAllocator();
+// [ 4] bslma::Allocator *allocator(*ba = 0);
+// [ 9] bslma::Allocator *globalAllocator(*ba = 0);
+// [ 9] bslma::Allocator *setGlobalAllocator(*ba);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] BOOTSTRAP TEST
@@ -82,7 +82,7 @@ static void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-typedef bslma_Default Obj;
+typedef bslma::Default Obj;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -106,7 +106,7 @@ typedef bslma_Default Obj;
     // my_countingallocator.h
 //  #include <bslma_allocator.h>
 
-    class my_CountingAllocator : public bslma_Allocator {
+    class my_CountingAllocator : public bslma::Allocator {
         // This concrete allocator maintains (1) a count of the number of
         // blocks allocated that have not yet been deallocated, and (2) a count
         // of the cumulative number of blocks ever allocated.
@@ -207,9 +207,9 @@ typedef bslma_Default Obj;
 // trivial class, 'my_Id', that uses an allocator.  'my_Id' simply encapsulates
 // a C-style (null-terminated) id string that is accessible through the 'id'
 // method.  Note that each constructor is declared to take an *optional*
-// 'bslma_Allocator *' as its last argument.  Also note that the expression:
+// 'bslma::Allocator *' as its last argument.  Also note that the expression:
 //..
-//    bslma_Default::allocator(basicAllocator)
+//  bslma::Default::allocator(basicAllocator)
 //..
 // is used in applicable member initializers to propagate each constructor's
 // allocator argument to the data members that require it (in this case, the
@@ -226,21 +226,21 @@ typedef bslma_Default Obj;
         // of the default allocator.
 
         // PRIVATE DATA
-        char            *d_buffer_p;     // allocated (*owned*)
-        bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+        char             *d_buffer_p;     // allocated (*owned*)
+        bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
         // NOT IMPLEMENTED (in order to reduce example size)
         my_Id& operator=(const my_Id& rhs);
 
       public:
         // CREATORS
-        explicit my_Id(const char *id, bslma_Allocator *basicAllocator = 0);
+        explicit my_Id(const char *id, bslma::Allocator *basicAllocator = 0);
             // Create an Id object having the specified 'id'.  Optionally
             // specify a 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default allocator
             // is used.
 
-        my_Id(const my_Id& original, bslma_Allocator *basicAllocator = 0);
+        my_Id(const my_Id& original, bslma::Allocator *basicAllocator = 0);
             // Create an Id object initialized to the value of the specified
             // 'original' Id object.  Optionally specify a 'basicAllocator'
             // used to supply memory.  If 'basicAllocator' is 0, the currently
@@ -256,16 +256,16 @@ typedef bslma_Default Obj;
 
     // CREATORS
     inline
-    my_Id::my_Id(const char *id, bslma_Allocator *basicAllocator)
-    : d_allocator_p(bslma_Default::allocator(basicAllocator))
+    my_Id::my_Id(const char *id, bslma::Allocator *basicAllocator)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         d_buffer_p = (char *)d_allocator_p->allocate(std::strlen(id) + 1);
         std::strcpy(d_buffer_p, id);
     }
 
     inline
-    my_Id::my_Id(const my_Id& original, bslma_Allocator *basicAllocator)
-    : d_allocator_p(bslma_Default::allocator(basicAllocator))
+    my_Id::my_Id(const my_Id& original, bslma::Allocator *basicAllocator)
+    : d_allocator_p(bslma::Default::allocator(basicAllocator))
     {
         const char *id = original.id();
         d_buffer_p = (char *)d_allocator_p->allocate(std::strlen(id) + 1);
@@ -312,9 +312,9 @@ typedef bslma_Default Obj;
 
       public:
         // CREATORS
-        my_IdPair(const char      *id,
-                  const char      *alias,
-                  bslma_Allocator *basicAllocator = 0);
+        my_IdPair(const char       *id,
+                  const char       *alias,
+                  bslma::Allocator *basicAllocator = 0);
             // Create an Id pair having the specified 'id' and 'alias' ids.
             // Optionally specify a 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed default allocator
@@ -333,10 +333,10 @@ typedef bslma_Default Obj;
 
     // CREATORS
     inline
-    my_IdPair::my_IdPair(const char      *id,
-                         const char      *alias,
-                         bslma_Allocator *basicAllocator)
-    : d_id(id, bslma_Default::allocator(basicAllocator))
+    my_IdPair::my_IdPair(const char       *id,
+                         const char       *alias,
+                         bslma::Allocator *basicAllocator)
+    : d_id(id, bslma::Default::allocator(basicAllocator))
     , d_alias(alias)  // drat! (forgot to pass along 'basicAllocator')
     {
     }
@@ -371,7 +371,7 @@ typedef bslma_Default Obj;
 // singleton object is initialized.  Toward that end, note that in contrast to
 // 'my_Id', the constructor for 'my_Singleton' uses:
 //..
-//    bslma_Default::globalAllocator(basicAllocator)
+//  bslma::Default::globalAllocator(basicAllocator)
 //..
 // in its member initializer:
 //..
@@ -388,13 +388,13 @@ typedef bslma_Default Obj;
 
         // NOT IMPLEMENTED
         my_Singleton(const my_Singleton&  original,
-                     bslma_Allocator     *basicAllocator = 0);
+                     bslma::Allocator    *basicAllocator = 0);
         my_Singleton& operator=(const my_Singleton& rhs);
 
       private:
         // PRIVATE CREATORS
-        explicit my_Singleton(const char      *id,
-                              bslma_Allocator *basicAllocator = 0);
+        explicit my_Singleton(const char       *id,
+                              bslma::Allocator *basicAllocator = 0);
             // Create a singleton having the specified 'id'.  Optionally
             // specify a 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed global allocator
@@ -405,8 +405,8 @@ typedef bslma_Default Obj;
 
       public:
         // CLASS METHODS
-        static void initSingleton(const char      *id,
-                                  bslma_Allocator *basicAllocator = 0);
+        static void initSingleton(const char       *id,
+                                  bslma::Allocator *basicAllocator = 0);
             // Initialize the singleton with the specified 'id'.  Optionally
             // specify a 'basicAllocator' used to supply memory.  If
             // 'basicAllocator' is 0, the currently installed global allocator
@@ -431,8 +431,9 @@ typedef bslma_Default Obj;
 
     // CREATORS
     inline
-    my_Singleton::my_Singleton(const char *id, bslma_Allocator *basicAllocator)
-    : d_id(id, bslma_Default::globalAllocator(basicAllocator))
+    my_Singleton::my_Singleton(const char *id,
+                               bslma::Allocator *basicAllocator)
+    : d_id(id, bslma::Default::globalAllocator(basicAllocator))
     {
     }
 
@@ -458,10 +459,10 @@ typedef bslma_Default Obj;
     my_Singleton *my_Singleton::d_singleton_p;
 
     // CLASS METHODS
-    void my_Singleton::initSingleton(const char      *id,
-                                     bslma_Allocator *basicAllocator)
+    void my_Singleton::initSingleton(const char       *id,
+                                     bslma::Allocator *basicAllocator)
     {
-        static bsls_AlignedBuffer<sizeof(my_Singleton)> singleton;
+        static bsls::AlignedBuffer<sizeof(my_Singleton)> singleton;
         d_singleton_p = new (singleton.buffer()) my_Singleton(id,
                                                               basicAllocator);
     }
@@ -478,10 +479,10 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     // int veryVeryVerbose = argc > 4;
 
-    bslma_NewDeleteAllocator *NDA = &bslma_NewDeleteAllocator::singleton();
+    bslma::NewDeleteAllocator *NDA = &bslma::NewDeleteAllocator::singleton();
 
-    my_CountingAllocator mU;  bslma_Allocator *U = &mU;
-    my_CountingAllocator mV;  bslma_Allocator *V = &mV;
+    my_CountingAllocator mU;  bslma::Allocator *U = &mU;
+    my_CountingAllocator mV;  bslma::Allocator *V = &mV;
 
     ASSERT(NDA != U);  ASSERT(NDA != V);  ASSERT(U != V);
 
@@ -513,15 +514,15 @@ int main(int argc, char *argv[])
 //..
     static my_CountingAllocator defaultCountingAllocator;
 
-    int status = bslma_Default::setDefaultAllocator(&defaultCountingAllocator);
+    int status = bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
     ASSERT(0 == status);
-    bslma_Default::lockDefaultAllocator();
-    ASSERT(bslma_Default::defaultAllocator() == &defaultCountingAllocator);
+    bslma::Default::lockDefaultAllocator();
+    ASSERT(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
 
     static my_CountingAllocator globalCountingAllocator;
 
-    bslma_Default::setGlobalAllocator(&globalCountingAllocator);
-    ASSERT(bslma_Default::globalAllocator() == &globalCountingAllocator);
+    bslma::Default::setGlobalAllocator(&globalCountingAllocator);
+    ASSERT(bslma::Default::globalAllocator() == &globalCountingAllocator);
 //..
 // Finally, we initialize the singleton object.  We explicitly specify the
 // desired allocator in the call to 'initSingleton' to make our intentions as
@@ -535,7 +536,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == globalCountingAllocator.numBlocksInUse());
     ASSERT(0 == globalCountingAllocator.numBlocksTotal());
 
-    my_Singleton::initSingleton("S", bslma_Default::globalAllocator());
+    my_Singleton::initSingleton("S", bslma::Default::globalAllocator());
 
     ASSERT(0 == defaultCountingAllocator.numBlocksInUse());
     ASSERT(0 == defaultCountingAllocator.numBlocksTotal());
@@ -569,10 +570,10 @@ int main(int argc, char *argv[])
 //..
     static my_CountingAllocator defaultCountingAllocator;
 
-    int status = bslma_Default::setDefaultAllocator(&defaultCountingAllocator);
+    int status = bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
     ASSERT(0 == status);
-    bslma_Default::lockDefaultAllocator();
-    ASSERT(bslma_Default::defaultAllocator() == &defaultCountingAllocator);
+    bslma::Default::lockDefaultAllocator();
+    ASSERT(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
 //..
 // Now we instantiate an instance of 'my_IdPair' without explicitly specifying
 // an allocator.  As a result, the object uses the default allocator.  The
@@ -657,9 +658,9 @@ int main(int argc, char *argv[])
 
 // Next we set the default allocator to an instance of our counting allocator.
 // Note that immediately after successfully setting it, we lock the default
-// allocator, so that subsequent calls to 'bslma_Default::setDefaultAllocator'
+// allocator, so that subsequent calls to 'bslma::Default::setDefaultAllocator'
 // fail.  (The default allocator can still be modified by calling
-// 'bslma_Default::setDefaultAllocatorRaw', but calling that function in
+// 'bslma::Default::setDefaultAllocatorRaw', but calling that function in
 // production code is anti-social.  Our usage examples expressly do *not* call
 // that method.)  With the possible exception of test drivers, the default
 // allocator should be set and locked early in 'main' before threads are
@@ -667,15 +668,15 @@ int main(int argc, char *argv[])
 //..
     static my_CountingAllocator defaultCountingAllocator;
 
-    int status = bslma_Default::setDefaultAllocator(&defaultCountingAllocator);
+    int status = bslma::Default::setDefaultAllocator(&defaultCountingAllocator);
     ASSERT(0 == status);
-    bslma_Default::lockDefaultAllocator();  // subsequent calls to "set" fail
-    ASSERT(bslma_Default::defaultAllocator() == &defaultCountingAllocator);
+    bslma::Default::lockDefaultAllocator();  // subsequent calls to "set" fail
+    ASSERT(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
 
-    status = bslma_Default::setDefaultAllocator(
-                                       &bslma_NewDeleteAllocator::singleton());
+    status = bslma::Default::setDefaultAllocator(
+                                      &bslma::NewDeleteAllocator::singleton());
     ASSERT(0 != status);
-    ASSERT(bslma_Default::defaultAllocator() == &defaultCountingAllocator);
+    ASSERT(bslma::Default::defaultAllocator() == &defaultCountingAllocator);
 //..
 // In the following, we instantiate two instances of 'my_Id'.  The first
 // instance, 'idA', is not supplied with an allocator, so it uses the default
@@ -717,7 +718,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1) Initially, the global allocator is the address of the
-        //      'bslma_NewDeleteAllocator' singleton.
+        //      'bslma::NewDeleteAllocator' singleton.
         //   2) 'globalAllocator', called with no argument, always returns the
         //      global allocator that is in effect at the point of call.
         //   3) 'globalAllocator', called with a non-zero argument, always
@@ -728,13 +729,13 @@ int main(int argc, char *argv[])
         //      the call.
         //   5) 'setGlobalAllocator', called with a 0 argument, resets the
         //      global allocator to the address of the
-        //      'bslma_NewDeleteAllocator' singleton.
+        //      'bslma::NewDeleteAllocator' singleton.
         //
         // Plan:
         //   Call 'globalAllocator', without an argument, in the first
         //   substantive line of the test case to verify that the global
         //   allocator is initially the address of the
-        //   'bslma_NewDeleteAllocator' singleton.  Subsequently, call
+        //   'bslma::NewDeleteAllocator' singleton.  Subsequently, call
         //   'globalAllocator', with and without an argument, and
         //   'setGlobalAllocator' with various values and assert that the value
         //   returned by each method is as expected.  Finally test that calling
@@ -742,8 +743,8 @@ int main(int argc, char *argv[])
         //   to its initial setting.
         //
         // Testing:
-        //   bslma_Allocator *globalAllocator(*ba = 0);
-        //   bslma_Allocator *setGlobalAllocator(*ba);
+        //   bslma::Allocator *globalAllocator(*ba = 0);
+        //   bslma::Allocator *setGlobalAllocator(*ba);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING GLOBAL ALLOCATOR"
@@ -802,7 +803,7 @@ int main(int argc, char *argv[])
         //   call fails.
         //
         // Testing:
-        //   bslma_Allocator *allocator(*ba = 0);
+        //   bslma::Allocator *allocator(*ba = 0);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'allocator' Side-Effects"
@@ -829,12 +830,12 @@ int main(int argc, char *argv[])
         // Plan:
         //   Call 'allocator' without an argument in the first substantive line
         //   of the test case to lock the default allocator to its initial
-        //   setting, namely the 'bslma_NewDeleteAllocator' singleton.  Verify
+        //   setting, namely the 'bslma::NewDeleteAllocator' singleton.  Verify
         //   that the default allocator is locked by calling
         //   'setDefaultAllocator' and asserting that the call fails.
         //
         // Testing:
-        //   bslma_Allocator *allocator(*ba = 0);
+        //   bslma::Allocator *allocator(*ba = 0);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'allocator' Side-Effects"
@@ -863,7 +864,7 @@ int main(int argc, char *argv[])
         //   'setDefaultAllocator' and asserting that the call fails.
         //
         // Testing:
-        //   bslma_Allocator *defaultAllocator();
+        //   bslma::Allocator *defaultAllocator();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'defaultAllocator' Side-Effects"
@@ -888,12 +889,12 @@ int main(int argc, char *argv[])
         // Plan:
         //   Call 'defaultAllocator' in the first substantive line of the test
         //   case to lock the default allocator to its initial setting, namely
-        //   the 'bslma_NewDeleteAllocator' singleton.  Verify that the default
+        //   the 'bslma::NewDeleteAllocator' singleton.  Verify that the default
         //   allocator is locked by calling 'setDefaultAllocator' and asserting
         //   that the call fails.
         //
         // Testing:
-        //   bslma_Allocator *defaultAllocator();
+        //   bslma::Allocator *defaultAllocator();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'defaultAllocator' Side-Effects"
@@ -917,7 +918,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Call 'allocator', without an argument, in the first substantive
         //   line of the test case to verify that the default allocator is
-        //   initially the address of the 'bslma_NewDeleteAllocator' singleton.
+        //   initially the address of the 'bslma::NewDeleteAllocator' singleton.
         //   Subsequently, use 'setDefaultAllocatorRaw' to set the default
         //   allocator to various values and verify that 'allocator', when
         //   called without an argument, returns the expected result.
@@ -927,7 +928,7 @@ int main(int argc, char *argv[])
         //   side-effects of 'allocator' are ignored in this test case.
         //
         // Testing:
-        //   bslma_Allocator *allocator(*ba = 0);     (ignore side-effects)
+        //   bslma::Allocator *allocator(*ba = 0);     (ignore side-effects)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'allocator'"
@@ -1013,7 +1014,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nNegative testing\n");
 
-        bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+        bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
 
         ASSERT_FAIL(Obj::setDefaultAllocator(0));
         ASSERT_PASS(Obj::setDefaultAllocator(U));
@@ -1025,7 +1026,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1) Initially, the default allocator is the address of the
-        //      'bslma_NewDeleteAllocator' singleton.
+        //      'bslma::NewDeleteAllocator' singleton.
         //   2) 'defaultAllocator' always returns the default allocator that is
         //      in effect at the point of call.
         //   3) 'setDefaultAllocatorRaw' unconditionally sets the default
@@ -1034,7 +1035,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Call 'defaultAllocator' in the first substantive line of the test
         //   case to verify that the default allocator is initially the address
-        //   of the 'bslma_NewDeleteAllocator' singleton.  Subsequently, use
+        //   of the 'bslma::NewDeleteAllocator' singleton.  Subsequently, use
         //   'setDefaultAllocatorRaw' to set the default allocator to various
         //   values and verify that 'defaultAllocator' returns the expected
         //   result.  Note that side-effects of 'defaultAllocator' are ignored
@@ -1042,7 +1043,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void setDefaultAllocatorRaw(*ba);
-        //   bslma_Allocator *defaultAllocator();   (ignore side-effects)
+        //   bslma::Allocator *defaultAllocator();   (ignore side-effects)
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBOOTSTRAP TEST"
@@ -1067,7 +1068,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nNegative testing\n");
 
-        bsls_AssertFailureHandlerGuard guard(&bsls_AssertTest::failTestDriver);
+        bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
 
         ASSERT_FAIL(Obj::setDefaultAllocatorRaw(0));
         ASSERT_PASS(Obj::setDefaultAllocatorRaw(U));

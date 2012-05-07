@@ -23,10 +23,10 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
-#include <algorithm>    // for set_union 
+#include <algorithm>    // for set_union
 #include <cstddef>      // for size_t
 
 #include <alg_test.h>
@@ -35,11 +35,11 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
-template 
+template
 OutputIter<lt_comp<assign<base<cpy_ctor> > > >
 set_union (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
            InputIter<lt_comp<assign<base<cpy_ctor> > > >,
@@ -47,7 +47,7 @@ set_union (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
            InputIter<lt_comp<assign<base<cpy_ctor> > > >,
            OutputIter<lt_comp<assign<base<cpy_ctor> > > >);
 
-template 
+template
 OutputIter<lt_comp<assign<base<cpy_ctor> > > >
 set_union (InputIter<lt_comp<assign<base<cpy_ctor> > > >,
            InputIter<lt_comp<assign<base<cpy_ctor> > > >,
@@ -183,19 +183,19 @@ void test_set_union (int                 line,
     bool success = xdst_res == xdst_end;
     rw_assert (success, 0, line,
                "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
-               "got res + %td, expected res + %zu", 
-               __LINE__, fname, it1name, it2name, outname, predicate, 
+               "got res + %td, expected res + %zu",
+               __LINE__, fname, it1name, it2name, outname, predicate,
                funname, src1, src2, xdst_res - xdst, ndst);
 
     //quit here to avoid the running out of the array boundaries
-    if (! success) {    
+    if (! success) {
         delete[] xsrc1;
         delete[] xsrc2;
         delete[] xdst;
         return;
     }
 
-    const std::size_t n_ops_lt = ppred ? 
+    const std::size_t n_ops_lt = ppred ?
         Less::funcalls_ : UserClass::n_total_op_lt_ - last_n_op_lt;
 
     // check the algorithm correctness
@@ -214,8 +214,8 @@ void test_set_union (int                 line,
 
     rw_assert (success, 0, line,
                "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
-               " ==> \"%{X=*.*}\", expected \"%s\"", 
-               __LINE__, fname, it1name, it2name, outname, predicate, 
+               " ==> \"%{X=*.*}\", expected \"%s\"",
+               __LINE__, fname, it1name, it2name, outname, predicate,
                funname, src1, src2, int (ndst), i, xdst, res);
 
     // check that the operation is stable : for two equal elements
@@ -225,7 +225,7 @@ void test_set_union (int                 line,
                "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
                " ==> \"%{X=*.*}\" got %zu elements from first sequence and "
                "%zu from second, expected %zu from first and %zu from second",
-               __LINE__, fname, it1name, it2name, outname, predicate, funname, 
+               __LINE__, fname, it1name, it2name, outname, predicate, funname,
                src1, src2, int (ndst), -1, xdst, n1, n2, nsrc1, ndst - nsrc1);
 
     // check the complexity
@@ -235,7 +235,7 @@ void test_set_union (int                 line,
     rw_assert (n_ops_lt <= n_exp_ops, 0, line,
                "line %d: %s<%s, %s, %s%{?}, %s%{;}> (\"%s\", \"%s\", ...) "
                "complexity: got %zu, expected no more than %zu",
-               __LINE__, fname, it1name, it2name, outname, predicate, funname, 
+               __LINE__, fname, it1name, it2name, outname, predicate, funname,
                src1, src2, n_ops_lt, n_exp_ops);
 
     delete[] xsrc1;
@@ -245,7 +245,7 @@ void test_set_union (int                 line,
 
 /**************************************************************************/
 
-void test_set_union (const SetUnionBase &alg, 
+void test_set_union (const SetUnionBase &alg,
                      bool                predicate)
 {
     const char* const it1name = alg.iter_names [0];
@@ -262,7 +262,7 @@ void test_set_union (const SetUnionBase &alg,
     test_set_union (__LINE__, src1, sizeof src1 - 1,    \
                     src2, sizeof src2 - 1,              \
                     res, sizeof res - 1,                \
-                    predicate, alg)  
+                    predicate, alg)
 
     TEST ("a", "", "a");
     TEST ("abcde", "", "abcde");
@@ -343,7 +343,7 @@ void gen_set_union_test (const InputIterator1 &it1,
 }
 
 template <class InputIterator1>
-void gen_set_union_test (const InputIterator1 &it1, 
+void gen_set_union_test (const InputIterator1 &it1,
                          bool                  predicate)
 {
     if (0 == rw_opt_no_input_iter)

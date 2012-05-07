@@ -143,7 +143,7 @@
 !! unix-AIX-*-*-gcc           _       BDE_COMPILERVERSION_FLAG = 3.4.3
 !! unix-AIX-*-*-xlc           _       BDE_COMPILERVERSION_FLAG = 10.1
 !! unix-Linux                 _       BDE_COMPILERVERSION_FLAG = 3.4.6
-!! unix-Linux-x86_64-2.6.18   _       BDE_COMPILERVERSION_FLAG = 4.3.5
+!! unix-Linux-x86_64-2.6.18   _       BDE_COMPILERVERSION_FLAG = 4.1.2
 !! unix-Linux-i686-2.6.32     _       BDE_COMPILERVERSION_FLAG = 4.4.3
 !! unix-FreeBSD               _       BDE_COMPILERVERSION_FLAG = 4.2.1
 !! unix-Cygwin                _       BDE_COMPILERVERSION_FLAG = 3.4.1
@@ -190,6 +190,7 @@ unix-                   _       RETRY_ON_SIGNAL = $(RETRY) -a 3 -t $(RETRY_TIMEO
 *                       cpp11   CPP11_FLAGS     =   --this-compiler-does-not-have-cpp11-support-configured
 !! unix-HP_UX-*-*-acc   cpp11   CPP11_FLAGS     =   -Ax
 !! unix-*-*-*-gcc-4.6.1 cpp11   CPP11_FLAGS     =   -std=c++0x
+!! unix-*-*-*-gcc-4.7.0 cpp11   CPP11_FLAGS     =   -std=c++11
 
 *                       cpp11   BDE_CXXFLAGS    = $(CPP11_FLAGS)
 #==============================================================================
@@ -229,7 +230,7 @@ unix-                   _       RETRY_ALLTEST   = $(RETRY) -t 0 -a 3 -s!ILL,TRAP
 # file(s)-to-unspecified copy
 # DRQS 12110915 - cp -p broken on AIX and Linux when output isn't in
 # clearcase
-!! unix-           _       RSYNC           = /opt/swt/bin/rsync -a
+!! unix-           _       RSYNC           = rsync -a
 !! unix-           _       CP              = $(RETRY_ON_EXIT) $(RSYNC)
 windows-           _       CP              = perl -MFile::Copy -MFile::Basename -e "$$d=pop(@ARGV); die unless -d($$d) or -d($$d=dirname($$d)); while ($$f=shift @ARGV) { copy $$_,$$d foreach glob($$f) }; print \"\tcopied to $$d\n\"" --
 # Experiment to use Win32::CopyFile if available to preserve timestamps on Windows
@@ -416,6 +417,7 @@ unix-AIX-*-*-*-*           _   XLC_SPECIAL_BBINDER_FLAGS   = -bweaklocal -bbigto
 !! unix-*-*-*-gcc-4.3.5     _   GCC_VER = 4.3.5
 !! unix-*-*-*-gcc-4.5.2     _   GCC_VER = 4.5.2
 !! unix-*-*-*-gcc-4.6.1     _   GCC_VER = 4.6.1
+!! unix-*-*-*-gcc-4.7.0     _   GCC_VER = 4.7.0
 
 !! unix-SunOS-*-*-gcc       shr AR      = $(RETRY_ON_EXIT) /bbs/opt/bin/gcc -shared $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS) -o
 !! unix-SunOS-*-*-gcc-4.*   shr AR      = $(RETRY_ON_EXIT) /opt/swt/install/gcc-$(GCC_VER)/bin/g++ -shared $(SHR_SONAME_SET) $(SHR_SHLIB_DEPS)  -o
@@ -589,13 +591,24 @@ unix-Linux-*-*-*             _  DEF_ENDLDFLAGS = -lrt
 # add "-Wl,-rpath -Wl,/opt/swt/install/gcc-4.3.5/lib" to 4.3.5 link lines to add search
 # path for .so files
 
-unix-Linux-*-*-gcc-4.*        _  RPATH_LIBDIR = lib
-!! unix-Linux-*-*-gcc-4.*     64 RPATH_LIBDIR = lib64
+unix-Linux-*-*-gcc-4.2        _  RPATH_LIBDIR = lib
+!! unix-Linux-*-*-gcc-4.2     64 RPATH_LIBDIR = lib64
 
-unix-Linux-*-*-gcc-4.*          _  RPATH_FLAGS = -Wl,-rpath -Wl,/opt/swt/install/gcc-$(GCC_VER)/$(RPATH_LIBDIR)
-!! unix-Linux-*-*-gcc-def       _  RPATH_FLAGS =
+unix-Linux-*-*-gcc-4.2          _  RPATH_FLAGS = -Wl,-rpath -Wl,/opt/swt/install/gcc-$(GCC_VER)/$(RPATH_LIBDIR)
+
+# we don't want these options for the "built-in" gcc 4.1.2 on RHEL5
+!! unix-Linux-*-*-gcc-def                   _  RPATH_FLAGS =
+!! unix-Linux-x86_64-2.6.18-gcc-4.1.2       _  RPATH_FLAGS =
 
 unix-Linux-*-*-*        _   DEF_ENDLDFLAGS = $(RPATH_FLAGS)
+
+# tell Clang where GCC libraries are located
+!! unix-Linux-*-*-gcc-clang     _  CLANG_GCC_VER = 4.4.6
+!! unix-Linux-*-*-gcc-clang     _  CLANG_GCC_VER_CPP = -D__CLANG_GNUC__=4 -D__CLANG_GNUC_MINOR__=4 -D__CLANG_GNUC_PATCHLEVEL__=6
+!! unix-Darwin-*-*-*            _  CLANG_GCC_VER_CPP = -D__CLANG_GNUC__=4 -D__CLANG_GNUC_MINOR__=2 -D__CLANG_GNUC_PATCHLEVEL__=1
+
+!! unix-Linux-*-*-gcc-clang     _  DEF_LDFLAGS = -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER)/32 -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER)/32 -Wl,-rpath -Wl,/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib
+!! unix-Linux-*-*-gcc-clang    64  DEF_LDFLAGS = -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib64 -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib64 -B/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER) -L/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib/gcc/x86_64-unknown-linux-gnu/$(CLANG_GCC_VER) -Wl,-rpath -Wl,/opt/swt/install/gcc-$(CLANG_GCC_VER)/lib64
 
 # Flags for shared memory access compatibility on HP
 unix-HP_UX-*-*-*       _   DEF_LDFLAGS    = $(LINKARGSCOMMON) -AA -ext
@@ -615,6 +628,7 @@ unix-HP_UX-*-*-*       _   DEF_LDFLAGS    = $(LINKARGSCOMMON) -AA -ext
 
 #=== Default location for mapping prebuilt lib names to robocop lib names
 unix-          _   BDE_LDFLAGS =  $(LIBPATH_FLAG)/bbsrc/bde/registry/lroot/lib/$(UPLID)
+!! unix-Darwin-*-*-*    _  BDE_LDFLAGS =
 
 #==============================================================================
 # Build static/dynamic
@@ -897,7 +911,15 @@ windows         _   MT_LIBTYPE  = L
     -Wwrite-strings -Wno-unused-value -Wno-char-subscripts -Wsign-compare \
     -Wparentheses
 
-*-*-*-*-gcc-4 _  GCCEXTRAWFLAGS  = -Wlogical-op -Wstrict-overflow -Wvla \
+*-*-*-*-gcc-4.2 _  GCCEXTRAWFLAGS  = -Wlogical-op -Wstrict-overflow -Wvla \
+    -Wvolatile-register-var -fdiagnostics-show-option
+
+!! *-*-*-*-gcc-clang _  GCCEXTRAWFLAGS  = -Wcast-align -Wcast-qual \
+    -Wall -Wextra -Wformat-security -Wformat-y2k -Winit-self \
+    -Wno-long-long -Wno-unknown-pragmas \
+    -Wpacked -Wpointer-arith \
+    -Wwrite-strings -Wno-unused-value -Wno-char-subscripts -Wsign-compare \
+    -Wparentheses -Wstrict-overflow -Wvla \
     -Wvolatile-register-var -fdiagnostics-show-option
 
 # Once the DRQS 22615679 warnings are cleaned up, we can reconsider making this
@@ -961,7 +983,7 @@ unix-                   _   CC      = $(RETRY_ON_SIGNAL) cc -DUSE_REAL_MALLOC $(
 !! unix-Linux-*-*-def   _   CC      = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/gcc -DUSE_REAL_MALLOC $(GCCEXTRAWFLAGS) $(CC64FLAGS)
 !! unix-FreeBSD-*-*-def _   CC      = $(RETRY_ON_SIGNAL) gcc $(GCCEXTRAWFLAGS) $(CC64FLAGS)
 !! unix-Cygwin-*-*-def  _   CC      = $(RETRY_ON_SIGNAL) gcc -DUSE_REAL_MALLOC -D__cygwin -D__linux $(CC64FLAGS)
-!! unix-Darwin-*-*-def  _   CC      = $(RETRY_ON_SIGNAL) gcc -DUSE_REAL_MALLOC -D__unix $(CC64FLAGS)
+!! unix-Darwin-*-*-def  _   CC      = $(RETRY_ON_SIGNAL) clang -DUSE_REAL_MALLOC -D__unix $(CC64FLAGS)
 !! unix-AIX-*-*-*       _   CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlc $(CC64FLAGS) -qxflag=NoKeepDebugMetaTemplateType
 !! unix-AIX-*-*-*       mt  CC      = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlc_r $(CC64FLAGS) -qxflag=NoKeepDebugMetaTemplateType
 !! unix-HP_UX-*-*-*     _   CC      = $(RETRY_ON_SIGNAL) $(ACC_BIN)/cc $(CC64FLAGS)
@@ -1023,6 +1045,7 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 
 !! unix-Linux-*-*-gcc-3.4.6            _  COMPILERPATH = /usr/bin
 !! unix-Linux-*-*-gcc-4                _  COMPILERPATH = /opt/swt/install/gcc-$(GCC_VER)/bin
+!! unix-Linux-*-2.6.18-gcc-4.1.2            _  COMPILERPATH = /usr/bin
 #!! unix-Linux-i686-2.6.32-gcc-4.3.5    _  COMPILERPATH = /usr/bin
 
 !! unix-Linux-*-*-gcc                  _  CXX          = $(RETRY_ON_SIGNAL) $(COMPILERPATH)/g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
@@ -1030,11 +1053,17 @@ unix-                      _   CXX        = $(RETRY_ON_SIGNAL) CC $(CXX64FLAGS)
 # for development only; use GCC found in PATH; no retry
 !! unix-Linux-*-*-gcc-def              _  CXX          = g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
 
-!! unix-FreeBSD-*-*-def                _  CXX          = $(RETRY_ON_SIGNAL) g++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS)
+# for development only; use Clang instead of gcc
+!! unix-Linux-*-*-gcc-clang            _  COMPILERPATH = /opt/swt/install/llvm-2.9-64/bin
+
+!! unix-Linux-*-*-gcc-clang            _  CXX          = $(COMPILERPATH)/clang++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS) $(CLANG_GCC_VER_CPP) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/x86_64-unknown-linux-gnu/32 -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/backward
+
+!! unix-Linux-*-*-gcc-clang           64  CXX          = $(COMPILERPATH)/clang++ $(GCCEXTRAWFLAGS) $(CXX64FLAGS) $(CLANG_GCC_VER_CPP) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER) -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/x86_64-unknown-linux-gnu -isystem /opt/swt/install/gcc-$(CLANG_GCC_VER)/include/c++/$(CLANG_GCC_VER)/backward
+
 
 !! unix-Cygwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__cygwin -D__linux $(CXX64FLAGS)
 
-!! unix-Darwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) g++ -D__unix $(CXX64FLAGS)
+!! unix-Darwin-*-*-def                 _  CXX          = $(RETRY_ON_SIGNAL) clang++ -D__unix $(CXX64FLAGS) $(CLANG_GCC_VER_CPP)
 
 !! unix-AIX-*-*-*   _   CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlC $(CXX64FLAGS)
 !! unix-AIX-*-*-*   mt  CXX     = $(SET_TMPDIR) $(RETRY_ON_SIGNAL) xlC_r $(CXX64FLAGS)
@@ -1268,6 +1297,10 @@ unix-*                  _   RATIONAL_WIN_OPT = -windows=no
 
 !! unix-AIX-*-*-xlc-10.1 _   DEF_CXXFLAGS    = -qarch=pwr5 -qtune=pwr5 -qnotempinc -qfuncsect -qtbtable=small -qrtti=all -qsuppress=1500-029 -qsuppress=1540-2910 -qsuppress=1501-201 -qxflag=tocrel -qxflag=dircache:71,100 $(ENABLE_TLS) $(AIX_UNLOCK_STREAMS)
 !! unix-AIX-*-*-xlc-11.1 _   DEF_CXXFLAGS    = -qarch=pwr5 -qtune=pwr5 -qnotempinc -qfuncsect -qtbtable=small -qrtti=all -qsuppress=1500-029 -qsuppress=1540-2910 -qsuppress=1501-201 -qxflag=tocrel -qxflag=dircache:71,100 $(ENABLE_TLS) $(AIX_UNLOCK_STREAMS)
+
+# Note: must be the very last option for AIX/xlC/DEF_CXXFLAGS, to avoid
+# overriding it with other options
+unix-AIX-*-*-xlc-        _   DEF_CXXFLAGS    = -qxflag=UnwindTypedefInClassDecl
 
 !! unix-AIX-*-*-xlc-10.1  dbg     DBG_CXXFLAGS    = -qxflag=v6align -g -qalias=noansi -qxflag=inlinewithdebug:stepOverInline -qlanglvl=staticstoreoverlinkage -Q -qxflag=noautoinline
 !! unix-AIX-*-*-xlc-11.1  dbg     DBG_CXXFLAGS    = -qxflag=v6align -g -qalias=noansi -qxflag=inlinewithdebug:stepOverInline -qlanglvl=staticstoreoverlinkage -Q -qxflag=noautoinline

@@ -276,7 +276,7 @@ void run_test (intT, thr_args_base::tag_t tag)
         rw_fatal (0 == rw_thread_create (tid + i, 0, thread_routine, args + i),
                   0, __LINE__, "thread_create() failed");
     }
-            
+
     for (unsigned long i = 0; i != Args::nthreads_; ++i) {
 
         rw_error (0 == rw_thread_join (tid [i], 0), 0, __LINE__,
@@ -301,7 +301,7 @@ void run_test (intT, thr_args_base::tag_t tag)
     intT expect = intT (1);
 
     const unsigned long nincr = (Args::nthreads_ * Args::nincr_) / 2U;
-        
+
     for (unsigned long i = 0; i != nincr; ++i) {
         if (intT () == ++expect)
             ++expect;
