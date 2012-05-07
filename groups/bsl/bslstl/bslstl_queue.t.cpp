@@ -701,6 +701,9 @@ class QTestDriver {
 
     // TEST CASES
 
+    static void testCase13();
+        // Test accessors 'empty', 'front', and 'back'.
+
     static void testCase12();
         // Test user-supplied constructors.
 
@@ -828,6 +831,9 @@ class PQTestDriver {
   public:
 
     // TEST CASES
+
+    static void testCase13();
+        // Test accessors 'empty'.
 
     static void testCase12();
         // Test user-supplied constructors.
@@ -1119,6 +1125,100 @@ PQTestDriver<VALUE, CONTAINER, COMPARATOR>::g(const char *spec)
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class VALUE, class CONTAINER>
+void QTestDriver<VALUE, CONTAINER>::testCase13()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'empty', 'front' and 'back'
+    //
+    // Concern:
+    //: 1 'empty' returns 'true' only when the object is empty.
+    //:
+    //: 2 'front' and 'back' returns a modifiable reference to the front and
+    //:   back element of the queue respectively.
+    //
+    // Plan:
+    //: 1 Using the table-driven technique:
+    //:
+    //:   1 Specify a set of (unique) valid object values.
+    //:
+    //: 2 For each row (representing a distinct object value, 'V') in the table
+    //:   described in P-1:  (C-1..2)
+    //:
+    //:   1 Create an object and populate it with 'V'.  Invoke 'empty' to
+    //:     verify it returns 'true' if 'V' is not empty.  (C-1)
+    //:
+    //:   2 Invoke 'front' and 'back', use the return object as left hand
+    //:     operator and assign a distinct value.  Invoke the constant version
+    //:     of 'front' and 'back' to verify the changes.  (C-2)
+    //:
+    //:   3 Clear the object by popping out 'LENGTH' of elements, where
+    //:     'LENGTH' is the length of 'V'.  Invoke 'empty' to verify it returns
+    //:     'false'.  (C-1)
+    //
+    // Testing:
+    //  bool empty() const;
+    //  reference front();
+    //  reference back();
+    // ------------------------------------------------------------------------
+
+    bslma_TestAllocator  oa(veryVeryVerbose);
+
+    static const struct {
+        int         d_lineNum;          // source line number
+        const char *d_spec;             // initial
+    } DATA[] = {
+        { L_,  ""          },
+        { L_,  "A"         },
+        { L_,  "ABC"       },
+        { L_,  "ABCD"      },
+        { L_,  "ABCDE"     },
+        { L_,  "ABCDEFG"   },
+        { L_,  "ABCDEFGH"  },
+        { L_,  "ABCDEFGHI" }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    if (verbose) printf("\tTesting 'empty', 'front' and 'back'.\n");
+    {
+        const TestValues VALUES;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec;
+            const size_t  LENGTH = strlen(DATA[ti].d_spec);
+
+            Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
+
+            // Verify 'empty' returns correct values.
+
+            ASSERTV(LINE, SPEC, (0 == ti) == X.empty());
+
+            if (0 != ti) {
+
+                ASSERTV(LINE, SPEC, X.front() == VALUES[SPEC[0] - 'A']);
+                ASSERTV(LINE, SPEC,
+                        X.back() == VALUES[SPEC[LENGTH - 1] - 'A']);
+
+                // Test 'front'.
+
+                mX.front() = VALUES['Y' - 'A'];
+                ASSERTV(LINE, SPEC, X.front() == VALUES['Y' - 'A']);
+
+                // Test 'back'.
+
+                mX.back() = VALUES['Z' - 'A'];
+                ASSERTV(LINE, SPEC, X.back() == VALUES['Z' - 'A']);
+            }
+
+            for (size_t tj = 0; tj < strlen(SPEC); ++tj) {
+                mX.pop();
+            }
+
+            ASSERTV(LINE, SPEC, true == X.empty());
+        }
+    }
+}
 
 template <class VALUE, class CONTAINER>
 void QTestDriver<VALUE, CONTAINER>::testCase12()
@@ -2961,6 +3061,74 @@ void QTestDriver<VALUE, CONTAINER>::testCase1(const VALUE  *testValues,
 // ----------------------------------------------------------------------------
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
+void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase13()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'empty', 'front' and 'back'
+    //
+    // Concern:
+    //: 1 'empty' returns 'true' only when the object is empty.
+    //:
+    //
+    // Plan:
+    //: 1 Using the table-driven technique:
+    //:
+    //:   1 Specify a set of (unique) valid object values.
+    //:
+    //: 2 For each row (representing a distinct object value, 'V') in the table
+    //:   described in P-1:  (C-1)
+    //:
+    //:   1 Create an object and populate it with 'V'.  Invoke 'empty' to
+    //:     verify it returns 'true' if 'V' is not empty.  (C-1)
+    //:
+    //:   2 Clear the object by popping out 'LENGTH' of elements, where
+    //:     'LENGTH' is the length of 'V'.  Invoke 'empty' to verify it returns
+    //:     'false'.  (C-1)
+    //
+    // Testing:
+    //  bool empty() const;
+    // ------------------------------------------------------------------------
+
+    bslma_TestAllocator  oa(veryVeryVerbose);
+
+    static const struct {
+        int         d_lineNum;          // source line number
+        const char *d_spec;             // initial
+    } DATA[] = {
+        { L_,  ""          },
+        { L_,  "A"         },
+        { L_,  "ABC"       },
+        { L_,  "ABCD"      },
+        { L_,  "ABCDE"     },
+        { L_,  "ABCDEFG"   },
+        { L_,  "ABCDEFGH"  },
+        { L_,  "ABCDEFGHI" }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    if (verbose) printf("\tTesting 'empty', 'front' and 'back'.\n");
+    {
+        const TestValues VALUES;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec;
+
+            Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
+
+            // Verify 'empty' returns correct values.
+
+            ASSERTV(LINE, SPEC, (0 == ti) == X.empty());
+
+            for (size_t tj = 0; tj < strlen(SPEC); ++tj) {
+                mX.pop();
+            }
+
+            ASSERTV(LINE, SPEC, true == X.empty());
+        }
+    }
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
 void PQTestDriver<VALUE, CONTAINER, COMPARATOR>::testCase12()
 {
     // ------------------------------------------------------------------------
@@ -4665,6 +4833,31 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+#if 0
+      case 14: {
+        // --------------------------------------------------------------------
+        // TESTING FREE COMPARISON OPERATORS
+        // --------------------------------------------------------------------
+
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase14, int, char);
+        QTestDriver<char, int>::testCase14();
+
+      } break;
+#endif
+      case 13: {
+        // --------------------------------------------------------------------
+        // OTHER ACCESSORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Accessors"
+                            "\n=================\n");
+
+        BSLTF_RUN_EACH_TYPE(QTestDriver, testCase13, BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(PQTestDriver,
+                            testCase13,
+                            BSLTF_TEST_TYPES_REGULAR);
+        PQTestDriver<TestValueType, vector<TestValueType> >::testCase13();
+      } break;
       case 12: {
         // --------------------------------------------------------------------
         // VALUE CONSTRUCTORS
@@ -4673,9 +4866,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Value Constructor"
                             "\n=========================\n");
 
-        BSLTF_RUN_EACH_TYPE(QTestDriver,
-                            testCase12,
-                            BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(QTestDriver, testCase12, BSLTF_TEST_TYPES_REGULAR);
         BSLTF_RUN_EACH_TYPE(PQTestDriver,
                             testCase12,
                             BSLTF_TEST_TYPES_REGULAR);
@@ -4689,9 +4880,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting 'g'"
                             "\n===========\n");
 
-        BSLTF_RUN_EACH_TYPE(QTestDriver,
-                            testCase11,
-                            BSLTF_TEST_TYPES_REGULAR);
+        BSLTF_RUN_EACH_TYPE(QTestDriver, testCase11, BSLTF_TEST_TYPES_REGULAR);
         BSLTF_RUN_EACH_TYPE(PQTestDriver,
                             testCase11,
                             BSLTF_TEST_TYPES_REGULAR);
