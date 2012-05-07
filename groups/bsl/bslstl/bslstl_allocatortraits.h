@@ -479,6 +479,18 @@ struct allocator_traits {
         // equal to the specified 'allocator', and has not yet been passed to
         // a 'deallocate' call of such an allocator object.
 
+    static void construct(ALLOCATOR_TYPE&    allocator,
+                          value_type        *elementAddr,
+                          const value_type&  original);
+        // Construct a copy of the specified 'original' object of type
+        // 'value_type' at the specified 'elementAddr' using the specified
+        // 'allocator'.  The behavior is undefined unless 'elementAddr' refers
+        // to valid, uninitialized storage.  Note that this method is supplied
+        // to correctly dispatch to the 'construct' method of C++03 allocators
+        // while waiting for the following "perfect forwarding" calls mandated
+        // by C++11 correctly detect the presence of a usable 'construct' call
+        // in the parameterized 'ALLOCATOR_TYPE' class.
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class ELEMENT_TYPE, class... CTOR_ARGS>
@@ -604,6 +616,8 @@ struct allocator_traits {
 
 #endif
 
+    static void destroy(ALLOCATOR_TYPE& allocator, value_type *elementAddr);
+
     template <class ELEMENT_TYPE>
     static void destroy(ALLOCATOR_TYPE& allocator, ELEMENT_TYPE *elementAddr);
         // Invoke the destructor for the object at the specified
@@ -725,6 +739,15 @@ allocator_traits<ALLOCATOR_TYPE>::deallocate(ALLOCATOR_TYPE& allocator,
                                              size_type       n)
 {
     allocator.deallocate(elementAddr, n);
+}
+
+template <class ALLOCATOR_TYPE>
+void
+allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&    allocator,
+                                            value_type        *elementAddr,
+                                            const value_type&  original)
+{
+    allocator.construct(elementAddr, original);
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
@@ -868,12 +891,31 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&   allocator,
 #endif // ! BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
 template <class ALLOCATOR_TYPE>
+inline
+void
+allocator_traits<ALLOCATOR_TYPE>::destroy(ALLOCATOR_TYPE&  allocator,
+                                          value_type      *elementAddr)
+{
+//  For full C++11 compatibility, this should check for the well-formedness of
+//  the code below (via some SFINAE trickery), and switch to the
+//  ScalarDestructionPrimitives implementation below otherwise.
+
+    allocator.destroy(elementAddr);
+//    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(elementAddr);
+}
+
+template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE>
 inline
 void
 allocator_traits<ALLOCATOR_TYPE>::destroy(ALLOCATOR_TYPE&  allocator,
                                           ELEMENT_TYPE    *elementAddr)
 {
+//  For full C++11 compatibility, this should check for the well-formedness of
+//  the code below (via some SFINAE trickery), and switch to the
+//  ScalarDestructionPrimitives implementation below otherwise.
+
+//    allocator.destroy(elementAddr);
     BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(elementAddr);
 }
 

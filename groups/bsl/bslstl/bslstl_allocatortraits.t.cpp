@@ -198,8 +198,8 @@ class NonBslmaAllocator
     void deallocate(pointer p, size_type n = 1)
         { d_mechanism->deallocate(p); }
 
-    void construct(pointer p, const T& val) { ::new ((void*) &*p) T(val); }
-    void destroy(pointer p) { p->~T(); }
+    void construct(T *p, const T& val) { ::new ((void*)p) T(val); }
+    void destroy(T *p) { p->~T(); }
 
     // ACCESSORS
     pointer address(reference x) const { return &x; }
@@ -263,8 +263,8 @@ class BslmaAllocator
     void deallocate(pointer p, size_type n = 1)
         { d_mechanism->deallocate(p); }
 
-    void construct(pointer p, const T& val) { ::new ((void*) &*p) T(val); }
-    void destroy(pointer p) { p->~T(); }
+    void construct(T *p, const T& val) { ::new ((void*)p) T(val); }
+    void destroy(T *p) { p->~T(); }
 
     // ACCESSORS
     pointer address(reference x) const { return &x; }
@@ -362,13 +362,14 @@ class FunkyAllocator
     void deallocate(pointer p, size_type n = 1)
         { d_mechanism->deallocate(bsls::Util::addressOf(*p)); }
 
-    void construct(pointer p, const T& val) { ::new ((void*) &*p) T(val); }
-    void destroy(pointer p) { p->~T(); }
+    void construct(T *p, const T& val) { ::new ((void*)p) T(val); }
+    void destroy(T *p) { p->~T(); }
 
     // ACCESSORS
-    pointer address(reference x) const { return pointer(&x, 0); }
+    pointer address(reference x) const
+                               { return pointer(bsls::Util::addressOf(x), 0); }
     const_pointer address(const_reference x) const
-        { return const_pointer(&x, 0); }
+                         { return const_pointer(bsls::Util::addressOf(x), 0); }
     size_type max_size() const { return INT_MAX / sizeof(T); }
 
     bslma::Allocator *mechanism() const { return d_mechanism; }
@@ -815,6 +816,14 @@ inline bool isMutable(const T& /* x */) { return false; }
 
         static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
 
+        void construct(pointer p, const TYPE& value) {
+            new((void *)p) TYPE(value);
+        }
+
+        void destroy(pointer p) {
+            p->~TYPE();
+        }
+
         int state() const { return d_state; }
     };
 
@@ -959,7 +968,7 @@ void testAllocatorConformance(const char* allocName)
     LOOP_ASSERT(allocName, AttribClass5::ctorCount() == ctorCountBefore);
     LOOP_ASSERT(allocName, 0 == g_lastHint);
 
-    a.construct(p, val);
+    a.construct(bsls::Util::addressOf(*p), val);
     LOOP_ASSERT(allocName, AttribClass5::ctorCount() == ctorCountBefore + 1);
     LOOP6_ASSERT(allocName, p->a(), p->b(), p->c(), p->d(), p->e(),
                  matchAttrib(*p, VAL_A, VAL_B, VAL_C, VAL_D, VAL_E));
@@ -978,7 +987,7 @@ void testAllocatorConformance(const char* allocName)
     LOOP_ASSERT(allocName, p  == a.address(v));
     LOOP_ASSERT(allocName, cp == a.address(cv));
 
-    a.destroy(p);
+    a.destroy(bsls::Util::addressOf(*p));
     LOOP_ASSERT(allocName, AttribClass5::dtorCount() == dtorCountBefore + 1);
     LOOP_ASSERT(allocName, 0xdeadbeaf == p->b());
     LOOP_ASSERT(allocName, 0xdeadbeaf == cp->b());
