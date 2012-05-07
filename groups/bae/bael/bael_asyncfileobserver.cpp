@@ -63,10 +63,6 @@ int bael_AsyncFileObserver::startThread()
 int bael_AsyncFileObserver::stopThread()
 {
     if (bcemt_ThreadUtil::invalidHandle() != d_threadHandle) {
-<<<<<<< HEAD
-
-=======
->>>>>>> master
         // Push an empty record with BAEL_END set in context
 
         AsyncRecord asyncRecord;
@@ -91,15 +87,10 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                                          bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
-<<<<<<< HEAD
 , d_recordQueue(DEFAULT_FIXED_QUEUE_SIZE, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
 , d_dropCount(-1)
-=======
-, d_recordQueue(8192, basicAllocator)
-, d_clearing(false)
->>>>>>> master
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint
@@ -138,15 +129,10 @@ bael_AsyncFileObserver::bael_AsyncFileObserver(
                                       bslma_Allocator      *basicAllocator)
 : d_fileObserver(stdoutThreshold, publishInLocalTime, basicAllocator)
 , d_threadHandle(bcemt_ThreadUtil::invalidHandle())
-<<<<<<< HEAD
 , d_recordQueue(maxRecordQueueSize, basicAllocator)
 , d_clearing(false)
 , d_dropRecordsOnFullQueueThreshold(bael_Severity::BAEL_OFF)
 , d_dropCount(-1)
-=======
-, d_recordQueue(fixedQueueSize, basicAllocator)
-, d_clearing(false)
->>>>>>> master
 , d_allocator_p(bslma_Default::globalAllocator(basicAllocator))
 {
     d_publishThreadEntryPoint

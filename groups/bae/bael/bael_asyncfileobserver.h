@@ -610,12 +610,8 @@ class bael_AsyncFileObserver : public bael_Observer {
 
     int shutdownPublicationThread();
         // Immediately shutdown the publication thread and return to the
-<<<<<<< HEAD
         // caller.  Currently queue'd records will be discarded, and will not
         // be written to the log file or 'stdout'.
-=======
-        // caller.  The records in the queue are cleared without publication.
->>>>>>> master
 
     int startPublicationThread();
         // Start the publication thread of this async file observer.  Return 0
