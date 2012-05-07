@@ -376,6 +376,18 @@ void testMultimapManipulators()
     }
     ASSERT(4 == j);
     ASSERT(8 == k);
+
+    int preRangeSize = hma.size();
+    
+    Pr array[] = { Pr(57, 0), Pr(57, 1), Pr(57, 2), Pr(57, 3), Pr(57, 4) };
+
+    hma.insert(array + 0, array + 5);
+    LOOP_ASSERT(hma.size() - preRangeSize, hma.size() - preRangeSize == 5);
+    LOOP_ASSERT(hma.count(KEY(57)), 5 == hma.count(KEY(57)));
+
+    Obj hma2(array + 0, array + 5, &ta);
+    LOOP_ASSERT(hma2.size(), hma2.size() == 5);
+    LOOP_ASSERT(hma2.count(KEY(57)), 5 == hma2.count(KEY(57)));
 }
 
 template <typename KEY, typename VALUE, typename HASH, typename EQUAL>
@@ -485,6 +497,26 @@ void testMapManipulators()
     ASSERT(prIC.second == hmc.end() || 1 != prIC.second->first);
 
     ASSERT(1 == hma[1]);
+    
+    for (int i = 0; i < 5; ++i) {
+        LOOP_ASSERT(hma.count(KEY(57 + i)), 0 == hma.count(KEY(57 + i)));
+    }
+
+    int preRangeSize = hma.size();
+
+    Pr array[] = { Pr(57, 0), Pr(58, 1), Pr(59, 2), Pr(60, 3), Pr(61, 4) };
+
+    hma.insert(array + 0, array + 5);
+    LOOP_ASSERT(hma.size() - preRangeSize, hma.size() - preRangeSize == 5);
+    for (int i = 0; i < 5; ++i) {
+        LOOP_ASSERT(hma.count(KEY(57 + i)), 1 == hma.count(KEY(57 + i)));
+    }
+
+    Obj hma2(array + 0, array + 5, &ta);
+    LOOP_ASSERT(hma2.size(), hma2.size() == 5);
+    for (int i = 0; i < 5; ++i) {
+        LOOP_ASSERT(hma2.count(KEY(57 + i)), 1 == hma2.count(KEY(57 + i)));
+    }
 }
 
 //=============================================================================
@@ -581,8 +613,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
                          tda.numBytesInUse() == defaultMemUsed);
-            LOOP2_ASSERT(
-                      ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
         }
 
@@ -722,8 +753,7 @@ int main(int argc, char *argv[])
                 hm.insert(bsl::make_pair(0, cx));
             }
 
-            LOOP2_ASSERT(
-                      ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
                          tda.numBytesInUse() == defaultMemUsed);
@@ -747,8 +777,7 @@ int main(int argc, char *argv[])
                 hm.insert(bsl::make_pair(0, cx));
             }
 
-            LOOP2_ASSERT(
-                      ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
                          tda.numBytesInUse() == defaultMemUsed);
@@ -954,8 +983,7 @@ int main(int argc, char *argv[])
                 hm.insert(bsl::make_pair(i, cx));
             }
 
-            LOOP2_ASSERT(
-                      ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
                          tda.numBytesInUse() == defaultMemUsed);
@@ -1096,8 +1124,7 @@ int main(int argc, char *argv[])
                 hm.insert(bsl::make_pair(i, cx));
             }
 
-            LOOP2_ASSERT(
-                      ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
                          tda.numBytesInUse() == defaultMemUsed);
@@ -1121,8 +1148,7 @@ int main(int argc, char *argv[])
                 hm.insert(bsl::make_pair(i, cx));
             }
 
-            LOOP2_ASSERT(
-                      ta.numBytesInUse(), memUsed,
+            LOOP2_ASSERT(ta.numBytesInUse(), memUsed,
                       ta.numBytesInUse() > memUsed + 10 * Cargo::BULK_STORAGE);
             LOOP2_ASSERT(tda.numBytesInUse(), defaultMemUsed,
                          tda.numBytesInUse() == defaultMemUsed);

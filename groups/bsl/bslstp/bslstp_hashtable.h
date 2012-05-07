@@ -434,7 +434,9 @@ public:
   {
   // MODIFIED BY ARTHUR
   //  insert_equal(__f, __l, _STLP_ITERATOR_CATEGORY(__f, _InputIterator));
-    insert_unique(__f, __l, typename bsl::iterator_traits<_InputIterator>::iterator_category());
+  // MODIFIEd BY BCHAPMAN
+  //  insert_unique(__f, __l, typename bsl::iterator_traits<_InputIterator>::iterator_category());
+    insert_equal(__f, __l, typename bsl::iterator_traits<_InputIterator>::iterator_category());
   }
 
   template <class _InputIterator>
