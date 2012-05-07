@@ -537,13 +537,44 @@ BSLS_IDENT("$Id: $")
     }                                                                     \
 }
 
+#if !defined(BDE_BUILD_TARGET_EXC)
+// If exceptions are not enabled, all of the ASSERT_PASS tests must run, in
+// order to guarantee any stateful side-effects required by the test driver.
+// However, none of the ASSERT_FAIL tests should run any code, otherwise each
+// would invoke undefined behavior, if used correctly.
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST) { }
+# define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST) { }
+
+#else // defined BDE_BUILD_TARGET_EXC
+
 // The following macros are not expanded on the Microsoft compiler to avoid
 // internal compiler errors in optimized builds, which are the result of
 // attempts to optimize many try/catch blocks in large switch statements.  Note
 // that the resulting test driver is just as thorough, but will crash on
 // failure rather than capturing and reporting the error.
-
-#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
+#if (defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT))
 # define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST) \
          { EXPRESSION_UNDER_TEST; }
 
@@ -563,21 +594,21 @@ BSLS_IDENT("$Id: $")
          BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 #   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST) \
        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
 #   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_IS_ACTIVE
+#if defined(BSLS_ASSERT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', EXPRESSION_UNDER_TEST)
 #else
@@ -595,6 +626,16 @@ BSLS_IDENT("$Id: $")
     }                                                                        \
 }
 
+#if defined(BSLS_PLATFORM__CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT)
+# define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+
+# define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
+         { EXPRESSION_UNDER_TEST; }
+#else
 #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
 
@@ -603,27 +644,30 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', EXPRESSION_UNDER_TEST)
+#endif
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_IS_ACTIVE
+#if defined(BSLS_ASSERT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
 
-#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST) \
         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', EXPRESSION_UNDER_TEST)
 #else
     #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST)
 #endif
+
+#endif  // BDE_BUILD_TARGET_EXC
 
 // Note that a portable syntax for 'noreturn' will be available once we have
 // access to conforming C++0x compilers.
