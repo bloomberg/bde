@@ -140,7 +140,7 @@ using namespace bsl;
 //
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
-// [  ] TODO: CONCERN: The object is comppatible with STL allocator.
+// [  ] TODO?: CONCERN: The object is comppatible with STL allocator.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -240,52 +240,53 @@ const char DEFAULT_VALUE       = 'z';
 
 struct DefaultQDataRow {
     int         d_line;     // source line number
+    int         d_index;    // lexical order
     const char *d_spec;     // specification string, for input to 'gg' function
 };
 
 static
 const DefaultQDataRow DEFAULT_QDATA[] = {
-    //line spec
-    //---- ----
-    { L_,  "",                 },
-    { L_,  "A",                },
-    { L_,  "B",                },
-    { L_,  "AA",               },
-    { L_,  "AB",               },
-    { L_,  "BA",               },
-    { L_,  "AC",               },
-    { L_,  "CD",               },
-    { L_,  "ABC",              },
-    { L_,  "ACB",              },
-    { L_,  "BAC",              },
-    { L_,  "BCA",              },
-    { L_,  "CAB",              },
-    { L_,  "CBA",              },
-    { L_,  "BAD",              },
-    { L_,  "ABCA",             },
-    { L_,  "ABCB",             },
-    { L_,  "ABCC",             },
-    { L_,  "ABCD",             },
-    { L_,  "ACBD",             },
-    { L_,  "BDCA",             },
-    { L_,  "DCBA",             },
-    { L_,  "BEAD",             },
-    { L_,  "BCDE",             },
-    { L_,  "ABCDE",            },
-    { L_,  "ACBDE",            },
-    { L_,  "CEBDA",            },
-    { L_,  "EDCBA",            },
-    { L_,  "FEDCB",            },
-    { L_,  "FEDCBA",           },
-    { L_,  "ABCABC",           },
-    { L_,  "AABBCC",           },
-    { L_,  "ABCDEFG",          },
-    { L_,  "ABCDEFGH",         },
-    { L_,  "ABCDEFGHI",        },
-    { L_,  "ABCDEFGHIJKLMNOP", },
-    { L_,  "PONMLKJIGHFEDCBA", },
-    { L_,  "ABCDEFGHIJKLMNOPQ",},
-    { L_,  "DHBIMACOPELGFKNJQ",},
+    //line index  spec
+    //---- -----  ----
+    { L_,      0,  "",                 },
+    { L_,      1,  "A",                },
+    { L_,     21,  "B",                },
+    { L_,      2,  "AA",               },
+    { L_,      4,  "AB",               },
+    { L_,     22,  "BA",               },
+    { L_,     17,  "AC",               },
+    { L_,     31,  "CD",               },
+    { L_,      5,  "ABC",              },
+    { L_,     18,  "ACB",              },
+    { L_,     23,  "BAC",              },
+    { L_,     25,  "BCA",              },
+    { L_,     29,  "CAB",              },
+    { L_,     30,  "CBA",              },
+    { L_,     24,  "BAD",              },
+    { L_,      6,  "ABCA",             },
+    { L_,      8,  "ABCB",             },
+    { L_,      9,  "ABCC",             },
+    { L_,     10,  "ABCD",             },
+    { L_,     19,  "ACBD",             },
+    { L_,     27,  "BDCA",             },
+    { L_,     33,  "DCBA",             },
+    { L_,     28,  "BEAD",             },
+    { L_,     26,  "BCDE",             },
+    { L_,     11,  "ABCDE",            },
+    { L_,     20,  "ACBDE",            },
+    { L_,     32,  "CEBDA",            },
+    { L_,     35,  "EDCBA",            },
+    { L_,     36,  "FEDCB",            },
+    { L_,     37,  "FEDCBA",           },
+    { L_,      7,  "ABCABC",           },
+    { L_,      3,  "AABBCC",           },
+    { L_,     12,  "ABCDEFG",          },
+    { L_,     13,  "ABCDEFGH",         },
+    { L_,     14,  "ABCDEFGHI",        },
+    { L_,     15,  "ABCDEFGHIJKLMNOP", },
+    { L_,     38,  "PONMLKJIGHFEDCBA", },
+    { L_,     16,  "ABCDEFGHIJKLMNOPQ",},
+    { L_,     34,  "DHBIMACOPELGFKNJQ",},
 };
 
 static
@@ -701,6 +702,9 @@ class QTestDriver {
 
     // TEST CASES
 
+    static void testCase14();
+        // Test comparison free operators.
+
     static void testCase13();
         // Test accessors 'empty', 'front', and 'back'.
 
@@ -831,6 +835,9 @@ class PQTestDriver {
   public:
 
     // TEST CASES
+
+    //static void testCase14();
+        // Reserved for free operators.
 
     static void testCase13();
         // Test accessors 'empty'.
@@ -1125,6 +1132,112 @@ PQTestDriver<VALUE, CONTAINER, COMPARATOR>::g(const char *spec)
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class VALUE, class CONTAINER>
+void QTestDriver<VALUE, CONTAINER>::testCase14()
+{
+    // ------------------------------------------------------------------------
+    // TESTING COMPARISON FREE OPERATORS
+    //
+    // Concerns:
+    //: 1 'operator<' returns the lexicographic comparison on two objects.
+    //:
+    //: 2 Comparison operator uses 'operator<' on the object instead of the
+    //:   supplied comparator.
+    //:
+    //: 3 'operator>', 'operator<=', and 'operator>=' are correctly tied to
+    //:   'operator<'.  i.e. For two objects, 'a' and 'b':
+    //:
+    //:   1 '(a > b) == (b < a)'
+    //:
+    //:   2 '(a <= b) == !(b < a)'
+    //:
+    //:   3 '(a >= b) == !(a < b)'
+    //
+    // Plan:
+    //: 1 For a variety of objects of different sizes and different values,
+    //:   test that the comparison returns as expected.  (C-1..3)
+    //
+    // Testing:
+    //   bool operator< (const queue<V, C>& lhs, const queue<V, C>& rhs);
+    //   bool operator> (const queue<V, C>& lhs, const queue<V, C>& rhs);
+    //   bool operator>=(const queue<V, C>& lhs, const queue<V, C>& rhs);
+    //   bool operator<=(const queue<V, C>& lhs, const queue<V, C>& rhs);
+    // ------------------------------------------------------------------------
+
+    const int NUM_DATA                      = DEFAULT_NUM_QDATA;
+    const DefaultQDataRow (&DATA)[NUM_DATA] = DEFAULT_QDATA;
+
+    if (verbose) printf("\nCompare each pair of similar and different"
+                        " values (u, ua, v, va) in S X A X S X A"
+                        " without perturbation.\n");
+    {
+        // Create first object
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE1   = DATA[ti].d_line;
+            const int         INDEX1  = DATA[ti].d_index;
+            const char *const SPEC1   = DATA[ti].d_spec;
+            const size_t      LENGTH1 = strlen(DATA[ti].d_spec);
+
+           if (veryVerbose) { T_ P_(LINE1) P_(INDEX1) P_(LENGTH1) P(SPEC1) }
+
+            // Ensure an object compares correctly with itself (alias test).
+
+            {
+                bslma_TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                Obj mX(&scratch); const Obj& X = gg(&mX, SPEC1);
+
+                ASSERTV(LINE1, X,   X == X);
+                ASSERTV(LINE1, X, !(X != X));
+            }
+
+            // Create second object.
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int         LINE2   = DATA[tj].d_line;
+                const int         INDEX2  = DATA[tj].d_index;
+                const char *const SPEC2   = DATA[tj].d_spec;
+                const size_t      LENGTH2 = strlen(DATA[tj].d_spec);
+
+                if (veryVerbose) {
+                              T_ T_ P_(LINE2) P_(INDEX2) P_(LENGTH2) P(SPEC2) }
+
+                // Create two distinct test allocators, 'oax' and 'oay'.
+
+                bslma_TestAllocator oax("objectx", veryVeryVeryVerbose);
+                bslma_TestAllocator oay("objecty", veryVeryVeryVerbose);
+
+                // Map allocators above to objects 'X' and 'Y' below.
+
+                Obj mX(&oax); const Obj& X = gg(&mX, SPEC1);
+                Obj mY(&oay); const Obj& Y = gg(&mY, SPEC2);
+
+                if (veryVerbose) { T_ T_ P_(X) P(Y); }
+
+                // Verify value and no memory allocation.
+
+                bslma_TestAllocatorMonitor oaxm(&oax);
+                bslma_TestAllocatorMonitor oaym(&oay);
+
+                const bool isLess = INDEX1 < INDEX2;
+                const bool isLessEq = INDEX1 <= INDEX2;
+
+                TestComparator<VALUE>::disableFunctor();
+
+                ASSERTV(LINE1, LINE2,  isLess   == (X < Y));
+                ASSERTV(LINE1, LINE2, !isLessEq == (X > Y));
+                ASSERTV(LINE1, LINE2,  isLessEq == (X <= Y));
+                ASSERTV(LINE1, LINE2, !isLess   == (X >= Y));
+
+                TestComparator<VALUE>::enableFunctor();
+
+                ASSERTV(LINE1, LINE2, oaxm.isTotalSame());
+                ASSERTV(LINE1, LINE2, oaym.isTotalSame());
+            }
+        }
+    }
+}
 
 template <class VALUE, class CONTAINER>
 void QTestDriver<VALUE, CONTAINER>::testCase13()
@@ -4833,17 +4946,16 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-#if 0
       case 14: {
         // --------------------------------------------------------------------
         // TESTING FREE COMPARISON OPERATORS
         // --------------------------------------------------------------------
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase14, int, char);
-        QTestDriver<char, int>::testCase14();
+        if (verbose) printf("\nTesting Free Comparison Operators"
+                            "\n=================================\n");
 
+        BSLTF_RUN_EACH_TYPE(QTestDriver, testCase14, char, int);
       } break;
-#endif
       case 13: {
         // --------------------------------------------------------------------
         // OTHER ACCESSORS
