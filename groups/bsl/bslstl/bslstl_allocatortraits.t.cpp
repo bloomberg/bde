@@ -233,6 +233,14 @@ class BslmaAllocator
     // 'bslma::Allocator*'.
     bslma::Allocator *d_mechanism;
 
+    void doConstruct(T *p, const T& val, bslmf::MetaInt<0>) {
+        ::new ((void*)p) T(val); 
+    }
+
+    void doConstruct(T *p, const T& val, bslmf::MetaInt<1>) {
+        ::new ((void*)p) T(val, this->d_mechanism); 
+    }
+
   public:
     // PUBLIC TYPES
     typedef std::size_t     size_type;
@@ -263,7 +271,13 @@ class BslmaAllocator
     void deallocate(pointer p, size_type n = 1)
         { d_mechanism->deallocate(p); }
 
-    void construct(T *p, const T& val) { ::new ((void*)p) T(val); }
+    void construct(T *p, const T& val) 
+    {
+        typedef
+        typename bslalg::HasTrait<T, bslalg::TypeTraitUsesBslmaAllocator>::Type
+                                                            UsesBslmaAllocator;
+        doConstruct(p, val, UsesBslmaAllocator());
+    }
     void destroy(T *p) { p->~T(); }
 
     // ACCESSORS
@@ -332,6 +346,14 @@ class FunkyAllocator
     // 'bslma::Allocator*'.
     bslma::Allocator *d_mechanism;
 
+    void doConstruct(T *p, const T& val, bslmf::MetaInt<0>) {
+        ::new ((void*)p) T(val); 
+    }
+
+    void doConstruct(T *p, const T& val, bslmf::MetaInt<1>) {
+        ::new ((void*)p) T(val, this->d_mechanism); 
+    }
+
   public:
     // PUBLIC TYPES
     typedef std::size_t           size_type;
@@ -362,7 +384,13 @@ class FunkyAllocator
     void deallocate(pointer p, size_type n = 1)
         { d_mechanism->deallocate(bsls::Util::addressOf(*p)); }
 
-    void construct(T *p, const T& val) { ::new ((void*)p) T(val); }
+    void construct(T *p, const T& val) 
+    {
+        typedef
+        typename bslalg::HasTrait<T, bslalg::TypeTraitUsesBslmaAllocator>::Type
+                                                            UsesBslmaAllocator;
+        doConstruct(p, val, UsesBslmaAllocator());
+    }
     void destroy(T *p) { p->~T(); }
 
     // ACCESSORS
