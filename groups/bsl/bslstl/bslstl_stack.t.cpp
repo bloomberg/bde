@@ -466,6 +466,12 @@ struct ValueName<bsltf::NonTypicalOverloadsTestType> {
 
 
 
+void resetTM(bslma_TestAllocatorMonitor *tam, bslma_TestAllocator *ta)
+{
+    new (tam) bslma_TestAllocatorMonitor(ta);
+}
+
+
 bool expectToAllocate(int n)
     // Return 'true' if the container is expected to allocate memory on the
     // specified 'n'th element, and 'false' otherwise.
@@ -829,6 +835,7 @@ class TestDriver {
 
     static void testCase7();
         // Test copy constructor.
+#endif
 
     static void testCase6();
         // Test equality operator ('operator==').
@@ -837,8 +844,7 @@ class TestDriver {
         // Reserved for (<<) operator.
 
     static void testCase4();
-        // Test basic accessors ('size', 'cbegin', 'cend' and 'get_allocator').
-#endif
+        // Test basic accessors ('size', 'get_allocator', and 'top').
 
     static void testCase3();
         // Test generator functions 'ggg', and 'gg'.
@@ -3765,9 +3771,10 @@ void TestDriver<KEY, COMP, ALLOC>::testCase7()
         }
     }
 }
+#endif
 
-template <class KEY, class COMP, class ALLOC>
-void TestDriver<KEY, COMP, ALLOC>::testCase6()
+template <class CONTAINER>
+void TestDriver<CONTAINER>::testCase6()
 {
     // ---------------------------------------------------------------------
     // TESTING EQUALITY OPERATORS:
@@ -3876,13 +3883,12 @@ void TestDriver<KEY, COMP, ALLOC>::testCase6()
     if (verbose) printf("\nCompare every value with every value.\n");
     {
         // Create first object
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE1   = DATA[ti].d_line;
-            const int         INDEX1  = DATA[ti].d_index;
-            const char *const SPEC1   = DATA[ti].d_spec;
-            const size_t      LENGTH1 = strlen(DATA[ti].d_results);
 
-           if (veryVerbose) { T_ P_(LINE1) P_(INDEX1) P_(LENGTH1) P(SPEC1) }
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const char *const SPEC1   = DATA[ti].d_spec;
+            const size_t      LENGTH1 = strlen(DATA[ti].d_spec);
+
+            if (veryVerbose) { T_ P(SPEC1) }
 
             // Ensure an object compares correctly with itself (alias test).
             {
@@ -3890,23 +3896,20 @@ void TestDriver<KEY, COMP, ALLOC>::testCase6()
 
                 Obj mX(&scratch); const Obj& X = gg(&mX, SPEC1);
 
-                ASSERTV(LINE1, X,   X == X);
-                ASSERTV(LINE1, X, !(X != X));
+                ASSERTV(SPEC1,   X == X);
+                ASSERTV(SPEC1, !(X != X));
             }
 
             for (int tj = 0; tj < NUM_DATA; ++tj) {
-                const int         LINE2   = DATA[tj].d_line;
-                const int         INDEX2  = DATA[tj].d_index;
                 const char *const SPEC2   = DATA[tj].d_spec;
-                const size_t      LENGTH2 = strlen(DATA[tj].d_results);
+                const size_t      LENGTH2 = strlen(DATA[tj].d_spec);
 
                 if (veryVerbose) {
-                              T_ T_ P_(LINE2) P_(INDEX2) P_(LENGTH2) P(SPEC2) }
+                              T_ T_ P(SPEC2) }
 
-                const bool EXP = INDEX1 == INDEX2;  // expected result
+                const bool EXP = ti == tj;  // expected equality
 
                 for (char cfg = 'a'; cfg <= 'b'; ++cfg) {
-
                     const char CONFIG = cfg;  // Determines 'Y's allocator.
 
                     // Create two distinct test allocators, 'oax' and 'oay'.
@@ -3922,42 +3925,35 @@ void TestDriver<KEY, COMP, ALLOC>::testCase6()
                     Obj mX(&xa); const Obj& X = gg(&mX, SPEC1);
                     Obj mY(&ya); const Obj& Y = gg(&mY, SPEC2);
 
-                    ASSERTV(LINE1, LINE2, CONFIG, LENGTH1 == X.size());
-                    ASSERTV(LINE1, LINE2, CONFIG, LENGTH2 == Y.size());
-
-                    if (veryVerbose) { T_ T_ P_(X) P(Y); }
+                    ASSERTV(CONFIG, LENGTH1 == X.size());
+                    ASSERTV(CONFIG, LENGTH2 == Y.size());
 
                     // Verify value, commutativity, and no memory allocation.
 
                     bslma_TestAllocatorMonitor oaxm(&xa);
                     bslma_TestAllocatorMonitor oaym(&ya);
 
-                    TestComparator<KEY>::disableFunctor();
+                    ASSERTV(CONFIG,  EXP == (X == Y));
+                    ASSERTV(CONFIG,  EXP == (Y == X));
 
-                    ASSERTV(LINE1, LINE2, CONFIG,  EXP == (X == Y));
-                    ASSERTV(LINE1, LINE2, CONFIG,  EXP == (Y == X));
+                    ASSERTV(CONFIG, !EXP == (X != Y));
+                    ASSERTV(CONFIG, !EXP == (Y != X));
 
-                    ASSERTV(LINE1, LINE2, CONFIG, !EXP == (X != Y));
-                    ASSERTV(LINE1, LINE2, CONFIG, !EXP == (Y != X));
-
-                    TestComparator<KEY>::enableFunctor();
-
-                    ASSERTV(LINE1, LINE2, CONFIG, oaxm.isTotalSame());
-                    ASSERTV(LINE1, LINE2, CONFIG, oaym.isTotalSame());
+                    ASSERTV(CONFIG, oaxm.isTotalSame());
+                    ASSERTV(CONFIG, oaym.isTotalSame());
                 }
             }
         }
     }
 }
 
-template <class KEY, class COMP, class ALLOC>
-void TestDriver<KEY, COMP, ALLOC>::testCase4()
+template <class CONTAINER>
+void TestDriver<CONTAINER>::testCase4()
 {
     // ------------------------------------------------------------------------
     // BASIC ACCESSORS
     //   Ensure each basic accessor:
-    //     - cbegin
-    //     - cend
+    //     - top
     //     - size
     //     - get_allocator
     //   properly interprets object state.
@@ -3970,27 +3966,15 @@ void TestDriver<KEY, COMP, ALLOC>::testCase4()
     //:
     //: 3 No accessor allocates any memory.
     //:
-    //: 4 The range '[cbegin(), cend())' contains inserted elements the sorted
-    //:   order.
     //
     // Plan:
     //: 1 For each set of 'SPEC' of different length:
     //:
     //:   1 Default construct the object with various configuration:
     //:
-    //:     1 Use the 'gg' function to populate the object based on the SPEC.
+    //:   2 Add in a series of objects.
     //:
-    //:     2 Verify the correct allocator is installed with the
-    //:       'get_allocator' method.
-    //:
-    //:     3 Verify the object contains the expected number of elements.
-    //:
-    //:     4 Use 'cbegin' and 'cend' to iterate through all elements and
-    //:       verify the values are as expected.  (C-1..2, 4)
-    //:
-    //:     5 Monitor the memory allocated from both the default and object
-    //:       allocators before and after calling the accessor; verify that
-    //:       there is no change in total memory allocation.  (C-3)
+    //:   3 Verify 'top' yields the expected result.
     //
     // Testing:
     //   const_iterator cbegin();
@@ -3998,6 +3982,13 @@ void TestDriver<KEY, COMP, ALLOC>::testCase4()
     //   size_type size() const;
     //   allocator_type get_allocator() const;
     // ------------------------------------------------------------------------
+
+    const char *cont = ContainerName<container_type>::name();
+    const char *val  = ValueName<value_type>::name();
+
+    if (verbose) { P_(cont);  P_(val);  P(typeAlloc()); }
+
+    const TestValues VALUES;  // contains 52 distinct increasing values
 
     static const struct {
         int         d_line;                     // source line number
@@ -4036,7 +4027,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase4()
 
                 bslma_DefaultAllocatorGuard dag(&da);
 
-
                 bslma_TestAllocator& oa = 'a' == CONFIG || 'b' == CONFIG
                                           ? da
                                           : 'c' == CONFIG
@@ -4054,60 +4044,33 @@ void TestDriver<KEY, COMP, ALLOC>::testCase4()
                             : 'c' == CONFIG
                               ? * new (fa) Obj(&sa1)
                               : * new (fa) Obj(&sa2);
-                const Obj& X = mX;
 
-                ASSERT( oam.isTotalSame() == !emptyWillAlloc());
+                ASSERT( oam.isTotalUp() == emptyWillAlloc());
                 ASSERT(noam.isTotalSame());
 
-                Obj& mX = *objPtr;  const Obj& X = gg(&mX, SPEC);
-                bslma_TestAllocator& noa = 'c' == CONFIG || 'd' == CONFIG
-                                         ? da
-                                         : sa1;
+                const Obj& X = gg(&mX, SPEC);
+                ASSERT(&X == &mX);
+
+                resetTM(&oam, &oa);
 
                 // --------------------------------------------------------
-
                 // Verify basic accessor
-
-                bslma_TestAllocatorMonitor oam(&oa);
 
                 ASSERTV(LINE, SPEC, CONFIG, &oa == X.get_allocator());
                 ASSERTV(LINE, SPEC, CONFIG, LENGTH == (int)X.size());
-
-                int i = 0;
-                for (CIter iter = X.cbegin(); iter != X.cend(); ++iter, ++i) {
-                    ASSERTV(LINE, SPEC, CONFIG, EXP[i] == *iter);
+                if (LENGTH > 0) {
+                    ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] == mX.top());
+                    ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] ==  X.top());
                 }
 
-                ASSERTV(LINE, SPEC, CONFIG, LENGTH == i);
+                ASSERT( oam.isTotalSame());
+                ASSERT(noam.isTotalSame());
 
-                ASSERT(oam.isTotalSame());
-
-                // --------------------------------------------------------
-
-                // Reclaim dynamically allocated object under test.
-
-                fa.deleteObject(objPtr);
-
-                // Verify no allocation from the non-object allocator.
-
-                ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
-                        0 == noa.numBlocksTotal());
-
-                // Verify all memory is released on object destruction.
-
-                ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
-                        0 == da.numBlocksInUse());
-                ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
-                        0 == fa.numBlocksInUse());
-                ASSERTV(LINE, CONFIG, sa1.numBlocksInUse(),
-                        0 == sa1.numBlocksInUse());
-                ASSERTV(LINE, CONFIG, sa2.numBlocksInUse(),
-                        0 == sa2.numBlocksInUse());
+                fa.deleteObject(&mX);
             }
         }
     }
 }
-#endif
 
 template <class CONTAINER>
 void TestDriver<CONTAINER>::testCase3()
@@ -4153,6 +4116,8 @@ void TestDriver<CONTAINER>::testCase3()
     if (verbose) { P_(cont);  P(val); }
 
     bslma_TestAllocator oa(veryVeryVerbose);
+    bslma_TestAllocator da(veryVeryVerbose);
+    bslma_DefaultAllocatorGuard dag(&da);
 
     if (verbose) printf("\nTesting generator on valid specs.\n");
     {
@@ -4183,8 +4148,15 @@ void TestDriver<CONTAINER>::testCase3()
             const TestValues  EXP(DATA[ti].d_results);
             const int         curLen = (int)strlen(SPEC);
 
+            bslma_TestAllocatorMonitor oam(&oa);
+            bslma_TestAllocatorMonitor dam(&da);
+
             Obj mX(&oa);
             const Obj& X = gg(&mX, SPEC);
+
+            LOOP3_ASSERT(oam.isTotalUp(), emptyWillAlloc(), LENGTH,
+                         oam.isTotalUp() == (emptyWillAlloc() || LENGTH > 0));
+            ASSERT(dam.isTotalSame());
 
             const Obj& Y =  g(     SPEC);
 
@@ -4969,6 +4941,7 @@ int main(int argc, char *argv[])
 
         BSLTF_RUN_EACH_TYPE(TestDriver, testCase7, BSLTF_TEST_TYPES_REGULAR);
       } break;
+#endif
       case 6: {
         // --------------------------------------------------------------------
         // EQUALITY OPERATORS
@@ -4977,7 +4950,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Equality Operators"
                             "\n==========================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase6, BSLTF_TEST_TYPES_REGULAR);
+        if (verbose) printf("deque ---------------------------------------\n");
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase6, TEST_TYPES_REGULAR(deque));
+        if (verbose) printf("vector --------------------------------------\n");
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase6, TEST_TYPES_REGULAR(vector));
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -4998,9 +4974,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Basic Accessors"
                             "\n=======================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase4, BSLTF_TEST_TYPES_REGULAR);
+        if (verbose) printf("deque ---------------------------------------\n");
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase4, TEST_TYPES_REGULAR(deque));
+        if (verbose) printf("vector --------------------------------------\n");
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase4, TEST_TYPES_REGULAR(vector));
       } break;
-#endif
       case 3: {
         // --------------------------------------------------------------------
         // GENERATOR FUNCTIONS 'gg' and 'ggg'
