@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Store objects of the locally defined 'Cargo' type, which
         //   allcocates a large amount of memory, in the container, and
-    //   observe that all of the memory comes from the passed allocator.
+        //   observe that all of the memory comes from the passed allocator.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nMAP STORING TEST\n"
@@ -229,6 +229,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < 4; ++i) {
                 m.insert(bsl::make_pair(i / 2, cx));
             }
+            LOOP_ASSERT(m.size(), 4 == m.size());
 
             LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() >= 16 * 1000);
             PV(ta.numBytesInUse());
