@@ -25,7 +25,7 @@
 #include <bsls_asserttest.h>
 
 using namespace BloombergLP;
-using namespace std;
+using namespace bsl;
 
 // ============================================================================
 //                              TEST PLAN

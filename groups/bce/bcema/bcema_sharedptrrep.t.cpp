@@ -1,12 +1,12 @@
 // bcema_sharedptrrep.t.cpp                                           -*-C++-*-
 
 #include <bcema_sharedptrrep.h>
-#include <bsl_algorithm.h>       // for 'bsl::swap'
-#include <bslma_default.h>
-#include <bslma_allocator.h>
-#include <bdet_datetime.h>
 #include <bcema_testallocator.h>                // for testing only
-#include <iostream>
+#include <bdet_datetime.h>
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bsl_algorithm.h>       // for 'bsl::swap'
+#include <bsl_iostream.h>
 
 #include <bsl_c_stdlib.h>             // 'atoi'
 

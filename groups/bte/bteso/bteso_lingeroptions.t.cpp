@@ -5,7 +5,7 @@ BDES_IDENT_RCSID(bteso_lingeroptions_t_cpp,"$Id$ $CSID$")
 
 #include <bteso_lingeroptions.h>
 
-#include <cstdlib>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
