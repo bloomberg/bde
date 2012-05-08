@@ -17,9 +17,9 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: The standard 'allocator_traits' class template is defined in
-// the C++11 standard as a uniform mechanism for accessing nested types
-// within, and operations on, any standard-conforming allocator.  An
-// 'allocator_traits' specialization is stateless, and all of its member
+// the C++11 standard ([alloctor.traits]) as a uniform mechanism for accessing
+// nested types within, and operations on, any standard-conforming allocator.
+// An 'allocator_traits' specialization is stateless, and all of its member
 // functions are static.  In most cases, facilities of 'allocator_traits'
 // are straight pass-throughs for the same facilities from the 'ALLOC'
 // template parameter.  For example, 'allocator_traits<X>::pointer' is the
@@ -36,18 +36,19 @@ BSLS_IDENT("$Id: $")
 // Specifically, this implementation does not provide defaults for C++03 types
 // and functions, and has hard-wired implementations of the new C++11
 // features.  Thus, the 'allocator_traits' template cannot be instantiated on
-// an allocator type that does not provide a full compliment of C++03 types
-// and functions, and it will ignore any special C++11 features specified in
-// 'ALLOC'.  This limitation exists because Bloomberg does not need the full
-// functionality of the C++11 model, but needs only to distinguish between
-// C++03 allocators and allocators that implement the BSLMA allocator model
-// (see {'bslstl_allocator'}).  The full feature set of 'allocator_traits'
-// would require a lot of resources for implementation and (especially)
-// testing.  Moreover, a full implementation would require metaprogramming
-// that is too advanced for the feature set of the compilers currently in use
-// at Bloomberg.  This interface is useful, however, as a way to future-proof
-// containers against the eventual implementation of the full feature set, and
-// to take advantage of the Bloomberg-specific features described below.
+// an allocator type that does not provide a full compliment of types and
+// functions required by the C++03 standard, and it will ignore any special
+// C++11 features specified in 'ALLOC'.  This limitation exists because
+// Bloomberg does not need the full functionality of the C++11 model, but needs
+// only to distinguish between C++03 allocators and allocators that implement
+// the BSLMA allocator model (see {'bslstl_allocator'}).  The full feature set
+// of 'allocator_traits' would require a lot of resources for implementation
+// and (especially) testing.  Moreover, a full implementation would require
+// metaprogramming that is too advanced for the feature set of the compilers
+// currently in use at Bloomberg.  This interface is useful, however, as a way
+// to future-proof containers against the eventual implementation of the full
+// feature set, and to take advantage of the Bloomberg-specific features
+// described below.
 //
 // There are two important (new) C++11 features provided by the
 // 'allocator_traits' interface: the 'construct' function having a
@@ -61,11 +62,20 @@ BSLS_IDENT("$Id: $")
 // trait, as per standard Bloomberg practice.  The
 // 'select_on_container_copy_construction' static member will return a
 // default-constructed allocator iff 'ALLOC' is convertible from
-// 'bslma::Allocator*' because bslma allocators should not be copied when a
+// 'bslma::Allocator *' because bslma allocators should not be copied when a
 // container is copy-constructed; otherwise this function will return a copy
 // of the allocator, as per C++03 container rules.  The other propagation
 // traits all have a 'false' value, so allocators are not propagated on
 // assignment or swap.
+//
+// Note that use of this component will differ from a strict following of the
+// C++03 standard, as the 'construct' and 'destroy' methods of the
+// parameterized allocator type will not be called.  Rather, the taret object
+// will always be constructed at the address specified by the user, by calling
+// the constructor in-place.  Similarly, the destructor will always be called
+// directly, rather than using a parameterized allocator's 'destroy' method.
+// Otherwise, this implementation will fully support the C++03 model, including
+// use of allocators returning "smart pointers" from 'allocate'.
 //
 ///Usage
 ///-----
@@ -76,9 +86,12 @@ BSLS_IDENT("$Id: $")
 // This example demonstrates the intended use of 'allocator_traits' to
 // implement a standard-conforming container class.  First, we create a
 // container class that holds a single object and which meets the requirements
-// both of a standard container and of a Bloomberg container -- i.e., when
+// both of a standard container and of a Bloomberg container.  I.e., when
 // instantiated with an allocator argument it uses the standard allocator
-// model; otherwise it uses the 'bslma' model.
+// model; otherwise it uses the 'bslma' model.  We provide an alias,
+// 'AllocTraits', to the specific 'allocator_traits' instantiation to simplify
+// the implementation of each method that must allocate memory, or create or
+// destroy elements.
 //..
 //  #include <bslstl_allocatortraits.h>
 //  #include <bslstl_allocator.h>
@@ -88,10 +101,19 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class TYPE, class ALLOC = bsl::allocator<TYPE> >
 //  class MyContainer {
+//      // This class provides a container that always holds exactly one
+//      // element, dynamically allocated using the specified allocator.
+//
+//      typedef bsl::allocator_traits<ALLOC> AllocTraits;
+//          // Alias for the 'allocator_traits' instantiation to use for
+//          // all memory management requests.
+//
+//      // DATA
 //      ALLOC  d_allocator;
-//      TYPE  *d_value_p;
+//      TYPE  *d_valuep;
 //
 //    public:
+//      // TRAITS
 //      typedef bslalg::TypeTraitsGroupStlSequence<TYPE,ALLOC> TypeTraits;
 //      BSLALG_DECLARE_NESTED_TRAITS(MyContainer, TypeTraits);
 //          // Declare nested type traits for this class.
@@ -100,16 +122,19 @@ BSLS_IDENT("$Id: $")
 //      typedef ALLOC allocator_type;
 //      // etc.
 //
+//      // CREATORS
 //      explicit MyContainer(const ALLOC& a = ALLOC());
 //      explicit MyContainer(const TYPE& v, const ALLOC& a = ALLOC());
 //      MyContainer(const MyContainer& other);
 //      MyContainer(const MyContainer& other, const ALLOC& a);
 //      ~MyContainer();
 //
+//      // MANIPULATORS
 //      ALLOC get_allocator() const { return d_allocator; }
 //
-//      TYPE&       front()       { return *d_value_p; }
-//      const TYPE& front() const { return *d_value_p; }
+//      // ACCESSORS
+//      TYPE&       front()       { return *d_valuep; }
+//      const TYPE& front() const { return *d_valuep; }
 //      // etc.
 //  };
 //..
@@ -123,21 +148,26 @@ BSLS_IDENT("$Id: $")
 //..
 //  template <class ALLOC>
 //  class MyContainerProctor {
+//      // This class implements a proctor to release memory allocated during
+//      // the construction of a 'MyContainer' object if the constructor for
+//      // the container's data element throws an exception.  Such a proctor
+//      // should be 'release'd once the element is safely constructed.
+//
 //      typedef typename bsl::allocator_traits<ALLOC>::pointer pointer;
 //      ALLOC   d_alloc;
-//      pointer d_data_p;
+//      pointer d_datap;
 //
 //    public:
 //      MyContainerProctor(const ALLOC& a, pointer p)
-//          : d_alloc(a), d_data_p(p) { }
+//          : d_alloc(a), d_datap(p) { }
 //
 //      ~MyContainerProctor() {
-//          if (d_data_p) {
-//              bsl::allocator_traits<ALLOC>::deallocate(d_alloc, d_data_p, 1);
+//          if (d_datap) {
+//              bsl::allocator_traits<ALLOC>::deallocate(d_alloc, d_datap, 1);
 //          }
 //      }
 //
-//      void release() { d_data_p = pointer(); }
+//      void release() { d_datap = pointer(); }
 //  };
 //..
 // Next, we perform the actual allocation and construction using the
@@ -149,11 +179,10 @@ BSLS_IDENT("$Id: $")
 //  MyContainer<TYPE, ALLOC>::MyContainer(const ALLOC& a)
 //      : d_allocator(a)
 //  {
-//      typedef bsl::allocator_traits<ALLOC> AllocTraits;
-//      d_value_p = AllocTraits::allocate(d_allocator, 1);
-//      MyContainerProctor<ALLOC> proctor(a, d_value_p);
+//      d_valuep = AllocTraits::allocate(d_allocator, 1);
+//      MyContainerProctor<ALLOC> proctor(a, d_valuep);
 //      // Call 'construct' with no constructor arguments
-//      AllocTraits::construct(d_allocator, d_value_p);
+//      AllocTraits::construct(d_allocator, d_valuep);
 //      proctor.release();
 //  }
 //
@@ -161,11 +190,10 @@ BSLS_IDENT("$Id: $")
 //  MyContainer<TYPE, ALLOC>::MyContainer(const TYPE& v, const ALLOC& a)
 //      : d_allocator(a)
 //  {
-//      typedef bsl::allocator_traits<ALLOC> AllocTraits;
-//      d_value_p = AllocTraits::allocate(d_allocator, 1);
-//      MyContainerProctor<ALLOC> proctor(a, d_value_p);
+//      d_valuep = AllocTraits::allocate(d_allocator, 1);
+//      MyContainerProctor<ALLOC> proctor(a, d_valuep);
 //      // Call 'construct' with one constructor argument of type 'TYPE'
-//      AllocTraits::construct(d_allocator, d_value_p, v);
+//      AllocTraits::construct(d_allocator, d_valuep, v);
 //      proctor.release();
 //  }
 //..
@@ -180,10 +208,9 @@ BSLS_IDENT("$Id: $")
 //      : d_allocator(bsl::allocator_traits<ALLOC>::
 //                    select_on_container_copy_construction(other.d_allocator))
 //  {
-//      typedef bsl::allocator_traits<ALLOC> AllocTraits;
-//      d_value_p = AllocTraits::allocate(d_allocator, 1);
-//      MyContainerProctor<ALLOC> proctor(d_allocator, d_value_p);
-//      AllocTraits::construct(d_allocator, d_value_p, *other.d_value_p);
+//      d_valuep = AllocTraits::allocate(d_allocator, 1);
+//      MyContainerProctor<ALLOC> proctor(d_allocator, d_valuep);
+//      AllocTraits::construct(d_allocator, d_valuep, *other.d_valuep);
 //      proctor.release();
 //  }
 //..
@@ -193,15 +220,14 @@ BSLS_IDENT("$Id: $")
 //  template <class TYPE, class ALLOC>
 //  MyContainer<TYPE, ALLOC>::~MyContainer()
 //  {
-//      typedef bsl::allocator_traits<ALLOC> AllocTraits;
-//      AllocTraits::destroy(d_allocator, d_value_p);
-//      AllocTraits::deallocate(d_allocator, d_value_p, 1);
+//      AllocTraits::destroy(d_allocator, d_valuep);
+//      AllocTraits::deallocate(d_allocator, d_valuep, 1);
 //  }
 //..
 // Finally, we perform a simple test of 'MyContainer', instantiating it with
 // element type 'int':
 //..
-//  int main()
+//  int usageExample1()
 //  {
 //      bslma::TestAllocator testAlloc;
 //      MyContainer<int> C1(123, &testAlloc);
@@ -234,11 +260,11 @@ BSLS_IDENT("$Id: $")
 //
 //      // CREATORS
 //      explicit MyType(bslma::Allocator* basicAlloc = 0)
-//          : d_allocator_p(bslma::Default::allocator(basicAlloc)) {/* ... */}
+//         : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
 //      MyType(const MyType& other)
 //          : d_allocator_p(bslma::Default::allocator(0)) { /* ... */ }
 //      MyType(const MyType& other, bslma::Allocator* basicAlloc)
-//          : d_allocator_p(bslma::Default::allocator(basicAlloc)) {/* ... */}
+//         : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
 //      // etc.
 //
 //      // ACCESSORS
@@ -256,7 +282,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  #include <bslmf_issame.h>
 //
-//  int main()
+//  int usageExample2()
 //  {
 //      bslma::TestAllocator testAlloc;
 //      MyContainer<MyType> C1(&testAlloc);
@@ -306,36 +332,41 @@ BSLS_IDENT("$Id: $")
 //
 //      static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
 //
+//      void construct(pointer p, const TYPE& value)
+//          { new((void *)p) TYPE(value); }
+//
+//      void destroy(pointer p) { p->~TYPE(); }
+//
 //      int state() const { return d_state; }
 //  };
 //
 //  template <class TYPE1, class TYPE2>
 //  inline
-//  bool operator==(const MyCpp03Allocator<TYPE1>& a,
-//                  const MyCpp03Allocator<TYPE2>& b)
+//  bool operator==(const MyCpp03Allocator<TYPE1>& lhs,
+//                  const MyCpp03Allocator<TYPE2>& rhs)
 //  {
-//      return a.state() == b.state();
+//      return lhs.state() == rhs.state();
 //  }
 //
 //  template <class TYPE1, class TYPE2>
 //  inline
-//  bool operator!=(const MyCpp03Allocator<TYPE1>& a,
-//                  const MyCpp03Allocator<TYPE2>& b)
+//  bool operator!=(const MyCpp03Allocator<TYPE1>& lhs,
+//                  const MyCpp03Allocator<TYPE2>& rhs)
 //  {
-//      return ! (a == b);
+//      return ! (lhs == rhs);
 //  }
 //..
-// Then we instantiate 'MyContainer' using this allocator type and verify that
-// elements are constructed using the default allocator (because the allocator
-// is not propagated from the container).  We also verify that the allocator
-// is copied on copy-construction:
+// Finally we instantiate 'MyContainer' using this allocator type and verify
+// that elements are constructed using the default allocator (because the
+// allocator is not propagated from the container).  We also verify that the
+// allocator is copied on copy-construction:
 //..
-//  int main()
+//  int usageExample3()
 //  {
 //      typedef MyCpp03Allocator<MyType> MyTypeAlloc;
 //      MyContainer<MyType, MyTypeAlloc> C1(MyTypeAlloc(1));
 //      assert((bslmf::IsSame<MyContainer<MyType, MyTypeAlloc>::allocator_type,
-//                           MyTypeAlloc>::VALUE));
+//                            MyTypeAlloc>::VALUE));
 //      assert(C1.get_allocator() == MyTypeAlloc(1));
 //      assert(C1.front().allocator() == bslma::Default::defaultAllocator());
 //
@@ -345,7 +376,7 @@ BSLS_IDENT("$Id: $")
 //      assert(C2.front().allocator() == bslma::Default::defaultAllocator());
 //
 //      return 0;
-//  }
+//   }
 //..
 
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
@@ -479,6 +510,7 @@ struct allocator_traits {
         // equal to the specified 'allocator', and has not yet been passed to
         // a 'deallocate' call of such an allocator object.
 
+#if 0  // TBD REMOVE THIS C++03 COMPATIBILITY CODE
     static void construct(ALLOCATOR_TYPE&    allocator,
                           value_type        *elementAddr,
                           const value_type&  original);
@@ -490,6 +522,7 @@ struct allocator_traits {
         // while waiting for the following "perfect forwarding" calls mandated
         // by C++11 correctly detect the presence of a usable 'construct' call
         // in the parameterized 'ALLOCATOR_TYPE' class.
+#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -616,7 +649,12 @@ struct allocator_traits {
 
 #endif
 
+#if 0  // TBD REMOVE THIS C++03 COMPATIBILITY CODE
     static void destroy(ALLOCATOR_TYPE& allocator, value_type *elementAddr);
+        // Destroy the object at the specified 'elementAddr' by invoking
+        // 'allocator.destroy(elementAddr).  The behavior is undefined unless
+        // 'elementAddr' refers to a valid, constructed object.
+#endif
 
     template <class ELEMENT_TYPE>
     static void destroy(ALLOCATOR_TYPE& allocator, ELEMENT_TYPE *elementAddr);
@@ -741,6 +779,7 @@ allocator_traits<ALLOCATOR_TYPE>::deallocate(ALLOCATOR_TYPE& allocator,
     allocator.deallocate(elementAddr, n);
 }
 
+#if 0  // TBD REMOVE THIS C++03 COMPATIBILITY CODE
 template <class ALLOCATOR_TYPE>
 void
 allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&    allocator,
@@ -749,6 +788,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&    allocator,
 {
     allocator.construct(elementAddr, original);
 }
+#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #  ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -890,6 +930,7 @@ allocator_traits<ALLOCATOR_TYPE>::construct(ALLOCATOR_TYPE&   allocator,
 
 #endif // ! BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
+#if 0  // TBD REMOVE THIS C++03 COMPATIBILITY CODE
 template <class ALLOCATOR_TYPE>
 inline
 void
@@ -903,6 +944,7 @@ allocator_traits<ALLOCATOR_TYPE>::destroy(ALLOCATOR_TYPE&  allocator,
     allocator.destroy(elementAddr);
 //    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(elementAddr);
 }
+#endif
 
 template <class ALLOCATOR_TYPE>
 template <class ELEMENT_TYPE>
@@ -912,8 +954,9 @@ allocator_traits<ALLOCATOR_TYPE>::destroy(ALLOCATOR_TYPE&  allocator,
                                           ELEMENT_TYPE    *elementAddr)
 {
 //  For full C++11 compatibility, this should check for the well-formedness of
-//  the code below (via some SFINAE trickery), and switch to the
-//  ScalarDestructionPrimitives implementation below otherwise.
+//  the allocator-specific code that is commented out below (via some SFINAE
+//  trickery), and switch to the ScalarDestructionPrimitives implementation
+//  only if the 'destroy' member function is not available.
 
 //    allocator.destroy(elementAddr);
     BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(elementAddr);

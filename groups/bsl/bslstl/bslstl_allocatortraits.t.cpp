@@ -603,7 +603,10 @@ inline bool isMutable(const T& /* x */) { return false; }
 // container class that holds a single object and which meets the requirements
 // both of a standard container and of a Bloomberg container.  I.e., when
 // instantiated with an allocator argument it uses the standard allocator
-// model; otherwise it uses the 'bslma' model.
+// model; otherwise it uses the 'bslma' model.  We provide an alias,
+// 'AllocTraits', to the specific 'allocator_traits' instantiation to simplify
+// the implementation of each method that must allocate memory, or create or
+// destroy elements.
 //..
     #include <bslstl_allocatortraits.h>
     #include <bslstl_allocator.h>
@@ -615,6 +618,10 @@ inline bool isMutable(const T& /* x */) { return false; }
     class MyContainer {
         // This class provides a container that always holds exactly one
         // element, dynamically allocated using the specified allocator.
+
+        typedef bsl::allocator_traits<ALLOC> AllocTraits;
+            // Alias for the 'allocator_traits' instantiation to use for
+            // all memory management requests.
 
         // DATA
         ALLOC  d_allocator;
@@ -687,7 +694,6 @@ inline bool isMutable(const T& /* x */) { return false; }
     MyContainer<TYPE, ALLOC>::MyContainer(const ALLOC& a)
         : d_allocator(a)
     {
-        typedef bsl::allocator_traits<ALLOC> AllocTraits;
         d_valuep = AllocTraits::allocate(d_allocator, 1);
         MyContainerProctor<ALLOC> proctor(a, d_valuep);
         // Call 'construct' with no constructor arguments
@@ -699,7 +705,6 @@ inline bool isMutable(const T& /* x */) { return false; }
     MyContainer<TYPE, ALLOC>::MyContainer(const TYPE& v, const ALLOC& a)
         : d_allocator(a)
     {
-        typedef bsl::allocator_traits<ALLOC> AllocTraits;
         d_valuep = AllocTraits::allocate(d_allocator, 1);
         MyContainerProctor<ALLOC> proctor(a, d_valuep);
         // Call 'construct' with one constructor argument of type 'TYPE'
@@ -718,7 +723,6 @@ inline bool isMutable(const T& /* x */) { return false; }
         : d_allocator(bsl::allocator_traits<ALLOC>::
                       select_on_container_copy_construction(other.d_allocator))
     {
-        typedef bsl::allocator_traits<ALLOC> AllocTraits;
         d_valuep = AllocTraits::allocate(d_allocator, 1);
         MyContainerProctor<ALLOC> proctor(d_allocator, d_valuep);
         AllocTraits::construct(d_allocator, d_valuep, *other.d_valuep);
@@ -731,7 +735,6 @@ inline bool isMutable(const T& /* x */) { return false; }
     template <class TYPE, class ALLOC>
     MyContainer<TYPE, ALLOC>::~MyContainer()
     {
-        typedef bsl::allocator_traits<ALLOC> AllocTraits;
         AllocTraits::destroy(d_allocator, d_valuep);
         AllocTraits::deallocate(d_allocator, d_valuep, 1);
     }
@@ -844,13 +847,10 @@ inline bool isMutable(const T& /* x */) { return false; }
 
         static size_type max_size() { return UINT_MAX / sizeof(TYPE); }
 
-        void construct(pointer p, const TYPE& value) {
-            new((void *)p) TYPE(value);
-        }
+        void construct(pointer p, const TYPE& value)
+            { new((void *)p) TYPE(value); }
 
-        void destroy(pointer p) {
-            p->~TYPE();
-        }
+        void destroy(pointer p) { p->~TYPE(); }
 
         int state() const { return d_state; }
     };
@@ -871,10 +871,10 @@ inline bool isMutable(const T& /* x */) { return false; }
         return ! (lhs == rhs);
     }
 //..
-// Then we instantiate 'MyContainer' using this allocator type and verify that
-// elements are constructed using the default allocator (because the allocator
-// is not propagated from the container).  We also verify that the allocator
-// is copied on copy-construction:
+// Finally we instantiate 'MyContainer' using this allocator type and verify
+// that elements are constructed using the default allocator (because the
+// allocator is not propagated from the container).  We also verify that the
+// allocator is copied on copy-construction:
 //..
     int usageExample3()
     {
@@ -2127,11 +2127,11 @@ int main(int argc, char *argv[])
 
         testAttribClass<AttribClass5>("AttribClass5");
         testAttribClass<AttribClass5Alloc<NonBslmaAllocator<int> > >(
-            "AttribClass5Alloc<NonBslmaAllocator<int> >");
+                                 "AttribClass5Alloc<NonBslmaAllocator<int> >");
         testAttribClass<AttribClass5Alloc<BslmaAllocator<char> > >(
-            "AttribClass5Alloc<BslmaAllocator<char> >");
+                                   "AttribClass5Alloc<BslmaAllocator<char> >");
         testAttribClass<AttribClass5Alloc<FunkyAllocator<char> > >(
-            "AttribClass5Alloc<FunkyAllocator<char> >");
+                                   "AttribClass5Alloc<FunkyAllocator<char> >");
         testAttribClass<AttribClass5bslma>("AttribClass5bslma");
 
       } break;
