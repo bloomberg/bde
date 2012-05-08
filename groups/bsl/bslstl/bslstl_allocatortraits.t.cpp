@@ -234,11 +234,11 @@ class BslmaAllocator
     bslma::Allocator *d_mechanism;
 
     void doConstruct(T *p, const T& val, bslmf::MetaInt<0>) {
-        ::new ((void*)p) T(val); 
+        ::new ((void*)p) T(val);
     }
 
     void doConstruct(T *p, const T& val, bslmf::MetaInt<1>) {
-        ::new ((void*)p) T(val, this->d_mechanism); 
+        ::new ((void*)p) T(val, this->d_mechanism);
     }
 
   public:
@@ -271,7 +271,7 @@ class BslmaAllocator
     void deallocate(pointer p, size_type n = 1)
         { d_mechanism->deallocate(p); }
 
-    void construct(T *p, const T& val) 
+    void construct(T *p, const T& val)
     {
         typedef
         typename bslalg::HasTrait<T, bslalg::TypeTraitUsesBslmaAllocator>::Type
@@ -347,11 +347,11 @@ class FunkyAllocator
     bslma::Allocator *d_mechanism;
 
     void doConstruct(T *p, const T& val, bslmf::MetaInt<0>) {
-        ::new ((void*)p) T(val); 
+        ::new ((void*)p) T(val);
     }
 
     void doConstruct(T *p, const T& val, bslmf::MetaInt<1>) {
-        ::new ((void*)p) T(val, this->d_mechanism); 
+        ::new ((void*)p) T(val, this->d_mechanism);
     }
 
   public:
@@ -384,7 +384,7 @@ class FunkyAllocator
     void deallocate(pointer p, size_type n = 1)
         { d_mechanism->deallocate(bsls::Util::addressOf(*p)); }
 
-    void construct(T *p, const T& val) 
+    void construct(T *p, const T& val)
     {
         typedef
         typename bslalg::HasTrait<T, bslalg::TypeTraitUsesBslmaAllocator>::Type
@@ -534,7 +534,7 @@ class AttribClass5bslma
     AttribClass5      d_attrib;
     bslma::Allocator* d_allocator;
 
-public:
+  public:
     BSLALG_DECLARE_NESTED_TRAITS(AttribClass5bslma,
                                  bslalg::TypeTraitUsesBslmaAllocator);
 
@@ -625,7 +625,7 @@ inline bool isMutable(const T& /* x */) { return false; }
 
         // DATA
         ALLOC  d_allocator;
-        TYPE  *d_valuep;
+        TYPE  *d_value_p;
 
       public:
         // TRAITS
@@ -648,8 +648,8 @@ inline bool isMutable(const T& /* x */) { return false; }
         ALLOC get_allocator() const { return d_allocator; }
 
         // ACCESSORS
-        TYPE&       front()       { return *d_valuep; }
-        const TYPE& front() const { return *d_valuep; }
+        TYPE&       front()       { return *d_value_p; }
+        const TYPE& front() const { return *d_value_p; }
         // etc.
     };
 //..
@@ -670,19 +670,19 @@ inline bool isMutable(const T& /* x */) { return false; }
 
         typedef typename bsl::allocator_traits<ALLOC>::pointer pointer;
         ALLOC   d_alloc;
-        pointer d_datap;
+        pointer d_data_p;
 
       public:
         MyContainerProctor(const ALLOC& a, pointer p)
-            : d_alloc(a), d_datap(p) { }
+            : d_alloc(a), d_data_p(p) { }
 
         ~MyContainerProctor() {
-            if (d_datap) {
-                bsl::allocator_traits<ALLOC>::deallocate(d_alloc, d_datap, 1);
+            if (d_data_p) {
+                bsl::allocator_traits<ALLOC>::deallocate(d_alloc, d_data_p, 1);
             }
         }
 
-        void release() { d_datap = pointer(); }
+        void release() { d_data_p = pointer(); }
     };
 //..
 // Next, we perform the actual allocation and construction using the
@@ -694,10 +694,10 @@ inline bool isMutable(const T& /* x */) { return false; }
     MyContainer<TYPE, ALLOC>::MyContainer(const ALLOC& a)
         : d_allocator(a)
     {
-        d_valuep = AllocTraits::allocate(d_allocator, 1);
-        MyContainerProctor<ALLOC> proctor(a, d_valuep);
+        d_value_p = AllocTraits::allocate(d_allocator, 1);
+        MyContainerProctor<ALLOC> proctor(a, d_value_p);
         // Call 'construct' with no constructor arguments
-        AllocTraits::construct(d_allocator, d_valuep);
+        AllocTraits::construct(d_allocator, d_value_p);
         proctor.release();
     }
 
@@ -705,10 +705,10 @@ inline bool isMutable(const T& /* x */) { return false; }
     MyContainer<TYPE, ALLOC>::MyContainer(const TYPE& v, const ALLOC& a)
         : d_allocator(a)
     {
-        d_valuep = AllocTraits::allocate(d_allocator, 1);
-        MyContainerProctor<ALLOC> proctor(a, d_valuep);
+        d_value_p = AllocTraits::allocate(d_allocator, 1);
+        MyContainerProctor<ALLOC> proctor(a, d_value_p);
         // Call 'construct' with one constructor argument of type 'TYPE'
-        AllocTraits::construct(d_allocator, d_valuep, v);
+        AllocTraits::construct(d_allocator, d_value_p, v);
         proctor.release();
     }
 //..
@@ -723,9 +723,9 @@ inline bool isMutable(const T& /* x */) { return false; }
         : d_allocator(bsl::allocator_traits<ALLOC>::
                       select_on_container_copy_construction(other.d_allocator))
     {
-        d_valuep = AllocTraits::allocate(d_allocator, 1);
-        MyContainerProctor<ALLOC> proctor(d_allocator, d_valuep);
-        AllocTraits::construct(d_allocator, d_valuep, *other.d_valuep);
+        d_value_p = AllocTraits::allocate(d_allocator, 1);
+        MyContainerProctor<ALLOC> proctor(d_allocator, d_value_p);
+        AllocTraits::construct(d_allocator, d_value_p, *other.d_value_p);
         proctor.release();
     }
 //..
@@ -735,8 +735,8 @@ inline bool isMutable(const T& /* x */) { return false; }
     template <class TYPE, class ALLOC>
     MyContainer<TYPE, ALLOC>::~MyContainer()
     {
-        AllocTraits::destroy(d_allocator, d_valuep);
-        AllocTraits::deallocate(d_allocator, d_valuep, 1);
+        AllocTraits::destroy(d_allocator, d_value_p);
+        AllocTraits::deallocate(d_allocator, d_value_p, 1);
     }
 //..
 // Finally, we perform a simple test of 'MyContainer', instantiating it with
@@ -775,11 +775,11 @@ inline bool isMutable(const T& /* x */) { return false; }
 
         // CREATORS
         explicit MyType(bslma::Allocator* basicAlloc = 0)
-            : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
+           : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
         MyType(const MyType& other)
             : d_allocator_p(bslma::Default::allocator(0)) { /* ... */ }
         MyType(const MyType& other, bslma::Allocator* basicAlloc)
-            : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
+           : d_allocator_p(bslma::Default::allocator(basicAlloc)) { /* ... */ }
         // etc.
 
         // ACCESSORS
@@ -826,7 +826,7 @@ inline bool isMutable(const T& /* x */) { return false; }
     class MyCpp03Allocator {
         int d_state;
 
-    public:
+      public:
         typedef TYPE        value_type;
         typedef TYPE       *pointer;
         typedef const TYPE *const_pointer;
@@ -971,7 +971,8 @@ void testAllocatorConformance(const char* allocName)
         LOOP_ASSERT(allocName, ! (a2 != a4));
     }
 
-    // The following are default values for the 5 attributes of our test classes.
+    // The following are default values for the 5 attributes of our test
+    // classes.
     char        const VAL_A = 'x';
     int         const VAL_B = 6;
     double      const VAL_C = -1.5;
