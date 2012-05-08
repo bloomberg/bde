@@ -269,6 +269,10 @@ BDES_IDENT("$Id: $")
 #include <bdema_infrequentdeleteblocklist.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -285,6 +289,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifndef INCLUDED_BCEMT_LOCKGUARD
@@ -297,14 +305,6 @@ BDES_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISPOLYMORPHIC
 #include <bslmf_ispolymorphic.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
-#include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
 #endif
 
 #endif
@@ -334,8 +334,8 @@ class bcema_Pool {
         // type from static methods defined in 'bdema_pool.cpp'.
 
         union {
-            bces_AtomicUtil::Int               d_refCount;
-            bsls_AlignmentUtil::MaxAlignedType d_dummy;
+            bces_AtomicUtil::Int                d_refCount;
+            bsls::AlignmentUtil::MaxAlignedType d_dummy;
         };
         Link  *volatile d_next_p;   // pointer to next link
     };
@@ -352,7 +352,7 @@ class bcema_Pool {
 
     int              d_maxBlocksPerChunk;
                                    // maximum chunk size (in blocks-per-chunk)
-    bsls_BlockGrowth::Strategy
+    bsls::BlockGrowth::Strategy
                      d_growthStrategy;
                                    // growth strategy of the chunk size
     bces_AtomicPointer<Link>
@@ -377,15 +377,15 @@ class bcema_Pool {
   public:
     // CREATORS
     explicit
-    bcema_Pool(int                         blockSize,
-               bslma_Allocator            *basicAllocator = 0);
-    bcema_Pool(int                         blockSize,
-               bsls_BlockGrowth::Strategy  growthStrategy,
-               bslma_Allocator            *basicAllocator = 0);
-    bcema_Pool(int                         blockSize,
-               bsls_BlockGrowth::Strategy  growthStrategy,
-               int                         maxBlocksPerChunk,
-               bslma_Allocator            *basicAllocator = 0);
+    bcema_Pool(int                          blockSize,
+               bslma::Allocator            *basicAllocator = 0);
+    bcema_Pool(int                          blockSize,
+               bsls::BlockGrowth::Strategy  growthStrategy,
+               bslma::Allocator            *basicAllocator = 0);
+    bcema_Pool(int                          blockSize,
+               bsls::BlockGrowth::Strategy  growthStrategy,
+               int                          maxBlocksPerChunk,
+               bslma::Allocator            *basicAllocator = 0);
         // Create a memory pool that returns blocks of contiguous memory of the
         // specified 'blockSize' (in bytes) for each 'allocate' method
         // invocation.  Optionally specify a 'growthStrategy' used to control
@@ -404,7 +404,7 @@ class bcema_Pool {
 
     bcema_Pool(int                         blockSize,
                int                         maxBlocksPerChunk,
-               bslma_Allocator            *basicAllocator = 0);
+               bslma::Allocator           *basicAllocator = 0);
         // [!DEPRECATED!] Create a memory pool that returns blocks of
         // contiguous memory of the specified 'blockSize' (in bytes) for each
         // 'allocate' method invocation, and, if 'maxBlocksPerChunk' is
@@ -559,14 +559,14 @@ template<class TYPE>
 inline
 void bcema_Pool::deleteObject(const TYPE *object)
 {
-    bslma_DeleterHelper::deleteObject(object, this);
+    bslma::DeleterHelper::deleteObject(object, this);
 }
 
 template<class TYPE>
 inline
 void bcema_Pool::deleteObjectRaw(const TYPE *object)
 {
-    bslma_DeleterHelper::deleteObjectRaw(object, this);
+    bslma::DeleterHelper::deleteObjectRaw(object, this);
 }
 
 inline

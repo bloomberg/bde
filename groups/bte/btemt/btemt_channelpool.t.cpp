@@ -1488,7 +1488,7 @@ void ReadServer::blobBasedReadCb(int             *needed,
 }
 
 // MANIPULATORS
-std::string& ReadServer::data()
+bsl::string& ReadServer::data()
 {
     return d_data;
 }
@@ -1500,7 +1500,7 @@ int ReadServer::portNumber() const
     return d_cp_p->serverAddress(SERVER_ID)->portNumber();
 }
 
-const std::string& ReadServer::data() const
+const bsl::string& ReadServer::data() const
 {
     return d_data;
 }

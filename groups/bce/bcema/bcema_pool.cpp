@@ -29,8 +29,8 @@ struct LLink {
     // provide access to this type from static methods.
 
     union {
-        bces_AtomicUtil::Int               d_refCount;
-        bsls_AlignmentUtil::MaxAlignedType d_dummy;
+        bces_AtomicUtil::Int                d_refCount;
+        bsls::AlignmentUtil::MaxAlignedType d_dummy;
     };
     LLink *d_next_p;
 };
@@ -111,7 +111,7 @@ int computeInternalBlockSize(int blockSize)
     const int MINIMUM_LENGTH = sizeof(LLink);
 
     return roundUp(bsl::max(blockSize + HEADER_LENGTH, MINIMUM_LENGTH),
-                   bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
 }
 
                         // ----------------
@@ -126,7 +126,7 @@ void bcema_Pool::replenish()
                  d_internalBlockSize,
                  d_chunkSize);
 
-    if (bsls_BlockGrowth::BSLS_GEOMETRIC == d_growthStrategy
+    if (bsls::BlockGrowth::BSLS_GEOMETRIC == d_growthStrategy
      && d_chunkSize < d_maxBlocksPerChunk) {
 
         if (d_chunkSize * 2 <= d_maxBlocksPerChunk) {
@@ -139,11 +139,11 @@ void bcema_Pool::replenish()
 }
 
 // CREATORS
-bcema_Pool::bcema_Pool(int blockSize, bslma_Allocator *basicAllocator)
+bcema_Pool::bcema_Pool(int blockSize, bslma::Allocator *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
-, d_growthStrategy(bsls_BlockGrowth::BSLS_GEOMETRIC)
+, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_freeList(0)
 , d_blockList(basicAllocator)
 {
@@ -152,11 +152,11 @@ bcema_Pool::bcema_Pool(int blockSize, bslma_Allocator *basicAllocator)
     d_internalBlockSize = computeInternalBlockSize(blockSize);
 }
 
-bcema_Pool::bcema_Pool(int                         blockSize,
-                       bsls_BlockGrowth::Strategy  growthStrategy,
-                       bslma_Allocator            *basicAllocator)
+bcema_Pool::bcema_Pool(int                          blockSize,
+                       bsls::BlockGrowth::Strategy  growthStrategy,
+                       bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
-, d_chunkSize(bsls_BlockGrowth::BSLS_CONSTANT == growthStrategy
+, d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
               ? MAX_CHUNK_SIZE : INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(MAX_CHUNK_SIZE)
 , d_growthStrategy(growthStrategy)
@@ -168,15 +168,15 @@ bcema_Pool::bcema_Pool(int                         blockSize,
     d_internalBlockSize = computeInternalBlockSize(blockSize);
 }
 
-bcema_Pool::bcema_Pool(int              blockSize,
-                       int              maxBlocksPerChunk,
-                       bslma_Allocator *basicAllocator)
+bcema_Pool::bcema_Pool(int               blockSize,
+                       int               maxBlocksPerChunk,
+                       bslma::Allocator *basicAllocator)
 : d_blockSize(blockSize)
 , d_chunkSize(maxBlocksPerChunk > 0 ? maxBlocksPerChunk : INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(bsl::abs(maxBlocksPerChunk))
 , d_growthStrategy(maxBlocksPerChunk > 0
-                   ? bsls_BlockGrowth::BSLS_CONSTANT
-                   : bsls_BlockGrowth::BSLS_GEOMETRIC)
+                   ? bsls::BlockGrowth::BSLS_CONSTANT
+                   : bsls::BlockGrowth::BSLS_GEOMETRIC)
 , d_freeList(0)
 , d_blockList(basicAllocator)
 {
@@ -186,12 +186,12 @@ bcema_Pool::bcema_Pool(int              blockSize,
     d_internalBlockSize = computeInternalBlockSize(blockSize);
 }
 
-bcema_Pool::bcema_Pool(int                         blockSize,
-                       bsls_BlockGrowth::Strategy  growthStrategy,
-                       int                         maxBlocksPerChunk,
-                       bslma_Allocator            *basicAllocator)
+bcema_Pool::bcema_Pool(int                          blockSize,
+                       bsls::BlockGrowth::Strategy  growthStrategy,
+                       int                          maxBlocksPerChunk,
+                       bslma::Allocator            *basicAllocator)
 : d_blockSize(blockSize)
-, d_chunkSize(bsls_BlockGrowth::BSLS_CONSTANT == growthStrategy
+, d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
               ? maxBlocksPerChunk : INITIAL_CHUNK_SIZE)
 , d_maxBlocksPerChunk(maxBlocksPerChunk)
 , d_growthStrategy(growthStrategy)
