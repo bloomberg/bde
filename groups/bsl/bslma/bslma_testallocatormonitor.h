@@ -412,6 +412,101 @@ BSLS_IDENT("$Id: $")
 //      assert(gam.isTotalSame());
 //      assert(dam.isTotalSame());
 //  }
+///Example 2: The 'reset' method
+///- - - - - - - - - - - - - - -
+// To really demonstrate the usefulness of the 'reset' method, one needs to be
+// testing a class with multiple manipulators that allocate memory.  For
+// brevity we use 'bsl::list', whose interface is clearly described at
+// 'http://www.cplusplus.com/reference/stl/list'.  The actual code for this
+// example is in bsltst_bsl_list.t.cpp.
+//
+// In this example, we observe how some of the manipulators and accessors of
+// 'bsl::list' use memory.  First, we declare monitors 'tam' and 'dam' that
+// monitor the allocator passed to a list at construction, and the default
+// allocator, respectively.  The default allocator 'tda' should never be used
+// for anything in this exercise, so we will only check its monitor 'dam' at
+// the end of the example.
+//..
+//  bslma_TestAllocator ta;
+//  bslma_TestAllocator tda;
+//
+//  bslma_DefaultAllocatorGuard defaultGuard(&tda);
+//
+//  bslma_TestAllocatorMonitor tam(&ta);
+//  bslma_TestAllocatorMonitor dam(&tda);
+//..
+// Then, we observe that creating an empty list allocates memory:
+//..
+//  bsl::list<int> la(&ta);
+//
+//  ASSERT(tam.isTotalUp());
+//..
+// Next, we observe that 'push_back' also allocates memory:
+//..
+//  tam.reset();
+//
+//  la.push_back(57);
+//
+//  ASSERT(tam.isTotalUp());
+//
+//  la.push_back(57);
+//..
+// Then, we observe that accessors 'back', 'front', and 'size' don't
+// cause any allocation.
+//..
+//  tam.reset();
+//
+//  ASSERT(57 == la.back());
+//  ASSERT(57 == la.front());
+//  ASSERT(2  == la.size());
+//
+//  ASSERT(tam.isTotalSame());
+//..
+// Next, we observe that manipulator 'push_front' causes memory
+// allocation:
+//..
+//  la.push_front(23);
+//
+//  ASSERT(tam.isTotalUp());
+//
+//  ASSERT(57 == la.back());
+//  ASSERT(23 == la.front());
+//  ASSERT(3  == la.size());
+//..
+// Then, we observe that 'reverse', though it's a manipulator, does no
+// memory allocation:
+//..
+//  tam.reset();
+//
+//  la.reverse();
+//
+//  ASSERT(tam.isInUseSame());
+//  ASSERT(tam.isTotalSame());
+//
+//  ASSERT(23 == la.back());
+//  ASSERT(57 == la.front());
+//  ASSERT(3  == la.size());
+//..
+// Next, we observe that 'unique', in this case, will do no new memory
+// allocation and will in fact free some memory.
+//..
+//  tam.reset();
+//
+//  la.unique();
+//
+//  ASSERT(tam.isInUseDown());
+//  ASSERT(tam.isTotalSame());
+//..
+// Then, we observe the state of the list after 'unique'.
+//..
+//  ASSERT(23 == la.back());
+//  ASSERT(57 == la.front());
+//  ASSERT(2  == la.size());
+//..
+// Finally, we observe that no memory was ever allocated from the
+// default allocator.
+//..
+//  ASSERT(dam.isTotalSame());
 //..
 
 #ifndef INCLUDED_BSLMA_TESTALLOCATOR

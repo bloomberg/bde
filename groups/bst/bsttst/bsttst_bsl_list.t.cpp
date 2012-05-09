@@ -6,6 +6,7 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslalg_hastrait.h>
 #include <bslalg_typetraits.h>
@@ -212,6 +213,104 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultGuard(&tda);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 5: {
+        // --------------------------------------------------------------------
+        // DEMO bslma_TestAllocatorMonitor::reset..
+        //
+        // Concerns:
+        //   Demonstrate the usefulness of the 'reset' method of
+        //   'bslma_TestAllocatorMonitor'.  There are no allocating types
+        //   available at 'bslma' level or lower, so we do it here.
+        //
+        // Plan:
+        //   Do operations on a list that allocate memory from an allocator
+        //   that is being monitored, demonstrating the usefulness of being
+        //   able to reset the monitor after every allocation takes place.
+        // --------------------------------------------------------------------
+
+        // In this example, we observe how some of the manipulators and
+        // accessors of 'bsl::list' use memory.  First, we declare monitors
+        // 'tam' and 'dam' that monitor the allocator passed to a list at
+        // construction, and the default allocator, respectively.  The default
+        // allocator 'tda' should never be used for anything in this exercise,
+        // so we will only check its monitor 'dam' at the end of the example.
+
+        bslma_TestAllocatorMonitor tam(&ta);
+        bslma_TestAllocatorMonitor dam(&tda);
+
+        // Then, we observe that creating an empty list allocates memory:
+
+        bsl::list<int> la(&ta);
+
+        ASSERT(tam.isTotalUp());
+
+        // Next, we observe that 'push_back' also allocates memory:
+
+        tam.reset();
+
+        la.push_back(57);
+
+        ASSERT(tam.isTotalUp());
+
+        la.push_back(57);
+
+        // Then, we observe that accessors 'back', 'front', and 'size' don't
+        // cause any allocation.
+
+        tam.reset();
+
+        ASSERT(57 == la.back());
+        ASSERT(57 == la.front());
+        ASSERT(2  == la.size());
+
+        ASSERT(tam.isTotalSame());
+
+        // Next, we observe that manipulator 'push_front' causes memory
+        // allocation:
+
+        la.push_front(23);
+
+        ASSERT(tam.isTotalUp());
+
+        ASSERT(57 == la.back());
+        ASSERT(23 == la.front());
+        ASSERT(3  == la.size());
+
+        // Then, we observe that 'reverse', though it's a manipulator, does no
+        // memory allocation:
+
+        tam.reset();
+
+        la.reverse();
+
+        ASSERT(tam.isInUseSame());
+        ASSERT(tam.isTotalSame());
+
+        ASSERT(23 == la.back());
+        ASSERT(57 == la.front());
+        ASSERT(3  == la.size());
+
+        // Next, we observe that 'unique', in this case, will do no new memory
+        // allocation and will in fact free some memory.
+
+        tam.reset();
+
+        la.unique();
+
+        ASSERT(tam.isInUseDown());
+        ASSERT(tam.isTotalSame());
+
+        // Then, we observe the state of the list after 'unique'.
+        
+        ASSERT(23 == la.back());
+        ASSERT(57 == la.front());
+        ASSERT(2  == la.size());
+
+        // Finally, we observe that no memory was ever allocated from the
+        // default allocator.
+
+        ASSERT(dam.isTotalSame());
+      }  break;
       case 4: {
         // --------------------------------------------------------------------
         // ADVANCED MANIPULATOR / ACCESSOR / ITERATOR TEST
