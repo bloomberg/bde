@@ -15,11 +15,11 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component provides a limited emulation of the C++11 type,
-// 'std::nullptr_t', which can be used as a function parameter type to help
-// overload sets treat null pointer literals specially.  Note that this
-// component will be deprecated, and ultimately removed, once BDE code can
-// assume support for a C++11 compiler.  On a platform that supports the
-// language feature, a fully-conforming 'typedef' is supplied rather than
+// 'std::nullptr_t', which can be used as a function parameter type to create
+// an overload set where null pointer literals are handled specially.  Note
+// that this component will be deprecated, and ultimately removed, once BDE
+// code can assume support for a C++11 compiler.  On a platform that supports
+// the language feature, a fully-conforming 'typedef' is supplied rather than
 // using the emulation layer.
 //
 ///Limitations

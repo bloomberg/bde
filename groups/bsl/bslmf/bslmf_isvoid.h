@@ -17,11 +17,11 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a simple template 'struct' used to
-// evaluate whether it's parameter is a 'void' type.  'bslmf::IsVoid' defines a
+// evaluate whether its parameter is a 'void' type.  'bslmf::IsVoid' defines a
 // member, 'VALUE', whose value is initialized (at compile-time) to 1 if the
 // parameter is a 'void' type (ignoring any 'const' or 'volatile'
 // qualification), and 0 if it is not.
-
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -50,9 +50,10 @@ namespace BloombergLP {
 
 namespace bslmf
 {
-             //---------------------------------
-             // metafunction class bslmf::IsVoid
-             //---------------------------------
+
+             // ===================
+             // struct bslmf_IsVoid
+             // ===================
 
 template<class BSLMF_TYPE>
 struct IsVoid;
@@ -64,9 +65,9 @@ struct IsVoid;
 //                      TEMPLATE SPECIALIZATIONS
 // ===========================================================================
 
-             // =======================================
-             // metafunction class bslmf_IsVoid
-             // =======================================
+             // -------------------
+             // struct bslmf_IsVoid
+             // -------------------
 
 template <class BSLMF_TYPE>
 struct IsVoid : MetaInt<0> { };
