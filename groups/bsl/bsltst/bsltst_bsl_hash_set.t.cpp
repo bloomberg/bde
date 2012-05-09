@@ -157,8 +157,16 @@ public:
     BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
-    Cargo(int i, bslma::Allocator *a = 0) {
+    explicit
+    Cargo(bslma_Allocator *a = 0) {
         QV_("Default:"); PV(a);
+        d_i = 0;
+        d_alloc = bslma_Default::allocator(a);
+        d_p = d_alloc->allocate(BULK_STORAGE);
+    }
+
+    Cargo(int i, bslma_Allocator *a = 0) {
+        QV_("Set to i:"); PV(a);
         d_i = i;
         d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BULK_STORAGE);
@@ -176,6 +184,12 @@ public:
         QV("Assign:");
         d_i = in.d_i;
         std::memcpy(d_p, in.d_p, BULK_STORAGE);
+        return *this;
+    }
+
+    Cargo& operator=(int in) {
+        QV("Assign int:");
+        *this = Cargo(in);
         return *this;
     }
 
@@ -398,6 +412,21 @@ void testMultisetManipulators()
     ++it;
     ASSERT(it == prIt.second);
     ASSERT(hsa.end() == it || 23 != *it);
+
+    int preRangeSize = hsa.size();
+    TYPE array[5];
+    for (int i = 0; i < 5; ++i) {
+        array[i] = 57;
+    }
+
+    hsa.insert(array + 0, array + 5);
+    LOOP_ASSERT(hsa.size() - preRangeSize,
+                                         (int) hsa.size() - preRangeSize == 5);
+    LOOP_ASSERT(hsa.count(TYPE(57)), 5 == hsa.count(TYPE(57)));
+
+    Obj hsa2(array + 0, array + 5, &ta);
+    LOOP_ASSERT(hsa2.size(), hsa2.size() == 5);
+    LOOP_ASSERT(hsa2.count(TYPE(57)), 5 == hsa2.count(TYPE(57)));
 }
 
 template <typename TYPE, typename HASH, typename EQUAL>
@@ -522,6 +551,27 @@ void testSetManipulators()
     ASSERT(it == prIt.first);
     ASSERT(23 == *prIt.first);
     ASSERT(prIt.first != prIt.second);
+
+    int preRangeSize = hsa.size();
+
+    TYPE array[5];
+    for (int i = 0; i < 5; ++i) {
+        array[i] = 57 + i;
+    }
+
+    hsa.insert(array + 0, array + 5);
+    LOOP_ASSERT(hsa.size() - preRangeSize, hsa.size() - preRangeSize == 5);
+    for (int i = 0; i < 5; ++i) {
+        LOOP2_ASSERT(57 + i, hsa.count(TYPE(57 + i)),
+                                                1 ==  hsa.count(TYPE(57 + i)));
+    }
+
+    Obj hsa2(array + 0, array + 5, &ta);
+    LOOP_ASSERT(hsa2.size(), hsa2.size() == 5);
+    for (int i = 0; i < 5; ++i) {
+        LOOP2_ASSERT(57 + i, hsa2.count(TYPE(57 + i)),
+                                                1 == hsa2.count(TYPE(57 + i)));
+    }
 }
 
 //=============================================================================
