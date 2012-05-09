@@ -283,7 +283,7 @@ class AllocatorProxy : public
         // directly deallocate any memory.
 
     // ACCESSORS
-    bool equalAllocator(AllocatorProxy& rhs) const;
+    bool equalAllocator(const AllocatorProxy& rhs) const;
         // Returns 'this->allocator() == rhs.allocator()'.
 };
 
@@ -455,7 +455,7 @@ void AllocatorProxy<ALLOCATOR>::destroy(pointer p)
 // ACCESSORS
 template <class ALLOCATOR>
 inline
-bool AllocatorProxy<ALLOCATOR>::equalAllocator(AllocatorProxy& rhs) const
+bool AllocatorProxy<ALLOCATOR>::equalAllocator(const AllocatorProxy& rhs) const
 {
     return this->allocator() == rhs.allocator();
 }
