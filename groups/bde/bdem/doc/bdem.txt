@@ -340,7 +340,7 @@ bdem.txt
 
    Note: combinations of prefixes are also allowed for binding; see the text.
 ..
- Note that "Const", "checked", and one of {row, table, column}, or any
+ Note that "Const", "checked", and one of '{row, table, column}', or any
  combination of the three (but in the listed order) can be used as prefixes to
  "binding" with the obvious meaning ("column" refers to the collection of
  elements in one column of a table).  Note also that the colloquial use of the
