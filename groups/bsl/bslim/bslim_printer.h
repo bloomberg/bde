@@ -391,26 +391,32 @@ BSLS_IDENT("$Id: $")
 // arguments, which can be of any type that provides appropriately behaving
 // operators '++', '*', and '==' (a non-void pointer would qualify).
 //
-// When 'bslim' encounters a single pointer:
-//: o A 'void *' pointer is printed out in hex.
-//: o A 'char *' pointer is printed out as the null-terminated string pointed
-//:   to by the pointer.
-//: o A 'TYPE *' pointer, where 'TYPE' is neither 'void' nor 'char', is printed
-//:   out in hex followed by printing out the value of 'TYPE'.  A compile error
-//:   will occur if bslim is unable to print out 'TYPE'.
+// When 'bslim' encounters a single pointer of type 'TYPE *', where 'TYPE' is
+// neither 'void' nor 'char', the pointer value is printed out in hex followed
+// by printing out the value of 'TYPE'.  A compile error will occur if bslim is
+// unable to print out 'TYPE'.
 //
 // As an example, we print out a range of pointers to sets.
+//
+// First we create 3 sets and populate them with different values.
 //..
 //  typedef bsl::set<int> Set;
 //
-//  Set s0;    s0.insert(0);    s0.insert(1);    s0.insert(2);
-//  Set s1;    s1.insert(4);    s1.insert(5);
-//  Set s2;    s2.insert(8);
+//  Set s0, s1, s2;
+//
+//  s0.insert(0);
+//  s0.insert(1);
+//  s0.insert(2);
+//
+//  s1.insert(4);
+//  s1.insert(5);
+//
+//  s2.insert(8);
 //..
-// Then, we put pointers to those 3 sets into a fixed-length array:
+// Then, we store the addresses to those 3 sets into a fixed-length array:
 //..
 //  const Set *setArray[] = { &s0, &s1, &s2 };
-//  enum { NUM_SET_ARRAY = sizeof setArray / sizeof *setArray };
+//  const int NUM_SET_ARRAY = sizeof setArray / sizeof *setArray;
 //..
 // Next we use 'printValue' to print a range of values by supplying an iterator
 // to the beginning and end of the range, in the address of 'setArray' and the
@@ -418,6 +424,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  bslim::Printer printer(&cout, 0, -1);
 //  printer.printValue(setArray + 0, setArray + NUM_SET_ARRAY);
+//..
+//  The expected output is:
 //..
 //  [ 0xffbfd688 [ 0 1 2 ] 0xffbfd678 [ 4 5 ] 0xffbfd668 [ 8 ] ]
 //..
