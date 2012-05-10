@@ -904,7 +904,7 @@ struct Printer_Selector {
         BSLIM_HAS_STL_ITERATORS  = 3,    // special case bsl::string, otherwise
                                          // print elements as range
 
-        BSLIM_DEFAULT      = 4           // special case bsl::pair, otherwise
+        BSLIM_DEFAULT            = 4     // special case bsl::pair, otherwise
                                          // call the type's '.print' method
     };
 
