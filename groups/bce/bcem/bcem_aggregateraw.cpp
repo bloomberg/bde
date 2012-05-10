@@ -1914,6 +1914,15 @@ int bcem_AggregateRaw::errorCode() const
          : 0;
 }
 
+bsl::string bcem_AggregateRaw::errorMessage() const
+{
+    if (! isError()) {
+        return "";                                                    // RETURN
+    }
+
+    return ((bcem_AggregateError *)data())->description();
+}
+
 bsl::string bcem_AggregateRaw::asString() const
 {
     if (bdem_ElemType::BDEM_VOID == d_dataType) {
@@ -2631,11 +2640,10 @@ int bcem_AggregateRaw::anonymousField(
     return anonymousField(object, errorDescription, 0);
 }
 
-
-void bcem_AggregateRaw::makeNull()  const
+void bcem_AggregateRaw::makeNull() const
 {
-        if (bdem_ElemType::isArrayType(d_parentType)) {
     if (bdem_ElemType::BDEM_VOID != d_dataType) {
+        if (bdem_ElemType::isArrayType(d_parentType)) {
             if (!bdem_ElemType::isAggregateType(d_parentType)) {
                 const bdem_Descriptor *descriptor =
                                 bdem_ElemAttrLookup::lookupTable()[d_dataType];

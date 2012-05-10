@@ -275,8 +275,8 @@ void bcem_Aggregate::init(
         }
         bcema_SharedPtr<bdem_Table> tablePtr =
                            makeValuePtrInplaceWithAlloc<bdem_Table>(allocator);
-        bdem_SchemaAggregateUtil::initTable(tablePtr.ptr(), *recordDefPtr);
         valuePtr = tablePtr;
+        bdem_SchemaAggregateUtil::initTable(tablePtr.ptr(), *recordDefPtr);
       } break;
       case bdem_ElemType::BDEM_CHOICE: {
         if (recordDefPtr->recordType() != bdem_RecordDef::BDEM_CHOICE_RECORD) {
@@ -831,7 +831,7 @@ bdem_ElemRef bcem_Aggregate::fieldRef(NameOrIndex fieldOrIdx1,
                                       NameOrIndex fieldOrIdx9,
                                       NameOrIndex fieldOrIdx10) const
 {
-    return fieldImp(true,
+    return fieldImp(false,
                     fieldOrIdx1,
                     fieldOrIdx2,
                     fieldOrIdx3,

@@ -17014,9 +17014,7 @@ static void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose) {
                      P(S2);
                  }
 
-                 ASSERT(2 == S2.numRecords
-
-());
+                 ASSERT(2 == S2.numRecords());
                  constraintRec = &S2.record(0);
                  rec           = &S2.record(1);
 
