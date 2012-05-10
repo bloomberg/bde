@@ -609,13 +609,19 @@ int main(int argc, char *argv[])
                                "===============\n";
 
         typedef bsl::set<int> Set;
-
-        Set s0;    s0.insert(0);    s0.insert(1);    s0.insert(2);
-        Set s1;    s1.insert(4);    s1.insert(5);
-        Set s2;    s2.insert(8);
-
+      
+        Set s0, s1, s2;
+      
+        s0.insert(0);
+        s0.insert(1);
+        s0.insert(2);
+      
+        s1.insert(4);
+        s1.insert(5);
+      
+        s2.insert(8);
         const Set *setArray[] = { &s0, &s1, &s2 };
-        enum { NUM_SET_ARRAY = sizeof setArray / sizeof *setArray };
+        const int NUM_SET_ARRAY = sizeof setArray / sizeof *setArray;
 
         if (verbose) Q(Array as object);
         {
