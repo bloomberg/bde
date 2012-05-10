@@ -382,19 +382,22 @@ BSLS_IDENT("$Id: $")
 //..
 ///Example 4: Printing Ranges, and Typed Pointers
 /// - - - - - - - - - - - - - - - - - - - - - - -
-// Here we demonstrate two capabilities: printing out a range of elements, and
-// printing out a typed pointer.
+// In this examples we demonstrate two capabilities of a 'bslim::Printer'
+// object: printing a range of elements using iterators and printing a pointer
+// type.
 //
-// If 'printValue' or 'printAttribute' are passed an iterator pair, where the
-// iterator can be any type that appropriately supports the operators '++',
-// '*', and '==' (a non-void pointer will do fine), they will print out all the
-// elements in the range.
+// The 'printValue' or 'printAttribute' methods of 'bslim::Printer' will print
+// out all of the elements in the range specified by a pair of iterator
+// arguments, which can be of any type that provides appropriately behaving
+// operators '++', '*', and '==' (a non-void pointer would qualify).
 //
-// If 'bslim' encounters a single pointer:
-//: o If the pointer points to 'void', the hex value of pointer is printed out.
-//: o If it points to 'char', it is assumed to represent a string.
-//: o Otherwise, the hex value is printed out, followed by the value of the
-//:   object pointed at by the pointer.
+// When 'bslim' encounters a single pointer:
+//: o A 'void *' pointer is printed out in hex.
+//: o A 'char *' pointer is printed out as the null-terminated string pointed
+//:   to by the pointer.
+//: o A 'TYPE *' pointer, where 'TYPE' is neither 'void' nor 'char', is printed
+//:   out in hex followed by printing out the value of 'TYPE'.  A compile error
+//:   will occur if bslim is unable to print out 'TYPE'.
 //
 // As an example, we print out a range of pointers to sets.
 //..
