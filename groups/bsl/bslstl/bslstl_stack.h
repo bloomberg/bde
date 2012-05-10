@@ -159,12 +159,12 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_stdexceptutil.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
-#include <bslalg_swaputil.h>
+#ifndef INCLUDED_BSLALG_PASSTHROUGHTRAIT
+#include <bslalg_passthroughtrait.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_RANGECOMPARE
-#include <bslalg_rangecompare.h>
+#ifndef INCLUDED_BSLALG_SWAPUTIL
+#include <bslalg_swaputil.h>
 #endif
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
@@ -207,6 +207,12 @@ class stack {
     container_type& c;    // We are required by the standard to have the
                           // container be a protected variable named 'c'.  Just
                           // a reference to 'd_container'.
+
+    // TRAITS
+    typedef bslalg_PassThroughTrait<
+                               container_type,
+                               bslalg_TypeTraitUsesBslmaAllocator>::Type Trait;
+    BSLALG_DECLARE_NESTED_TRAITS(stack, Trait);
 
   private:
     // FRIENDS

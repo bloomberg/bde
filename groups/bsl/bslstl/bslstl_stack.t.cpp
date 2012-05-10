@@ -3,6 +3,7 @@
 
 #include <bslstl_vector.h>
 
+#include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
@@ -523,6 +524,20 @@ void emptyNVerifyStack(stack<typename CONTAINER::value_type,
     }
 }
 
+template<class CONTAINER, class VALUES>
+void verifyStack(const stack<typename CONTAINER::value_type,
+                             CONTAINER>&  X,
+                 const VALUES&            expectedValues,
+                 size_t                   expectedSize,
+                 const int                LINE,
+                 bslma_Allocator         *allocator = 0)
+{
+    stack<typename CONTAINER::value_type, CONTAINER> copyX(
+                                          X,
+                                          bslma_Default::allocator(allocator));
+    emptyNVerifyStack(&copyX, expectedValues, expectedSize, LINE);
+}
+                                   
 
                             // ====================
                             // class ExceptionGuard
@@ -796,13 +811,11 @@ class TestDriver {
 
   public:
     // TEST CASES
-#if 0
-    static void testCase23();
+    static void testCase11();
         // Test type traits.
 
     static void testCase10();
         // Test STL allocator.
-#endif
 
     static void testCase9();
         // Test assignment operator ('operator=').
@@ -900,9 +913,8 @@ void TestDriver<CONTAINER>::emptyAndVerify(Obj               *obj,
     ASSERTV(LINE, obj->size(), 0 == obj->size());
 }
 
-#if 0
-template <class KEY, class COMP, class ALLOC>
-void TestDriver<KEY, COMP, ALLOC>::testCase23()
+template <class CONTAINER>
+void TestDriver<CONTAINER>::testCase11()
 {
     // ------------------------------------------------------------------------
     // TESTING TYPE TRAITS
@@ -918,39 +930,35 @@ void TestDriver<KEY, COMP, ALLOC>::testCase23()
     // ------------------------------------------------------------------------
 
     // Verify set defines the expected traits.
+
     BSLMF_ASSERT((1 ==
-                  bslalg_HasTrait<bsl::set<KEY>,
-                                  bslalg_TypeTraitHasStlIterators>::VALUE));
-    BSLMF_ASSERT((1 ==
-                  bslalg_HasTrait<bsl::set<KEY>,
+                  bslalg_HasTrait<Obj,
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
 
-    // Verify the bslma-allocator trait is not defined for non
-    // bslma-allocators.
+    // Verify stack does not define other common traits.
 
     BSLMF_ASSERT((0 ==
-          bslalg_HasTrait<bsl::set<KEY, std::less<KEY>, StlAlloc>,
-                          bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+                  bslalg_HasTrait<Obj,
+                                  bslalg_TypeTraitHasStlIterators>::VALUE));
 
-    // Verify set does not define other common traits.
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<bsl::set<KEY>,
+                  bslalg_HasTrait<Obj,
                                   bslalg_TypeTraitBitwiseCopyable>::VALUE));
 
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<bsl::set<KEY>,
+                  bslalg_HasTrait<Obj,
                            bslalg_TypeTraitBitwiseEqualityComparable>::VALUE));
 
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<bsl::set<KEY>,
+                  bslalg_HasTrait<Obj,
                                   bslalg_TypeTraitBitwiseMoveable>::VALUE));
 
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<bsl::set<KEY>,
+                  bslalg_HasTrait<Obj,
                                  bslalg_TypeTraitHasPointerSemantics>::VALUE));
 
     BSLMF_ASSERT((0 ==
-                  bslalg_HasTrait<bsl::set<KEY>,
+                  bslalg_HasTrait<Obj,
                         bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE));
 }
 
@@ -999,69 +1007,106 @@ void TestDriver<CONTAINER>::testCase10()
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
-        const size_t      LENGTH = strlen(DATA[ti].d_results);
-        const TestValues  EXP(DATA[ti].d_results, &scratch);
+        const size_t      LENGTH = strlen(DATA[ti].d_spec);
+        const TestValues  EXP(DATA[ti].d_spec, &scratch);
 
-        TestValues CONT(SPEC, &scratch);
+        TestValues values(SPEC, &scratch);
 
-        typename TestValues::iterator BEGIN = CONT.begin();
-        typename TestValues::iterator END   = CONT.end();
+        bslma_TestAllocator ta("test",    veryVeryVeryVerbose);
+        bslma_TestAllocatorMonitor  tam(&ta);
 
-        bslma_TestAllocator da("default",   veryVeryVeryVerbose);
+        bslma_TestAllocator da("default", veryVeryVeryVerbose);
 
         bslma_DefaultAllocatorGuard dag(&da);
+        bslma_TestAllocatorMonitor  dam(&da);
 
         {
-            Obj mX(BEGIN, END);  const Obj& X = mX;
+            container_type tmpCont(&ta);
+            for (size_t tk = 0; tk < LENGTH; ++tk) {
+                tmpCont.push_back(values[tk]);
+            }
+            Obj mX(tmpCont, &ta);  const Obj& X = mX;
 
-            ASSERTV(LINE, 0 == emptyNVerifyStack(X, EXP, LENGTH));
-            ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+            verifyStack(X, EXP, LENGTH, L_, &ta);
+
+            Obj mY(X, &ta);  const Obj& Y = mY;
+
+            verifyStack(Y, EXP, LENGTH, L_, &ta);
+
+            Obj mZ(&ta);  const Obj& Z = mZ;
+
+            mZ.swap(mX);
+
+            verifyStack(Z, EXP, LENGTH, L_, &ta);
+
+            ASSERTV(LINE, X.empty());
+            ASSERTV(LINE, 0 == X.size());
+        }
+
+        ASSERT(tam.isTotalUp() || 0 == LENGTH);
+        ASSERT(tam.isInUseSame());
+
+        resetMonitor(&tam, &ta);
+
+        {
+            Obj mX(&ta);  const Obj& X = mX;
+            for (size_t tj = 0; tj < LENGTH; ++tj) {
+                mX.push(values[tj]);
+
+                ASSERTV(LINE, tj, LENGTH, values[tj] == X.top());
+            }
+
+            verifyStack(X, EXP, LENGTH, L_, &ta);
+        }
+
+        ASSERT(tam.isTotalUp() || 0 == LENGTH);
+        ASSERT(tam.isInUseSame());
+        ASSERT(dam.isTotalSame());
+
+        {
+            container_type tmpCont;
+            for (size_t tk = 0; tk < LENGTH; ++tk) {
+                tmpCont.push_back(values[tk]);
+            }
+            Obj mX(tmpCont);  const Obj& X = mX;
+
+            verifyStack(X, EXP, LENGTH, L_);
 
             Obj mY(X);  const Obj& Y = mY;
 
-            ASSERTV(LINE, 0 == emptyNVerifyStack(Y, EXP, LENGTH));
-            ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+            verifyStack(Y, EXP, LENGTH, L_);
 
             Obj mZ;  const Obj& Z = mZ;
 
             mZ.swap(mX);
 
-            ASSERTV(LINE, 0 == emptyNVerifyStack(Z, EXP, LENGTH));
-            ASSERTV(LINE, da.numBlocksInUse(),
-                    2 * TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+            verifyStack(Z, EXP, LENGTH, L_);
+
+            ASSERTV(LINE, X.empty());
+            ASSERTV(LINE, 0 == X.size());
         }
 
-        CONT.resetIterators();
+        ASSERTV(cont, dam.isTotalUp() == (emptyWillAlloc() || LENGTH > 0));
+
+        resetMonitor(&dam, &da);
 
         {
             Obj mX;  const Obj& X = mX;
-            mX.insert(BEGIN, END);
-            ASSERTV(LINE, 0 == emptyNVerifyStack(X, EXP, LENGTH));
-            ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
-        }
+            for (size_t tj = 0; tj < LENGTH; ++tj) {
+                mX.push(values[tj]);
 
-        CONT.resetIterators();
-
-        {
-            Obj mX;  const Obj& X = mX;
-            for (size_t tj = 0; tj < CONT.size(); ++tj) {
-                bsl::pair<Iter, bool> RESULT = mX.insert(CONT[tj]);
-
-                ASSERTV(LINE, tj, LENGTH, CONT[tj] == *(RESULT.first));
+                ASSERTV(LINE, tj, LENGTH, values[tj] == X.top());
             }
-            ASSERTV(LINE, 0 == emptyNVerifyStack(X, EXP, LENGTH));
-            ASSERTV(LINE, da.numBlocksInUse(),
-                    TYPE_ALLOC * LENGTH == da.numBlocksInUse());
+
+            verifyStack(X, EXP, LENGTH, L_);
         }
+
+        ASSERTV(cont, dam.isTotalUp() == (emptyWillAlloc() || LENGTH > 0));
 
         ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
     }
 
 }
-#endif
 
 template <class CONTAINER>
 void TestDriver<CONTAINER>::testCase9()
@@ -1232,7 +1277,7 @@ void TestDriver<CONTAINER>::testCase9()
 
             static bool firstFlag = true;
             if (firstFlag) {
-                ASSERTV(LINE1, Obj() == Z);
+                ASSERTV(LINE1, Obj(&scratch) == Z);
                 firstFlag = false;
             }
 
@@ -1245,8 +1290,6 @@ void TestDriver<CONTAINER>::testCase9()
 
                 {
                     Obj mX(&oa);  const Obj& X  = gg(&mX,  SPEC2);
-
-                    if (veryVerbose) { T_ P_(LINE2) P(X) }
 
                     ASSERTV(LINE1, LINE2, (Z == X) == (LINE1 == LINE2));
 
@@ -2851,125 +2894,47 @@ int main(int argc, char *argv[])
     bslma_Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-#if 0
-      case 24: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
-
-      } break;
-      case 23: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING TYPE TRAITS
         // --------------------------------------------------------------------
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase23, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 22: {
-        // --------------------------------------------------------------------
-        // TESTING STL ALLOCATOR
-        // --------------------------------------------------------------------
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase22, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 21: {
-        // --------------------------------------------------------------------
-        // TESTING COMPARATOR
-        // --------------------------------------------------------------------
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase21, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 20: {
-        // --------------------------------------------------------------------
-        // TESTING 'max_size' and 'empty'
-        // --------------------------------------------------------------------
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase20, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 19: {
-        // --------------------------------------------------------------------
-        // TESTING FREE COMPARISON OPERATORS
-        // --------------------------------------------------------------------
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase19, int, char);
-      } break;
-      case 18: {
-        // --------------------------------------------------------------------
-        // TESTING 'erase'
-        // --------------------------------------------------------------------
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase18, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 17: {
-        // --------------------------------------------------------------------
-        // TESTING RANGE 'insert'
-        // --------------------------------------------------------------------
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase17, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 16: {
-        // --------------------------------------------------------------------
-        // TESTING 'insert' WITH HINT
-        // --------------------------------------------------------------------
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase16, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 15: {
-        // --------------------------------------------------------------------
-        // TESTING 'insert'
-        // --------------------------------------------------------------------
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase15, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 14: {
-        // --------------------------------------------------------------------
-        // TESTING ITERATORS
-        // --------------------------------------------------------------------
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase14, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 13: {
-        // --------------------------------------------------------------------
-        // TESTING 'find'
-        // --------------------------------------------------------------------
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase13, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 12: {
-        // --------------------------------------------------------------------
-        // VALUE CONSTRUCTORS
-        // --------------------------------------------------------------------
+        if (verbose) printf("\nTesting Type Traits\n"
+                            "\n===================\n");
 
-        if (verbose) printf("\nTesting Value Constructor"
-                            "\n=========================\n");
+        // Verify the bslma-allocator trait is not defined for non
+        // bslma-allocators.
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase12, BSLTF_TEST_TYPES_REGULAR);
-      } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // GENERATOR FUNCTION 'g'
-        // --------------------------------------------------------------------
+        typedef bsltf::StdTestAllocator<bsltf::AllocTestType> StlAlloc;
 
-        if (verbose) printf("\nTesting 'g'"
-                            "\n===========\n");
+        typedef bsl::stack<deque< bsltf::AllocTestType, StlAlloc> >
+                                                          WeirdAllocDequeStack;
+        typedef bsl::stack<vector<bsltf::AllocTestType, StlAlloc> >
+                                                         WeirdAllocVectorStack;
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase11, BSLTF_TEST_TYPES_REGULAR);
+        if (verbose) printf("deque ---------------------------------------\n");
+        BSLMF_ASSERT((0 == bslalg_HasTrait<WeirdAllocDequeStack,
+                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+//      BSLTF_RUN_EACH_TYPE(TestDriver, testCase11,TEST_TYPES_REGULAR(deque));
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase11, deque<void *>);
+
+        if (verbose) printf("vector --------------------------------------\n");
+        BSLMF_ASSERT((0 == bslalg_HasTrait<WeirdAllocVectorStack,
+                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
+//      BSLTF_RUN_EACH_TYPE(TestDriver, testCase11,TEST_TYPES_REGULAR(vector));
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // STREAMING FUNCTIONALITY
+        // TESTING STL ALLOCATOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Streaming Functionality"
-                            "\n===============================\n");
+        if (verbose) printf("\nTesting STL ALLOCTOR\n"
+                            "\n====================\n");
 
-        if (verbose) printf("There is no streaming for this component.\n");
-
+        if (verbose) printf("deque ---------------------------------------\n");
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase10,TEST_TYPES_REGULAR(deque));
+        if (verbose) printf("vector --------------------------------------\n");
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase10,TEST_TYPES_REGULAR(vector));
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -2984,7 +2949,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("vector --------------------------------------\n");
         BSLTF_RUN_EACH_TYPE(TestDriver, testCase9, TEST_TYPES_REGULAR(vector));
       } break;
-#endif
       case 8: {
         // --------------------------------------------------------------------
         // MANIPULATOR AND FREE FUNCTION 'swap'
