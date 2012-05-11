@@ -8016,7 +8016,8 @@ int main(int argc, char *argv[])
         //   Vector is specialized for ptr types, and the specialization
         //   assumes that any pointer type can be cast or copy c'ted into a
         //   'void *', but for function ptrs on g++, this is not the case.
-        //   Disabled test.
+        //   Had to fix bslalg_arrayprimitives to deal with this, this test
+        //   verifies that the fix worked.  DRQS 31711031.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nRange insert function ptr bug <<NOT FIXED>>\n"
