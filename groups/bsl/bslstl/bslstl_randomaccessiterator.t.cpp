@@ -4,6 +4,7 @@
 
 #include <bslstl_iterator.h>   // for testing only
 #include <bslmf_issame.h>      // for testing only
+#include <bsls_unspecifiedbool.h>
 
 #include <climits>
 #include <cstdlib>
@@ -280,22 +281,6 @@ struct Wrap { int data; };
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-class UnspecifiedBool {
-    //  This class provides a value type that can be implicitly converted to
-    //  'bool'.  This will allow us to validate the minimum guarantees on
-    //  functions specified as returning a value "convertible to 'bool'".
-private:
-    struct impl { int data; };
-    typedef int impl::*result_type;
-    result_type d_result;
-
-public:
-    explicit UnspecifiedBool(bool b)
-      : d_result(b ? &impl::data : result_type()) {}
-
-    operator result_type() const { return d_result; }
-};
-
 template<typename T>
 class AdaptablePointer
 {
@@ -303,19 +288,34 @@ class AdaptablePointer
     //  required to satisfy the abilities of a random access iterator.  It will
     //  be used to form the iterator type under test in our sample container.
   private:
+    // PRIVATE TYPES
+    typedef bsls::UnspecifiedBool<AdaptablePointer> BoolHost;
+    typedef typename BoolHost::BoolType             BoolType;
+
+    // DATA
     T*   d_ptr;
 
-    template <class T1>
-    friend UnspecifiedBool operator==(const AdaptablePointer<T1>& lhs,
-                                      const AdaptablePointer<T1>& rhs);
+    friend BoolType operator==(const AdaptablePointer& lhs,
+                               const AdaptablePointer& rhs)
+    {
+        return lhs.d_ptr == rhs.d_ptr
+             ? BoolHost::trueValue()
+             : BoolHost::falseValue();
+    }
 
-    template <class T1>
-    friend UnspecifiedBool operator<(const AdaptablePointer<T1>& lhs,
-                                     const AdaptablePointer<T1>& rhs);
+    friend BoolType operator<(const AdaptablePointer& lhs,
+                              const AdaptablePointer& rhs)
+    {
+        return lhs.d_ptr < rhs.d_ptr
+             ? BoolHost::trueValue()
+             : BoolHost::falseValue();
+    }
 
-    template <class T1>
-    friend std::ptrdiff_t operator-(const AdaptablePointer<T1>& lhs,
-                                    const AdaptablePointer<T1>& rhs);
+    friend std::ptrdiff_t operator-(const AdaptablePointer& lhs,
+                                    const AdaptablePointer& rhs)
+    {
+        return lhs.d_ptr - rhs.d_ptr;
+    }
 
   public:
     AdaptablePointer(T* ptr = 0) : d_ptr(ptr) { }
@@ -332,27 +332,6 @@ class AdaptablePointer
     void operator--() { --d_ptr; }
     void operator+=(std::ptrdiff_t n) { d_ptr += n; }
 };
-
-template <class T>
-inline
-UnspecifiedBool operator==(const AdaptablePointer<T>& lhs,
-                           const AdaptablePointer<T>& rhs) {
-    return UnspecifiedBool(lhs.d_ptr == rhs.d_ptr);
-}
-
-template <class T>
-inline
-UnspecifiedBool operator<(const AdaptablePointer<T>& lhs,
-                          const AdaptablePointer<T>& rhs) {
-    return UnspecifiedBool(lhs.d_ptr < rhs.d_ptr);
-}
-
-template <class T>
-inline
-std::ptrdiff_t operator-(const AdaptablePointer<T>& lhs,
-                         const AdaptablePointer<T>& rhs) {
-    return lhs.d_ptr - rhs.d_ptr;
-}
 
 
 //  A simple dynamic array to host random access iterators.  Does not support
@@ -1100,7 +1079,6 @@ int main(int argc, char *argv[])
         //      iterators.
         //
         // Testing:
-        //   class UnspecifiedBool
         //   class my_Array<T>
         //   my_Array<T>::begin()
         //   my_Array<T>::end()
@@ -1111,10 +1089,6 @@ int main(int argc, char *argv[])
                                   << "==============================" << endl;
 
         if (verbose) cout << "\nValidating primitive test machinery" << endl;
-
-        ASSERT(UnspecifiedBool(true));
-        ASSERT(!UnspecifiedBool(false));
-
 
         if (verbose) cout << "\nTesting class my_Array<int>" << endl;
 

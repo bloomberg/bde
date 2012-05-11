@@ -4,6 +4,7 @@
 
 #include <bslstl_iterator.h>   // for testing only
 #include <bslmf_issame.h>
+#include <bsls_unspecifiedbool.h>
 
 #include <climits>
 #include <cstdlib>
@@ -271,23 +272,6 @@ struct Wrap { int data; };
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-class UnspecifiedBool {
-    //  This class provides a value type that can be implicitly converted to
-    //  'bool'.  This will allow us to validate the minimum guarantees on
-    //  functions specified as returning a value "convertible to 'bool'".
-
-  private:
-    struct impl { int data; };
-    typedef int impl::*result_type;
-    result_type d_result;
-
-  public:
-    explicit UnspecifiedBool(bool b)
-      : d_result(b ? &impl::data : result_type()) {}
-
-    operator result_type() const { return d_result; }
-};
-
 //  Minimal implementation of a singly linked list to validate basic iterator
 //  operations with a suitably restricted container.  The important feature for
 //  validating the iterator adaptor is that the iterator-like class being
@@ -312,6 +296,12 @@ class my_List
 
     class IteratorImp
     {
+      private:
+        // PRIVATE TYPES
+        typedef bsls::UnspecifiedBool<IteratorImp> BoolHost;
+        typedef typename BoolHost::BoolType        BoolType;
+
+        // DATA
         Node*   d_node;
 
       public:
@@ -322,8 +312,10 @@ class my_List
         // IteratorImp& operator=(const IteratorImp&);
         // ~IteratorImp();
 
-        UnspecifiedBool operator==(const IteratorImp& rhs) const
-            { return UnspecifiedBool(d_node == rhs.d_node); }
+        BoolType operator==(const IteratorImp& rhs) const
+            { return d_node == rhs.d_node
+                   ? BoolHost::trueValue()
+                   : BoolHost::falseValue(); }
 
         T& operator*() const { return d_node->d_val; }
 
@@ -803,7 +795,6 @@ int main(int argc, char *argv[])
         //      iterators.
         //
         // Testing:
-        //   class UnspecifiedBool
         //   class my_List<T>
         //   my_List<T>::begin
         //   my_List<T>::end
@@ -814,10 +805,6 @@ int main(int argc, char *argv[])
                                   << "==============================" << endl;
 
         if (verbose) cout << "\nValidating primitive test machinery" << endl;
-
-        ASSERT(UnspecifiedBool(true));
-        ASSERT(!UnspecifiedBool(false));
-
 
         if (verbose) cout << "\nTesting class my_List<int>" << endl;
 
