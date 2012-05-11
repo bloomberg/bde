@@ -315,6 +315,16 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
   private:
     typedef StringRefData<CHAR_TYPE> Base;
 
+    // PRIVATE ACCESSORS
+    void write(std::basic_ostream<CHAR_TYPE>& stream) const;
+        // Write the value of this string reference to the specified output
+        // 'stream' in the unformatted way.
+
+    template <typename C>
+    friend
+    std::basic_ostream<C>& operator<<(std::basic_ostream<C>&        stream,
+                                      const bslstl_StringRefImp<C>& stringRef);
+
   public:
     // PUBLIC TYPES
     typedef const CHAR_TYPE     value_type;
@@ -682,6 +692,20 @@ typedef StringRefImp<wchar_t>    StringRefWide;
                           // ------------------
                           // class StringRefImp
                           // ------------------
+
+// PRIVATE ACCESSORS
+template <typename CHAR_TYPE>
+inline
+void bslstl_StringRefImp<CHAR_TYPE>::
+write(std::basic_ostream<CHAR_TYPE>& stream) const
+{
+    if (data()) {
+        stream.write(data(), length());
+    }
+    else {
+        BSLS_ASSERT_SAFE(length() == 0);
+    }
+}
 
 // CREATORS
 template <typename CHAR_TYPE>
@@ -1279,15 +1303,36 @@ std::basic_ostream<CHAR_TYPE>&
     bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
                        const StringRefImp<CHAR_TYPE>& stringRef)
 {
-    if (stringRef.data()) {
-        // Sun RW Standard Library implementation of streams does not work
-        // correctly if 'data' and 'length' are both 0.
-        return stream.write(stringRef.data(), stringRef.length());
+    typedef CHAR_TYPE                                          char_type;
+    typedef typename std::basic_ostream<char_type>::ios_base   ios_base;
+    typedef typename bslstl_StringRefImp<char_type>::size_type size_type;
+
+    size_type width = stream.width();
+    size_type len = stringRef.length();
+
+    if (len < width) {
+        bool leftAdjusted
+            = (stream.flags() & ios_base::adjustfield) == ios_base::left;
+        char_type fillChar = stream.fill();
+
+        if (leftAdjusted) {
+            stringRef.write(stream);
+        }
+
+        for (size_type n = 0; n != width - len; ++n) {
+            stream.put(fillChar);
+        }
+
+        if (!leftAdjusted) {
+            stringRef.write(stream);
+        }
     }
     else {
-        BSLS_ASSERT_SAFE(stringRef.length() == 0);
-        return stream;
+        stringRef.write(stream);
+        stream.width(0);
     }
+
+    return stream;
 }
 
 // ===========================================================================
