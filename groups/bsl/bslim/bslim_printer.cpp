@@ -6,9 +6,49 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
+#include <bsl_cctype.h>
 #include <bsl_iomanip.h>
 
 namespace BloombergLP {
+
+namespace {
+
+class FormatGuard {
+    // Class that saves the format flags from a stream.  Note 'ios_base' is
+    // a base class that both 'ostream' and 'istream' inherit from.
+
+    // DATA
+    bsl::ios_base           *d_stream;
+    bsl::ios_base::fmtflags  d_flags;
+
+  public:
+    // CREATORS
+    explicit
+    FormatGuard(bsl::ios_base *stream);
+        // Save a pointer to the specified 'stream', and save its format flags,
+        // to be restored upon this object's destruction.
+
+    ~FormatGuard();
+        // Restore the format flags that were saved at construction to the
+        // stream whose pointer we saved at construction.
+};
+
+// CREATORS
+inline
+FormatGuard::FormatGuard(bsl::ios_base *stream)
+{
+    d_stream = stream;
+    d_flags  = stream->flags();
+}
+
+inline
+FormatGuard::~FormatGuard()
+{
+    d_stream->flags(d_flags);
+}
+
+}  // close unnamed namespace
+
 
 namespace bslim {
 
@@ -117,12 +157,11 @@ bool Printer::suppressInitialIndentFlag() const
                         // ---------------------
 
 // CLASS METHODS
-void Printer_Helper::printRaw(
-           bsl::ostream&                                        stream,
-           char                                                 data,
-           int                                                  ,
-           int                                                  spacesPerLevel,
-           bslmf::MetaInt<Printer_Selector::BSLIM_FUNDAMENTAL> *)
+void Printer_Helper::printRaw(bsl::ostream&                  stream,
+                              char                           data,
+                              int                            ,
+                              int                            spacesPerLevel,
+                              Printer_Selector::Fundamental *)
 {
 #define HANDLE_CONTROL_CHAR(value) case value: stream << #value; break;
     if (bsl::isprint(data)) {
@@ -136,14 +175,14 @@ void Printer_Helper::printRaw(
           HANDLE_CONTROL_CHAR('\t');
           HANDLE_CONTROL_CHAR('\0');
 
-          default:
+          default: {
             // Print as hex.
 
-            bsl::ios_base::fmtflags fmtFlags = stream.flags();
+            FormatGuard guard(&stream);
             stream << bsl::hex
                    << bsl::showbase
                    << static_cast<bsls::Types::UintPtr>(data);
-            stream.flags(fmtFlags);
+          }
         }
     }
 #undef HANDLE_CONTROL_CHAR
@@ -153,29 +192,28 @@ void Printer_Helper::printRaw(
     }
 }
 
-void Printer_Helper::printRaw(
-           bsl::ostream&                                        stream,
-           bool                                                 data,
-           int                                                  ,
-           int                                                  spacesPerLevel,
-           bslmf::MetaInt<Printer_Selector::BSLIM_FUNDAMENTAL> *)
+void Printer_Helper::printRaw(bsl::ostream&                  stream,
+                              bool                           data,
+                              int                            ,
+                              int                            spacesPerLevel,
+                              Printer_Selector::Fundamental *)
 {
-    bsl::ios_base::fmtflags fmtFlags = stream.flags();
-    stream << bsl::boolalpha
-           << data;
-    stream.flags(fmtFlags);
+    {
+        FormatGuard guard(&stream);
+        stream << bsl::boolalpha
+               << data;
+    }
 
     if (spacesPerLevel >= 0) {
         stream << '\n';
     }
 }
 
-void Printer_Helper::printRaw(
-               bsl::ostream&                                    stream,
-               const char                                      *data,
-               int                                              ,
-               int                                              spacesPerLevel,
-               bslmf::MetaInt<Printer_Selector::BSLIM_POINTER> *)
+void Printer_Helper::printRaw(bsl::ostream&              stream,
+                              const char                *data,
+                              int                        ,
+                              int                        spacesPerLevel,
+                              Printer_Selector::Pointer *)
 {
     if (0 == data) {
         stream << "NULL";
@@ -188,22 +226,20 @@ void Printer_Helper::printRaw(
     }
 }
 
-void Printer_Helper::printRaw(
-               bsl::ostream&                                    stream,
-               const void                                      *data,
-               int                                              ,
-               int                                              spacesPerLevel,
-               bslmf::MetaInt<Printer_Selector::BSLIM_POINTER> *)
+void Printer_Helper::printRaw(bsl::ostream&              stream,
+                              const void                *data,
+                              int                        ,
+                              int                        spacesPerLevel,
+                              Printer_Selector::Pointer *)
 {
     if (0 == data) {
         stream << "NULL";
     }
     else {
-        bsl::ios_base::fmtflags fmtFlags = stream.flags();
+        FormatGuard guard(&stream);
         stream << bsl::hex
                << bsl::showbase
                << reinterpret_cast<bsls::Types::UintPtr>(data);
-        stream.flags(fmtFlags);
     }
     if (spacesPerLevel >= 0) {
         stream << '\n';
@@ -211,7 +247,6 @@ void Printer_Helper::printRaw(
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
