@@ -2907,21 +2907,28 @@ int main(int argc, char *argv[])
 
         typedef bsltf::StdTestAllocator<bsltf::AllocTestType> StlAlloc;
 
-        typedef bsl::stack<deque< bsltf::AllocTestType, StlAlloc> >
-                                                          WeirdAllocDequeStack;
-        typedef bsl::stack<vector<bsltf::AllocTestType, StlAlloc> >
-                                                         WeirdAllocVectorStack;
+        typedef bsltf::AllocTestType ATT;
+
+        typedef bsl::stack<ATT, deque< ATT, StlAlloc> > WeirdAllocDequeStack;
+        typedef bsl::stack<ATT, vector<ATT, StlAlloc> > WeirdAllocVectorStack;
 
         if (verbose) printf("deque ---------------------------------------\n");
+        BSLMF_ASSERT((0 == bslalg_HasTrait<deque< bsltf::AllocTestType,
+                                                  StlAlloc>,
+                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
         BSLMF_ASSERT((0 == bslalg_HasTrait<WeirdAllocDequeStack,
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
 //      BSLTF_RUN_EACH_TYPE(TestDriver, testCase11,TEST_TYPES_REGULAR(deque));
         BSLTF_RUN_EACH_TYPE(TestDriver, testCase11, deque<void *>);
 
         if (verbose) printf("vector --------------------------------------\n");
+        BSLMF_ASSERT((0 == bslalg_HasTrait<vector<bsltf::AllocTestType,
+                                                  StlAlloc>,
+                                  bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
         BSLMF_ASSERT((0 == bslalg_HasTrait<WeirdAllocVectorStack,
                                   bslalg_TypeTraitUsesBslmaAllocator>::VALUE));
 //      BSLTF_RUN_EACH_TYPE(TestDriver, testCase11,TEST_TYPES_REGULAR(vector));
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase11, vector<void *>);
       } break;
       case 10: {
         // --------------------------------------------------------------------

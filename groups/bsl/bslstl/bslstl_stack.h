@@ -208,10 +208,10 @@ class stack {
                           // container be a protected variable named 'c'.  Just
                           // a reference to 'd_container'.
 
+  public:
     // TRAITS
-    typedef bslalg_PassThroughTrait<
-                               container_type,
-                               bslalg_TypeTraitUsesBslmaAllocator>::Type Trait;
+    typedef BloombergLP::bslalg_PassthroughTraitBslmaAllocator<
+                                                         allocator_type> Trait;
     BSLALG_DECLARE_NESTED_TRAITS(stack, Trait);
 
   private:
