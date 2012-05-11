@@ -531,7 +531,7 @@ struct ArrayPrimitives_Imp {
         // 'TARGET_TYPE' has the traits for which the enumerator equal to 'N'
         // is named.
 
-        IS_POINTER_POINTER              = 5,
+        IS_POINTER_TO_POINTER           = 5,
         IS_FUNDAMENTAL_OR_POINTER       = 4,
         HAS_TRIVIAL_DEFAULT_CTOR_TRAITS = 3,
         BITWISE_COPYABLE_TRAITS         = 2,
@@ -731,7 +731,7 @@ struct ArrayPrimitives_Imp {
                               FWD_ITER                    fromBegin,
                               FWD_ITER                    fromEnd,
                               ALLOCATOR                  *allocator,
-                              bslmf::MetaInt<IS_POINTER_POINTER> *);
+                              bslmf::MetaInt<IS_POINTER_TO_POINTER> *);
     template <class TARGET_TYPE, class ALLOCATOR>
     static void copyConstruct(
                             TARGET_TYPE                             *toBegin,
@@ -811,7 +811,7 @@ struct ArrayPrimitives_Imp {
                        FWD_ITER                                 fromEnd,
                        size_type                                numElements,
                        ALLOCATOR                               *allocator,
-                       bslmf::MetaInt<IS_POINTER_POINTER>      *);
+                       bslmf::MetaInt<IS_POINTER_TO_POINTER>   *);
     template <class TARGET_TYPE, class ALLOCATOR>
     static void insert(TARGET_TYPE                             *toBegin,
                        TARGET_TYPE                             *toEnd,
@@ -1060,7 +1060,7 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
         CAN_USE_BITWISECOPY = bslmf::IsConvertible<FWD_ITER,
                                                    const TARGET_TYPE *>::VALUE,
         VALUE = ARE_POINTER_POINTERS
-              ? Imp::IS_POINTER_POINTER
+              ? Imp::IS_POINTER_TO_POINTER
               : IS_BITWISECOPYABLE && CAN_USE_BITWISECOPY
                 ? Imp::BITWISE_COPYABLE_TRAITS
                 : Imp::NIL_TRAITS
@@ -1355,7 +1355,7 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
                                      TypeTraitBitwiseCopyable>::VALUE
                               && CAN_USE_BITWISECOPY,
 
-        VALUE = ARE_POINTER_POINTERS ? Imp::IS_POINTER_POINTER
+        VALUE = ARE_POINTER_POINTERS ? Imp::IS_POINTER_TO_POINTER
               : IS_BITWISECOPYABLE   ? Imp::BITWISE_COPYABLE_TRAITS
               : IS_BITWISEMOVEABLE   ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
@@ -1791,11 +1791,12 @@ void ArrayPrimitives_Imp::uninitializedFillN(
 
 template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
 inline
-void ArrayPrimitives_Imp::copyConstruct(TARGET_TYPE                *toBegin,
-                                        FWD_ITER                    fromBegin,
-                                        FWD_ITER                    fromEnd,
-                                        ALLOCATOR                  *allocator,
-                                        bslmf::MetaInt<IS_POINTER_POINTER> *)
+void ArrayPrimitives_Imp::copyConstruct(
+                              TARGET_TYPE                           *toBegin,
+                              FWD_ITER                               fromBegin,
+                              FWD_ITER                               fromEnd,
+                              ALLOCATOR                             *allocator,
+                              bslmf::MetaInt<IS_POINTER_TO_POINTER> *)
 {
     typedef typename bslmf::RemovePtrCvq<TARGET_TYPE>::Type NoConstTargetType;
     typedef typename bslmf::RemovePtrCvq<FWD_ITER>::ValueType
@@ -2161,7 +2162,7 @@ void ArrayPrimitives_Imp::insert(
                           FWD_ITER                                 fromEnd,
                           size_type                                numElements,
                           ALLOCATOR                               *allocator,
-                          bslmf::MetaInt<IS_POINTER_POINTER>      *)
+                          bslmf::MetaInt<IS_POINTER_TO_POINTER>   *)
 {
     typedef typename bslmf::RemovePtrCvq<TARGET_TYPE>::Type NoConstTargetType;
     typedef typename bslmf::RemovePtrCvq<FWD_ITER>::ValueType
