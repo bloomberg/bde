@@ -78,27 +78,27 @@ BDES_IDENT("$Id: $")
 //        a compact, encrypted representation of each record, suitable for
 //        sending over an unsecure network.
 //..
-// First we create the four observer objects -- an initially empty multiplexing
-// observer and the three downstream observers that will be registered with the
-// multiplexor:
+// First we create the three downstream observers that will be registered with
+// multiplexor observer:
 //..
-//     bael_MultiplexObserver multiplexor;
-//     assert(0 == multiplexor.numRegisteredObservers());
-//
 //     bael_DefaultObserver   defaultObserver;
 //     my_LogfileObserver     logfileObserver;
 //     my_EncryptingObserver  encryptingObserver;
 //..
-// Next, the three downstream observers are registered with 'multiplexor':
+// Next, we create an initially empty multiplexing observer 'multiplexor' and
+// register the three downstream observers 'multiplexor':
 //..
+//     bael_MultiplexObserver multiplexor;
+//     assert(0 == multiplexor.numRegisteredObservers());
+//
 //     multiplexor.registerObserver(&defaultObserver);
 //     multiplexor.registerObserver(&logfileObserver);
 //     multiplexor.registerObserver(&encryptingObserver);
 //     assert(3 == multiplexor.numRegisteredObservers());
 //..
-// Finally, 'multiplexor' is installed within a 'bael' logging system to be
-// the direct recipient of published log records.  This registration is done
-// by supplying 'multiplexor' to the 'bael_LoggerManager::initSingleton' method
+// Then, 'multiplexor' is installed within a 'bael' logging system to be the
+// direct recipient of published log records.  This registration is done by
+// supplying 'multiplexor' to the 'bael_LoggerManager::initSingleton' method
 // that is used to initialize the singleton logger manager:
 //..
 //     bael_LoggerManager::initSingleton(&multiplexor);
@@ -109,9 +109,18 @@ BDES_IDENT("$Id: $")
 // which, in turn, forwards them to 'defaultObserver', 'logfileObserver', and
 // 'encryptingObserver' by calling their respective 'publish' methods.
 //
-// Note that additional observers may be registered with 'multiplexor' at any
-// time.  Similarly, observers may be unregistered at any time.  This
-// capability allows for extremely flexible observation scenarios.
+// Finally, deregister the three observers when the logs have been all
+// forwarded:
+//..
+//     multiplexor.deregisterObserver(&defaultObserver);
+//     multiplexor.deregisterObserver(&logfileObserver);
+//     multiplexor.deregisterObserver(&encryptingObserver);
+//..
+// Note that any observer must exist before registering with multiplexor.
+// Any observer already registered must deregister before its destruction.
+// Additional observers may be registered with 'multiplexor' at any time.
+// Similarly, observers may be unregistered at any time.  This capability
+// allows for extremely flexible observation scenarios.
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -141,9 +150,12 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
-class bslma_Allocator;
 class bael_Record;
 class bael_Context;
 

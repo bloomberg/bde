@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a primitive type trait for bit-wise moveable classes.
 //
 //@CLASSES:
-//  bslalg_TypeTraitBitwiseMoveable: bit-wise moveable trait
+//  bslalg::TypeTraitBitwiseMoveable: bit-wise moveable trait
 //
 //@SEE_ALSO: bslmf_typetraits
 //
 //@AUTHOR: Herve Bronnimann (hbronnim)
 //
 //@DESCRIPTION: This component provides a single traits class,
-// 'bslalg_TypeTraitBitwiseMoveable'.  An object of a 'TYPE' that has the
+// 'bslalg::TypeTraitBitwiseMoveable'.  An object of a 'TYPE' that has the
 // bit-wise moveable trait can be copied either by invoking the move
 // constructor or by moving the footprint (i.e., the 'sizeof(TYPE)' bytes at
 // the object address) using 'memcpy'.
@@ -41,11 +41,13 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // =====================================
-                        // class bslalg_TypeTraitBitwiseMoveable
-                        // =====================================
+namespace bslalg {
 
-struct bslalg_TypeTraitBitwiseMoveable {
+                        // ==============================
+                        // class TypeTraitBitwiseMoveable
+                        // ==============================
+
+struct TypeTraitBitwiseMoveable {
     // Objects of a type with this trait can be "moved" from one memory
     // location to another using 'memmove' or 'memcpy'.  Although the result of
     // such a bitwise copy is two copies of the same object, this trait only
@@ -57,7 +59,16 @@ struct bslalg_TypeTraitBitwiseMoveable {
     // places pointers to itself within other data structures.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::TypeTraitBitwiseMoveable bslalg_TypeTraitBitwiseMoveable;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

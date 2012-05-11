@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a simple 'struct' with two members that may use allocators.
 //
 //@CLASSES:
-//   bsl::pair: pair of values, each of which may use a 'bslma_Allocator'
+//  bsl::pair: pair of values, each of which may use a 'bslma::Allocator'
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
@@ -20,50 +20,51 @@ BSLS_IDENT("$Id: $")
 // The 'bsl::pair' class template is instantiated on two types, 'T1' and 'T2',
 // and provides two public data members, 'first' and 'second' of type 'T1' and
 // 'T2', respectively.  Each data member might or might not allocate memory
-// using 'bslma_Allocator'.  Its interface is identical to 'std::pair' except
+// using 'bslma::Allocator'.  Its interface is identical to 'std::pair' except
 // that it has constructors that take optional allocator arguments to correctly
 // construct the member variables.  For example, a
 // 'bsl::pair<std::string, int>' has member 'first' of type 'std::string' and
-// 'second' of type 'int'.  A client can pass a 'bslma_Allocator' pointer to
+// 'second' of type 'int'.  A client can pass a 'bslma::Allocator' pointer to
 // the pair constructor and the constructor will pass it through to the 'first'
-// member.  Similarly, the copy constructor takes an optional 'bslma_Allocator'
-// pointer and copy-constructs the 'first' member using that allocator.
+// member.  Similarly, the copy constructor takes an optional
+// 'bslma::Allocator' pointer and copy-constructs the 'first' member using that
+// allocator.
 //
-// 'bsl::pair' is unusual in that its data members, 'first' and 'second',
-// are public.  Once constructed, a client program accesses these members
-// directly.  This part of the interface is identical to 'std::pair', for
-// which 'bsl::pair' is intended to be a drop-in replacement.
+// 'bsl::pair' is unusual in that its data members, 'first' and 'second', are
+// public.  Once constructed, a client program accesses these members directly.
+// This part of the interface is identical to 'std::pair', for which
+// 'bsl::pair' is intended to be a drop-in replacement.
 //
 // 'bsl::pair' has four constructors: a default constructor which
 // default-constructs the two data members, a copy constructor which
-// copy-constructs each data member, a constructor taking two arguments of
-// type 'T1' and 'T2', which are used to copy-construct 'first' and 'second'
+// copy-constructs each data member, a constructor taking two arguments of type
+// 'T1' and 'T2', which are used to copy-construct 'first' and 'second'
 // respectively, and a conversion constructor template for converting from a
-// 'bsl::pair' of different types, 'U1' and 'U2', provided 'U1' is
-// convertible to 'T1' and 'U2' is convertible to 'T2'.  If and only if 'T1'
-// and/or 'T2' is a type that uses 'bslma_Allocator' for memory allocation,
-// then each constructor also has an optional 'bslma_Allocator' pointer
-// argument.  Whether or not a type uses 'bslma_Allocator' is determined by
-// querying the 'bslalg_TypeTraitUsesBslmaAllocator' trait for that type.
-// This component also defines a full set of equality and relational operators
-// which can be instantiated if 'T1' and 'T2' both provide those operators.
+// 'bsl::pair' of different types, 'U1' and 'U2', provided 'U1' is convertible
+// to 'T1' and 'U2' is convertible to 'T2'.  If and only if 'T1' and/or 'T2' is
+// a type that uses 'bslma::Allocator' for memory allocation, then each
+// constructor also has an optional 'bslma::Allocator' pointer argument.
+// Whether or not a type uses 'bslma::Allocator' is determined by querying the
+// 'bslalg::TypeTraitUsesBslmaAllocator' trait for that type.  This component
+// also defines a full set of equality and relational operators which can be
+// instantiated if 'T1' and 'T2' both provide those operators.
 //
 // A 'bsl::pair' declares a set of associated type traits which are computed
 // from the type traits of 'T1' and 'T2'.  For each supported type trait, a
 // given specialization of 'bsl::pair' has that trait if and only if *both*
 // 'T1' and 'T2' have that trait.  Supported traits are:
 //..
-//   bslalg_TypeTraitBitwiseMoveable
-//   bslalg_TypeTraitBitwiseCopyable
-//   bslalg_TypeTraitHasTrivialDefaultConstructor
+//  bslalg::TypeTraitBitwiseMoveable
+//  bslalg::TypeTraitBitwiseCopyable
+//  bslalg::TypeTraitHasTrivialDefaultConstructor
 //..
 // In addition, a 'bsl::pair' specialization has the
-// 'bslalg_TypeTraitUsesBslmaAllocator' trait if *either* 'T1' or 'T2' have
+// 'bslalg::TypeTraitUsesBslmaAllocator' trait if *either* 'T1' or 'T2' have
 // that trait, or both.
 //
 ///Usage
 ///-----
-// *This class is for internal use only, do not use.*  This usage example is
+// *This class is for internal use only, do not use.* This usage example is
 // here to illustrate a typical usage of this class for BDE only.
 //
 // A 'bsl::pair' is a very simple object when used without allocators.  Our
@@ -71,7 +72,7 @@ BSLS_IDENT("$Id: $")
 // First, we create a utility function that copies a null-terminated string
 // into memory allocated from a supplied allocator:
 //..
-//  char *myStrDup(const char *s, bslma_Allocator *basicAllocator)
+//  char *myStrDup(const char *s, bslma::Allocator *basicAllocator)
 //      // Copy the specified null-terminated string 's' into memory allocated
 //      // from 'basicAllocator'
 //  {
@@ -79,28 +80,28 @@ BSLS_IDENT("$Id: $")
 //      return std::strcpy(result, s);
 //  }
 //..
-// We create a simple string class that holds strings allocated from a
-// supplied allocator.  It uses 'myStrDup' (above) in its implementation:
+// We create a simple string class that holds strings allocated from a supplied
+// allocator.  It uses 'myStrDup' (above) in its implementation:
 //..
 //  class my_String {
-//      // Simple string class that uses a 'bslma_Allocator' allocator.
+//      // Simple string class that uses a 'bslma::Allocator' allocator.
 //
-//      bslma_Allocator *d_allocator;
+//      bslma::Allocator *d_allocator;
 //      char            *d_data;
 //
 //    public:
 //      BSLALG_DECLARE_NESTED_TRAITS(my_String,
-//                                   bslalg_TypeTraitUsesBslmaAllocator);
+//                                   bslalg::TypeTraitUsesBslmaAllocator);
 //
-//      explicit my_String(bslma_Allocator *basicAllocator = 0);
+//      explicit my_String(bslma::Allocator *basicAllocator = 0);
 //          // Construct an empty string using the optionally-specified
 //          // allocator 'basicAllocator'.
 //
-//      my_String(const char* s, bslma_Allocator *basicAllocator = 0);
+//      my_String(const char* s, bslma::Allocator *basicAllocator = 0);
 //          // Construct a string with contents specified in 's' using the
 //          // optionally-specified allocator 'basicAllocator'.
 //
-//      my_String(const my_String& rhs, bslma_Allocator *basicAllocator = 0);
+//      my_String(const my_String& rhs, bslma::Allocator *basicAllocator = 0);
 //          // Construct a copy of the specified 'rhs' string using the
 //          // optionally-specified allocator 'basicAllocator'.
 //
@@ -113,7 +114,7 @@ BSLS_IDENT("$Id: $")
 //      const char* c_str() const;
 //          // Return the null-terminated character array for this string.
 //
-//      bslma_Allocator *allocator() const;
+//      bslma::Allocator *allocator() const;
 //          // Return the allocator used to construct this string or, if no
 //          // allocator was specified at construction, the default allocator
 //          // at the time of construction.
@@ -154,20 +155,21 @@ BSLS_IDENT("$Id: $")
 //      return std::strcmp(str1.c_str(), str2.c_str()) < 0;
 //  }
 //
-//  my_String::my_String(bslma_Allocator *basicAllocator)
-//  : d_allocator(bslma_Default::allocator(basicAllocator)), d_data(0)
+//  my_String::my_String(bslma::Allocator *basicAllocator)
+//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
 //      d_data = myStrDup("", d_allocator);
 //  }
 //
-//  my_String::my_String(const char *s, bslma_Allocator *basicAllocator)
-//  : d_allocator(bslma_Default::allocator(basicAllocator)), d_data(0)
+//  my_String::my_String(const char *s, bslma::Allocator *basicAllocator)
+//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
 //      d_data = myStrDup(s, d_allocator);
 //  }
 //
-//  my_String::my_String(const my_String& rhs, bslma_Allocator *basicAllocator)
-//  : d_allocator(bslma_Default::allocator(basicAllocator)), d_data(0)
+//  my_String::my_String(const my_String&  rhs,
+//                       bslma::Allocator *basicAllocator)
+//  : d_allocator(bslma::Default::allocator(basicAllocator)), d_data(0)
 //  {
 //      d_data = myStrDup(rhs.d_data, d_allocator);
 //  }
@@ -191,7 +193,7 @@ BSLS_IDENT("$Id: $")
 //      return d_data;
 //  }
 //
-//  bslma_Allocator *my_String::allocator() const
+//  bslma::Allocator *my_String::allocator() const
 //  {
 //      return d_allocator;
 //  }
@@ -206,26 +208,26 @@ BSLS_IDENT("$Id: $")
 //      typedef bsl::pair<my_String, int> Node;
 //
 //      Node *mapping[3];
-//      bslma_TestAllocator alloc;
+//      bslma::TestAllocator alloc;
 //..
 // When constructing a 'Node', an allocator is supplied in addition to
 // parameters for the 'first' and 'second' data members.
 //..
-//      {
-//          mapping[0] = new(basicAllocator) Node("One", 1, &basicAllocator);
-//          mapping[1] = new(basicAllocator) Node("Three", 3, &basicAllocator);
-//          mapping[2] = new(basicAllocator) Node("Two", 2, &basicAllocator);
-//          // Temporaries get destroyed here, even on broken compilers.
-//      }
+//  {
+//      mapping[0] = new(basicAllocator) Node("One", 1, &basicAllocator);
+//      mapping[1] = new(basicAllocator) Node("Three", 3, &basicAllocator);
+//      mapping[2] = new(basicAllocator) Node("Two", 2, &basicAllocator);
+//      // Temporaries get destroyed here, even on broken compilers.
+//  }
 //
-//      assert("One" == mapping[0]->first);
-//      assert(1 == mapping[0]->second);
-//      assert("Three" == mapping[1]->first);
-//      assert(3 == mapping[1]->second);
-//      assert("Two" == mapping[2]->first);
-//      assert(2 == mapping[2]->second);
+//  assert("One" == mapping[0]->first);
+//  assert(1 == mapping[0]->second);
+//  assert("Three" == mapping[1]->first);
+//  assert(3 == mapping[1]->second);
+//  assert("Two" == mapping[2]->first);
+//  assert(2 == mapping[2]->second);
 //
-//      assert(6 == alloc.numBlocksInUse());
+//  assert(6 == alloc.numBlocksInUse());
 //..
 // Clean up at end.
 //..
@@ -310,8 +312,7 @@ struct Pair_Imp {
     Pair_Imp(const T1& a, const T2& b);
     template <typename U1, typename U2>
     Pair_Imp(const U1& a, const U2& b);
-        // Construct a 'Pair_Imp' object from specified values 'a' and
-        // 'b'.
+        // Construct a 'Pair_Imp' object from specified values 'a' and 'b'.
 
     ~Pair_Imp();
         // Destroy this object.
@@ -333,20 +334,20 @@ struct Pair_Imp<T1, T2, 1, 0> {
     T2 second;
 
     // CREATORS
-    Pair_Imp(BloombergLP::bslma_Allocator *basicAllocator = 0);
+    Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Construct a 'Pair_Imp' object.  Optionally specify a
         // 'basicAllocator' used to supply memory for 'first'.  Note that this
         // specialization of 'Pair_Imp' guarantees that 'second' does not need
         // an allocator.
 
     Pair_Imp(const T1& a, const T2& b,
-                             BloombergLP::bslma_Allocator *basicAllocator = 0);
+             BloombergLP::bslma::Allocator *basicAllocator = 0);
     template <typename U1, typename U2>
     Pair_Imp(const U1& a, const U2& b,
-                             BloombergLP::bslma_Allocator *basicAllocator = 0);
-        // Construct a 'Pair_Imp' object from specified values 'a' and
-        // 'b'.  Optionally specify a 'basicAllocator' used to supply memory
-        // for 'first'.  Note that this specialization of 'Pair_Imp' guarantees
+             BloombergLP::bslma::Allocator *basicAllocator = 0);
+        // Construct a 'Pair_Imp' object from specified values 'a' and 'b'.
+        // Optionally specify a 'basicAllocator' used to supply memory for
+        // 'first'.  Note that this specialization of 'Pair_Imp' guarantees
         // that 'second' does not need an allocator.
 
     ~Pair_Imp();
@@ -369,21 +370,21 @@ struct Pair_Imp<T1, T2, 0, 1> {
     T2 second;
 
     // CREATORS
-    Pair_Imp(BloombergLP::bslma_Allocator *basicAllocator = 0);
+    Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Construct a 'Pair_Imp' object.  Optionally specify a
         // 'basicAllocator' used to supply memory for 'second'.  Note that this
         // specialization of 'Pair_Imp' guarantees that 'first' does not need
         // an allocator.
 
     Pair_Imp(const T1& a, const T2& b,
-                             BloombergLP::bslma_Allocator *basicAllocator = 0);
+             BloombergLP::bslma::Allocator *basicAllocator = 0);
     template <typename U1, typename U2>
     Pair_Imp(const U1& a, const U2& b,
-                             BloombergLP::bslma_Allocator *basicAllocator = 0);
-        // Construct a 'Pair_Imp' object from specified values 'a' and
-        // 'b'.  Optionally specify a 'basicAllocator' used to supply memory
-        // for 'second'.  Note that this specialization of 'Pair_Imp'
-        // guarantees that 'second' does not need an allocator.
+             BloombergLP::bslma::Allocator *basicAllocator = 0);
+        // Construct a 'Pair_Imp' object from specified values 'a' and 'b'.
+        // Optionally specify a 'basicAllocator' used to supply memory for
+        // 'second'.  Note that this specialization of 'Pair_Imp' guarantees
+        // that 'second' does not need an allocator.
 
     ~Pair_Imp();
         // Destroy this object.
@@ -405,70 +406,72 @@ struct Pair_Imp<T1, T2, 1, 1> {
     T2 second;
 
     // CREATORS
-    Pair_Imp(BloombergLP::bslma_Allocator *basicAllocator = 0);
+    Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator = 0);
         // Construct a 'Pair_Imp' object.  Optionally specify a
         // 'basicAllocator' used to supply memory for both 'first' and
         // 'second'.
 
     Pair_Imp(const T1& a, const T2& b,
-                             BloombergLP::bslma_Allocator *basicAllocator = 0);
+             BloombergLP::bslma::Allocator *basicAllocator = 0);
     template <typename U1, typename U2>
     Pair_Imp(const U1& a, const U2& b,
-                             BloombergLP::bslma_Allocator *basicAllocator = 0);
-        // Construct a 'Pair_Imp' object from specified values 'a' and
-        // 'b'.  Optionally specify a 'basicAllocator' used to supply memory
-        // for both 'first' and 'second'.
+             BloombergLP::bslma::Allocator *basicAllocator = 0);
+        // Construct a 'Pair_Imp' object from specified values 'a' and 'b'.
+        // Optionally specify a 'basicAllocator' used to supply memory for both
+        // 'first' and 'second'.
 
     ~Pair_Imp();
         // Destroy this object.
 };
 
-} // close namespace bsl
+}  // close namespace bsl
 
 namespace BloombergLP {
 
-                // =================================
-                // struct bslstl_TypeTraitsGroupPair
-                // =================================
+namespace bslstl {
+
+                // ==========================
+                // struct TypeTraitsGroupPair
+                // ==========================
 
 // This struct is defined in the BloombergLP namespace because repeating
 // 'BloombergLP::' for every trait and meta-function below would be too
 // cumbersome.  This struct should not be used outside of this component,
 // anyway.
 template <class T1, class T2>
-struct bslstl_TypeTraitsGroupPair : public
-    bslalg_TypeTraitPair,
-    bslmf_If<bslalg_HasTrait<T1,bslalg_TypeTraitBitwiseMoveable>::VALUE &&
-             bslalg_HasTrait<T2,bslalg_TypeTraitBitwiseMoveable>::VALUE,
-             bslalg_TypeTraitBitwiseMoveable,
-             bslalg_TypeTraits_NotTrait<bslalg_TypeTraitBitwiseMoveable>
+struct TypeTraitsGroupPair : public
+    bslalg::TypeTraitPair,
+    bslmf::If<bslalg::HasTrait<T1,bslalg::TypeTraitBitwiseMoveable>::VALUE &&
+             bslalg::HasTrait<T2,bslalg::TypeTraitBitwiseMoveable>::VALUE,
+             bslalg::TypeTraitBitwiseMoveable,
+             bslalg::TypeTraits_NotTrait<bslalg::TypeTraitBitwiseMoveable>
             >::Type,
-    bslmf_If<bslalg_HasTrait<T1,bslalg_TypeTraitBitwiseCopyable>::VALUE &&
-             bslalg_HasTrait<T2,bslalg_TypeTraitBitwiseCopyable>::VALUE,
-             bslalg_TypeTraitBitwiseCopyable,
-             bslalg_TypeTraits_NotTrait<bslalg_TypeTraitBitwiseCopyable>
+    bslmf::If<bslalg::HasTrait<T1,bslalg::TypeTraitBitwiseCopyable>::VALUE &&
+             bslalg::HasTrait<T2,bslalg::TypeTraitBitwiseCopyable>::VALUE,
+             bslalg::TypeTraitBitwiseCopyable,
+             bslalg::TypeTraits_NotTrait<bslalg::TypeTraitBitwiseCopyable>
             >::Type,
-    bslmf_If<bslalg_HasTrait<T1,
-                        bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE &&
-             bslalg_HasTrait<T2,
-                          bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE,
-             bslalg_TypeTraitHasTrivialDefaultConstructor,
-             bslalg_TypeTraits_NotTrait<
-                                  bslalg_TypeTraitHasTrivialDefaultConstructor>
+    bslmf::If<bslalg::HasTrait<T1,
+                       bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE &&
+             bslalg::HasTrait<T2,
+                         bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE,
+             bslalg::TypeTraitHasTrivialDefaultConstructor,
+             bslalg::TypeTraits_NotTrait<
+                                 bslalg::TypeTraitHasTrivialDefaultConstructor>
             >::Type,
-    bslmf_If<bslalg_HasTrait<T1,bslalg_TypeTraitUsesBslmaAllocator>::VALUE ||
-             bslalg_HasTrait<T2,bslalg_TypeTraitUsesBslmaAllocator>::VALUE,
-             bslalg_TypeTraitUsesBslmaAllocator,
-             bslalg_TypeTraits_NotTrait<bslalg_TypeTraitUsesBslmaAllocator>
+   bslmf::If<bslalg::HasTrait<T1,bslalg::TypeTraitUsesBslmaAllocator>::VALUE ||
+             bslalg::HasTrait<T2,bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
+             bslalg::TypeTraitUsesBslmaAllocator,
+             bslalg::TypeTraits_NotTrait<bslalg::TypeTraitUsesBslmaAllocator>
             >::Type,
-    bslmf_If<bslalg_HasTrait<T1,
-                           bslalg_TypeTraitBitwiseEqualityComparable>::VALUE &&
-             bslalg_HasTrait<T2,
-                           bslalg_TypeTraitBitwiseEqualityComparable>::VALUE &&
+    bslmf::If<bslalg::HasTrait<T1,
+                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE &&
+             bslalg::HasTrait<T2,
+                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE &&
              sizeof(T1) + sizeof(T2) == sizeof(bsl::Pair_Imp<T1,T2,0,0>),
-             bslalg_TypeTraitBitwiseEqualityComparable,
-             bslalg_TypeTraits_NotTrait<
-                                     bslalg_TypeTraitBitwiseEqualityComparable>
+             bslalg::TypeTraitBitwiseEqualityComparable,
+             bslalg::TypeTraits_NotTrait<
+                                    bslalg::TypeTraitBitwiseEqualityComparable>
             >::Type
 {
     // Traits group for a pair of 'T1' and 'T2'.  In addition to the pair
@@ -481,7 +484,19 @@ struct bslstl_TypeTraitsGroupPair : public
     // pair equals the sum of the sizes of 'T1' and 'T2'.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslstl_TypeTraitsGroupPair
+#undef bslstl_TypeTraitsGroupPair
+#endif
+#define bslstl_TypeTraitsGroupPair bslstl::TypeTraitsGroupPair
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -491,26 +506,26 @@ namespace bsl {
 
 template <typename T1, typename T2>
 class pair : private Pair_Imp<T1, T2,
-                   BloombergLP::bslalg_HasTrait<T1,
-                       BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>::VALUE,
-                   BloombergLP::bslalg_HasTrait<T2,
-                       BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>::VALUE>
+                   BloombergLP::bslalg::HasTrait<T1,
+                      BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
+                   BloombergLP::bslalg::HasTrait<T2,
+                      BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE>
 {
     // Provide a pair of public data members, 'first' and 'second', of type
     // 'T1' and 'T2' respectively.  If either 'T1' or 'T2' uses
-    // 'bslma_Allocator' for memory management, then provide an optional
-    // 'bslma_Allocator' argument for each constructor, to be passed through
+    // 'bslma::Allocator' for memory management, then provide an optional
+    // 'bslma::Allocator' argument for each constructor, to be passed through
     // to the constructors of 'first' and/or 'second' as appropriate.  The
     // interface to this class is identical to the standard 'std::pair' except
     // for the addition of the allocators.
 
     // PRIVATE TYPES
     typedef Pair_Imp<T1, T2,
-        BloombergLP::bslalg_HasTrait<T1,
-            BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>::VALUE,
-        BloombergLP::bslalg_HasTrait<T2,
-            BloombergLP::bslalg_TypeTraitUsesBslmaAllocator>::VALUE>      Base;
-    typedef BloombergLP::bslstl_TypeTraitsGroupPair<T1, T2>         PairTraits;
+        BloombergLP::bslalg::HasTrait<T1,
+            BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE,
+        BloombergLP::bslalg::HasTrait<T2,
+            BloombergLP::bslalg::TypeTraitUsesBslmaAllocator>::VALUE>     Base;
+    typedef BloombergLP::bslstl::TypeTraitsGroupPair<T1, T2>        PairTraits;
 
   public:
     // TRAITS
@@ -526,18 +541,18 @@ class pair : private Pair_Imp<T1, T2,
 
     // CREATORS
     pair();
-    pair(BloombergLP::bslma_Allocator *basicAllocator);
+    pair(BloombergLP::bslma::Allocator *basicAllocator);
         // Construct a pair.  Default construct for 'first' and 'second'.
-        // Optionally specify a 'basicAllocator' used to supply memory for
-        // the constructor(s) of which ever data member(s) accept an
-        // allocator.  Attempted use of this constructor will not compile
-        // unless 'T1' and 'T2' both supply default constructors.  Attempted
-        // use of either version of the allocator version will not compile
-        // unless one or both of 'T1' and 'T2' accept an allocator.
+        // Optionally specify a 'basicAllocator' used to supply memory for the
+        // constructor(s) of which ever data member(s) accept an allocator.
+        // Attempted use of this constructor will not compile unless 'T1' and
+        // 'T2' both supply default constructors.  Attempted use of either
+        // version of the allocator version will not compile unless one or both
+        // of 'T1' and 'T2' accept an allocator.
 
     pair(const T1& a, const T2& b);
     pair(const T1& a, const T2& b,
-                                 BloombergLP::bslma_Allocator *basicAllocator);
+         BloombergLP::bslma::Allocator *basicAllocator);
         // Construct a pair from the specified values 'a' and 'b'.
         // Copy-construct 'first' from 'a' and 'second' from 'b'.  Optionally
         // specify a 'basicAllocator' used to supply memory for the
@@ -548,13 +563,13 @@ class pair : private Pair_Imp<T1, T2,
         // or both of 'T1' and 'T2' accept an allocator.
 
     pair(const pair& rhs);
-    pair(const pair& rhs, BloombergLP::bslma_Allocator *basicAllocator);
-        // Construct a pair from the specified 'rhs' value.
-        // Copy-construct 'first' from 'rhs.first' and 'second' from
-        // 'rhs.second'.  Optionally specify a 'basicAllocator' used to supply
-        // memory for the constructor(s) of which ever data member(s) accept an
-        // allocator.  Attempted use of of either version of this constructor
-        // will not compile unless 'T1' and 'T2' both supply copy constructors.
+    pair(const pair& rhs, BloombergLP::bslma::Allocator *basicAllocator);
+        // Construct a pair from the specified 'rhs' value.  Copy-construct
+        // 'first' from 'rhs.first' and 'second' from 'rhs.second'.  Optionally
+        // specify a 'basicAllocator' used to supply memory for the
+        // constructor(s) of which ever data member(s) accept an allocator.
+        // Attempted use of of either version of this constructor will not
+        // compile unless 'T1' and 'T2' both supply copy constructors.
         // Attempted use of the allocator version will not compile unless one
         // or both of 'T1' and 'T2' accept an allocator.
 
@@ -562,13 +577,13 @@ class pair : private Pair_Imp<T1, T2,
     pair(const pair<U1, U2>& rhs);
     template <typename U1, typename U2>
     pair(const pair<U1, U2>&           rhs,
-         BloombergLP::bslma_Allocator *basicAllocator);
-        // Construct a pair from the specified 'rhs' value.
-        // Convert-construct 'first' from 'rhs.first' and 'second' from
-        // 'rhs.second'.  Optionally specify a 'basicAllocator' used to supply
-        // memory for the constructor(s) of which ever data member(s) accept an
-        // allocator.  Attempted use of of either version of this constructor
-        // will not compile unless 'T1' is constructible from 'U1' and 'T2' is
+         BloombergLP::bslma::Allocator *basicAllocator);
+        // Construct a pair from the specified 'rhs' value.  Convert-construct
+        // 'first' from 'rhs.first' and 'second' from 'rhs.second'.  Optionally
+        // specify a 'basicAllocator' used to supply memory for the
+        // constructor(s) of which ever data member(s) accept an allocator.
+        // Attempted use of of either version of this constructor will not
+        // compile unless 'T1' is constructible from 'U1' and 'T2' is
         // constructible from 'U2'.  Attempted use of the allocator version
         // will not compile unless one or both of 'T1' and 'T2' accept an
         // allocator.
@@ -577,7 +592,7 @@ class pair : private Pair_Imp<T1, T2,
     pair(const native_std::pair<U1, U2>&  rhs);
     template <typename U1, typename U2>
     pair(const native_std::pair<U1, U2>&  rhs,
-         BloombergLP::bslma_Allocator    *basicAllocator);
+         BloombergLP::bslma::Allocator    *basicAllocator);
         // Create a pair that has the same value as the specified 'rhs' pair,
         // where the type 'rhs' is the pair type native to the compiler's
         // library, holding the parameterized types 'U1' and 'U2'.  Uses the
@@ -612,68 +627,75 @@ class pair : private Pair_Imp<T1, T2,
     void swap(pair& other);
         // Swap the value of this pair with the value of the specified 'other'
         // pair by applying 'swap' to each of the 'first' and 'second' pair
-        // fields.   Note that this method is no-throw only if 'swap' on each
+        // fields.  Note that this method is no-throw only if 'swap' on each
         // field is no-throw.
 };
 
 // FREE OPERATORS
 template <typename T1, typename T2>
 inline
-bool operator==(const pair<T1, T2>& x, const pair<T1, T2>& y);
-    // Return true if the specified 'x' and 'y' pair objects have the same
-    // value and false otherwise.  'x' has the same value as 'y' if
-    // 'x.first == y.first' and 'x.second == y.second'.  A call to this
+bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
+    // Return true if the specified 'lhs' and 'rhs' pair objects have the same
+    // value and false otherwise.  'lhs' has the same value as 'rhs' if
+    // 'lhs.first == rhs.first' and 'lhs.second == rhs.second'.  A call to this
     // operator will not compile unless both 'T1' and 'T2' supply 'operator=='.
 
 template <typename T1, typename T2>
 inline
-bool operator!=(const pair<T1, T2>& x, const pair<T1, T2>& y);
-    // Return true if the specified 'x' and 'y' pair objects do not have the
-    // same value and false otherwise.  'x' does not have the same value as
-    // 'y' if 'x == y' would return false.  A call to this operator will not
-    // compile unless a call to 'x == y' would compile.
+bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
+    // Return true if the specified 'lhs' and 'rhs' pair objects do not have
+    // the same value and false otherwise.  'lhs' does not have the same value
+    // as 'rhs' if 'lhs == rhs' would return false.  A call to this operator
+    // will not compile unless a call to 'lhs == rhs' would compile.
 
 template <typename T1, typename T2>
 inline
-bool operator<(const pair<T1, T2>& x, const pair<T1, T2>& y);
-    // Return true if the specified 'x' has a value less than the specified
-    // 'y' and false otherwise.  Whether or not 'x' is less than 'y' is
+bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
+    // Return true if the specified 'lhs' has a value less than the specified
+    // 'rhs' and false otherwise.  Whether or not 'lhs' is less than 'rhs' is
     // determined by a lexicographical comparison of the 'first' and 'second'
-    // data members of 'x' and 'y'.  In other words: return true if
-    // 'x.first < y.first' and false if 'y.first < x.first', otherwise return
-    // 'x.second < y.second'.  A call to this operator will not compile unless
-    // both 'T1' and 'T2' supply 'operator<'.
+    // data members of 'lhs' and 'rhs'.  In other words: return true if
+    // 'lhs.first < rhs.first' and false if 'rhs.first < lhs.first', otherwise
+    // return 'lhs.second < rhs.second'.  A call to this operator will not
+    // compile unless both 'T1' and 'T2' supply 'operator<'.
 
 template <typename T1, typename T2>
 inline
-bool operator>(const pair<T1, T2>& x, const pair<T1, T2>& y);
-    // Return true if the specified 'x' has a value greater than the
-    // specified 'y' and false otherwise.  'x' has a value greater than 'y' if
-    // 'y' < 'x' would return true.  A call to this operator will not
-    // compile unless a call to 'x < y' would compile.
+bool operator>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
+    // Return true if the specified 'lhs' has a value greater than the
+    // specified 'rhs' and false otherwise.  'lhs' has a value greater than
+    // 'rhs' if 'rhs' < 'lhs' would return true.  A call to this operator will
+    // not compile unless a call to 'lhs < rhs' would compile.
 
 template <typename T1, typename T2>
 inline
-bool operator<=(const pair<T1, T2>& x, const pair<T1, T2>& y);
-    // Return true if the specified 'x' has a value less than or equal to the
-    // specified 'y' and false otherwise.  'x' has a value less than or equal
-    // to 'y' if 'y' < 'x' would return false.  A call to this operator will
-    // not compile unless a call to 'x < y' would compile.
+bool operator<=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
+    // Return true if the specified 'lhs' has a value less than or equal to the
+    // specified 'rhs' and false otherwise.  'lhs' has a value less than or
+    // equal to 'rhs' if 'rhs' < 'lhs' would return false.  A call to this
+    // operator will not compile unless a call to 'lhs < rhs' would compile.
 
 template <typename T1, typename T2>
 inline
-bool operator>=(const pair<T1, T2>& x, const pair<T1, T2>& y);
-    // Return true if the specified 'x' has a value greater than or equal to
-    // the specified 'y' and false otherwise.  'x' has a value greater than or
-    // equal to 'y' if 'x' < 'y' would return false.  A call to this operator
-    // will not compile unless a call to 'x < y' would compile.
+bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
+    // Return true if the specified 'lhs' has a value greater than or equal to
+    // the specified 'rhs' and false otherwise.  'lhs' has a value greater than
+    // or equal to 'rhs' if 'lhs' < 'rhs' would return false.  A call to this
+    // operator will not compile unless a call to 'lhs < rhs' would compile.
 
 // FREE FUNCTIONS
 template <typename T1, typename T2>
 void swap(pair<T1, T2>& a, pair<T1, T2>& b);
     // Swap the values of the specified 'a' and 'b' pairs by applying 'swap' to
-    // each of the 'first' and 'second' pair fields.   Note that this method is
+    // each of the 'first' and 'second' pair fields.  Note that this method is
     // no-throw only if 'swap' on each field is no-throw.
+
+template <typename T1, typename T2>
+inline
+bsl::pair<T1, T2> make_pair(T1 a, T2 b);
+    // Return a pair having the specified 'a' and 'b' values as the 'first'
+    // and 'second' elements, respectively.  Note that 'a' and 'b' are passed
+    // by value, as required by the C++ standard.
 
 }  // close namespace bsl
 
@@ -728,7 +750,7 @@ Pair_Imp<T1, T2, T1_USES_BSLMA, T2_USES_BSLMA>::~Pair_Imp()
 template <typename T1, typename T2>
 inline
 Pair_Imp<T1, T2, 1, 0>::
-Pair_Imp(BloombergLP::bslma_Allocator *basicAllocator)
+Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator)
 : first(basicAllocator), second()
 {
 }
@@ -737,7 +759,7 @@ template <typename T1, typename T2>
 inline
 Pair_Imp<T1, T2, 1, 0>::
 Pair_Imp(const T1& a, const T2& b,
-                                  BloombergLP::bslma_Allocator *basicAllocator)
+         BloombergLP::bslma::Allocator *basicAllocator)
 : first(a, basicAllocator), second(b)
 {
 }
@@ -747,7 +769,7 @@ template <typename U1, typename U2>
 inline
 Pair_Imp<T1, T2, 1, 0>::
 Pair_Imp(const U1& a, const U2& b,
-                                  BloombergLP::bslma_Allocator *basicAllocator)
+         BloombergLP::bslma::Allocator *basicAllocator)
 : first(a, basicAllocator), second(b)
 {
 }
@@ -766,7 +788,7 @@ Pair_Imp<T1, T2, 1, 0>::~Pair_Imp()
 template <typename T1, typename T2>
 inline
 Pair_Imp<T1, T2, 0, 1>::
-Pair_Imp(BloombergLP::bslma_Allocator *basicAllocator)
+Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator)
 : first(), second(basicAllocator)
 {
 }
@@ -775,7 +797,7 @@ template <typename T1, typename T2>
 inline
 Pair_Imp<T1, T2, 0, 1>::
 Pair_Imp(const T1& a, const T2& b,
-                                  BloombergLP::bslma_Allocator *basicAllocator)
+         BloombergLP::bslma::Allocator *basicAllocator)
 : first(a), second(b, basicAllocator)
 {
 }
@@ -785,7 +807,7 @@ template <typename U1, typename U2>
 inline
 Pair_Imp<T1, T2, 0, 1>::
 Pair_Imp(const U1& a, const U2& b,
-                                  BloombergLP::bslma_Allocator *basicAllocator)
+         BloombergLP::bslma::Allocator *basicAllocator)
 : first(a), second(b, basicAllocator)
 {
 }
@@ -804,7 +826,7 @@ Pair_Imp<T1, T2, 0, 1>::~Pair_Imp()
 template <typename T1, typename T2>
 inline
 Pair_Imp<T1, T2, 1, 1>::
-Pair_Imp(BloombergLP::bslma_Allocator *basicAllocator)
+Pair_Imp(BloombergLP::bslma::Allocator *basicAllocator)
 : first(basicAllocator), second(basicAllocator)
 {
 }
@@ -813,7 +835,7 @@ template <typename T1, typename T2>
 inline
 Pair_Imp<T1, T2, 1, 1>::
 Pair_Imp(const T1& a, const T2& b,
-                                  BloombergLP::bslma_Allocator *basicAllocator)
+         BloombergLP::bslma::Allocator *basicAllocator)
 : first(a, basicAllocator), second(b, basicAllocator)
 {
 }
@@ -823,7 +845,7 @@ template <typename U1, typename U2>
 inline
 Pair_Imp<T1, T2, 1, 1>::
 Pair_Imp(const U1& a, const U2& b,
-                                  BloombergLP::bslma_Allocator *basicAllocator)
+         BloombergLP::bslma::Allocator *basicAllocator)
 : first(a, basicAllocator), second(b, basicAllocator)
 {
 }
@@ -848,7 +870,7 @@ pair<T1, T2>::pair()
 
 template <typename T1, typename T2>
 inline
-pair<T1, T2>::pair(BloombergLP::bslma_Allocator *basicAllocator)
+pair<T1, T2>::pair(BloombergLP::bslma::Allocator *basicAllocator)
 : Base(basicAllocator)
 {
 }
@@ -864,7 +886,7 @@ template <typename T1, typename T2>
 inline
 pair<T1, T2>::pair(const T1&                     a,
                    const T2&                     b,
-                   BloombergLP::bslma_Allocator *basicAllocator)
+                   BloombergLP::bslma::Allocator *basicAllocator)
 : Base(a, b, basicAllocator)
 {
 }
@@ -879,7 +901,7 @@ pair<T1, T2>::pair(const pair<T1, T2>& rhs)
 template <typename T1, typename T2>
 inline
 pair<T1, T2>::pair(const pair<T1, T2>&           rhs,
-                   BloombergLP::bslma_Allocator *basicAllocator)
+                   BloombergLP::bslma::Allocator *basicAllocator)
 : Base(rhs.first, rhs.second, basicAllocator)
 {
 }
@@ -896,7 +918,7 @@ template <typename T1, typename T2>
 template <typename U1, typename U2>
 inline
 pair<T1, T2>::pair(const pair<U1, U2>&           rhs,
-                   BloombergLP::bslma_Allocator *basicAllocator)
+                   BloombergLP::bslma::Allocator *basicAllocator)
 : Base(rhs.first, rhs.second, basicAllocator)
 {
 }
@@ -911,7 +933,7 @@ pair<T1, T2>::pair(const native_std::pair<U1, U2>& rhs)
 template <typename T1, typename T2>
 template <typename U1, typename U2>
 pair<T1, T2>::pair(const native_std::pair<U1, U2>&  rhs,
-                   BloombergLP::bslma_Allocator    *basicAllocator)
+                   BloombergLP::bslma::Allocator    *basicAllocator)
 : Base(rhs.first, rhs.second, basicAllocator)
 {
 }
@@ -960,46 +982,46 @@ void pair<T1, T2>::swap(pair& other)
 // FREE OPERATORS
 template <typename T1, typename T2>
 inline
-bool operator==(const pair<T1, T2>& x, const pair<T1, T2>& y)
+bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
-    return x.first == y.first && x.second == y.second;
+    return lhs.first == rhs.first && lhs.second == rhs.second;
 }
 
 template <typename T1, typename T2>
 inline
-bool operator!=(const pair<T1, T2>& x, const pair<T1, T2>& y)
+bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
-    return ! (x == y);
+    return ! (lhs == rhs);
 }
 
 template <typename T1, typename T2>
 inline
-bool operator<(const pair<T1, T2>& x, const pair<T1, T2>& y)
+bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
-    return (x.first < y.first ? true  :
-            y.first < x.first ? false :
-            x.second < y.second);
+    return (lhs.first < rhs.first ? true  :
+            rhs.first < lhs.first ? false :
+            lhs.second < rhs.second);
 }
 
 template <typename T1, typename T2>
 inline
-bool operator>(const pair<T1, T2>& x, const pair<T1, T2>& y)
+bool operator>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
-    return y < x;
+    return rhs < lhs;
 }
 
 template <typename T1, typename T2>
 inline
-bool operator<=(const pair<T1, T2>& x, const pair<T1, T2>& y)
+bool operator<=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
-    return ! (y < x);
+    return ! (rhs < lhs);
 }
 
 template <typename T1, typename T2>
 inline
-bool operator>=(const pair<T1, T2>& x, const pair<T1, T2>& y)
+bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
-    return ! (x < y);
+    return ! (lhs < rhs);
 }
 
 // FREE FUNCTIONS
@@ -1008,6 +1030,13 @@ inline
 void swap(pair<T1, T2>& a, pair<T1, T2>& b)
 {
     a.swap(b);
+}
+
+template <typename T1, typename T2>
+inline
+bsl::pair<T1, T2> make_pair(T1 a, T2 b)
+{
+    return pair<T1, T2>(a, b);
 }
 
 }  // close namespace bsl

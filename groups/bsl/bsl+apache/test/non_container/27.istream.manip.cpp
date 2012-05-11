@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2003-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <cstddef>

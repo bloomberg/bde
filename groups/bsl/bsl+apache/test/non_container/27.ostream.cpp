@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2002-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 
@@ -431,7 +431,7 @@ void test_sentry (charT)
     {
         // verify 27.6.2.3, p3: i.e., same as above, but check that
         // the ctor sets ok_ to false after the preparation fails
-        // (which is done by having stream.tie()->flush() call 
+        // (which is done by having stream.tie()->flush() call
         // stream.setf (failbit))
 
         test_streambuf<charT> tsb_strm (0);
@@ -873,7 +873,7 @@ bool is_wchar_t (const wchar_t*) { return true; }
 
 
 template <class charT, class T>
-void test_formatted (charT, int line, T val, 
+void test_formatted (charT, int line, T val,
                      int flags, int width, const char *str, int fill = -1)
 {
     static const char* const cname = rw_any_t (charT ()).type_name ();

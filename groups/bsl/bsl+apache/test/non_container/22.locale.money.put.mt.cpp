@@ -323,7 +323,7 @@ run_test (int, char**)
 
             nio.imbue (loc);
             nsb.pubsetp (data.ncs_, RW_COUNT_OF (data.ncs_));
-            
+
             switch (data.type_) {
             case MyMoneyData::put_ldbl:
                 *np.put (std::ostreambuf_iterator<char>(&nsb),
@@ -408,7 +408,7 @@ run_test (int, char**)
     test_wchar = false;
 
     // create and start a pool of threads and wait for them to finish
-    int result = 
+    int result =
         rw_thread_pool (0, std::size_t (opt_nthreads), 0, thread_func, 0);
 
     rw_error (result == 0, 0, __LINE__,

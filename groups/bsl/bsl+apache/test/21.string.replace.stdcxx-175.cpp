@@ -39,7 +39,7 @@ int main (int argc, char* argv [])
 {
     std::string s (4095, 'a');
 
-    try 
+    try
     {
         s.replace (0, 1, "a", s.max_size () + 1);
         assert (!"Expect length error, got nothing");

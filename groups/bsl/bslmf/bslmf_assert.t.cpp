@@ -1,4 +1,4 @@
-// bslmf_assert.t.cpp              -*-C++-*-
+// bslmf_assert.t.cpp                                                 -*-C++-*-
 
 #include <bslmf_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -68,6 +68,7 @@ namespace {
 }
 
 namespace Bar {
+
     BSLMF_ASSERT(1);
 #if defined(BSLS_PLATFORM__CMP_SUN)
     BSLMF_ASSERT(1);
@@ -134,8 +135,8 @@ int main(int argc, char *argv[])
 
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
         BSLMF_ASSERT(sizeof(int) >= sizeof(char));
-        BSLMF_ASSERT(1);  ASSERT(137 == __LINE__);
         BSLMF_ASSERT(1);  ASSERT(138 == __LINE__);
+        BSLMF_ASSERT(1);  ASSERT(139 == __LINE__);
         BSLMF_ASSERT(1 > 0 && 1);
 
 // MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
@@ -143,8 +144,8 @@ int main(int argc, char *argv[])
 #if !defined(BSLS_PLATFORM__CMP_MSVC) &&                    \
     !defined(BSLS_PLATFORM__CMP_SUN)  &&                    \
     !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
-        bslmf_Assert_137 t1; // test typedef name creation; matches above line
-        bslmf_Assert_138 t2; // test typedef name creation; matches above line
+        bslmf_Assert_138 t1; // test typedef name creation; matches above line
+        bslmf_Assert_139 t2; // test typedef name creation; matches above line
         ASSERT(sizeof t1 == sizeof t2);  // use t1 and t2
 #endif
 

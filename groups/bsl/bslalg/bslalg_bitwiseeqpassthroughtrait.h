@@ -10,21 +10,21 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide facilities for computing compile-time traits.
 //
 //@CLASSES:
-//  bslalg_BitwiseEqPassthroughTrait: pass-through trait mechanism
+//  bslalg::BitwiseEqPassthroughTrait: pass-through trait mechanism
 //
 //@SEE_ALSO: bslmf_typetraits
 //
 //@AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu21)
 //
 //@DESCRIPTION: This component provides a meta-function,
-// 'bslalg_BitwiseEqPassthroughTrait', that allows computation of the
-// 'bslalg_TypeTraitBitwiseEqualityComparable' trait for classes knowing the
+// 'bslalg::BitwiseEqPassthroughTrait', that allows computation of the
+// 'bslalg::TypeTraitBitwiseEqualityComparable' trait for classes knowing the
 // types of its members.
 //
 ///Usage
 ///-----
 // This class simplifies the declaration of
-// 'bslalg_TypeTraitBitwiseEqualityComparable' trait for a class with multiple
+// 'bslalg::TypeTraitBitwiseEqualityComparable' trait for a class with multiple
 // data members.  This is especially useful for attribute classes.  For
 // example, suppose we have an unconstrained attribute class 'my_Point':
 //..
@@ -35,8 +35,9 @@ BSLS_IDENT("$Id: $")
 //      int d_y;
 //
 //    public:
-//      BSLALG_DECLARE_NESTED_TRAITS(my_Point,
-//                                  bslalg_TypeTraitBitwiseEqualityComparable);
+//      BSLALG_DECLARE_NESTED_TRAITS(
+//                                 my_Point,
+//                                 bslalg::TypeTraitBitwiseEqualityComparable);
 //
 //      // ...
 //  };
@@ -48,7 +49,7 @@ BSLS_IDENT("$Id: $")
 //  class my_ColorPoint {
 //
 //      // PRIVATE TYPES
-//      typedef bslalg_BitwiseEqPassthroughTrait<my_Point, int>::Type BEC;
+//      typedef bslalg::BitwiseEqPassthroughTrait<my_Point, int>::Type BEC;
 //
 //      // DATA
 //      my_Point d_point;
@@ -63,7 +64,7 @@ BSLS_IDENT("$Id: $")
 // Instead of having to check whether 'my_Point' is bitwise equality
 // comparable, and whether the combination of 'Point' and 'int' inside the
 // class results in a bitwise equality comparable class, the use of
-// 'bslalg_BitwiseEqPassthroughTrait' encapsulates all the meta-programming
+// 'bslalg::BitwiseEqPassthroughTrait' encapsulates all the meta-programming
 // check.
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -88,77 +89,78 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-template <typename A1, typename A2, typename A3, typename A4, typename A5,
-          typename A6, typename A7, typename A8, typename A9>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct;
+namespace bslalg {
 
 template <typename A1, typename A2, typename A3, typename A4, typename A5,
           typename A6, typename A7, typename A8, typename A9>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp;
+struct BitwiseEqPassthroughTrait_PackedStruct;
 
 template <typename A1, typename A2, typename A3, typename A4, typename A5,
           typename A6, typename A7, typename A8, typename A9>
-class bslalg_BitwiseEqPassthroughTrait_Imp;
+struct BitwiseEqPassthroughTrait_PackedStruct_Imp;
 
-                   // ======================================
-                   // struct bslalg_BitwiseEqPasstroughTrait
-                   // ======================================
+template <typename A1, typename A2, typename A3, typename A4, typename A5,
+          typename A6, typename A7, typename A8, typename A9>
+class BitwiseEqPassthroughTrait_Imp;
 
-template <typename A1 = bslmf_Nil, typename A2 = bslmf_Nil,
-          typename A3 = bslmf_Nil, typename A4 = bslmf_Nil,
-          typename A5 = bslmf_Nil, typename A6 = bslmf_Nil,
-          typename A7 = bslmf_Nil, typename A8 = bslmf_Nil,
-          typename A9 = bslmf_Nil>
-struct bslalg_BitwiseEqPassthroughTrait : bslalg_BitwiseEqPassthroughTrait_Imp<
+                   // ===============================
+                   // struct BitwiseEqPasstroughTrait
+                   // ===============================
+
+template <typename A1 = bslmf::Nil, typename A2 = bslmf::Nil,
+          typename A3 = bslmf::Nil, typename A4 = bslmf::Nil,
+          typename A5 = bslmf::Nil, typename A6 = bslmf::Nil,
+          typename A7 = bslmf::Nil, typename A8 = bslmf::Nil,
+          typename A9 = bslmf::Nil>
+struct BitwiseEqPassthroughTrait : BitwiseEqPassthroughTrait_Imp<
                                     A1, A2, A3, A4, A5, A6, A7, A8, A9>::Type {
     // If the parameterized 'A1' up to 'A9' types have the
-    // 'bslalg_TypeTraitBitwiseEqualityComparable' trait, and if a structure
-    // packed with these types (excluding the non-specified types) has the same
-    // size as the sum of the sizes of each type (i.e., there is no packing),
-    // then evaluate to 'bslalg_TypeTraitBitwiseEqualityComparable', else
-    // evaluate to a unique class that is not this trait.  Users of this
-    // meta-function do not need to expand the result with '::Type' (though
-    // they may).
+    // 'TypeTraitBitwiseEqualityComparable' trait, and if a structure packed
+    // with these types (excluding the non-specified types) has the same size
+    // as the sum of the sizes of each type (i.e., there is no packing), then
+    // evaluate to 'TypeTraitBitwiseEqualityComparable', else evaluate to a
+    // unique class that is not this trait.  Users of this meta-function do not
+    // need to expand the result with '::Type' (though they may).
 
-    typedef typename bslalg_BitwiseEqPassthroughTrait_Imp<
+    typedef typename BitwiseEqPassthroughTrait_Imp<
                                 A1, A2, A3, A4, A5, A6, A7, A8, A9>::Type Type;
 };
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
 
-              // ================================================
-              // struct bslalg_BitwiseEqPassthroughTrait_NotTrait
-              // ================================================
+              // =========================================
+              // struct BitwiseEqPassthroughTrait_NotTrait
+              // =========================================
 
-template <typename TRAIT> struct bslalg_BitwiseEqPassthroughTrait_NotTrait {
-    // Private class: Given a trait, this template produces a unique type
-    // which is NOT the trait type and is not a trait at all.
+template <typename TRAIT> struct BitwiseEqPassthroughTrait_NotTrait {
+    // Private class: Given a trait, this template produces a unique type which
+    // is NOT the trait type and is not a trait at all.
 };
 
-               // ===========================================
-               // struct bslalg_PassthroughTrait_PackedStruct
-               // ===========================================
+               // ====================================
+               // struct PassthroughTrait_PackedStruct
+               // ====================================
 
-template <typename A1, typename A2 = bslmf_Nil, typename A3 = bslmf_Nil,
-                       typename A4 = bslmf_Nil, typename A5 = bslmf_Nil,
-                       typename A6 = bslmf_Nil, typename A7 = bslmf_Nil,
-                       typename A8 = bslmf_Nil, typename A9 = bslmf_Nil>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct :
-                        bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<
+template <typename A1, typename A2 = bslmf::Nil, typename A3 = bslmf::Nil,
+                       typename A4 = bslmf::Nil, typename A5 = bslmf::Nil,
+                       typename A6 = bslmf::Nil, typename A7 = bslmf::Nil,
+                       typename A8 = bslmf::Nil, typename A9 = bslmf::Nil>
+struct BitwiseEqPassthroughTrait_PackedStruct :
+                        BitwiseEqPassthroughTrait_PackedStruct_Imp<
                                                   A1,A2,A3,A4,A5,A6,A7,A8,A9> {
-    // This 'struct' is never created, in particular the types 'A1' up to
-    // 'A9' do not need to have a default constructor.  Its sole purpose is to
+    // This 'struct' is never created, in particular the types 'A1' up to 'A9'
+    // do not need to have a default constructor.  Its sole purpose is to
     // compute its size.
 
 };
 
-              // ===============================================
-              // struct bslalg_PassthroughTrait_PackedStruct_Imp
-              // ===============================================
+              // ========================================
+              // struct PassthroughTrait_PackedStruct_Imp
+              // ========================================
 
 template <typename A1, typename A2, typename A3, typename A4, typename A5,
           typename A6, typename A7, typename A8, typename A9>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp {
+struct BitwiseEqPassthroughTrait_PackedStruct_Imp {
 
     // DATA
     A1 d_a1;
@@ -174,8 +176,9 @@ struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp {
 
 // Specializations
 template <typename A1, typename A2>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2,
- bslmf_Nil, bslmf_Nil, bslmf_Nil, bslmf_Nil, bslmf_Nil, bslmf_Nil, bslmf_Nil> {
+struct BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2,
+        bslmf::Nil, bslmf::Nil, bslmf::Nil, bslmf::Nil, bslmf::Nil, bslmf::Nil,
+        bslmf::Nil> {
 
     // DATA
     A1 d_a1;
@@ -183,8 +186,8 @@ struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2,
 };
 
 template <typename A1, typename A2, typename A3>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3,
-            bslmf_Nil, bslmf_Nil, bslmf_Nil, bslmf_Nil, bslmf_Nil, bslmf_Nil> {
+struct BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3,
+      bslmf::Nil, bslmf::Nil, bslmf::Nil, bslmf::Nil, bslmf::Nil, bslmf::Nil> {
 
     // DATA
     A1 d_a1;
@@ -193,8 +196,8 @@ struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3,
 };
 
 template <typename A1, typename A2, typename A3, typename A4>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4,
-                       bslmf_Nil, bslmf_Nil, bslmf_Nil, bslmf_Nil, bslmf_Nil> {
+struct BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4,
+                  bslmf::Nil, bslmf::Nil, bslmf::Nil, bslmf::Nil, bslmf::Nil> {
 
     // DATA
     A1 d_a1;
@@ -205,8 +208,8 @@ struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4,
 
 template <typename A1, typename A2, typename A3, typename A4,
           typename A5>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
-                                  bslmf_Nil, bslmf_Nil, bslmf_Nil, bslmf_Nil> {
+struct BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
+                              bslmf::Nil, bslmf::Nil, bslmf::Nil, bslmf::Nil> {
 
     // DATA
     A1 d_a1;
@@ -218,8 +221,8 @@ struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
 
 template <typename A1, typename A2, typename A3, typename A4,
           typename A5, typename A6>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
-                                         A6, bslmf_Nil, bslmf_Nil, bslmf_Nil> {
+struct BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
+                                      A6, bslmf::Nil, bslmf::Nil, bslmf::Nil> {
 
     // DATA
     A1 d_a1;
@@ -232,8 +235,8 @@ struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
 
 template <typename A1, typename A2, typename A3, typename A4,
           typename A5, typename A6, typename A7>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
-                                                A6, A7, bslmf_Nil, bslmf_Nil> {
+struct BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
+                                              A6, A7, bslmf::Nil, bslmf::Nil> {
 
     // DATA
     A1 d_a1;
@@ -247,8 +250,8 @@ struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
 
 template <typename A1, typename A2, typename A3, typename A4,
           typename A5, typename A6, typename A7, typename A8>
-struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
-                                                       A6, A7, A8, bslmf_Nil> {
+struct BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
+                                                      A6, A7, A8, bslmf::Nil> {
 
     // DATA
     A1 d_a1;
@@ -261,241 +264,252 @@ struct bslalg_BitwiseEqPassthroughTrait_PackedStruct_Imp<A1, A2, A3, A4, A5,
     A8 d_a8;
 };
 
-                // ===========================================
-                // struct bslalg_BitwiseEqPassthroughTrait_Imp
-                // ===========================================
+                // ====================================
+                // struct BitwiseEqPassthroughTrait_Imp
+                // ====================================
 
 template <typename A1, typename A2, typename A3, typename A4, typename A5,
           typename A6, typename A7, typename A8, typename A9>
-class bslalg_BitwiseEqPassthroughTrait_Imp {
-    // Private implementation of 'bslalg_BitwiseEqPassthroughTrait' class.
-    // This class computes whether the combination of parameterized types
-    // 'A1 ... A9' result in a bitwise comparable type.
+class BitwiseEqPassthroughTrait_Imp {
+    // Private implementation of 'BitwiseEqPassthroughTrait' class.  This class
+    // computes whether the combination of parameterized types 'A1 ... A9'
+    // result in a bitwise comparable type.
 
     // PRIVATE TYPES
-    typedef bslalg_TypeTraitBitwiseEqualityComparable TRAIT;
+    typedef TypeTraitBitwiseEqualityComparable TRAIT;
 
     enum {
-        HAS_TRAIT = bslalg_HasTrait<A1, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A2, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A3, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A4, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A5, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A6, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A7, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A8, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A9, TRAIT>::VALUE &&
+        HAS_TRAIT = HasTrait<A1, TRAIT>::VALUE &&
+                    HasTrait<A2, TRAIT>::VALUE &&
+                    HasTrait<A3, TRAIT>::VALUE &&
+                    HasTrait<A4, TRAIT>::VALUE &&
+                    HasTrait<A5, TRAIT>::VALUE &&
+                    HasTrait<A6, TRAIT>::VALUE &&
+                    HasTrait<A7, TRAIT>::VALUE &&
+                    HasTrait<A8, TRAIT>::VALUE &&
+                    HasTrait<A9, TRAIT>::VALUE &&
                     sizeof(A1) + sizeof(A2) + sizeof(A3) + sizeof(A4) +
                     sizeof(A5) + sizeof(A6) + sizeof(A7) + sizeof(A8) +
                     sizeof(A9) ==
-                       sizeof(bslalg_BitwiseEqPassthroughTrait_PackedStruct<
+                       sizeof(BitwiseEqPassthroughTrait_PackedStruct<
                                                    A1,A2,A3,A4,A5,A6,A7,A8,A9>)
     };
 
   public:
-    typedef typename bslmf_If<HAS_TRAIT,
-                              TRAIT,
-                              bslalg_BitwiseEqPassthroughTrait_NotTrait<TRAIT>
-                             >::Type Type;
+    typedef typename bslmf::If<HAS_TRAIT,
+                               TRAIT,
+                               BitwiseEqPassthroughTrait_NotTrait<TRAIT>
+                              >::Type Type;
 };
 
 // Specializations
 template <typename A1>
-class bslalg_BitwiseEqPassthroughTrait_Imp<A1, bslmf_Nil, bslmf_Nil, bslmf_Nil,
-                                               bslmf_Nil, bslmf_Nil, bslmf_Nil,
-                                               bslmf_Nil, bslmf_Nil> {
+class BitwiseEqPassthroughTrait_Imp<A1, bslmf::Nil, bslmf::Nil, bslmf::Nil,
+                                        bslmf::Nil, bslmf::Nil, bslmf::Nil,
+                                        bslmf::Nil, bslmf::Nil> {
 
     // PRIVATE TYPES
-    typedef bslalg_TypeTraitBitwiseEqualityComparable TRAIT;
+    typedef TypeTraitBitwiseEqualityComparable TRAIT;
 
   public:
-    typedef typename bslmf_If<
-                 bslalg_HasTrait<A1, TRAIT>::VALUE,
+    typedef typename bslmf::If<
+                 HasTrait<A1, TRAIT>::VALUE,
                  TRAIT,
-                 bslalg_BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
+                 BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
 };
 
 template <typename A1, typename A2>
-class bslalg_BitwiseEqPassthroughTrait_Imp<A1, A2,
-                                           bslmf_Nil, bslmf_Nil, bslmf_Nil,
-                                           bslmf_Nil, bslmf_Nil, bslmf_Nil,
-                                           bslmf_Nil> {
+class BitwiseEqPassthroughTrait_Imp<A1, A2, bslmf::Nil, bslmf::Nil, bslmf::Nil,
+                                            bslmf::Nil, bslmf::Nil, bslmf::Nil,
+                                            bslmf::Nil> {
 
     // PRIVATE TYPES
-    typedef bslalg_TypeTraitBitwiseEqualityComparable TRAIT;
+    typedef TypeTraitBitwiseEqualityComparable TRAIT;
     enum {
-        HAS_TRAIT = bslalg_HasTrait<A1, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A2, TRAIT>::VALUE &&
+        HAS_TRAIT = HasTrait<A1, TRAIT>::VALUE &&
+                    HasTrait<A2, TRAIT>::VALUE &&
                     sizeof(A1) + sizeof(A2) ==
-                       sizeof(bslalg_BitwiseEqPassthroughTrait_PackedStruct<
+                       sizeof(BitwiseEqPassthroughTrait_PackedStruct<
                                                                        A1, A2>)
     };
 
   public:
-    typedef typename bslmf_If<
+    typedef typename bslmf::If<
                  HAS_TRAIT,
                  TRAIT,
-                 bslalg_BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
+                 BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
 };
 
 template <typename A1, typename A2, typename A3>
-class bslalg_BitwiseEqPassthroughTrait_Imp<A1, A2, A3,
-                                           bslmf_Nil, bslmf_Nil, bslmf_Nil,
-                                           bslmf_Nil, bslmf_Nil, bslmf_Nil> {
+class BitwiseEqPassthroughTrait_Imp<A1, A2, A3,
+                                    bslmf::Nil, bslmf::Nil, bslmf::Nil,
+                                    bslmf::Nil, bslmf::Nil, bslmf::Nil> {
 
     // PRIVATE TYPES
-    typedef bslalg_TypeTraitBitwiseEqualityComparable TRAIT;
+    typedef TypeTraitBitwiseEqualityComparable TRAIT;
     enum {
-        HAS_TRAIT = bslalg_HasTrait<A1, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A2, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A3, TRAIT>::VALUE &&
+        HAS_TRAIT = HasTrait<A1, TRAIT>::VALUE &&
+                    HasTrait<A2, TRAIT>::VALUE &&
+                    HasTrait<A3, TRAIT>::VALUE &&
                     sizeof(A1) + sizeof(A2) + sizeof(A3) ==
-                       sizeof(bslalg_BitwiseEqPassthroughTrait_PackedStruct<
+                       sizeof(BitwiseEqPassthroughTrait_PackedStruct<
                                                                    A1, A2, A3>)
     };
 
   public:
-    typedef typename bslmf_If<
+    typedef typename bslmf::If<
                  HAS_TRAIT,
                  TRAIT,
-                 bslalg_BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
+                 BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
 };
 
 template <typename A1, typename A2, typename A3, typename A4>
-class bslalg_BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4,
-                                           bslmf_Nil, bslmf_Nil, bslmf_Nil,
-                                           bslmf_Nil, bslmf_Nil> {
+class BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4,
+                                    bslmf::Nil, bslmf::Nil, bslmf::Nil,
+                                    bslmf::Nil, bslmf::Nil> {
 
     // PRIVATE TYPES
-    typedef bslalg_TypeTraitBitwiseEqualityComparable TRAIT;
+    typedef TypeTraitBitwiseEqualityComparable TRAIT;
     enum {
-        HAS_TRAIT = bslalg_HasTrait<A1, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A2, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A3, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A4, TRAIT>::VALUE &&
+        HAS_TRAIT = HasTrait<A1, TRAIT>::VALUE &&
+                    HasTrait<A2, TRAIT>::VALUE &&
+                    HasTrait<A3, TRAIT>::VALUE &&
+                    HasTrait<A4, TRAIT>::VALUE &&
                     sizeof(A1) + sizeof(A2) + sizeof(A3) + sizeof(A4 )==
-                       sizeof(bslalg_BitwiseEqPassthroughTrait_PackedStruct<
+                       sizeof(BitwiseEqPassthroughTrait_PackedStruct<
                                                                A1, A2, A3, A4>)
     };
 
   public:
-    typedef typename bslmf_If<
+    typedef typename bslmf::If<
                  HAS_TRAIT,
                  TRAIT,
-                 bslalg_BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
+                 BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
 };
 
 template <typename A1, typename A2, typename A3, typename A4, typename A5>
-class bslalg_BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4, A5,
-                                           bslmf_Nil, bslmf_Nil, bslmf_Nil,
-                                           bslmf_Nil> {
+class BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4, A5,
+                                    bslmf::Nil, bslmf::Nil, bslmf::Nil,
+                                    bslmf::Nil> {
 
     // PRIVATE TYPES
-    typedef bslalg_TypeTraitBitwiseEqualityComparable TRAIT;
+    typedef TypeTraitBitwiseEqualityComparable TRAIT;
     enum {
-        HAS_TRAIT = bslalg_HasTrait<A1, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A2, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A3, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A4, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A5, TRAIT>::VALUE &&
+        HAS_TRAIT = HasTrait<A1, TRAIT>::VALUE &&
+                    HasTrait<A2, TRAIT>::VALUE &&
+                    HasTrait<A3, TRAIT>::VALUE &&
+                    HasTrait<A4, TRAIT>::VALUE &&
+                    HasTrait<A5, TRAIT>::VALUE &&
                     sizeof(A1) + sizeof(A2) + sizeof(A3) + sizeof(A4) +
                     sizeof(A5) ==
-                       sizeof(bslalg_BitwiseEqPassthroughTrait_PackedStruct<
+                       sizeof(BitwiseEqPassthroughTrait_PackedStruct<
                                                            A1, A2, A3, A4, A5>)
     };
 
   public:
-    typedef typename bslmf_If<
+    typedef typename bslmf::If<
                  HAS_TRAIT,
                  TRAIT,
-                 bslalg_BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
+                 BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
 };
 
 template <typename A1, typename A2, typename A3, typename A4, typename A5,
           typename A6>
-class bslalg_BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4, A5, A6,
-                                           bslmf_Nil, bslmf_Nil, bslmf_Nil> {
+class BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4, A5, A6,
+                                    bslmf::Nil, bslmf::Nil, bslmf::Nil> {
 
     // PRIVATE TYPES
-    typedef bslalg_TypeTraitBitwiseEqualityComparable TRAIT;
+    typedef TypeTraitBitwiseEqualityComparable TRAIT;
     enum {
-        HAS_TRAIT = bslalg_HasTrait<A1, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A2, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A3, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A4, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A5, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A6, TRAIT>::VALUE &&
+        HAS_TRAIT = HasTrait<A1, TRAIT>::VALUE &&
+                    HasTrait<A2, TRAIT>::VALUE &&
+                    HasTrait<A3, TRAIT>::VALUE &&
+                    HasTrait<A4, TRAIT>::VALUE &&
+                    HasTrait<A5, TRAIT>::VALUE &&
+                    HasTrait<A6, TRAIT>::VALUE &&
                     sizeof(A1) + sizeof(A2) + sizeof(A3) + sizeof(A4) +
                     sizeof(A5) + sizeof(A6) ==
-                       sizeof(bslalg_BitwiseEqPassthroughTrait_PackedStruct<
+                       sizeof(BitwiseEqPassthroughTrait_PackedStruct<
                                                        A1, A2, A3, A4, A5, A6>)
     };
 
   public:
-    typedef typename bslmf_If<
+    typedef typename bslmf::If<
                  HAS_TRAIT,
                  TRAIT,
-                 bslalg_BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
+                 BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
 };
 
 template <typename A1, typename A2, typename A3, typename A4, typename A5,
           typename A6, typename A7>
-class bslalg_BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4, A5, A6, A7,
-                                           bslmf_Nil, bslmf_Nil> {
+class BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4, A5, A6, A7,
+                                    bslmf::Nil, bslmf::Nil> {
 
     // PRIVATE TYPES
-    typedef bslalg_TypeTraitBitwiseEqualityComparable TRAIT;
+    typedef TypeTraitBitwiseEqualityComparable TRAIT;
     enum {
-        HAS_TRAIT = bslalg_HasTrait<A1, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A2, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A3, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A4, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A5, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A6, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A7, TRAIT>::VALUE &&
+        HAS_TRAIT = HasTrait<A1, TRAIT>::VALUE &&
+                    HasTrait<A2, TRAIT>::VALUE &&
+                    HasTrait<A3, TRAIT>::VALUE &&
+                    HasTrait<A4, TRAIT>::VALUE &&
+                    HasTrait<A5, TRAIT>::VALUE &&
+                    HasTrait<A6, TRAIT>::VALUE &&
+                    HasTrait<A7, TRAIT>::VALUE &&
                     sizeof(A1) + sizeof(A2) + sizeof(A3) + sizeof(A4) +
                     sizeof(A5) + sizeof(A6) + sizeof(A7) ==
-                       sizeof(bslalg_BitwiseEqPassthroughTrait_PackedStruct<
+                       sizeof(BitwiseEqPassthroughTrait_PackedStruct<
                                                    A1, A2, A3, A4, A5, A6, A7>)
     };
 
   public:
-    typedef typename bslmf_If<
+    typedef typename bslmf::If<
                  HAS_TRAIT,
                  TRAIT,
-                 bslalg_BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
+                 BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
 };
 
 template <typename A1, typename A2, typename A3, typename A4, typename A5,
           typename A6, typename A7, typename A8>
-class bslalg_BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4, A5, A6, A7, A8,
-                                           bslmf_Nil> {
+class BitwiseEqPassthroughTrait_Imp<A1, A2, A3, A4, A5, A6, A7, A8,
+                                    bslmf::Nil> {
 
     // PRIVATE TYPES
-    typedef bslalg_TypeTraitBitwiseEqualityComparable TRAIT;
+    typedef TypeTraitBitwiseEqualityComparable TRAIT;
     enum {
-        HAS_TRAIT = bslalg_HasTrait<A1, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A2, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A3, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A4, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A5, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A6, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A7, TRAIT>::VALUE &&
-                    bslalg_HasTrait<A8, TRAIT>::VALUE &&
+        HAS_TRAIT = HasTrait<A1, TRAIT>::VALUE &&
+                    HasTrait<A2, TRAIT>::VALUE &&
+                    HasTrait<A3, TRAIT>::VALUE &&
+                    HasTrait<A4, TRAIT>::VALUE &&
+                    HasTrait<A5, TRAIT>::VALUE &&
+                    HasTrait<A6, TRAIT>::VALUE &&
+                    HasTrait<A7, TRAIT>::VALUE &&
+                    HasTrait<A8, TRAIT>::VALUE &&
                     sizeof(A1) + sizeof(A2) + sizeof(A3) + sizeof(A4) +
                     sizeof(A5) + sizeof(A6) + sizeof(A7) + sizeof(A8) ==
-                       sizeof(bslalg_BitwiseEqPassthroughTrait_PackedStruct<
+                       sizeof(BitwiseEqPassthroughTrait_PackedStruct<
                                                A1, A2, A3, A4, A5, A6, A7, A8>)
     };
 
   public:
-    typedef typename bslmf_If<
+    typedef typename bslmf::If<
                  HAS_TRAIT,
                  TRAIT,
-                 bslalg_BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
+                 BitwiseEqPassthroughTrait_NotTrait<TRAIT> >::Type Type;
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_BitwiseEqPassthroughTrait
+#undef bslalg_BitwiseEqPassthroughTrait
+#endif
+#define bslalg_BitwiseEqPassthroughTrait bslalg::BitwiseEqPassthroughTrait
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

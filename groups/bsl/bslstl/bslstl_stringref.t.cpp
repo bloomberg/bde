@@ -25,17 +25,17 @@ using namespace bsl;  // automatically added by script
 // The component under test provides an in-core pointer-semantic object.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bslstl_StringRef();
-// [ 2] bslstl_StringRef(const char *begin, const char *end);
-// [ 2] bslstl_StringRef(const char *begin, int length);
-// [ 2] bslstl_StringRef(const char *begin);
-// [ 2] bslstl_StringRef(const bsl::string& begin);
-// [ 2] bslstl_StringRef(const native_std::string& begin);
-// [ 2] bslstl_StringRef(const bslstl_StringRef& original);
-// [ 2] ~bslstl_StringRef();
+// [ 2] bslstl::StringRef();
+// [ 2] bslstl::StringRef(const char *begin, const char *end);
+// [ 2] bslstl::StringRef(const char *begin, int length);
+// [ 2] bslstl::StringRef(const char *begin);
+// [ 2] bslstl::StringRef(const bsl::string& begin);
+// [ 2] bslstl::StringRef(const native_std::string& begin);
+// [ 2] bslstl::StringRef(const bslstl::StringRef& original);
+// [ 2] ~bslstl::StringRef();
 //
 // MANIPULATORS
-// [ 2] bslstl_StringRef& operator=(const bslstl_StringRef& rhs);
+// [ 2] bslstl::StringRef& operator=(const bslstl::StringRef& rhs);
 // [ 6] void reset();
 // [ 6] void assign(const char *begin, const char *end);
 // [ 6] void assign(const char *begin, int length);
@@ -103,7 +103,7 @@ using namespace bsl;  // automatically added by script
 // [ 7] operator+(const StringRef& lhs, const native_std::string& rhs);
 // [ 7] operator+(const char *lhs, const StringRef& rhs);
 // [ 7] operator+(const StringRef& lhs, const char *rhs);
-// [ 8] bsl::hash<BloombergLP::bslstl_StringRef>
+// [ 8] bsl::hash<BloombergLP::bslstl::StringRef>
 //--------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE
@@ -151,7 +151,7 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-typedef bslstl_StringRef Obj;
+typedef bslstl::StringRef Obj;
 
 static const char *EMPTY_STRING     = "";
 static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
@@ -167,15 +167,15 @@ static const char *NON_EMPTY_STRING = "Tangled Up in Blue - Bob Dylan";
 ///Example 1: Basic Operations
 ///- - - - - - - - - - - - - -
 // The following snippets of code illustrate basic and varied use of the
-// 'bslstl_StringRef' class.
+// 'bslstl::StringRef' class.
 //
 // First, we define a function, 'getNumBlanks', that returns the number of
 // blank (' ') characters contained in the string referenced by a specified
-// 'bslstl_StringRef':
+// 'bslstl::StringRef':
 //..
 //  #include <algorithm>
 
-    int getNumBlanks(const bslstl_StringRef& stringRef)
+    int getNumBlanks(const bslstl::StringRef& stringRef)
         // Return the number of blank (' ') characters in the string referenced
         // by the specified 'stringRef'.
     {
@@ -224,20 +224,20 @@ int main(int argc, char *argv[])
         if (verbose) std::cout << "\nTesting Usage Example"
                                << "\n=====================" << std::endl;
 
-// Then, call 'getNumBlanks' on a default constructed 'bslstl_StringRef':
+// Then, call 'getNumBlanks' on a default constructed 'bslstl::StringRef':
 //..
-    bslstl_StringRef emptyRef;
+    bslstl::StringRef emptyRef;
     int numBlanks = getNumBlanks(emptyRef);
     ASSERT(0 == numBlanks);
 
     ASSERT(""         == emptyRef);
     ASSERT("anything" >= emptyRef);
 //..
-// Notice that the behavior a default constructed 'bslstl_StringRef' object
+// Notice that the behavior a default constructed 'bslstl::StringRef' object
 // behaves the same as if it referenced an empty string.
 //
 // Next, we (implicitly) construct a 'bsl::string' object from
-// 'bslstl_StringRef':
+// 'bslstl::StringRef':
 //..
     bsl::string empty(emptyRef);
     ASSERT(0 == empty.size());
@@ -267,10 +267,10 @@ int main(int argc, char *argv[])
     numBlanks = getNumBlanks(poem);
     ASSERT(42 == numBlanks);
 //..
-// Then, we construct a 'bslstl_StringRef' object, 'line', that refers to only
+// Then, we construct a 'bslstl::StringRef' object, 'line', that refers to only
 // the first line of the 'poem':
 //..
-    bslstl_StringRef line(poem, 29);
+    bslstl::StringRef line(poem, 29);
     numBlanks = getNumBlanks(line);
 
     ASSERT( 5 == numBlanks);
@@ -292,10 +292,10 @@ int main(int argc, char *argv[])
     const bsl::string poemString(poem);
     numBlanks = getNumBlanks(poemString);
     ASSERT(42 == numBlanks);
-    ASSERT(bslstl_StringRef(poemString) == poemString);
-    ASSERT(bslstl_StringRef(poemString) == poemString.c_str());
+    ASSERT(bslstl::StringRef(poemString) == poemString);
+    ASSERT(bslstl::StringRef(poemString) == poemString.c_str());
 //..
-// Next, we make a 'bslstl_StringRef' object that refers to a string that will
+// Next, we make a 'bslstl::StringRef' object that refers to a string that will
 // be able to hold embedded null characters:
 //..
     char poemWithNulls[512];
@@ -314,7 +314,7 @@ int main(int argc, char *argv[])
 // Finally, we observe that 'poemWithNulls' has the same number of blank
 // characters as the original 'poem':
 //..
-    numBlanks = getNumBlanks(bslstl_StringRef(poemWithNulls, poemLength));
+    numBlanks = getNumBlanks(bslstl::StringRef(poemWithNulls, poemLength));
     ASSERT(42 == numBlanks);
 //..
       } break;
@@ -345,7 +345,7 @@ int main(int argc, char *argv[])
         //   performs in a reasonable manner.
         //
         // Testing:
-        //   bsl::hash<BloombergLP::bslstl_StringRef>
+        //   bsl::hash<BloombergLP::bslstl::StringRef>
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTesting Hash Function"
@@ -2205,7 +2205,7 @@ int main(int argc, char *argv[])
         //   output format.
         //
         // Testing:
-        //   operator<<(ostream&, const bslstl_StringRef& string);
+        //   operator<<(ostream&, const bslstl::StringRef& string);
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTesting Output (<<) Operator"
@@ -2421,15 +2421,15 @@ int main(int argc, char *argv[])
         //   Test each of the constructors with empty and non-empty strings.
         //
         // Testing:
-        //   bslstl_StringRef();
-        //   bslstl_StringRef(const char *begin, const char *end);
-        //   bslstl_StringRef(const char *begin, int length);
-        //   bslstl_StringRef(const char *begin);
-        //   bslstl_StringRef(const bsl::string& begin);
-        //   bslstl_StringRef(const native_std::string& begin);
-        //   bslstl_StringRef(const bslstl_StringRef& original);
-        //   ~bslstl_StringRef();
-        //   bslstl_StringRef& operator=(const bslstl_StringRef&);
+        //   bslstl::StringRef();
+        //   bslstl::StringRef(const char *begin, const char *end);
+        //   bslstl::StringRef(const char *begin, int length);
+        //   bslstl::StringRef(const char *begin);
+        //   bslstl::StringRef(const bsl::string& begin);
+        //   bslstl::StringRef(const native_std::string& begin);
+        //   bslstl::StringRef(const bslstl::StringRef& original);
+        //   ~bslstl::StringRef();
+        //   bslstl::StringRef& operator=(const bslstl::StringRef&);
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "\nTesting Primary Manipulator"
@@ -2595,7 +2595,7 @@ int main(int argc, char *argv[])
                           << "\n= = = = = = = = = = = = " << std::endl;
         if (veryVerbose)
             std::cout
-                << "\nbslstl_StringRef(const bslstl_StringRef&)"
+                << "\nbslstl_StringRef(const bslstl::StringRef&)"
                 << "\n=  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  "
                 << std::endl;
         {

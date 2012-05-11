@@ -1,4 +1,4 @@
-// bsls_buildtarget.t.cpp                  -*-C++-*-
+// bsls_buildtarget.t.cpp                                             -*-C++-*-
 
 #include <bsls_buildtarget.h>
 #include <bsls_platform.h>
@@ -16,8 +16,8 @@ using namespace std;
 // There is nothing to test here except that the constants are defined
 // properly and according to the build-target macros.
 //-----------------------------------------------------------------------------
-// [ 1] bsls_ExcBuildTarget::d_isExcBuildTarget
-// [ 1] bsls_MtBuildTarget::d_isMtBuildTarget
+// [ 1] bsls::ExcBuildTarget::d_isExcBuildTarget
+// [ 1] bsls::MtBuildTarget::d_isMtBuildTarget
 // [ 1] bsls_64BitBuildTarget::d_is64BitBuildTarget
 //-----------------------------------------------------------------------------
 
@@ -76,15 +76,15 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
 #ifdef BDE_BUILD_TARGET_EXC
-        ASSERT(1 == bsls_ExcBuildTarget::d_isExcBuildTarget);
+        ASSERT(1 == bsls::ExcBuildTarget::d_isExcBuildTarget);
 #else
-        ASSERT(0 == bsls_ExcBuildTarget::d_isExcBuildTarget);
+        ASSERT(0 == bsls::ExcBuildTarget::d_isExcBuildTarget);
 #endif
 
 #ifdef BDE_BUILD_TARGET_MT
-        ASSERT(1 == bsls_MtBuildTarget::d_isMtBuildTarget);
+        ASSERT(1 == bsls::MtBuildTarget::d_isMtBuildTarget);
 #else
-        ASSERT(0 == bsls_MtBuildTarget::d_isMtBuildTarget);
+        ASSERT(0 == bsls::MtBuildTarget::d_isMtBuildTarget);
 #endif
 
 #ifdef BSLS_PLATFORM__CPU_64_BIT

@@ -216,6 +216,10 @@ struct bdesu_FileUtil {
 #endif
     };
 
+    enum {
+        BDESU_ERROR_LOCKING_CONFLICT = 1
+    };
+
     // CLASS DATA
     static const FileDescriptor INVALID_FD;
 
@@ -383,14 +387,15 @@ struct bdesu_FileUtil {
         // currently available.  If 'lockWrite' is true, acquire an exclusive
         // write lock unless another process has any type of lock on the file.
         // If 'lockWrite' is false, acquire a shared read lock unless a process
-        // has a write lock.  This method will not block.  Return 0 on success
-        // and a non-zero value otherwise; in particular, return a non-zero
-        // value if the lock could not be acquired because another process has
-        // a lock.  Note that this operation locks the indicated file for
-        // use by the current *process*, but the behavior is unspecified (and
-        // platform-dependent) when either attempting to lock 'fd' multiple
-        // times, or attempting to lock another descriptor referring to the
-        // same file, within a single process.
+        // has a write lock.  This method will not block.  Return 0 on success,
+        // 'BDESU_ERROR_LOCKING_CONFLICT' if the platform reports the lock
+        // could not be acquired because another process holds a conflicting
+        // lock, and a negative value for any other kind of error.  Note that
+        // this operation locks the indicated file for use by the current
+        // *process*, but the behavior is unspecified (and platform-dependent)
+        // when either attempting to lock 'fd' multiple times, or attempting
+        // to lock another descriptor referring to the same file, within a
+        // single process.
 
     static int unlock(FileDescriptor fd);
         // Release any lock this process holds on the file with the specified

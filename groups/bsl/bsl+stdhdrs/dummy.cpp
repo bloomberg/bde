@@ -1,4 +1,4 @@
-// stdhdrs_placeholder.cpp                  -*-C++-*-
+// stdhdrs_placeholder.cpp                                            -*-C++-*-
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
@@ -12,8 +12,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This is a workaround for the build tool since the tool requires
 // at least one implementation file in a package.
 
-// This symbol exists to avoid getarsym errors when linking tests
-// against the bsl+stdhdrs package library on SunOS/gcc.
+// This symbol exists to avoid getarsym errors when linking tests against the
+// bsl+stdhdrs package library on SunOS/gcc.
 char stdhdrs_dummy_cpp_this_symbol_avoids_an_empty_package_library;
 
 // ---------------------------------------------------------------------------

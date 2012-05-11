@@ -9,7 +9,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <new>
 
 // This allocator is simply an "adapter" connecting 'std::malloc' and
-// 'std::free' to the 'bslma_Allocator' interface.  We use the reserve pool
+// 'std::free' to the 'bslma::Allocator' interface.  We use the reserve pool
 // pattern to ensure that the returned allocator object remains valid forever
 // (without leaking memory).
 
@@ -19,15 +19,15 @@ namespace BloombergLP {
                         // union bslma_MallocFreeAllocator_Singleton
                         // -----------------------------------------
 
-typedef bsls_ObjectBuffer<bslma_MallocFreeAllocator>
+typedef bsls::ObjectBuffer<bslma::MallocFreeAllocator>
                                            bslma_MallocFreeAllocator_Singleton;
     // 'A bslma_MallocFreeAllocator_Singleton' is a buffer with the right size
-    // and alignment to hold a 'bslma_MallocFreeAllocator' object.
+    // and alignment to hold a 'bslma::MallocFreeAllocator' object.
 
 static bslma_MallocFreeAllocator_Singleton g_mallocFreeAllocatorSingleton;
     // A global static buffer to hold the singleton.
 
-static bslma_MallocFreeAllocator *g_mallocFreeAllocatorSingleton_p = 0;
+static bslma::MallocFreeAllocator *g_mallocFreeAllocatorSingleton_p = 0;
     // A global static pointer to the singleton, which is *statically*
     // initialized to zero.
 
@@ -36,14 +36,14 @@ static bslma_MallocFreeAllocator *g_mallocFreeAllocatorSingleton_p = 0;
                         // -----------------------------
 
 static inline
-bslma_MallocFreeAllocator *initSingleton(
+bslma::MallocFreeAllocator *initSingleton(
                                         bslma_MallocFreeAllocator_Singleton *p)
-    // Construct a 'bslma_MallocFreeAllocator' at the location specified by 'p'
-    // in a thread-safe way.  Return 'p'.
+    // Construct a 'bslma::MallocFreeAllocator' at the location specified by
+    // 'p' in a thread-safe way.  Return 'p'.
 {
     // Thread-safe initialization of singleton.
     //
-    // A 'bslma_MallocFreeAllocator' contains no data members but does contain
+    // A 'bslma::MallocFreeAllocator' contains no data members but does contain
     // a vtbl pointer.  During construction, the vtbl pointer is first set the
     // base class's vtbl before it is set to its final, derived-class value.
     // If two threads try to initialize the same singleton, the one that
@@ -59,21 +59,23 @@ bslma_MallocFreeAllocator *initSingleton(
     // thread's copy.)
 
     bslma_MallocFreeAllocator_Singleton stackTemp;
-    void *v = new(&stackTemp) bslma_MallocFreeAllocator;
+    void *v = new(&stackTemp) bslma::MallocFreeAllocator;
 
-    // 'bsls_ObjectBuffer<T>' assignment is a bit-wise copy.
+    // 'bsls::ObjectBuffer<T>' assignment is a bit-wise copy.
 
     *p = *(static_cast<bslma_MallocFreeAllocator_Singleton *>(v));
 
     return &p->object();
 }
 
-                        // -------------------------------
-                        // class bslma_MallocFreeAllocator
-                        // -------------------------------
+namespace bslma {
+
+                        // -------------------------
+                        // class MallocFreeAllocator
+                        // -------------------------
 
 // CLASS METHODS
-bslma_MallocFreeAllocator& bslma_MallocFreeAllocator::singleton()
+MallocFreeAllocator& MallocFreeAllocator::singleton()
 {
     // This initialization is not guaranteed to happen once, but repeated
     // initialization will be safe (see the comment above).
@@ -92,7 +94,9 @@ bslma_MallocFreeAllocator& bslma_MallocFreeAllocator::singleton()
     return *g_mallocFreeAllocatorSingleton_p;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

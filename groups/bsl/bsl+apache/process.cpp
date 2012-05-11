@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -129,7 +129,7 @@ _rw_map_errno (DWORD err)
     case ERROR_INVALID_NAME:
     case ERROR_BAD_PATHNAME:
     case ERROR_FILENAME_EXCED_RANGE:
-        
+
         return ENOENT;
 
     case ERROR_TOO_MANY_OPEN_FILES:
@@ -652,8 +652,8 @@ rw_waitpid (rw_pid_t pid, int* presult, int timeout/* = -1*/)
         signal (SIGALRM, prev_alarm_handler);
 #endif
 
-    }    
-    
+    }
+
     return ret;
 }
 

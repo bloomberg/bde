@@ -26,7 +26,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2007 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 // disable debug iterators to prevent compilation errors
@@ -197,7 +197,7 @@ public:
         new (_RWSTD_REINTERPRET_CAST (void*, ptr.offset_)) value_type (val);
     }
 
-    void destroy (pointer ptr) { 
+    void destroy (pointer ptr) {
         _RWSTD_REINTERPRET_CAST (T*, ptr.offset_)->~value_type ();
     }
 #else // !DRQS
@@ -213,13 +213,13 @@ public:
         new ((void*) ptr) value_type (val);
     }
 
-    void destroy (pointer ptr) { 
+    void destroy (pointer ptr) {
         ptr->~value_type ();
     }
 #endif // !DRQS
 
     size_type max_size () const throw () {
-        return size_type (-1) / sizeof (T); 
+        return size_type (-1) / sizeof (T);
     }
 
     template <class U>

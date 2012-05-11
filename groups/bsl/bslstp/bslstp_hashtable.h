@@ -154,7 +154,7 @@ struct _Ht_iterator : public _Hashtable_iterator< _Val, _Key,_HF, _ExK,_EqK,_All
 
   _Ht_iterator(const _Node* __n, const _Hashtable* __tab) :
     _Hashtable_iterator<_Val,_Key,_HF,_ExK,_EqK,_All>(const_cast<_Node*>(__n),
-                                                      const_cast<_Hashtable*>(__tab)) {}
+                                             const_cast<_Hashtable*>(__tab)) {}
   _Ht_iterator() {}
   _Ht_iterator(const _Ht_iterator<_Val, _Nonconst_traits<_Val>,_Key,_HF,_ExK,_EqK,_All>& __it) :
     _Hashtable_iterator<_Val,_Key,_HF,_ExK,_EqK,_All>(__it) {}
@@ -181,7 +181,8 @@ struct _Ht_iterator : public _Hashtable_iterator< _Val, _Key,_HF, _ExK,_EqK,_All
 template <class _Val, class _Traits, class _Traits1, class _Key, class _HF,
           class _ExK, class _EqK, class _All>
 inline
-bool operator==(const _Ht_iterator<_Val, _Traits,_Key,_HF,_ExK,_EqK,_All>& __x,
+bool operator==(
+               const _Ht_iterator<_Val, _Traits,_Key,_HF,_ExK,_EqK,_All>& __x,
                const _Ht_iterator<_Val, _Traits1,_Key,_HF,_ExK,_EqK,_All>& __y)
 {
   return __x._M_cur == __y._M_cur;
@@ -257,7 +258,7 @@ private:
           ::std::swap(v1._M_get_key, v2._M_get_key);
           v1._M_buckets.swap(v2._M_buckets);
           ::std::swap(v1._M_num_elements._M_data,
-                          v2._M_num_elements._M_data);
+                      v2._M_num_elements._M_data);
       }
   };
 
@@ -318,7 +319,7 @@ public:
     _M_initialize_buckets(__n);
   }
 
-  typedef BloombergLP::bslalg_TypeTraitsGroupStlUnordered<_Val,_HF,_EqK,_All>
+  typedef BloombergLP::bslalg::TypeTraitsGroupStlUnordered<_Val,_HF,_EqK,_All>
       HashTableTypeTraits;
   BSLALG_DECLARE_NESTED_TRAITS(hashtable, HashTableTypeTraits);
 
@@ -327,8 +328,8 @@ public:
       _M_hash(__ht._M_hash),
       _M_equals(__ht._M_equals),
       _M_get_key(__ht._M_get_key),
-      _M_buckets(BloombergLP::bslstl_Util::copyContainerAllocator(__ht.get_allocator())),
-      _M_num_elements(BloombergLP::bslstl_Util::copyContainerAllocator((const _M_node_allocator_type&)__ht._M_num_elements), (size_type)0)
+      _M_buckets(BloombergLP::bslstl::Util::copyContainerAllocator(__ht.get_allocator())),
+      _M_num_elements(BloombergLP::bslstl::Util::copyContainerAllocator((const _M_node_allocator_type&)__ht._M_num_elements), (size_type)0)
   {
     _M_copy_from(__ht);
   }
@@ -364,7 +365,7 @@ public:
 
   void swap(_Self& __ht)
   {
-    BloombergLP::bslstl_Util::swapContainers(*this, __ht, QuickSwap());
+    BloombergLP::bslstl::Util::swapContainers(*this, __ht, QuickSwap());
   }
 
   iterator begin()
@@ -433,7 +434,9 @@ public:
   {
   // MODIFIED BY ARTHUR
   //  insert_equal(__f, __l, _STLP_ITERATOR_CATEGORY(__f, _InputIterator));
-    insert_unique(__f, __l, typename bsl::iterator_traits<_InputIterator>::iterator_category());
+  // MODIFIEd BY BCHAPMAN
+  //  insert_unique(__f, __l, typename bsl::iterator_traits<_InputIterator>::iterator_category());
+    insert_equal(__f, __l, typename bsl::iterator_traits<_InputIterator>::iterator_category());
   }
 
   template <class _InputIterator>
@@ -570,7 +573,7 @@ private:
     _Node* __n = _M_num_elements.allocate(1);
     __n->_M_next = 0;
     BSLS_TRY {
-      BloombergLP::bslalg_ScalarPrimitives::copyConstruct(
+      BloombergLP::bslalg::ScalarPrimitives::copyConstruct(
                                              BSLS_UTIL_ADDRESSOF(__n->_M_val),
                                              __obj,
                                              _M_num_elements.bslmaAllocator());
@@ -585,7 +588,7 @@ private:
 
   void _M_delete_node(_Node* __n)
   {
-    BloombergLP::bslalg_ScalarDestructionPrimitives::destroy(
+    BloombergLP::bslalg::ScalarDestructionPrimitives::destroy(
                                              BSLS_UTIL_ADDRESSOF(__n->_M_val));
     _M_num_elements.deallocate(__n, 1);
   }
@@ -684,8 +687,8 @@ hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>::_M_next_size(size_type __n) const    {
 template <class _Val, class _Key, class _HF, class _ExK, class _EqK, class _All>
 bool
 hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>::_M_equal(
-                        const hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>& __ht1,
-                        const hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>& __ht2)
+                          const hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>& __ht1,
+                          const hashtable<_Val,_Key,_HF,_ExK,_EqK,_All>& __ht2)
 {
   //  typedef _Hashtable_node<_Val> _Node;
   if (__ht1.bucket_count() != __ht2.bucket_count())

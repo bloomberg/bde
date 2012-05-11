@@ -1,4 +1,4 @@
-// bslmf_switch.t.cpp                  -*-C++-*-
+// bslmf_switch.t.cpp                                                 -*-C++-*-
 
 #include <bslmf_switch.h>
 
@@ -18,11 +18,11 @@ using namespace BloombergLP;
 // correctness of the return "value", which is established by using overload
 // resolution as the mechanism to discriminate among types.
 //
-// [ 2] bslmf_SwitchN<SELECTOR,T0,. . .,T{N-1}>::Type
-// [ 1] bslmf_Switch<SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
+// [ 2] bslmf::SwitchN<SELECTOR,T0,. . .,T{N-1}>::Type
+// [ 1] bslmf::Switch<SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
 //-----------------------------------------------------------------------------
-// [ 1] FUNCTIONALITY TEST (CLASS 'bslmf_Switch')
-// [ 2] CLASSES 'bslmf_SwitchN'
+// [ 1] FUNCTIONALITY TEST (CLASS 'bslmf::Switch')
+// [ 2] CLASSES 'bslmf::SwitchN'
 
 //==========================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -85,7 +85,7 @@ char f(G) { return 'G'; }
 char f(H) { return 'H'; }
 char f(I) { return 'I'; }
 char f(J) { return 'J'; }
-char f(bslmf_Nil) { return '0'; }
+char f(bslmf::Nil) { return '0'; }
 
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
@@ -156,7 +156,7 @@ char f(bslmf_Nil) { return '0'; }
 // We would like to store our short strings in the data server, but the data
 // server only handles 'char', 'short' and 'int' types.  Since our strings fit
 // into these simple types, we can transform 'ShortString' into these integral
-// types when calling 'store' and 'retrieve', using 'bslmf_Switch' to choose
+// types when calling 'store' and 'retrieve', using 'bslmf::Switch' to choose
 // which integral type to use for each 'ShortString' type:
 //..
     template <int LEN>
@@ -166,7 +166,7 @@ char f(bslmf_Nil) { return '0'; }
         // and 'int' if 'LEN' 4.  Will choose 'void' and thus not compile if
         // 'LEN' is 0 or 3.
         typedef typename
-           bslmf_Switch5<LEN, void, char, short, void, int>::Type transferType;
+          bslmf::Switch5<LEN, void, char, short, void, int>::Type transferType;
 
         transferType x = 0;
         server->retrieve(&x);
@@ -180,7 +180,7 @@ char f(bslmf_Nil) { return '0'; }
         // and 'int' if 'LEN' 4.  Will choose 'void' and thus not compile if
         // 'LEN' is 0 or 3.
         typedef typename
-           bslmf_Switch5<LEN, void, char, short, void, int>::Type transferType;
+          bslmf::Switch5<LEN, void, char, short, void, int>::Type transferType;
 
         transferType x = 0;
         std::memcpy(&x, d_buffer, LEN);
@@ -275,11 +275,11 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING CLASSES 'bslmf_SwitchN'
+        // TESTING CLASSES 'bslmf::SwitchN'
         //
         // Concerns:
         //   Returns the right type for 'SELECTOR' values 0-N.
-        //   Returns 'bslmf_Nil' for 'SELECTOR' < 0 or N < 'SELECTOR'
+        //   Returns 'bslmf::Nil' for 'SELECTOR' < 0 or N < 'SELECTOR'
         //
         // Plan:  For each 'N' between 2 and 9:
         //   Instantiate with N different types each value in the range 0-(N-1)
@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
         //   repeated template arguments.
         //
         // Testing:
-        //     bslmf_SwitchN<SELECTOR,T0,. . .,T{N-1}>::Type
+        //     bslmf::SwitchN<SELECTOR,T0,. . .,T{N-1}>::Type
         // --------------------------------------------------------------------
 
         if (verbose) std::printf("\nFUNCTIONALITY TEST"
@@ -299,125 +299,125 @@ int main(int argc, char *argv[])
         if (verbose) std::printf("\tTesting 'bslmf_Switch2.\n");
         {
             if (verbose) std::printf("Testing SELECTOR in range\n");
-            ASSERT('A' == f(bslmf_Switch2<0,A,B>::Type()));
-            ASSERT('B' == f(bslmf_Switch2<1,A,B>::Type()));
+            ASSERT('A' == f(bslmf::Switch2<0,A,B>::Type()));
+            ASSERT('B' == f(bslmf::Switch2<1,A,B>::Type()));
 
             if (verbose) std::printf("Testing SELECTOR out of range\n");
-            ASSERT('0' == f(bslmf_Switch2<2,A,B>::Type()));
-            ASSERT('0' == f(bslmf_Switch2<10,A,B>::Type()));
-            ASSERT('0' == f(bslmf_Switch2<-1,A,B>::Type()));
+            ASSERT('0' == f(bslmf::Switch2<2,A,B>::Type()));
+            ASSERT('0' == f(bslmf::Switch2<10,A,B>::Type()));
+            ASSERT('0' == f(bslmf::Switch2<-1,A,B>::Type()));
         }
 
         if (verbose) std::printf("\tTesting 'bslmf_Switch3.\n");
         {
             if (verbose) std::printf("Testing SELECTOR in range\n");
-            ASSERT('A' == f(bslmf_Switch3<0,A,B,C>::Type()));
-            ASSERT('B' == f(bslmf_Switch3<1,A,B,C>::Type()));
-            ASSERT('C' == f(bslmf_Switch3<2,A,B,C>::Type()));
+            ASSERT('A' == f(bslmf::Switch3<0,A,B,C>::Type()));
+            ASSERT('B' == f(bslmf::Switch3<1,A,B,C>::Type()));
+            ASSERT('C' == f(bslmf::Switch3<2,A,B,C>::Type()));
 
             if (verbose) std::printf("Testing SELECTOR out of range\n");
-            ASSERT('0' == f(bslmf_Switch3<3,A,B,C>::Type()));
-            ASSERT('0' == f(bslmf_Switch3<10,A,B,C>::Type()));
-            ASSERT('0' == f(bslmf_Switch3<-1,A,B,C>::Type()));
+            ASSERT('0' == f(bslmf::Switch3<3,A,B,C>::Type()));
+            ASSERT('0' == f(bslmf::Switch3<10,A,B,C>::Type()));
+            ASSERT('0' == f(bslmf::Switch3<-1,A,B,C>::Type()));
         }
 
         if (verbose) std::printf("\tTesting 'bslmf_Switch4.\n");
         {
             if (verbose) std::printf("Testing SELECTOR in range\n");
-            ASSERT('A' == f(bslmf_Switch4<0,A,B,C,D>::Type()));
-            ASSERT('B' == f(bslmf_Switch4<1,A,B,C,D>::Type()));
-            ASSERT('C' == f(bslmf_Switch4<2,A,B,C,D>::Type()));
-            ASSERT('D' == f(bslmf_Switch4<3,A,B,C,D>::Type()));
+            ASSERT('A' == f(bslmf::Switch4<0,A,B,C,D>::Type()));
+            ASSERT('B' == f(bslmf::Switch4<1,A,B,C,D>::Type()));
+            ASSERT('C' == f(bslmf::Switch4<2,A,B,C,D>::Type()));
+            ASSERT('D' == f(bslmf::Switch4<3,A,B,C,D>::Type()));
 
             if (verbose) std::printf("Testing SELECTOR out of range\n");
-            ASSERT('0' == f(bslmf_Switch4<4,A,B,C,D>::Type()));
-            ASSERT('0' == f(bslmf_Switch4<10,A,B,C,D>::Type()));
-            ASSERT('0' == f(bslmf_Switch4<-1,A,B,C,D>::Type()));
+            ASSERT('0' == f(bslmf::Switch4<4,A,B,C,D>::Type()));
+            ASSERT('0' == f(bslmf::Switch4<10,A,B,C,D>::Type()));
+            ASSERT('0' == f(bslmf::Switch4<-1,A,B,C,D>::Type()));
         }
 
         if (verbose) std::printf("\tTesting 'bslmf_Switch5.\n");
         {
             if (verbose) std::printf("Testing SELECTOR in range\n");
-            ASSERT('A' == f(bslmf_Switch5<0,A,B,C,D,E>::Type()));
-            ASSERT('B' == f(bslmf_Switch5<1,A,B,C,D,E>::Type()));
-            ASSERT('C' == f(bslmf_Switch5<2,A,B,C,D,E>::Type()));
-            ASSERT('D' == f(bslmf_Switch5<3,A,B,C,D,E>::Type()));
-            ASSERT('E' == f(bslmf_Switch5<4,A,B,C,D,E>::Type()));
+            ASSERT('A' == f(bslmf::Switch5<0,A,B,C,D,E>::Type()));
+            ASSERT('B' == f(bslmf::Switch5<1,A,B,C,D,E>::Type()));
+            ASSERT('C' == f(bslmf::Switch5<2,A,B,C,D,E>::Type()));
+            ASSERT('D' == f(bslmf::Switch5<3,A,B,C,D,E>::Type()));
+            ASSERT('E' == f(bslmf::Switch5<4,A,B,C,D,E>::Type()));
 
             if (verbose) std::printf("Testing SELECTOR out of range\n");
-            ASSERT('0' == f(bslmf_Switch5<5,A,B,C,D,E>::Type()));
-            ASSERT('0' == f(bslmf_Switch5<10,A,B,C,D,E>::Type()));
-            ASSERT('0' == f(bslmf_Switch5<-1,A,B,C,D,E>::Type()));
+            ASSERT('0' == f(bslmf::Switch5<5,A,B,C,D,E>::Type()));
+            ASSERT('0' == f(bslmf::Switch5<10,A,B,C,D,E>::Type()));
+            ASSERT('0' == f(bslmf::Switch5<-1,A,B,C,D,E>::Type()));
         }
 
         if (verbose) std::printf("\tTesting 'bslmf_Switch6.\n");
         {
             if (verbose) std::printf("Testing SELECTOR in range\n");
-            ASSERT('A' == f(bslmf_Switch6<0,A,B,C,D,E,F>::Type()));
-            ASSERT('B' == f(bslmf_Switch6<1,A,B,C,D,E,F>::Type()));
-            ASSERT('C' == f(bslmf_Switch6<2,A,B,C,D,E,F>::Type()));
-            ASSERT('D' == f(bslmf_Switch6<3,A,B,C,D,E,F>::Type()));
-            ASSERT('E' == f(bslmf_Switch6<4,A,B,C,D,E,F>::Type()));
-            ASSERT('F' == f(bslmf_Switch6<5,A,B,C,D,E,F>::Type()));
+            ASSERT('A' == f(bslmf::Switch6<0,A,B,C,D,E,F>::Type()));
+            ASSERT('B' == f(bslmf::Switch6<1,A,B,C,D,E,F>::Type()));
+            ASSERT('C' == f(bslmf::Switch6<2,A,B,C,D,E,F>::Type()));
+            ASSERT('D' == f(bslmf::Switch6<3,A,B,C,D,E,F>::Type()));
+            ASSERT('E' == f(bslmf::Switch6<4,A,B,C,D,E,F>::Type()));
+            ASSERT('F' == f(bslmf::Switch6<5,A,B,C,D,E,F>::Type()));
 
             if (verbose) std::printf("Testing SELECTOR out of range\n");
-            ASSERT('0' == f(bslmf_Switch6<6,A,B,C,D,E,F>::Type()));
-            ASSERT('0' == f(bslmf_Switch6<10,A,B,C,D,E,F>::Type()));
-            ASSERT('0' == f(bslmf_Switch6<-1,A,B,C,D,E,F>::Type()));
+            ASSERT('0' == f(bslmf::Switch6<6,A,B,C,D,E,F>::Type()));
+            ASSERT('0' == f(bslmf::Switch6<10,A,B,C,D,E,F>::Type()));
+            ASSERT('0' == f(bslmf::Switch6<-1,A,B,C,D,E,F>::Type()));
         }
 
         if (verbose) std::printf("\tTesting 'bslmf_Switch7.\n");
         {
             if (verbose) std::printf("Testing SELECTOR in range\n");
-            ASSERT('A' == f(bslmf_Switch7<0,A,B,C,D,E,F,G>::Type()));
-            ASSERT('B' == f(bslmf_Switch7<1,A,B,C,D,E,F,G>::Type()));
-            ASSERT('C' == f(bslmf_Switch7<2,A,B,C,D,E,F,G>::Type()));
-            ASSERT('D' == f(bslmf_Switch7<3,A,B,C,D,E,F,G>::Type()));
-            ASSERT('E' == f(bslmf_Switch7<4,A,B,C,D,E,F,G>::Type()));
-            ASSERT('F' == f(bslmf_Switch7<5,A,B,C,D,E,F,G>::Type()));
-            ASSERT('G' == f(bslmf_Switch7<6,A,B,C,D,E,F,G>::Type()));
+            ASSERT('A' == f(bslmf::Switch7<0,A,B,C,D,E,F,G>::Type()));
+            ASSERT('B' == f(bslmf::Switch7<1,A,B,C,D,E,F,G>::Type()));
+            ASSERT('C' == f(bslmf::Switch7<2,A,B,C,D,E,F,G>::Type()));
+            ASSERT('D' == f(bslmf::Switch7<3,A,B,C,D,E,F,G>::Type()));
+            ASSERT('E' == f(bslmf::Switch7<4,A,B,C,D,E,F,G>::Type()));
+            ASSERT('F' == f(bslmf::Switch7<5,A,B,C,D,E,F,G>::Type()));
+            ASSERT('G' == f(bslmf::Switch7<6,A,B,C,D,E,F,G>::Type()));
 
             if (verbose) std::printf("Testing SELECTOR out of range\n");
-            ASSERT('0' == f(bslmf_Switch7<7,A,B,C,D,E,F,G>::Type()));
-            ASSERT('0' == f(bslmf_Switch7<10,A,B,C,D,E,F,G>::Type()));
-            ASSERT('0' == f(bslmf_Switch7<-1,A,B,C,D,E,F,G>::Type()));
+            ASSERT('0' == f(bslmf::Switch7<7,A,B,C,D,E,F,G>::Type()));
+            ASSERT('0' == f(bslmf::Switch7<10,A,B,C,D,E,F,G>::Type()));
+            ASSERT('0' == f(bslmf::Switch7<-1,A,B,C,D,E,F,G>::Type()));
         }
 
         if (verbose) std::printf("\tTesting 'bslmf_Switch8.\n");
         {
             if (verbose) std::printf("Testing SELECTOR in range\n");
-            ASSERT('A' == f(bslmf_Switch8<0,A,B,C,D,E,F,G,H>::Type()));
-            ASSERT('B' == f(bslmf_Switch8<1,A,B,C,D,E,F,G,H>::Type()));
-            ASSERT('C' == f(bslmf_Switch8<2,A,B,C,D,E,F,G,H>::Type()));
-            ASSERT('D' == f(bslmf_Switch8<3,A,B,C,D,E,F,G,H>::Type()));
-            ASSERT('E' == f(bslmf_Switch8<4,A,B,C,D,E,F,G,H>::Type()));
-            ASSERT('F' == f(bslmf_Switch8<5,A,B,C,D,E,F,G,H>::Type()));
-            ASSERT('G' == f(bslmf_Switch8<6,A,B,C,D,E,F,G,H>::Type()));
-            ASSERT('H' == f(bslmf_Switch8<7,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('A' == f(bslmf::Switch8<0,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('B' == f(bslmf::Switch8<1,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('C' == f(bslmf::Switch8<2,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('D' == f(bslmf::Switch8<3,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('E' == f(bslmf::Switch8<4,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('F' == f(bslmf::Switch8<5,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('G' == f(bslmf::Switch8<6,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('H' == f(bslmf::Switch8<7,A,B,C,D,E,F,G,H>::Type()));
 
             if (verbose) std::printf("Testing SELECTOR out of range\n");
-            ASSERT('0' == f(bslmf_Switch8<8,A,B,C,D,E,F,G,H>::Type()));
-            ASSERT('0' == f(bslmf_Switch8<10,A,B,C,D,E,F,G,H>::Type()));
-            ASSERT('0' == f(bslmf_Switch8<-1,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('0' == f(bslmf::Switch8<8,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('0' == f(bslmf::Switch8<10,A,B,C,D,E,F,G,H>::Type()));
+            ASSERT('0' == f(bslmf::Switch8<-1,A,B,C,D,E,F,G,H>::Type()));
         }
 
         if (verbose) std::printf("\tTesting 'bslmf_Switch9.\n");
         {
             if (verbose) std::printf("Testing SELECTOR in range\n");
-            ASSERT('A' == f(bslmf_Switch9<0,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('B' == f(bslmf_Switch9<1,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('C' == f(bslmf_Switch9<2,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('D' == f(bslmf_Switch9<3,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('E' == f(bslmf_Switch9<4,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('F' == f(bslmf_Switch9<5,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('G' == f(bslmf_Switch9<6,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('H' == f(bslmf_Switch9<7,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('I' == f(bslmf_Switch9<8,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('A' == f(bslmf::Switch9<0,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('B' == f(bslmf::Switch9<1,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('C' == f(bslmf::Switch9<2,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('D' == f(bslmf::Switch9<3,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('E' == f(bslmf::Switch9<4,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('F' == f(bslmf::Switch9<5,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('G' == f(bslmf::Switch9<6,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('H' == f(bslmf::Switch9<7,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('I' == f(bslmf::Switch9<8,A,B,C,D,E,F,G,H,I>::Type()));
 
             if (verbose) std::printf("Testing SELECTOR out of range\n");
-            ASSERT('0' == f(bslmf_Switch9<9,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('0' == f(bslmf_Switch9<10,A,B,C,D,E,F,G,H,I>::Type()));
-            ASSERT('0' == f(bslmf_Switch9<-1,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('0' == f(bslmf::Switch9<9,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('0' == f(bslmf::Switch9<10,A,B,C,D,E,F,G,H,I>::Type()));
+            ASSERT('0' == f(bslmf::Switch9<-1,A,B,C,D,E,F,G,H,I>::Type()));
         }
 
       } break;
@@ -427,13 +427,13 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Returns the right type for 'SELECTOR' values 0-4.
-        //   Returns 'bslmf_Nil' for 'SELECTOR' < 0 or 4 < 'SELECTOR'
-        //   Returns 'bslmf_Nil' if 'SELECTOR' > number of template arguments
+        //   Returns 'bslmf::Nil' for 'SELECTOR' < 0 or 4 < 'SELECTOR'
+        //   Returns 'bslmf::Nil' if 'SELECTOR' > number of template arguments
         //
         // Plan:
         //   Define 10 overloaded versions of a function, 'f' returning
         //       a different letter for each of the types 'A' - 'J' and
-        //       returning '0' for 'bslmf_Nil'.
+        //       returning '0' for 'bslmf::Nil'.
         //   Instantiate with 10 different types each value in the range 0-9 as
         //       'SELECTOR'.  Call an 'f' function on the result to verify the
         //       type.  Instantiate with 'SELECTOR' out of range 0-9 and verify
@@ -441,55 +441,55 @@ int main(int argc, char *argv[])
         //   Instantiate with fewer than 9 different types and verify results.
         //
         // Testing:
-        //     bslmf_Switch<SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
+        //     bslmf::Switch<SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
         // --------------------------------------------------------------------
 
         if (verbose) std::printf("\nFUNCTIONALITY TEST"
                                  "\n==================\n");
 
         if (verbose) std::printf("Testing SELECTOR in range\n");
-        ASSERT('A' == f(bslmf_Switch<0,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('B' == f(bslmf_Switch<1,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('C' == f(bslmf_Switch<2,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('D' == f(bslmf_Switch<3,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('E' == f(bslmf_Switch<4,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('F' == f(bslmf_Switch<5,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('G' == f(bslmf_Switch<6,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('H' == f(bslmf_Switch<7,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('I' == f(bslmf_Switch<8,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('J' == f(bslmf_Switch<9,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('A' == f(bslmf::Switch<0,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('B' == f(bslmf::Switch<1,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('C' == f(bslmf::Switch<2,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('D' == f(bslmf::Switch<3,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('E' == f(bslmf::Switch<4,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('F' == f(bslmf::Switch<5,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('G' == f(bslmf::Switch<6,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('H' == f(bslmf::Switch<7,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('I' == f(bslmf::Switch<8,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('J' == f(bslmf::Switch<9,A,B,C,D,E,F,G,H,I,J>::Type()));
 
         if (verbose) std::printf("Testing SELECTOR out of range\n");
-        ASSERT('0' == f(bslmf_Switch<10,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('0' == f(bslmf_Switch<100,A,B,C,D,E,F,G,H,I,J>::Type()));
-        ASSERT('0' == f(bslmf_Switch<-1,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('0' == f(bslmf::Switch<10,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('0' == f(bslmf::Switch<100,A,B,C,D,E,F,G,H,I,J>::Type()));
+        ASSERT('0' == f(bslmf::Switch<-1,A,B,C,D,E,F,G,H,I,J>::Type()));
 
         if (verbose) std::printf("Testing Default arguments\n");
-        ASSERT('A' == f(bslmf_Switch<0,A>::Type()));
-        ASSERT('0' == f(bslmf_Switch<1,A>::Type()));
-        ASSERT('0' == f(bslmf_Switch<2,A>::Type()));
-        ASSERT('0' == f(bslmf_Switch<3,A>::Type()));
-        ASSERT('0' == f(bslmf_Switch<4,A>::Type()));
-        ASSERT('0' == f(bslmf_Switch<5,A>::Type()));
-        ASSERT('0' == f(bslmf_Switch<6,A>::Type()));
-        ASSERT('0' == f(bslmf_Switch<7,A>::Type()));
-        ASSERT('0' == f(bslmf_Switch<8,A>::Type()));
-        ASSERT('0' == f(bslmf_Switch<10,A>::Type()));
-        ASSERT('0' == f(bslmf_Switch<-1,A>::Type()));
-        ASSERT('B' == f(bslmf_Switch<1,A,B>::Type()));
-        ASSERT('0' == f(bslmf_Switch<2,A,B>::Type()));
+        ASSERT('A' == f(bslmf::Switch<0,A>::Type()));
+        ASSERT('0' == f(bslmf::Switch<1,A>::Type()));
+        ASSERT('0' == f(bslmf::Switch<2,A>::Type()));
+        ASSERT('0' == f(bslmf::Switch<3,A>::Type()));
+        ASSERT('0' == f(bslmf::Switch<4,A>::Type()));
+        ASSERT('0' == f(bslmf::Switch<5,A>::Type()));
+        ASSERT('0' == f(bslmf::Switch<6,A>::Type()));
+        ASSERT('0' == f(bslmf::Switch<7,A>::Type()));
+        ASSERT('0' == f(bslmf::Switch<8,A>::Type()));
+        ASSERT('0' == f(bslmf::Switch<10,A>::Type()));
+        ASSERT('0' == f(bslmf::Switch<-1,A>::Type()));
+        ASSERT('B' == f(bslmf::Switch<1,A,B>::Type()));
+        ASSERT('0' == f(bslmf::Switch<2,A,B>::Type()));
 
         if (verbose) std::printf("Testing Repeated arguments\n");
-        ASSERT('A' == f(bslmf_Switch<0,A,B,A,B,A,C,C,C,C>::Type()));
-        ASSERT('B' == f(bslmf_Switch<1,A,B,A,B,A,C,C,C,C>::Type()));
-        ASSERT('A' == f(bslmf_Switch<2,A,B,A,B,A,C,C,C,C>::Type()));
-        ASSERT('B' == f(bslmf_Switch<3,A,B,A,B,A,C,C,C,C>::Type()));
-        ASSERT('A' == f(bslmf_Switch<4,A,B,A,B,A,C,C,C,C>::Type()));
-        ASSERT('C' == f(bslmf_Switch<5,A,B,A,B,A,C,C,C,C>::Type()));
-        ASSERT('C' == f(bslmf_Switch<6,A,B,A,B,A,C,C,C,C>::Type()));
-        ASSERT('C' == f(bslmf_Switch<7,A,B,A,B,A,C,C,C,C>::Type()));
-        ASSERT('C' == f(bslmf_Switch<8,A,B,A,B,A,C,C,C,C>::Type()));
-        ASSERT('0' == f(bslmf_Switch<9,A,B,A,B,A,C,C,C,C>::Type()));
+        ASSERT('A' == f(bslmf::Switch<0,A,B,A,B,A,C,C,C,C>::Type()));
+        ASSERT('B' == f(bslmf::Switch<1,A,B,A,B,A,C,C,C,C>::Type()));
+        ASSERT('A' == f(bslmf::Switch<2,A,B,A,B,A,C,C,C,C>::Type()));
+        ASSERT('B' == f(bslmf::Switch<3,A,B,A,B,A,C,C,C,C>::Type()));
+        ASSERT('A' == f(bslmf::Switch<4,A,B,A,B,A,C,C,C,C>::Type()));
+        ASSERT('C' == f(bslmf::Switch<5,A,B,A,B,A,C,C,C,C>::Type()));
+        ASSERT('C' == f(bslmf::Switch<6,A,B,A,B,A,C,C,C,C>::Type()));
+        ASSERT('C' == f(bslmf::Switch<7,A,B,A,B,A,C,C,C,C>::Type()));
+        ASSERT('C' == f(bslmf::Switch<8,A,B,A,B,A,C,C,C,C>::Type()));
+        ASSERT('0' == f(bslmf::Switch<9,A,B,A,B,A,C,C,C,C>::Type()));
 
       } break;
 

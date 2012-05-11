@@ -93,6 +93,8 @@ class bael_DefaultObserver : public bael_Observer {
     bael_DefaultObserver& operator=(const bael_DefaultObserver&);
 
   public:
+    using bael_Observer::publish;
+
     // CREATORS
     bael_DefaultObserver(bsl::ostream *stream);
         // Create a default observer that transmits log records to the

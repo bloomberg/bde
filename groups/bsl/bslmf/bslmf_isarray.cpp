@@ -1,4 +1,4 @@
-// bslmf_isarray.cpp              -*-C++-*-
+// bslmf_isarray.cpp                                                  -*-C++-*-
 #include <bslmf_isarray.h>
 
 #include <bsls_ident.h>

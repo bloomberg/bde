@@ -108,8 +108,8 @@ int verbose         = 0;
 int veryVerbose     = 0;
 int veryVeryVerbose = 0;
 
-bslma_TestAllocator ta;
-bslma_TestAllocator tda;
+bslma::TestAllocator ta;
+bslma::TestAllocator tda;
 
 //=============================================================================
 //                  GLOBAL HELPER CLASSES FOR TESTING
@@ -150,23 +150,31 @@ class Cargo {
 public:
     int              d_i;
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
     enum { BULK_STORAGE = 4000 };
 
-    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
-    Cargo(int i, bslma_Allocator *a = 0) {
+    explicit
+    Cargo(bslma_Allocator *a = 0) {
         QV_("Default:"); PV(a);
-        d_i = i;
+        d_i = 0;
         d_alloc = bslma_Default::allocator(a);
         d_p = d_alloc->allocate(BULK_STORAGE);
     }
 
-    Cargo(const Cargo& in, bslma_Allocator* a = 0) {
+    Cargo(int i, bslma_Allocator *a = 0) {
+        QV_("Set to i:"); PV(a);
+        d_i = i;
+        d_alloc = bslma::Default::allocator(a);
+        d_p = d_alloc->allocate(BULK_STORAGE);
+    }
+
+    Cargo(const Cargo& in, bslma::Allocator* a = 0) {
         QV_("Copy:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_i = in.d_i;
         d_p = d_alloc->allocate(BULK_STORAGE);
         std::memcpy(d_p, in.d_p, BULK_STORAGE);
@@ -176,6 +184,12 @@ public:
         QV("Assign:");
         d_i = in.d_i;
         std::memcpy(d_p, in.d_p, BULK_STORAGE);
+        return *this;
+    }
+
+    Cargo& operator=(int in) {
+        QV("Assign int:");
+        *this = Cargo(in);
         return *this;
     }
 
@@ -250,11 +264,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 template <typename TYPE, typename HASH, typename EQUAL>
@@ -379,13 +393,13 @@ void testMultisetManipulators()
     ASSERT(it == prIt.second);
 
     LOOP_ASSERT(hsa.count(23), 1 == hsa.count(23));
-    LOOP_ASSERT(hsa.size(), 2 == hsa.size());       
+    LOOP_ASSERT(hsa.size(), 2 == hsa.size());
 
     it = hsa.insert(23);        // redundant, will succeed
     ASSERT(23 == *it);
 
     LOOP_ASSERT(hsa.count(23), 2 == hsa.count(23));
-    LOOP_ASSERT(hsa.size(), 3 == hsa.size());       
+    LOOP_ASSERT(hsa.size(), 3 == hsa.size());
 
     prIt = hsa.equal_range(23);
     it = hsa.find(23);
@@ -398,6 +412,21 @@ void testMultisetManipulators()
     ++it;
     ASSERT(it == prIt.second);
     ASSERT(hsa.end() == it || 23 != *it);
+
+    int preRangeSize = hsa.size();
+    TYPE array[5];
+    for (int i = 0; i < 5; ++i) {
+        array[i] = 57;
+    }
+
+    hsa.insert(array + 0, array + 5);
+    LOOP_ASSERT(hsa.size() - preRangeSize,
+                                         (int) hsa.size() - preRangeSize == 5);
+    LOOP_ASSERT(hsa.count(TYPE(57)), 5 == hsa.count(TYPE(57)));
+
+    Obj hsa2(array + 0, array + 5, &ta);
+    LOOP_ASSERT(hsa2.size(), hsa2.size() == 5);
+    LOOP_ASSERT(hsa2.count(TYPE(57)), 5 == hsa2.count(TYPE(57)));
 }
 
 template <typename TYPE, typename HASH, typename EQUAL>
@@ -522,6 +551,27 @@ void testSetManipulators()
     ASSERT(it == prIt.first);
     ASSERT(23 == *prIt.first);
     ASSERT(prIt.first != prIt.second);
+
+    int preRangeSize = hsa.size();
+
+    TYPE array[5];
+    for (int i = 0; i < 5; ++i) {
+        array[i] = 57 + i;
+    }
+
+    hsa.insert(array + 0, array + 5);
+    LOOP_ASSERT(hsa.size() - preRangeSize, hsa.size() - preRangeSize == 5);
+    for (int i = 0; i < 5; ++i) {
+        LOOP2_ASSERT(57 + i, hsa.count(TYPE(57 + i)),
+                                                1 ==  hsa.count(TYPE(57 + i)));
+    }
+
+    Obj hsa2(array + 0, array + 5, &ta);
+    LOOP_ASSERT(hsa2.size(), hsa2.size() == 5);
+    for (int i = 0; i < 5; ++i) {
+        LOOP2_ASSERT(57 + i, hsa2.count(TYPE(57 + i)),
+                                                1 == hsa2.count(TYPE(57 + i)));
+    }
 }
 
 //=============================================================================
@@ -541,7 +591,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_DefaultAllocatorGuard defaultGuard(&tda);
+    bslma::DefaultAllocatorGuard defaultGuard(&tda);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
@@ -833,7 +883,7 @@ int main(int argc, char *argv[])
 
         {
             bsl::hash_multiset<int, HashInt, EqualInt> hs(v.begin(), v.end(),
-                                                                           10);
+                                                          10);
             (void) hs.count(0);
         }
 
@@ -982,7 +1032,7 @@ int main(int argc, char *argv[])
         {
             HashCargo::s_used = false;
             bsl::hash_multiset<Cargo, HashCargo> hs(cv.begin(), cv.end(), 10,
-                               &ta);
+                                                    &ta);
 
             int memUsed = ta.numBytesInUse();
             int defaultMemUsed = tda.numBytesInUse();

@@ -728,7 +728,7 @@ struct ReplaceRange: RangeBase<String> {
     ReplaceRange () { }
 
     virtual String&
-    operator() (String &str, 
+    operator() (String &str,
                 const StringTestCaseData<StringChar>& tdata) const {
 
         const StringTestCase &tcase = tdata.tcase_;
@@ -776,7 +776,7 @@ struct ReplaceRangeOverload: RangeBase<String>
     ReplaceRangeOverload () { }
 
     virtual String&
-    operator() (String &str, 
+    operator() (String &str,
                 const StringTestCaseData<StringChar>& tdata) const {
 
         const StringTestCase &tcase = tdata.tcase_;
@@ -790,7 +790,7 @@ struct ReplaceRangeOverload: RangeBase<String>
 
         const std::size_t srclen_ = tcase.arg ? tdata.arglen_ : str.size ();
 
-        const std::size_t off = 
+        const std::size_t off =
             reverse_iter ? srclen_ - tdata.off2_ - tdata.ext2_ : tdata.off2_;
         const std::size_t ext = tdata.ext2_;
 
@@ -1164,7 +1164,7 @@ void test_replace (charT*, Traits*, Allocator*,
         case StringIds::ConstIterator: TEST (const_iterator); break;
 
         case StringIds::ReverseIterator: TEST (reverse_iterator); break;
-        case StringIds::ConstReverseIterator: TEST (const_reverse_iterator); 
+        case StringIds::ConstReverseIterator: TEST (const_reverse_iterator);
             break;
 
         // exercise specializations of the member function template

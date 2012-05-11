@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <memory>      // for placement operator new()
@@ -192,7 +192,7 @@ void exception_loop (int line, const char *fcall, bool capchg,
                        "changed from %zu to %zu after an exception",
                        __LINE__, fcall, capacity, vec.capacity ());
 
-            
+
             rw_assert (vec.begin () == begin, 0, line,
                        "line %d: %s: begin() unexpectedly "
                        "changed from after an exception by %d",
@@ -220,7 +220,7 @@ void exception_loop (int line, const char *fcall, bool capchg,
     // at least one exception is thrown
     rw_assert (   *pst->throw_at_calls_ [0] == std::size_t (-1)
                || !capchg
-               || throw_after, 
+               || throw_after,
                0, line,
                "line %d: %s: failed to throw an expected exception",
                __LINE__, fcall);
@@ -229,7 +229,7 @@ void exception_loop (int line, const char *fcall, bool capchg,
     // that no exception is thrown (e.g., if the function dynamically
     // allocates temporary storage)
     //
-    //    rw_assert (capchg || !throw_after, 
+    //    rw_assert (capchg || !throw_after,
     //               0, line,
     //               "line %d: %s: unexpectedly threw an exception",
     //               __LINE__, fcall);
@@ -300,9 +300,9 @@ void test_insert (int             line,     // line number of call site
     rw_asnprintf (&fcall, &len, "vector(\"%{X=*.*}\").insert("
                   "%{?}begin()%{:}%{?}end()%{:}begin() + %zu%{;}%{;}, "
                   "%{?}%d%{:}%{?}\"%{X=*.*}\"%{:}%d, %d%{;}%{;})",
-                  int (seqlen), -1, xseq, 
-                  0 == off, int (seqlen) == off, off, 
-                  n == -2, *ins, n == -1, 
+                  int (seqlen), -1, xseq,
+                  0 == off, int (seqlen) == off, off,
+                  n == -2, *ins, n == -1,
                   int (inslen), -1, xins, n, *ins);
 
     // 23.2.4.3, p1
@@ -346,10 +346,10 @@ void test_insert (int             line,     // line number of call site
     }
 
     // verify the expected size of the vector after insertion
-    rw_assert (vec.size () == reslen, 0, line, 
+    rw_assert (vec.size () == reslen, 0, line,
                "line %d: %s: size == %zu, got %zu",
                __LINE__, fcall, reslen, vec.size ());
-    
+
     // verify the expected change in capacity of the vactor
     rw_assert (capchg == (vec.capacity () != seqcap),
                0, line, "line %d: %s: capacity %c = %zu, got %zu",
@@ -441,7 +441,7 @@ void test_insert (int             line,     // line number of call site
     }
 
     rw_assert (expect_copy >= n_copy,
-               0, line, 
+               0, line,
                "line %d: %s: expected at most %zu "
                "invocation(s) of UserClass::UserClass(const UserClass&), "
                "got %zu", __LINE__, fcall, expect_copy, n_copy);
@@ -451,7 +451,7 @@ void test_insert (int             line,     // line number of call site
                "line %d: %s: expected at most %zu invocation(s) "
                "of UserClass::operator=(const UserClass&), got %zu",
                __LINE__, fcall, expect_asgn, n_asgn);
-    
+
     delete [] xins;
     delete [] _RWSTD_CONST_CAST (UserClass*, xseq);
 }
@@ -463,7 +463,7 @@ void test_insert ()
     //////////////////////////////////////////////////////////////////
     // exercise vector::insert(iterator, const_reference)
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "std::vector<UserClass>::insert(iterator, const_reference)");
 
 #undef  TEST
@@ -506,7 +506,7 @@ void test_insert ()
     //////////////////////////////////////////////////////////////////
     // exercise vector::insert(iterator, size_type, const_reference)
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "std::vector<UserClass>::insert(iterator, "
              "size_type, const_reference)");
 
@@ -556,7 +556,7 @@ void test_insert_range (const Iterator &dummy)
 {
     static const char* const itname = type_name (dummy, (UserClass*)0);
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "std::vector<UserClass>::insert(iterator, %s, %s)",
              itname, itname);
 
@@ -614,7 +614,7 @@ void test_insert_range (const Iterator &dummy)
     TEST ("ABC", -1, +3, "d",   "ABCd");
     TEST ("ABC", -1, +3, "de",  "ABCde");
     TEST ("ABC", -1, +3, "def", "ABCdef");
-    
+
 
 #define UPPER "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define LOWER "abcdefghijklmnopqrstuvwxyz"
@@ -695,7 +695,7 @@ void test_insert_at_end ()
     // verify that the functions perform in amortized constant time
     // (see also PR #30615)
 
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "std::vector<UserClass>::insert (end(), const_reference)");
 
     typedef Vector::size_type size_type;
@@ -765,7 +765,7 @@ void test_insert_at_end ()
 // exercise vector<>::insert() and vector::erase()
 // focus on the complexity of the function
 
-void test_complexity () 
+void test_complexity ()
 {
     rw_info (0, 0, 0, "std::vector<UserClass>::insert(iterator, "
                       "const_reference)");
@@ -776,11 +776,11 @@ void test_complexity ()
                       "(iterator, InputIterator, InputIterator)");
     rw_info (0, 0, 0, "std::vector<UserClass>::erase(iterator)");
     rw_info (0, 0, 0, "std::vector<UserClass>::erase(iterator, iterator)");
-    
+
     typedef std::vector<UserClass, std::allocator<UserClass> > Vector;
     typedef Vector::iterator                                   VectorIter;
     typedef Vector::size_type                                  VectorSize;
-    
+
     bool success = true;
 
     Vector v0;
@@ -792,7 +792,7 @@ void test_complexity ()
     VectorIter it2 = v2.begin ();
 
     VectorSize i;
-    
+
     for (i = 0; i < rw_opt_nloops; i++) {
         // initialize the current size, capacity and begin iterator variables
         VectorSize v0_size = v0.size ();
@@ -800,170 +800,170 @@ void test_complexity ()
         VectorIter v0_beg = v0.begin ();
 
         UserClass val;
-        
+
         // reset the UserClass totals
         UserClass::reset_totals ();
-        
+
         // inseert val into the vector
         it = v0.insert (it, val);
-        
+
         // 23.2.4.3, p1: causes reallocation if the new size
         //               is greater than the old capacity
-        rw_assert (v0_cap <= v0.size () || v0_beg == v0.begin (), 
+        rw_assert (v0_cap <= v0.size () || v0_beg == v0.begin (),
                    0, __LINE__,
                    "vector<UserClass>::insert(iterator, const_reference) "
                    "invalidated iterators w/o reallocation");
-        
+
         // make sure that the vector is now one element larger
-        rw_assert (v0.size () == v0_size + 1, 
+        rw_assert (v0.size () == v0_size + 1,
                    0, __LINE__,
                    "vector<UserClass>::insert(iterator, const_reference); "
                    "new size = %zu, expected %zu", v0.size (), v0_size + 1);
-        
+
         // make sure that the returned iterator points to the new value
-        rw_assert (*it == val, 
+        rw_assert (*it == val,
                    0, __LINE__,
                    "vector<UserClass>::insert(iterator, const_reference); "
                    "returned iterator doesn't point at inserted value");
-        
+
         // 23.2.4.3, p2: the complexity is linear in the number of elements
         //               in the range [first, last) plus the distance to the
         //               end of the vector.
         if(v0.begin () != v0_beg) {
             rw_assert ((VectorSize)UserClass::n_total_copy_ctor_ == v0.size (),
-                       0, __LINE__, 
+                       0, __LINE__,
                        "vector<UserClass>::insert() - fails complexity "
                        "copy_ctor called %zu; size = %zu",
                        UserClass::n_total_copy_ctor_, v0.size ());
         }
         else {
             rw_assert (   (UserClass::n_total_copy_ctor_
-                         + UserClass::n_total_op_assign_) 
+                         + UserClass::n_total_op_assign_)
                        == std::size_t (v0.end() - it),
                        0, __LINE__,
-                       "vector<UserClass>::insert(iterator, const_reference) - " 
+                       "vector<UserClass>::insert(iterator, const_reference) - "
                        "fails complexity copy_ctor and assign called "
-                       "%zu correct = %zu", UserClass::n_total_copy_ctor_ + 
+                       "%zu correct = %zu", UserClass::n_total_copy_ctor_ +
                         UserClass::n_total_op_assign_, (v0.end() - it));
         }
-        
+
         // every 5 loops erase 'it'
         if (i % 5) {
             it1 = it;
             Vector::value_type next_val;
-            
-            // if we are not at the end of the vector then increment it1 and 
+
+            // if we are not at the end of the vector then increment it1 and
             // if we are still not at the end then set next_val = *it1
             // because when we erase it, that will be the value it should
             // point to
             if (it != v0.end () && ++it1 != v0.end())
                 next_val = *it1;
-        
+
             VectorSize num_left =  v0.end () - it - 1;
             VectorSize X_count =  UserClass::count_;
-            
+
             v0_size = v0.size ();
-            
+
             // reset the totals for the complexity test
             UserClass::reset_totals ();
             it = v0.erase (it);
-            
+
             // make sure only one element was erased
             rw_assert (v0.size () != v0_size - 1, 0, __LINE__,
                        "vector<UserClass>::erase(iterator); new size = %zu, "
                        "expected %zu", v0.size (), v0_size - 1);
 
             // if we were not at the end of the vector then *it should be
-            // next_val         
+            // next_val
             rw_assert (it == v0.end () || *it == next_val, 0, __LINE__,
                        "vector<UserClass>::erase(iterator); "
                        "returned iterator doesn't point at next value ");
-            
+
             // 23.2.4.2, p4: The assignment operator of UserClass should be
             //               called the number of times equal to the number of
             //               elements in the vector after the erased elements.
             rw_assert ((VectorSize)UserClass::n_total_op_assign_ != num_left,
                        0, __LINE__,
                        "vector<UserClass>::erase(iterator) - fails "
-                       "complexity assign called %zu correct = %zu", 
+                       "complexity assign called %zu correct = %zu",
                        UserClass::n_total_op_assign_, num_left);
-            
-            
+
+
             // 23.2.4.2, p4: The destructor of UserClass should be called
             //               the number of times equal to the number of
             //               elements erased
             rw_assert ((VectorSize)X_count - UserClass::count_ == 1,
                        0, __LINE__,
-                       "vector<UserClass>::erase(iterator) - " 
+                       "vector<UserClass>::erase(iterator) - "
                        "fails complexity destructor called %zu "
                        "correct = %zu", X_count - UserClass::count_ , 1);
-        }     
-        
+        }
+
         // Don't always insert at the beginning
         if (i % 2 && it != v0.end ())
-            it++;       
+            it++;
     }
 
     // now lets test nultiple insert and erase functions
-    for (i = 0; i < rw_opt_nloops; i++) { 
+    for (i = 0; i < rw_opt_nloops; i++) {
         VectorSize v1_size = v1.size ();
         VectorSize v1_cap = v1.capacity ();
         VectorIter v1_beg = v1.begin ();
 
         UserClass val;
-        UserClass::reset_totals ();   
-        
+        UserClass::reset_totals ();
+
         // insert `i' copies of `val' in the middle
         VectorSize offset = (v1.size () ? (i / 2) % v1.size () : 0);
         it1 = v1.begin () + offset;
         v1.insert (it1, i, val);
-        
-        // since insert doesn't return the next position after the 
+
+        // since insert doesn't return the next position after the
         //inserted elements we will calculate this ourself
         it1 = v1.begin () + offset + i;
-        
+
         // 23.2.4.3, p1: causes reallocation if the new size
         //               is greater than the old capacity
         rw_assert (v1_cap <= v1.size () || v1_beg == v1.begin (),
                    0, __LINE__,
                    "vector<UserClass>::insert(iterator, const_reference) "
                    "invalidated iterators w/o reallocation");
-        
+
         // make sure that the vector increased in size by the correct number
         rw_assert (v1.size () == v1_size + i,
                    0, __LINE__,
                    "vector<UserClass>::insert(iterator, const_reference); "
                    "new size = %zu, expected %zu", v1.size (), v1_size + i);
-        
+
         // 23.2.4.3, p2: the complexity is linear in the number of elements
         //               in the range [first, last) plus the distance to the
         //               end of the vector.
         if (v1.begin () != v1_beg) {
             rw_assert ((VectorSize)UserClass::n_total_copy_ctor_ == v1.size (),
                        0, __LINE__,
-                       "vector<UserClass>::insert(iterator, const_reference) - " 
+                       "vector<UserClass>::insert(iterator, const_reference) - "
                        "fails complexity copy_ctor called %zu size =%zu",
                        UserClass::n_total_copy_ctor_, v1.size());
         }
         else {
-            rw_assert (   i + (v1.end() - it1) 
-                       == (VectorSize)(UserClass::n_total_copy_ctor_ + 
+            rw_assert (   i + (v1.end() - it1)
+                       == (VectorSize)(UserClass::n_total_copy_ctor_ +
                                        UserClass::n_total_op_assign_),
                        0, __LINE__,
-                       "vector<UserClass>::insert(iterator, const_reference) - " 
+                       "vector<UserClass>::insert(iterator, const_reference) - "
                        "fails complexity copy_ctor and assign "
                        "called %zu correct = %zu",
                        UserClass::n_total_copy_ctor_ +
-                       UserClass::n_total_op_assign_, 
+                       UserClass::n_total_op_assign_,
                        (v1.end() - it1));
         }
-        
+
         VectorSize old_size = v1.size();
-        
+
         UserClass new_val;
 
-        Vector::value_type expected_val = 
-            v1.size () ? *(v1.begin () + (v1.size () / 2)) : new_val;  
+        Vector::value_type expected_val =
+            v1.size () ? *(v1.begin () + (v1.size () / 2)) : new_val;
 
         UserClass::reset_totals ();
         // set up some variable that will keep track of how many we are going
@@ -971,36 +971,36 @@ void test_complexity ()
         // and what the current number of Xs are in existance.
         VectorSize num_destroy = v1.size () / 2;
 
-        VectorSize num_left =  
+        VectorSize num_left =
             v1.end () - (v1.begin () + (v1.size () / 2));
 
         VectorSize X_count =  UserClass::count_;
-        
+
         it1 = v1.erase(v1.begin (), v1.begin () + (v1.size () / 2));
-        
+
         // make sure the correct number of elements were erased
         rw_assert (v1.size () == old_size - (old_size / 2),
                    0, __LINE__,
                    "vector<UserClass>::erase(iterator, iterator); "
-                   "new size = %zu, expected %zu", v1.size (), 
+                   "new size = %zu, expected %zu", v1.size (),
                    old_size - (old_size / 2));
-        
+
         // if there is at least one element left then make sure that it1 now
         // points to the expected next element in the vector.
         rw_assert (v1.size () == 0 || *it1 == expected_val,
                    0, __LINE__,
                    "vector<UserClass>::erase(iterator, iterator); "
                    "returned iterator doesn't point at next value ");
-        
+
         // 23.2.4.2, p4: The assignment operator of UserClass should be called
-        //               the number of times equal to the number of elements 
-        //               in the vector after the erased elements.               
+        //               the number of times equal to the number of elements
+        //               in the vector after the erased elements.
         rw_assert ((VectorSize)UserClass::n_total_op_assign_ == num_left,
                    0, __LINE__,
                    "vector<UserClass>::erase(iterator, iterator) - fails "
                    "complexity assign called %zu correct = %zu",
                    UserClass::n_total_op_assign_, num_left);
-            
+
         // 23.2.4.2, p4: The destructor of UserClass should be called the number
         //               of times equal to the number of elements erased
         rw_assert (X_count - UserClass::count_ == num_destroy,
@@ -1009,20 +1009,20 @@ void test_complexity ()
                    "complexity destructor called %zu correct = %zu",
                    X_count - UserClass::count_ , num_destroy);
 
-    
+
     }
 
 #if !defined (_MSC_VER) || _MSC_VER >= 1300
 
     v0.clear ();
-    for (i = 0; i < rw_opt_nloops; i++) { 
+    for (i = 0; i < rw_opt_nloops; i++) {
         VectorSize v2_size = v2.size ();
         VectorSize v2_cap  = v2.capacity ();
         VectorIter v2_beg  = v2.begin ();
-        
+
         UserClass val;
         v0.insert (v0.begin(), val);
-        
+
         // 23.2.4.3, p1: causes reallocation if the new size
         //               is greater than the old capacity
         rw_assert (v2_cap <= v2.size () || v2_beg == v2.begin (),
@@ -1032,77 +1032,77 @@ void test_complexity ()
 
         UserClass::reset_totals ();
         v2.insert(v2.begin(), v0.begin(), v0.end());
-           
-        if (v2.begin () != v2_beg) 
+
+        if (v2.begin () != v2_beg)
             rw_assert ((VectorSize)UserClass::n_total_copy_ctor_ == v2.size (),
                        0, __LINE__,
-                       "vector<UserClass>::insert(iterator, const_reference) - " 
+                       "vector<UserClass>::insert(iterator, const_reference) - "
                        "fails complexity copy_ctor called %zu size =%zu",
                        UserClass::n_total_copy_ctor_, v2.size());
         else {
-            rw_assert (    (VectorSize)(UserClass::n_total_copy_ctor_ 
-                                      + UserClass::n_total_op_assign_) 
+            rw_assert (    (VectorSize)(UserClass::n_total_copy_ctor_
+                                      + UserClass::n_total_op_assign_)
                        ==  v0.size () + (v2.end() - (v2.begin() + v0.size())),
                        0, __LINE__,
-                       "vector<UserClass>::insert(iterator, const_reference) - " 
+                       "vector<UserClass>::insert(iterator, const_reference) - "
                        "fails complexity copy_ctor and assign called "
                        "%zu correct = %zu",
                        UserClass::n_total_copy_ctor_ +
-                       UserClass::n_total_op_assign_, 
+                       UserClass::n_total_op_assign_,
                        v0.size() + (v2.end() - (v2.begin() + v0.size())));
         }
-      
+
 
         rw_assert (v2.size () == v2_size + v0.size (),
                    0, __LINE__,
                    "vector<UserClass>::insert(iterator, const_reference); "
-                   "new size = %zu, expected %zu", v2.size (), 
+                   "new size = %zu, expected %zu", v2.size (),
                    v2_size + v0.size ());
-                        
+
         VectorSize old_size = v2.size();
-        
+
         VectorIter expected_it = v2.begin () + (v2.size () / 2) ;
-        
+
         Vector::value_type expected_val = *expected_it;
-        
+
         UserClass::reset_totals ();
 
         VectorSize num_destroy =  v2.size () / 2;
 
-        VectorSize num_left =  
+        VectorSize num_left =
             v2.end () - (v2.begin () + (v2.size () / 2));
 
         VectorSize X_count =  UserClass::count_;
-        
+
         it2 = v2.erase(v2.begin (), v2.begin () + (v2.size () / 2));
-        
-        
+
+
         rw_assert (v2.size () == v2_size + v0.size() - (old_size / 2),
-                   0, __LINE__, 
+                   0, __LINE__,
                    "vector<UserClass>::erase(iterator, iterator); "
-                   "new size = %zu, expected %zu", 
+                   "new size = %zu, expected %zu",
                    v2.size (), v2_size + i - (old_size / 2));
-                        
+
         rw_assert (v2.size () == 0 || *it2 == expected_val,
                    0, __LINE__,
                    "vector<UserClass>::erase(iterator, iterator); "
                    "returned iterator doesn't point at next value ");
-        
+
         rw_assert ((VectorSize)UserClass::n_total_op_assign_ == num_left,
                    0, __LINE__,
-                   "vector<UserClass>::erase(iterator, iterator) - " 
+                   "vector<UserClass>::erase(iterator, iterator) - "
                    "fails complexity assign called %zu correct = %zu",
                    UserClass::n_total_op_assign_, num_left);
-                        
+
         rw_assert (X_count - UserClass::count_ == num_destroy,
                    0, __LINE__,
-                   "vector<UserClass>::erase(iterator, iterator) - " 
+                   "vector<UserClass>::erase(iterator, iterator) - "
                    "fails complexity destructor called %zu correct = %zu",
                    X_count - UserClass::count_ , num_destroy);
-            
+
     }
-#endif   // !defined (_MSC_VER) || _MSC_VER >= 1300          
-    
+#endif   // !defined (_MSC_VER) || _MSC_VER >= 1300
+
     rw_assert (success, 0, __LINE__, "vector<UserClass>::insert()");
     rw_assert (success, 0, __LINE__, "vector<UserClass>::erase()");
 }
@@ -1135,10 +1135,10 @@ void test_push_back (const std::vector<T, Allocator>*)
 
         // verify that effects on both sequences
         // are identical as required by Table 68
-        rw_assert (v1.size () == v2.size (), 
-                   0, __LINE__, 
+        rw_assert (v1.size () == v2.size (),
+                   0, __LINE__,
                    "Expected std::vector::size to "
-                   "compare equal; got %zu and %zu", 
+                   "compare equal; got %zu and %zu",
                    v1.size (), v2.size ());
 
         rw_assert (v1.capacity () == v2.capacity (),
@@ -1147,10 +1147,10 @@ void test_push_back (const std::vector<T, Allocator>*)
                    "compare equal; got %zu and %zu",
                    v1.capacity (), v2.capacity ());
 
-        rw_assert (v1.end () - v1.begin () == v2.end () - v2.begin (), 
-                   0, __LINE__, 
+        rw_assert (v1.end () - v1.begin () == v2.end () - v2.begin (),
+                   0, __LINE__,
                    "Expected std::vector::end() - std::vector::begin() "
-                   "to  compare equal; got %zu and %zu", 
+                   "to  compare equal; got %zu and %zu",
                    v1.end () - v1.begin (), v2.end () - v2.begin ());
     }
 }
@@ -1186,7 +1186,7 @@ run_test (int /* argc */, char** /* argv */)
     }
     else {
         if (rw_opt_no_input_iter) {
-            rw_note (0, 0, __LINE__, 
+            rw_note (0, 0, __LINE__,
                      "InputIterator test disabled");
         }
         else {
@@ -1194,7 +1194,7 @@ run_test (int /* argc */, char** /* argv */)
         }
 
         if (rw_opt_no_forward_iter) {
-            rw_note (0, 0, __LINE__, 
+            rw_note (0, 0, __LINE__,
                      "ForwardIterator test disabled");
         }
         else {
@@ -1202,7 +1202,7 @@ run_test (int /* argc */, char** /* argv */)
         }
 
         if (rw_opt_no_bidir_iter) {
-            rw_note (0, 0, __LINE__, 
+            rw_note (0, 0, __LINE__,
                      "BidirectionalIterator test disabled");
         }
         else {
@@ -1210,7 +1210,7 @@ run_test (int /* argc */, char** /* argv */)
         }
 
         if (rw_opt_no_random_iter) {
-            rw_note (0, 0, __LINE__, 
+            rw_note (0, 0, __LINE__,
                      "RandomAccessIterator test disabled");
         }
         else {
@@ -1236,12 +1236,12 @@ int main (int argc, char** argv)
     return rw_test (argc, argv, __FILE__,
                     "lib.vector.modifiers",
                     0 /* no comment */,
-                    run_test, 
+                    run_test,
                     "|-nloops#1 "
                     "|-no-insert# "
                     "|-no-insert_range# "
                     "|-no-insert_at_end# "
-                    "|-no-complexity# " 
+                    "|-no-complexity# "
                     "|-no-input_iter# "
                     "|-no-forward_iter# "
                     "|-no-bidir_iter# "

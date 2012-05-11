@@ -10,13 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a utility to set up SFINAE conditions in type deduction.
 //
 //@CLASSES:
-//  bslmf_EnableIf: meta-function to drop function templates from overload sets
+//  bslmf::EnableIf: meta-function to drop function templates from overload
+//                   sets
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
 //
 //@SEE_ALSO:
 //
-//@DESCRIPTION: This component contains the class template 'bslma_EnableIf', a
+//@DESCRIPTION: This component contains the class template 'bslma::EnableIf', a
 // "meta-function" that can cause a deduced function template instantiation to
 // fail in a way compatible with the C++ SFINAE rules, and so remove that
 // (potential) instantiation as a candidate from the overload set.
@@ -24,23 +25,23 @@ BSLS_IDENT("$Id: $")
 ///Visual Studio Workaround
 ///------------------------
 // Because of a Visual Studio bug, described here:
-// http://connect.microsoft.com/VisualStudio/feedback/details/332179/
-// The Microsoft Visual Studio compiler may not correctly associate a function
-// declaration that uses 'bslmf_EnableIf' with that function's definition, if
-// the definition is not inline to the declaration.   This bug effects at
-// least Visual Studio 2008 and 2010.  The work-around is to implement
-// functions using 'bslmf_EnableIf' in-line with their declaration.
+// http://connect.microsoft.com/VisualStudio/feedback/details/332179/ The
+// Microsoft Visual Studio compiler may not correctly associate a function
+// declaration that uses 'bslmf::EnableIf' with that function's definition, if
+// the definition is not inline to the declaration.  This bug effects at least
+// Visual Studio 2008 and 2010.  The work-around is to implement functions
+// using 'bslmf::EnableIf' in-line with their declaration.
 //
 ///Usage
 ///-----
-// The following snippets of code illustrate basic use of the 'bslmf_EnableIf'
+// The following snippets of code illustrate basic use of the 'bslmf::EnableIf'
 // meta-function.  We will demonstrate how to use this utility to control
 // overload sets with three increasingly complex examples.
 //
-///Example 1: Implementing a Simple Function with 'bslmf_EnableIf'
+///Example 1: Implementing a Simple Function with 'bslmf::EnableIf'
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// For the first example we will implement a simple 'Swap' function template
-// to exchange two arbitrary values, as if declared as below:
+// For the first example we will implement a simple 'Swap' function template to
+// exchange two arbitrary values, as if declared as below:
 //..
 //  template<class T>
 //  void DummySwap(T& a, T& b)
@@ -66,7 +67,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Now we can implement a generic 'Swap' function template that will invoke the
 // member swap operation for any type that specialized our trait.  The use of
-// 'bslmf_EnableIf' to declare the result type causes an attempt to deduce the
+// 'bslmf::EnableIf' to declare the result type causes an attempt to deduce the
 // type 'T' to fail unless the specified condition is 'true', and this falls
 // under the "Substitution Failure Is Not An Error" (SFINAE) clause of the C++
 // standard, so the compiler will look for a more suitable overload rather than
@@ -77,14 +78,14 @@ BSLS_IDENT("$Id: $")
 // will ever be present in an overload set.
 //..
 //  template<class T>
-//  typename bslmf_EnableIf<HasMemberSwap<T>::VALUE>::type
+//  typename bslmf::EnableIf<HasMemberSwap<T>::VALUE>::type
 //  Swap(T& a, T& b)
 //  {
 //      a.swap(b);
 //  }
 //
 //  template<class T>
-//  typename bslmf_EnableIf< ! HasMemberSwap<T>::VALUE>::type
+//  typename bslmf::EnableIf< ! HasMemberSwap<T>::VALUE>::type
 //  Swap(T& a, T& b)
 //  {
 //      T temp(a);
@@ -198,10 +199,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 2: Using the 'bslmf_EnableIf' Result Type
+///Example 2: Using the 'bslmf::EnableIf' Result Type
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
 // For the next example, we will demonstrate the use of the second template
-// parameter in the 'bslmf_EnableIf' template, which serves as the "result"
+// parameter in the 'bslmf::EnableIf' template, which serves as the "result"
 // type if the test condition passes.  Assume we want to write a generic
 // function to allow us to cast between pointers of different types.  If the
 // types are polymorphic, we can use 'dynamic_cast' to potentially cast between
@@ -211,8 +212,8 @@ BSLS_IDENT("$Id: $")
 //
 //..
 //  template<class TO, class FROM>
-//  typename bslmf_EnableIf<bslmf_IsPolymorphic<FROM>::VALUE &&
-//                                              bslmf_IsPolymorphic<TO>::VALUE,
+//  typename bslmf::EnableIf<bslmf::IsPolymorphic<FROM>::VALUE &&
+//                                             bslmf::IsPolymorphic<TO>::VALUE,
 //                          TO>::type *
 //  smart_cast(FROM *from)
 //      // Returns a pointer to the specified 'TO' type if the specified 'from'
@@ -223,8 +224,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  template<class TO, class FROM>
-//  typename bslmf_EnableIf<not(bslmf_IsPolymorphic<FROM>::VALUE &&
-//                                             bslmf_IsPolymorphic<TO>::VALUE),
+//  typename bslmf::EnableIf<not(bslmf::IsPolymorphic<FROM>::VALUE &&
+//                                            bslmf::IsPolymorphic<TO>::VALUE),
 //                          TO>::type *
 //  smart_cast(FROM *from)
 //      // Return the specified 'from' pointer value cast as a pointer to type
@@ -286,7 +287,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 //
-///Example 3: Controlling Constructor Selection with 'bslmf_EnableIf'
+///Example 3: Controlling Constructor Selection with 'bslmf::EnableIf'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The final example demonstrates controlling the selection of a constructor
 // template in a class with (potentially) many constructors.  We define a
@@ -300,11 +301,11 @@ BSLS_IDENT("$Id: $")
 // iterator type, forming a valid range.  We need to avoid calling this
 // constructor unless the deduced type really is an iterator, otherwise a
 // compile-error will occur trying to instantiate that constructor with an
-// incompatible argument type.  We use 'bslmf_EnableIf' to create a deduction
+// incompatible argument type.  We use 'bslmf::EnableIf' to create a deduction
 // context where SFINAE can kick in.  Note that we cannot deduce the '::type'
 // result of a metafunction, and there is no result type (as with a regular
 // function) to decorate, so we add an extra dummy argument using a pointer
-// type (produced from 'bslma_EnableIf::type') with a default null argument:
+// type (produced from 'bslma::EnableIf::type') with a default null argument:
 //..
 //  template<class T>
 //  class MyVector {
@@ -326,8 +327,8 @@ BSLS_IDENT("$Id: $")
 //
 //      template<typename FORWARD_ITERATOR>
 //      MyVector(FORWARD_ITERATOR first, FORWARD_ITERATOR last,
-//                  typename bslmf_EnableIf<
-//                                !bslmf_IsFundamental<FORWARD_ITERATOR>::VALUE
+//                  typename bslmf::EnableIf<
+//                               !bslmf::IsFundamental<FORWARD_ITERATOR>::VALUE
 //                                                              >::type * = 0)
 //          // Create a 'MyVector' object having the same sequence of values as
 //          // found in range described by the iterators '[first, last)'.
@@ -415,13 +416,15 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                         // ===============
-                         // struct bslmf_If
-                         // ===============
+namespace bslmf {
+
+                         // =========
+                         // struct If
+                         // =========
 
 
 template<bool BSLMA_CONDITION, class BSLMA_TYPE = void>
-struct bslmf_EnableIf {
+struct EnableIf {
     // This metafunction class defines a type alias, 'type', to the specified
     // type-parameter 'BSLMA_TYPE' if, and only if, 'BSLMA_CONDITION' is
     // 'true'.
@@ -430,13 +433,25 @@ struct bslmf_EnableIf {
 };
 
 template<class BSLMA_TYPE>
-struct bslmf_EnableIf <false, BSLMA_TYPE> {
+struct EnableIf <false, BSLMA_TYPE> {
     // This partial specialization of the meta-function class guarantees that
     // no type alias 'type' is supplied when the specified boolean value is
     // 'false'.  Note that this class definition is intentionally empty.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_EnableIf
+#undef bslmf_EnableIf
+#endif
+#define bslmf_EnableIf bslmf::EnableIf
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

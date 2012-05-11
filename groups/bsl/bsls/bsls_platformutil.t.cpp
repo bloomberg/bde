@@ -47,8 +47,8 @@ using namespace std;
 // [ 1] BSLS_PLATFORMUTIL__IS_BIG_ENDIAN
 // [ 5] BSLS_PLATFORMUTIL__NO_64_BIT_CONSTANTS
 //-----------------------------------------------------------------------------
-// [ 6] operator<<(ostream&, const bsls_PlatformUtil::Int64&);
-// [ 7] operator<<(ostream&, const bsls_PlatformUtil::Uint64&);
+// [ 6] operator<<(ostream&, const bsls::PlatformUtil::Int64&);
+// [ 7] operator<<(ostream&, const bsls::PlatformUtil::Uint64&);
 // [ 8] USAGE EXAMPLE
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
@@ -91,14 +91,14 @@ static void aSsErT(int c, const char *s, int i)
 #define INT64_FMT_STR  "0x%llX"
 #endif
 
-char *hex64(char *buffer, bsls_PlatformUtil::Uint64 value)
+char *hex64(char *buffer, bsls::PlatformUtil::Uint64 value)
     // Convert the specified 64-bit 'value' to a hexadecimal string.
 {
     sprintf(buffer, INT64_FMT_STR, value);
     return buffer;
 }
 
-void printBits(bsls_PlatformUtil::Uint64 value)
+void printBits(bsls::PlatformUtil::Uint64 value)
     // Print the individual bits of the specified 64-bit 'value'.
 {
     char *bytes = reinterpret_cast<char *>(&value);
@@ -185,7 +185,7 @@ static bool isLittleEndian()
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-// 'bsls_PlatformUtil::size_type' identifies the preferred integral type
+// 'bsls::PlatformUtil::size_type' identifies the preferred integral type
 // denoting the number of elements in a container, and the number of bytes in
 // a single block of memory supplied by an allocator.  For example, a typical
 // use is as a 'typedef' in an STL container:
@@ -195,7 +195,7 @@ static bool isLittleEndian()
         // ...
 
       public:
-        typedef bsls_PlatformUtil::size_type size_type;
+        typedef bsls::PlatformUtil::size_type size_type;
 
         // ...
     };
@@ -205,8 +205,8 @@ static bool isLittleEndian()
 /// - - - - - - - - - -
 // The functions:
 //..
-//  bool bsls_PlatformUtil::isLittleEndian();
-//  bool bsls_PlatformUtil::isBigEndian();
+//  bool bsls::PlatformUtil::isLittleEndian();
+//  bool bsls::PlatformUtil::isBigEndian();
 //..
 // encapsulate the capability of determining whether a machine is big- or
 // little-endian across all supported platforms.  In addition, certain
@@ -271,16 +271,16 @@ int main(int argc, char *argv[])
 //
 ///Types
 ///- - -
-// 'bsls_PlatformUtil::Int64' and 'bsls_PlatformUtil::Uint64' identify the
+// 'bsls::PlatformUtil::Int64' and 'bsls::PlatformUtil::Uint64' identify the
 // preferred fundamental types denoting signed and unsigned 64-bit integers,
 // respectively:
 //..
-    bsls_PlatformUtil::Uint64 stimulus = 787000000000ULL;
+    bsls::PlatformUtil::Uint64 stimulus = 787000000000ULL;
 //..
 // Clients can use these types in the same way as an 'int'.  Clients can also
 // mix usage with other fundamental integral types:
 //..
-    bsls_PlatformUtil::Uint64 nationalDebt = 1000000000000ULL;
+    bsls::PlatformUtil::Uint64 nationalDebt = 1000000000000ULL;
     nationalDebt += stimulus;
 
     unsigned int deficitReduction = 1000000000;
@@ -295,7 +295,7 @@ if (verbose)
         const short x      = 0x1001;
         const short xPrime = 0x0110;
 
-        if (bsls_PlatformUtil::isBigEndian()) {
+        if (bsls::PlatformUtil::isBigEndian()) {
             ASSERT(x      == convertToNetworkByteOrder(x));
         }
         else {
@@ -320,15 +320,15 @@ if (verbose)
         //   those as well.
         //
         // Testing:
-        //   'operator<<' with const bsls_PlatformUtil::Uint64&
+        //   'operator<<' with const bsls::PlatformUtil::Uint64&
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
             << "Testing 64-bit unsigned integer streaming support." << endl
             << "==================================================" << endl;
 
-        typedef bsls_PlatformUtil::Uint64 T;
-        typedef bsls_PlatformUtil::Int64  S;
+        typedef bsls::PlatformUtil::Uint64 T;
+        typedef bsls::PlatformUtil::Int64  S;
 
         static const struct {
             int         d_lineNum;    // source line number
@@ -406,9 +406,9 @@ if (verbose)
                 LOOP_ASSERT(LINE, 0 == memcmp(buf1, FMT, SZ));
                 LOOP_ASSERT(LINE, 0 == memcmp(buf2, FMT, SZ));
                 LOOP_ASSERT(LINE, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ,
-                                                                        REST));
+                                              REST));
                 LOOP_ASSERT(LINE, 0 == memcmp(buf2 + SZ, CTRL_BUF2 + SZ,
-                                                                        REST));
+                                              REST));
             }
         }
 
@@ -467,7 +467,7 @@ if (verbose)
                 LOOP_ASSERT(LINE, 0 == memcmp(buf1, FMT, SZ));
                 LOOP_ASSERT(LINE, 0 == memcmp(buf2, FMT, SZ));
                 LOOP_ASSERT(LINE, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ,
-                                                                        REST));
+                                              REST));
             }
         }
       } break;
@@ -488,14 +488,14 @@ if (verbose)
         //   those as well.
         //
         // Testing:
-        //   'operator<<' with const bsls_PlatformUtil::Int64&
+        //   'operator<<' with const bsls::PlatformUtil::Int64&
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
             << "Testing 64-bit signed integer streaming support." << endl
             << "================================================" << endl;
 
-        typedef bsls_PlatformUtil::Int64 T;
+        typedef bsls::PlatformUtil::Int64 T;
 
         static const struct {
             int         d_lineNum;    // source line number
@@ -668,8 +668,8 @@ if (verbose)
         if (veryVerbose) cout << "No 64-bit integer constants." << endl;
 #else
         if (veryVerbose) cout << "64-bit integer constants supported." << endl;
-        typedef bsls_PlatformUtil::Int64 T;
-        typedef bsls_PlatformUtil::Uint64 U;
+        typedef bsls::PlatformUtil::Int64 T;
+        typedef bsls::PlatformUtil::Uint64 U;
 
         T  i, iHi, iLo, iTest;
         U u, uHi, uLo, uTest;
@@ -728,7 +728,7 @@ if (verbose)
         if (verbose) cout << endl << "MAXIMUM ALIGNMENT TEST" << endl
                                   << "======================" << endl;
 
-        typedef bsls_PlatformUtil U;
+        typedef bsls::PlatformUtil U;
 
         struct ShortAlign       { char c; short  d_short;           };
         struct IntAlign         { char c; int    d_int;             };
@@ -743,7 +743,7 @@ if (verbose)
                                                d_8BytesAlignedType; };
 #endif
         struct MaxAlignAlign    { char c;
-                       bsls_AlignmentUtil::MaxAlignedType d_maxAlign; };
+                       bsls::AlignmentUtil::MaxAlignedType d_maxAlign; };
 
         const int EXP =
             1 + ( (1                                       - 1) // char
@@ -757,18 +757,18 @@ if (verbose)
                 | (offsetof(VoidPtrAlign, d_voidPtr)       - 1)
 #if defined(BSLS_PLATFORM__CPU_X86) && defined(BSLS_PLATFORM__CMP_GNU)
                 | (offsetof(Test8bytesAlign,
-                                d_8BytesAlignedType)       - 1)
+                            d_8BytesAlignedType)           - 1)
 #endif
                 );
 
         const int maxAlignment = offsetof(MaxAlignAlign, d_maxAlign);
         if (veryVerbose) {
             TAB; P_(maxAlignment);
-            P_(sizeof(bsls_AlignmentUtil::MaxAlignedType)); P(EXP);
+            P_(sizeof(bsls::AlignmentUtil::MaxAlignedType)); P(EXP);
         }
 
         ASSERT(EXP == maxAlignment);
-        ASSERT(EXP == sizeof(bsls_AlignmentUtil::MaxAlignedType));
+        ASSERT(EXP == sizeof(bsls::AlignmentUtil::MaxAlignedType));
 
         ASSERT(0 == U::roundUpToMaximalAlignment(0));
 
@@ -804,7 +804,7 @@ if (verbose)
             << "Testing size_type" << endl
             << "=================" << endl;
 
-        typedef bsls_PlatformUtil Util;
+        typedef bsls::PlatformUtil Util;
 
         // Must be at least as wide as an int.
 #ifdef BSLS_PLATFORM__CPU_64_BIT
@@ -854,7 +854,7 @@ if (verbose)
             << "Testing Int64 & Uint64" << endl
             << "======================" << endl;
 
-        typedef bsls_PlatformUtil Util;
+        typedef bsls::PlatformUtil Util;
 
         // Must be right size.
         ASSERT(8 == sizeof(Util::Int64));
@@ -904,10 +904,10 @@ if (verbose)
             << "Testing little-endian & big-endian functions/macros." << endl
             << "====================================================" << endl;
 
-        typedef bsls_PlatformUtil Util;
+        typedef bsls::PlatformUtil Util;
 
         if (verbose) cout << "This platform is " <<
-            (bsls_PlatformUtil::isBigEndian() ? "BIG ENDIAN" : "LITTLE ENDIAN")
+           (bsls::PlatformUtil::isBigEndian() ? "BIG ENDIAN" : "LITTLE ENDIAN")
             << '.' << endl;
 
         // Must be boolean values

@@ -1,4 +1,4 @@
-// bslalg_typetraitnil.t.cpp                  -*-C++-*-
+// bslalg_typetraitnil.t.cpp                                          -*-C++-*-
 
 #include <bslalg_typetraitnil.h>
 
@@ -65,7 +65,7 @@ int verbose = 0;
 int veryVerbose = 0;
 int veryVeryVerbose = 0;
 
-typedef bslalg_TypeTraitNil  Obj;
+typedef bslalg::TypeTraitNil  Obj;
 
 //=============================================================================
 //                  USAGE EXAMPLE
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitNil;
+        //   class bslalg::TypeTraitNil;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

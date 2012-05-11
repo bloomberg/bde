@@ -64,6 +64,7 @@ typedef std::basic_string<Char, CharTraits, CharAllocator> String;
 #ifdef INCLUDED_BSLSTL_STRING
 #define _RWSTD_NEW_CAPACITY(BString, p, n) ((p)->capacity())
 namespace bsl {
+
 typedef basic_string<Char, CharTraits, CharAllocator> BString;
 _RWSTD_SPECIALIZED_CLASS
 String::size_type BString::max_size () const

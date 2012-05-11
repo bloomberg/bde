@@ -34,6 +34,8 @@ const int bdem_BerEncoderOptions::DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE = 
 
 const bool bdem_BerEncoderOptions::DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS = true;
 
+const bool bdem_BerEncoderOptions::DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY = false;
+
 const bdeat_AttributeInfo bdem_BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_TRACE_LEVEL,
@@ -53,6 +55,13 @@ const bdeat_AttributeInfo bdem_BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS,
         "EncodeEmptyArrays",
         sizeof("EncodeEmptyArrays") - 1,
+        "",
+        bdeat_FormattingMode::BDEAT_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY,
+        "EncodeDateAndTimeTypesAsBinary",
+        sizeof("EncodeDateAndTimeTypesAsBinary") - 1,
         "",
         bdeat_FormattingMode::BDEAT_TEXT
     }
@@ -128,6 +137,41 @@ const bdeat_AttributeInfo *bdem_BerEncoderOptions::lookupAttributeInfo(
                 return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE];
             }
         } break;
+        case 30: {
+            if (name[0]=='E'
+             && name[1]=='n'
+             && name[2]=='c'
+             && name[3]=='o'
+             && name[4]=='d'
+             && name[5]=='e'
+             && name[6]=='D'
+             && name[7]=='a'
+             && name[8]=='t'
+             && name[9]=='e'
+             && name[10]=='A'
+             && name[11]=='n'
+             && name[12]=='d'
+             && name[13]=='T'
+             && name[14]=='i'
+             && name[15]=='m'
+             && name[16]=='e'
+             && name[17]=='T'
+             && name[18]=='y'
+             && name[19]=='p'
+             && name[20]=='e'
+             && name[21]=='s'
+             && name[22]=='A'
+             && name[23]=='s'
+             && name[24]=='B'
+             && name[25]=='i'
+             && name[26]=='n'
+             && name[27]=='a'
+             && name[28]=='r'
+             && name[29]=='y')
+            {
+                return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
+            }
+        } break;
     }
     return 0;
 }
@@ -141,6 +185,8 @@ const bdeat_AttributeInfo *bdem_BerEncoderOptions::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_BDE_VERSION_CONFORMANCE];
       case ATTRIBUTE_ID_ENCODE_EMPTY_ARRAYS:
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_EMPTY_ARRAYS];
+      case ATTRIBUTE_ID_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY];
       default:
         return 0;
     }
@@ -152,6 +198,7 @@ bdem_BerEncoderOptions::bdem_BerEncoderOptions()
 : d_traceLevel(DEFAULT_INITIALIZER_TRACE_LEVEL)
 , d_bdeVersionConformance(DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE)
 , d_encodeEmptyArrays(DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS)
+, d_encodeDateAndTimeTypesAsBinary(DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY)
 {
 }
 
@@ -159,6 +206,7 @@ bdem_BerEncoderOptions::bdem_BerEncoderOptions(const bdem_BerEncoderOptions& ori
 : d_traceLevel(original.d_traceLevel)
 , d_bdeVersionConformance(original.d_bdeVersionConformance)
 , d_encodeEmptyArrays(original.d_encodeEmptyArrays)
+, d_encodeDateAndTimeTypesAsBinary(original.d_encodeDateAndTimeTypesAsBinary)
 {
 }
 
@@ -175,6 +223,7 @@ bdem_BerEncoderOptions::operator=(const bdem_BerEncoderOptions& rhs)
         d_traceLevel = rhs.d_traceLevel;
         d_bdeVersionConformance = rhs.d_bdeVersionConformance;
         d_encodeEmptyArrays = rhs.d_encodeEmptyArrays;
+        d_encodeDateAndTimeTypesAsBinary = rhs.d_encodeDateAndTimeTypesAsBinary;
     }
     return *this;
 }
@@ -184,6 +233,7 @@ void bdem_BerEncoderOptions::reset()
     d_traceLevel = DEFAULT_INITIALIZER_TRACE_LEVEL;
     d_bdeVersionConformance = DEFAULT_INITIALIZER_BDE_VERSION_CONFORMANCE;
     d_encodeEmptyArrays = DEFAULT_INITIALIZER_ENCODE_EMPTY_ARRAYS;
+    d_encodeDateAndTimeTypesAsBinary = DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY;
 }
 
 // ACCESSORS
@@ -222,6 +272,11 @@ bsl::ostream& bdem_BerEncoderOptions::print(
         bdeu_PrintMethods::print(stream, d_encodeEmptyArrays,
                                  -levelPlus1, spacesPerLevel);
 
+        bdeu_Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "EncodeDateAndTimeTypesAsBinary = ";
+        bdeu_PrintMethods::print(stream, d_encodeDateAndTimeTypesAsBinary,
+                                 -levelPlus1, spacesPerLevel);
+
         bdeu_Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
     }
@@ -245,6 +300,11 @@ bsl::ostream& bdem_BerEncoderOptions::print(
         bdeu_PrintMethods::print(stream, d_encodeEmptyArrays,
                                  -levelPlus1, spacesPerLevel);
 
+        stream << ' ';
+        stream << "EncodeDateAndTimeTypesAsBinary = ";
+        bdeu_PrintMethods::print(stream, d_encodeDateAndTimeTypesAsBinary,
+                                 -levelPlus1, spacesPerLevel);
+
         stream << " ]";
     }
 
@@ -254,7 +314,7 @@ bsl::ostream& bdem_BerEncoderOptions::print(
 
 }  // close namespace BloombergLP
 
-// GENERATED BY BLP_BAS_CODEGEN_3.6.9 Wed Feb  1 12:50:21 2012
+// GENERATED BY BLP_BAS_CODEGEN_3.6.9 Tue Feb 21 16:21:00 2012
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012

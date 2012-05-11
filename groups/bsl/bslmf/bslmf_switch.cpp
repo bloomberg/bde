@@ -1,4 +1,4 @@
-// bslmf_switch.cpp                  -*-C++-*-
+// bslmf_switch.cpp                                                   -*-C++-*-
 #include <bslmf_switch.h>
 
 #include <bsls_ident.h>

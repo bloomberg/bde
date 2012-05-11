@@ -1,4 +1,4 @@
-// bslma_deleterhelper.cpp    -*-C++-*-
+// bslma_deleterhelper.cpp                                            -*-C++-*-
 #include <bslma_deleterhelper.h>
 
 #include <bsls_ident.h>

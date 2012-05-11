@@ -26,7 +26,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef _RWSTD_RW_ERROR_H_INCLUDED
@@ -40,7 +40,7 @@
 #  endif   // _RWSTD_RW_DEFS_H_INCLUDED
 
 
-_RWSTD_NAMESPACE (__rw) { 
+_RWSTD_NAMESPACE (__rw) {
 
 // throws an exception identified by first argument, optional arguments
 // (if any) used to format the exception object's what() string

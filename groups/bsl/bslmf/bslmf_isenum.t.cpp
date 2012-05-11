@@ -117,15 +117,15 @@ int main(int argc, char *argv[])
 //  enum Enum { MY_ENUMERATOR = 5 };
 //  class Class { Class(Enum); };
 //
-    ASSERT(1 == bslmf_IsEnum<Enum>::VALUE);
-    ASSERT(0 == bslmf_IsEnum<Class>::VALUE);
-    ASSERT(0 == bslmf_IsEnum<int>::VALUE);
-    ASSERT(0 == bslmf_IsEnum<int *>::VALUE);
+    ASSERT(1 == bslmf::IsEnum<Enum>::VALUE);
+    ASSERT(0 == bslmf::IsEnum<Class>::VALUE);
+    ASSERT(0 == bslmf::IsEnum<int>::VALUE);
+    ASSERT(0 == bslmf::IsEnum<int *>::VALUE);
 //..
-// Note that the 'bslmf_IsEnum' meta-function also evaluates to true (i.e., 1)
+// Note that the 'bslmf::IsEnum' meta-function also evaluates to true (i.e., 1)
 // when applied to references to enumeration types:
 //..
-     ASSERT(1 == bslmf_IsEnum<const Enum&>::VALUE);
+     ASSERT(1 == bslmf::IsEnum<const Enum&>::VALUE);
 //..
 
       } break;
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
         //   Detection is unaffected by cv-qualification
         //
         // Plan:
-        //   Verify that 'bslmf_IsEnum' produces the expected results
+        //   Verify that 'bslmf::IsEnum' produces the expected results
         //   (according to the above concerns) when instantiated with each of
         //   the following types:
         //
@@ -161,74 +161,74 @@ int main(int argc, char *argv[])
         //   Ad-hoc data selection
         //
         // Testing:
-        //   bslmf_IsEnum<TYPE>::VALUE
+        //   bslmf::IsEnum<TYPE>::VALUE
         //
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOMPLETE TEST"
                             "\n=============\n");
 
-        ASSERT(  bslmf_IsEnum<my_Enum>::VALUE);
-        ASSERT(  bslmf_IsEnum<const my_Enum>::VALUE);
-        ASSERT(  bslmf_IsEnum<volatile my_Enum>::VALUE);
-        ASSERT(  bslmf_IsEnum<const volatile my_Enum>::VALUE);
-        ASSERT(  bslmf_IsEnum<my_Enum&>::VALUE);
-        ASSERT(  bslmf_IsEnum<const my_Enum&>::VALUE);
-        ASSERT(  bslmf_IsEnum<volatile my_Enum&>::VALUE);
-        ASSERT(  bslmf_IsEnum<const volatile my_Enum&>::VALUE);
+        ASSERT(  bslmf::IsEnum<my_Enum>::VALUE);
+        ASSERT(  bslmf::IsEnum<const my_Enum>::VALUE);
+        ASSERT(  bslmf::IsEnum<volatile my_Enum>::VALUE);
+        ASSERT(  bslmf::IsEnum<const volatile my_Enum>::VALUE);
+        ASSERT(  bslmf::IsEnum<my_Enum&>::VALUE);
+        ASSERT(  bslmf::IsEnum<const my_Enum&>::VALUE);
+        ASSERT(  bslmf::IsEnum<volatile my_Enum&>::VALUE);
+        ASSERT(  bslmf::IsEnum<const volatile my_Enum&>::VALUE);
 
-        ASSERT(! bslmf_IsEnum<bool>::VALUE);
-        ASSERT(! bslmf_IsEnum<char>::VALUE);
-        ASSERT(! bslmf_IsEnum<signed char>::VALUE);
-        ASSERT(! bslmf_IsEnum<unsigned char>::VALUE);
-        ASSERT(! bslmf_IsEnum<wchar_t>::VALUE);
-        ASSERT(! bslmf_IsEnum<short>::VALUE);
-        ASSERT(! bslmf_IsEnum<unsigned short>::VALUE);
-        ASSERT(! bslmf_IsEnum<int>::VALUE);
-        ASSERT(! bslmf_IsEnum<unsigned int>::VALUE);
-        ASSERT(! bslmf_IsEnum<long>::VALUE);
-        ASSERT(! bslmf_IsEnum<unsigned long>::VALUE);
-        ASSERT(! bslmf_IsEnum<long long>::VALUE);
-        ASSERT(! bslmf_IsEnum<unsigned long long>::VALUE);
-        ASSERT(! bslmf_IsEnum<bsls_Types::Int64>::VALUE);
-        ASSERT(! bslmf_IsEnum<bsls_Types::Uint64>::VALUE);
-        ASSERT(! bslmf_IsEnum<float>::VALUE);
-        ASSERT(! bslmf_IsEnum<double>::VALUE);
-        ASSERT(! bslmf_IsEnum<long double>::VALUE);
-        ASSERT(! bslmf_IsEnum<char*>::VALUE);
-        ASSERT(! bslmf_IsEnum<void*>::VALUE);
-        ASSERT(! bslmf_IsEnum<char[5]>::VALUE);
-        ASSERT(! bslmf_IsEnum<my_Enum*>::VALUE);
-        ASSERT(! bslmf_IsEnum<my_Struct>::VALUE);
-        ASSERT(! bslmf_IsEnum<int&>::VALUE);
+        ASSERT(! bslmf::IsEnum<bool>::VALUE);
+        ASSERT(! bslmf::IsEnum<char>::VALUE);
+        ASSERT(! bslmf::IsEnum<signed char>::VALUE);
+        ASSERT(! bslmf::IsEnum<unsigned char>::VALUE);
+        ASSERT(! bslmf::IsEnum<wchar_t>::VALUE);
+        ASSERT(! bslmf::IsEnum<short>::VALUE);
+        ASSERT(! bslmf::IsEnum<unsigned short>::VALUE);
+        ASSERT(! bslmf::IsEnum<int>::VALUE);
+        ASSERT(! bslmf::IsEnum<unsigned int>::VALUE);
+        ASSERT(! bslmf::IsEnum<long>::VALUE);
+        ASSERT(! bslmf::IsEnum<unsigned long>::VALUE);
+        ASSERT(! bslmf::IsEnum<long long>::VALUE);
+        ASSERT(! bslmf::IsEnum<unsigned long long>::VALUE);
+        ASSERT(! bslmf::IsEnum<bsls::Types::Int64>::VALUE);
+        ASSERT(! bslmf::IsEnum<bsls::Types::Uint64>::VALUE);
+        ASSERT(! bslmf::IsEnum<float>::VALUE);
+        ASSERT(! bslmf::IsEnum<double>::VALUE);
+        ASSERT(! bslmf::IsEnum<long double>::VALUE);
+        ASSERT(! bslmf::IsEnum<char*>::VALUE);
+        ASSERT(! bslmf::IsEnum<void*>::VALUE);
+        ASSERT(! bslmf::IsEnum<char[5]>::VALUE);
+        ASSERT(! bslmf::IsEnum<my_Enum*>::VALUE);
+        ASSERT(! bslmf::IsEnum<my_Struct>::VALUE);
+        ASSERT(! bslmf::IsEnum<int&>::VALUE);
 
-        ASSERT(! bslmf_IsEnum<const int>::VALUE);
-        ASSERT(! bslmf_IsEnum<const int&>::VALUE);
-        ASSERT(! bslmf_IsEnum<const char*>::VALUE);
-        ASSERT(! bslmf_IsEnum<const char* const>::VALUE);
-        ASSERT(! bslmf_IsEnum<const char* volatile>::VALUE);
-        ASSERT(! bslmf_IsEnum<const char* const volatile>::VALUE);
-        ASSERT(! bslmf_IsEnum<const my_Struct>::VALUE);
+        ASSERT(! bslmf::IsEnum<const int>::VALUE);
+        ASSERT(! bslmf::IsEnum<const int&>::VALUE);
+        ASSERT(! bslmf::IsEnum<const char*>::VALUE);
+        ASSERT(! bslmf::IsEnum<const char* const>::VALUE);
+        ASSERT(! bslmf::IsEnum<const char* volatile>::VALUE);
+        ASSERT(! bslmf::IsEnum<const char* const volatile>::VALUE);
+        ASSERT(! bslmf::IsEnum<const my_Struct>::VALUE);
 
-        ASSERT(! bslmf_IsEnum<volatile int>::VALUE);
-        ASSERT(! bslmf_IsEnum<volatile int&>::VALUE);
-        ASSERT(! bslmf_IsEnum<volatile char*>::VALUE);
-        ASSERT(! bslmf_IsEnum<volatile char* const>::VALUE);
-        ASSERT(! bslmf_IsEnum<volatile char* volatile>::VALUE);
-        ASSERT(! bslmf_IsEnum<volatile char* const volatile>::VALUE);
-        ASSERT(! bslmf_IsEnum<volatile my_Struct>::VALUE);
+        ASSERT(! bslmf::IsEnum<volatile int>::VALUE);
+        ASSERT(! bslmf::IsEnum<volatile int&>::VALUE);
+        ASSERT(! bslmf::IsEnum<volatile char*>::VALUE);
+        ASSERT(! bslmf::IsEnum<volatile char* const>::VALUE);
+        ASSERT(! bslmf::IsEnum<volatile char* volatile>::VALUE);
+        ASSERT(! bslmf::IsEnum<volatile char* const volatile>::VALUE);
+        ASSERT(! bslmf::IsEnum<volatile my_Struct>::VALUE);
 
-        ASSERT(! bslmf_IsEnum<const volatile int>::VALUE);
-        ASSERT(! bslmf_IsEnum<const volatile int&>::VALUE);
-        ASSERT(! bslmf_IsEnum<const volatile char*>::VALUE);
-        ASSERT(! bslmf_IsEnum<const volatile char* const>::VALUE);
-        ASSERT(! bslmf_IsEnum<const volatile char* volatile>::VALUE);
-        ASSERT(! bslmf_IsEnum<const volatile char* const volatile>::VALUE);
-        ASSERT(! bslmf_IsEnum<const volatile my_Struct>::VALUE);
+        ASSERT(! bslmf::IsEnum<const volatile int>::VALUE);
+        ASSERT(! bslmf::IsEnum<const volatile int&>::VALUE);
+        ASSERT(! bslmf::IsEnum<const volatile char*>::VALUE);
+        ASSERT(! bslmf::IsEnum<const volatile char* const>::VALUE);
+        ASSERT(! bslmf::IsEnum<const volatile char* volatile>::VALUE);
+        ASSERT(! bslmf::IsEnum<const volatile char* const volatile>::VALUE);
+        ASSERT(! bslmf::IsEnum<const volatile my_Struct>::VALUE);
 
-        ASSERT(! bslmf_IsEnum<void>::VALUE);
-        ASSERT(! bslmf_IsEnum<my_IncompleteType>::VALUE);
-        ASSERT(! bslmf_IsEnum<my_IncompleteType&>::VALUE);
+        ASSERT(! bslmf::IsEnum<void>::VALUE);
+        ASSERT(! bslmf::IsEnum<my_IncompleteType>::VALUE);
+        ASSERT(! bslmf::IsEnum<my_IncompleteType&>::VALUE);
 
       } break;
 

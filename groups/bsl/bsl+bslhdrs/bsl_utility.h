@@ -26,23 +26,18 @@ BSLS_IDENT("$Id: $")
 #include <utility>
 
 namespace bsl {
+
     // Import the 'rel_ops' namespace into 'bsl'.
     namespace rel_ops = std::rel_ops;
 
-    // Import selected symbols into bsl namespace.
-
-    // 'pair' is provided by 'bslstl_pair.h', so we do not want the following:
-    //..
-    //  using native_std::pair;
-    //..
-
-    using native_std::make_pair;
+    // Import selected symbols into bsl namespace.  Note that 'pair' and
+    // 'make_pair' are provided by 'bslstl_pair.h'.
 }
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included
-// by the Bloomberg supplied standard header file.
+// implementation, in which case the implementation file will be included by
+// the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
 #include <bslstl_pair.h>

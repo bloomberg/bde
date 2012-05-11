@@ -6,19 +6,21 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                           // --------------------
-                           // class bsls_Stopwatch
-                           // --------------------
+namespace bsls {
+
+                               // ---------------
+                               // class Stopwatch
+                               // ---------------
 
 // CLASS DATA
-const double bsls_Stopwatch::s_nanosecondsPerSecond = 1.0E9;
+const double Stopwatch::s_nanosecondsPerSecond = 1.0E9;
 
 // PRIVATE MANIPULATORS
-void bsls_Stopwatch::updateTimes()
+void Stopwatch::updateTimes()
 {
-    bsls_Types::Int64 systemTime;
-    bsls_Types::Int64 userTime;
-    bsls_Types::Int64 wallTime;
+    Types::Int64 systemTime;
+    Types::Int64 userTime;
+    Types::Int64 wallTime;
     accumulatedTimesRaw(&systemTime, &userTime, &wallTime);
 
     d_accumulatedSystemTime += systemTime - d_startSystemTime;
@@ -27,24 +29,24 @@ void bsls_Stopwatch::updateTimes()
 }
 
 // ACCESSORS
-void bsls_Stopwatch::accumulatedTimes(double *systemTime,
-                                      double *userTime,
-                                      double *wallTime) const
+void Stopwatch::accumulatedTimes(double *systemTime,
+                                 double *userTime,
+                                 double *wallTime) const
 {
     if (d_isRunning) {
-        bsls_Types::Int64 rawSystemTime;
-        bsls_Types::Int64 rawUserTime;
-        bsls_Types::Int64 rawWallTime;
+        Types::Int64 rawSystemTime;
+        Types::Int64 rawUserTime;
+        Types::Int64 rawWallTime;
         accumulatedTimesRaw(&rawSystemTime, &rawUserTime, &rawWallTime);
 
         *systemTime = static_cast<double>(
                    d_accumulatedSystemTime + rawSystemTime - d_startSystemTime)
                                                       / s_nanosecondsPerSecond;
         *userTime   = static_cast<double>(
-                   d_accumulatedUserTime   + rawUserTime   - d_startUserTime)
+                     d_accumulatedUserTime   + rawUserTime   - d_startUserTime)
                                                       / s_nanosecondsPerSecond;
         *wallTime   = static_cast<double>(
-                   d_accumulatedWallTime   + rawWallTime   - d_startWallTime)
+                     d_accumulatedWallTime   + rawWallTime   - d_startWallTime)
                                                       / s_nanosecondsPerSecond;
     }
     else {
@@ -57,7 +59,9 @@ void bsls_Stopwatch::accumulatedTimes(double *systemTime,
     }
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

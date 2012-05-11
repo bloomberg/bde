@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 #include <list>             // for list
@@ -50,7 +50,7 @@ static const char* const exceptions[] = {
 // list (const allocator_type&)
 #define alloc_test_cases void_test_cases
 static const ContainerTestCase
-void_test_cases [] = { 
+void_test_cases [] = {
 
 #undef TEST
 #define TEST(dummy) {                            \
@@ -61,8 +61,8 @@ void_test_cases [] = {
 
     //    +--------------------- dummy argument
     //    |
-    //    V             
-    TEST ("ab"),          
+    //    V
+    TEST ("ab"),
 
     TEST ("last test")
 };
@@ -83,23 +83,23 @@ ccont_test_cases [] = {
 
     //    +----------------------------------------- source sequence
     //    |               +------------------------- expected result sequence
-    //    |               |             
-    //    |               |            
-    //    V               V           
-    TEST ("ab",           "ab"),    
+    //    |               |
+    //    |               |
+    //    V               V
+    TEST ("ab",           "ab"),
 
-    TEST ("",             ""),   
+    TEST ("",             ""),
     TEST ("<U0>",         "<U0>"),
     TEST ("<U0>@2",       "<U0>@2"),
 
-    TEST ("a",            "a"),       
-    TEST ("bcd",          "bcd"),       
-    TEST ("cdefaihjb",    "cdefaihjb"),      
+    TEST ("a",            "a"),
+    TEST ("bcd",          "bcd"),
+    TEST ("cdefaihjb",    "cdefaihjb"),
 
-    TEST ("<U0>@2ab",     "<U0>@2ab"),  
-    TEST ("a<U0>@2b",     "a<U0>@2b"), 
-    TEST ("ab<U0>@2",     "ab<U0>@2"),  
-    TEST ("abefdcc<U0>a", "abefdcc<U0>a"),  
+    TEST ("<U0>@2ab",     "<U0>@2ab"),
+    TEST ("a<U0>@2b",     "a<U0>@2b"),
+    TEST ("ab<U0>@2",     "ab<U0>@2"),
+    TEST ("abefdcc<U0>a", "abefdcc<U0>a"),
 
 #if TEST_RW_EXTENSIONS  // a bunch of these test cases doesn't add any value
                         // other than making the test run slower
@@ -151,20 +151,20 @@ range_test_cases [] = {
     //    |               |   |    |                |
     //    |               |   |    |                |
     //    V               V   V    V                V
-    TEST ("ab",           0,  2,   "ab",            0),    
+    TEST ("ab",           0,  2,   "ab",            0),
 
-    TEST ("",             0,  0,   "",              0),   
+    TEST ("",             0,  0,   "",              0),
     TEST ("<U0>",         0,  1,   "<U0>",          0),
     TEST ("<U0>@2",       0,  2,   "<U0>@2",        0),
 
-    TEST ("a",            0,  1,   "a",             0),       
-    TEST ("bcd",          0,  3,   "bcd",           0),       
-    TEST ("cdefaihjb",    0,  9,   "cdefaihjb",     0),      
+    TEST ("a",            0,  1,   "a",             0),
+    TEST ("bcd",          0,  3,   "bcd",           0),
+    TEST ("cdefaihjb",    0,  9,   "cdefaihjb",     0),
 
-    TEST ("<U0>@2ab",     0,  4,   "<U0>@2ab",      0),  
-    TEST ("a<U0>@2b",     0,  4,   "a<U0>@2b",      0), 
-    TEST ("ab<U0>@2",     0,  4,   "ab<U0>@2",      0),  
-    TEST ("abefdcc<U0>a", 0,  9,   "abefdcc<U0>a",  0),  
+    TEST ("<U0>@2ab",     0,  4,   "<U0>@2ab",      0),
+    TEST ("a<U0>@2b",     0,  4,   "a<U0>@2b",      0),
+    TEST ("ab<U0>@2",     0,  4,   "ab<U0>@2",      0),
+    TEST ("abefdcc<U0>a", 0,  9,   "abefdcc<U0>a",  0),
 
 #if TEST_RW_EXTENSIONS  // a bunch of these tests doesn't add any value
     TEST ("x@207",        0,  207, "x@207",         0),
@@ -199,11 +199,11 @@ size_test_cases [] = {
         res, sizeof res - 1, 0                 \
     }
 
-    //    +---------------------------------------- ctor n argument 
+    //    +---------------------------------------- ctor n argument
     //    |         +------------------------------ expected result sequence
-    //    |         |             
-    //    |         |            
-    //    V         V         
+    //    |         |
+    //    |         |
+    //    V         V
     TEST (1,        "<U0>"),
     TEST (2,        "<U0>@2"),
     TEST (5,        "<U0>@5"),
@@ -235,20 +235,20 @@ size_cref_test_cases [] = {
     res, sizeof res - 1, 0                      \
 }
 
-    //    +---------------------------------------- ctor n argument 
+    //    +---------------------------------------- ctor n argument
     //    |          +----------------------------- source value
     //    |          |    +------------------------ expected result sequence
-    //    |          |    |             
-    //    |          |    |            
-    //    V          V    V         
-    TEST (1,        'a',  "a"), 
+    //    |          |    |
+    //    |          |    |
+    //    V          V    V
+    TEST (1,        'a',  "a"),
     TEST (1,        '\0', "<U0>"),
 
-    TEST (2,        'a',  "aa"), 
+    TEST (2,        'a',  "aa"),
     TEST (2,        '\0', "<U0>@2"),
 
     TEST (5,        '\0', "<U0>@5"),
-    TEST (10,       'a',  "aaaaaaaaaa"), 
+    TEST (10,       'a',  "aaaaaaaaaa"),
 
     TEST (128,      'x',  "x@128"),
     TEST (207,      'x',  "x@207"),
@@ -261,7 +261,7 @@ size_cref_test_cases [] = {
 
     TEST (4096,     'x',  "x@4096"),
 #endif
-    TEST (4,        't',  "tttt") 
+    TEST (4,        't',  "tttt")
 };
 
 /**************************************************************************/
@@ -283,33 +283,33 @@ ccont_op_set_test_cases [] = {
     //    |          |              |                +- exception info
     //    |          |              |                |    0 - no exception
     //    |          |              |                |   -1 - excpetion safety
-    //    |          |              |                |  
-    //    |          |              |                |            
+    //    |          |              |                |
+    //    |          |              |                |
     //    V          V              V                V
-    TEST ("",       "ab",           "ab",            0),    
+    TEST ("",       "ab",           "ab",            0),
 
-    TEST ("",       "",             "",              0),   
-    TEST ("abc",    "",             "",              0),   
-    TEST ("",       "<U0>",         "<U0>",          0), 
+    TEST ("",       "",             "",              0),
+    TEST ("abc",    "",             "",              0),
+    TEST ("",       "<U0>",         "<U0>",          0),
     TEST ("abc",    "<U0>",         "<U0>",          0),
 
-    TEST ("",       "a",            "a",             0),  
-    TEST ("<U0>@2", "a",            "a",             0), 
-    TEST ("a",      "bcd",          "bcd",           0),       
-    TEST ("",       "cdefaihjb",    "cdefaihjb",     0),      
+    TEST ("",       "a",            "a",             0),
+    TEST ("<U0>@2", "a",            "a",             0),
+    TEST ("a",      "bcd",          "bcd",           0),
+    TEST ("",       "cdefaihjb",    "cdefaihjb",     0),
     TEST ("a<U0>b", "cdefaihjb",    "cdefaihjb",     0),
 
-    TEST ("",       "<U0>@2ab",     "<U0>@2ab",      0),  
+    TEST ("",       "<U0>@2ab",     "<U0>@2ab",      0),
     TEST ("c<U0>d", "<U0>@2ab",     "<U0>@2ab",      0),
-    TEST ("",       "a<U0>@2b",     "a<U0>@2b",      0), 
-    TEST ("bcd",    "a<U0>@2b",     "a<U0>@2b",      0), 
-    TEST ("<U0>",   "ab<U0>@2",     "ab<U0>@2",      0), 
+    TEST ("",       "a<U0>@2b",     "a<U0>@2b",      0),
+    TEST ("bcd",    "a<U0>@2b",     "a<U0>@2b",      0),
+    TEST ("<U0>",   "ab<U0>@2",     "ab<U0>@2",      0),
 
 #if TEST_RW_EXTENSIONS  // some of these tests are too large
                         // to be valuable
-    TEST ("x@4096", "bcd",          "bcd",           0), 
-    TEST ("x@4096", "ab<U0>@2",     "ab<U0>@2",      0), 
-    TEST ("<U0>a",  "abefdcc<U0>a", "abefdcc<U0>a",  0),  
+    TEST ("x@4096", "bcd",          "bcd",           0),
+    TEST ("x@4096", "ab<U0>@2",     "ab<U0>@2",      0),
+    TEST ("<U0>a",  "abefdcc<U0>a", "abefdcc<U0>a",  0),
     TEST ("x@4096", "abefdcc<U0>a", "abefdcc<U0>a",  0),
 
     TEST ("",       "x@207",        "x@207",         0),
@@ -321,16 +321,16 @@ ccont_op_set_test_cases [] = {
     TEST ("x@872",  "x@873",        "x@873",         0),
     TEST ("x@873",  "x@3695",       "x@3695",        0),
 
-    TEST ("abc",    "x@4096",       "x@4096",        0),   
+    TEST ("abc",    "x@4096",       "x@4096",        0),
 
     TEST ("",           0,          "",              0),
-    TEST ("a<U0>b<U0>", 0,          "a<U0>b<U0>",    0), 
-    TEST ("x@4096",     0,          "x@4096",        0), 
+    TEST ("a<U0>b<U0>", 0,          "a<U0>b<U0>",    0),
+    TEST ("x@4096",     0,          "x@4096",        0),
 
 #else
-    TEST ("x@64", "bcd",          "bcd",             0), 
-    TEST ("x@64", "ab<U0>@2",     "ab<U0>@2",        0), 
-    TEST ("<U0>a",  "abefdcc<U0>a", "abefdcc<U0>a",  0),  
+    TEST ("x@64", "bcd",          "bcd",             0),
+    TEST ("x@64", "ab<U0>@2",     "ab<U0>@2",        0),
+    TEST ("<U0>a",  "abefdcc<U0>a", "abefdcc<U0>a",  0),
     TEST ("x@64", "abefdcc<U0>a", "abefdcc<U0>a",    0),
 
     TEST ("",       "x@64",         "x@64",          0),
@@ -338,11 +338,11 @@ ccont_op_set_test_cases [] = {
     TEST ("x@127",  "x@64",         "x@64",          0),
     TEST ("x@63",   "x@64",         "x@64",          0),
 
-    TEST ("abc",    "x@64",         "x@64",          0),   
+    TEST ("abc",    "x@64",         "x@64",          0),
 
     TEST ("",           0,          "",              0),
-    TEST ("a<U0>b<U0>", 0,          "a<U0>b<U0>",    0), 
-    TEST ("x@64",       0,          "x@64",          0), 
+    TEST ("a<U0>b<U0>", 0,          "a<U0>b<U0>",    0),
+    TEST ("x@64",       0,          "x@64",          0),
 
 #endif
     TEST ("",       "last test",    "last test",     0)
@@ -436,14 +436,14 @@ struct ConsRangeOverload: ContRangeBase<List>
     ConsRangeOverload () { }
 
     virtual List&
-    operator() (List& list_arg, 
+    operator() (List& list_arg,
         const ContainerTestCaseData<ListVal>& tdata) const {
 
         bool reverse_iter =
             ContainerIds::ReverseIterator      == tdata.func_.iter_id_
          || ContainerIds::ConstReverseIterator == tdata.func_.iter_id_;
 
-        const std::size_t off = reverse_iter ? 
+        const std::size_t off = reverse_iter ?
             tdata.arglen_ - tdata.off2_ - tdata.ext2_ : tdata.off2_;
         const std::size_t ext = tdata.ext2_;
 
@@ -478,7 +478,7 @@ void test_cons (T*, Allocator*, const ContRangeBase<
     const ContainerFunc     &func  = tdata.func_;
     const ContainerTestCase &tcase = tdata.tcase_;
 
-    // construct the argument list 
+    // construct the argument list
     /* const */ List arg (tdata.arg_, tdata.arg_ + tdata.arglen_);
 
     // list function argument
@@ -581,7 +581,7 @@ void test_cons (T*, Allocator*, const ContRangeBase<
             rw_assert (0 != ret_ptr, 0, tcase.line,
                        "line %d. %{$FUNCALL} expected \"%{X=*}\", got null",
                        __LINE__, cwidth, int (tdata.reslen_), tdata.res_);
-        
+
             if (0 != ret_ptr) {
 
                 if (is_class) {
@@ -841,7 +841,7 @@ void test_op_set (T*, Allocator*,
                        "line %d. %{$FUNCALL} expected \"%{X=*}\" with "
                        "length %zu, got %{/*.*Gs} with length %zu",
                        __LINE__,
-                       cwidth, int (tdata.reslen_), tdata.res_, 
+                       cwidth, int (tdata.reslen_), tdata.res_,
                        tdata.reslen_, 1, int (got_size), got, got_size);
 
             if (tdata.reslen_ == got_size) {
@@ -930,7 +930,7 @@ void test_cons (T*, Allocator*,
         return;
     }
 
-    if (tdata.func_.which_ == Cons (range) 
+    if (tdata.func_.which_ == Cons (range)
      || tdata.func_.which_ == Cons (range_alloc)) {
 
         switch (tdata.func_.iter_id_) {

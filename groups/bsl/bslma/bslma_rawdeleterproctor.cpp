@@ -1,4 +1,4 @@
-// bslma_rawdeleterproctor.cpp    -*-C++-*-
+// bslma_rawdeleterproctor.cpp                                        -*-C++-*-
 #include <bslma_rawdeleterproctor.h>
 
 #include <bsls_ident.h>

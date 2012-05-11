@@ -350,6 +350,11 @@ int main(int argc, char *argv[])
             // Do *not* do this.  It significantly increases the level #
             // of this component.
             //bael_LoggerManager::initSingleton(&multiplexor);
+
+            ASSERT(0 == multiplexor.deregisterObserver(&defaultObserver));
+            ASSERT(0 == multiplexor.deregisterObserver(&logfileObserver));
+            ASSERT(0 == multiplexor.deregisterObserver(&encryptingObserver));
+            ASSERT(0 == multiplexor.numRegisteredObservers());
         }
       } break;
       case 5: {
@@ -390,14 +395,6 @@ int main(int argc, char *argv[])
                                   << "==============================" << endl;
 
         {
-            //  X
-            Obj mX;  const Obj& X = mX;
-            ASSERT(0 == X.numRegisteredObservers());
-
-            //  Y
-            Obj mY;  const Obj& Y = mY;
-            ASSERT(0 == Y.numRegisteredObservers());
-
             TestAsyncObserver mO1(bsl::cout);
             const TestAsyncObserver& O1 = mO1;
 
@@ -406,6 +403,14 @@ int main(int argc, char *argv[])
 
             TestAsyncObserver mO3(bsl::cout);
             const TestAsyncObserver& O3 = mO3;
+
+            //  X
+            Obj mX;  const Obj& X = mX;
+            ASSERT(0 == X.numRegisteredObservers());
+
+            //  Y
+            Obj mY;  const Obj& Y = mY;
+            ASSERT(0 == Y.numRegisteredObservers());
 
             bcema_SharedPtr<bael_Record> mR(
                                new (testAllocator) bael_Record(&testAllocator),
@@ -440,7 +445,7 @@ int main(int argc, char *argv[])
             mX.publish(R, C);
             mX.releaseRecords();
             ASSERT(1 == O1.numPublishedRecords());
-            ASSERT(1 == O1.numClears());
+            ASSERT(2 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I1));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I1));
 
@@ -456,7 +461,7 @@ int main(int argc, char *argv[])
             mX.publish(R, C);
             mX.releaseRecords();
             ASSERT(2 == O1.numPublishedRecords());
-            ASSERT(2 == O1.numClears());
+            ASSERT(3 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I3));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I3));
 
@@ -472,7 +477,7 @@ int main(int argc, char *argv[])
             mX.publish(R, C);
             mX.releaseRecords();
             ASSERT(3 == O1.numPublishedRecords());
-            ASSERT(3 == O1.numClears());
+            ASSERT(4 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I4));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I4));
             ASSERT(1 == O2.numPublishedRecords());
@@ -492,7 +497,7 @@ int main(int argc, char *argv[])
             mX.publish(R, C);
             mX.releaseRecords();
             ASSERT(4 == O1.numPublishedRecords());
-            ASSERT(4 == O1.numClears());
+            ASSERT(5 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I5));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I5));
             ASSERT(2 == O2.numPublishedRecords());
@@ -515,7 +520,7 @@ int main(int argc, char *argv[])
             mX.publish(R, C);
             mX.releaseRecords();
             ASSERT(5 == O1.numPublishedRecords());
-            ASSERT(5 == O1.numClears());
+            ASSERT(6 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I6));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I6));
             ASSERT(3 == O2.numPublishedRecords());
@@ -541,11 +546,11 @@ int main(int argc, char *argv[])
             mX.publish(R, C);
             mX.releaseRecords();
             ASSERT(6 == O1.numPublishedRecords());
-            ASSERT(6 == O1.numClears());
+            ASSERT(7 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I7));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I7));
             ASSERT(3 == O2.numPublishedRecords());
-            ASSERT(3 == O2.numClears());
+            ASSERT(4 == O2.numClears());
             ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I6));
             ASSERT(1 == isNthContext(O2.lastPublishedContext(), I6));
             ASSERT(2 == O3.numPublishedRecords());
@@ -568,11 +573,11 @@ int main(int argc, char *argv[])
             mX.publish(R, C);
             mX.releaseRecords();
             ASSERT(7 == O1.numPublishedRecords());
-            ASSERT(7 == O1.numClears());
+            ASSERT(8 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I8));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I8));
             ASSERT(4 == O2.numPublishedRecords());
-            ASSERT(4 == O2.numClears());
+            ASSERT(5 == O2.numClears());
             ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I8));
             ASSERT(1 == isNthContext(O2.lastPublishedContext(), I8));
             ASSERT(3 == O3.numPublishedRecords());
@@ -594,15 +599,15 @@ int main(int argc, char *argv[])
             mX.publish(R, C);
             mX.releaseRecords();
             ASSERT(8 == O1.numPublishedRecords());
-            ASSERT(8 == O1.numClears());
+            ASSERT(9 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I9));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I9));
             ASSERT(5 == O2.numPublishedRecords());
-            ASSERT(5 == O2.numClears());
+            ASSERT(6 == O2.numClears());
             ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I9));
             ASSERT(1 == isNthContext(O2.lastPublishedContext(), I9));
             ASSERT(3 == O3.numPublishedRecords());
-            ASSERT(3 == O3.numClears());
+            ASSERT(4 == O3.numClears());
             ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
             ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
 
@@ -618,15 +623,15 @@ int main(int argc, char *argv[])
             mX.publish(R, C);
             mX.releaseRecords();
             ASSERT(9 == O1.numPublishedRecords());
-            ASSERT(9 == O1.numClears());
+            ASSERT(10 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I10));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I10));
             ASSERT(5 == O2.numPublishedRecords());
-            ASSERT(5 == O2.numClears());
+            ASSERT(7 == O2.numClears());
             ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I9));
             ASSERT(1 == isNthContext(O2.lastPublishedContext(), I9));
             ASSERT(3 == O3.numPublishedRecords());
-            ASSERT(3 == O3.numClears());
+            ASSERT(4 == O3.numClears());
             ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
             ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
 
@@ -635,15 +640,15 @@ int main(int argc, char *argv[])
             mY.publish(R, C);
             mY.releaseRecords();
             ASSERT(9 == O1.numPublishedRecords());
-            ASSERT(9 == O1.numClears());
+            ASSERT(10 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I10));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I10));
             ASSERT(6 == O2.numPublishedRecords());
-            ASSERT(6 == O2.numClears());
+            ASSERT(8 == O2.numClears());
             ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I11));
             ASSERT(1 == isNthContext(O2.lastPublishedContext(), I11));
             ASSERT(3 == O3.numPublishedRecords());
-            ASSERT(3 == O3.numClears());
+            ASSERT(4 == O3.numClears());
             ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
             ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
 
@@ -659,15 +664,15 @@ int main(int argc, char *argv[])
             mX.publish(R, C);
             mX.releaseRecords();
             ASSERT(9 == O1.numPublishedRecords());
-            ASSERT(9 == O1.numClears());
+            ASSERT(11 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I10));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I10));
             ASSERT(6 == O2.numPublishedRecords());
-            ASSERT(6 == O2.numClears());
+            ASSERT(8 == O2.numClears());
             ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I11));
             ASSERT(1 == isNthContext(O2.lastPublishedContext(), I11));
             ASSERT(3 == O3.numPublishedRecords());
-            ASSERT(3 == O3.numClears());
+            ASSERT(4 == O3.numClears());
             ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
             ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
 
@@ -676,15 +681,15 @@ int main(int argc, char *argv[])
             mY.publish(R, C);
             mY.releaseRecords();
             ASSERT(9 == O1.numPublishedRecords());
-            ASSERT(9 == O1.numClears());
+            ASSERT(11 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I10));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I10));
             ASSERT(7 == O2.numPublishedRecords());
-            ASSERT(7 == O2.numClears());
+            ASSERT(9 == O2.numClears());
             ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I13));
             ASSERT(1 == isNthContext(O2.lastPublishedContext(), I13));
             ASSERT(3 == O3.numPublishedRecords());
-            ASSERT(3 == O3.numClears());
+            ASSERT(4 == O3.numClears());
             ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
             ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
 
@@ -700,15 +705,15 @@ int main(int argc, char *argv[])
             mY.publish(R, C);
             mY.releaseRecords();
             ASSERT(9 == O1.numPublishedRecords());
-            ASSERT(9 == O1.numClears());
+            ASSERT(11 == O1.numClears());
             ASSERT(1 == isNthRecord(O1.lastPublishedRecord(), I10));
             ASSERT(1 == isNthContext(O1.lastPublishedContext(), I10));
             ASSERT(7 == O2.numPublishedRecords());
-            ASSERT(7 == O2.numClears());
+            ASSERT(10 == O2.numClears());
             ASSERT(1 == isNthRecord(O2.lastPublishedRecord(), I13));
             ASSERT(1 == isNthContext(O2.lastPublishedContext(), I13));
             ASSERT(3 == O3.numPublishedRecords());
-            ASSERT(3 == O3.numClears());
+            ASSERT(4 == O3.numClears());
             ASSERT(1 == isNthRecord(O3.lastPublishedRecord(), I8));
             ASSERT(1 == isNthContext(O3.lastPublishedContext(), I8));
         }
@@ -743,6 +748,10 @@ int main(int argc, char *argv[])
                                   << "=============================" << endl;
 
         {
+            TestObs mO1(bsl::cout);  const TestObs& O1 = mO1;
+            TestObs mO2(bsl::cout);  const TestObs& O2 = mO2;
+            TestObs mO3(bsl::cout);  const TestObs& O3 = mO3;
+
             //  X
             Obj mX;  const Obj& X = mX;
             ASSERT(0 == X.numRegisteredObservers());
@@ -751,9 +760,6 @@ int main(int argc, char *argv[])
             Obj mY;  const Obj& Y = mY;
             ASSERT(0 == Y.numRegisteredObservers());
 
-            TestObs mO1(bsl::cout);  const TestObs& O1 = mO1;
-            TestObs mO2(bsl::cout);  const TestObs& O2 = mO2;
-            TestObs mO3(bsl::cout);  const TestObs& O3 = mO3;
 
             Rec mR;  const Rec& R = mR;
 
@@ -1213,11 +1219,12 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.numRegisteredObservers());
         }
         {
+            TestObs mO1(bsl::cout);
+            TestObs mO2(bsl::cout);
+
             Obj mX;  const Obj& X = mX;
             ASSERT(0 == X.numRegisteredObservers());
 
-            TestObs mO1(bsl::cout);
-            TestObs mO2(bsl::cout);
             ASSERT(0 == mX.registerObserver(&mO1));
             ASSERT(0 == mX.registerObserver(&mO2));
             ASSERT(2 == X.numRegisteredObservers());
@@ -1234,11 +1241,12 @@ int main(int argc, char *argv[])
         ASSERT(NUM_BYTES_IN_USE  == testAllocator.numBytesInUse());
 
         {
+            TestObs mO1(bsl::cout);
+            TestObs mO2(bsl::cout);
+
             Obj mX(&testAllocator);  const Obj& X = mX;
             ASSERT(0 == X.numRegisteredObservers());
 
-            TestObs mO1(bsl::cout);
-            TestObs mO2(bsl::cout);
             ASSERT(0 == mX.registerObserver(&mO1));
             ASSERT(0 == mX.registerObserver(&mO2));
             ASSERT(2 == X.numRegisteredObservers());
@@ -1259,14 +1267,15 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\tIn place using a buffer allocator." << endl;
         {
+            TestObs mO1(bsl::cout);
+            TestObs mO2(bsl::cout);
+
             char memory[2048];
             bdema_BufferedSequentialAllocator a(memory, sizeof memory);
             Obj *doNotDelete = new(a.allocate(sizeof(Obj))) Obj(&a);
             Obj& mX = *doNotDelete;  const Obj& X = mX;
             ASSERT(0 == X.numRegisteredObservers());
 
-            TestObs mO1(bsl::cout);
-            TestObs mO2(bsl::cout);
             ASSERT(0 == mX.registerObserver(&mO1));
             ASSERT(0 == mX.registerObserver(&mO2));
             ASSERT(2 == X.numRegisteredObservers());
@@ -1398,6 +1407,42 @@ int main(int argc, char *argv[])
             if (verbose) cout << "\t8.  Destroy x." << endl;
         }
       } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // TESTING: Warning about destroyed observer.
+        //
+        // Concerns:
+        //  1 Verify that we log a message to 'stderr' if a registered
+        //    observer is destroyed before the multiplex observer is destroyed.
+        //
+        //  2 Verify that we log a message to 'stderr' if a registered
+        //    observer is destroyed before a call to 'releaseRecords'.
+        //
+        // Plan:
+        //  1 Create an observer, and supply it multiplex observer, then
+        //    destroy the observer prior to calling 'releaseRecords' and the
+        //    destructor of the multiplex observer.  Visually verify that
+        //    output is written to stderr.
+        //
+        //  Note that this is a test of undefined behavior and must be run,
+        //  and verified, manually.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "Warning about destroyed observer." << endl
+                          << "================================" << endl;
+
+        {
+            Obj x;
+            {
+                bael_TestObserver testObserver(cout);
+                x.registerObserver(&testObserver);
+            }
+            x.releaseRecords();
+        }
+
+      } break;
+
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

@@ -113,7 +113,7 @@ int readRawArray(bsl::vector<TYPE> *result,
 
 template <typename TYPE>
 static inline
-bool validIndex(const std::vector<TYPE>& vector, int index)
+bool validIndex(const bsl::vector<TYPE>& vector, int index)
     // Return 'true' if the specified 'index' is within the range of valid
     // indices of the specified 'vector', and 'false' otherwise.
 {
@@ -348,7 +348,7 @@ int baetzo_ZoneinfoBinaryReader::read(
     // 'zoneinfoResult->localTimeDescriptors()'.
 
     bsl::vector<baetzo_LocalTimeDescriptor> descriptors;
-    for (std::size_t i = 0; i < localTimeDescriptors.size(); ++i) {
+    for (bsl::size_t i = 0; i < localTimeDescriptors.size(); ++i) {
         if (!validIndex(abbreviationBuffer,
                         localTimeDescriptors[i].d_abbreviationIndex)) {
             BAEL_LOG_ERROR << "Invalid abbreviation buffer index "
@@ -403,7 +403,7 @@ int baetzo_ZoneinfoBinaryReader::read(
     // Convert the 'Raw' transitions information into
     // 'zoneinfoResult->transitions()'.
 
-    for (std::size_t i = 0; i < transitions.size(); ++i) {
+    for (bsl::size_t i = 0; i < transitions.size(); ++i) {
         if (!validIndex(descriptors, localTimeIndices[i])) {
             BAEL_LOG_ERROR << "Invalid local-type type index "
                            << (int)localTimeIndices[i]

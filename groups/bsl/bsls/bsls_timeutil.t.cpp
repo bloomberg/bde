@@ -42,11 +42,11 @@ using namespace std;
 // address basic concerns to probe both our own code for consistent behavior
 // and the system results for plausible correct behavior.
 //-----------------------------------------------------------------------------
-// [11] bsls_Types::Int64 convertRawTime(OpaqueNativeTime rawTime);
-// [ 1] bsls_Types::Int64 bsls_TimeUtil::getProcessSystemTimer();
-// [ 1] void bsls_TimeUtil::getProcessTimers(bsls_Types::Int64);
-// [ 1] bsls_Types::Int64 bsls_TimeUtil::getTimer();
-// [ 1] bsls_Types::Int64 bsls_TimeUtil::getProcessUserTimer();
+// [11] bsls::Types::Int64 convertRawTime(OpaqueNativeTime rawTime);
+// [ 1] bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
+// [ 1] void bsls::TimeUtil::getProcessTimers(bsls::Types::Int64);
+// [ 1] bsls::Types::Int64 bsls::TimeUtil::getTimer();
+// [ 1] bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
 // [11] OpaqueNativeTime getTimerRaw();
 //-----------------------------------------------------------------------------
 // [XX] Breathing Test -- NOT IMPLEMENTED
@@ -101,8 +101,8 @@ static void aSsErT(int c, const char *s, int i)
 //                 GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bsls_TimeUtil     TU;
-typedef bsls_Types::Int64 Int64;
+typedef bsls::TimeUtil     TU;
+typedef bsls::Types::Int64 Int64;
 
 typedef Int64 (*TimerMethod) ();
 
@@ -149,16 +149,16 @@ class my_Timer {
     // the "running" state, and may be queried for its cumulative
     // interval (as a 'double', in seconds) but never stopped or reset.
 
-    bsls_Types::Int64 d_startWallTime; // time at creation (nsec)
-    bsls_Types::Int64 d_startUserTime; // time at creation (nsec)
-    bsls_Types::Int64 d_startSystemTime; // time at creation (nsec)
+    bsls::Types::Int64 d_startWallTime;   // time at creation (nsec)
+    bsls::Types::Int64 d_startUserTime;   // time at creation (nsec)
+    bsls::Types::Int64 d_startSystemTime; // time at creation (nsec)
 
   public:
     // CREATORS
     my_Timer() {
-        d_startWallTime = bsls_TimeUtil::getTimer();
-        d_startUserTime = bsls_TimeUtil::getProcessUserTimer();
-        d_startSystemTime = bsls_TimeUtil::getProcessSystemTimer();
+        d_startWallTime = bsls::TimeUtil::getTimer();
+        d_startUserTime = bsls::TimeUtil::getProcessUserTimer();
+        d_startSystemTime = bsls::TimeUtil::getProcessSystemTimer();
     }
         // Create a timer object initialized with the times at creation.
         // All values returned by subsequent calls to 'elapsed<...>Time()'
@@ -181,20 +181,20 @@ class my_Timer {
 inline
 double my_Timer::elapsedWallTime()
 {
-    return (double) (bsls_TimeUtil::getTimer() - d_startWallTime) * 1.0E-9;
+    return (double) (bsls::TimeUtil::getTimer() - d_startWallTime) * 1.0E-9;
 }
 
 inline
 double my_Timer::elapsedUserTime()
 {
-    return (double) (bsls_TimeUtil::getProcessUserTimer() - d_startUserTime)
+    return (double) (bsls::TimeUtil::getProcessUserTimer() - d_startUserTime)
                                                                       * 1.0E-9;
 }
 
 inline
 double my_Timer::elapsedSystemTime()
 {
-    return (double) (bsls_TimeUtil::getProcessSystemTimer()
+    return (double) (bsls::TimeUtil::getProcessSystemTimer()
                                                  - d_startSystemTime) * 1.0E-9;
 }
 
@@ -232,8 +232,8 @@ int main(int argc, char *argv[])
         //   "reasonable"
         //
         // Testing:
-        //   bsls_TimeUtil::getTimerRaw()
-        //   bsls_TimeUtil::convertRawTime(bsls_TimeUtil::OpaqueNativeTime)
+        //   bsls::TimeUtil::getTimerRaw()
+        //   bsls::TimeUtil::convertRawTime(bsls::TimeUtil::OpaqueNativeTime)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Raw methods"
@@ -369,7 +369,7 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
-        //   *** Windows only ***: bsls_TimeUtil::getTimer()
+        //   *** Windows only ***: bsls::TimeUtil::getTimer()
         //
         // Plan:
         //   Call the method and check that the return value is not negative
@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
         //   are -1).
         //
         // Testing:
-        //   bsls_TimeUtil::getTimer()
+        //   bsls::TimeUtil::getTimer()
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
@@ -390,14 +390,14 @@ int main(int argc, char *argv[])
       case 9: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
-        //   *** UNIX only ***: bsls_TimeUtil::getProcessTimers()
+        //   *** UNIX only ***: bsls::TimeUtil::getProcessTimers()
         //
         // Plan:
         //   Call the method and check that the values returned are not
         //   negative (the uninitialized factor value is -1).
         //
         // Testing:
-        //   bsls_TimeUtil::getProcessTimers()
+        //   bsls::TimeUtil::getProcessTimers()
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -410,14 +410,14 @@ int main(int argc, char *argv[])
       case 8: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
-        //   *** UNIX only ***: bsls_TimeUtil::getProcessUserTimer()
+        //   *** UNIX only ***: bsls::TimeUtil::getProcessUserTimer()
         //
         // Plan:
         //   Call the method and check that the return value is not negative
         //   (the uninitialized factor value is -1).
         //
         // Testing:
-        //   bsls_TimeUtil::getProcessUserTimer()
+        //   bsls::TimeUtil::getProcessUserTimer()
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -430,14 +430,14 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // INITIALIZATION TEST
-        //   *** UNIX only ***: bsls_TimeUtil::getProcessSystemTimer()
+        //   *** UNIX only ***: bsls::TimeUtil::getProcessSystemTimer()
         //
         // Plan:
         //   Call the method and check that the return value is not negative
         //   (the uninitialized factor value is -1).
         //
         // Testing:
-        //   bsls_TimeUtil::getProcessSystemTimer()
+        //   bsls::TimeUtil::getProcessSystemTimer()
         // --------------------------------------------------------------------
 
 #ifdef BSLS_PLATFORM__OS_UNIX
@@ -531,9 +531,9 @@ int main(int argc, char *argv[])
         //   system times.)
         //
         // Testing:
-        //   bsls_Types::Int64 bsls_TimeUtil::getTimer();
-        //   bsls_Types::Int64 bsls_TimeUtil::getProcessSystemTimer();
-        //   bsls_Types::Int64 bsls_TimeUtil::getProcessUserTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
         // --------------------------------------------------------------------
 
         const Int64 nsecsPerSec = 1000LL * 1000LL * 1000LL;
@@ -796,11 +796,11 @@ int main(int argc, char *argv[])
         //   values each time.
         //
         // Testing:
-        //   bsls_Types::Int64 bsls_TimeUtil::getTimer();
-        //   bsls_Types::Int64 bsls_TimeUtil::getProcessSystemTimer();
-        //   bsls_Types::Int64 bsls_TimeUtil::getProcessUserTimer();
-        //   void bsls_TimeUtil::getProcessTimers(bsls_Types::Int64,
-        //                                        bsls_Types::Int64);
+        //   bsls::Types::Int64 bsls::TimeUtil::getTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
+        //   void bsls::TimeUtil::getProcessTimers(bsls::Types::Int64,
+        //                                        bsls::Types::Int64);
         // --------------------------------------------------------------------
 
         struct {
@@ -827,7 +827,7 @@ int main(int argc, char *argv[])
                     << "\n===========================================" << endl;
 
             if (verbose)
-                cout << "\nCall 'bsls_TimeUtil::"
+                cout << "\nCall 'bsls::TimeUtil::"
                     << TimerMethods[t].d_methodName
                     << "()' twice in a large loop."
                     << endl;
@@ -887,11 +887,11 @@ int main(int argc, char *argv[])
         //   Call each method in a loop.
         //
         // Testing:
-        //   bsls_Types::Int64 bsls_TimeUtil::getTimer();
-        //   bsls_Types::Int64 bsls_TimeUtil::getProcessSystemTimer();
-        //   bsls_Types::Int64 bsls_TimeUtil::getProcessUserTimer();
-        //   void bsls_TimeUtil::getProcessTimers(bsls_Types::Int64,
-        //                                        bsls_Types::Int64);
+        //   bsls::Types::Int64 bsls::TimeUtil::getTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
+        //   void bsls::TimeUtil::getProcessTimers(bsls::Types::Int64,
+        //                                        bsls::Types::Int64);
         // --------------------------------------------------------------------
 
         struct {
@@ -910,14 +910,14 @@ int main(int argc, char *argv[])
 
         for (size_t t = 0; t < TimerMethodsCount; ++t) {
             if (verbose)
-                cout << "\nTesting 'bsls_TimeUtil::"
+                cout << "\nTesting 'bsls::TimeUtil::"
                     << TimerMethods[t].d_methodName
                     << " Performance()'"
                     << "\n==============================================="
                     << endl;
 
             if (verbose)
-                cout << "\nCall 'bsls_TimeUtil::"
+                cout << "\nCall 'bsls::TimeUtil::"
                     << TimerMethods[t].d_methodName
                     << "()' in a large loop."
                     << endl;
@@ -995,7 +995,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BASIC FUNCTIONALITY
         //   The methods should return non-decreasing values of type
-        //   'bsls_Types::Int64'.
+        //   'bsls::Types::Int64'.
         //
         // Plan:
         //   Verify that the *temporary* returned by each method is at least 8
@@ -1005,11 +1005,11 @@ int main(int argc, char *argv[])
         //   in 'veryVerbose' mode.
         //
         // Testing:
-        //   bsls_Types::Int64 bsls_TimeUtil::getTimer();
-        //   bsls_Types::Int64 bsls_TimeUtil::getProcessSystemTimer();
-        //   bsls_Types::Int64 bsls_TimeUtil::getProcessUserTimer();
-        //   void bsls_TimeUtil::getProcessTimers(bsls_Types::Int64,
-        //                                        bsls_Types::Int64);
+        //   bsls::Types::Int64 bsls::TimeUtil::getTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getProcessSystemTimer();
+        //   bsls::Types::Int64 bsls::TimeUtil::getProcessUserTimer();
+        //   void bsls::TimeUtil::getProcessTimers(bsls::Types::Int64,
+        //                                        bsls::Types::Int64);
         // --------------------------------------------------------------------
 
         struct {

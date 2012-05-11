@@ -63,13 +63,13 @@ cptr_cstr_test_cases [] = {
     }
 
     //    +----------------------------------------- first sequence
-    //    |                +------------------------ second sequence 
+    //    |                +------------------------ second sequence
     //    |                |                +------- expected result sequence
     //    |                |                |        +- exception info
     //    |                |                |        |     0 - no exception
     //    |                |                |        |
     //    |                |                |        +---------+
-    //    V                V                V                  V   
+    //    V                V                V                  V
     TEST ("ab",            "c",             "abc",              0),
 
     TEST ("",              "",              "",                 0),
@@ -126,13 +126,13 @@ cstr_cstr_test_cases [] = {
     }
 
     //    +----------------------------------------- first sequence
-    //    |                +------------------------ second sequence 
+    //    |                +------------------------ second sequence
     //    |                |             +---------- expected result sequence
     //    |                |             |        +- exception info
     //    |                |             |        |      0 - no exception
     //    |                |             |        |
     //    |                |             |        +-------------+
-    //    V                V             V                      V   
+    //    V                V             V                      V
     TEST ("ab",            "c",          "abc",                 0),
 
     TEST ("",              "",           "",                    0),
@@ -192,13 +192,13 @@ cstr_cptr_test_cases [] = {
     }
 
     //    +----------------------------------------- first sequence
-    //    |                +------------------------ second sequence 
+    //    |                +------------------------ second sequence
     //    |                |             +---------- expected result sequence
     //    |                |             |        +- exception info
     //    |                |             |        |     0 - no exception
     //    |                |             |        |
     //    |                |             |        +----------+
-    //    V                V             V                   V   
+    //    V                V             V                   V
     TEST ("ab",            "c",          "abc",              0),
 
     TEST ("",              "",           "",                 0),
@@ -254,11 +254,11 @@ cstr_val_test_cases [] = {
     }
 
     //    +----------------------------------------- first sequence
-    //    |                 +----------------------- character to be added 
+    //    |                 +----------------------- character to be added
     //    |                 |             +--------- expected result sequence
-    //    |                 |             |       
-    //    |                 |             |       
-    //    V                 V             V                     
+    //    |                 |             |
+    //    |                 |             |
+    //    V                 V             V
     TEST ("ab",             'c',          "abc"),
 
     TEST ("",               'a',          "a"),
@@ -304,11 +304,11 @@ val_cstr_test_cases [] = {
     }
 
     //    +----------------------------------------- first sequence
-    //    |             +--------------------------- character to be added 
+    //    |             +--------------------------- character to be added
     //    |             |                 +--------- expected result sequence
-    //    |             |                 |       
-    //    |             |                 |       
-    //    V             V                 V                     
+    //    |             |                 |
+    //    |             |                 |
+    //    V             V                 V
     TEST ('c',          "ab",             "cab"),
 
     TEST ('a',          "",               "a"),
@@ -443,27 +443,27 @@ void test_op_plus (charT, Traits*, Allocator*,
         try {
 
             switch (func.which_) {
-            case OpPlus (cptr_cstr): 
+            case OpPlus (cptr_cstr):
                 s_res = arg1_ptr + arg2_str;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpPlus (cstr_cstr): 
+
+            case OpPlus (cstr_cstr):
                 s_res = arg1_str + arg2_str;
                 break;
-            
-            case OpPlus (cstr_cptr): 
+
+            case OpPlus (cstr_cptr):
                 s_res = arg1_str + arg2_ptr;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpPlus (cstr_val): 
+
+            case OpPlus (cstr_val):
                 s_res = arg1_str + arg_val;
                 break;
-            
-            case OpPlus (val_cstr): 
+
+            case OpPlus (val_cstr):
                 s_res = arg_val + arg2_str;
                 break;
 
@@ -496,9 +496,9 @@ void test_op_plus (charT, Traits*, Allocator*,
             }
 
             // verify that Traits::length was used
-            if ((OpPlus (cptr_cstr) == func.which_ 
+            if ((OpPlus (cptr_cstr) == func.which_
               || OpPlus (cstr_cptr) == func.which_) && rg_calls) {
-                    rw_assert (n_length_calls - total_length_calls > 0, 
+                    rw_assert (n_length_calls - total_length_calls > 0,
                                0, tcase.line, "line %d. %{$FUNCALL} doesn't "
                                "use traits::length()", __LINE__);
             }
@@ -566,8 +566,8 @@ void test_op_plus (charT, Traits*, Allocator*,
 
 #else   // if defined (_RWSTD_NO_REPLACEABLE_NEW_DELETE)
 
-    const std::size_t expect_throws = 
-        (StringIds::UserAlloc == func.alloc_id_) 
+    const std::size_t expect_throws =
+        (StringIds::UserAlloc == func.alloc_id_)
       ? str_state.capacity_ < s_res.capacity () : 0;
 
 #endif   // _RWSTD_NO_REPLACEABLE_NEW_DELETE

@@ -510,12 +510,12 @@ typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> WCodecvtByname;
 struct WCodecvt : std::codecvt<wchar_t, char, std::mbstate_t>
 {
     WCodecvt(std::size_t refs = 0)
-	: std::codecvt<wchar_t, char, std::mbstate_t>(refs) { }
+    : std::codecvt<wchar_t, char, std::mbstate_t>(refs) { }
 };
 struct WCodecvtByname : std::codecvt_byname<wchar_t, char, std::mbstate_t>
 {
     WCodecvtByname(const char* s, std::size_t refs = 0)
-	: std::codecvt_byname<wchar_t, char, std::mbstate_t>(s,refs) { }
+    : std::codecvt_byname<wchar_t, char, std::mbstate_t>(s,refs) { }
 };
 #endif // !TEST_RW_EXTENSIONS
 

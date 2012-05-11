@@ -14,6 +14,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -336,8 +337,6 @@ bool streq(const char* s1, const char* s2)
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -1500,8 +1499,6 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class MySequence {
@@ -2192,8 +2189,6 @@ bsl::ostream& MySequence::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 

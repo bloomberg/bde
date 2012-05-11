@@ -35,7 +35,7 @@ using namespace bsl;  // automatically added by script
 // obtains the behavior specified by the protocol from the concrete subclass.
 //-----------------------------------------------------------------------------
 // [ 1] virtual ~bael_ObserverAdapter();
-// [ 1] virtual void publish(const record&, const context&);
+// [ 1] virtual void publish(const record&, const context&) = 0;
 // [ 1] virtual void publish(const sharedptr&, const context&);
 // [ 1] virtual void releaseRecords();
 //-----------------------------------------------------------------------------
@@ -81,12 +81,12 @@ void aSsErT(int c, const char *s, int i)
 //                       CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
 
-struct ObserverTest : bsls_ProtocolTestImp<bael_ObserverAdapter> {
-    void publish(const bael_Record&, const bael_Context&)  { markDone(); }
-    void publish(const bcema_SharedPtr<const bael_Record>&,
-                 const bael_Context&)
-    { markDone(); }
-    void releaseRecords() { markDone(); }
+struct ConcreteObserver : public bael_ObserverAdapter {
+    using bael_ObserverAdapter::publish;
+    void publish(const bael_Record&, const bael_Context&)
+    {
+        cout << "ConcreteObserver::publish(record&)" << endl;
+    }
 };
 
 //=============================================================================
@@ -99,6 +99,7 @@ class my_OstreamObserver : public bael_ObserverAdapter {
     ostream *d_stream;
 
   public:
+    using bael_ObserverAdapter::publish;
     explicit my_OstreamObserver(ostream& stream) : d_stream(&stream) { }
     virtual ~my_OstreamObserver();
     virtual void publish(const bael_Record&  record,
@@ -219,12 +220,12 @@ int main(int argc, char *argv[])
         //   Construct an object of a class derived from 'bael_ObserverAdapter'
         //   and bind a 'bael_ObserverAdapter' reference to the object.  Using
         //   the base class reference, invoke the two 'publish' methods,
-        //   'clear' method and destructor.  Verify that the correct
+        //   'releaseRecords' method and destructor.  Verify that the correct
         //   implementations of the methods are called.
         //
         // Testing:
         //   virtual ~bael_ObserverAdapter();
-        //   virtual void publish(const record&, const context&);
+        //   virtual void publish(const record&, const context&) = 0;
         //   virtual void publish(const sharedptr&, const context&);
         //   virtual void releaseRecords();
         // --------------------------------------------------------------------
@@ -232,18 +233,18 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        bsls_ProtocolTest<ObserverTest> t(veryVerbose);
+        ConcreteObserver concreteObserver;
+        bael_ObserverAdapter& adapter =
+                        dynamic_cast<bael_ObserverAdapter&>(concreteObserver);
 
-        ASSERT(t.testNoDataMembers());
-        ASSERT(t.testVirtualDestructor());
-
-        BSLS_PROTOCOLTEST_ASSERT(t, publish(bael_Record(), bael_Context()));
+        adapter.publish(bael_Record(), bael_Context());
 
         bcema_SharedPtr<const bael_Record> handle(
                              new (testAllocator) bael_Record(&testAllocator),
                              &testAllocator);
-        BSLS_PROTOCOLTEST_ASSERT(t, publish(handle, bael_Context()));
-        BSLS_PROTOCOLTEST_ASSERT(t, releaseRecords());
+        adapter.publish(handle, bael_Context());
+        adapter.releaseRecords();
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -1,4 +1,4 @@
-// bslma_autodestructor.cpp    -*-C++-*-
+// bslma_autodestructor.cpp                                           -*-C++-*-
 #include <bslma_autodestructor.h>
 
 #include <bsls_ident.h>
