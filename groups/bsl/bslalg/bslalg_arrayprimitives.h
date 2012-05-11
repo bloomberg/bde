@@ -950,20 +950,24 @@ struct ArrayPrimitives_Imp {
                         // bslalg_ArrayPrimitives_RemovePtr
                         // ================================
 
-template <typename VALUE>
-struct bslalg_ArrayPrimitives_RemovePtr {
+template <typename NON_PTR_TYPE>
+struct ArrayPrimitives_RemovePtr {
     // Given a template parameter 'T*', yield 'Type == T'.  Given a template
     // paramter 'T' that is not a pointer, yield 'T'.
     //
     // DEPRECATED: In a future release, the class will be phased out and
     // replaced by a new component in bslmf.
 
-    typedef VALUE Type;
+    typedef NON_PTR_TYPE Type;
 };
 
-template <typename VALUE>
-struct bslalg_ArrayPrimitives_RemovePtr<VALUE *> {
-    typedef VALUE Type;
+template <typename TARGET_TYPE>
+struct ArrayPrimitives_RemovePtr<TARGET_TYPE *> {
+    // Note that when this functionality is migrated to a general component in
+    // bslmf, this template will have to be specialized for all combinations of
+    // 'const' & 'volatile' like 'bslmf::IsPointer'.
+
+    typedef TARGET_TYPE Type;
 };
 
 
@@ -1049,21 +1053,18 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
-    typedef typename bslalg_ArrayPrimitives_RemovePtr<FWD_ITER>::Type
-                                                                    FwdElement;
+    typedef typename ArrayPrimitives_RemovePtr<FWD_ITER>::Type FwdTarget;
     enum {
-        ARE_POINTER_POINTERS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
-                               bslmf::IsPointer<FWD_ITER>::VALUE &&
-                               bslmf::IsPointer<FwdElement>::VALUE,
-        IS_BITWISECOPYABLE  = HasTrait<TARGET_TYPE,
-                                       TypeTraitBitwiseCopyable>::VALUE,
-        CAN_USE_BITWISECOPY = bslmf::IsConvertible<FWD_ITER,
+        ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
+                           bslmf::IsPointer<FWD_ITER   >::VALUE &&
+                           bslmf::IsPointer<FwdTarget  >::VALUE,
+        IS_BITWISECOPYABLE = HasTrait<TARGET_TYPE,
+                                       TypeTraitBitwiseCopyable>::VALUE &&
+                             bslmf::IsConvertible<FWD_ITER,
                                                    const TARGET_TYPE *>::VALUE,
-        VALUE = ARE_POINTER_POINTERS
-              ? Imp::IS_POINTER_TO_POINTER
-              : IS_BITWISECOPYABLE && CAN_USE_BITWISECOPY
-                ? Imp::BITWISE_COPYABLE_TRAITS
-                : Imp::NIL_TRAITS
+        VALUE = ARE_PTRS_TO_PTRS   ? Imp::IS_POINTER_TO_POINTER
+              : IS_BITWISECOPYABLE ? Imp::BITWISE_COPYABLE_TRAITS
+              : Imp::NIL_TRAITS
     };
 
     ArrayPrimitives_Imp::copyConstruct(toBegin,
@@ -1341,23 +1342,20 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
         return;                                                       // RETURN
     }
 
-    typedef typename bslalg_ArrayPrimitives_RemovePtr<FWD_ITER>::Type
-                                                                    FwdElement;
+    typedef typename ArrayPrimitives_RemovePtr<FWD_ITER>::Type FwdTarget;
     enum {
-        ARE_POINTER_POINTERS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
-                               bslmf::IsPointer<FWD_ITER>::VALUE &&
-                               bslmf::IsPointer<FwdElement>::VALUE,
+        ARE_PTRS_TO_PTRS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
+                           bslmf::IsPointer<FWD_ITER   >::VALUE &&
+                           bslmf::IsPointer<FwdTarget  >::VALUE,
         IS_BITWISEMOVEABLE  = HasTrait<TARGET_TYPE,
                                        TypeTraitBitwiseMoveable>::VALUE,
-        CAN_USE_BITWISECOPY = bslmf::IsConvertible<FWD_ITER,
-                                                   const TARGET_TYPE *>::VALUE,
-        IS_BITWISECOPYABLE  = HasTrait<TARGET_TYPE,
-                                     TypeTraitBitwiseCopyable>::VALUE
-                              && CAN_USE_BITWISECOPY,
-
-        VALUE = ARE_POINTER_POINTERS ? Imp::IS_POINTER_TO_POINTER
-              : IS_BITWISECOPYABLE   ? Imp::BITWISE_COPYABLE_TRAITS
-              : IS_BITWISEMOVEABLE   ? Imp::BITWISE_MOVEABLE_TRAITS
+        IS_BITWISECOPYABLE  = bslmf::IsConvertible<FWD_ITER,
+                                                 const TARGET_TYPE *>::VALUE &&
+                              HasTrait<TARGET_TYPE,
+                                              TypeTraitBitwiseCopyable>::VALUE,
+        VALUE = ARE_PTRS_TO_PTRS   ? Imp::IS_POINTER_TO_POINTER
+              : IS_BITWISECOPYABLE ? Imp::BITWISE_COPYABLE_TRAITS
+              : IS_BITWISEMOVEABLE ? Imp::BITWISE_MOVEABLE_TRAITS
               : Imp::NIL_TRAITS
     };
     ArrayPrimitives_Imp::insert(toBegin,
@@ -1798,6 +1796,11 @@ void ArrayPrimitives_Imp::copyConstruct(
                               ALLOCATOR                             *allocator,
                               bslmf::MetaInt<IS_POINTER_TO_POINTER> *)
 {
+    // We may be casting a func ptr to a 'void *' here, so this won't work if
+    // we port to an architecture where the two are of different sizes.
+
+    BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
+
     typedef typename bslmf::RemovePtrCvq<TARGET_TYPE>::Type NoConstTargetType;
     typedef typename bslmf::RemovePtrCvq<FWD_ITER>::ValueType
                                                            NoConstFwdIterValue;
@@ -2164,6 +2167,11 @@ void ArrayPrimitives_Imp::insert(
                           ALLOCATOR                               *allocator,
                           bslmf::MetaInt<IS_POINTER_TO_POINTER>   *)
 {
+    // We may be casting a func ptr to a 'void *' here, so this won't work if
+    // we port to an architecture where the two are of different sizes.
+
+    BSLMF_ASSERT(sizeof(void *) == sizeof(void (*)()));
+
     typedef typename bslmf::RemovePtrCvq<TARGET_TYPE>::Type NoConstTargetType;
     typedef typename bslmf::RemovePtrCvq<FWD_ITER>::ValueType
                                                            NoConstFwdIterValue;
