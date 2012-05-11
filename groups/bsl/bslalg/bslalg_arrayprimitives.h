@@ -946,6 +946,27 @@ struct ArrayPrimitives_Imp {
         // *prove* that the passed range is invalid.
 };
 
+                        // ================================
+                        // bslalg_ArrayPrimitives_RemovePtr
+                        // ================================
+
+template <typename VALUE>
+struct bslalg_ArrayPrimitives_RemovePtr {
+    // Given a template parameter 'T*', yield 'Type == T'.  Given a template
+    // paramter 'T' that is not a pointer, yield 'T'.
+    //
+    // DEPRECATED: In a future release, the class will be phased out and
+    // replaced by a new component in bslmf.
+
+    typedef VALUE Type;
+};
+
+template <typename VALUE>
+struct bslalg_ArrayPrimitives_RemovePtr<VALUE *> {
+    typedef VALUE Type;
+};
+
+
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ===========================================================================
@@ -1028,7 +1049,8 @@ void ArrayPrimitives::copyConstruct(TARGET_TYPE *toBegin,
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
 
-    typedef typename bslmf::IsPointer<FWD_ITER>::ELEMENT_TYPE FwdElement;
+    typedef typename bslalg_ArrayPrimitives_RemovePtr<FWD_ITER>::Type
+                                                                    FwdElement;
     enum {
         ARE_POINTER_POINTERS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
                                bslmf::IsPointer<FWD_ITER>::VALUE &&
@@ -1319,7 +1341,8 @@ void ArrayPrimitives::insert(TARGET_TYPE *toBegin,
         return;                                                       // RETURN
     }
 
-    typedef typename bslmf::IsPointer<FWD_ITER>::ELEMENT_TYPE FwdElement;
+    typedef typename bslalg_ArrayPrimitives_RemovePtr<FWD_ITER>::Type
+                                                                    FwdElement;
     enum {
         ARE_POINTER_POINTERS = bslmf::IsPointer<TARGET_TYPE>::VALUE &&
                                bslmf::IsPointer<FWD_ITER>::VALUE &&
