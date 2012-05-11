@@ -1,7 +1,6 @@
 // bslmf_ispointer.t.cpp                                              -*-C++-*-
 
 #include <bslmf_ispointer.h>
-#include <bslmf_isfundamental.h>
 
 #include <cstdlib>    // atoi()
 #include <cstring>    // strcmp()
@@ -20,7 +19,6 @@ using namespace std;
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
-
 static int testStatus = 0;
 
 static void aSsErT(int c, const char *s, int i) {
@@ -100,28 +98,6 @@ static const int a08 = bslmf::IsPointer<MyType*volatile      >::VALUE;// a08==1
 static const int a09 = bslmf::IsPointer<MyType*const volatile>::VALUE;// a09==1
 static const int a10 = bslmf::IsPointer<PMT                  >::VALUE;// a10==1
 
-typedef MyType **Woof;
-typedef bslmf::IsPointer<Woof>::ELEMENT_TYPE WoofElem;
-static const int a11 = bslmf::IsPointer<Woof>::VALUE &&
-                                  bslmf::IsPointer<WoofElem>::VALUE; // a11 = 1
-static const int a12 = bslmf::IsPointer<Woof>::VALUE &&
-                              bslmf::IsFundamental<WoofElem>::VALUE; // a12 = 0
-typedef int *Meow;
-typedef bslmf::IsPointer<Meow>::ELEMENT_TYPE MeowElem;
-static const int a13 = bslmf::IsPointer<Meow>::VALUE &&
-                                  bslmf::IsPointer<MeowElem>::VALUE; // a13 = 0
-static const int a14 = bslmf::IsPointer<Woof>::VALUE &&
-                              bslmf::IsFundamental<MeowElem>::VALUE; // a14 = 1
-
-typedef bslmf::IsPointer<MyType>::ELEMENT_TYPE MyTypeElem;
-static const int a15 = bslmf::IsPointer<MyType>::VALUE &&
-                                bslmf::IsPointer<MyTypeElem>::VALUE; // a15 = 0
-static const int a16 = bslmf::IsPointer<MyType>::VALUE &&
-                            bslmf::IsFundamental<MyTypeElem>::VALUE; // a16 = 0
-
-
-
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -187,12 +163,6 @@ int main(int argc, char *argv[])
         ASSERT(1 == a08);
         ASSERT(1 == a09);
         ASSERT(1 == a10);
-        ASSERT(1 == a11);
-        ASSERT(0 == a12);
-        ASSERT(0 == a13);
-        ASSERT(1 == a14);
-        ASSERT(0 == a15);
-        ASSERT(0 == a16);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
