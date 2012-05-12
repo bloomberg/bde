@@ -414,9 +414,9 @@ BSLS_IDENT("$Id: $")
 //  }
 ///Example 2: The 'reset' method
 ///- - - - - - - - - - - - - - -
-// To really demonstrate the usefulness of the 'reset' method, one needs to be
-// testing a class with multiple manipulators that allocate memory.  For
-// brevity we use 'bsl::list', whose interface is clearly described at
+// To demonstrate the usefulness of the 'reset' method, one needs to be testing
+// a class having multiple manipulators that allocate memory.  For brevity we
+// use 'bsl::list', whose interface is clearly described at
 // 'http://www.cplusplus.com/reference/stl/list'.  The actual code for this
 // example is in bsltst_bsl_list.t.cpp.
 //

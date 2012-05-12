@@ -4,6 +4,7 @@
 #endif
 #include <bsttst_bsl_list.h>
 
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
@@ -229,85 +230,98 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         // In this example, we observe how some of the manipulators and
-        // accessors of 'bsl::list' use memory.  First, we declare monitors
-        // 'tam' and 'dam' that monitor the allocator passed to a list at
-        // construction, and the default allocator, respectively.  The default
-        // allocator 'tda' should never be used for anything in this exercise,
-        // so we will only check its monitor 'dam' at the end of the example.
+        // accessors of 'bsl::list' use memory.
 
-        bslma_TestAllocatorMonitor tam(&ta);
+        // First, we declare 3 allocators : test (toa), default (tda), and
+        // global (tga).
+
+        bslma_TestAllocator toa;
+//      bslma_TestAllocator tda;
+        bslma_TestAllocator tga;
+
+        // Then, we install our default and global allocators:
+
+//      bslma_DefaultAllocatorGuard defaultGuard(&tda);
+        bslma_Default::setGlobalAllocator(&tga);
+
+        // Next, we set up our monitors of the 3 allocators:
+
+        bslma_TestAllocatorMonitor oam(&toa);
         bslma_TestAllocatorMonitor dam(&tda);
+        bslma_TestAllocatorMonitor gam(&tga);
 
         // Then, we observe that creating an empty list allocates memory:
 
-        bsl::list<int> la(&ta);
+        bsl::list<int> myList(&toa);
 
-        ASSERT(tam.isTotalUp());
+        ASSERT(oam.isTotalUp());
 
         // Next, we observe that 'push_back' also allocates memory:
 
-        tam.reset();
+        oam.reset();
 
-        la.push_back(57);
+        myList.push_back(57);
 
-        ASSERT(tam.isTotalUp());
+        ASSERT(oam.isTotalUp());
 
-        la.push_back(57);
+        myList.push_back(57);
 
         // Then, we observe that accessors 'back', 'front', and 'size' don't
         // cause any allocation.
 
-        tam.reset();
+        oam.reset();
 
-        ASSERT(57 == la.back());
-        ASSERT(57 == la.front());
-        ASSERT(2  == la.size());
+        ASSERT(57 == myList.back());
+        ASSERT(57 == myList.front());
+        ASSERT(2  == myList.size());
 
-        ASSERT(tam.isTotalSame());
+        ASSERT(oam.isTotalSame());
 
         // Next, we observe that manipulator 'push_front' causes memory
         // allocation:
 
-        la.push_front(23);
+        myList.push_front(23);
 
-        ASSERT(tam.isTotalUp());
+        ASSERT(oam.isTotalUp());
 
-        ASSERT(57 == la.back());
-        ASSERT(23 == la.front());
-        ASSERT(3  == la.size());
+        ASSERT(57 == myList.back());
+        ASSERT(23 == myList.front());
+        ASSERT(3  == myList.size());
 
         // Then, we observe that 'reverse', though it's a manipulator, does no
         // memory allocation:
 
-        tam.reset();
+        oam.reset();
 
-        la.reverse();
+        myList.reverse();
 
-        ASSERT(tam.isInUseSame());
-        ASSERT(tam.isTotalSame());
+        ASSERT(oam.isInUseSame());
+        ASSERT(oam.isTotalSame());
 
-        ASSERT(23 == la.back());
-        ASSERT(57 == la.front());
-        ASSERT(3  == la.size());
+        ASSERT(23 == myList.back());
+        ASSERT(57 == myList.front());
+        ASSERT(3  == myList.size());
 
         // Next, we observe that 'unique', in this case, will do no new memory
         // allocation and will in fact free some memory.
 
-        tam.reset();
+        oam.reset();
 
-        la.unique();
+        myList.unique();
 
-        ASSERT(tam.isInUseDown());
-        ASSERT(tam.isTotalSame());
+        ASSERT(oam.isInUseDown());
+        ASSERT(oam.isTotalSame());
 
-        // Then, we observe the state of the list after 'unique'.
+        // Now, we observe the state of the list after 'unique'.
         
-        ASSERT(23 == la.back());
-        ASSERT(57 == la.front());
-        ASSERT(2  == la.size());
+        ASSERT(23 == myList.back());
+        ASSERT(57 == myList.front());
+        ASSERT(2  == myList.size());
 
-        // Finally, we observe that no memory was ever allocated from the
-        // default allocator.
+        // Finally, we check the default allocator monitor.  Since the default
+        // allocator 'tda' should never be have used for anything in this
+        // exercise, we only need check its monitor 'dam' at the end of the
+        // example.
 
         ASSERT(dam.isTotalSame());
       }  break;
