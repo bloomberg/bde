@@ -21,11 +21,11 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides classes with atomic operations for
 // 'int', 'Int64', and pointer types.  These classes are based on atomic
 // operations supplied by the 'bsls_atomicoperations' component.  The
-// 'bsls::AtomicInt' and 'bsls::AtomicInt64' classes represent the corresponding
-// atomic integer types, and provide overloaded operators and functions for
-// common arithmetic operations.  The 'bsls::AtomicPointer' class represents the
-// atomic pointer type, and provides atomic operations to manipulate and
-// dereference a pointer.
+// 'bsls::AtomicInt' and 'bsls::AtomicInt64' classes represent the
+// corresponding atomic integer types, and provide overloaded operators and
+// functions for common arithmetic operations.  The 'bsls::AtomicPointer' class
+// represents the atomic pointer type, and provides atomic operations to
+// manipulate and dereference a pointer.
 //
 ///Memory Order and Consistency Guarantees of Atomic Operations
 ///------------------------------------------------------------
@@ -217,10 +217,10 @@ BSLS_IDENT("$Id: $")
 // 'd_count' is of type 'bsls::AtomicInt', rather than
 // 'bsls::AtomicOperations::Int'.  Whereas 'bsls::AtomicOperations::Int' is
 // merely a 'typedef' for a platform-specific data type to be used in atomic
-// integer operations, 'bsls::AtomicInt' encapsulates those atomic operations as
-// member functions and operator overloads.  Class 'my_CountedHandleRep' will
-// benefit from this encapsulation: Its method implementations will be able to
-// operate on 'd_count' as if it were a standard integer.
+// integer operations, 'bsls::AtomicInt' encapsulates those atomic operations
+// as member functions and operator overloads.  Class 'my_CountedHandleRep'
+// will benefit from this encapsulation: Its method implementations will be
+// able to operate on 'd_count' as if it were a standard integer.
 //
 // Note that, as in the example in component 'bsls_atomicoperations', this rep
 // class is intended to be used only by class 'my_CountedHandle', and thus all
@@ -449,13 +449,13 @@ BSLS_IDENT("$Id: $")
 ///Example 3: Thread-Safe Lock-Free Singly-Linked List
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
 // This example demonstrates the use of atomic pointers to implement a fast and
-// thread-aware, yet fast single-linked list.  The example class,
-// 'my_PtrStack', is a templatized pointer stack, supporting 'push' and 'pop'
-// methods.  The class is implemented using a single-linked list.  Nodes in the
-// list are linked together using atomic operations.  Instance of this
-// structure are allocated using the provided allocator.  When nodes are freed,
-// they are cached on a free list.  This free list is also implemented as a
-// single-linked list, using atomic pointer operations.
+// thread-aware, singly-linked list.  The example class, 'my_PtrStack', is a
+// templatized pointer stack, supporting 'push' and 'pop' methods.  The class
+// is implemented using a single-linked list.  Nodes in the list are linked
+// together using atomic operations.  Instance of this structure are allocated
+// using the provided allocator.  When nodes are freed, they are cached on a
+// free list.  This free list is also implemented as a single-linked list,
+// using atomic pointer operations.
 //
 // This example parallels the third usage example given for component
 // 'bsls_atomicoperations', presenting a different implementation of
