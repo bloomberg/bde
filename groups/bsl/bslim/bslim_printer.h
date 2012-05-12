@@ -834,53 +834,6 @@ class Printer {
         // suppressed if the 'level' supplied at construction is negative.
 };
 
-                            // ====================
-                            // Printer_TreatAsArray
-                            // ====================
-
-template <typename TYPE>
-struct Printer_TreatAsArray {
-    // bslim_IsArray is unsuitable for our purposes -- if an object is declared
-    // '[]', it reports it as an array, and it also reports '""' strings as
-    // arrays.  This facility wants to handle arrays of non-chars, of length
-    // >= 1, as containers like STL containers.
-
-    enum { VALUE = 0 };
-};
-
-template <typename ELEMENT, std::size_t NUM>
-struct Printer_TreatAsArray<ELEMENT[NUM]> {
-    // This is an array with a known length of >= 1 element.
-
-    enum { VALUE = 1 };
-};
-
-template <typename TYPE>
-struct Printer_TreatAsArray<TYPE[]> {
-    // We don't know the length of the array -- treat it as a pointer
-
-    enum { VALUE = 0 };
-};
-
-template <std::size_t NUM>
-struct Printer_TreatAsArray<char[NUM]> {
-    // Char buffer -- treat as pointer.
-
-    enum { VALUE = 0 };
-};
-
-template <std::size_t NUM>
-struct Printer_TreatAsArray<const char[NUM]> {
-    // Const char string -- treat as pointer.
-
-    enum { VALUE = 0 };
-};
-
-template <typename ARRAY>
-struct Printer_TreatAsArray<ARRAY&> : Printer_TreatAsArray<ARRAY> {
-    // Strip the reference.
-};
-
                         // =======================
                         // struct Printer_Selector
                         // =======================
