@@ -642,7 +642,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Now, we begin to define the public "stack-like" interface for 'my_PtrStack'.
 // Note that the 'push' method is similar to 'freeNode', except that it assigns
-/ an item value and operates on 'd_list_p', which maintains the list of active
+// an item value and operates on 'd_list_p', which maintains the list of active
 // nodes:
 //..
 //  template <class TYPE>
