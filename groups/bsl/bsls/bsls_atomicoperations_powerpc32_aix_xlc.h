@@ -220,14 +220,16 @@ inline
 void AtomicOperations_POWERPC32_AIX_XLC::
     setInt64Relaxed(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
-    bsls_AtomicOperations_Powerpc32_SetInt64Relaxed(&atomicInt->d_value, value);
+    bsls_AtomicOperations_Powerpc32_SetInt64Relaxed(&atomicInt->d_value,
+                                                    value);
 }
 
 inline
 void AtomicOperations_POWERPC32_AIX_XLC::
     setInt64Release(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
-    bsls_AtomicOperations_Powerpc32_SetInt64Release(&atomicInt->d_value, value);
+    bsls_AtomicOperations_Powerpc32_SetInt64Release(&atomicInt->d_value,
+                                                    value);
 }
 
 inline
@@ -254,9 +256,10 @@ Types::Int64 AtomicOperations_POWERPC32_AIX_XLC::
                      Types::Int64 compareValue,
                      Types::Int64 swapValue)
 {
-    return bsls_AtomicOperations_Powerpc32_testAndSwapInt64(&atomicInt->d_value,
-                                                            compareValue,
-                                                            swapValue);
+    return bsls_AtomicOperations_Powerpc32_testAndSwapInt64(
+                                                           &atomicInt->d_value,
+                                                           compareValue,
+                                                           swapValue);
 }
 
 inline

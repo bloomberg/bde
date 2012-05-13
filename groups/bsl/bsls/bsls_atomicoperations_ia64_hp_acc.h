@@ -5,7 +5,7 @@
 //@PURPOSE: Provide implentations of atomic operations for HPUX/IA64.
 //
 //@CLASSES:
-//  bsls::AtomicOperations_IA64_HP_ACC: implementation of atomics for HPUX/IA64.
+//  bsls::AtomicOperations_IA64_HP_ACC: atomics implementation for HPUX/IA64.
 //
 //@AUTHOR: Alexei Zakharov (azakhar1)
 //

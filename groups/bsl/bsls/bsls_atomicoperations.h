@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide platform-independent atomic operations.
 //
 //@CLASSES:
-//  bsls::AtomicOperations: namespace for platform-independent atomic operations
+//  bsls::AtomicOperations: namespace for atomic operations
 //
 //@AUTHOR: Ilougino Rocha (irocha), Alexei Zakharov (azakhar1)
 //
@@ -609,9 +609,10 @@ BSLS_IDENT("$Id: $")
 //      do {
 //          node = (Node*) bsls::AtomicOperations::getPtr(&d_freeList_p);
 //          if (!node) break;
-//      } while (bsls::AtomicOperations::testAndSwapPtr(&d_freeList_p,
-//                                                      node,
-//                                                      node->d_next_p) != node);
+//      } while (bsls::AtomicOperations::testAndSwapPtr(
+//                                                    &d_freeList_p,
+//                                                    node,
+//                                                    node->d_next_p) != node);
 //..
 // Next, we allocate a new node if there are no nodes in the free node list:
 //..
@@ -631,15 +632,17 @@ BSLS_IDENT("$Id: $")
 //  inline void my_PtrStack<TYPE>::freeNode(Node *node)
 //  {
 //      do {
-//        node->d_next_p = (Node*) bsls::AtomicOperations::getPtr(&d_freeList_p);
-//      } while (bsls::AtomicOperations::testAndSwapPtr(&d_freeList_p,
-//                                                      node->d_next_p,
-//                                                      node) != node->d_next_p);
+//        node->d_next_p = (Node*) bsls::AtomicOperations::getPtr(
+//                                                              &d_freeList_p);
+//      } while (bsls::AtomicOperations::testAndSwapPtr(
+//                                                    &d_freeList_p,
+//                                                    node->d_next_p,
+//                                                    node) != node->d_next_p);
 //  }
 //..
 // Now, we begin to define the public "stack-like" interface for 'my_PtrStack'.
 // Note that the 'push' method is similar to 'freeNode', except that it assigns
-// an item value and operates on 'd_list_p', which maintains the list of active
+/ an item value and operates on 'd_list_p', which maintains the list of active
 // nodes:
 //..
 //  template <class TYPE>
@@ -649,9 +652,10 @@ BSLS_IDENT("$Id: $")
 //      node->d_item_p = item;
 //      do {
 //          node->d_next_p = (Node*) bsls::AtomicOperations::getPtr(&d_list_p);
-//      } while (bsls::AtomicOperations::testAndSwapPtr(&d_list_p,
-//                                                      node->d_next_p,
-//                                                      node)!= node->d_next_p);
+//      } while (bsls::AtomicOperations::testAndSwapPtr(
+//                                                    &d_list_p,
+//                                                    node->d_next_p,
+//                                                    node)!= node->d_next_p);
 //  }
 //..
 // Finally, we define the 'pop' method which removes the node from the top
@@ -665,9 +669,10 @@ BSLS_IDENT("$Id: $")
 //      do {
 //          node = (Node*) bsls::AtomicOperations::getPtr(&d_list_p);
 //          if (!node) break;
-//      } while (bsls::AtomicOperations::testAndSwapPtr(&d_freeList_p,
-//                                                       node,
-//                                                       node->d_next_p)!= node);
+//      } while (bsls::AtomicOperations::testAndSwapPtr(
+//                                                     &d_freeList_p,
+//                                                     node,
+//                                                     node->d_next_p)!= node);
 //      TYPE *item = node ? node->d_item_p : 0;
 //      if (node)
 //          freeNode(node);
@@ -737,8 +742,7 @@ namespace bsls {
                            // struct AtomicOperations
                            // =======================
 
-struct AtomicOperations
-{
+struct AtomicOperations {
     // 'AtomicOperations' provides a namespace for a suite of atomic
     // operations on the following types as defined by the 'AtomicTypes'
     // typedef: integer - 'AtomicTypes::Int', 64bit integer -
@@ -792,8 +796,8 @@ struct AtomicOperations
         // acquire/release memory ordering guarantee.
 
     static int testAndSwapInt(AtomicTypes::Int *atomicInt,
-                              int compareValue,
-                              int swapValue);
+                              int               compareValue,
+                              int               swapValue);
         // Conditionally set the value of the specified 'atomicInt' to the
         // specified 'swapValue' if and only if the value of 'atomicInt' equals
         // the value of the specified 'compareValue', and return the initial
@@ -801,8 +805,8 @@ struct AtomicOperations
         // ordering guarantee.  The whole operation is performed atomically.
 
     static int testAndSwapIntAcqRel(AtomicTypes::Int *atomicInt,
-                                    int compareValue,
-                                    int swapValue);
+                                    int               compareValue,
+                                    int               swapValue);
         // Conditionally set the value of the specified 'atomicInt' to the
         // specified 'swapValue' if and only if the value of 'atomicInt' equals
         // the value of the specified 'compareValue', and return the initial
@@ -875,7 +879,7 @@ struct AtomicOperations
         // *** atomic functions for Int64 ***
 
     static void initInt64(AtomicTypes::Int64 *atomicInt,
-                          Types::Int64 initialValue = 0);
+                          Types::Int64        initialValue = 0);
         // Initialize the specified 'atomicInt' and set its value to the
         // specified 'initialValue'.
 
@@ -898,39 +902,40 @@ struct AtomicOperations
         // ordering guarantee.
 
     static void setInt64Relaxed(AtomicTypes::Int64 *atomicInt,
-                                Types::Int64 value);
+                                Types::Int64        value);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value', without providing any memory ordering guarantees.
 
     static void setInt64Release(AtomicTypes::Int64 *atomicInt,
-                                Types::Int64 value);
+                                Types::Int64        value);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value', providing the release memory ordering guarantee.
 
     static Types::Int64 swapInt64(AtomicTypes::Int64 *atomicInt,
-                                  Types::Int64 swapValue);
+                                  Types::Int64        swapValue);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value' and return its previous value, providing the
         // sequential consistency memory ordering guarantee.
 
     static Types::Int64 swapInt64AcqRel(AtomicTypes::Int64 *atomicInt,
-                                        Types::Int64 swapValue);
+                                        Types::Int64        swapValue);
         // Atomically set the value of the specified 'atomicInt' to the
         // specified 'value' and return its previous value, providing the
         // acquire/release memory ordering guarantee.
 
     static Types::Int64 testAndSwapInt64(AtomicTypes::Int64 *atomicInt,
-                                         Types::Int64 compareValue,
-                                         Types::Int64 swapValue);
+                                         Types::Int64        compareValue,
+                                         Types::Int64        swapValue);
         // Conditionally set the value of the specified 'atomicInt' to the
         // specified 'swapValue' if and only if the value of 'atomicInt' equals
         // the value of the specified 'compareValue', and return the initial
         // value of 'atomicInt', providing the sequential consistency memory
         // ordering guarantee.  The whole operation is performed atomically.
 
-    static Types::Int64 testAndSwapInt64AcqRel(AtomicTypes::Int64 *atomicInt,
-                                               Types::Int64 compareValue,
-                                               Types::Int64 swapValue);
+    static Types::Int64 testAndSwapInt64AcqRel(
+                                              AtomicTypes::Int64 *atomicInt,
+                                              Types::Int64        compareValue,
+                                              Types::Int64        swapValue);
         // Conditionally set the value of the specified 'atomicInt' to the
         // specified 'swapValue' if and only if the value of 'atomicInt' equals
         // the value of the specified 'compareValue', and return the initial
@@ -938,35 +943,35 @@ struct AtomicOperations
         // guarantee.  The whole operation is performed atomically.
 
     static Types::Int64 addInt64Nv(AtomicTypes::Int64 *atomicInt,
-                                   Types::Int64 value);
+                                   Types::Int64        value);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value, providing the sequential consistency
         // memory ordering guarantee.
 
     static Types::Int64 addInt64NvRelaxed(AtomicTypes::Int64 *atomicInt,
-                                         Types::Int64 value);
+                                         Types::Int64         value);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value, without providing any memory
         // ordering guarantees.
 
     static Types::Int64 addInt64NvAcqRel(AtomicTypes::Int64 *atomicInt,
-                                         Types::Int64 value);
+                                         Types::Int64        value);
         // Atomically add to the specified 'atomicInt' the specified 'value'
         // and return the resulting value, providing the acquire/release memory
         // ordering guarantee.
 
     static void addInt64(AtomicTypes::Int64 *atomicInt,
-                         Types::Int64 value);
+                         Types::Int64        value);
         // Atomically add to the specified 'atomicInt' the specified 'value',
         // providing the sequential consistency memory ordering guarantee.
 
     static void addInt64Relaxed(AtomicTypes::Int64 *atomicInt,
-                                Types::Int64 value);
+                                Types::Int64        value);
         // Atomically add to the specified 'atomicInt' the specified 'value',
         // without providing any memory ordering guarantees.
 
     static void addInt64AcqRel(AtomicTypes::Int64 *atomicInt,
-                               Types::Int64 value);
+                               Types::Int64        value);
         // Atomically add to the specified 'atomicInt' the specified 'value',
         // providing the acquire/release memory ordering guarantee.
 
@@ -1028,36 +1033,36 @@ struct AtomicOperations
         // providing the acquire memory ordering guarantee.
 
     static void setPtr(AtomicTypes::Pointer *atomicPtr,
-                       const void *value);
+                       const void           *value);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', providing the sequential consistency memory
         // ordering guarantee.
 
     static void setPtrRelaxed(AtomicTypes::Pointer *atomicPtr,
-                              const void *value);
+                              const void           *value);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', without providing any memory ordering guarantees.
 
     static void setPtrRelease(AtomicTypes::Pointer *atomicPtr,
-                              const void *value);
+                              const void           *value);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', providing the release memory ordering guarantee.
 
     static void *swapPtr(AtomicTypes::Pointer *atomicPtr,
-                         const void     *swapValue);
+                         const void           *swapValue);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', and return its previous value, providing the
         // sequential consistency memory ordering guarantee.
 
     static void *swapPtrAcqRel(AtomicTypes::Pointer *atomicPtr,
-                               const void *swapValue);
+                               const void           *swapValue);
         // Atomically set the value of the specified 'atomicPtr' to the
         // specified 'value', and return its previous value, providing the
         // acquire/release memory ordering guarantee.
 
     static void *testAndSwapPtr(AtomicTypes::Pointer *atomicPtr,
-                                const void *compareValue,
-                                const void *swapValue);
+                                const void           *compareValue,
+                                const void           *swapValue);
         // Conditionally set the value of the specified 'atomicPtr' to the
         // specified 'swapValue' if and only if the value of 'atomicPtr' equals
         // the value of the specified 'compareValue', and return the initial
@@ -1065,18 +1070,14 @@ struct AtomicOperations
         // ordering guarantee.  The whole operation is performed atomically.
 
     static void *testAndSwapPtrAcqRel(AtomicTypes::Pointer *atomicPtr,
-                                      const void *compareValue,
-                                      const void *swapValue);
+                                      const void           *compareValue,
+                                      const void           *swapValue);
         // Conditionally set the value of the specified 'atomicPtr' to the
         // specified 'swapValue' if and only if the value of 'atomicPtr' equals
         // the value of the specified 'compareValue', and return the initial
         // value of 'atomicPtr', providing the acquire/release memory ordering
         // guarantee.  The whole operation is performed atomically.
 };
-
-}  // close package namespace
-
-namespace bsls {
 
 // ===========================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -1142,16 +1143,16 @@ int AtomicOperations::swapIntAcqRel(AtomicTypes::Int *atomicInt, int swapValue)
 
 inline
 int AtomicOperations::testAndSwapInt(AtomicTypes::Int *atomicInt,
-                                     int compareValue,
-                                     int swapValue)
+                                     int               compareValue,
+                                     int               swapValue)
 {
     return Imp::testAndSwapInt(atomicInt, compareValue, swapValue);
 }
 
 inline
 int AtomicOperations::testAndSwapIntAcqRel(AtomicTypes::Int *atomicInt,
-                                           int compareValue,
-                                           int swapValue)
+                                           int               compareValue,
+                                           int               swapValue)
 {
     return Imp::testAndSwapIntAcqRel(atomicInt, compareValue, swapValue);
 }
@@ -1242,7 +1243,7 @@ void AtomicOperations::decrementIntAcqRel(AtomicTypes::Int *atomicInt)
 
 inline
 void AtomicOperations::initInt64(AtomicTypes::Int64 *atomicInt,
-                                 Types::Int64 initialValue)
+                                 Types::Int64        initialValue)
 {
     Imp::initInt64(atomicInt, initialValue);
 }
@@ -1270,94 +1271,95 @@ Types::Int64
 
 inline
 void AtomicOperations::setInt64(AtomicTypes::Int64 *atomicInt,
-                                Types::Int64 value)
+                                Types::Int64        value)
 {
     Imp::setInt64(atomicInt, value);
 }
 
 inline
 void AtomicOperations::setInt64Relaxed(AtomicTypes::Int64 *atomicInt,
-                                       Types::Int64 value)
+                                       Types::Int64        value)
 {
     Imp::setInt64Relaxed(atomicInt, value);
 }
 
 inline
 void AtomicOperations::setInt64Release(AtomicTypes::Int64 *atomicInt,
-                                       Types::Int64 value)
+                                       Types::Int64        value)
 {
     Imp::setInt64Release(atomicInt, value);
 }
 
 inline
 Types::Int64 AtomicOperations::swapInt64(AtomicTypes::Int64 *atomicInt,
-                                         Types::Int64 swapValue)
+                                         Types::Int64        swapValue)
 {
     return Imp::swapInt64(atomicInt, swapValue);
 }
 
 inline
 Types::Int64 AtomicOperations::swapInt64AcqRel(AtomicTypes::Int64 *atomicInt,
-                                               Types::Int64 swapValue)
+                                               Types::Int64        swapValue)
 {
     return Imp::swapInt64AcqRel(atomicInt, swapValue);
 }
 
 inline
-Types::Int64 AtomicOperations::testAndSwapInt64(AtomicTypes::Int64 *atomicInt,
-                                                Types::Int64 compareValue,
-                                                Types::Int64 swapValue)
+Types::Int64 AtomicOperations::testAndSwapInt64(
+                                              AtomicTypes::Int64 *atomicInt,
+                                              Types::Int64        compareValue,
+                                              Types::Int64        swapValue)
 {
     return Imp::testAndSwapInt64(atomicInt, compareValue, swapValue);
 }
 
 inline
 Types::Int64 AtomicOperations::testAndSwapInt64AcqRel(
-                                               AtomicTypes::Int64 *atomicInt,
-                                               Types::Int64 compareValue,
-                                               Types::Int64 swapValue)
+                                              AtomicTypes::Int64 *atomicInt,
+                                              Types::Int64        compareValue,
+                                              Types::Int64        swapValue)
 {
     return Imp::testAndSwapInt64AcqRel(atomicInt, compareValue, swapValue);
 }
 
 inline
 Types::Int64 AtomicOperations::addInt64Nv(AtomicTypes::Int64 *atomicInt,
-                                          Types::Int64 value)
+                                          Types::Int64        value)
 {
     return Imp::addInt64Nv(atomicInt, value);
 }
 
 inline
 Types::Int64 AtomicOperations::addInt64NvRelaxed(AtomicTypes::Int64 *atomicInt,
-                                                 Types::Int64 value)
+                                                 Types::Int64        value)
 {
     return Imp::addInt64NvRelaxed(atomicInt, value);
 }
 
 inline
 Types::Int64 AtomicOperations::addInt64NvAcqRel(AtomicTypes::Int64 *atomicInt,
-                                                Types::Int64 value)
+                                                Types::Int64        value)
 {
     return Imp::addInt64NvAcqRel(atomicInt, value);
 }
 
 inline
 void AtomicOperations::addInt64(AtomicTypes::Int64 *atomicInt,
-                                Types::Int64 value)
+                                Types::Int64        value)
 {
     Imp::addInt64(atomicInt, value);
 }
 
 inline
 void AtomicOperations::addInt64Relaxed(AtomicTypes::Int64 *atomicInt,
-                                       Types::Int64 value)
+                                       Types::Int64        value)
 {
     Imp::addInt64Relaxed(atomicInt, value);
 }
 
 inline
 void AtomicOperations::addInt64AcqRel(AtomicTypes::Int64 *atomicInt,
-                                      Types::Int64 value)
+                                      Types::Int64        value)
 {
     Imp::addInt64AcqRel(atomicInt, value);
 }
@@ -1416,7 +1418,7 @@ Types::Int64
 
 inline
 void AtomicOperations::initPointer(AtomicTypes::Pointer *atomicPtr,
-                                   const void *initialValue)
+                                   const void           *initialValue)
 {
     Imp::initPointer(atomicPtr, initialValue);
 }
@@ -1443,51 +1445,52 @@ const void *
 
 inline
 void AtomicOperations::setPtr(AtomicTypes::Pointer *atomicPtr,
-                              const void *value)
+                              const void           *value)
 {
     Imp::setPtr(atomicPtr, value);
 }
 
 inline
 void AtomicOperations::setPtrRelaxed(AtomicTypes::Pointer *atomicPtr,
-                                     const void *value)
+                                     const void           *value)
 {
     Imp::setPtrRelaxed(atomicPtr, value);
 }
 
 inline
 void AtomicOperations::setPtrRelease(AtomicTypes::Pointer *atomicPtr,
-                                     const void *value)
+                                     const void           *value)
 {
     Imp::setPtrRelease(atomicPtr, value);
 }
 
 inline
 void *AtomicOperations::swapPtr(AtomicTypes::Pointer *atomicPtr,
-                                const void *swapValue)
+                                const void           *swapValue)
 {
     return Imp::swapPtr(atomicPtr, swapValue);
 }
 
 inline
 void *AtomicOperations::swapPtrAcqRel(AtomicTypes::Pointer *atomicPtr,
-                                      const void *swapValue)
+                                      const void           *swapValue)
 {
     return Imp::swapPtrAcqRel(atomicPtr, swapValue);
 }
 
 inline
 void *AtomicOperations::testAndSwapPtr(AtomicTypes::Pointer *atomicPtr,
-                                       const void *compareValue,
-                                       const void *swapValue)
+                                       const void           *compareValue,
+                                       const void           *swapValue)
 {
     return Imp::testAndSwapPtr(atomicPtr, compareValue, swapValue);
 }
 
 inline
-void *AtomicOperations::testAndSwapPtrAcqRel(AtomicTypes::Pointer *atomicPtr,
-                                             const void *compareValue,
-                                             const void *swapValue)
+void *AtomicOperations::testAndSwapPtrAcqRel(
+                                            AtomicTypes::Pointer *atomicPtr,
+                                            const void           *compareValue,
+                                            const void           *swapValue)
 {
     return Imp::testAndSwapPtrAcqRel(atomicPtr, compareValue, swapValue);
 }

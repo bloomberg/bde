@@ -221,7 +221,7 @@ template <typename INT>
 class PetersonsLockSeqCst
     // PetersonsLock class implements the Peterson's locking algorithms for two
     // concurrently executing threads, using atomic operations on integers with
-    // sequencial consistency memory ordering semantics.
+    // sequential consistency memory ordering semantics.
 {
 public:
     PetersonsLockSeqCst(int id, LockData<INT>& lockData)
@@ -531,10 +531,10 @@ void serverMain()
 // 'd_count' is of type 'bsls::AtomicInt', rather than
 // 'bsls::AtomicOperations::Int'.  Whereas 'bsls::AtomicOperations::Int' is
 // merely a 'typedef' for a platform-specific data type to be used in atomic
-// integer operations, 'bsls::AtomicInt' encapsulates those atomic operations as
-// member functions and operator overloads.  Class 'my_CountedHandleRep' will
-// benefit from this encapsulation: Its method implementations will be able to
-// operate on 'd_count' as if it were a standard integer.
+// integer operations, 'bsls::AtomicInt' encapsulates those atomic operations
+// as member functions and operator overloads.  Class 'my_CountedHandleRep'
+// will benefit from this encapsulation: Its method implementations will be
+// able to operate on 'd_count' as if it were a standard integer.
 //
 // Note that, as in the example in component 'bsls_atomicoperations', this rep
 // class is intended to be used only by class 'my_CountedHandle', and thus all
@@ -2007,9 +2007,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout <<
-                          "\nTesting 'bsls::AtomicPointer' Primary Manipulators"
-                          << endl;
+        if (verbose)
+            cout << "\nTesting 'bsls::AtomicPointer' Primary Manipulators"
+                 << endl;
         {
             static const struct {
                 int        d_lineNum;  // source line number
@@ -2144,9 +2144,9 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout <<
-                          "\nTesting 'bsls::AtomicPointer' Primary Manipulators"
-                          << endl;
+        if (verbose)
+            cout << "\nTesting 'bsls::AtomicPointer' Primary Manipulators"
+                 << endl;
         {
             static const struct {
                 int        d_lineNum;  // source line number

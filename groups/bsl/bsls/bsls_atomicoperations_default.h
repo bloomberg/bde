@@ -162,8 +162,8 @@
 //
 // A typical derived class implementing platform-specific atomic operations
 // needs to derive from either 'bsls::AtomicOperations_Default32' (if the
-// platform is 32-bit) or 'bsls::AtomicOperations_Default64' (if the platform is
-// 64-bit).
+// platform is 32-bit) or 'bsls::AtomicOperations_Default64' (if the platform
+// is 64-bit).
 //
 // For example, let's take the X86_64 platform with GCC compiler.  The derived
 // class for this platform, 'bsls::AtomicOperations_X64_ALL_GCC', inherits from
@@ -263,7 +263,7 @@
 //      struct Int64
 //      {
 //          volatile bsls::Types::Int64 d_value
-//                     __attribute__((__aligned__(sizeof(bsls::Types::Int64))));
+//                    __attribute__((__aligned__(sizeof(bsls::Types::Int64))));
 //      };
 //
 //      struct Pointer
@@ -577,7 +577,8 @@ struct AtomicOperations_DefaultPointer64
     // terms of the following atomic operations on the Int64 type which must be
     // provided by the 'IMP' template parameter.
     //..
-    //  static Types::Int64 getInt64(typename AtomicTypes::Int64 const *atomicInt);
+    //  static Types::Int64 getInt64(
+    //                           typename AtomicTypes::Int64 const *atomicInt);
     //  static Types::Int64 getInt64Relaxed(
     //                           typename AtomicTypes::Int64 const *atomicInt);
     //  static Types::Int64 getInt64Acquire(

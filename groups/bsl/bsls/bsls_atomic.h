@@ -1032,48 +1032,6 @@ namespace bsls {
 //                        INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                // ---------------------------------------------
-                // inlined methods used by other inlined methods
-                // ---------------------------------------------
-
-inline
-AtomicInt::operator int() const
-{
-    return AtomicOperations_Imp::getInt(&d_value);
-}
-
-inline
-int AtomicInt::load() const
-{
-    return this->operator int();
-}
-
-inline
-AtomicInt64::operator Types::Int64() const
-{
-    return AtomicOperations_Imp::getInt64(&d_value);
-}
-
-inline
-Types::Int64 AtomicInt64::load() const
-{
-    return this->operator Types::Int64();
-}
-
-template <class TYPE>
-inline
-AtomicPointer<TYPE>::operator TYPE*() const
-{
-    return (TYPE*) AtomicOperations_Imp::getPtr(&d_value);
-}
-
-template <class TYPE>
-inline
-TYPE *AtomicPointer<TYPE>::load() const
-{
-    return this->operator TYPE*();
-}
-
                                // ---------------
                                // class AtomicInt
                                // ---------------
@@ -1194,6 +1152,19 @@ int AtomicInt::testAndSwapAcqRel(int compareValue, int swapValue)
 }
 
 // ACCESSORS
+
+inline
+AtomicInt::operator int() const
+{
+    return AtomicOperations_Imp::getInt(&d_value);
+}
+
+inline
+int AtomicInt::load() const
+{
+    return this->operator int();
+}
+
 inline
 int AtomicInt::loadRelaxed() const
 {
@@ -1331,6 +1302,18 @@ AtomicInt64::testAndSwapAcqRel(Types::Int64 compareValue,
 
 // ACCESSORS
 inline
+AtomicInt64::operator Types::Int64() const
+{
+    return AtomicOperations_Imp::getInt64(&d_value);
+}
+
+inline
+Types::Int64 AtomicInt64::load() const
+{
+    return this->operator Types::Int64();
+}
+
+inline
 Types::Int64 AtomicInt64::loadRelaxed() const
 {
     return AtomicOperations_Imp::getInt64Relaxed(&d_value);
@@ -1421,6 +1404,20 @@ TYPE *AtomicPointer<TYPE>::testAndSwapAcqRel(const TYPE *compareValue,
 }
 
 // ACCESSORS
+template <class TYPE>
+inline
+AtomicPointer<TYPE>::operator TYPE*() const
+{
+    return (TYPE*) AtomicOperations_Imp::getPtr(&d_value);
+}
+
+template <class TYPE>
+inline
+TYPE *AtomicPointer<TYPE>::load() const
+{
+    return this->operator TYPE*();
+}
+
 template <class TYPE>
 inline
 TYPE& AtomicPointer<TYPE>::operator*() const
