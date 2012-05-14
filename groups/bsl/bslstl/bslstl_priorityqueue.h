@@ -240,21 +240,24 @@ class priority_queue {
 
     template <class ALLOCATOR>
     explicit priority_queue(const ALLOCATOR& allocator);
-        // Construct an empty priority queue that will use the specified
-        // 'allocator' to supply memory.  Use a default-constructed comparator
-        // of the parameterized 'COMPARATOR' type to order the priorities of
-        // elements.  If the template parameter 'ALLOCATOR' is 'bsl::allocator'
-        // (the default) then 'allocator' shall be convertible to
-        // 'bslma_Allocator*'.
+        // Construct an empty priority queue that adapts a default-constructed
+        // container of the parameterized 'CONTAINER' type and will use the
+        // specified 'allocator' to supply memory.  Use a default-constructed
+        // comparator of the parameterized 'COMPARATOR' type to order the
+        // priorities of elements.  If the template parameter 'ALLOCATOR' is
+        // 'bsl::allocator' (the default) then 'allocator' shall be convertible
+        // to 'bslma_Allocator*'.
 
     template <class ALLOCATOR>
     priority_queue(const COMPARATOR& comparator, const ALLOCATOR& allocator);
-        // Construct an empty priority queue that will use the specified
-        // 'allocator' to supply memory, and the specified 'comparator' to
-        // order priorities of elements in a default-constructed container of
-        // the parameterized 'CONTAINER' type.  If the template parameter
-        // 'ALLOCATOR' is 'bsl::allocator' (the default) then 'allocator' shall
-        // be convertible to 'bslma_Allocator*'.
+        // Construct an empty priority queue that adapts a default-constructed
+        // container of the parameterized 'CONTAINER'type and will use the
+        // specified 'allocator' to supply memory, and the specified
+        // 'comparator' to order priorities of elements in a
+        // default-constructed container of the parameterized 'CONTAINER' type.
+        // If the template parameter 'ALLOCATOR' is 'bsl::allocator' (the
+        // default) then 'allocator' shall be convertible to
+        // 'bslma_Allocator*'.
 
     template <class ALLOCATOR>
     priority_queue(const COMPARATOR& comparator,
@@ -302,9 +305,9 @@ class priority_queue {
 //  void emplace(Args&&... args);
 
     void pop();
-        // Remove the element from this 'priority_queue' object that has the
-        // highest priority.  The behavior is undefined if there is currently
-        // no elements in this object.
+        // Remove the top element from this 'priority_queue' object that has
+        // the highest priority.  The behavior is undefined if there is
+        // currently no elements in this object.
 
     void swap(priority_queue& other);
         // Efficiently exchange the value of this object with the value of the
@@ -319,7 +322,7 @@ class priority_queue {
         // Return the number of elements in this 'priority_queue' object.
 
     const_reference top() const;
-        // Return the element having the highest priority in this
+        // Return the immutable element having the highest priority in this
         // 'priority_queue' object.  The behavior is undefined if there is
         // currently no elements in this object.
 };

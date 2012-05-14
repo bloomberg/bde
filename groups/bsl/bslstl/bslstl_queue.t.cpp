@@ -79,28 +79,28 @@ using namespace bsl;
 // [ 2]void push(const value_type& value);
 // [ 2]void pop();
 // [ 8]void swap(queue& other);
+// [13]reference front();
+// [13]reference back();
 //
 // ACCESSORS
-// [13]bool empty() const;
+// [14]bool empty() const;
 // [ 4]size_type size() const;
-// [13]reference front();
 // [ 4]const_reference front() const;
-// [13]reference back();
 // [ 4]const_reference back() const;
 
 // FREE FUNCTIONS
 // [ 6]bool operator==(const queue& lhs, const queue& rhs);
 // [ 6]bool operator!=(const queue& lhs, const queue& rhs);
-// [14]bool operator< (const queue& lhs, const queue& rhs);
-// [14]bool operator> (const queue& lhs, const queue& rhs);
-// [14]bool operator>=(const queue& lhs, const queue& rhs);
-// [14]bool operator<=(const queue& lhs, const queue& rhs);
+// [15]bool operator< (const queue& lhs, const queue& rhs);
+// [15]bool operator> (const queue& lhs, const queue& rhs);
+// [15]bool operator>=(const queue& lhs, const queue& rhs);
+// [15]bool operator<=(const queue& lhs, const queue& rhs);
 //
 // speicalized algorithms:
 // [ 8]void swap(queue& lhs,queue& rhs);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [15] USAGE EXAMPLE
+// [16] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] ggg(queue<V,C> *object, const char *spec, int verbose = 1);
@@ -477,11 +477,14 @@ class TestDriver {
 
     // TEST CASES
 
-    static void testCase14();
+    static void testCase15();
         // Test comparison free operators.
 
+    static void testCase14();
+        // Test accessor 'empty'.
+
     static void testCase13();
-        // Test accessors 'empty', 'front', and 'back'.
+        // Test manipulators 'front' and 'back'.
 
     static void testCase12();
         // Test user-supplied constructors.
@@ -638,7 +641,7 @@ TestDriver<VALUE, CONTAINER>::g(const char *spec)
                                 // ----------
 
 template <class VALUE, class CONTAINER>
-void TestDriver<VALUE, CONTAINER>::testCase14()
+void TestDriver<VALUE, CONTAINER>::testCase15()
 {
     // ------------------------------------------------------------------------
     // TESTING COMPARISON FREE OPERATORS
@@ -737,15 +740,80 @@ void TestDriver<VALUE, CONTAINER>::testCase14()
 }
 
 template <class VALUE, class CONTAINER>
-void TestDriver<VALUE, CONTAINER>::testCase13()
+void TestDriver<VALUE, CONTAINER>::testCase14()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'empty', 'front' and 'back'
+    // TESTING 'empty'
     //
     // Concern:
     //: 1 'empty' returns 'true' only when the object is empty.
+    //
+    // Plan:
+    //: 1 Using the table-driven technique:
     //:
-    //: 2 'front' and 'back' returns a modifiable reference to the front and
+    //:   1 Specify a set of (unique) valid object values.
+    //:
+    //: 2 For each row (representing a distinct object value, 'V') in the table
+    //:   described in P-1:  (C-1)
+    //:
+    //:   1 Create an object and populate it with 'V'.  Invoke 'empty' to
+    //:     verify it returns 'true' if 'V' is not empty.  (C-1)
+    //:
+    //:   2 Clear the object by popping out 'LENGTH' of elements, where
+    //:     'LENGTH' is the length of 'V'.  Invoke 'empty' to verify it returns
+    //:     'false'.  (C-1)
+    //
+    // Testing:
+    //  bool empty() const;
+    // ------------------------------------------------------------------------
+
+    bslma_TestAllocator  oa(veryVeryVerbose);
+
+    static const struct {
+        int         d_lineNum;          // source line number
+        const char *d_spec;             // initial
+    } DATA[] = {
+        { L_,  ""          },
+        { L_,  "A"         },
+        { L_,  "ABC"       },
+        { L_,  "ABCD"      },
+        { L_,  "ABCDE"     },
+        { L_,  "ABCDEFG"   },
+        { L_,  "ABCDEFGH"  },
+        { L_,  "ABCDEFGHI" }
+    };
+    const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+    if (verbose) printf("\tTesting 'empty'.\n");
+    {
+        const TestValues VALUES;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec;
+
+            Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
+
+            // Verify 'empty' returns correct values.
+
+            ASSERTV(LINE, SPEC, (0 == ti) == X.empty());
+
+            for (size_t tj = 0; tj < strlen(SPEC); ++tj) {
+                mX.pop();
+            }
+
+            ASSERTV(LINE, SPEC, true == X.empty());
+        }
+    }
+}
+
+template <class VALUE, class CONTAINER>
+void TestDriver<VALUE, CONTAINER>::testCase13()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'front' and 'back'
+    //
+    // Concern:
+    //: 1 'front' and 'back' returns a modifiable reference to the front and
     //:   back element of the queue respectively.
     //
     // Plan:
@@ -754,21 +822,13 @@ void TestDriver<VALUE, CONTAINER>::testCase13()
     //:   1 Specify a set of (unique) valid object values.
     //:
     //: 2 For each row (representing a distinct object value, 'V') in the table
-    //:   described in P-1:  (C-1..2)
+    //:   described in P-1:  (C-1)
     //:
-    //:   1 Create an object and populate it with 'V'.  Invoke 'empty' to
-    //:     verify it returns 'true' if 'V' is not empty.  (C-1)
-    //:
-    //:   2 Invoke 'front' and 'back', use the return object as left hand
+    //:   1 Invoke 'front' and 'back', use the return object as left hand
     //:     operator and assign a distinct value.  Invoke the constant version
-    //:     of 'front' and 'back' to verify the changes.  (C-2)
-    //:
-    //:   3 Clear the object by popping out 'LENGTH' of elements, where
-    //:     'LENGTH' is the length of 'V'.  Invoke 'empty' to verify it returns
-    //:     'false'.  (C-1)
+    //:     of 'front' and 'back' to verify the changes.  (C-1)
     //
     // Testing:
-    //  bool empty() const;
     //  reference front();
     //  reference back();
     // ------------------------------------------------------------------------
@@ -800,10 +860,6 @@ void TestDriver<VALUE, CONTAINER>::testCase13()
 
             Obj mX(&oa);  const Obj& X = gg(&mX, SPEC);
 
-            // Verify 'empty' returns correct values.
-
-            ASSERTV(LINE, SPEC, (0 == ti) == X.empty());
-
             if (0 != ti) {
 
                 ASSERTV(LINE, SPEC, X.front() == VALUES[SPEC[0] - 'A']);
@@ -820,12 +876,6 @@ void TestDriver<VALUE, CONTAINER>::testCase13()
                 mX.back() = VALUES['Z' - 'A'];
                 ASSERTV(LINE, SPEC, X.back() == VALUES['Z' - 'A']);
             }
-
-            for (size_t tj = 0; tj < strlen(SPEC); ++tj) {
-                mX.pop();
-            }
-
-            ASSERTV(LINE, SPEC, true == X.empty());
         }
     }
 }
@@ -2693,7 +2743,7 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         // --------------------------------------------------------------------
@@ -2713,7 +2763,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(intQueue.empty());
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING FREE COMPARISON OPERATORS
         // --------------------------------------------------------------------
@@ -2721,15 +2771,25 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Free Comparison Operators"
                             "\n=================================\n");
 
-        BSLTF_RUN_EACH_TYPE(TestDriver, testCase14, char, int);
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase15, char, int);
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // OTHER ACCESSORS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Accessors"
-                            "\n=================\n");
+        if (verbose) printf("\nTesting Other Accessors"
+                            "\n=======================\n");
+
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase14, BSLTF_TEST_TYPES_REGULAR);
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // OTHER MANIPULATORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Other Manipulators"
+                            "\n==========================\n");
 
         BSLTF_RUN_EACH_TYPE(TestDriver, testCase13, BSLTF_TEST_TYPES_REGULAR);
       } break;

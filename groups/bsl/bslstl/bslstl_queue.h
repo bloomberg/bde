@@ -50,8 +50,9 @@ BSLS_IDENT("$Id: $")
 //
 ///TODO Operations
 ///----------
-// This section describes the run-time complexity of operations on instances
-// of 'queue':
+// This section describes the run-time complexity of operations on instances of
+// 'queue': (skong25: the complexity of each operation depends on the adapted
+// container, do we need this section here?)
 //
 ///Usage
 ///-----
@@ -128,6 +129,9 @@ namespace bsl {
 
 template <class VALUE, class CONTAINER = deque<VALUE> >
 class queue {
+    // This class is a value-semantic class template, having a container of the
+    // parameterized 'CONTAINER' type that holds elements of the parameterized
+    // 'VALUE' type, to provide a first-in-first-out data structure.
 
     // FRIENDS
     template<class VALUE2, class CONTAINER2>
@@ -170,74 +174,103 @@ class queue {
     // CREATORS
 
     explicit queue();
-        // TBD
+        // Construct an empty queue having a container of the parameterized
+        // 'CONTAINER' type.  Note that the memory is supplied by the currently
+        // installed default allocator.
 
     explicit queue(const CONTAINER& container);
-        // TBD
+        // Construct a queue having the specified 'container' that holds
+        // elements of the parameterized 'VALUE' type.  Note that the memory is
+        // supplied by the currently installed default allocator.
 
 //  explicit queue(CONTAINER&& = CONTAINER());
 
 //  queue(queue&& q);
 
     queue(const queue& original);
+        // Construct a queue having the same value as that of the specified
+        // 'original'.  Note that the memory is supplied by the currently
+        // installed default allocator.
 
     template <class ALLOCATOR>
     explicit queue(const ALLOCATOR& allocator);
-        // TBD
+        // Construct an empty queue that holds a default-constructed container
+        // of the parameterized 'CONTAINER' type, and will use the specified
+        // 'allocator' to supply memory.  If the template parameter 'ALLOCATOR'
+        // is 'bsl::allocator' (the default) then 'allocator' shall be
+        // convertible to 'bslma_Allocator*'.
 
     template <class ALLOCATOR>
     queue(const CONTAINER& container, const ALLOCATOR& allocator);
-        // TBD
+        // Construct an empty queue that holds the specified 'container', and
+        // will use the specified 'allocator' to supply memory.  If the
+        // template parameter 'ALLOCATOR' is 'bsl::allocator' (the default)
+        // then 'allocator' shall be convertible to 'bslma_Allocator*'.
 
 //  template <class ALLOCATOR>
 //  queue(CONTAINER&& container, const ALLOCATOR& allocator);
 
     template <class ALLOCATOR>
     queue(const queue& original, const ALLOCATOR& allocator);
-        // TBD
+        // Construct a queue having the same value as that of the specified
+        // 'original' that will use the specified 'allocator' to supply memory.
+        // If the template parameter 'ALLOCATOR' is 'bsl::allocator' (the
+        // default) then 'allocator' shall be convertible to
+        // 'bslma_Allocator*'.
+
 
 //  template <class ALLOCATOR>
 //  queue(queue&& original, const ALLOCATOR& allocator);
 
     // MANIPULATORS
 
-//  queue& operator=(queue&& rhs);
+//  queue& operator=(queue&& other);
 
-    queue& operator=(const queue& rhs);
-        // TBD
+    queue& operator=(const queue& other);
+        // Assign to this 'queue' object the value of the specified 'other' and
+        // return a reference to this modifiable object.
 
     void push(const value_type& value);
-        // TBD
+        // Insert a new element have the specified 'value' to the back of this
+        // 'queue' object.
 
 //  void push(value_type&& value) { c.push_back(std::move(value)); }
 //  template <class... Args> void emplace(Args&&... args)
 //  { c.emplace_back(std::forward<Args>(args)...); }
 
     void pop();
-        // TBD
+        // Remove the front (the earliest pushed) element from this 'queue'
+        // object.
 
     void swap(queue& other);
-        // TBD
+        // Efficiently exchange the value of this object with the value of the
+        // specified 'other' object.
+
+    reference front();
+        // Return the mutable front (the earliest pushed) element from this
+        // 'queue' object.
+
+    reference back();
+        // Return the mutable back (the latest pushed) element from this
+        // 'queue' object.
+
 
     // ACCESSORS
     bool empty() const;
-        // TBD
+        // Return 'true' if this 'queue' object contains no elements, and
+        // 'false' otherwise.
 
     size_type size() const;
-        // TBD
-
-    reference front();
-        // TBD
+        // Return 'true' if this 'queue' object contains no elements, and
+        // 'false' otherwise.
 
     const_reference front() const;
-        // TBD
-
-    reference back();
-        // TBD
+        // Return the immutable front (the earliest pushed) element from this
+        // 'queue' object.
 
     const_reference back() const;
-        // TBD
-
+        // Return the immutable back (the latest pushed) element from this
+        // 'queue' object.
 };
 
 // FREE FUNCTIONS
@@ -350,10 +383,10 @@ queue<VALUE, CONTAINER>::queue(const queue&     queue,
 template <class VALUE, class CONTAINER>
 inline
 queue<VALUE, CONTAINER>&
-queue<VALUE, CONTAINER>::operator=(const queue& rhs)
+queue<VALUE, CONTAINER>::operator=(const queue& other)
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
-        c = rhs.c;
+    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &other)) {
+        c = other.c;
     }
     return *this;
 }
