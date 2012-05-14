@@ -30,8 +30,10 @@ namespace bsl {
     // Import the 'rel_ops' namespace into 'bsl'.
     namespace rel_ops = std::rel_ops;
 
-    // Import selected symbols into bsl namespace.  Note that 'pair' and
-    // 'make_pair' are provided by 'bslstl_pair.h'.
+    // Import selected symbols into bsl namespace.  Note that 'pair' is
+    // provided by 'bslstl_pair.h' (but 'make_pair' currently is not):
+
+    using native_std::make_pair;
 }
 
 // Include Bloomberg's implementation, unless compilation is configured to
