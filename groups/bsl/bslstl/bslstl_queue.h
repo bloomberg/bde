@@ -8,22 +8,19 @@
 BSLS_IDENT("$Id: $")
 
 
-//@PURPOSE: Provide container adapter template 'queue'.
+//@PURPOSE: Provide container adapter class template 'queue'.
 //
 //@CLASSES:
-//   bslstl::queue: template of first-in first-out data structure
+//   bslstl::queue: class template of a first-in-first-out data structure
 //
-//@SEE_ALSO: bslstl_stack, bslstl_priorityqueue
+//@SEE_ALSO: bslstl_priorityqueue, bslstl_stack
 //
 //@AUTHOR: Shijin Kong (skong25)
 //
-//@DESCRIPTION: This component defines two template classes, 'bsl::queue' and
-// 'bsl::priority_queue', both holding a container, and adapting the held
-// container (of a parameterized type 'CONTAINER' containing elements of
-// another parameterized type 'VALUE') to provide first-in-first-out and
-// highest-priority-first data structures respectively.  The 'priority_queue'
-// takes a third parameterized type 'COMPARATOR' for comparing priorities
-// between two elements.
+//@DESCRIPTION: This component defines a class template, 'bsl::queue', holding 
+// a container (of a parameterized type 'CONTAINER' containing elements of
+// another parameterized type 'VALUE'), and adapting it to provide a
+// first-in-first-out data structure.  
 //
 // An instantiation of 'queue' is an allocator-aware, value-semantic type whose
 // salient attributes are its size (number of elements held) and the sequence
@@ -32,49 +29,75 @@ BSLS_IDENT("$Id: $")
 // is not itself value-semantic, then it will not retain all of its
 // value-semantic qualities.
 //
-// An instantiation of 'priority_queue' is an allocator-aware, value-semantic
-// type whose salient attributes are its size (number of elements held)
-// and the sorted sequence of values (of held elements).  If 'priority_queue'
-// is instantiated with a parameterized type 'VALUE' that is not itself
-// value-semantic, then it will not retain all of its value-semantic qualities.
-// A 'priority_queue' cannot be tested for equality, but its parameterized type
-// 'VALUE' must be able to be tested for comparing less by its parameterized
-// type 'COMPARATOR'.
-//
-// The 'queue' and 'priority_queue' meet the requirements of a container
-// adapter in the C++ standard [23.6].  The 'queue' and 'priority_queue'
-// implemented here adheres to the C++11 standard, except that it does
-// not have interfaces that take rvalue references, 'initializer_lists', and
-// 'emplace'.  Note that excluded C++11 features are those that require (or are
-// greatly simplified by) C++11 compiler support.
+// A 'queue' meets the requirements of a container adapter in the C++ standard
+// [23.6].  The 'queue' implemented here adheres to the C++11 standard, except
+// that it does not have interfaces that take rvalue references,
+// 'initializer_lists', and 'emplace'.  Note that excluded C++11 features are
+// those that require (or are greatly simplified by) C++11 compiler support.
 
 ///Memory Allocation
 ///-----------------
-// The type supplied as 'ALLOCATOR' template parameter in some of 'queue' and
-// 'priority_queue' constructors determines how the held container (of
-// parameterized 'CONTAINER') will allocate memory.  A 'queue' or
-// 'priority_queue' supports allocators meeting the requirements of the C++11
-// standard [17.6.3.5] as long as the held container does.  In addition it
-// supports scoped-allocators derived from the 'bslma_Allocator' memory
-// allocation protocol.  Clients intending to use 'bslma' style allocators
-// should use the template's default 'ALLOCATOR' type: The default type for the
-// 'ALLOCATOR' template parameter, 'bsl::allocator',  provides a C++11
-// standard-compatible adapter for a 'bslma_Allocator' object.
+// The type supplied as 'ALLOCATOR' template parameter in some of 'queue'
+// constructors determines how the held container (of parameterized
+// 'CONTAINER') will allocate memory.  A 'queue' supports
+// allocators meeting the requirements of the C++11 standard [17.6.3.5] as long
+// as the held container does.  In addition it supports scoped-allocators
+// derived from the 'bslma_Allocator' memory allocation protocol.  Clients
+// intending to use 'bslma' style allocators should use the template's default
+// 'ALLOCATOR' type: The default type for the 'ALLOCATOR' template parameter,
+// 'bsl::allocator',  provides a C++11 standard-compatible adapter for a
+// 'bslma_Allocator' object.
 //
-///'bslma'-Style Allocators
-/// - - - - - - - - - - - -
-// If a 'queue' or 'priority_queue' object's parameterized 'ALLOCATOR' type is
-// convertible from 'bslma_Allocator *', as is true for the default 'ALLOCATOR' type
-// 'bsl::allocator', then that 'map' will conform to the standard behavior of
-// a 'bslma' allocator enabled type.  Such a 'map' accepts an optional
-// 'bslma_Allocator' argument at construction.  If a 'bslma_Allocator' object
-// is explicitly supplied (at construction) it will be used to supply memory
-// for the 'map', otherwise the 'map' will use the default allocator installed
-// at the time of the map's construction (see 'bslma_default').  In addition
-// to directly allocating memory from the indicated 'bslma_Allocator', a 'map'
-// supplies that allocator to the constructors of contained objects of the
-// parameterized 'KEY' and 'VALUE' types if those types define the
-// 'bslalg_TypeTraitUsesBslmaAllocator' trait, respectively.
+///TODO Operations
+///----------
+// This section describes the run-time complexity of operations on instances
+// of 'queue':
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Pushing and Popping from a Queue
+///- - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will define an array of integer, push them into a queue,
+// and then pop them out.  The parameterized type 'VALUE' is 'int' in this
+// example and the container to be adapted is 'bsl::deque<int>' type.
+//
+// First, we define an array of integers:
+//..
+//  const int intArray[] = {0, -2, INT_MAX, INT_MIN, -1, 1, 2};
+//        int numInt     = sizeof(intArray) / sizeof(*intArray);
+//..
+// Then, we create a 'bsl::queue' object to adapt the 'bsl::deque<int>' type,
+// using the default constructor of 'queue':
+//..
+//  bsl::queue<int, deque<int> > intQueue;
+//..
+// Now, using a for loop, we push the integers in the previously defined array
+// into the queue:
+//..
+//  for (int i = 0; i < numInt; ++i) {
+//      intQueue.push(intArray[i]);
+//      assert(intArray[i] == intQueue.back());
+//  }
+//..
+// Notice that every time a new integer is pushed into the queue, the integer
+// becomes the back element of the queue.  This is verified by invoking the
+// 'back' accessor.
+//
+// Finally, using a second for loop, we pop integers from the queue one by one,
+//..
+//  for (int i = 0;i < numInt; ++i) {
+//      assert(intArray[i] == intQueue.front()); 
+//      intQueue.pop();
+//  }
+//  assert(intQueue.empty());
+//..
+// Notice that every time an integer is popped out from the queue, the front
+// element of the queue becomes the previously next pushed integer.  This is
+// verified by invoking the 'front' accessor.  The sequence of integers popped
+// out is in the exact same order as they were pushed in, keeping the
+// first-in-first-out property.
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>

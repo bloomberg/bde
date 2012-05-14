@@ -310,57 +310,6 @@ inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
 inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
 
 
-                            // ====================
-                            // class ExceptionGuard
-                            // ====================
-
-template <class OBJECT>
-struct ExceptionGuard {
-    // This class provide a mechanism to verify the strong exception guarantee
-    // in exception-throwing code.  On construction, this class stores the
-    // a copy of an object of the parameterized type 'OBJECT' and the address
-    // of that object.  On destruction, if 'release' was not invoked, it will
-    // verify the value of the object is the same as the value of the copy
-    // create on construction.  This class requires the copy constructor and
-    // 'operator ==' to be tested before use.
-
-    // DATA
-    int           d_line;      // the line number at construction
-    OBJECT        d_copy;      // copy of the object being tested
-    const OBJECT *d_object_p;  // address of the original object
-
-  public:
-    // CREATORS
-    ExceptionGuard(const OBJECT    *object,
-                   int              line,
-                   bslma_Allocator *basicAllocator = 0)
-    : d_line(line)
-    , d_copy(*object, basicAllocator)
-    , d_object_p(object)
-        // Create the exception guard for the specified 'object' at the
-        // specified 'line' number.  Optionally, specify 'basicAllocator' used
-        // to supply memory.
-    {}
-
-    ~ExceptionGuard()
-        // Destroy the exception guard.  If the guard was not released, verify
-        // that the state of the object supplied at construction has not
-        // change.
-    {
-        if (d_object_p) {
-            const int LINE = d_line;
-            //ASSERTV(LINE, d_copy == *d_object_p);
-        }
-    }
-
-    // MANIPULATORS
-    void release()
-        // Release the guard from verifying the state of the object.
-    {
-        d_object_p = 0;
-    }
-};
-
 namespace {
 
 bool g_enableLessThanFunctorFlag = true;
@@ -724,7 +673,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::populate_container(
     }
 }
 
-// 'priority_queue' specific compare equal function
+// 'priority_queue' specific comparing equal function
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
 bool TestDriver<VALUE, CONTAINER, COMPARATOR>::is_equal(Obj& lhs, Obj& rhs)
@@ -1607,10 +1556,11 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase8()
 
             bslma_TestAllocatorMonitor oam(&oa);
 
-            mW2.swap(mW2);
+            mW1.swap(mW1);
 
             ASSERTV(LINE1, oam.isTotalSame());
             ASSERTV(LINE1, W2, W1, is_equal(mW2, mW1));
+            ASSERTV(LINE1, use_same_allocator(mW1, TYPE_ALLOC, &oa));
         }
 
         // free function 'swap'
@@ -1620,10 +1570,11 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase8()
 
             bslma_TestAllocatorMonitor oam(&oa);
 
-            swap(mW2, mW2);
+            swap(mW1, mW1);
 
             ASSERTV(LINE1, oam.isTotalSame());
             ASSERTV(LINE1, W2, W1, is_equal(mW2, mW1));
+            ASSERTV(LINE1, use_same_allocator(mW1, TYPE_ALLOC, &oa));
         }
 
         for (int tj = 0; tj < NUM_DATA; ++tj) {
@@ -1648,8 +1599,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase8()
 
                 ASSERTV(LINE1, LINE2, X, W2, is_equal(mX, mW2));
                 ASSERTV(LINE1, LINE2, Y, W1, is_equal(mY, mW1));
-                ASSERT(use_same_allocator(mX, TYPE_ALLOC, &oa));
-                ASSERT(use_same_allocator(mY, TYPE_ALLOC, &oa));
+                ASSERTV(LINE1, use_same_allocator(mX, TYPE_ALLOC, &oa));
+                ASSERTV(LINE1, use_same_allocator(mY, TYPE_ALLOC, &oa));
             }
 
             // free function 'swap'
@@ -1670,8 +1621,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase8()
 
                 ASSERTV(LINE1, LINE2, X, W2, is_equal(mX, mW2));
                 ASSERTV(LINE1, LINE2, Y, W1, is_equal(mY, mW1));
-                ASSERT(use_same_allocator(mX, TYPE_ALLOC, &oa));
-                ASSERT(use_same_allocator(mY, TYPE_ALLOC, &oa));
+                ASSERTV(LINE1, use_same_allocator(mX, TYPE_ALLOC, &oa));
+                ASSERTV(LINE1, use_same_allocator(mY, TYPE_ALLOC, &oa));
             }
         }
     }
@@ -2577,6 +2528,27 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Usage Example"
                             "\n=====================\n");
 
+        const int intArray[] = {0, -2, INT_MAX, INT_MIN, -1, 1, 2};
+              int numInt     = sizeof(intArray) / sizeof(*intArray);
+
+        bsl::priority_queue<int, deque<int> > intPrQueue;
+
+        if (veryVerbose)
+            printf("Pushing...\n\n");
+        for (int i = 0; i < numInt; ++i) {
+            intPrQueue.push(intArray[i]);
+            if (veryVerbose)
+                printf("%d: %d\n", i, intPrQueue.top());
+        }
+
+        if (veryVerbose)
+            printf("\nPopping...\n\n");
+        for (int i = 0;i < numInt; ++i) {
+            if (veryVerbose)
+                printf("%d: %d\n", i, intPrQueue.top());
+            intPrQueue.pop();
+        }
+        ASSERT(intPrQueue.empty());
       } break;
       case 13: {
         // --------------------------------------------------------------------

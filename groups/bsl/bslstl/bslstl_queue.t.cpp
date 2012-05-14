@@ -356,131 +356,6 @@ struct ExceptionGuard {
     }
 };
 
-namespace {
-
-bool g_enableLessThanFunctorFlag = true;
-
-                       // ====================
-                       // class TestComparator
-                       // ====================
-
-template <class TYPE>
-class TestComparator {
-    // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the parameterized 'TYPE'.  The
-    // function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getValue'.  The function-call operator also
-    // increments a global counter used to keep track the method call count.
-    // Object of this class can be identified by an id passed on construction.
-
-    // DATA
-    int         d_id;           // identifier for the functor
-    bool        d_compareLess;  // indicate whether this object use '<' or '>'
-    mutable int d_count;        // number of times 'operator()' is called
-
-  public:
-    // CLASS METHOD
-    static void disableFunctor()
-        // Disable all objects of 'TestComparator' such that an 'ASSERT' will
-        // be triggered if 'operator()' is invoked
-    {
-        g_enableLessThanFunctorFlag = false;
-    }
-
-    static void enableFunctor()
-        // Enable all objects of 'TestComparator' such that 'operator()' may
-        // be invoked
-    {
-        g_enableLessThanFunctorFlag = true;
-    }
-
-    // CREATORS
-    //! TestComparator(const TestComparator& original) = default;
-        // Create a copy of the specified 'original'.
-
-    explicit TestComparator(int id = 0, bool compareLess = true)
-        // Create a 'TestComparator'.  Optionally, specify 'id' that can be
-        // used to identify the object.
-    : d_id(id)
-    , d_compareLess(compareLess)
-    , d_count(0)
-    {
-    }
-
-    // ACCESSORS
-    bool operator() (const TYPE& lhs, const TYPE& rhs) const
-        // Increment a counter that records the number of times this method is
-        // called.   Return 'true' if the integer representation of the
-        // specified 'lhs' is less than integer representation of the specified
-        // 'rhs'.
-    {
-        if (!g_enableLessThanFunctorFlag) {
-            ASSERTV(!"'TestComparator' was invoked when it was disabled");
-        }
-
-        ++d_count;
-
-        if (d_compareLess) {
-            return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-                 < bsltf::TemplateTestFacility::getValue<TYPE>(rhs);  // RETURN
-        }
-        else {
-            return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-                 > bsltf::TemplateTestFacility::getValue<TYPE>(rhs);  // RETURN
-        }
-    }
-
-    bool operator== (const TestComparator& rhs) const
-    {
-        return (id() == rhs.id() && d_compareLess == rhs.d_compareLess);
-    }
-
-    int id() const
-        // Return the 'id' of this object.
-    {
-        return d_id;
-    }
-
-    size_t count() const
-        // Return the number of times 'operator()' is called.
-    {
-        return d_count;
-    }
-};
-
-template <class TYPE>
-class GreaterThanFunctor {
-    // This test class provides a mechanism that defines a function-call
-    // operator that compares two objects of the parameterized 'TYPE'.  The
-    // function-call operator is implemented with integer comparison using
-    // integers converted from objects of 'TYPE' by the class method
-    // 'TemplateTestFacility::getValue'.
-
-  public:
-    // ACCESSORS
-    bool operator() (const TYPE& lhs, const TYPE& rhs) const
-        // Return 'true' if the integer representation of the specified 'lhs'
-        // is less than integer representation of the specified 'rhs'.
-    {
-        return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-             > bsltf::TemplateTestFacility::getValue<TYPE>(rhs);
-    }
-};
-
-// FREE OPERATORS
-template <class TYPE>
-bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
-    // Return 'true' if the integer representation of the specified 'lhs' is
-    // less than integer representation of the specified 'rhs'.
-{
-    return bsltf::TemplateTestFacility::getValue<TYPE>(lhs)
-         < bsltf::TemplateTestFacility::getValue<TYPE>(rhs);
-}
-
-}  // close unnamed namespace
-
-
 //=============================================================================
 //                       GLOBAL HELPER CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -771,10 +646,7 @@ void TestDriver<VALUE, CONTAINER>::testCase14()
     // Concerns:
     //: 1 'operator<' returns the lexicographic comparison on two objects.
     //:
-    //: 2 Comparison operator uses 'operator<' on the object instead of the
-    //:   supplied comparator.
-    //:
-    //: 3 'operator>', 'operator<=', and 'operator>=' are correctly tied to
+    //: 2 'operator>', 'operator<=', and 'operator>=' are correctly tied to
     //:   'operator<'.  i.e. For two objects, 'a' and 'b':
     //:
     //:   1 '(a > b) == (b < a)'
@@ -852,14 +724,10 @@ void TestDriver<VALUE, CONTAINER>::testCase14()
                 const bool isLess = INDEX1 < INDEX2;
                 const bool isLessEq = INDEX1 <= INDEX2;
 
-                TestComparator<VALUE>::disableFunctor();
-
                 ASSERTV(LINE1, LINE2,  isLess   == (X < Y));
                 ASSERTV(LINE1, LINE2, !isLessEq == (X > Y));
                 ASSERTV(LINE1, LINE2,  isLessEq == (X <= Y));
                 ASSERTV(LINE1, LINE2, !isLess   == (X >= Y));
-
-                TestComparator<VALUE>::enableFunctor();
 
                 ASSERTV(LINE1, LINE2, oaxm.isTotalSame());
                 ASSERTV(LINE1, LINE2, oaym.isTotalSame());
@@ -2825,6 +2693,26 @@ int main(int argc, char *argv[])
     bslma_TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        const int intArray[] = {0, -2, INT_MAX, INT_MIN, -1, 1, 2};
+              int numInt     = sizeof(intArray) / sizeof(*intArray);
+
+        bsl::queue<int, deque<int> > intQueue;
+        for (int i = 0; i < numInt; ++i) {
+            intQueue.push(intArray[i]);
+            ASSERT(intArray[i] == intQueue.back());
+        }
+
+        for (int i = 0;i < numInt; ++i) {
+            ASSERT(intArray[i] == intQueue.front()); 
+            intQueue.pop();
+        }
+        ASSERT(intQueue.empty());
+      } break;
       case 14: {
         // --------------------------------------------------------------------
         // TESTING FREE COMPARISON OPERATORS
