@@ -690,13 +690,6 @@ void swap(pair<T1, T2>& a, pair<T1, T2>& b);
     // each of the 'first' and 'second' pair fields.  Note that this method is
     // no-throw only if 'swap' on each field is no-throw.
 
-template <typename T1, typename T2>
-inline
-bsl::pair<T1, T2> make_pair(T1 a, T2 b);
-    // Return a pair having the specified 'a' and 'b' values as the 'first'
-    // and 'second' elements, respectively.  Note that 'a' and 'b' are passed
-    // by value, as required by the C++ standard.
-
 }  // close namespace bsl
 
 // ===========================================================================
@@ -1030,13 +1023,6 @@ inline
 void swap(pair<T1, T2>& a, pair<T1, T2>& b)
 {
     a.swap(b);
-}
-
-template <typename T1, typename T2>
-inline
-bsl::pair<T1, T2> make_pair(T1 a, T2 b)
-{
-    return pair<T1, T2>(a, b);
 }
 
 }  // close namespace bsl
