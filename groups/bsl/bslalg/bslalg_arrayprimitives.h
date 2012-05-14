@@ -963,9 +963,24 @@ struct ArrayPrimitives_RemovePtr {
 
 template <typename TARGET_TYPE>
 struct ArrayPrimitives_RemovePtr<TARGET_TYPE *> {
-    // Note that when this functionality is migrated to a general component in
-    // bslmf, this template will have to be specialized for all combinations of
-    // 'const' & 'volatile' like 'bslmf::IsPointer'.
+
+    typedef TARGET_TYPE Type;
+};
+
+template <typename TARGET_TYPE>
+struct ArrayPrimitives_RemovePtr<const TARGET_TYPE *> {
+
+    typedef TARGET_TYPE Type;
+};
+
+template <typename TARGET_TYPE>
+struct ArrayPrimitives_RemovePtr<volatile TARGET_TYPE *> {
+
+    typedef TARGET_TYPE Type;
+};
+
+template <typename TARGET_TYPE>
+struct ArrayPrimitives_RemovePtr<const volatile TARGET_TYPE *> {
 
     typedef TARGET_TYPE Type;
 };
