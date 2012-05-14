@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 // template parameter, 'bsl::allocator',  provides a C++11 standard-compatible
 // adapter for a 'bslma_Allocator' object.
 //
-///TODO Operations
+///(TBD) Operations
 ///----------
 // This section describes the run-time complexity of operations on instances
 // of 'priority_queue': (skong25: the complexity of each operation depends
@@ -160,7 +160,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that every time a 'Task' element is popped out, the priority queue
 // adjusts its internal data structure to ensure the 'top' method always
-// returns the highest priority (the samllest integer value) of remaining
+// returns the highest priority (the smallest integer value) of remaining
 // elements in the priority queue.
 //
 // The tasks are popped out on a highest-priority-first basis.  The screen

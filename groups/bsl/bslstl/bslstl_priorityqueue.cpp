@@ -1,4 +1,4 @@
-// bslstl_priorityqueue.h                                             -*-C++-*-
+// bslstl_priorityqueue.cpp                                           -*-C++-*-
 #include <bslstl_priorityqueue.h>
 
 #include <bsls_ident.h>

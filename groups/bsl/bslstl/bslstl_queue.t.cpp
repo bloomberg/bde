@@ -1,4 +1,4 @@
-//bslstl_queue.t.cpp                                                  -*-C++-*-
+// bslstl_queue.t.cpp                                                 -*-C++-*-
 
 #include <bslstl_queue.h>
 
@@ -112,7 +112,7 @@ using namespace bsl;
 //
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
-// [  ] TODO?: CONCERN: The object is comppatible with STL allocator.
+// [  ] TBD?: CONCERN: The object is compatible with STL allocator.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -645,7 +645,7 @@ void TestDriver<VALUE, CONTAINER>::testCase15()
     //: 1 'operator<' returns the lexicographic comparison on two objects.
     //:
     //: 2 'operator>', 'operator<=', and 'operator>=' are correctly tied to
-    //:   'operator<'.  i.e. For two objects, 'a' and 'b':
+    //:   'operator<'.  i.e., For two objects, 'a' and 'b':
     //:
     //:   1 '(a > b) == (b < a)'
     //:
@@ -2064,9 +2064,9 @@ void TestDriver<VALUE, CONTAINER>::testCase4()
     //:       there is no change in total memory allocation.  (C-3)
     //
     // Testing:
-    //   const_reference  front() const;
-    //   const_reference  back()  const;
-    //   size_type        size()  const;
+    //   const_reference front() const;
+    //   const_reference back()  const;
+    //   size_type       size()  const;
     // ------------------------------------------------------------------------
 
     const int NUM_DATA                     = DEFAULT_NUM_DATA;
@@ -2532,7 +2532,7 @@ void TestDriver<VALUE, CONTAINER>::testCase1(const VALUE  *testValues,
     //   Exercise these objects using primary manipulators [1, 5], basic
     //   accessors, equality operators, copy constructors [2, 8], and the
     //   assignment operator [9, 10].  Try aliasing with assignment for a
-    //   non-empty instance [11].
+    //   non-empty object [11].
     //
     //: 1  Create an object x1 (default ctor).       { x1: }
     //:
@@ -2753,7 +2753,7 @@ int main(int argc, char *argv[])
         }
 
         for (int i = 0;i < numInt; ++i) {
-            ASSERT(intArray[i] == intQueue.front()); 
+            ASSERT(intArray[i] == intQueue.front());
             intQueue.pop();
         }
         ASSERT(intQueue.empty());
@@ -2909,7 +2909,7 @@ int main(int argc, char *argv[])
         // queue
         TestDriver<int, deque<int> >::testCase1(SPECIAL_INT_VALUES,
                                                 NUM_SPECIAL_INT_VALUES);
-        //TODO: uncomment when 'bsl::list' is available
+        //TBD: uncomment when 'bsl::list' is available
         //TestDriver<int,  list<int> >::testCase1(INT_VALUES, NUM_INT_VALUES);
       } break;
       default: {
@@ -2928,3 +2928,12 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------

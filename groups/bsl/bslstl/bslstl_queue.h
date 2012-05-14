@@ -48,10 +48,10 @@ BSLS_IDENT("$Id: $")
 // 'bsl::allocator',  provides a C++11 standard-compatible adapter for a
 // 'bslma_Allocator' object.
 //
-///TODO Operations
+///(TBD) Operations
 ///----------
-// This section describes the run-time complexity of operations on instances of
-// 'queue': (skong25: the complexity of each operation depends on the adapted
+// This section describes the run-time complexity of operations on 'queue'
+// objects : (skong25: the complexity of each operation depends on the adapted
 // container, do we need this section here?)
 //
 ///Usage
@@ -135,28 +135,28 @@ class queue {
 
     // FRIENDS
     template<class VALUE2, class CONTAINER2>
-    friend bool operator==(const queue<VALUE2, CONTAINER2>& lhs,
-                           const queue<VALUE2, CONTAINER2>& rhs);
+    friend bool operator==(const queue<VALUE2, CONTAINER2>&,
+                           const queue<VALUE2, CONTAINER2>&);
 
     template<class VALUE2, class CONTAINER2>
-    friend bool operator!=(const queue<VALUE2, CONTAINER2>& lhs,
-                           const queue<VALUE2, CONTAINER2>& rhs);
+    friend bool operator!=(const queue<VALUE2, CONTAINER2>&,
+                           const queue<VALUE2, CONTAINER2>&);
 
     template<class VALUE2, class CONTAINER2>
-    friend bool operator< (const queue<VALUE2, CONTAINER2>& lhs,
-                           const queue<VALUE2, CONTAINER2>& rhs);
+    friend bool operator< (const queue<VALUE2, CONTAINER2>&,
+                           const queue<VALUE2, CONTAINER2>&);
 
     template<class VALUE2, class CONTAINER2>
-    friend bool operator> (const queue<VALUE2, CONTAINER2>& lhs,
-                           const queue<VALUE2, CONTAINER2>& rhs);
+    friend bool operator> (const queue<VALUE2, CONTAINER2>&,
+                           const queue<VALUE2, CONTAINER2>&);
 
     template<class VALUE2, class CONTAINER2>
-    friend bool operator<=(const queue<VALUE2, CONTAINER2>& lhs,
-                           const queue<VALUE2, CONTAINER2>& rhs);
+    friend bool operator<=(const queue<VALUE2, CONTAINER2>&,
+                           const queue<VALUE2, CONTAINER2>&);
 
     template<class VALUE2, class CONTAINER2>
-    friend bool operator>=(const queue<VALUE2, CONTAINER2>& lhs,
-                           const queue<VALUE2, CONTAINER2>& rhs);
+    friend bool operator>=(const queue<VALUE2, CONTAINER2>&,
+                           const queue<VALUE2, CONTAINER2>&);
 
 
   protected:
@@ -278,50 +278,69 @@ template <class VALUE, class CONTAINER>
 inline
 bool operator==(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // TBD
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'queue' objects have the same value
+    // if the containers they adapt are compared equal.
 
 template <class VALUE, class CONTAINER>
 inline
 bool operator!=(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // TBD
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'queue' objects do not have the
+    // same value if the containers they adapt are not compared equal.
 
 template <class VALUE, class CONTAINER>
 inline
 bool operator< (const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // TBD
+    // Return 'true' if the specified 'lhs' queue is lexicographically less
+    // than the specified 'rhs' queue, and 'false' otherwise.  A queue 'lhs'
+    // is lexicographically less than another queue 'rhs' if the container
+    // adapted by 'lhs' is lexicographically less than that adapted by 'rhs'.
 
 template <class VALUE, class CONTAINER>
 inline
 bool operator> (const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // TBD
+    // Return 'true' if the specified 'lhs' queue is lexicographically greater
+    // than the specified 'rhs' queue, and 'false' otherwise.  A queue 'lhs'
+    // is lexicographically greater than another queue 'rhs' if the container
+    // adapted by 'lhs' is lexicographically greater than that adapted by
+    // 'rhs'.
 
 template <class VALUE, class CONTAINER>
 inline
 bool operator>=(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // TBD
+    // Return 'true' if the specified 'lhs' queue is lexicographically
+    // greater-than or equal-to the specified 'rhs' queue, and 'false'
+    // otherwise.  A queue 'lhs' is lexicographically greater-than or equal-to
+    // another queue 'rhs' if the container adapted by 'lhs' is
+    // lexicographically greater-than or equal-to that adapted by 'rhs'.
 
 template <class VALUE, class CONTAINER>
 inline
 bool operator<=(const queue<VALUE, CONTAINER>& lhs,
                 const queue<VALUE, CONTAINER>& rhs);
-    // TBD
+    // Return 'true' if the specified 'lhs' queue is lexicographically
+    // less-than or equal-to the specified 'rhs' queue, and 'false' otherwise.
+    // A queue 'lhs' is lexicographically less-than or equal-to another queue
+    // 'rhs' if the container adapted by 'lhs' is lexicographically less-than
+    // or equal-to that adapted by 'rhs'.
 
 template <class VALUE, class CONTAINER>
 inline
 void swap(queue<VALUE, CONTAINER>& lhs,
           queue<VALUE, CONTAINER>& rhs);
-    // TBD
+    // Swap the value of the specified 'lhs' queue with the value of the
+    // specified 'rhs' queue.
 
 // template <class VALUE, class CONTAINER, class ALLOCATOR>
 // struct uses_allocator<queue<VALUE, CONTAINER>, ALLOCATOR>
 // : uses_allocator<CONTAINER, ALLOCATOR>::type
 // {
 // };
-
 
 // ==========================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS

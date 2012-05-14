@@ -1,4 +1,4 @@
-// bslstl_queue.h                                                     -*-C++-*-
+// bslstl_queue.cpp                                                   -*-C++-*-
 #include <bslstl_queue.h>
 
 #include <bsls_ident.h>

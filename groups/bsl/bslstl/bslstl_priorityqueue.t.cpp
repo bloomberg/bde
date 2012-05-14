@@ -1,4 +1,4 @@
-//bslstl_queue.t.cpp                                                  -*-C++-*-
+// bslstl_priorityqueue.t.cpp                                         -*-C++-*-
 
 #include <bslstl_priorityqueue.h>
 
@@ -117,7 +117,7 @@ using namespace bsl;
 //
 // [ 5] TESTING OUTPUT: Not Applicable
 // [10] STREAMING: Not Applicable
-// [  ] TODO?: CONCERN: The object is comppatible with STL allocator.
+// [  ] TBD?: CONCERN: The object is compatible with STL allocator.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -393,7 +393,7 @@ class TestComparator {
     // ACCESSORS
     bool operator() (const TYPE& lhs, const TYPE& rhs) const
         // Increment a counter that records the number of times this method is
-        // called.   Return 'true' if the integer representation of the
+        // called.  Return 'true' if the integer representation of the
         // specified 'lhs' is less than integer representation of the specified
         // 'rhs'.
     {
@@ -551,7 +551,7 @@ class TestDriver {
                                    const char*       SPEC,
                                    size_t            length);
 
-    static bool is_equal(Obj& lhs, Obj& rhs);
+    static bool is_equal(Obj& a, Obj& b);
 
   public:
 
@@ -675,21 +675,21 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::populate_container(
 // 'priority_queue' specific comparing equal function
 
 template <class VALUE, class CONTAINER, class COMPARATOR>
-bool TestDriver<VALUE, CONTAINER, COMPARATOR>::is_equal(Obj& lhs, Obj& rhs)
+bool TestDriver<VALUE, CONTAINER, COMPARATOR>::is_equal(Obj& a, Obj& b)
 {
     bslma_DefaultAllocatorGuard guard(&bslma_NewDeleteAllocator::singleton());
 
-    if (lhs.size() != rhs.size()) {
+    if (a.size() != b.size()) {
         return false;                                                 // RETURN
     }
-    while (!lhs.empty() && !rhs.empty()) {
-        if (lhs.top() != rhs.top()) {
+    while (!a.empty() && !b.empty()) {
+        if (a.top() != b.top()) {
             return false;                                             // RETURN
         }
-        lhs.pop();
-        rhs.pop();
+        a.pop();
+        b.pop();
     }
-    if (!lhs.empty() || !rhs.empty()) {
+    if (!a.empty() || !b.empty()) {
         return false;                                                 // RETURN
     }
     return true;
@@ -1438,12 +1438,12 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase8()
     //:   3 For each row 'R2' in the table of P-3:  (C-1..2)
     //:
     //:     1 Use the value constructor and 'oa' to create a modifiable 'Obj',
-    //:       'mW1', haviing the value described by 'R1'.  Use the copy
+    //:       'mW1', having the value described by 'R1'.  Use the copy
     //:       constructor and 'oa' to create a modifiable 'Obj', 'mX', from
     //:       'mW1'.
     //:
     //:     2 Use the value constructor and 'oa' to create a modifiable 'Obj',
-    //:       'mW2', haviing the value described by 'R2'.  Use the copy
+    //:       'mW2', having the value described by 'R2'.  Use the copy
     //:       constructor and 'oa' to create a modifiable 'Obj', 'mY', from
     //:       'mW2'.
     //:
@@ -1661,7 +1661,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
     // ------------------------------------------------------------------------
     // TESTING COPY CONSTRUCTOR:
     //: 1 The new object's value is the same as that of the original object.
-    //:   Note that given 'bsl::priority_queue' class has no equlity operators,
+    //:   Note that given 'bsl::priority_queue' class has no equality operator,
     //:   two 'bsl::priority_queue' objects are tested equal only if they
     //:   have same size, and have same return values from 'top' operations
     //:   until they are both empty.
@@ -2350,7 +2350,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase1(
     //   [2].  Exercise these objects using primary manipulators [1, 5], basic
     //   accessors, equality operators, copy constructors [2, 8] and the
     //   assignment operator [9, 10].  Try aliasing with assignment for a
-    //   non-empty instance [11].
+    //   non-empty object [11].
     //
     //: 1  Create an object x1 (default ctor).       { x1: }
     //:
@@ -2522,8 +2522,8 @@ namespace UsageExample {
 
       public:
         // CREATORS
-        Task(int priority);
-           // Construct a 'Task' object having the specified 'priority'.
+        explicit Task(int priority);
+            // Construct a 'Task' object having the specified 'priority'.
 
         // ACCESSORS
         int priority() const;
@@ -2546,7 +2546,7 @@ namespace UsageExample {
     struct TaskComparator {
         // This 'struct' defines an ordering on 'Task' objects,
         // allowing them to be included in sorted data structures such as
-        // 'bsl::pirority_queue'.
+        // 'bsl::priority_queue'.
 
         bool operator()(const Task& lhs, const Task& rhs) const
             // Return 'true' if the priority of the specified task 'lhs' is
@@ -2563,7 +2563,7 @@ namespace UsageExample {
 // objects are compared; and the smaller the value returned by
 // 'Task::priority()', the higher the priority the task has.
 
-} // close namespace UsageExample
+}  // close namespace UsageExample
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -2781,7 +2781,7 @@ int main(int argc, char *argv[])
                                                        std::less<int>(),
                                                        SPECIAL_INT_VALUES,
                                                        NUM_SPECIAL_INT_VALUES);
-        //TODO: uncomment when 'bsl::list' is available
+        //TBD: uncomment when 'bsl::list' is available
         //QTestDriver<int,  list<int> >::testCase1(INT_VALUES, NUM_INT_VALUES);
       } break;
       default: {
@@ -2800,3 +2800,12 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+// ---------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2012
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ----------------------------- END-OF-FILE ---------------------------------
