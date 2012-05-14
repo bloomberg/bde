@@ -304,6 +304,32 @@ inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
 inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
 
+// 'queue' specific print function
+
+template <class VALUE, class CONTAINER>
+void dbg_print(const bsl::queue<VALUE, CONTAINER>& q)
+{
+    if (q.empty()) {
+        printf("<empty>");
+    }
+    else {
+        printf("size: %d, front: ", q.size());
+        dbg_print(static_cast<char>(
+                    bsltf::TemplateTestFacility::getValue(q.front())));
+        printf(", back: ");
+        dbg_print(static_cast<char>(
+                    bsltf::TemplateTestFacility::getValue(q.back())));
+    }
+    fflush(stdout);
+}
+
+// generic debug print function (3-arguments)
+template <typename T>
+void dbg_print(const char* s, const T& val, const char* nl) {
+    printf("%s", s); dbg_print(val);
+    printf("%s", nl);
+    fflush(stdout);
+}
 
                             // ====================
                             // class ExceptionGuard
@@ -344,7 +370,7 @@ struct ExceptionGuard {
     {
         if (d_object_p) {
             const int LINE = d_line;
-            //ASSERTV(LINE, d_copy == *d_object_p);
+            ASSERTV(LINE, d_copy == *d_object_p);
         }
     }
 
@@ -355,37 +381,6 @@ struct ExceptionGuard {
         d_object_p = 0;
     }
 };
-
-//=============================================================================
-//                       GLOBAL HELPER CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
-
-// 'queue' specific print function
-
-template <class VALUE, class CONTAINER>
-void dbg_print(const bsl::queue<VALUE, CONTAINER>& q)
-{
-    if (q.empty()) {
-        printf("<empty>");
-    }
-    else {
-        printf("size: %d, front: ", q.size());
-        dbg_print(static_cast<char>(
-                    bsltf::TemplateTestFacility::getValue(q.front())));
-        printf(", back: ");
-        dbg_print(static_cast<char>(
-                    bsltf::TemplateTestFacility::getValue(q.back())));
-    }
-    fflush(stdout);
-}
-
-// generic debug print function (3-arguments)
-template <typename T>
-void dbg_print(const char* s, const T& val, const char* nl) {
-    printf("%s", s); dbg_print(val);
-    printf("%s", nl);
-    fflush(stdout);
-}
 
 //=============================================================================
 //                       TEST DRIVER TEMPLATE

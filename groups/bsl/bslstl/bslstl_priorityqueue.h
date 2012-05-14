@@ -63,73 +63,120 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show intended use of this component.
 //
-///Example 1: Pushing and Popping from a Priority Queue
-/// - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we will define an array of integer, push them into a
-// priority queue, and then pop them out.  The parameterized type 'VALUE' is
-// 'int' in this example; the parameterized type 'CONTAINER' to be adapted is
-// 'bsl::deque<int>'; the parameterized type 'COMPARATOR' is default to
-// 'std::less'.
+///Example 1: Pushing and Popping Tasks from a Priority Queue
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will define an element class 'Task', push a group of
+// 'Task' objects into a priority queue, and then pop them out according to
+// their priorities.  The parameterized type 'VALUE' is 'Task' in this example;
+// the parameterized type 'CONTAINER' to be adapted is 'bsl::deque<Task>'; the
+// parameterized type 'COMPARATOR' is a user-defined functor 'TaskComparator'.
 //
-// First, we define an array of integers:
+// First, we define a 'Task' class:
 //..
-//  const int intArray[] = {0, -2, INT_MAX, INT_MIN, -1, 1, 2};
-//        int numInt     = sizeof(intArray) / sizeof(*intArray);
-//..
-// Then, we create a 'bsl::priority_queue' object via its default constructor
-// to adapt the 'bsl::deque<int>' type, leaving the parameterized 'COMPARATOR'
-// default to 'std::less':
-//..
-//  bsl::priority_queue<int, deque<int> > intPrQueue;
-//..
-// Now, using a 'for' loop, we push the integers in the previously created
-// integer array into the priority queue:
-//..
-//  printf("Pushing...\n\n");
-//  for (int i = 0; i < numInt; ++i) {
-//      intPrQueue.push(intArray[i]);
-//      printf("%d: %d\n", i, intPrQueue.top());
+//  class Task
+//  {
+//    private:
+//      // DATA
+//      int d_priority;  // priority of the task
+//
+//    public:
+//      // CREATORS
+//      Task(int priority);
+//         // Construct a 'Task' object having the specified 'priority'.
+//
+//      // ACCESSORS
+//      int priority() const;
+//  };
+//
+//  // CREATORS
+//  Task::Task(int priority)
+//  : d_priority(priority)
+//  {
+//  }
+//
+//  // ACCESSORS
+//  int Task::priority() const
+//  {
+//      return d_priority;
 //  }
 //..
-// Notice that every time a new integer is pushed in, the priority queue
+// Then, we define a comparison functor for 'Task' objects:
+//..
+//  struct TaskComparator {
+//      // This 'struct' defines an ordering on 'Task' objects,
+//      // allowing them to be included in sorted data structures such as
+//      // 'bsl::priority_queue'.
+//
+//      bool operator()(const Task& lhs, const Task& rhs) const
+//          // Return 'true' if the priority of the specified task 'lhs' is
+//          // less than the priority of the specified 'rhs', and 'false'
+//          // otherwise.  Notice that the smaller the value returned by the
+//          // 'Task::priority' method, the higher the priority.
+//      {
+//          return lhs.priority() > rhs.priority();
+//      }
+//  };
+//..
+// Notice that we can not use the default 'std::less' as comparator here due to
+// two reasons: the 'Task' class does not explicitly define how two 'Task'
+// objects are compared; and the smaller the value returned by
+// 'Task::priority()', the higher the priority the task has.
+//
+// Next, we create a 'bsl::priority_queue' object via its default constructor
+// to adapt the 'bsl::deque<Task>' type, setting the parameterized 'COMPARATOR'
+// to 'TaskComparator':
+//..
+//  bsl::priority_queue<Task, deque<Task>, TaskComparator> taskPrQueue;
+//..
+// Now, we push a series of 'Task' objects having different priorities
+// into the priority queue:
+//..
+//  taskPrQueue.push(Task(         1));
+//  taskPrQueue.push(Task(     65535));
+//  taskPrQueue.push(Task(       530));
+//  taskPrQueue.push(Task(      -200));
+//  taskPrQueue.push(Task(         0));
+//  taskPrQueue.push(Task(   INT_MAX));
+//  taskPrQueue.push(Task(     10005));
+//  taskPrQueue.push(Task(      1366));
+//  taskPrQueue.push(Task( 999999999));
+//  taskPrQueue.push(Task(   INT_MIN));
+//  taskPrQueue.push(Task(-123456789));
+//..
+// Notice that every time a new 'Task' element is pushed in, the priority queue
 // adjusts its internal data structure to ensure the 'top' method always
-// returns the highest priority (value) of elements held in the priority queue.
+// returns the highest priority (the smallest integer value) of elements held
+// in the priority queue.
 //
-// Finally, using a second 'for' loop, we pop integers from the priority queue
-// one by one:
+// Finally, using a 'for' loop, we pop tasks from the priority queue one by
+// one:
 //..
-//  printf("\nPopping...\n\n");
-//  for (int i = 0;i < numInt; ++i) {
-//      printf("%d: %d\n", i, intPrQueue.top());
-//      intPrQueue.pop();
+//  size_t taskNum = taskPrQueue.size();
+//  for (size_t i = 0;i < taskNum; ++i) {
+//      printf("    %d: %d\n", i, taskPrQueue.top().priority());
+//      taskPrQueue.pop();
 //  }
-//  assert(intPrQueue.empty());
+//  assert(taskPrQueue.empty());
 //..
-// Notice that every time an integer is popped out, the priority queue adjusts
-// its internal data structure to ensure the 'top' method always returns the
-// highest priority (value) of elements remaining in the priority queue.
+// Notice that every time a 'Task' element is popped out, the priority queue
+// adjusts its internal data structure to ensure the 'top' method always
+// returns the highest priority (the samllest integer value) of remaining
+// elements in the priority queue.
 //
-// The screen output will be like the following:
+// The tasks are popped out on a highest-priority-first basis.  The screen
+// output will be like the following:
 //
-//      Pushing...
-//
-//      0: 0
-//      1: 0
-//      2: 2147483647
-//      3: 2147483647
-//      4: 2147483647
-//      5: 2147483647
-//      6: 2147483647
-//
-//      Popping...
-//
-//      0: 2147483647
-//      1: 2
-//      2: 1
-//      3: 0
-//      4: -1
-//      5: -2
-//      6: -2147483648
+//    0: -2147483648
+//    1: -123456789
+//    2: -200
+//    3: 0
+//    4: 1
+//    5: 530
+//    6: 1366
+//    7: 10005
+//    8: 65535
+//    9: 999999999
+//    10: 2147483647
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #include <bslstl_allocator.h>
@@ -315,7 +362,7 @@ class priority_queue {
 
     // ACCESSORS
     bool empty() const;
-        // Return 'true' if this 'pirority_queue' object contains no elements,
+        // Return 'true' if this 'priority_queue' object contains no elements,
         // and 'false' otherwise.
 
     size_type size() const;

@@ -309,6 +309,34 @@ inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 inline void dbg_print(char* s) { printf("\"%s\"", s); fflush(stdout); }
 inline void dbg_print(void* p) { printf("%p", p); fflush(stdout); }
 
+// 'priority_queue' specific print function
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+void dbg_print(const bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>& pq)
+{
+    if (pq.empty()) {
+        printf("<empty>");
+    }
+    else {
+        printf("size: %d, top: ", pq.size());
+        dbg_print(static_cast<char>(
+                    bsltf::TemplateTestFacility::getValue(pq.top())));
+    }
+    fflush(stdout);
+}
+
+// generic debug print function (3-arguments)
+
+template <typename T>
+void dbg_print(const char* s, const T& val, const char* nl) {
+    printf("%s", s); dbg_print(val);
+    printf("%s", nl);
+    fflush(stdout);
+}
+
+//=============================================================================
+//                       GLOBAL HELPER CLASSES FOR TESTING
+//-----------------------------------------------------------------------------
 
 namespace {
 
@@ -434,35 +462,6 @@ bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
 
 }  // close unnamed namespace
 
-
-//=============================================================================
-//                       GLOBAL HELPER CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
-
-// 'priority_queue' specific print function
-
-template <class VALUE, class CONTAINER, class COMPARATOR>
-void dbg_print(const bsl::priority_queue<VALUE, CONTAINER, COMPARATOR>& pq)
-{
-    if (pq.empty()) {
-        printf("<empty>");
-    }
-    else {
-        printf("size: %d, top: ", pq.size());
-        dbg_print(static_cast<char>(
-                    bsltf::TemplateTestFacility::getValue(pq.top())));
-    }
-    fflush(stdout);
-}
-
-// generic debug print function (3-arguments)
-
-template <typename T>
-void dbg_print(const char* s, const T& val, const char* nl) {
-    printf("%s", s); dbg_print(val);
-    printf("%s", nl);
-    fflush(stdout);
-}
 
 //=============================================================================
 //                            TEST DRIVER TEMPLATE
@@ -2495,6 +2494,77 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase1(
     ASSERT(testValues[maxIndex] == X4.top  ());
 }
 
+//=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+namespace UsageExample {
+
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Pushing and Popping Tasks from a Priority Queue
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// In this example, we will define an element class 'Task', push a group of
+// 'Task' objects into a priority queue, and then pop them out according to
+// their priorities.  The parameterized type 'VALUE' is 'Task' in this example;
+// the parameterized type 'CONTAINER' to be adapted is 'bsl::deque<Task>'; the
+// parameterized type 'COMPARATOR' is a user-defined functor 'TaskComparator'.
+//
+// First, we define a 'Task' class:
+//..
+    class Task
+    {
+      private:
+        // DATA
+        int d_priority;  // priority of the task
+
+      public:
+        // CREATORS
+        Task(int priority);
+           // Construct a 'Task' object having the specified 'priority'.
+
+        // ACCESSORS
+        int priority() const;
+    };
+
+    // CREATORS
+    Task::Task(int priority)
+    : d_priority(priority)
+    {
+    }
+
+    // ACCESSORS
+    int Task::priority() const
+    {
+        return d_priority;
+    }
+//..
+// Then, we define a comparison functor for 'Task' objects:
+//..
+    struct TaskComparator {
+        // This 'struct' defines an ordering on 'Task' objects,
+        // allowing them to be included in sorted data structures such as
+        // 'bsl::pirority_queue'.
+
+        bool operator()(const Task& lhs, const Task& rhs) const
+            // Return 'true' if the priority of the specified task 'lhs' is
+            // less than the priority of the specified 'rhs', and 'false'
+            // otherwise.  Notice that the smaller the value returned by the
+            // 'Task::priority' method, the higher the priority.
+        {
+            return lhs.priority() > rhs.priority();
+        }
+    };
+//..
+// Notice that we can not use the default 'std::less' as comparator here due to
+// two reasons: the 'Task' class does not explicitly define how two 'Task'
+// objects are compared; and the smaller the value returned by
+// 'Task::priority()', the higher the priority the task has.
+
+} // close namespace UsageExample
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -2528,27 +2598,29 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting Usage Example"
                             "\n=====================\n");
 
-        const int intArray[] = {0, -2, INT_MAX, INT_MIN, -1, 1, 2};
-              int numInt     = sizeof(intArray) / sizeof(*intArray);
+        using namespace UsageExample;
 
-        bsl::priority_queue<int, deque<int> > intPrQueue;
+        bsl::priority_queue<Task, deque<Task>, TaskComparator> taskPrQueue;
 
-        if (veryVerbose)
-            printf("Pushing...\n\n");
-        for (int i = 0; i < numInt; ++i) {
-            intPrQueue.push(intArray[i]);
-            if (veryVerbose)
-                printf("%d: %d\n", i, intPrQueue.top());
+        taskPrQueue.push(Task(         1));
+        taskPrQueue.push(Task(     65535));
+        taskPrQueue.push(Task(       530));
+        taskPrQueue.push(Task(      -200));
+        taskPrQueue.push(Task(         0));
+        taskPrQueue.push(Task(   INT_MAX));
+        taskPrQueue.push(Task(     10005));
+        taskPrQueue.push(Task(      1366));
+        taskPrQueue.push(Task( 999999999));
+        taskPrQueue.push(Task(   INT_MIN));
+        taskPrQueue.push(Task(-123456789));
+
+        size_t taskNum = taskPrQueue.size();
+        for (size_t i = 0;i < taskNum; ++i) {
+            if (veryVeryVerbose)
+                printf("    %d: %d\n", i, taskPrQueue.top().priority());
+            taskPrQueue.pop();
         }
-
-        if (veryVerbose)
-            printf("\nPopping...\n\n");
-        for (int i = 0;i < numInt; ++i) {
-            if (veryVerbose)
-                printf("%d: %d\n", i, intPrQueue.top());
-            intPrQueue.pop();
-        }
-        ASSERT(intPrQueue.empty());
+        ASSERT(taskPrQueue.empty());
       } break;
       case 13: {
         // --------------------------------------------------------------------

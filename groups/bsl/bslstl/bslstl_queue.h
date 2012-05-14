@@ -17,10 +17,10 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Shijin Kong (skong25)
 //
-//@DESCRIPTION: This component defines a class template, 'bsl::queue', holding 
+//@DESCRIPTION: This component defines a class template, 'bsl::queue', holding
 // a container (of a parameterized type 'CONTAINER' containing elements of
 // another parameterized type 'VALUE'), and adapting it to provide a
-// first-in-first-out data structure.  
+// first-in-first-out data structure.
 //
 // An instantiation of 'queue' is an allocator-aware, value-semantic type whose
 // salient attributes are its size (number of elements held) and the sequence
@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 // Finally, using a second for loop, we pop integers from the queue one by one,
 //..
 //  for (int i = 0;i < numInt; ++i) {
-//      assert(intArray[i] == intQueue.front()); 
+//      assert(intArray[i] == intQueue.front());
 //      intQueue.pop();
 //  }
 //  assert(intQueue.empty());
