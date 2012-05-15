@@ -149,6 +149,70 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1:
 /// - - - - - - - - - - - - - - - -
+// In this example, we demonstrate the basic functionality of the 'staak'
+// container adapter.
+//
+// First, we create a couple of allocators, the test allocator 'ta' and the
+// default allocator 'da'.
+//..
+//  bslma_TestAllocator ta;
+//  bslma_TestAllocator da;                    // Default Allocator
+//  bslma_DefaultAllocatorGuard guard(&da);
+//..
+// Then, we create a stack of strings:
+//..
+//  stack<string> mX(&ta);        const stack<string>& X = mX;
+//..
+// Next, we observe that the newly created stack is empty.
+//..
+//  ASSERT(X.empty());
+//  ASSERT(0 == X.size());
+//..
+// Then, we push a few strings onto the stack.  After each push, the last thing
+// pushed is what's on top of the stack:
+//..
+//  mX.push("woof");
+//  ASSERT(X.top() == "woof");
+//  mX.push("arf");
+//  ASSERT(X.top() == "arf");
+//  mX.push("meow");
+//  ASSERT(X.top() == "meow");
+//..
+// Next, we verify that we have 3 objects in the stack:
+//..
+//  ASSERT(3 == X.size());
+//  ASSERT(!X.empty());
+//..
+// Then, we pop an item off the stack and see that the item pushed before it is
+// now on top of the stack:
+//..
+//  mX.pop();
+//  ASSERT(X.top() == "arf");
+//..
+// Next, we create a long string (long enough that taking a copy of it will
+// require memory allocation).  Note that 's' uses the default allocator.
+//..
+//  const string s("supercalifragisticexpialidocious"
+//                 "supercalifragisticexpialidocious"
+//                 "supercalifragisticexpialidocious"
+//                 "supercalifragisticexpialidocious");
+//..
+// Then, we monitor both memory allocators:
+//..
+//  bslma_TestAllocatorMonitor tam(&ta);
+//  bslma_TestAllocatorMonitor dam(&da);
+//..
+// Now, we push the large string onto the stack:
+//..
+//  mX.push(s);
+//  ASSERT(s == X.top());
+//..
+// Finally, we observe that the memory allocated to store the large string in
+// the stack came from the allocator passed to the stack at construction, and
+// not from the default allocator.
+//..
+//  ASSERT(tam.isTotalUp());
+//  ASSERT(dam.isTotalSame());
 //..
 
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
