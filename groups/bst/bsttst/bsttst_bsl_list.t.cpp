@@ -4,10 +4,8 @@
 #endif
 #include <bsttst_bsl_list.h>
 
-#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
-#include <bslma_testallocatormonitor.h>
 
 #include <bslalg_hastrait.h>
 #include <bslalg_typetraits.h>
@@ -214,117 +212,6 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultGuard(&tda);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
-        // --------------------------------------------------------------------
-        // DEMO bslma_TestAllocatorMonitor::reset..
-        //
-        // Concerns:
-        //   Demonstrate the usefulness of the 'reset' method of
-        //   'bslma_TestAllocatorMonitor'.  There are no allocating types
-        //   available at 'bslma' level or lower, so we do it here.
-        //
-        // Plan:
-        //   Do operations on a list that allocate memory from an allocator
-        //   that is being monitored, demonstrating the usefulness of being
-        //   able to reset the monitor after every allocation takes place.
-        // --------------------------------------------------------------------
-
-        // In this example, we observe how some of the manipulators and
-        // accessors of 'bsl::list' use memory.
-
-        // First, we declare 3 allocators : test (toa), default (tda), and
-        // global (tga).
-
-        bslma_TestAllocator toa;
-//      bslma_TestAllocator tda;
-        bslma_TestAllocator tga;
-
-        // Then, we install our default and global allocators:
-
-//      bslma_DefaultAllocatorGuard defaultGuard(&tda);
-        bslma_Default::setGlobalAllocator(&tga);
-
-        // Next, we set up our monitors of the 3 allocators:
-
-        bslma_TestAllocatorMonitor oam(&toa);
-        bslma_TestAllocatorMonitor dam(&tda);
-        bslma_TestAllocatorMonitor gam(&tga);
-
-        // Then, we observe that creating an empty list allocates memory:
-
-        bsl::list<int> myList(&toa);
-
-        ASSERT(oam.isTotalUp());
-
-        // Next, we observe that 'push_back' also allocates memory:
-
-        oam.reset();
-
-        myList.push_back(57);
-
-        ASSERT(oam.isTotalUp());
-
-        myList.push_back(57);
-
-        // Then, we observe that accessors 'back', 'front', and 'size' don't
-        // cause any allocation.
-
-        oam.reset();
-
-        ASSERT(57 == myList.back());
-        ASSERT(57 == myList.front());
-        ASSERT(2  == myList.size());
-
-        ASSERT(oam.isTotalSame());
-
-        // Next, we observe that manipulator 'push_front' causes memory
-        // allocation:
-
-        myList.push_front(23);
-
-        ASSERT(oam.isTotalUp());
-
-        ASSERT(57 == myList.back());
-        ASSERT(23 == myList.front());
-        ASSERT(3  == myList.size());
-
-        // Then, we observe that 'reverse', though it's a manipulator, does no
-        // memory allocation:
-
-        oam.reset();
-
-        myList.reverse();
-
-        ASSERT(oam.isInUseSame());
-        ASSERT(oam.isTotalSame());
-
-        ASSERT(23 == myList.back());
-        ASSERT(57 == myList.front());
-        ASSERT(3  == myList.size());
-
-        // Next, we observe that 'unique', in this case, will do no new memory
-        // allocation and will in fact free some memory.
-
-        oam.reset();
-
-        myList.unique();
-
-        ASSERT(oam.isInUseDown());
-        ASSERT(oam.isTotalSame());
-
-        // Now, we observe the state of the list after 'unique'.
-        
-        ASSERT(23 == myList.back());
-        ASSERT(57 == myList.front());
-        ASSERT(2  == myList.size());
-
-        // Finally, we check the default allocator monitor.  Since the default
-        // allocator 'tda' should never be have used for anything in this
-        // exercise, we only need check its monitor 'dam' at the end of the
-        // example.
-
-        ASSERT(dam.isTotalSame());
-      }  break;
       case 4: {
         // --------------------------------------------------------------------
         // ADVANCED MANIPULATOR / ACCESSOR / ITERATOR TEST
