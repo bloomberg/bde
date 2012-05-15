@@ -339,7 +339,7 @@ class btemt_Channel {
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
-    volatile int              d_maxWriteCacheSize;// max write cache size
+    bces_AtomicInt            d_maxWriteCacheSize; // max write cache size
 
     // Memory allocation section (pointers held, not owned)
     bcema_PooledBufferChainFactory *d_chainFactory_p;     // for d_currentMsg
@@ -720,7 +720,7 @@ int btemt_Channel::currentWriteCacheSize() const
 inline
 int btemt_Channel::maxWriteCacheSize() const
 {
-    return d_maxWriteCacheSize;
+    return d_maxWriteCacheSize.relaxedLoad();
 }
 
 inline
@@ -2124,8 +2124,8 @@ int btemt_Channel::writeMessage(const MessageType&   msg,
     int currentWriteCacheSize = d_writeEnqueuedCacheSize
                               + d_writeActiveCacheSize.relaxedLoad();
 
-    if (d_maxWriteCacheSize < currentWriteCacheSize) {
-        d_maxWriteCacheSize = currentWriteCacheSize;
+    if (d_maxWriteCacheSize.relaxedLoad() < currentWriteCacheSize) {
+        d_maxWriteCacheSize.relaxedStore(currentWriteCacheSize);
     }
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!d_isWriteActive)) {
@@ -2322,8 +2322,7 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
 
 void btemt_Channel::resetRecordedMaxWriteCacheSize()
 {
-    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
-    d_maxWriteCacheSize = currentWriteCacheSize();
+    d_maxWriteCacheSize.relaxedStore(currentWriteCacheSize());
 }
 
 // ============================================================================
