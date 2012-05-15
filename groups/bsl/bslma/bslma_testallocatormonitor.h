@@ -417,96 +417,108 @@ BSLS_IDENT("$Id: $")
 // To demonstrate the usefulness of the 'reset' method, one needs to be testing
 // a class having multiple manipulators that allocate memory.  For brevity we
 // use 'bsl::list', whose interface is clearly described at
-// 'http://www.cplusplus.com/reference/stl/list'.  The actual code for this
-// example is in bsltst_bsl_list.t.cpp.
-//
-// In this example, we observe how some of the manipulators and accessors of
-// 'bsl::list' use memory.  First, we declare monitors 'tam' and 'dam' that
-// monitor the allocator passed to a list at construction, and the default
-// allocator, respectively.  The default allocator 'tda' should never be used
-// for anything in this exercise, so we will only check its monitor 'dam' at
-// the end of the example.
+// 'http://www.cplusplus.com/reference/stl/list' except that a 'bsl::list' uses
+// memory from a memory allocator supplied at construction.
 //..
-//  bslma_TestAllocator ta;
+//  typedef bsl::list<int> IntList;
+//..
+// In this example, we observe how some of the manipulators and
+// accessors of 'bsl::list' use memory.
+//
+// First, we declare 3 allocators, Test Object Allocator ('toa'), Test
+// Default Allocator ('tda'), and Test Global Allocator ('tga'):
+//..
+//  bslma_TestAllocator toa;
 //  bslma_TestAllocator tda;
+//  bslma_TestAllocator tga;
+//..
+// Since neither the default nor the global allocators should ever be
+// have used for anything in this exercise, we only need check their
+// monitors 'dam' and 'gam' at the end of the example.
 //
+// Then, we install our default and global allocators:
+//..
 //  bslma_DefaultAllocatorGuard defaultGuard(&tda);
-//
-//  bslma_TestAllocatorMonitor tam(&ta);
+//  bslma_Default::setGlobalAllocator(&tga);
+//..
+// Next, we set up our monitors of the 3 allocators:
+//..
+//  bslma_TestAllocatorMonitor oam(&toa);
 //  bslma_TestAllocatorMonitor dam(&tda);
+//  bslma_TestAllocatorMonitor gam(&tga);
 //..
 // Then, we observe that creating an empty list allocates memory:
 //..
-//  bsl::list<int> la(&ta);
+//  IntList myList(&toa);
 //
-//  ASSERT(tam.isTotalUp());
+//  assert(oam.isTotalUp());
 //..
 // Next, we observe that 'push_back' also allocates memory:
 //..
-//  tam.reset();
+//  oam.reset();
 //
-//  la.push_back(57);
+//  myList.push_back(57);
 //
-//  ASSERT(tam.isTotalUp());
+//  assert(oam.isTotalUp());
 //
-//  la.push_back(57);
+//  myList.push_back(57);
 //..
 // Then, we observe that accessors 'back', 'front', and 'size' don't
 // cause any allocation.
 //..
-//  tam.reset();
+//  oam.reset();
 //
-//  ASSERT(57 == la.back());
-//  ASSERT(57 == la.front());
-//  ASSERT(2  == la.size());
+//  assert(57 == myList.back());
+//  assert(57 == myList.front());
+//  assert(2  == myList.size());
 //
-//  ASSERT(tam.isTotalSame());
+//  assert(oam.isTotalSame());
 //..
 // Next, we observe that manipulator 'push_front' causes memory
 // allocation:
 //..
-//  la.push_front(23);
+//  myList.push_front(23);
 //
-//  ASSERT(tam.isTotalUp());
+//  assert(oam.isTotalUp());
 //
-//  ASSERT(57 == la.back());
-//  ASSERT(23 == la.front());
-//  ASSERT(3  == la.size());
+//  assert(57 == myList.back());
+//  assert(23 == myList.front());
+//  assert(3  == myList.size());
 //..
 // Then, we observe that 'reverse', though it's a manipulator, does no
 // memory allocation:
 //..
-//  tam.reset();
+//  oam.reset();
 //
-//  la.reverse();
+//  myList.reverse();
 //
-//  ASSERT(tam.isInUseSame());
-//  ASSERT(tam.isTotalSame());
+//  assert(oam.isInUseSame());
+//  assert(oam.isTotalSame());
 //
-//  ASSERT(23 == la.back());
-//  ASSERT(57 == la.front());
-//  ASSERT(3  == la.size());
+//  assert(23 == myList.back());
+//  assert(57 == myList.front());
+//  assert(3  == myList.size());
 //..
 // Next, we observe that 'unique', in this case, will do no new memory
 // allocation and will in fact free some memory.
 //..
-//  tam.reset();
+//  oam.reset();
 //
-//  la.unique();
+//  myList.unique();
 //
-//  ASSERT(tam.isInUseDown());
-//  ASSERT(tam.isTotalSame());
+//  assert(oam.isInUseDown());
+//  assert(oam.isTotalSame());
 //..
-// Then, we observe the state of the list after 'unique'.
+// Now, we observe the state of the list after 'unique'.
 //..
-//  ASSERT(23 == la.back());
-//  ASSERT(57 == la.front());
-//  ASSERT(2  == la.size());
+//  assert(23 == myList.back());
+//  assert(57 == myList.front());
+//  assert(2  == myList.size());
 //..
-// Finally, we observe that no memory was ever allocated from the
-// default allocator.
+// Finally, we check the default and global allocator monitors.
 //..
-//  ASSERT(dam.isTotalSame());
+//  assert(dam.isTotalSame());
+//  assert(gam.isTotalSame());
 //..
 
 #ifndef INCLUDED_BSLMA_TESTALLOCATOR
