@@ -4456,16 +4456,16 @@ int btemt_ChannelPool::getChannelStatistics(
 }
 
 int btemt_ChannelPool::getChannelWriteCacheStatistics(
-                                      bsls_Types::Int64 *maxWriteCacheSize,
-                                      bsls_Types::Int64 *currentWriteCacheSize,
-                                      int                channelId) const
+                                                    int *maxWriteCacheSize,
+                                                    int *currentWriteCacheSize,
+                                                    int  channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
         btemt_Channel *channel = channelHandle.ptr();
         *maxWriteCacheSize     = channel->maxWriteCacheSize();
         *currentWriteCacheSize = channel->currentWriteCacheSize();
-        return 0;
+        return 0;                                                     // RETURN
     }
     return 1;
 }
