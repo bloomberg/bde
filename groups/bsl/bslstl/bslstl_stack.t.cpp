@@ -380,6 +380,12 @@ void dbg_print(const char* s, const T& val, const char* nl)
         containerArg<bsltf::AllocBitwiseMoveableTestType>,                    \
         containerArg<bsltf::NonTypicalOverloadsTestType>
 
+#define TEST_TYPES_INEQUAL_COMPARABLE(containerArg)                           \
+        containerArg<signed char>,                                            \
+        containerArg<size_t>,                                                 \
+        containerArg<bsltf::TemplateTestFacility::ObjectPtr>,                 \
+        containerArg<bsltf::EnumerationTestType::Enum>
+
 template <class VALUE>
 struct ValueName {
   private:
@@ -811,6 +817,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase12();
+        // Test inequality operators
+
     static void testCase11();
         // Test type traits.
 
@@ -911,6 +920,74 @@ void TestDriver<CONTAINER>::emptyAndVerify(Obj               *obj,
 
     ASSERTV(LINE, obj->size(), obj->empty());
     ASSERTV(LINE, obj->size(), 0 == obj->size());
+}
+
+template <class CONTAINER>
+void TestDriver<CONTAINER>::testCase12()
+{
+    // ------------------------------------------------------------------------
+    // TESTING INEQUALITY OPERATORS
+    //
+    // Concern:
+    //   That the inequality operators function correctly.
+    //
+    // Plan:
+    //   Load 2 stack objects according to two SPEC's via the 'ggg' function,
+    //   and compare them.  It turns out that 'strcmp' comparing the two
+    //   'SPEC's will correspond directly to the result of inequality
+    //   operators, which is very convenient.
+    // ------------------------------------------------------------------------
+
+    const char *cont = ContainerName<container_type>::name();
+
+    const int NUM_DATA                     = DEFAULT_NUM_DATA;
+    const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    bslma_TestAllocator ta("test", veryVeryVeryVerbose);
+
+    bslma_TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma_DefaultAllocatorGuard dag(&da);
+
+    if (veryVerbose) printf("    %s ---------------------------", cont);
+
+    {
+        // Create first object
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const char *const SPECX = DATA[ti].d_spec;
+
+            Obj mX(&ta); const Obj& X = gg(&mX, SPECX);
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const char *const SPECY = DATA[tj].d_spec;
+
+                Obj mY(&ta); const Obj& Y = gg(&mY, SPECY);
+
+                const int CMP = ti == tj
+                              ? 0
+                              : strcmp(SPECX, SPECY) > 0 ? 1 : -1;
+
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == (X < Y));
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == !(X >= Y));
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == (Y > X));
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP < 0) == !(Y <= X));
+
+                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && (X < Y)));
+                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && (Y > X)));
+                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && (X > Y)));
+                ASSERTV(cont, SPECX, SPECY, CMP, !((CMP == 0) && (Y < X)));
+
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == (X > Y));
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == !(X <= Y));
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == (Y < X));
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP > 0) == !(Y >= X));
+
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP == 0) == (X == Y));
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP == 0) == (Y == X));
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP != 0) == (X != Y));
+                ASSERTV(cont, SPECX, SPECY, CMP, (CMP != 0) == (Y != X));
+            }
+        }
+    }
 }
 
 template <class CONTAINER>
@@ -2894,6 +2971,22 @@ int main(int argc, char *argv[])
     bslma_Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING INEQUALITY OPERATORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTesting Inequality Operators\n"
+                            "\n============================\n");
+
+        if (verbose) printf("deque ---------------------------------------\n");
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase12,
+                                        TEST_TYPES_INEQUAL_COMPARABLE(deque));
+
+        if (verbose) printf("vector --------------------------------------\n");
+        BSLTF_RUN_EACH_TYPE(TestDriver, testCase12,
+                                        TEST_TYPES_INEQUAL_COMPARABLE(vector));
+      } break;
       case 11: {
         // --------------------------------------------------------------------
         // TESTING TYPE TRAITS
