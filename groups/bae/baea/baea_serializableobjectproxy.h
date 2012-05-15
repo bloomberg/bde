@@ -43,14 +43,13 @@ BDES_IDENT_PRAGMA_ONCE
 //
 ///Restrictions On Proxied Types
 ///-----------------------------
-//
 // SerializableObjectProxy imposes restrictions on the implementation
 // of the proxied type that are stricter than those imposed by the 'bdeat'
 // framework in order to simplify the resulting object code.
 //
-//: o All Array-type objects must be instantiations of bsl::vector.
+//: o All Array type objects must be instantiations of bsl::vector.
 //
-//: o All Nullable types must be instantiations of either
+//: o All Nullable type objects must be instantiations of either
 //    'bdeut_NullableValue' or 'bdeut_NullableAllocatedValue'.
 //
 //: o All Choice types must have a 'NUM_SELECTIONS' enumerated value,
@@ -132,11 +131,79 @@ BDES_IDENT_PRAGMA_ONCE
 //
 ///Usage Example
 ///-------------
+// This section illustrates intended use of this component.
 //
-// 'SerializableObjectProxy' must be populated prior to being used; then it
-// can simply be passed to bdem-style encoders and decoders.  For an
-// example of populating the proxy object, see the component documentation of
-// 'SerializableObjectProxyUtil'.
+///Example 1: Creating a Proxy Object for a Simple Request
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to decode some XML data.  The data conforms to this schema:
+//..
+//  <?xml version='1.0' encoding='UTF-8'?>
+//  <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'
+//             xmlns:test='http://bloomberg.com/schemas/test'
+//             targetNamespace='http://bloomberg.com/schemas/test'
+//             elementFormDefault='unqualified'>
+//
+//      <xs:complexType name='Simple'>
+//          <xs:sequence>
+//              <xs:element name='status' type='xs:int'/>
+//          </xs:sequence>
+//      </xs:complexType>
+//
+//      <xs:element name='Simple' type='test:Simple'/>
+//  </xs:schema>
+//..
+// Using the 'bas_codegen.pl' tool, we can generate a C++ class for this
+// schema:
+//..
+//  $ bas_codegen.pl -m msg -p test -E simple.xsd
+//..
+// This tool will generate the header and implementation files for the
+// 'test_simple' component, which contains a 'Test::Simple' class.
+//
+// 'Test::Simple' is a Sequence type.  To create a 'SerializableObjectProxy'
+// for this type, we first need to create a function that can create the proxy
+// object for its element.  Note that in this case, 'Test::Simple' have only
+// one element, 'status':
+//..
+//  void elementAccessor(SerializableObjectProxy       *proxy,
+//                       const SerializableObjectProxy &object,
+//                       int                            index)
+//  {
+//      test::Simple *simpleObject = (test::Simple *)object.object();
+//      proxy->loadSimple(&simpleObject->status());
+//  }
+//..
+// Next, we create a 'result' object we want to decode the XML string into:
+//..
+//  test::Simple result;
+//..
+// Then, instead of decoding the XML string directly, we can create a proxy
+// object for 'result'.  Since 'test::Simple' is a Sequence object, we use the
+// 'loadSequence' method to configure the proxy object.  Note that this is done
+// for demonstration purpose.  Users should use functions in the
+// 'baea_serializableobjectproxyutil' component to create the proxy object:
+//..
+//  baea::SerializableObjectProxy decodeProxy;
+//  decodeProxy.loadSequence(test::Simple::NUM_ATTRIBUTES,
+//                           &result,
+//                           test::Simple::ATTRIBUTE_INFO_ARRAY,
+//                           test::Simple::CLASS_NAME,
+//                           &elementAccessor);
+//..
+// Now, we create a decoder and decode the XML string into 'result' through the
+// 'decodeProxy':
+//..
+//  baexml_DecoderOptions dOptions;
+//  baexml_MiniReader reader;
+//  baexml_Decoder decoder(&dOptions, &reader);
+//
+//  bdesb_FixedMemInStreamBuf isb(data, sizeof(data) - 1);
+//  decoder.decode(&isb, &decodeProxy);
+//..
+// Finally, we assert that 'result' has the expected value.
+//..
+//  assert(42 == result.status());
+//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
@@ -261,6 +328,7 @@ struct SerializableObjectProxyFunctions {
                 // ====================================================
 
 struct SerializableObjectProxy_ChoiceEncodeInfo {
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // This component-private 'struct' holds the data necessary to represent
     // a Choice-type object for encoding.
 
@@ -292,7 +360,8 @@ struct SerializableObjectProxy_ChoiceEncodeInfo {
               // ====================================================
 
 struct SerializableObjectProxy_ChoiceDecodeInfo {
-    // This component-private "struct" holds the data necessary to
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    // This component-private 'struct' holds the data necessary to
     // represent a Choice-type object for decoding.
 
     // TYPES
@@ -326,7 +395,8 @@ struct SerializableObjectProxy_ChoiceDecodeInfo {
               // ===================================================
 
 struct SerializableObjectProxy_ArrayEncodeInfo {
-    // This component-private "struct" holds the data necessary to represent
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    // This component-private 'struct' holds the data necessary to represent
     // an Array-type object for encoding.  As described in the component-
     // level documentation, only instantiations of 'bsl::vector' are supported.
 
@@ -355,7 +425,8 @@ struct SerializableObjectProxy_ArrayEncodeInfo {
               // ===================================================
 
 struct SerializableObjectProxy_ArrayDecodeInfo {
-    // This component-private "struct" holds the data necessary to represent
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    // This component-private 'struct' holds the data necessary to represent
     // an Array-type object for decoding.  As described in the component-
     // level documentation, only instantiations of bsl::vector are supported.
 
@@ -371,12 +442,11 @@ struct SerializableObjectProxy_ArrayDecodeInfo {
                                         // contained type
 
     // CREATORS
-    SerializableObjectProxy_ArrayDecodeInfo(
-                                        int                       length,
-                                        int                       elementSize,
-                                        void                     *begin,
-                                        Functions::Resizer        resizer,
-                                        Functions::Accessor       accessor)
+    SerializableObjectProxy_ArrayDecodeInfo(int                  length,
+                                            int                  elementSize,
+                                            void                *begin,
+                                            Functions::Resizer   resizer,
+                                            Functions::Accessor  accessor)
     : d_length(length)
     , d_elementSize(elementSize)
     , d_begin(begin)
@@ -391,7 +461,8 @@ struct SerializableObjectProxy_ArrayDecodeInfo {
               // ==================================================
 
 struct SerializableObjectProxy_EnumDecodeInfo {
-    // This component-private "struct" holds the data necessary to represent
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    // This component-private 'struct' holds the data necessary to represent
     // an Enumeration-type object for decoding.
 
     // TYPES
@@ -410,7 +481,8 @@ struct SerializableObjectProxy_EnumDecodeInfo {
               // ==================================================
 
 struct SerializableObjectProxy_EnumEncodeInfo {
-    // This component-private "struct" holds the data necessary to represent
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    // This component-private 'struct' holds the data necessary to represent
     // an Enumeration-type object for encoding.
 
     // PUBLIC DATA
@@ -424,7 +496,8 @@ struct SerializableObjectProxy_EnumEncodeInfo {
               // ================================================
 
 struct SerializableObjectProxy_SequenceInfo {
-    // This component-private "struct" holds the data necessary to
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    // This component-private 'struct' holds the data necessary to
     // represent a Sequence-type object for either encoding or decoding
 
     // TYPES
@@ -457,6 +530,7 @@ struct SerializableObjectProxy_SequenceInfo {
               // =================================================
 
 struct SerializableObjectProxy_SimplePointer {
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // This component-private 'struct' is used for representing a simple type.
     // The underlying type is represented by this 'struct', rather than by a
     // 'bdeut_Variant', to avoid extremely long mangled names that can result
@@ -493,7 +567,8 @@ struct SerializableObjectProxy_SimplePointer {
               // ==================================================
 
 struct SerializableObjectProxy_NullableDecodeInfo {
-    // This component-private "struct" is used when the proxy represents
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+    // This component-private 'struct' is used when the proxy represents
     // a Nullable-type object for decoding.  As described in the
     // component-level documentation, only instantiations of
     // bdeut_NullableValue or bdeut_NullableAllocatedValue are supported.
@@ -517,6 +592,7 @@ typedef SerializableObjectProxyFunctions::Accessor
               // ===================================================
 
 struct SerializableObjectProxy_NullableAdapter {
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // Provide a type that holds a pointer to a 'SerializableObjectProxy' but
     // only exposes the Nullable trait, and not any other traits.  This is
     // required for integration with at least the BER decoder, which cannot
@@ -989,7 +1065,7 @@ class SerializableObjectProxy {
         // of 'choice'.  'chooser' is a function that will change the selection
         // of 'choice'.
 
-    void loadSequence(int                                       numSelections,
+    void loadSequence(int                                       numAttributes,
                       void                                     *object,
                       const bdeat_AttributeInfo                *attributeInfo,
                       const char                               *className,
@@ -1286,60 +1362,78 @@ int SerializableObjectProxy::accessSimple(ACCESSOR& accessor) const
     const SimplePointer& simplePtr = d_objectInfo.the<SimplePointer>();
 
     switch (simplePtr.d_type) {
-      case SimplePointer::TYPE_CHAR:
+      case SimplePointer::TYPE_CHAR: {
         return accessor(*(char*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_UCHAR:
+      }
+      case SimplePointer::TYPE_UCHAR: {
         return accessor(*(unsigned char*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_SHORT:
+      }
+      case SimplePointer::TYPE_SHORT: {
         return accessor(*(short*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_INT:
+      }
+      case SimplePointer::TYPE_INT: {
         return accessor(*(int*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_INT64:
+      }
+      case SimplePointer::TYPE_INT64: {
         return accessor(*(bsls_Types::Int64*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_USHORT:
+      }
+      case SimplePointer::TYPE_USHORT: {
         return accessor(*(unsigned short*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_UINT:
+      }
+      case SimplePointer::TYPE_UINT: {
         return accessor(*(unsigned int*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_UINT64:
+      }
+      case SimplePointer::TYPE_UINT64: {
         return accessor(*(bsls_Types::Uint64*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_FLOAT:
+      }
+      case SimplePointer::TYPE_FLOAT: {
         return accessor(*(float*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_DOUBLE:
+      }
+      case SimplePointer::TYPE_DOUBLE: {
         return accessor(*(double*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_STRING:
+      }
+      case SimplePointer::TYPE_STRING: {
         return accessor(*(bsl::string*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_DATETIME:
+      }
+      case SimplePointer::TYPE_DATETIME: {
         return accessor(*(bdet_Datetime*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_DATE:
+      }
+      case SimplePointer::TYPE_DATE: {
         return accessor(*(bdet_Date*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_TIME:
+      }
+      case SimplePointer::TYPE_TIME: {
         return accessor(*(bdet_Time*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_BOOL:
+      }
+      case SimplePointer::TYPE_BOOL: {
         return accessor(*(bool*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_DATETIMETZ:
+      }
+      case SimplePointer::TYPE_DATETIMETZ: {
         return accessor(*(bdet_DatetimeTz*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_DATETZ:
+      }
+      case SimplePointer::TYPE_DATETZ: {
         return accessor(*(bdet_DateTz*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
-      case SimplePointer::TYPE_TIMETZ:
+      }
+      case SimplePointer::TYPE_TIMETZ: {
         return accessor(*(bdet_TimeTz*)simplePtr.d_address,
                         bdeat_TypeCategory::Simple());                // RETURN
+      }
     }
     return -1;
 }
@@ -1352,60 +1446,78 @@ int SerializableObjectProxy::manipulateSimple(MANIPULATOR& manipulator)
     const SimplePointer& simplePtr = d_objectInfo.the<SimplePointer>();
 
     switch (simplePtr.d_type) {
-      case SimplePointer::TYPE_CHAR:
+      case SimplePointer::TYPE_CHAR: {
         return manipulator((char*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_UCHAR:
+      }
+      case SimplePointer::TYPE_UCHAR: {
         return manipulator((unsigned char*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_SHORT:
+      }
+      case SimplePointer::TYPE_SHORT: {
         return manipulator((short*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_INT:
+      }
+      case SimplePointer::TYPE_INT: {
         return manipulator((int*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_INT64:
+      }
+      case SimplePointer::TYPE_INT64: {
         return manipulator((bsls_Types::Int64*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_USHORT:
+      }
+      case SimplePointer::TYPE_USHORT: {
         return manipulator((unsigned short*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_UINT:
+      }
+      case SimplePointer::TYPE_UINT: {
         return manipulator((unsigned int*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_UINT64:
+      }
+      case SimplePointer::TYPE_UINT64: {
         return manipulator((bsls_Types::Uint64*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_FLOAT:
+      }
+      case SimplePointer::TYPE_FLOAT: {
         return manipulator((float*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_DOUBLE:
+      }
+      case SimplePointer::TYPE_DOUBLE: {
         return manipulator((double*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_STRING:
+      }
+      case SimplePointer::TYPE_STRING: {
         return manipulator((bsl::string*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_DATETIME:
+      }
+      case SimplePointer::TYPE_DATETIME: {
         return manipulator((bdet_Datetime*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_DATE:
+      }
+      case SimplePointer::TYPE_DATE: {
         return manipulator((bdet_Date*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_TIME:
+      }
+      case SimplePointer::TYPE_TIME: {
         return manipulator((bdet_Time*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_BOOL:
+      }
+      case SimplePointer::TYPE_BOOL: {
         return manipulator((bool*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_DATETIMETZ:
+      }
+      case SimplePointer::TYPE_DATETIMETZ: {
         return manipulator((bdet_DatetimeTz*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_DATETZ:
+      }
+      case SimplePointer::TYPE_DATETZ: {
         return manipulator((bdet_DateTz*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
-      case SimplePointer::TYPE_TIMETZ:
+      }
+      case SimplePointer::TYPE_TIMETZ: {
         return manipulator((bdet_TimeTz*)simplePtr.d_address,
                            bdeat_TypeCategory::Simple());             // RETURN
+      }
     }
     return -1;
 }
@@ -1680,6 +1792,8 @@ template<typename ACCESSOR>
 int SerializableObjectProxy::arrayAccessElement(ACCESSOR& accessor,
                                                 int       index) const
 {
+    BSLS_ASSERT_SAFE(d_objectInfo.is<ArrayEncodeInfo>());
+
     SerializableObjectProxy elementProxy;
     loadArrayElementEncodeProxy(&elementProxy, index);
 
@@ -1690,6 +1804,8 @@ template<typename MANIPULATOR>
 int SerializableObjectProxy::arrayManipulateElement(MANIPULATOR& manipulator,
                                                     int          index)
 {
+    BSLS_ASSERT_SAFE(d_objectInfo.is<ArrayDecodeInfo>());
+
     SerializableObjectProxy elementProxy;
     loadArrayElementDecodeProxy(&elementProxy, index);
 
@@ -1764,12 +1880,18 @@ struct bdeat_TypeCategoryDeclareDynamic<baea::SerializableObjectProxy> {
 
 namespace bdeat_TypeCategoryFunctions {
 
+template <>
 inline
-bdeat_TypeCategory::Value bdeat_typeCategorySelect(
+bdeat_TypeCategory::Value
+bdeat_typeCategorySelect<baea::SerializableObjectProxy>(
                                    const baea::SerializableObjectProxy& object)
 {
     return object.category();
 }
+
+}  // close namespace bdeat_TypeCategoryFunctions
+
+namespace baea {
 
 template <typename ACCESSOR>
 inline
@@ -1811,7 +1933,7 @@ int bdeat_typeCategoryAccessArray(
 {
     if (object.isByteArrayValue()) {
         const bsl::vector<char>* arrayPtr =
-            (const bsl::vector<char>*)object.object();
+                                   (const bsl::vector<char> *) object.object();
         return accessor(*arrayPtr, bdeat_TypeCategory::Array());      // RETURN
     }
     else {
@@ -1846,7 +1968,7 @@ int bdeat_typeCategoryManipulateNullableValue(
     return -1;
 }
 
-}  // close namespace bdeat_TypeCategoryFunctions
+}  // close namespace baea
 
 // ============================================================================
 //           'bdeat_enumfunctions' overloads and specializations
@@ -1859,12 +1981,16 @@ bslmf_MetaInt<1> isEnumerationMetaFunction(
     // This function can be overloaded to support partial specialization
     // (Sun5.2 compiler is unable to partially specialize the 'struct'
     // below).  Note that this function is has no definition and should not
-    // be called at runtime.
+    // be called at run-time.
 
 template <>
 struct IsEnumeration<baea::SerializableObjectProxy> {
     enum { VALUE = 1 };
 };
+
+}  // close namespace bdeat_EnumFunctions
+
+namespace baea {
 
 inline
 void bdeat_enumToInt(int *result, const baea::SerializableObjectProxy& object)
@@ -1895,7 +2021,7 @@ int bdeat_enumFromString(baea::SerializableObjectProxy *result,
     return result->enumFromString(stringValue, stringLength);
 }
 
-}  // close namespace bdeat_EnumFunctions
+}  // close namespace baea
 
 // ============================================================================
 //           'bdeat_arrayfunctions' overloads and specializations
@@ -1914,6 +2040,10 @@ template <>
 struct ElementType<baea::SerializableObjectProxy> {
     typedef baea::SerializableObjectProxy Type;
 };
+
+}  // close namespace bdeat_ArrayFunctions
+
+namespace baea {
 
 inline
 bsl::size_t bdeat_arraySize(const baea::SerializableObjectProxy& object)
@@ -1945,7 +2075,7 @@ int bdeat_arrayManipulateElement(baea::SerializableObjectProxy* object,
     return object->arrayManipulateElement(manipulator, index);
 }
 
-}  // close namespace bdeat_ArrayFunctions
+}  // close namespace baea
 
 // ============================================================================
 //           'bdeat_sequencefunctions' overloads and specializations
@@ -1959,6 +2089,10 @@ template <>
 struct IsSequence<baea::SerializableObjectProxy> {
     enum { VALUE = 1 };
 };
+
+}  // close namespace bdeat_SequenceFunctions
+
+namespace baea {
 
 template <typename ACCESSOR>
 inline
@@ -2023,7 +2157,7 @@ bool bdeat_sequenceHasAttribute(const baea::SerializableObjectProxy&  object,
     return object.sequenceHasAttribute(attributeName, nameLength);
 }
 
-}  // close namespace bdeat_SequenceFunctions
+}  // close namespace baea
 
 // ============================================================================
 //           'bdeat_nullablevaluefunctions' overloads and specializations
@@ -2043,6 +2177,10 @@ struct ValueType<baea::SerializableObjectProxy_NullableAdapter> {
     typedef baea::SerializableObjectProxy Type;
 };
 
+}  // close namespace bdeat_NullableValueFunctions
+
+namespace baea {
+
 inline
 bool bdeat_nullableValueIsNull(
                    const baea::SerializableObjectProxy_NullableAdapter& object)
@@ -2056,8 +2194,6 @@ void bdeat_nullableValueMakeValue(
 {
     object->d_proxy_p->makeValue();
 }
-
-}  // close namespace bdeat_NullableValueFunctions
 
 template <typename MANIPULATOR>
 inline
@@ -2076,6 +2212,8 @@ int bdeat_nullableValueAccessValue(
 {
     return accessor(*object.d_proxy_p);
 }
+
+}  // close namespace baea
 
 // ============================================================================
 //                       'bdeat_typename' overloads
@@ -2104,6 +2242,10 @@ template <>
 struct IsChoice<baea::SerializableObjectProxy> {
     enum { VALUE = 1 };
 };
+
+}  // close namespace bdeat_ChoiceFunctions
+
+namespace baea {
 
 inline
 int bdeat_choiceSelectionId(const baea::SerializableObjectProxy& object)
@@ -2159,7 +2301,7 @@ int bdeat_choiceManipulateSelection(baea::SerializableObjectProxy *object,
     return object->choiceManipulateSelection(manipulator);
 }
 
-}  // close namespace bdeat_ChoiceFunctions
+}  // close namespace baea
 }  // close namespace BloombergLP
 
 #endif

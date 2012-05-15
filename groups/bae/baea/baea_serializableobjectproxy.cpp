@@ -67,6 +67,7 @@ int SerializableObjectProxy::manipulateContainedElement(
 
 void SerializableObjectProxy::loadSimple(char* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_CHAR };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -74,6 +75,7 @@ void SerializableObjectProxy::loadSimple(char* value)
 
 void SerializableObjectProxy::loadSimple(unsigned char* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_UCHAR };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -81,6 +83,7 @@ void SerializableObjectProxy::loadSimple(unsigned char* value)
 
 void SerializableObjectProxy::loadSimple(short* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_SHORT };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -88,6 +91,7 @@ void SerializableObjectProxy::loadSimple(short* value)
 
 void SerializableObjectProxy::loadSimple(int* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_INT };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -95,6 +99,7 @@ void SerializableObjectProxy::loadSimple(int* value)
 
 void SerializableObjectProxy::loadSimple(bsls_Types::Int64* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_INT64 };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -102,6 +107,7 @@ void SerializableObjectProxy::loadSimple(bsls_Types::Int64* value)
 
 void SerializableObjectProxy::loadSimple(unsigned short* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_USHORT };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -109,6 +115,7 @@ void SerializableObjectProxy::loadSimple(unsigned short* value)
 
 void SerializableObjectProxy::loadSimple(unsigned int* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_UINT };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -116,6 +123,7 @@ void SerializableObjectProxy::loadSimple(unsigned int* value)
 
 void SerializableObjectProxy::loadSimple(bsls_Types::Uint64* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_UINT64 };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -123,6 +131,7 @@ void SerializableObjectProxy::loadSimple(bsls_Types::Uint64* value)
 
 void SerializableObjectProxy::loadSimple(float* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_FLOAT };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -130,6 +139,7 @@ void SerializableObjectProxy::loadSimple(float* value)
 
 void SerializableObjectProxy::loadSimple(double* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_DOUBLE };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -151,6 +161,7 @@ void SerializableObjectProxy::loadSimple(bdet_Datetime* value)
 
 void SerializableObjectProxy::loadSimple(bdet_Date* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_DATE };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -158,6 +169,7 @@ void SerializableObjectProxy::loadSimple(bdet_Date* value)
 
 void SerializableObjectProxy::loadSimple(bdet_Time* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_TIME };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -165,6 +177,7 @@ void SerializableObjectProxy::loadSimple(bdet_Time* value)
 
 void SerializableObjectProxy::loadSimple(bool* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_BOOL };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -172,6 +185,7 @@ void SerializableObjectProxy::loadSimple(bool* value)
 
 void SerializableObjectProxy::loadSimple(bdet_DatetimeTz* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_DATETIMETZ };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -179,6 +193,7 @@ void SerializableObjectProxy::loadSimple(bdet_DatetimeTz* value)
 
 void SerializableObjectProxy::loadSimple(bdet_DateTz* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_DATETZ };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -186,6 +201,7 @@ void SerializableObjectProxy::loadSimple(bdet_DateTz* value)
 
 void SerializableObjectProxy::loadSimple(bdet_TimeTz* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
     SimplePointer pointer = { value, SimplePointer::TYPE_TIMETZ };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
@@ -354,11 +370,11 @@ bool SerializableObjectProxy::choiceHasSelection(
 }
 
 void SerializableObjectProxy::loadSequence(
-                    int numAttributes,
-                    void *object,
-                    const bdeat_AttributeInfo *info,
-                    const char *className,
-                    SerializableObjectProxyFunctions::ElementAccessor accessor)
+              int                                                numAttributes,
+              void                                              *object,
+              const bdeat_AttributeInfo                         *info,
+              const char                                        *className,
+              SerializableObjectProxyFunctions::ElementAccessor  accessor)
 {
     d_object_p = object;
     d_category = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
@@ -396,8 +412,9 @@ void SerializableObjectProxy::loadArray(
 }
 
 void SerializableObjectProxy::loadEnumeration(
-                       int value, const bdeat_EnumeratorInfo* infoArray,
-                       int numEnumerators)
+                                    int                         value,
+                                    const bdeat_EnumeratorInfo *infoArray,
+                                    int                         numEnumerators)
 {
     EnumEncodeInfo info = { value, infoArray, numEnumerators};
     d_category = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
@@ -419,8 +436,8 @@ void SerializableObjectProxy::loadEnumeration(
 }
 
 void SerializableObjectProxy::loadNullable(
-                       void *object,
-                       SerializableObjectProxyFunctions::Accessor accessor)
+                          void                                       *object,
+                          SerializableObjectProxyFunctions::Accessor  accessor)
 {
     d_object_p = object; // 0 if null value
     d_category = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
@@ -458,7 +475,8 @@ int SerializableObjectProxy::enumFromString(const char *value, int length)
     BSLS_ASSERT(d_objectInfo.is<EnumDecodeInfo>());
 
     return d_objectInfo.the<EnumDecodeInfo>().d_stringSetter(d_object_p,
-                                                             value, length);
+                                                             value,
+                                                             length);
 }
 
 int SerializableObjectProxy::enumToInt() const

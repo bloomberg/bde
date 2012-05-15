@@ -11,6 +11,27 @@ BDES_IDENT_PRAGMA_ONCE
 //@PURPOSE: Provide value-semantic attribute classes
 //
 //@AUTHOR: David Schumann (dschumann1@bloomberg.net)
+//
+// CustomInt
+// CustomString
+// SimpleRequest
+// UnsignedSequence
+// VoidSequence
+// Sequence3
+// Sequence5
+// Sequence6
+// Choice3
+// Choice1
+// Choice2
+// Sequence4
+// Sequence1
+// Sequence2
+// FeatureTestMessage
+// Request
+// Response
+//
+// Enumerated
+// Messages
 
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>

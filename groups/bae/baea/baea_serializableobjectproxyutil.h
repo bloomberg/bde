@@ -194,9 +194,9 @@ class SerializableObjectProxyUtil {
         // implementation of 'SerializableObjectProxyFunctions::IntSetter'.
 
     template<typename VALUE_TYPE>
-    static int enumStringSetter(void        *value,
-                                const char  *stringValue,
-                                int          stringLength);
+    static int enumStringSetter(void       *value,
+                                const char *stringValue,
+                                int         stringLength);
         // Set the specified 'value' (assumed to be of the parameterized
         // 'VALUE_TYPE') to the specified 'stringValue' of the specified
         // 'stringLength'.  Return 0 on success, and a non-zero value
@@ -303,7 +303,7 @@ class SerializableObjectProxyUtil {
                                 bdeat_TypeCategory::Array);
     template <typename TYPE>
     static void makeEncodeProxy(SerializableObjectProxy *proxy,
-                                TYPE* object,
+                                TYPE                    *object,
                                 bdeat_TypeCategory::Simple);
         // Populate the specified 'proxy' to represent the specified
         // 'object' for encoding, based on the type of the unnamed "dispatch"
@@ -404,6 +404,7 @@ class SerializableObjectProxyUtil {
       // ==============================================================
 
 class SerializableObjectProxyUtil_ChoiceManipulatorProxy {
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // Provide a type to extract the 'bdeat_SelectionInfo' corresponding to
     // the selection of a Choice object, and to populate a
     // SerializableObjectProxy for decoding into that selection.
@@ -436,6 +437,7 @@ class SerializableObjectProxyUtil_ChoiceManipulatorProxy {
       // ===========================================================
 
 class SerializableObjectProxyUtil_ChoiceAccessorProxy {
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // Provide a type to populate a SerializableObjectProxy for encoding the
     // current selection of a Choice object.
 
@@ -467,14 +469,16 @@ class SerializableObjectProxyUtil_ChoiceAccessorProxy {
 
 template<typename TYPE>
 class SerializableObjectProxyUtil_SequenceLoader<TYPE, true> {
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // This class provides free functions that populate a
     // SerializableObjectProxy to represent a Sequence.  This specialization
     // is for normal sequences (those that have elements).
 
   public:
     static inline
-    void loadAccessor(SerializableObjectProxy* proxy,
-                      void*        object) {
+    void loadAccessor(SerializableObjectProxy *proxy,
+                      void                    *object)
+    {
         proxy->loadSequence(
                        static_cast<int>(TYPE::NUM_ATTRIBUTES),
                        object,
@@ -484,8 +488,9 @@ class SerializableObjectProxyUtil_SequenceLoader<TYPE, true> {
     }
 
     static inline
-    void loadManipulator(SerializableObjectProxy* proxy,
-                         void*        object) {
+    void loadManipulator(SerializableObjectProxy *proxy,
+                         void                    *object)
+    {
         proxy->loadSequence(
                     static_cast<int>(TYPE::NUM_ATTRIBUTES),
                     object,
@@ -510,15 +515,17 @@ class SerializableObjectProxyUtil_SequenceLoader<TYPE, false> {
     static inline
     void loadAccessor(SerializableObjectProxy* proxy, void*)
     {
-        SerializableObjectProxyUtil::makeProxyForEmptySequence
-            (proxy, TYPE::CLASS_NAME);
+        SerializableObjectProxyUtil::makeProxyForEmptySequence(
+                                                             proxy,
+                                                             TYPE::CLASS_NAME);
     }
 
     static inline
     void loadManipulator(SerializableObjectProxy* proxy, void*)
     {
-        SerializableObjectProxyUtil::makeProxyForEmptySequence
-            (proxy, TYPE::CLASS_NAME);
+        SerializableObjectProxyUtil::makeProxyForEmptySequence(
+                                                             proxy,
+                                                             TYPE::CLASS_NAME);
     }
 };
 
@@ -526,8 +533,8 @@ class SerializableObjectProxyUtil_SequenceLoader<TYPE, false> {
       // local class SerializableObjectProxyUtil_SequenceAccessorProxy
       // =============================================================
 
-class SerializableObjectProxyUtil_SequenceAccessorProxy
-{
+class SerializableObjectProxyUtil_SequenceAccessorProxy {
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // Provide a type to populate a 'SerializableObjectProxy' for encoding
     // the elements of a Sequence object.
 
@@ -546,8 +553,12 @@ class SerializableObjectProxyUtil_SequenceAccessorProxy
         // specified 'object' for encoding.  Return 0.
 };
 
-class SerializableObjectProxyUtil_SequenceManipulatorProxy
-{
+      // ================================================================
+      // local class SerializableObjectProxyUtil_SequenceManipulatorProxy
+      // ================================================================
+
+class SerializableObjectProxyUtil_SequenceManipulatorProxy {
+    // COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
     // Provide a type to populate a SerializableObjectProxy for decoding into
     // the elements of a Sequence object.
 
@@ -585,9 +596,9 @@ int SerializableObjectProxyUtil::enumStringSetter(void* value,
                                                   int strLength)
 {
     return bslalg_TypeTraits<VALUE_TYPE>::Wrapper::fromString(
-                                                         (VALUE_TYPE*)value,
-                                                         strVal,
-                                                         strLength);
+                                                            (VALUE_TYPE*)value,
+                                                            strVal,
+                                                            strLength);
 }
 
 template <typename NULLABLE>
@@ -896,7 +907,7 @@ void SerializableObjectProxyUtil::makeEncodeProxy(
 {
     SerializableObjectProxyUtil_SequenceLoader<TYPE,
                                                (TYPE::NUM_ATTRIBUTES > 0)>::
-        loadAccessor(proxy, object);
+                                                   loadAccessor(proxy, object);
 }
 
 template <typename ELEMENT_TYPE>
@@ -917,7 +928,8 @@ inline
 void SerializableObjectProxyUtil::makeEncodeProxy(
                                                SerializableObjectProxy *proxy,
                                                TYPE                    *object,
-                                               bdeat_TypeCategory::Simple) {
+                                               bdeat_TypeCategory::Simple)
+{
     proxy->loadSimple(object);
 }
 
@@ -936,8 +948,8 @@ void SerializableObjectProxyUtil::makeEncodeProxyRaw(
 template <typename TYPE>
 inline
 void SerializableObjectProxyUtil::makeDecodeProxyRaw(
-                                   SerializableObjectProxy *proxy,
-                                   void                    *object)
+                                               SerializableObjectProxy *proxy,
+                                               void                    *object)
 {
     makeDecodeProxy(proxy, (TYPE*)object,
                         typename bdeat_TypeCategory::Select<TYPE>::Type());
@@ -963,7 +975,7 @@ int SerializableObjectProxyUtil_ChoiceManipulatorProxy::operator()(
                                             const bdeat_SelectionInfo& info)
 {
     SerializableObjectProxyUtil::makeDecodeProxy(d_proxy_p,
-                                         const_cast<TYPE*>(&object));
+                                                 const_cast<TYPE*>(&object));
     d_selectionInfo_p = &info;
     return 0;
 }
@@ -971,8 +983,8 @@ int SerializableObjectProxyUtil_ChoiceManipulatorProxy::operator()(
 template <typename TYPE>
 inline
 int SerializableObjectProxyUtil_SequenceAccessorProxy::operator()(
-                                            const TYPE& object,
-                                            const bdeat_AttributeInfo&)
+                                                    const TYPE& object,
+                                                    const bdeat_AttributeInfo&)
 {
     SerializableObjectProxyUtil::makeEncodeProxyRaw<TYPE>(d_proxy_p,
                                                           (void*)&object);
@@ -986,8 +998,9 @@ int SerializableObjectProxyUtil_ChoiceAccessorProxy::operator()(
                                             const bdeat_SelectionInfo& info)
 {
     d_proxy_p->loadChoice(d_selectionId,
-                          (void*)&object,
-                          &info, d_className,
+                          (void *)&object,
+                          &info,
+                          d_className,
                           &SerializableObjectProxyUtil::
                                                   makeEncodeProxyRaw<TYPE>);
 

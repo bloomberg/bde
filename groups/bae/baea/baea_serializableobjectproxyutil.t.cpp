@@ -1144,8 +1144,9 @@ void enlargeTestObjects(std::vector<baea::FeatureTestMessage>* objects,
 "Nothing beside remains.";
 
     for (std::vector<baea::FeatureTestMessage>::iterator it =
-             objects->begin();
-         it != objects->end(); ++it) {
+            objects->begin();
+            it != objects->end(); ++it) {
+
         if (it->isSelection1Value() &&
             it->selection1().element4().size() &&
             it->selection1().element4().size() < arraySize) {
@@ -1187,9 +1188,7 @@ void enlargeTestObjects(std::vector<baea::FeatureTestMessage>* objects,
                 seq.element2().push_back(longString);
             }
         }
-
     }
-
 }
 
 void constructTestObjects(std::vector<baea::FeatureTestMessage>* objects)
@@ -1224,6 +1223,47 @@ void constructTestObjects(std::vector<baea::FeatureTestMessage>* objects)
 //=============================================================================
 //                      TEST ACCESSORS AND MANIPULATORS
 //-----------------------------------------------------------------------------
+
+struct ExtractAddressAccessor {
+    const void *d_address;
+
+    ExtractAddressAccessor() : d_address(0) {};
+
+    int operator()(const SerializableObjectProxy& object)
+    {
+        d_address = object.object();
+        return 0;
+    }
+
+    template <class TYPE>
+    int operator() (const TYPE&)
+    {
+        // needed to compile due to nullable adapter, but should not be called
+        ASSERT(!"Should be unreachable");
+        return -1;
+    }
+};
+
+struct ExtractAddressManipulator {
+    const void *d_address;
+
+    ExtractAddressManipulator() : d_address(0) {};
+
+    int operator()(SerializableObjectProxy *object)
+    {
+        d_address = object->object();
+        return 0;
+    }
+
+    template <class TYPE>
+    int operator() (TYPE *)
+    {
+        // needed to compile due to nullable adapter, but should not be called
+        ASSERT(!"Should be unreachable");
+        return -1;
+    }
+};
+
 
 template <class TYPE>
 struct SimpleAccessor {
@@ -1267,6 +1307,128 @@ struct SimpleManipulator {
     }
 };
 
+struct ByteArrayAccessor {
+    const bsl::vector<char> *d_address;
+
+    ByteArrayAccessor() : d_address(0) {}
+
+    int operator() (const bsl::vector<char>& object,
+                    const bdeat_TypeCategory::Array&)
+    {
+        d_address = &object;
+        return 0;
+    }
+
+    int operator() (const SerializableObjectProxy& object,
+                    const bdeat_TypeCategory::Array&)
+    {
+        // needed to compile due to nullable adapter, but should not be called
+        ASSERT(!"Should be unreachable");
+        return -1;
+    }
+};
+
+struct ByteArrayManipulator {
+    const bsl::vector<char> *d_address;
+
+    ByteArrayManipulator() : d_address(0) {}
+
+    int operator() (bsl::vector<char> *object,
+                    const bdeat_TypeCategory::Array&)
+    {
+        d_address = object;
+        return 0;
+    }
+
+    int operator() (SerializableObjectProxy *object,
+                    const bdeat_TypeCategory::Array&)
+    {
+        // needed to compile due to nullable adapter, but should not be called
+        ASSERT(!"Should be unreachable");
+        return -1;
+    }
+};
+
+struct ChoiceAccessor {
+    const SerializableObjectProxy *d_proxy;
+    const void                    *d_address;
+    bdeat_SelectionInfo            d_info;
+
+    ChoiceAccessor() : d_proxy(0), d_address(0) {}
+
+    int operator() (const SerializableObjectProxy& object,
+                    const bdeat_SelectionInfo&     info)
+    {
+        d_proxy = &object;
+        d_address = object.object();
+        d_info = info;
+        return 0;
+    }
+
+    template <typename TYPE>
+    int operator() (const TYPE&, const bdeat_SelectionInfo&)
+    {
+        // needed to compile due to nullable adapter, but should not be called
+
+        ASSERT(!"Should be unreachable");
+        return -1;
+    }
+};
+
+struct ChoiceManipulator
+{
+    SerializableObjectProxy *d_proxy;
+    const void              *d_address;
+    bdeat_SelectionInfo      d_info;
+
+    ChoiceManipulator() : d_proxy(0), d_address(0) {}
+
+    int operator() (SerializableObjectProxy*   object,
+                    const bdeat_SelectionInfo& info)
+    {
+        d_proxy = object;
+        d_address = object->object();
+        d_info = info;
+        return 0;
+    }
+
+    template <typename TYPE>
+    int operator() (TYPE*, const bdeat_SelectionInfo&)
+    {
+        // needed to compile due to nullable adapter, but should not be called
+        ASSERT(!"Should be unreachable");
+        return -1;
+    }
+};
+
+struct SequenceAccessor {
+    const SerializableObjectProxy *d_proxy;
+    const void                    *d_address;
+    bdeat_AttributeInfo            d_info;
+
+    SequenceAccessor() : d_proxy(0), d_address(0) {}
+
+    int operator() (const SerializableObjectProxy& object,
+                    const bdeat_AttributeInfo&     info)
+    {
+        d_proxy = &object;
+        d_address = object.object();
+        d_info = info;
+        return 0;
+    }
+
+    template <typename TYPE>
+    int operator() (const TYPE& object, const bdeat_AttributeInfo& info)
+        // For nullable adaptor.
+    {
+        ExtractAddressAccessor accessor;
+        bdeat_nullableValueAccessValue(object, accessor);
+        d_address = accessor.d_address;
+        d_info = info;
+        return 0;
+    }
+};
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1303,6 +1465,250 @@ int main(int argc, char *argv[])
                                                        bael_Severity::BAEL_OFF);
 
     switch (test) { case 0: // Zero is always the leading case.
+      case 13: {
+        // --------------------------------------------------------------------
+        // Testing Nullable
+        // --------------------------------------------------------------------
+        {
+            Proxy mX;  const Proxy& X = mX;
+            bdeut_NullableValue<int> object;
+
+            Obj::makeEncodeProxy(&mX, &object);
+
+            SimpleAccessor<int> accessor;
+            ASSERTV(-1 == bdeat_typeCategoryAccessNullableValue(X, accessor));
+            ASSERTV(true == X.isNull());
+
+            object.makeValue(1);
+
+            Obj::makeEncodeProxy(&mX, &object);
+
+            ASSERTV(0 == bdeat_typeCategoryAccessNullableValue(X, accessor));
+            ASSERTV(1 == accessor.d_value);
+        }
+
+        {
+            Proxy mX;  const Proxy& X = mX;
+            bdeut_NullableValue<int> object;
+
+            Obj::makeDecodeProxy(&mX, &object);
+
+            ASSERTV(true == object.isNull());
+
+            mX.makeValue();
+            ASSERTV(false == object.isNull());
+
+            SimpleManipulator<int> manipulator;
+            manipulator.d_value = 1;
+            ASSERTV(0 == bdeat_typeCategoryManipulateNullableValue(
+                                                                 &mX,
+                                                                 manipulator));
+            ASSERTV(1 == object.value());
+        }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // Testing Sequence
+        // --------------------------------------------------------------------
+
+        const bdeat_AttributeInfo *INFO = Sequence1::ATTRIBUTE_INFO_ARRAY;
+        const int NUM_INFO = Sequence1::NUM_ATTRIBUTES;
+
+        Proxy mX;  const Proxy& X = mX;
+        Sequence1 object;
+        object.element1().makeValue();
+        object.element3().makeSelection(0);
+        Obj::makeEncodeProxy(&mX, &object);
+
+        for (int ti = 0; ti < NUM_INFO; ++ti) {
+            const int ID = INFO[ti].d_id;
+
+            SequenceAccessor accessor;
+            ASSERT(0 == bdeat_sequenceAccessAttribute(X, accessor, ID));
+
+            ASSERT(accessor.d_info == INFO[ti]);
+            switch (ti) {
+              case 0: {
+                  ASSERTV(accessor.d_address == &object.element1());
+              } break;
+              case 1: {
+                  ASSERTV(accessor.d_address == object.element2().data());
+              } break;
+              case 2: {
+                  ASSERTV(accessor.d_address == &object.element3());
+              } break;
+              case 3: {
+                  ASSERTV(accessor.d_address == object.element4().data());
+              } break;
+            }
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // Testing Choice
+        // --------------------------------------------------------------------
+        const bdeat_SelectionInfo *INFO = Choice1::SELECTION_INFO_ARRAY;
+        const int NUM_INFO = Choice1::NUM_SELECTIONS;
+
+        // accessor
+        Proxy mX;  const Proxy& X = mX;
+        baea::Choice1 object;
+
+        for (int ti = 0; ti < NUM_INFO; ++ti) {
+            const int ID = INFO[ti].d_id;
+
+            object.makeSelection(ID);
+
+            Obj::makeEncodeProxy(&mX, &object);
+
+            ChoiceAccessor accessor;
+
+            ASSERT(ti == bdeat_choiceAccessSelection(mX, accessor));
+
+            ASSERT(&object == accessor.d_address);
+            ASSERT(INFO[ti] == accessor.d_info);
+        }
+
+        // manipulator
+
+        Obj::makeDecodeProxy(&mX, &object);
+
+        for (int ti = 0; ti < NUM_INFO; ++ti) {
+            const int ID = INFO[ti].d_id;
+
+            ASSERT(0  == bdeat_choiceMakeSelection(&mX, ID));
+            ASSERT(ID == object.selectionId());
+
+            ChoiceManipulator manipulator;
+            ASSERT(0 == bdeat_choiceManipulateSelection(&mX, manipulator));
+
+            ASSERT(manipulator.d_info == INFO[ti]);
+            switch (ti) {
+              case 0: {
+                  ASSERTV(manipulator.d_address == &object.selection1());
+              } break;
+              case 1: {
+                  ASSERTV(manipulator.d_address == &object.selection2());
+              } break;
+              case 2: {
+                  ASSERTV(manipulator.d_address == &object.selection3());
+              } break;
+              case 3: {
+                  ASSERTV(manipulator.d_address == &object.selection4());
+              } break;
+            }
+        }
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING Array
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing Array type" << endl;
+        {
+            Proxy mX; const Proxy& X = mX;
+
+            bsl::vector<int> object;
+            const int SIZE = 5;
+            object.resize(SIZE);
+            for (int i = 0; i < SIZE; ++i) {
+                object[i] = i;
+            }
+
+            Obj::makeEncodeProxy(&mX, &object);
+
+            ASSERTV(false == X.isByteArrayValue());
+
+            for (int i = 0; i < object.size(); ++i) {
+                ExtractAddressAccessor accessor;
+                ASSERTV(0          == bdeat_arrayAccessElement(X, accessor, i));
+                ASSERTV(&object[i] == accessor.d_address);
+            }
+
+            Obj::makeDecodeProxy(&mX, &object);
+
+            ASSERTV(false == X.isByteArrayValue());
+
+            for (int i = 0; i < object.size(); ++i) {
+                ExtractAddressManipulator manipulator;
+                ASSERTV(0 == 
+                            bdeat_arrayManipulateElement(&mX, manipulator, i));
+                ASSERTV(&object[i] == manipulator.d_address);
+            }
+
+            bdeat_arrayResize(&mX, 1);
+            ASSERTV(1 == object.size());
+        }
+
+        if (verbose) cout << "Testing byte array" << endl;
+        {
+            Proxy mX; const Proxy& X = mX;
+
+            bsl::vector<char> object;
+            object.push_back(0);
+            object.push_back(1);
+            object.push_back(2);
+            object.push_back(3);
+            object.push_back(4);
+
+            Obj::makeEncodeProxy(&mX, &object);
+            
+            ASSERTV(true == X.isByteArrayValue());
+
+            ByteArrayAccessor accessor;
+            ASSERTV(0  == bdeat_typeCategoryAccessArray(X, accessor));
+            ASSERTV(&object == accessor.d_address);
+
+            Obj::makeDecodeProxy(&mX, &object);
+            
+            ASSERTV(true == X.isByteArrayValue());
+
+            ByteArrayManipulator manipulator;
+            ASSERTV(0  == bdeat_typeCategoryManipulateArray(&mX, manipulator));
+            ASSERTV(&object == manipulator.d_address);
+        }
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING Enum
+        // --------------------------------------------------------------------
+
+        const bdeat_EnumeratorInfo *INFO = Enumerated::ENUMERATOR_INFO_ARRAY;
+        const int INFO_SIZE = Enumerated::NUM_ENUMERATORS;
+
+        if (verbose) cout << "Enumeration encode proxy" << endl;
+        {
+            for (int ti = 0; ti < INFO_SIZE; ++ti) {
+                const int   VALUE = INFO[ti].d_value;
+                const char *NAME  = INFO[ti].d_name_p;
+
+                Proxy mX; const Proxy& X = mX;
+                Enumerated::Value object;
+                Enumerated::fromInt(&object, VALUE);
+
+                Obj::makeEncodeProxy(&mX, &object);
+
+                int intResult;
+                bdeat_enumToInt(&intResult, X);
+                ASSERTV(VALUE == intResult);
+            }
+        }
+
+        if (verbose) cout << "Enumeration decode proxy" << endl;
+        {
+            Proxy mX; const Proxy& X = mX;
+            Enumerated::Value object;
+
+            Obj::makeDecodeProxy(&mX, &object);
+
+            for (int i = 0; i < INFO_SIZE; ++i) {
+                const int VALUE  = INFO[i].d_value;
+
+                ASSERTV(0 == mX.enumFromInt(VALUE));
+                ASSERTV(VALUE == object);
+            }
+        }
+      } break;
       case 8: {
         // --------------------------------------------------------------------
         // TESTING SIMPLE TYPE
@@ -1314,7 +1720,8 @@ int main(int argc, char *argv[])
             Proxy proxy;
 
             Obj::makeEncodeProxy(&proxy, &object);
-            ASSERTV(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY == proxy.category());
+            ASSERTV(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY ==
+                                                             proxy.category());
 
             SimpleAccessor<char> accessor;
 
@@ -1326,12 +1733,14 @@ int main(int argc, char *argv[])
             Proxy proxy;
 
             Obj::makeDecodeProxy(&proxy, &object);
-            ASSERTV(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY == proxy.category());
+            ASSERTV(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY ==
+                                                             proxy.category());
 
             SimpleManipulator<char> manipulator;
             manipulator.d_value = 0;
 
-            ASSERTV(0 == bdeat_typeCategoryManipulateSimple(&proxy, manipulator));
+            ASSERTV(0 == bdeat_typeCategoryManipulateSimple(&proxy,
+                                                            manipulator));
             ASSERTV(0 == object);
         }
 
@@ -1472,8 +1881,8 @@ int main(int argc, char *argv[])
         //
         // Plan: for each of several objects which collectively represent
         // the functionality of the encoder, encode the object in BER using
-        // SerializableObjectProxy, then decode it using the standard method.  Assert
-        // that the two objects are identical.
+        // SerializableObjectProxy, then decode it using the standard method.
+        // Assert that the two objects are identical.
         // --------------------------------------------------------------------
         std::vector<baea::FeatureTestMessage> testObjects;
         constructTestObjects(&testObjects);
