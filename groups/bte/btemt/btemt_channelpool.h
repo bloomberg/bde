@@ -1544,7 +1544,7 @@ class btemt_ChannelPool {
     int start();
         // Create internal threads that monitor network events and invoke
         // corresponding callbacks supplied (in the configuration) at
-       // construction.  Return 0 on success, and a non-zero value otherwise.
+        // construction.  Return 0 on success, and a non-zero value otherwise.
         // The behavior is undefined if the internal threads are created (as
         // reflected by the pool's state), see 'state'.
 
