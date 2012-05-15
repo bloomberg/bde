@@ -2322,7 +2322,8 @@ int btemt_Channel::setWriteCacheLowWatermark(int numBytes)
 
 void btemt_Channel::resetRecordedMaxWriteCacheSize()
 {
-    d_maxWriteCacheSize.relaxedStore(currentWriteCacheSize());
+    bcemt_LockGuard<bcemt_Mutex> oGuard(&d_writeMutex);
+    d_maxWriteCacheSize = currentWriteCacheSize();
 }
 
 // ============================================================================
