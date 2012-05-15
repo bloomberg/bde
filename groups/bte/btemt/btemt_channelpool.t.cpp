@@ -729,7 +729,7 @@ void *writeData(void *data)
     bteso_StreamSocket<bteso_IPv4Address> *socket    = td.d_socket_p;
     bcema_Blob                            *blob      = td.d_blob_p;
 
-    bsls_Types::Int64 curr = 0, max = 0;
+    int curr = 0, max = 0;
     int rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
 
     if (verbose) cout << "\nFIRST SET"
