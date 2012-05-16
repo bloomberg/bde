@@ -2966,7 +2966,7 @@ int main(int argc, char *argv[])
     bslma_Default::setDefaultAllocator(&defaultAllocator);
 
     switch (test) { case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3043,6 +3043,32 @@ int main(int argc, char *argv[])
         ASSERT(tam.isTotalUp());
         ASSERT(dam.isTotalSame());
       } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING CONTAINER OVERRIDE
+        // --------------------------------------------------------------------
+
+        // Verify that a stack with no container specified is the same as one
+        // we 'deque' specified.
+
+        typedef stack<int>                IStack;
+        typedef stack<int, deque<int> >   IDStack;
+
+        BSLMF_ASSERT((bslmf_IsSame<IStack, IDStack>::VALUE));
+
+        // Verify that if a container is specified, the first template
+        // argument is ignored.
+
+        typedef stack<void, vector<int> > VIVStack;
+
+        VIVStack vivs;          const VIVStack& VIVS = vivs;
+
+        vivs.push(4);           ASSERT(4 == VIVS.top());
+        vivs.push(7);           ASSERT(7 == VIVS.top());
+        ASSERT(2 == VIVS.size());
+        ASSERT(!VIVS.empty());
+        vivs.pop();             ASSERT(4 == VIVS.top());
+      }  break;
       case 12: {
         // --------------------------------------------------------------------
         // TESTING INEQUALITY OPERATORS
