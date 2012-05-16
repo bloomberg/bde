@@ -487,12 +487,6 @@ struct ContainerName<vector<VALUE> > {
     
 
 
-void resetMonitor(bslma_TestAllocatorMonitor *tam, bslma_TestAllocator *ta)
-{
-    new (tam) bslma_TestAllocatorMonitor(ta);
-}
-
-
 bool expectToAllocate(int n)
     // Return 'true' if the container is expected to allocate memory on the
     // specified 'n'th element, and 'false' otherwise.
@@ -1124,7 +1118,7 @@ void TestDriver<CONTAINER>::testCase10()
         ASSERT(tam.isTotalUp() || 0 == LENGTH);
         ASSERT(tam.isInUseSame());
 
-        resetMonitor(&tam, &ta);
+        tam.reset();
 
         {
             Obj mX(&ta);  const Obj& X = mX;
@@ -1166,7 +1160,7 @@ void TestDriver<CONTAINER>::testCase10()
 
         ASSERTV(cont, dam.isTotalUp() == (emptyWillAlloc() || LENGTH > 0));
 
-        resetMonitor(&dam, &da);
+        dam.reset();
 
         {
             Obj mX;  const Obj& X = mX;
@@ -2232,7 +2226,7 @@ void TestDriver<CONTAINER>::testCase4()
                 const Obj& X = gg(&mX, SPEC);
                 ASSERT(&X == &mX);
 
-                resetMonitor(&oam, &oa);
+                oam.reset();
 
                 // --------------------------------------------------------
                 // Verify basic accessors
