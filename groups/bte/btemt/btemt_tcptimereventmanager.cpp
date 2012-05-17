@@ -690,8 +690,21 @@ void btemt_TcpTimerEventManager::initialize()
     bteso_TimeMetrics *metrics = d_collectMetrics ? &d_metrics : 0;
 
     // Initialize the (managed) event manager.
+#ifdef BSLS_PLATFORM__OS_LINUX
+    if (bteso_DefaultEventManager<>::isSupported()) {
+        d_manager_p = new (*d_allocator_p)
+                           bteso_DefaultEventManager<>(metrics, d_allocator_p);
+    }
+    else {
+        d_manager_p = new (*d_allocator_p)
+                           bteso_DefaultEventManager<bteso_Platform::POLL>(
+                                                       metrics, d_allocator_p);
+    }
+#else
     d_manager_p = new (*d_allocator_p)
                            bteso_DefaultEventManager<>(metrics, d_allocator_p);
+#endif
+
     d_isManagedFlag = 1;
 
     // Initialize the functor containing the dispatch thread's entry point
