@@ -28,8 +28,33 @@ using namespace bsl;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
+// TBD: Update
+// This component provides an easy to use interface to the bdem
+// package.  It allows users to store complex data, bind it to some meta-data
+// and provides access to the stored data by field names or ids as specified in
+// the bound meta-data.
+//
+// Most of the functionality provided by this component is performed by lower
+// level bdem components.  For example, the type conversions supported by this
+// component is implemented in the 'bdem_Convert' component.  Similarly, all
+// the meta-data functionality resides in the 'bdem_Schema' component, and
+// this component uses the bdem aggregate components to store data and
+// retrieve data.  Thus for a lot of the tests it will suffice to test that
+// this component forwards data to the appropriate bdem components.
+// Additionally, we will need to test that 1) this component correctly
+// navigates to the appropriate sub elements, 2) maintains the scripting
+// language semantics of by-value access for scalar and by-reference access
+// for non-scalars, and 3) does sufficient error checking and allows
+// operations only on the applicable types.
+//
+// The test plan for this component follows the general pattern used for
+// value-semantic components.  Additionally, as this component
+// contains many private functions, we will try to test them each (as much as
+// possible) through the available interface.  The test plan for each test case
+// will mention the private functions that will be tested in it.  Finally,
+// given the complex interface provided by this component, we will test that
+// error reporting works correctly.
 //-----------------------------------------------------------------------------
-
 // CLASS METHODS
 // [  ] int maxSupportedBdexVersion();
 // [  ] bdem_ElemType::Type getBdemType(const TYPE& value);
@@ -77,12 +102,12 @@ using namespace bsl;
 // [  ] bdet_Time asTime() const;
 // [  ] bdet_TimeTz asTimeTz() const;
 // [  ] const bdem_ElemRef asElemRef() const;
-// [  ] bool hasField(const char *fieldName) const;
+// [ 4] bool hasField(const char *fieldName) const;
 // [  ] bool hasFieldById(int fieldId) const;
 // [  ] bool hasFieldByIndex(int fieldIndex) const;
 // [  ] int anonymousField(Obj *object, Error *error, int index) const;
 // [  ] int anonymousField(Obj *object, Error *error) const;
-// [  ] int getField(Obj *o, Error *e, bool makeNull, f1, f2, . ., f10) const;
+// [ 4] int getField(Obj *o, Error *e, bool null, f1, f2, . ., f10) const;
 // [  ] int findUnambiguousChoice(Obj *obj, Error *error, caller) const;
 // [  ] int fieldByIndex(Obj *obj, Error *error, int index) const;
 // [  ] int fieldById(Obj *obj, Error *error, int id) const;
@@ -98,7 +123,7 @@ using namespace bsl;
 // [  ] const bdem_RecordDef& recordDef() const;
 // [  ] const bdem_RecordDef *recordConstraint() const;
 // [  ] const bdem_EnumerationDef *enumerationConstraint() const;
-// [  ] const bdem_FieldDef *fieldDef() const;
+// [ 4] const bdem_FieldDef *fieldDef() const;
 // [  ] const bdem_RecordDef *recordDefPtr() const;
 // [  ] const void *data() const;
 // [  ] const bdem_Schema *schema() const;
@@ -106,16 +131,16 @@ using namespace bsl;
 // [  ] STREAM& bdexStreamIn(STREAM& stream, int version) const;
 // [  ] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [  ] bsl::ostream& print(stream, int level, int spl) const;
-// [  ] int setField(Obj *o, Error *e, f1, value) const;
-// [  ] int setField(Obj *o, Error *e, f1, f2, value) const;
-// [  ] int setField(Obj *o, Error *e, f1, f2, f3, value) const;
-// [  ] int setField(Obj *o, Error *e, f1, f2, . ., f4, value) const;
-// [  ] int setField(Obj *o, Error *e, f1, f2, . ., f5, value) const;
-// [  ] int setField(Obj *o, Error *e, f1, f2, . ., f6, value) const;
-// [  ] int setField(Obj *o, Error *e, f1, f2, . ., f7, value) const;
-// [  ] int setField(Obj *o, Error *e, f1, f2, . ., f8, value) const;
-// [  ] int setField(Obj *o, Error *e, f1, f2, . ., f9, value) const;
-// [  ] int setField(Obj *o, Error *e, f1, f2, . ., f10, value) const;
+// [ 3] int setField(Obj *o, Error *e, f1, value) const;
+// [ 4] int setField(Obj *o, Error *e, f1, f2, value) const;
+// [ 4] int setField(Obj *o, Error *e, f1, f2, f3, value) const;
+// [ 4] int setField(Obj *o, Error *e, f1, f2, . ., f4, value) const;
+// [ 4] int setField(Obj *o, Error *e, f1, f2, . ., f5, value) const;
+// [ 4] int setField(Obj *o, Error *e, f1, f2, . ., f6, value) const;
+// [ 4] int setField(Obj *o, Error *e, f1, f2, . ., f7, value) const;
+// [ 4] int setField(Obj *o, Error *e, f1, f2, . ., f8, value) const;
+// [ 4] int setField(Obj *o, Error *e, f1, f2, . ., f9, value) const;
+// [ 4] int setField(Obj *o, Error *e, f1, f2, . ., f10, value) const;
 // [  ] int insertItem(Obj *item, Error *error, int index, value) const;
 // [  ] int insertItemRaw(Obj *item, Error *error, int index) const;
 // [  ] int insertItems(Error *error, int index, int numItems) const;
@@ -129,7 +154,7 @@ using namespace bsl;
 // [  ] int makeSelectionById(Obj *obj, Error *error, id, value) const;
 // [  ] void makeNull() const;
 // [  ] void makeValue() const;
-// [  ] int setValue(Error *error, const TYPE& value) const;
+// [ 2] int setValue(Error *error, const TYPE& value) const;
 // [  ] int resize(Error *error, bsl::size_t newSize) const;
 //
 // FREE OPERATORS
@@ -3596,110 +3621,16 @@ int main(int argc, char *argv[])
         //   an error message on stderr.
         //
         // Testing:
-        //   template <typename VALTYPE>
-        //   void setField(bcem_AggregateRaw   *field,
-        //                 bcem_AggregateError *errorDescription,
-        //                 NameOrIndex          fieldOrIdx1,
-        //                 NameOrIndex          fieldOrIdx2,
-        //                 const VALTYPE&       value) const;
-        //   template <typename VALTYPE>
-        //   void setField(bcem_AggregateRaw   *field,
-        //                 bcem_AggregateError *errorDescription,
-        //                 NameOrIndex          fieldOrIdx1,
-        //                 NameOrIndex          fieldOrIdx2,
-        //                 NameOrIndex          fieldOrIdx3,
-        //                 const VALTYPE&       value) const;
-        //   template <typename VALTYPE>
-        //   void setField(bcem_AggregateRaw   *field,
-        //                 bcem_AggregateError *errorDescription,
-        //                 NameOrIndex          fieldOrIdx1,
-        //                 NameOrIndex          fieldOrIdx2,
-        //                 NameOrIndex          fieldOrIdx3,
-        //                 NameOrIndex          fieldOrIdx4,
-        //                 const VALTYPE&       value) const;
-        //   template <typename VALTYPE>
-        //   void setField(bcem_AggregateRaw   *field,
-        //                 bcem_AggregateError *errorDescription,
-        //                 NameOrIndex          fieldOrIdx1,
-        //                 NameOrIndex          fieldOrIdx2,
-        //                 NameOrIndex          fieldOrIdx3,
-        //                 NameOrIndex          fieldOrIdx4,
-        //                 NameOrIndex          fieldOrIdx5,
-        //                 const VALTYPE&       value) const;
-        //   template <typename VALTYPE>
-        //   void setField(bcem_AggregateRaw   *field,
-        //                 bcem_AggregateError *errorDescription,
-        //                 NameOrIndex          fieldOrIdx1,
-        //                 NameOrIndex          fieldOrIdx2,
-        //                 NameOrIndex          fieldOrIdx3,
-        //                 NameOrIndex          fieldOrIdx4,
-        //                 NameOrIndex          fieldOrIdx5,
-        //                 NameOrIndex          fieldOrIdx6,
-        //                 const VALTYPE&       value) const;
-        //   template <typename VALTYPE>
-        //   void setField(bcem_AggregateRaw   *field,
-        //                 bcem_AggregateError *errorDescription,
-        //                 NameOrIndex          fieldOrIdx1,
-        //                 NameOrIndex          fieldOrIdx2,
-        //                 NameOrIndex          fieldOrIdx3,
-        //                 NameOrIndex          fieldOrIdx4,
-        //                 NameOrIndex          fieldOrIdx5,
-        //                 NameOrIndex          fieldOrIdx6,
-        //                 NameOrIndex          fieldOrIdx7,
-        //                 const VALTYPE&       value) const;
-        //   template <typename VALTYPE>
-        //   void setField(bcem_AggregateRaw   *field,
-        //                 bcem_AggregateError *errorDescription,
-        //                 NameOrIndex          fieldOrIdx1,
-        //                 NameOrIndex          fieldOrIdx2,
-        //                 NameOrIndex          fieldOrIdx3,
-        //                 NameOrIndex          fieldOrIdx4,
-        //                 NameOrIndex          fieldOrIdx5,
-        //                 NameOrIndex          fieldOrIdx6,
-        //                 NameOrIndex          fieldOrIdx7,
-        //                 NameOrIndex          fieldOrIdx8,
-        //                 const VALTYPE&       value) const;
-        //   template <typename VALTYPE>
-        //   void setField(bcem_AggregateRaw   *field,
-        //                 bcem_AggregateError *errorDescription,
-        //                 NameOrIndex          fieldOrIdx1,
-        //                 NameOrIndex          fieldOrIdx2,
-        //                 NameOrIndex          fieldOrIdx3,
-        //                 NameOrIndex          fieldOrIdx4,
-        //                 NameOrIndex          fieldOrIdx5,
-        //                 NameOrIndex          fieldOrIdx6,
-        //                 NameOrIndex          fieldOrIdx7,
-        //                 NameOrIndex          fieldOrIdx8,
-        //                 NameOrIndex          fieldOrIdx9,
-        //                 const VALTYPE&       value) const;
-        //   template <typename VALTYPE>
-        //   void setField(bcem_AggregateRaw   *field,
-        //                 bcem_AggregateError *errorDescription,
-        //                 NameOrIndex          fieldOrIdx1,
-        //                 NameOrIndex          fieldOrIdx2,
-        //                 NameOrIndex          fieldOrIdx3,
-        //                 NameOrIndex          fieldOrIdx4,
-        //                 NameOrIndex          fieldOrIdx5,
-        //                 NameOrIndex          fieldOrIdx6,
-        //                 NameOrIndex          fieldOrIdx7,
-        //                 NameOrIndex          fieldOrIdx8,
-        //                 NameOrIndex          fieldOrIdx9,
-        //                 NameOrIndex          fieldOrIdx10,
-        //                 const VALTYPE&       value) const;
-        //   int getField(bcem_AggregateRaw   *resultField,
-        //                bcem_AggregateError *errorDescription,
-        //                bool                 makeNonNullFlag,
-        //                NameOrIndex          fieldOrIdx1,
-        //                NameOrIndex          fieldOrIdx2,
-        //                NameOrIndex          fieldOrIdx3,
-        //                NameOrIndex          fieldOrIdx4,
-        //                NameOrIndex          fieldOrIdx5,
-        //                NameOrIndex          fieldOrIdx6,
-        //                NameOrIndex          fieldOrIdx7,
-        //                NameOrIndex          fieldOrIdx8,
-        //                NameOrIndex          fieldOrIdx9,
-        //                NameOrIndex          fieldOrIdx10 = NameOrIndex())
-        //                                                               const;
+        //   int setField(Obj *o, Error *e, f1, f2, value) const;
+        //   int setField(Obj *o, Error *e, f1, f2, f3, value) const;
+        //   int setField(Obj *o, Error *e, f1, f2, . ., f4, value) const;
+        //   int setField(Obj *o, Error *e, f1, f2, . ., f5, value) const;
+        //   int setField(Obj *o, Error *e, f1, f2, . ., f6, value) const;
+        //   int setField(Obj *o, Error *e, f1, f2, . ., f7, value) const;
+        //   int setField(Obj *o, Error *e, f1, f2, . ., f8, value) const;
+        //   int setField(Obj *o, Error *e, f1, f2, . ., f9, value) const;
+        //   int setField(Obj *o, Error *e, f1, f2, . ., f10, value) const;
+        //   int getField(Obj *o, Error *e, bool null, f1, f2, . ., f10) const;
         //   bool hasField(const char *fieldName) const;
         //   const bdem_FieldDef *fieldDef() const;
         //
@@ -4456,8 +4387,8 @@ int main(int argc, char *argv[])
         //                       bcem_Aggregate_NameOrIndex  fieldOrIdx);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING PRIMARY MANIPULATOR"
-                          << "\n==========================="
+        if (verbose) cout << "\nTESTING PRIMARY MANIPULATORS"
+                          << "\n============================"
                           << bsl::endl;
 
         {
