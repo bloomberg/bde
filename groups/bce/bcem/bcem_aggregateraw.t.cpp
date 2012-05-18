@@ -119,7 +119,7 @@ using namespace bsl;
 // [  ] int selectorId() const;
 // [  ] int selectorIndex() const;
 // [  ] int selection(Obj *obj, Error *error) const;
-// [  ] bdem_ElemType::Type dataType() const;
+// [ 4] bdem_ElemType::Type dataType() const;
 // [  ] const bdem_RecordDef& recordDef() const;
 // [  ] const bdem_RecordDef *recordConstraint() const;
 // [  ] const bdem_EnumerationDef *enumerationConstraint() const;
@@ -2483,9 +2483,8 @@ int main(int argc, char *argv[])
         //   bdet_TimeTz asTimeTz() const;
         //
         // Private functions:
-        // template <typename TOTYPE>
-        // inline
-        // TOTYPE convertScalar() const
+        //   template <typename TOTYPE>
+        //   TOTYPE convertScalar() const
         // --------------------------------------------------------------------
 
         if (verbose) tst::cout << "\nTESTING 'asXXX' ACCESSORS"
@@ -2493,28 +2492,39 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) { T_ cout << "Testing for BOOL" << endl; }
         {
+            typedef bool TYPE;
+
             const CERef VN = getCERef(ET::BDEM_BOOL, 0);
             const CERef VA = getCERef(ET::BDEM_BOOL, 1);
             const CERef VB = getCERef(ET::BDEM_BOOL, 2);
 
-            Obj mX(ET::BDEM_BOOL, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_BOOL, VB); const Obj& Y = mY;
+            Obj mX; const Obj& X = mX;
+            mX.setDataType(ET::BDEM_BOOL);
+            mX.setDataPointer(VA.data());
+            int nf1 = 0;
+            mX.setTopLevelAggregateNullnessPointer(&nf1);
 
             ASSERT(VA.theBool() == X.asBool());
             ASSERT(VA           == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theBool() == X.asBool());
 
+            Obj mY; const Obj& Y = mY;
+            mY.setDataType(ET::BDEM_BOOL);
+            mY.setDataPointer(VB.data());
+            int nf2 = 0;
+            mY.setTopLevelAggregateNullnessPointer(&nf2);
+
             ASSERT(VB.theBool() == Y.asBool());
             ASSERT(VB           == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theBool() == Y.asBool());
 
@@ -2526,15 +2536,15 @@ int main(int argc, char *argv[])
             const RecDef *RECORD  = &SCHEMA.record(0);
             const char   *fldName = RECORD->fieldName(0);
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
+            Obj mZ; const Obj& Z = mZ;
+            int rc = ggAggData(&mZ, *r, &t);
+            ASSERT(!rc);
 
-            Obj mA(CRP); const Obj& A = mA;
             Obj mB = mA.field(fldName); const Obj& B = mB;
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theBool() == B.field(i).asBool());
                 LOOP_ASSERT(i, VN.theBool() ==
                                              B.field(i).asElemRef().theBool());
@@ -2547,36 +2557,37 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theBool() == B.field(0).asBool());
             ASSERT(VA           == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theBool() == B.field(0).asBool());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theBool() == A.field(fldName, 1).asBool());
             LOOP2_ASSERT(VB, A.field(fldName, 1).asElemRef(),
                          VB           == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theBool() == A.field(fldName, 1).asBool());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theBool() == C.asBool());
             ASSERT(VA           == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theBool() == C.asBool());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
+#if 0
         if (veryVerbose) { T_ cout << "Testing for CHAR" << endl; }
         {
             const CERef VN = getCERef(ET::BDEM_CHAR, 0);
@@ -2588,19 +2599,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theChar() == X.asChar());
             ASSERT(VA           == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theChar() == X.asChar());
 
             ASSERT(VB.theChar() == Y.asChar());
             ASSERT(VB           == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theChar() == Y.asChar());
 
@@ -2620,7 +2631,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theChar() == B.field(i).asChar());
                 LOOP_ASSERT(i, VN.theChar() ==
                                              B.field(i).asElemRef().theChar());
@@ -2631,34 +2642,34 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theChar() == B.field(0).asChar());
             ASSERT(VA           == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theChar() == B.field(0).asChar());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             LOOP2_ASSERT(VB.theChar(), A.field(fldName, 1).asChar(),
                          VB.theChar() == A.field(fldName, 1).asChar());
             ASSERT(VB           == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theChar() == A.field(fldName, 1).asChar());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theChar() == C.asChar());
             ASSERT(VA           == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theChar() == C.asChar());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for SHORT" << endl; }
@@ -2672,19 +2683,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theShort() == X.asShort());
             ASSERT(VA            == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theShort() == X.asShort());
 
             ASSERT(VB.theShort() == Y.asShort());
             ASSERT(VB            == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theShort() == Y.asShort());
 
@@ -2704,7 +2715,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theShort() == B.field(i).asShort());
                 LOOP_ASSERT(i, VN.theShort() ==
                                             B.field(i).asElemRef().theShort());
@@ -2715,33 +2726,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theShort() == B.field(0).asShort());
             ASSERT(VA            == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theShort() == B.field(0).asShort());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theShort() == A.field(fldName, 1).asShort());
             ASSERT(VB            == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theShort() == A.field(fldName, 1).asShort());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theShort() == C.asShort());
             ASSERT(VA            == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theShort() == C.asShort());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for INT" << endl; }
@@ -2755,19 +2766,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theInt() == X.asInt());
             ASSERT(VA          == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theInt() == X.asInt());
 
             ASSERT(VB.theInt() == Y.asInt());
             ASSERT(VB          == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theInt() == Y.asInt());
 
@@ -2787,7 +2798,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theInt() == B.field(i).asInt());
                 LOOP_ASSERT(i, VN.theInt() == B.field(i).asElemRef().theInt());
                 LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
@@ -2797,33 +2808,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theInt() == B.field(0).asInt());
             ASSERT(VA          == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theInt() == B.field(0).asInt());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theInt() == A.field(fldName, 1).asInt());
             ASSERT(VB          == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theInt() == A.field(fldName, 1).asInt());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theInt() == C.asInt());
             ASSERT(VA          == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theInt() == C.asInt());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for INT64" << endl; }
@@ -2837,19 +2848,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theInt64() == X.asInt64());
             ASSERT(VA            == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theInt64() == X.asInt64());
 
             ASSERT(VB.theInt64() == Y.asInt64());
             ASSERT(VB            == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theInt64() == Y.asInt64());
 
@@ -2869,7 +2880,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theInt64() == B.field(i).asInt64());
                 LOOP_ASSERT(i, VN.theInt64() ==
                                             B.field(i).asElemRef().theInt64());
@@ -2880,33 +2891,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theInt64() == B.field(0).asInt64());
             ASSERT(VA            == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theInt64() == B.field(0).asInt64());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theInt64() == A.field(fldName, 1).asInt64());
             ASSERT(VB            == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theInt64() == A.field(fldName, 1).asInt64());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theInt64() == C.asInt64());
             ASSERT(VA            == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theInt64() == C.asInt64());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for FLOAT" << endl; }
@@ -2920,19 +2931,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theFloat() == X.asFloat());
             ASSERT(VA            == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theFloat() == X.asFloat());
 
             ASSERT(VB.theFloat() == Y.asFloat());
             ASSERT(VB            == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theFloat() == Y.asFloat());
 
@@ -2952,7 +2963,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theFloat() == B.field(i).asFloat());
                 LOOP_ASSERT(i, VN.theFloat() ==
                                             B.field(i).asElemRef().theFloat());
@@ -2963,33 +2974,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theFloat() == B.field(0).asFloat());
             ASSERT(VA            == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theFloat() == B.field(0).asFloat());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theFloat() == A.field(fldName, 1).asFloat());
             ASSERT(VB            == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theFloat() == A.field(fldName, 1).asFloat());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theFloat() == C.asFloat());
             ASSERT(VA            == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theFloat() == C.asFloat());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for DOUBLE" << endl; }
@@ -3003,19 +3014,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theDouble() == X.asDouble());
             ASSERT(VA           == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theDouble() == X.asDouble());
 
             ASSERT(VB.theDouble() == Y.asDouble());
             ASSERT(VB             == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theDouble() == Y.asDouble());
 
@@ -3035,7 +3046,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theDouble() == B.field(i).asDouble());
                 LOOP_ASSERT(i, VN.theDouble() ==
                                            B.field(i).asElemRef().theDouble());
@@ -3046,33 +3057,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theDouble() == B.field(0).asDouble());
             ASSERT(VA             == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theDouble() == B.field(0).asDouble());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theDouble() == A.field(fldName, 1).asDouble());
             ASSERT(VB             == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theDouble() == A.field(fldName, 1).asDouble());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theDouble() == C.asDouble());
             ASSERT(VA             == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theDouble() == C.asDouble());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for DATETIME" << endl; }
@@ -3086,19 +3097,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theDatetime() == X.asDatetime());
             ASSERT(VA               == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theDatetime() == X.asDatetime());
 
             ASSERT(VB.theDatetime() == Y.asDatetime());
             ASSERT(VB               == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theDatetime() == Y.asDatetime());
 
@@ -3118,7 +3129,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theDatetime() == B.field(i).asDatetime());
                 LOOP_ASSERT(i, VN.theDatetime() ==
                                          B.field(i).asElemRef().theDatetime());
@@ -3129,33 +3140,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theDatetime() == B.field(0).asDatetime());
             ASSERT(VA               == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theDatetime() == B.field(0).asDatetime());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theDatetime() == A.field(fldName, 1).asDatetime());
             ASSERT(VB               == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theDatetime() == A.field(fldName, 1).asDatetime());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theDatetime() == C.asDatetime());
             ASSERT(VA               == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theDatetime() == C.asDatetime());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for DATE" << endl; }
@@ -3169,19 +3180,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theDate() == X.asDate());
             ASSERT(VA           == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theDate() == X.asDate());
 
             ASSERT(VB.theDate() == Y.asDate());
             ASSERT(VB           == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theDate() == Y.asDate());
 
@@ -3201,7 +3212,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theDate() == B.field(i).asDate());
                 LOOP_ASSERT(i, VN.theDate() ==
                                              B.field(i).asElemRef().theDate());
@@ -3212,33 +3223,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theDate() == B.field(0).asDate());
             ASSERT(VA           == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theDate() == B.field(0).asDate());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theDate() == A.field(fldName, 1).asDate());
             ASSERT(VB           == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theDate() == A.field(fldName, 1).asDate());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theDate() == C.asDate());
             ASSERT(VA           == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theDate() == C.asDate());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for TIME" << endl; }
@@ -3252,19 +3263,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theTime() == X.asTime());
             ASSERT(VA           == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theTime() == X.asTime());
 
             ASSERT(VB.theTime() == Y.asTime());
             ASSERT(VB           == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theTime() == Y.asTime());
 
@@ -3284,7 +3295,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theTime() == B.field(i).asTime());
                 LOOP_ASSERT(i, VN.theTime() ==
                                              B.field(i).asElemRef().theTime());
@@ -3295,33 +3306,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theTime() == B.field(0).asTime());
             ASSERT(VA           == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theTime() == B.field(0).asTime());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theTime() == A.field(fldName, 1).asTime());
             ASSERT(VB           == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theTime() == A.field(fldName, 1).asTime());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theTime() == C.asTime());
             ASSERT(VA           == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theTime() == C.asTime());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for DATETIMETZ" << endl; }
@@ -3335,19 +3346,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theDatetimeTz() == X.asDatetimeTz());
             ASSERT(VA                 == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theDatetimeTz() == X.asDatetimeTz());
 
             ASSERT(VB.theDatetimeTz() == Y.asDatetimeTz());
             ASSERT(VB                 == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theDatetimeTz() == Y.asDatetimeTz());
 
@@ -3367,7 +3378,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theDatetimeTz() ==
                                                     B.field(i).asDatetimeTz());
                 LOOP_ASSERT(i, VN.theDatetimeTz() ==
@@ -3379,33 +3390,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theDatetimeTz() == B.field(0).asDatetimeTz());
             ASSERT(VA                 == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theDatetimeTz() == B.field(0).asDatetimeTz());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theDatetimeTz() == A.field(fldName, 1).asDatetimeTz());
             ASSERT(VB                 == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theDatetimeTz() == A.field(fldName, 1).asDatetimeTz());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theDatetimeTz() == C.asDatetimeTz());
             ASSERT(VA                 == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theDatetimeTz() == C.asDatetimeTz());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for DATETZ" << endl; }
@@ -3419,19 +3430,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theDateTz() == X.asDateTz());
             ASSERT(VA             == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theDateTz() == X.asDateTz());
 
             ASSERT(VB.theDateTz() == Y.asDateTz());
             ASSERT(VB             == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theDateTz() == Y.asDateTz());
 
@@ -3451,7 +3462,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theDateTz() == B.field(i).asDateTz());
                 LOOP_ASSERT(i, VN.theDateTz() ==
                                            B.field(i).asElemRef().theDateTz());
@@ -3462,33 +3473,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theDateTz() == B.field(0).asDateTz());
             ASSERT(VA             == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theDateTz() == B.field(0).asDateTz());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theDateTz() == A.field(fldName, 1).asDateTz());
             ASSERT(VB             == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theDateTz() == A.field(fldName, 1).asDateTz());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theDateTz() == C.asDateTz());
             ASSERT(VA             == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theDateTz() == C.asDateTz());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Testing for TIMETZ" << endl; }
@@ -3502,19 +3513,19 @@ int main(int argc, char *argv[])
 
             ASSERT(VA.theTimeTz() == X.asTimeTz());
             ASSERT(VA             == X.asElemRef());
-            ASSERT(!X.isNul2());
+            ASSERT(!X.isNull());
 
             X.makeNull();
-            ASSERT(X.isNul2());
+            ASSERT(X.isNull());
             ASSERT(X.asElemRef().isNull());
             ASSERT(VN.theTimeTz() == X.asTimeTz());
 
             ASSERT(VB.theTimeTz() == Y.asTimeTz());
             ASSERT(VB             == Y.asElemRef());
-            ASSERT(!Y.isNul2());
+            ASSERT(!Y.isNull());
 
             Y.makeNull();
-            ASSERT(Y.isNul2());
+            ASSERT(Y.isNull());
             ASSERT(Y.asElemRef().isNull());
             ASSERT(VN.theTimeTz() == Y.asTimeTz());
 
@@ -3534,7 +3545,7 @@ int main(int argc, char *argv[])
             const int NE = 3;
             mB.resize(NE);
             for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNul2());
+                LOOP_ASSERT(i, B.field(i).isNull());
                 LOOP_ASSERT(i, VN.theTimeTz() == B.field(i).asTimeTz());
                 LOOP_ASSERT(i, VN.theTimeTz() ==
                                            B.field(i).asElemRef().theTimeTz());
@@ -3545,33 +3556,33 @@ int main(int argc, char *argv[])
             mB.setField(0, VA);
             ASSERT(VA.theTimeTz() == B.field(0).asTimeTz());
             ASSERT(VA             == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNul2());
+            ASSERT(!B.field(0).isNull());
 
             mB.setFieldNull(0);
             ASSERT(VN.theTimeTz() == B.field(0).asTimeTz());
             ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNul2());
+            ASSERT(B.field(0).isNull());
 
             mA.setField(fldName, 1, VB);
             ASSERT(VB.theTimeTz() == A.field(fldName, 1).asTimeTz());
             ASSERT(VB             == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNul2());
+            ASSERT(!A.field(fldName, 1).isNull());
 
             mA.setFieldNull(fldName, 1);
             ASSERT(VN.theTimeTz() == A.field(fldName, 1).asTimeTz());
             ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNul2());
+            ASSERT(A.field(fldName, 1).isNull());
 
             Obj mC = B.field(2); const Obj& C = mC;
             mC.setValue(VA);
             ASSERT(VA.theTimeTz() == C.asTimeTz());
             ASSERT(VA             == C.asElemRef());
-            ASSERT(!C.isNul2());
+            ASSERT(!C.isNull());
 
             mC.makeNull();
             ASSERT(VN.theTimeTz() == C.asTimeTz());
             ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNul2());
+            ASSERT(C.isNull());
         }
 
         if (veryVerbose) { T_ cout << "Test error message output" << endl; }
@@ -3585,6 +3596,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.asChar());
             ASSERT(bdetu_Unset<bdet_Datetime>::isUnset(Y.asDatetime()));
         }
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -3633,6 +3645,8 @@ int main(int argc, char *argv[])
         //   int getField(Obj *o, Error *e, bool null, f1, f2, . ., f10) const;
         //   bool hasField(const char *fieldName) const;
         //   const bdem_FieldDef *fieldDef() const;
+        //   bdem_ElemType::Type dataType() const;
+        //   const bdem_Schema *schema() const;
         //
         // Private functions:
         //   NavStatus descendIntoField(NameOrIndex fieldOrIdx1);
@@ -3721,8 +3735,8 @@ int main(int argc, char *argv[])
             bsl::memcpy(SPEC, ACTUAL_SPEC, SPEC_LEN + 1);
 
             Schema s; ggSchema(&s, SPEC);
-            const RecDef& r = s.record(s.numRecords() - 1);
-            const FldDef& fd = s.record(0).field(0);
+            const RecDef  *r  = &s.record(s.numRecords() - 1);
+            const FldDef&  fd = s.record(0).field(0);
 
             if (veryVerbose) { P(s) };
 
@@ -3735,16 +3749,18 @@ int main(int argc, char *argv[])
             if (veryVerbose) { P(VA) };
 
             Obj mX; const Obj& X = mX;
-            int rc = ggAggData(&mX, r, &t);
+            int rc = ggAggData(&mX, *r, &t);
             ASSERT(!rc);
 
             Obj mY; const Obj& Y = mY;
-            rc = ggAggData(&mY, r, &t);
+            rc = ggAggData(&mY, *r, &t);
             ASSERT(!rc);
 
             if (veryVerbose) { P(X) P(Y) };
 
-            ASSERT(0 == X.fieldDef());
+            ASSERT(0  == X.fieldDef());
+            ASSERT(r  == X.recordConstraint());
+            ASSERT(&s == X.schema());
 
             const char *errorField = "ErrorField";
             switch (s.numRecords()) {
@@ -3760,31 +3776,42 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
                 ASSERT(FLD_TYPE == S.dataType());
                 ASSERT(&fd      == S.fieldDef());
-                LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VA       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f1);
                 ASSERT(!rc);
-                LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VA       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 mS.makeNull();
                 ASSERT(FLD_TYPE == S.dataType());
                 ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
                 ASSERT(isUnset(S.asElemRef()));
                 ASSERT(S.isNull());
 
                 mS.reset();
                 rc = mX.setField(&mS, &error, f1, VB);
                 ASSERT(!rc);
-                LOOP3_ASSERT(LINE, VB, S.asElemRef(), VB == S.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VB       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f1);
                 ASSERT(!rc);
-                ASSERT(VB == S.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VB       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 // Test that scalar types are returned by reference
@@ -3793,7 +3820,10 @@ int main(int argc, char *argv[])
                 Obj   mB; const Obj& B = mB;
                 rc = mX.getField(&mB, &error, false, f1);
                 ASSERT(!rc);
-                ASSERT(VA == B.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VA       == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
               case 2: {
@@ -3809,30 +3839,41 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
                 ASSERT(FLD_TYPE == S.dataType());
                 ASSERT(&fd      == S.fieldDef());
-                LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VA       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f2, f1);
                 ASSERT(!rc);
-                LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VA       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 mS.makeNull();
                 ASSERT(FLD_TYPE == S.dataType());
                 ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
                 ASSERT(isUnset(S.asElemRef()));
                 ASSERT(S.isNull());
 
                 rc = mX.setField(&mS, &error, f2, f1, VB);
                 ASSERT(!rc);
-                LOOP3_ASSERT(LINE, VB, S.asElemRef(), VB == S.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VB       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f2, f1);
                 ASSERT(!rc);
-                LOOP3_ASSERT(LINE, VB, S.asElemRef(), VB == S.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VB       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 // Test that scalar types are returned by reference
@@ -3841,7 +3882,10 @@ int main(int argc, char *argv[])
                 Obj   mB; const Obj& B = mB;
                 rc = X.getField(&mB, &error, false, f2, f1);
                 ASSERT(!rc);
-                ASSERT(VA == B.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VA       == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
               case 3: {
@@ -3858,30 +3902,41 @@ int main(int argc, char *argv[])
                 ASSERT(!rc);
                 ASSERT(FLD_TYPE == S.dataType());
                 ASSERT(&fd      == S.fieldDef());
-                LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VA       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f3, f2, f1);
                 ASSERT(!rc);
-                LOOP3_ASSERT(LINE, VA, S.asElemRef(), VA == S.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VA       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 mS.makeNull();
                 ASSERT(FLD_TYPE == S.dataType());
                 ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
                 ASSERT(isUnset(S.asElemRef()));
                 ASSERT(S.isNull());
 
                 rc = mX.setField(&mS, &error, f3, f2, f1, VB);
                 ASSERT(!rc);
-                LOOP3_ASSERT(LINE, VB, S.asElemRef(), VB == S.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VB       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 mS.reset();
                 rc = X.getField(&mS, &error, false, f3, f2, f1);
                 ASSERT(!rc);
-                LOOP3_ASSERT(LINE, VB, S.asElemRef(), VB == S.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VB       == S.asElemRef());
                 ASSERT(!S.isNull());
 
                 // Test that scalar types are returned by reference
@@ -3890,7 +3945,10 @@ int main(int argc, char *argv[])
                 Obj   mB; const Obj& B = mB;
                 rc = X.getField(&mB, &error, false, f3, f2, f1);
                 ASSERT(!rc);
-                ASSERT(VA == B.asElemRef());
+                ASSERT(FLD_TYPE == S.dataType());
+                ASSERT(&fd      == S.fieldDef());
+                ASSERT(0        == S.recordConstraint());
+                ASSERT(VA       == B.asElemRef());
                 ASSERT(!S.isNull());
               } break;
               case 4: {

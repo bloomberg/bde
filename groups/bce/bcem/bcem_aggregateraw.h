@@ -840,6 +840,7 @@ class bcem_AggregateRaw {
         // returned if this aggregate refers to a null array.
 
     int size() const;
+        // TBD: Remove one of length/size
         // Equivalent to 'length()' (STL-style).
 
     int numSelections() const;
@@ -907,15 +908,6 @@ class bcem_AggregateRaw {
         // Return the type of data referenced by this aggregate.  Return
         // 'bdem_ElemType::BDEM_VOID' for a void or error aggregate.
 
-    const bdem_RecordDef& recordDef() const;
-        // Return a reference providing non-modifiable access to the record
-        // definition that describes the structure of the object referenced by
-        // this aggregate.  The behavior is undefined unless this aggregate
-        // references a constrained list, constrained table, or constrained
-        // choice object.  Note that 'recordConstraint' should be preferred if
-        // there is any doubt as to whether this aggregate has a record
-        // definition.
-
     const bdem_RecordDef *recordConstraint() const;
         // Return the address of the non-modifiable record definition that
         // describes the structure of the object referenced by this aggregate,
@@ -938,11 +930,6 @@ class bcem_AggregateRaw {
         // 'fieldDef()->elemType()' will return the *array* type, not the
         // *item* type (i.e., 'fieldDef()->elemType()' will not match
         // 'dataType()').
-
-    const bdem_RecordDef *recordDefPtr() const;
-        // Return the address of the non-modifiable record definition for the
-        // object referenced by this aggregate, or 0 if this aggregate is
-        // empty, unconstrained, or represents a scalar or scalar array.
 
     const void *data() const;
         // Return the address of the non-modifiable data referenced by this
@@ -1664,7 +1651,7 @@ int bcem_AggregateRaw_BdeatUtil::manipulateField(
                                                 MANIPULATOR&       manipulator,
                                                 int                fieldIndex)
 {
-    if (! parent->recordDefPtr()) {
+    if (! parent->recordConstraint()) {
         return -1;                                                    // RETURN
     }
 
@@ -1674,7 +1661,7 @@ int bcem_AggregateRaw_BdeatUtil::manipulateField(
         return -1;                                                    // RETURN
     }
 
-    bcem_AggregateRaw_BdeatInfo info(parent->recordDefPtr(), fieldIndex);
+    bcem_AggregateRaw_BdeatInfo info(parent->recordConstraint(), fieldIndex);
 
     if (info.isNullable()) {
         NullableAdapter adapter = { &field };
@@ -1692,7 +1679,7 @@ int bcem_AggregateRaw_BdeatUtil::accessField(
                                            ACCESSOR&                accessor,
                                            int                      fieldIndex)
 {
-    if (! parent.recordDefPtr()) {
+    if (! parent.recordConstraint()) {
         return -1;                                                    // RETURN
     }
 
@@ -1702,7 +1689,7 @@ int bcem_AggregateRaw_BdeatUtil::accessField(
         return -1;                                                    // RETURN
     }
 
-    bcem_AggregateRaw_BdeatInfo info(parent.recordDefPtr(), fieldIndex);
+    bcem_AggregateRaw_BdeatInfo info(parent.recordConstraint(), fieldIndex);
 
     // If a field is nullable but also has a default value, then we treat
     // it as non-nullable to avoid suppressing access to special (null)
@@ -2021,9 +2008,9 @@ int bdeat_sequenceManipulateAttribute(bcem_AggregateRaw *object,
     }
 
     int fieldIndex = bcem_AggregateRaw_BdeatUtil::fieldIndexFromName(
-                                                          object->recordDef(),
-                                                          attributeName,
-                                                          attributeNameLength);
+                                                   *object->recordConstraint(),
+                                                   attributeName,
+                                                   attributeNameLength);
 
     if (fieldIndex < 0) {
         return -1;                                                    // RETURN
@@ -2046,7 +2033,7 @@ int bdeat_sequenceManipulateAttribute(bcem_AggregateRaw *object,
         return -1;                                                    // RETURN
     }
 
-    int fieldIndex = object->recordDef().fieldIndex(attributeId);
+    int fieldIndex = object->recordConstraint()->fieldIndex(attributeId);
 
     if (fieldIndex < 0) {
         return -1;                                                    // RETURN
@@ -2067,7 +2054,7 @@ int bdeat_sequenceManipulateAttributes(bcem_AggregateRaw *object,
         return -1;                                                    // RETURN
     }
 
-    const int numAttr = object->recordDef().numFields();
+    const int numAttr = object->recordConstraint()->numFields();
     int ret = 0;
     for (int index = 0; 0 == ret && index < numAttr; ++index) {
         ret = bcem_AggregateRaw_BdeatUtil::manipulateField(object,
@@ -2094,9 +2081,9 @@ int bdeat_sequenceAccessAttribute(
     }
 
     int fieldIndex = bcem_AggregateRaw_BdeatUtil::fieldIndexFromName(
-                                                          object.recordDef(),
-                                                          attributeName,
-                                                          attributeNameLength);
+                                                    *object.recordConstraint(),
+                                                    attributeName,
+                                                    attributeNameLength);
 
     if (fieldIndex < 0) {
         return -1;                                                    // RETURN
@@ -2119,7 +2106,7 @@ int bdeat_sequenceAccessAttribute(const bcem_AggregateRaw& object,
         return -1;                                                    // RETURN
     }
 
-    int fieldIndex = object.recordDef().fieldIndex(attributeId);
+    int fieldIndex = object.recordConstraint()->fieldIndex(attributeId);
 
     if (fieldIndex < 0) {
         return -1;                                                    // RETURN
@@ -2140,7 +2127,7 @@ int bdeat_sequenceAccessAttributes(const bcem_AggregateRaw& object,
         return -1;                                                    // RETURN
     }
 
-    const int numAttr = object.recordDef().numFields();
+    const int numAttr = object.recordConstraint()->numFields();
     int ret = 0;
     for (int index = 0; 0 == ret && index < numAttr; ++index) {
         ret = bcem_AggregateRaw_BdeatUtil::accessField(object,
@@ -2164,9 +2151,9 @@ bool bdeat_sequenceHasAttribute(const bcem_AggregateRaw&  object,
     }
 
     return 0 <= bcem_AggregateRaw_BdeatUtil::fieldIndexFromName(
-                                                          object.recordDef(),
-                                                          attributeName,
-                                                          attributeNameLength);
+                                                    *object.recordConstraint(),
+                                                    attributeName,
+                                                    attributeNameLength);
 }
 
 inline
@@ -3315,23 +3302,11 @@ const bdem_Schema *bcem_AggregateRaw::schema() const
 }
 
 inline
-const bdem_RecordDef& bcem_AggregateRaw::recordDef() const
-{
-    return *d_recordDef;
-}
-
-inline
-const bdem_RecordDef *bcem_AggregateRaw::recordDefPtr() const
+const bdem_RecordDef *bcem_AggregateRaw::recordConstraint() const
 {
     if (0 == d_schema_p) {
         return 0;                                                     // RETURN
     }
-    return d_recordDef;
-}
-
-inline
-const bdem_RecordDef *bcem_AggregateRaw::recordConstraint() const
-{
     return d_recordDef;
 }
 

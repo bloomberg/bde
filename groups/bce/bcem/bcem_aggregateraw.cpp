@@ -471,7 +471,7 @@ int bcem_AggregateRaw_BdeatUtil::manipulateField(
     BSLS_ASSERT_SAFE(parent);
     BSLS_ASSERT_SAFE(0 <= fieldIndex);
 
-    if (! parent->recordDefPtr()) {
+    if (! parent->recordConstraint()) {
         return -1;                                                    // RETURN
     }
 
@@ -481,7 +481,7 @@ int bcem_AggregateRaw_BdeatUtil::manipulateField(
         return -1;                                                    // RETURN
     }
 
-    bcem_AggregateRaw_BdeatInfo info(parent->recordDefPtr(), fieldIndex);
+    bcem_AggregateRaw_BdeatInfo info(parent->recordConstraint(), fieldIndex);
 
     return manipulator(&field, info);
 }
@@ -2364,8 +2364,8 @@ bool bcem_AggregateRaw::areEquivalent(const bcem_AggregateRaw& lhs,
     }
     else if (lhs.recordConstraint() && rhs.recordConstraint()) {
         if (lhs.recordConstraint() != rhs.recordConstraint()
-         && ! bdem_SchemaUtil::areEquivalent(lhs.recordDef(),
-                                             rhs.recordDef())) {
+         && ! bdem_SchemaUtil::areEquivalent(*lhs.recordConstraint(),
+                                             *rhs.recordConstraint())) {
 
             // different record definitions
 
