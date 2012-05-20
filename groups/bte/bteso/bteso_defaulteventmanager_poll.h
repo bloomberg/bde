@@ -282,7 +282,8 @@ BDES_IDENT("$Id: $")
     || defined(BDES_PLATFORM__OS_FREEBSD) \
     || defined(BSLS_PLATFORM__OS_AIX)     \
     || defined(BSLS_PLATFORM__OS_HPUX)    \
-    || defined(BSLS_PLATFORM__OS_CYGWIN)
+    || defined(BSLS_PLATFORM__OS_CYGWIN)  \
+    || defined(BSLS_PLATFORM__OS_DARWIN)
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>

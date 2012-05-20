@@ -705,6 +705,42 @@ int baea_PerformanceMonitor::Collector<bsls_Platform::OsFreeBsd>::collect(
     return 0;
 }
 
+#elif defined(BSLS_PLATFORM__OS_DARWIN)
+
+template <>
+class baea_PerformanceMonitor::Collector<bsls_Platform::OsDarwin> {
+    // Provide a specialization of the 'Collector' class template for the
+    // Darwin platform.
+
+  public:
+    // CREATORS
+    Collector(bslma_Allocator *basicAllocator = 0)
+        // Create an instance of this class.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+    {}
+
+    // METHODS
+
+    int initialize(baea_PerformanceMonitor::Statistics *stats,
+                   int                                  pid,
+                   const bsl::string&                   description)
+        // Initialize the specified 'stats' to represent the specified 'pid'
+        // having the specified user-defined 'description'.  Return 0 on
+        // success or a non-zero value otherwise.
+    {
+        return -1;
+    }
+
+    int collect(baea_PerformanceMonitor::Statistics *stats)
+        // Load into the specified 'stats' the performance statistics collected
+        // for the pid associated with 'stats'.  Return 0 on success or a
+        // non-zero value otherwise.
+    {
+        return -1;
+    }
+};
+
 #elif defined(BSLS_PLATFORM__OS_UNIX)
 
 template <>

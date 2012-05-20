@@ -18,7 +18,7 @@
 #include <bsl_cstring.h>
 #include <bsl_cmath.h>
 
-#include <malloc.h>
+#include <stdlib.h>
 
 using namespace BloombergLP;
 
