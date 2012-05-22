@@ -5,7 +5,7 @@
 #include <baesu_stackaddressutil.h>
 #include <baesu_stacktrace.h>
 
-// #include <bcemt_threadutil.h> // TBDBCE
+#include <bcemt_threadutil.h>
 
 #include <bdef_function.h>
 #include <bdema_sequentialallocator.h>
@@ -1386,7 +1386,6 @@ int main(int argc, char *argv[])
         //   we know it's safe.
         // --------------------------------------------------------------------
 
-#if 0 // TDBBCE
         if (verbose) cout << "Multithreaded Test\n"
                              "==================\n";
 
@@ -1407,7 +1406,6 @@ int main(int argc, char *argv[])
             int rc = bcemt_ThreadUtil::join(handles[i]);
             ASSERT(0 == rc);
         }
-#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
