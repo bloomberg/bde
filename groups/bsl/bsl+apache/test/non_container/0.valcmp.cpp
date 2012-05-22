@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <valcmp.h>
@@ -49,7 +49,7 @@ test_case (const T* /* dummy */, const U* /* dummy */,
     typedef unsigned char UChar;
 
     for (size_t i = 0; i != nelems; ++i) {
-        buf1 [i] = T (_RWSTD_STATIC_CAST (UChar, str1 [i])); 
+        buf1 [i] = T (_RWSTD_STATIC_CAST (UChar, str1 [i]));
         buf2 [i] = U (_RWSTD_STATIC_CAST (UChar, str2 [i]));
    }
 
@@ -220,7 +220,7 @@ test_all_cases (const T* /* dummy */, const U* /* dummy */,
                 const char *tname, const char *uname)
 {
     // print out the name of the specialization being tested
-    static const int one_time_per_specialization = 
+    static const int one_time_per_specialization =
         printf ("rw_valcmp(const %s*, const %s*, size_t, int)\n",
                 tname, uname);
 

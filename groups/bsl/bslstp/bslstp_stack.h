@@ -87,10 +87,10 @@ public:
   explicit stack(const _Sequence& __s) : _M_s(__s) {}
 
   // Constructors with allocator.
-  explicit stack(BloombergLP::bslma_Allocator *__alloc) : _M_s(__alloc) {}
-  stack(const _Sequence& __s, BloombergLP::bslma_Allocator *__alloc)
+  explicit stack(BloombergLP::bslma::Allocator *__alloc) : _M_s(__alloc) {}
+  stack(const _Sequence& __s, BloombergLP::bslma::Allocator *__alloc)
       : _M_s(__s, __alloc) {}
-  stack(const stack& original, BloombergLP::bslma_Allocator *__alloc = 0)
+  stack(const stack& original, BloombergLP::bslma::Allocator *__alloc = 0)
       : _M_s(original._M_s, __alloc) {}
 
   /*explicit stack(__full_move_source<_Self> src)

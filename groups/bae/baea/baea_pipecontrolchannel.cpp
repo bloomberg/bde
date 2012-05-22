@@ -29,7 +29,7 @@ BDES_IDENT_RCSID(baea_pipecontrolchannel_cpp,"$Id$ $CSID$")
 #include <bsl_c_errno.h>
 #include <fcntl.h>
 #include <poll.h>
-#ifndef BDES_PLATFORM__OS_FREEBSD
+#if !defined(BDES_PLATFORM__OS_FREEBSD) && !defined(BDES_PLATFORM__OS_DARWIN)
 #include <stropts.h>  // not sure what this is necessary on UNIX
 #endif
 #include <sys/file.h>

@@ -1,4 +1,4 @@
-// bslalg_typetraitbitwiseequalitycomparable.t.cpp                  -*-C++-*-
+// bslalg_typetraitbitwiseequalitycomparable.t.cpp                    -*-C++-*-
 
 #include <bslalg_typetraitbitwiseequalitycomparable.h>
 
@@ -65,7 +65,7 @@ int verbose = 0;
 int veryVerbose = 0;
 int veryVeryVerbose = 0;
 
-typedef bslalg_TypeTraitBitwiseEqualityComparable  Obj;
+typedef bslalg::TypeTraitBitwiseEqualityComparable  Obj;
 
 //=============================================================================
 //                  USAGE EXAMPLE
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitBitwiseEqualityComparable;
+        //   class bslalg::TypeTraitBitwiseEqualityComparable;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

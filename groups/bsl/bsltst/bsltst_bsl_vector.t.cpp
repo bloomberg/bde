@@ -1,4 +1,4 @@
-// bsltst_vector.t.cpp                  -*-C++-*-
+// bsltst_vector.t.cpp                                                -*-C++-*-
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif
@@ -131,11 +131,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================
@@ -144,24 +144,24 @@ bool usesBslmaAllocator(const TYPE& arg)
 
 struct Cargo {
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
     enum {
         BALLAST_SIZE = 4000
     };
 
-    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
     explicit
-    Cargo(bslma_Allocator *a = 0) {
+    Cargo(bslma::Allocator *a = 0) {
         QV_("Default:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BALLAST_SIZE);
     }
-    Cargo(const Cargo& in, bslma_Allocator* a = 0) {
+    Cargo(const Cargo& in, bslma::Allocator* a = 0) {
         QV_("Copy:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BALLAST_SIZE);
         std::memcpy(d_p, in.d_p, BALLAST_SIZE);
     }
@@ -197,10 +197,10 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator ta(veryVeryVerbose);
-    bslma_TestAllocator tda(veryVeryVerbose);
+    bslma::TestAllocator ta(veryVeryVerbose);
+    bslma::TestAllocator tda(veryVeryVerbose);
 
-    bslma_DefaultAllocatorGuard defaultGuard(&tda);
+    bslma::DefaultAllocatorGuard defaultGuard(&tda);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
@@ -421,7 +421,7 @@ int main(int argc, char *argv[])
             int calcMem = memUsed + 10 * Cargo::BALLAST_SIZE +
                                                       10 * (int) sizeof(Cargo);
             LOOP3_ASSERT(ta.numBytesInUse(), calcMem, memUsed,
-                                                ta.numBytesInUse() >= calcMem);
+                         ta.numBytesInUse() >= calcMem);
             ASSERT(tda.numBytesInUse() == defaultMemUsed);
         }
 
@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
             int calcMem = memUsed + 10 * Cargo::BALLAST_SIZE +
                                                       10 * (int) sizeof(Cargo);
             LOOP3_ASSERT(ta.numBytesInUse(), calcMem, memUsed,
-                                                ta.numBytesInUse() >= calcMem);
+                         ta.numBytesInUse() >= calcMem);
             ASSERT(tda.numBytesInUse() == defaultMemUsed);
         }
 
@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
 
         ASSERT(true  == sameType(bsl::vector<int>(), std::vector<int>()));
         ASSERT(false == sameType(bsl::vector<int>(),
-                                                   native_std::vector<int>()));
+                                 native_std::vector<int>()));
         ASSERT(true  == usesBslmaAllocator(bsl::vector<int>()));
         ASSERT(true  == usesBslmaAllocator(std::vector<int>()));
         ASSERT(false == usesBslmaAllocator(native_std::vector<int>()));

@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2005 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -44,7 +44,7 @@ _TEST_EXPORT int gen_seq ()
 }
 
 
-// generate numbers in the sequence 0, 0, 1, 1, 2, 2, 3, 3, etc... 
+// generate numbers in the sequence 0, 0, 1, 1, 2, 2, 3, 3, etc...
 _TEST_EXPORT int gen_seq_2lists ()
 {
     static int vals [2];
@@ -63,7 +63,7 @@ _TEST_EXPORT int gen_subseq ()
 
 
 // wrapper around a (possibly) extern "C" int rand()
-// extern "C++" 
+// extern "C++"
 _TEST_EXPORT int gen_rnd ()
 {
     return rand ();

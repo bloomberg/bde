@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a range proctor to manage an array of objects.
 //
 //@CLASSES:
-//   bslma_AutoDestructor: range proctor to manage an array of objects
+//  bslma::AutoDestructor: range proctor to manage an array of objects
 //
 //@AUTHOR: Shao-wei Hung (shung1), Arthur Chiu (achiu21)
 //
@@ -27,17 +27,17 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// 'bslma_AutoDestructor' is normally used to achieve *exception* *safety*
+// 'bslma::AutoDestructor' is normally used to achieve *exception* *safety*
 // in an *exception* *neutral* way by automatically destroying
 // (otherwise-unmanaged) orphaned objects for an "in-place" array should an
 // exception occur.  The following example illustrates the insertion operation
 // for a generic array.  Assume that the array initially contains the following
 // five elements:
 //..
-//                 0     1     2     3     4
-//               _____ _____ _____ _____ _____ __
-//              | "A" | "B" | "C" | "D" | "E" |
-//              `=====^=====^=====^=====^=====^==
+//     0     1     2     3     4
+//   _____ _____ _____ _____ _____ __
+//  | "A" | "B" | "C" | "D" | "E" |
+//  `=====^=====^=====^=====^=====^==
 //..
 // To insert an element "F" at index position 2, the existing elements at index
 // positions 2, 3, and 4 (i.e., "C", "D", and "E") are first shifted right to
@@ -46,20 +46,20 @@ BSLS_IDENT("$Id: $")
 // shifted one by one by invoking the copy constructor (immediately followed by
 // destroying the original elements).  However, should any of the copy
 // construction operations throw, all allocated resources from every previous
-// copy construction would be leaked.  Using the 'bslma_AutoDestructor'
+// copy construction would be leaked.  Using the 'bslma::AutoDestructor'
 // prevents the leak by invoking the destructor of each of the previously
 // copied elements should the proctor go out of scope before the 'release'
 // method of the proctor is called (such as when the function exits prematurely
 // due to an exception):
 //..
-//                 0     1     2     3     4     5     6
-//               _____ _____ _____ _____ _____ _____ _____
-//              | "A" | "B" | "C" | "D" | "E" |xxxxx|xxxxx|
-//              `=====^=====^=====^=====^=====^=====^====='
-//              my_Array                            ^----- bslma_AutoDestructor
-//              (length = 5)                           (origin = 6, length = 0)
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  | "A" | "B" | "C" | "D" | "E" |xxxxx|xxxxx|
+//  `=====^=====^=====^=====^=====^=====^====='
+//  my_Array                            ^----- bslma::AutoDestructor
+//  (length = 5)                           (origin = 6, length = 0)
 //
-//               Note: "xxxxx" denotes uninitialized memory.
+//   Note: "xxxxx" denotes uninitialized memory.
 //..
 // As each of the elements at index positions beyond the insertion position is
 // shifted up by one index position, the proctor (i.e., the proctor's length)
@@ -70,26 +70,26 @@ BSLS_IDENT("$Id: $")
 // always being managed (during an allocation attempt) either by the proctor or
 // the array itself, but not both:
 //..
-//                 0     1     2     3     4     5     6
-//               _____ _____ _____ _____ _____ _____ _____
-//              | "A" | "B" | "C" | "D" |xxxxx| "E" |xxxxx|
-//              `=====^=====^=====^=====^=====^=====^====='
-//              my_Array                      ^----------- bslma_AutoDestructor
-//              (length = 4)                          (origin = 6, length = -1)
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  | "A" | "B" | "C" | "D" |xxxxx| "E" |xxxxx|
+//  `=====^=====^=====^=====^=====^=====^====='
+//  my_Array                      ^----------- bslma::AutoDestructor
+//  (length = 4)                          (origin = 6, length = -1)
 //
-//               Note: Configuration after shifting up one element.
+//   Note: Configuration after shifting up one element.
 //..
-// When all elements are shifted, the 'bslma_AutoDestructor' will protect the
+// When all elements are shifted, the 'bslma::AutoDestructor' will protect the
 // entire range of shifted objects:
 //..
-//                0     1     2     3     4     5     6
-//              _____ _____ _____ _____ _____ _____ _____
-//             | "A" | "B" |xxxxx| "C" | "D" | "E" |xxxxx|
-//             `=====^=====^=====^=====^=====^=====^====='
-//             my_Array          ^----------------------- bslma_AutoDestructor
-//             (length = 2)                           (origin = 6, length = -3)
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  | "A" | "B" |xxxxx| "C" | "D" | "E" |xxxxx|
+//  `=====^=====^=====^=====^=====^=====^====='
+//  my_Array          ^----------------------- bslma::AutoDestructor
+//  (length = 2)                           (origin = 6, length = -3)
 //
-//               Note: Configuration after shifting up three elements.
+//    Note: Configuration after shifting up three elements.
 //..
 // Next, a new copy of element "F" must be created.  If, during creation, an
 // allocation fails and an exception is thrown, the array (now of length 2) is
@@ -107,20 +107,20 @@ BSLS_IDENT("$Id: $")
 //      // parameterized 'TYPE' stored contiguously in memory.
 //
 //      // DATA
-//      TYPE            *d_array_p;      // dynamically allocated array
-//      int              d_length;       // logical length of this array
-//      int              d_size;         // physical capacity of this array
-//      bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+//      TYPE             *d_array_p;      // dynamically allocated array
+//      int               d_length;       // logical length of this array
+//      int               d_size;         // physical capacity of this array
+//      bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 //
 //    public:
 //      // CREATORS
-//      my_Array(bslma_Allocator *basicAllocator = 0);
+//      my_Array(bslma::Allocator *basicAllocator = 0);
 //          // Create a 'my_Array' object having an initial length and capacity
 //          // of 0.  Optionally specify a 'basicAllocator' used to supply
 //          // memory.  If 'basicAllocator' is 0, the currently installed
 //          // default allocator is used.
 //
-//      my_Array(int initialCapacity, bslma_Allocator *basicAllocator = 0);
+//      my_Array(int initialCapacity, bslma::Allocator *basicAllocator = 0);
 //          // Create a 'my_Array' object having an initial length of 0 and
 //          // the specified 'initialCapacity'.  Optionally specify a
 //          // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
@@ -148,16 +148,16 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that the rest of the 'my_Array' interface (above) and implementation
 // (below) is omitted as the portion shown is sufficient to demonstrate the use
-// of 'bslma_AutoDestructor'.
+// of 'bslma::AutoDestructor'.
 //..
 //  // CREATORS
 //  template <class TYPE>
 //  inline
-//  my_Array<TYPE>::my_Array(bslma_Allocator *basicAllocator)
+//  my_Array<TYPE>::my_Array(bslma::Allocator *basicAllocator)
 //  : d_array_p(0)
 //  , d_length(0)
 //  , d_size(0)
-//  , d_allocator_p(bslma_Default::allocator(basicAllocator))
+//  , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //  {
 //  }
 //
@@ -172,7 +172,7 @@ BSLS_IDENT("$Id: $")
 //..
 // The elided implementation of the following 'insert' function (which shows
 // code for the case above, i.e., there is sufficient capacity) is sufficient
-// to illustrate the use of 'bslma_AutoDestructor':
+// to illustrate the use of 'bslma::AutoDestructor':
 //..
 //  // MANIPULATORS
 //  template <class TYPE>
@@ -196,7 +196,7 @@ BSLS_IDENT("$Id: $")
 //      // Note the use of the auto destructor on 'd_array_p' (below). *
 //      //**************************************************************
 //
-//      bslma_AutoDestructor<TYPE> autoDtor(&d_array_p[d_length + 1], 0);
+//      bslma::AutoDestructor<TYPE> autoDtor(&d_array_p[d_length + 1], 0);
 //      int origLen = d_length;
 //      for (int i = d_length - 1; i >= dstIndex; --i, --autoDtor,
 //                                                                --d_length) {
@@ -219,7 +219,7 @@ BSLS_IDENT("$Id: $")
 // Note that the 'insert' method assumes the copy constructor of 'TYPE' takes
 // an allocator as a second argument.  In production code, a constructor proxy
 // that checks the traits of 'TYPE' (to determine whether 'TYPE' indeed uses
-// 'bslma_Allocator') should be used (see 'bslalg_constructorproxy').
+// 'bslma::Allocator') should be used (see 'bslalg_constructorproxy').
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -235,12 +235,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ==========================
-                        // class bslma_AutoDestructor
-                        // ==========================
+namespace bslma {
+
+                        // ====================
+                        // class AutoDestructor
+                        // ====================
 
 template <class TYPE>
-class bslma_AutoDestructor {
+class AutoDestructor {
     // This class implements a range proctor that, unless its 'release' method
     // has previously been invoked, automatically destroys the contiguous
     // sequence of managed objects upon its own destruction by invoking each
@@ -255,8 +257,8 @@ class bslma_AutoDestructor {
     int   d_length;    // number of objects to manage (sign encodes direction)
 
     // NOT IMPLEMENTED
-    bslma_AutoDestructor(const bslma_AutoDestructor&);
-    bslma_AutoDestructor& operator=(const bslma_AutoDestructor&);
+    AutoDestructor(const AutoDestructor&);
+    AutoDestructor& operator=(const AutoDestructor&);
 
   private:
     // PRIVATE MANIPULATORS
@@ -271,7 +273,7 @@ class bslma_AutoDestructor {
 
   public:
     // CREATORS
-    bslma_AutoDestructor(TYPE *origin, int length = 0);
+    AutoDestructor(TYPE *origin, int length = 0);
         // Create a range proctor to manage an array of objects at the
         // specified 'origin'.  Optionally specify 'length' to define its
         // range, which by default is empty (i.e., 'length = 0').  The sequence
@@ -300,7 +302,7 @@ class bslma_AutoDestructor {
         //             ^------------ origin           ^------------ origin
         //..
 
-    ~bslma_AutoDestructor();
+    ~AutoDestructor();
         // Destroy this range proctor along with the contiguous sequence of
         // objects it manages (if any) by invoking the destructor of each
         // (managed) object.  Note that the order in which the managed objects
@@ -361,13 +363,13 @@ class bslma_AutoDestructor {
 //                      TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // --------------------------
-                        // class bslma_AutoDestructor
-                        // --------------------------
+                        // --------------------
+                        // class AutoDestructor
+                        // --------------------
 
 // PRIVATE MANIPULATORS
 template <class TYPE>
-void bslma_AutoDestructor<TYPE>::destroy()
+void AutoDestructor<TYPE>::destroy()
 {
     if (0 < d_length) {
         for (; d_length > 0; --d_length, ++d_origin_p) {
@@ -385,7 +387,7 @@ void bslma_AutoDestructor<TYPE>::destroy()
 // CREATORS
 template <class TYPE>
 inline
-bslma_AutoDestructor<TYPE>::bslma_AutoDestructor(TYPE *origin, int length)
+AutoDestructor<TYPE>::AutoDestructor(TYPE *origin, int length)
 : d_origin_p(origin)
 , d_length(length)
 {
@@ -394,7 +396,7 @@ bslma_AutoDestructor<TYPE>::bslma_AutoDestructor(TYPE *origin, int length)
 
 template <class TYPE>
 inline
-bslma_AutoDestructor<TYPE>::~bslma_AutoDestructor()
+AutoDestructor<TYPE>::~AutoDestructor()
 {
     BSLS_ASSERT_SAFE(d_origin_p || !d_length);
 
@@ -406,7 +408,7 @@ bslma_AutoDestructor<TYPE>::~bslma_AutoDestructor()
 // MANIPULATORS
 template <class TYPE>
 inline
-void bslma_AutoDestructor<TYPE>::operator++()
+void AutoDestructor<TYPE>::operator++()
 {
     BSLS_ASSERT_SAFE(d_origin_p);
 
@@ -415,7 +417,7 @@ void bslma_AutoDestructor<TYPE>::operator++()
 
 template <class TYPE>
 inline
-void bslma_AutoDestructor<TYPE>::operator--()
+void AutoDestructor<TYPE>::operator--()
 {
     BSLS_ASSERT_SAFE(d_origin_p);
 
@@ -424,14 +426,14 @@ void bslma_AutoDestructor<TYPE>::operator--()
 
 template <class TYPE>
 inline
-void bslma_AutoDestructor<TYPE>::release()
+void AutoDestructor<TYPE>::release()
 {
     d_length = 0;
 }
 
 template <class TYPE>
 inline
-void bslma_AutoDestructor<TYPE>::reset(TYPE *origin)
+void AutoDestructor<TYPE>::reset(TYPE *origin)
 {
     BSLS_ASSERT_SAFE(origin);
 
@@ -440,7 +442,7 @@ void bslma_AutoDestructor<TYPE>::reset(TYPE *origin)
 
 template <class TYPE>
 inline
-void bslma_AutoDestructor<TYPE>::setLength(int length)
+void AutoDestructor<TYPE>::setLength(int length)
 {
     BSLS_ASSERT_SAFE(d_origin_p);
 
@@ -450,12 +452,24 @@ void bslma_AutoDestructor<TYPE>::setLength(int length)
 // ACCESSORS
 template <class TYPE>
 inline
-int bslma_AutoDestructor<TYPE>::length() const
+int AutoDestructor<TYPE>::length() const
 {
     return d_length;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_AutoDestructor
+#undef bslma_AutoDestructor
+#endif
+#define bslma_AutoDestructor bslma::AutoDestructor
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

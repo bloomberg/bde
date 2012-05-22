@@ -1,4 +1,4 @@
-// bslalg_dequeiterator.t.cpp                  -*-C++-*-
+// bslalg_dequeiterator.t.cpp                                         -*-C++-*-
 
 #include <bslalg_dequeiterator.h>
 #include <bslalg_scalarprimitives.h>
@@ -48,6 +48,7 @@ void aSsErT(int c, const char *s, int i) {
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+
 }  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -89,7 +90,7 @@ inline void dbg_print(const char* s) { printf("\"%s\"", s); fflush(stdout); }
 // Iterator-specific print function.
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 void
-dbg_print(const bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
+dbg_print(const bslalg::DequeIterator<VALUE_TYPE, BLOCK_LENGTH>& iter)
 {
     if (iter.blockPtr() && iter.valuePtr()) {
 #ifdef BSLS_PLATFORM__CPU_64_BIT
@@ -135,11 +136,11 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 struct TestDriver {
 
     // PUBLIC TYPES
-    typedef bslalg_DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>         DequeImpUtil;
+    typedef bslalg::DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>        DequeImpUtil;
     typedef typename DequeImpUtil::Block                          Block;
     typedef typename DequeImpUtil::BlockPtr                       BlockPtr;
 
-    typedef bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>        Obj;
+    typedef bslalg::DequeIterator<VALUE_TYPE, BLOCK_LENGTH>       Obj;
         // Type of iterator object under test.
 
     // TEST APPARATUS
@@ -323,10 +324,10 @@ void TestDriver<VALUE_TYPE, BLOCK_LENGTH>::testCase1()
     if (verbose) printf("\n 3) Set x1 to the first iterator value."
                         "\t\t\t{ x1:A x2: }\n");
 
-    bslalg_ScalarDestructionPrimitives::destroy(&mX1);
-    bslalg_ScalarPrimitives::construct(&mX1,
-                                       VALUES[0].blockPtr(),
-                                       VALUES[0].valuePtr());
+    bslalg::ScalarDestructionPrimitives::destroy(&mX1);
+    bslalg::ScalarPrimitives::construct(&mX1,
+                                        VALUES[0].blockPtr(),
+                                        VALUES[0].valuePtr());
     if (verbose) { T_;  P(X1); }
 
     if (verbose) printf(
@@ -532,7 +533,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'bslstl_DequeIterator' TEMPLATE
+        // TESTING 'bslstl::DequeIterator' TEMPLATE
         //
         // Concerns:
         //
@@ -543,11 +544,11 @@ int main(int argc, char *argv[])
         //   that exercise the various branches and boundary conditions.
         //
         // Testing:
-        //   class template 'bslstl_DequeIterator'
+        //   class template 'bslstl::DequeIterator'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslalg_DequeIterator"
-                            "\n=============================\n");
+        if (verbose) printf("\nTESTING 'bslalg::DequeIterator"
+                            "\n==============================\n");
 
       } break;
       case 1: {

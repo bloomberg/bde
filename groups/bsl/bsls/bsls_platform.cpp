@@ -4,15 +4,15 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-                        // -------------------
-                        // class bsls_Platform
-                        // -------------------
+                        // --------------------
+                        // class bsls::Platform
+                        // --------------------
 
-// This class has no implementation; it is merely a place-holder for
-// this component's logical name space.
+// This class has no implementation; it is merely a place-holder for this
+// component's logical name space.
 
-// The compiler flags set up by the 'bsls_platform' header file will be
-// sanity checked against those those passed in by the build tool.
+// The compiler flags set up by the 'bsls_platform' header file will be sanity
+// checked against those those passed in by the build tool.
 
 // Ensure compiler flags are set when they have to be.
 #if defined(BSLS_PLATFORM__CMP_MSVC)

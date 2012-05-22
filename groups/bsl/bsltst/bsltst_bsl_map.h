@@ -1,4 +1,4 @@
-// bsltst_bsl_map.h   -*-C++-*-
+// bsltst_bsl_map.h                                                   -*-C++-*-
 #ifndef INCLUDED_BSLTST_BSL_MAP
 #define INCLUDED_BSLTST_BSL_MAP
 
@@ -14,8 +14,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides testing for the map template
-// configuring the include files for bsl mode, in which 'std' is #define'd
-// to 'bsl'.  The std namespace is still accessible as 'native_std'.
+// configuring the include files for bsl mode, in which 'std' is #define'd to
+// 'bsl'.  The std namespace is still accessible as 'native_std'.
 //
 ///Usage
 ///-----

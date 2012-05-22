@@ -12,6 +12,7 @@
 
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_cstring.h>     // strlen()
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -128,8 +129,6 @@ void aSsErT(int c, const char *s, int i)
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -509,8 +508,6 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -1695,8 +1692,6 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 

@@ -1,4 +1,4 @@
-// bsls_exceptionutil.t.cpp                  -*-C++-*-
+// bsls_exceptionutil.t.cpp                                           -*-C++-*-
 
 #include <bsls_exceptionutil.h>
 #include <bsls_platform.h>

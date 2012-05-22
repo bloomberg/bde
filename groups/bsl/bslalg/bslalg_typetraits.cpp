@@ -1,4 +1,4 @@
-// bslalg_typetraits.cpp                  -*-C++-*-
+// bslalg_typetraits.cpp                                              -*-C++-*-
 #include <bslalg_typetraits.h>
 
 #include <bsls_ident.h>
@@ -13,16 +13,16 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'bslalg_TypeTraits' for that type.  The following traits are assigned
 // automatically:
 //
-// - Fundamental, pointer, and enumeration types are assigned the traits in
-//   the 'bslalg_TypeTraitGroupPod' (that is,
-//   'bslalg_TypeTraitBitwiseCopyable', 'bslalg_TypeTraitBitwiseMoveable',
-//   'bslalg_TypeTraitHasTrivialDefaultConstructor'), as well as
-//   'bslalg_TypeTraitBitwiseEqualityComparable'.
+// - Fundamental, pointer, and enumeration types are assigned the traits in the
+// 'bslalg::TypeTraitGroupPod' (that is, 'bslalg::TypeTraitBitwiseCopyable',
+// 'bslalg::TypeTraitBitwiseMoveable',
+// 'bslalg::TypeTraitHasTrivialDefaultConstructor'), as well as
+// 'bslalg::TypeTraitBitwiseEqualityComparable'.
 //
 // - Class types that contain an invocation of the
-//   'BSLALG_DECLARE_NESTED_TRAITS' macros have traits assigned as per that
-//   macro.  The macro is a simple way to assign traits and avoids the need to
-//   use extensive partial specialization to define 'bslalg_TypeTraits<T>'.
+// 'BSLALG_DECLARE_NESTED_TRAITS' macros have traits assigned as per that
+// macro.  The macro is a simple way to assign traits and avoids the need to
+// use extensive partial specialization to define 'bslalg_TypeTraits<T>'.
 //
 ///Nested Probe:
 ///-------------
@@ -36,28 +36,28 @@ BSLS_IDENT("$Id$ $CSID$")
 // positive.  Other solutions that were considered and the reasons they were
 // eliminated are:
 //
-// - Conversion constructor from special type: Too likely to conflict with
-//   a templated conversion constructor.
+// - Conversion constructor from special type: Too likely to conflict with a
+// templated conversion constructor.
 //
 // - Conversion operator from special type: Internal error on MSVC.
 //
-// - Friend function declaration: requires that class actually be
-//   instantiated to work with Koenig lookup on most compilers.  Did not
-//   work at all (no Koenig lookup) on Sun CC 5.2.  Friend function was
-//   not always instantiated on most other compilers.
+// - Friend function declaration: requires that class actually be instantiated
+// to work with Koenig lookup on most compilers.  Did not work at all (no
+// Koenig lookup) on Sun CC 5.2.  Friend function was not always instantiated
+// on most other compilers.
 //
-// - Other operators: Too likely to collide with use within class,
-//   including hiding base-class operator.
+// - Other operators: Too likely to collide with use within class, including
+// hiding base-class operator.
 //
-// Correspondingly, 'bslalg_TypeTraits_NestedTest::VALUE' invokes the comma
+// Correspondingly, 'bslalg::TypeTraits_NestedTest::VALUE' invokes the comma
 // operator to check for the invasive probe.  The result of the comma operator
-// is either 'bslalg_TypeTraits_NestedYes' or some other type, which is then
+// is either 'bslalg::TypeTraits_NestedYes' or some other type, which is then
 // passed to 'match' to see if the comma operator returns
-// 'bslalg_TypeTraits_NestedYes'.
+// 'bslalg::TypeTraits_NestedYes'.
 
 namespace BloombergLP {
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 #include <string>           // for string
@@ -51,7 +51,7 @@ static const char* const exceptions[] = {
 // exercises:
 // basic_string (void)
 static const StringTestCase
-void_test_cases [] = { 
+void_test_cases [] = {
 
 #define alloc_test_cases    void_test_cases
 
@@ -64,8 +64,8 @@ void_test_cases [] = {
 
     //    +--------------------- dummy argument
     //    |
-    //    V             
-    TEST ("ab"),          
+    //    V
+    TEST ("ab"),
 
     TEST ("last test")
 };
@@ -88,22 +88,22 @@ cptr_test_cases [] = {
 
     //    +----------------------------------------- source sequence
     //    |               +------------------------- expected result sequence
-    //    |               |             
-    //    |               |            
-    //    V               V           
-    TEST ("ab",           "ab"),    
+    //    |               |
+    //    |               |
+    //    V               V
+    TEST ("ab",           "ab"),
 
-    TEST ("",             ""),   
-    TEST ("<U0>",         ""),   
+    TEST ("",             ""),
+    TEST ("<U0>",         ""),
 
-    TEST ("a",            "a"),       
-    TEST ("bcd",          "bcd"),       
-    TEST ("cdefaihjb",    "cdefaihjb"),      
+    TEST ("a",            "a"),
+    TEST ("bcd",          "bcd"),
+    TEST ("cdefaihjb",    "cdefaihjb"),
 
-    TEST ("<U0>@2ab",     ""),  
-    TEST ("a<U0>@2b",     "a"), 
-    TEST ("ab<U0>@2",     "ab"),  
-    TEST ("abefdcc<U0>a", "abefdcc"),  
+    TEST ("<U0>@2ab",     ""),
+    TEST ("a<U0>@2b",     "a"),
+    TEST ("ab<U0>@2",     "ab"),
+    TEST ("abefdcc<U0>a", "abefdcc"),
 
     TEST ("x@128",        "x@128"),
     TEST ("x@207",        "x@207"),
@@ -112,7 +112,7 @@ cptr_test_cases [] = {
     TEST ("x@873",        "x@873"),
     TEST ("x@1412",       "x@1412"),
     TEST ("x@3695",       "x@3695"),
-    TEST ("x@4096",       "x@4096"),     
+    TEST ("x@4096",       "x@4096"),
 
     TEST ("last test",    "last test")
 };
@@ -133,23 +133,23 @@ cstr_test_cases [] = {
 
     //    +----------------------------------------- source sequence
     //    |               +------------------------- expected result sequence
-    //    |               |             
-    //    |               |            
-    //    V               V           
-    TEST ("ab",           "ab"),    
+    //    |               |
+    //    |               |
+    //    V               V
+    TEST ("ab",           "ab"),
 
-    TEST ("",             ""),   
+    TEST ("",             ""),
     TEST ("<U0>",         "<U0>"),
     TEST ("<U0>@2",       "<U0>@2"),
 
-    TEST ("a",            "a"),       
-    TEST ("bcd",          "bcd"),       
-    TEST ("cdefaihjb",    "cdefaihjb"),      
+    TEST ("a",            "a"),
+    TEST ("bcd",          "bcd"),
+    TEST ("cdefaihjb",    "cdefaihjb"),
 
-    TEST ("<U0>@2ab",     "<U0>@2ab"),  
-    TEST ("a<U0>@2b",     "a<U0>@2b"), 
-    TEST ("ab<U0>@2",     "ab<U0>@2"),  
-    TEST ("abefdcc<U0>a", "abefdcc<U0>a"),  
+    TEST ("<U0>@2ab",     "<U0>@2ab"),
+    TEST ("a<U0>@2b",     "a<U0>@2b"),
+    TEST ("ab<U0>@2",     "ab<U0>@2"),
+    TEST ("abefdcc<U0>a", "abefdcc<U0>a"),
 
     TEST ("x@128",        "x@128"),
     TEST ("x@207",        "x@207"),
@@ -158,7 +158,7 @@ cstr_test_cases [] = {
     TEST ("x@873",        "x@873"),
     TEST ("x@1412",       "x@1412"),
     TEST ("x@3695",       "x@3695"),
-    TEST ("x@4096",       "x@4096"),     
+    TEST ("x@4096",       "x@4096"),
 
     TEST ("last test",    "last test")
 };
@@ -182,25 +182,25 @@ cptr_size_test_cases [] = {
     //    +----------------------------------------- source sequence
     //    |               +------------------------- ctor n argument
     //    |               |  +---------------------- expected result sequence
-    //    |               |  |             
-    //    |               |  |            
-    //    V               V  V         
-    TEST ("ab",           2, "ab"),    
+    //    |               |  |
+    //    |               |  |
+    //    V               V  V
+    TEST ("ab",           2, "ab"),
 
-    TEST ("",             0, ""),   
-    TEST ("<U0>",         1, "<U0>"),   
+    TEST ("",             0, ""),
+    TEST ("<U0>",         1, "<U0>"),
 
-    TEST ("a",            1, "a"),       
-    TEST ("bcd",          3, "bcd"),       
-    TEST ("cdefaihjb",    9, "cdefaihjb"),      
+    TEST ("a",            1, "a"),
+    TEST ("bcd",          3, "bcd"),
+    TEST ("cdefaihjb",    9, "cdefaihjb"),
 
     TEST ("<U0>@2ab",     1, "<U0>"),
     TEST ("<U0>@2ab",     4, "<U0>@2ab"),
-    TEST ("a<U0>@2b",     4, "a<U0>@2b"), 
-    TEST ("ab<U0>@2",     3, "ab<U0>"),  
-    TEST ("abefdcc<U0>a", 7, "abefdcc"), 
-    TEST ("abefdcc<U0>a", 8, "abefdcc<U0>"), 
-    TEST ("abefdcc<U0>a", 9, "abefdcc<U0>a"), 
+    TEST ("a<U0>@2b",     4, "a<U0>@2b"),
+    TEST ("ab<U0>@2",     3, "ab<U0>"),
+    TEST ("abefdcc<U0>a", 7, "abefdcc"),
+    TEST ("abefdcc<U0>a", 8, "abefdcc<U0>"),
+    TEST ("abefdcc<U0>a", 9, "abefdcc<U0>a"),
 
     TEST ("x@207",      207, "x@207"),
     TEST ("x@334",      207, "x@207"),
@@ -210,7 +210,7 @@ cptr_size_test_cases [] = {
     TEST ("x@1412",     540, "x@540"),
     TEST ("x@873",      873, "x@873"),
     TEST ("x@3695",    2284, "x@2284"),
-    TEST ("x@4096",    4096, "x@4096"),     
+    TEST ("x@4096",    4096, "x@4096"),
 
     TEST ("last test",    9, "last test")
 };
@@ -238,27 +238,27 @@ cstr_size_test_cases [] = {
     //    |               |  |               |
     //    |               |  |               |
     //    V               V  V               V
-    TEST ("ab",           0, "ab",           0),    
+    TEST ("ab",           0, "ab",           0),
 
-    TEST ("",             0, "",             0),   
+    TEST ("",             0, "",             0),
     TEST ("<U0>",         0, "<U0>",         0),
     TEST ("<U0>@2",       0, "<U0>@2",       0),
     TEST ("<U0>@2",       1, "<U0>",         0),
     TEST ("<U0>@2",       2, "",             0),
 
-    TEST ("a",            0, "a",            0),       
-    TEST ("bcd",          0, "bcd",          0),       
-    TEST ("cdefaihjb",    0, "cdefaihjb",    0),      
+    TEST ("a",            0, "a",            0),
+    TEST ("bcd",          0, "bcd",          0),
+    TEST ("cdefaihjb",    0, "cdefaihjb",    0),
 
-    TEST ("<U0>@2ab",     0, "<U0>@2ab",     0), 
+    TEST ("<U0>@2ab",     0, "<U0>@2ab",     0),
     TEST ("<U0>@2ab",     1, "<U0>ab",       0),
-    TEST ("a<U0>@2b",     0, "a<U0>@2b",     0), 
-    TEST ("a<U0>@2b",     1, "<U0>@2b",      0), 
+    TEST ("a<U0>@2b",     0, "a<U0>@2b",     0),
+    TEST ("a<U0>@2b",     1, "<U0>@2b",      0),
     TEST ("a<U0>@2b",     2, "<U0>b",        0),
-    TEST ("ab<U0>@2",     0, "ab<U0>@2",     0), 
+    TEST ("ab<U0>@2",     0, "ab<U0>@2",     0),
     TEST ("ab<U0>@2",     2, "<U0>@2",       0),
     TEST ("ab<U0>@2",     4, "",             0),
-    TEST ("abefdcc<U0>a", 0, "abefdcc<U0>a", 0),  
+    TEST ("abefdcc<U0>a", 0, "abefdcc<U0>a", 0),
     TEST ("abefdcc<U0>a", 7, "<U0>a",        0),
 
     TEST ("x@207",        0, "x@207",        0),
@@ -267,12 +267,12 @@ cstr_size_test_cases [] = {
     TEST ("x@1412",       0, "x@1412",       0),
     TEST ("x@1412",     539, "x@873",        0),
     TEST ("x@873",        0, "x@873",        0),
-    TEST ("x@3695",       0, "x@3695",       0), 
+    TEST ("x@3695",       0, "x@3695",       0),
     TEST ("x@4096",       0, "x@4096",       0),
 
     TEST ("abc",          5, "abc",          1),
     TEST ("x@4096",    4106, "x@4096",       1),
- 
+
     TEST ("last test",    0, "last test",    0)
 };
 
@@ -305,20 +305,20 @@ cstr_size_size_test_cases [] = {
     //    |               |   |    |                |
     //    |               |   |    |                |
     //    V               V   V    V                V
-    TEST ("ab",           0,  2,   "ab",            0),    
+    TEST ("ab",           0,  2,   "ab",            0),
 
-    TEST ("",             0,  0,   "",              0),   
+    TEST ("",             0,  0,   "",              0),
     TEST ("<U0>",         0,  1,   "<U0>",          0),
     TEST ("<U0>@2",       0,  2,   "<U0>@2",        0),
 
-    TEST ("a",            0,  1,   "a",             0),       
-    TEST ("bcd",          0,  3,   "bcd",           0),       
-    TEST ("cdefaihjb",    0,  9,   "cdefaihjb",     0),      
+    TEST ("a",            0,  1,   "a",             0),
+    TEST ("bcd",          0,  3,   "bcd",           0),
+    TEST ("cdefaihjb",    0,  9,   "cdefaihjb",     0),
 
-    TEST ("<U0>@2ab",     0,  4,   "<U0>@2ab",      0),  
-    TEST ("a<U0>@2b",     0,  4,   "a<U0>@2b",      0), 
-    TEST ("ab<U0>@2",     0,  4,   "ab<U0>@2",      0),  
-    TEST ("abefdcc<U0>a", 0,  9,   "abefdcc<U0>a",  0),  
+    TEST ("<U0>@2ab",     0,  4,   "<U0>@2ab",      0),
+    TEST ("a<U0>@2b",     0,  4,   "a<U0>@2b",      0),
+    TEST ("ab<U0>@2",     0,  4,   "ab<U0>@2",      0),
+    TEST ("abefdcc<U0>a", 0,  9,   "abefdcc<U0>a",  0),
 
     TEST ("x@207",        0,  207, "x@207",         0),
     TEST ("x@334",       10,  207, "x@207",         0),
@@ -328,10 +328,10 @@ cstr_size_size_test_cases [] = {
     TEST ("x@1412",     207,  540, "x@540",         0),
     TEST ("x@874",        1,  873, "x@873",         0),
     TEST ("x@3695",      10, 2284, "x@2284",        0),
-    TEST ("x@4096",       0, 4096, "x@4096",        0),     
+    TEST ("x@4096",       0, 4096, "x@4096",        0),
 
-    TEST ("abc",          5,  3,   "",              1), 
-    TEST ("x@4096",    4106,  3,   "",              1), 
+    TEST ("abc",          5,  3,   "",              1),
+    TEST ("x@4096",    4106,  3,   "",              1),
 
     TEST ("last test",    0,  9,  "last test",      0)
 };
@@ -352,20 +352,20 @@ size_val_test_cases [] = {
         res, sizeof res - 1, 0                      \
     }
 
-    //    +---------------------------------------- ctor n argument 
+    //    +---------------------------------------- ctor n argument
     //    |          +----------------------------- source value
     //    |          |    +------------------------ expected result sequence
-    //    |          |    |             
-    //    |          |    |            
-    //    V          V    V         
-    TEST (1,        'a',  "a"), 
+    //    |          |    |
+    //    |          |    |
+    //    V          V    V
+    TEST (1,        'a',  "a"),
     TEST (1,        '\0', "<U0>"),
 
-    TEST (2,        'a',  "aa"), 
+    TEST (2,        'a',  "aa"),
     TEST (2,        '\0', "<U0>@2"),
 
     TEST (5,        '\0', "<U0>@5"),
-    TEST (10,       'a',  "aaaaaaaaaa"), 
+    TEST (10,       'a',  "aaaaaaaaaa"),
 
     TEST (128,      'x',  "x@128"),
     TEST (207,      'x',  "x@207"),
@@ -376,7 +376,7 @@ size_val_test_cases [] = {
 
     TEST (4096,     'x',  "x@4096"),
 
-    TEST (4,        't',  "tttt") 
+    TEST (4,        't',  "tttt")
 };
 
 /**************************************************************************/
@@ -397,31 +397,31 @@ cptr_op_set_test_cases [] = {
     //    |          |               +-------------- expected result sequence
     //    |          |               |             +--- exception info
     //    |          |               |             |      0 - no exception
-    //    |          |               |             |     -1 - excpetion safety 
-    //    |          |               |             |  
-    //    |          |               |             |            
-    //    V          V               V             V          
-    TEST ("",       "ab",           "ab",          0),    
+    //    |          |               |             |     -1 - excpetion safety
+    //    |          |               |             |
+    //    |          |               |             |
+    //    V          V               V             V
+    TEST ("",       "ab",           "ab",          0),
 
-    TEST ("",       "",             "",            0),   
-    TEST ("abc",    "",             "",            0),   
-    TEST ("",       "<U0>",         "",            0), 
+    TEST ("",       "",             "",            0),
+    TEST ("abc",    "",             "",            0),
+    TEST ("",       "<U0>",         "",            0),
     TEST ("abc",    "<U0>",         "",            0),
 
-    TEST ("",       "a",            "a",           0),  
-    TEST ("<U0>@2", "a",            "a",           0), 
-    TEST ("a",      "bcd",          "bcd",         0),       
-    TEST ("x@4096", "bcd",          "bcd",         0), 
-    TEST ("",       "cdefaihjb",    "cdefaihjb",   0),      
+    TEST ("",       "a",            "a",           0),
+    TEST ("<U0>@2", "a",            "a",           0),
+    TEST ("a",      "bcd",          "bcd",         0),
+    TEST ("x@4096", "bcd",          "bcd",         0),
+    TEST ("",       "cdefaihjb",    "cdefaihjb",   0),
     TEST ("a<U0>b", "cdefaihjb",    "cdefaihjb",   0),
 
-    TEST ("",       "<U0>@2ab",     "",            0),  
+    TEST ("",       "<U0>@2ab",     "",            0),
     TEST ("c<U0>d", "<U0>@2ab",     "",            0),
-    TEST ("",       "a<U0>@2b",     "a",           0), 
-    TEST ("bcd",    "a<U0>@2b",     "a",           0), 
-    TEST ("<U0>",   "ab<U0>@2",     "ab",          0), 
-    TEST ("x@4096", "ab<U0>@2",     "ab",          0), 
-    TEST ("<U0>a",  "abefdcc<U0>a", "abefdcc",     0),  
+    TEST ("",       "a<U0>@2b",     "a",           0),
+    TEST ("bcd",    "a<U0>@2b",     "a",           0),
+    TEST ("<U0>",   "ab<U0>@2",     "ab",          0),
+    TEST ("x@4096", "ab<U0>@2",     "ab",          0),
+    TEST ("<U0>a",  "abefdcc<U0>a", "abefdcc",     0),
     TEST ("x@4096", "abefdcc<U0>a", "abefdcc",     0),
 
     TEST ("",       "x@207",        "x@207",       0),
@@ -433,13 +433,13 @@ cptr_op_set_test_cases [] = {
     TEST ("x@872",  "x@873",        "x@873",       0),
     TEST ("x@873",  "x@3695",       "x@3695",      0),
 
-    TEST ("abc",    "x@4096",       "x@4096",      0),  
+    TEST ("abc",    "x@4096",       "x@4096",      0),
 
     TEST ("",              0,       "",            0),
-    TEST ("a<U0>b<U0>",    0,       "a",           0), 
-    TEST ("x@4096",        0,       "x@4096",      0), 
+    TEST ("a<U0>b<U0>",    0,       "a",           0),
+    TEST ("x@4096",        0,       "x@4096",      0),
 
-    TEST ("abcd",   "x@4096",       "x@4096",      0), 
+    TEST ("abcd",   "x@4096",       "x@4096",      0),
 
     TEST ("",       "last test",    "last test",   0)
 };
@@ -463,30 +463,30 @@ cstr_op_set_test_cases [] = {
     //    |          |              |                +- exception info
     //    |          |              |                |    0 - no exception
     //    |          |              |                |   -1 - excpetion safety
-    //    |          |              |                |  
-    //    |          |              |                |            
+    //    |          |              |                |
+    //    |          |              |                |
     //    V          V              V                V
-    TEST ("",       "ab",           "ab",            0),    
+    TEST ("",       "ab",           "ab",            0),
 
-    TEST ("",       "",             "",              0),   
-    TEST ("abc",    "",             "",              0),   
-    TEST ("",       "<U0>",         "<U0>",          0), 
+    TEST ("",       "",             "",              0),
+    TEST ("abc",    "",             "",              0),
+    TEST ("",       "<U0>",         "<U0>",          0),
     TEST ("abc",    "<U0>",         "<U0>",          0),
 
-    TEST ("",       "a",            "a",             0),  
-    TEST ("<U0>@2", "a",            "a",             0), 
-    TEST ("a",      "bcd",          "bcd",           0),       
-    TEST ("x@4096", "bcd",          "bcd",           0), 
-    TEST ("",       "cdefaihjb",    "cdefaihjb",     0),      
+    TEST ("",       "a",            "a",             0),
+    TEST ("<U0>@2", "a",            "a",             0),
+    TEST ("a",      "bcd",          "bcd",           0),
+    TEST ("x@4096", "bcd",          "bcd",           0),
+    TEST ("",       "cdefaihjb",    "cdefaihjb",     0),
     TEST ("a<U0>b", "cdefaihjb",    "cdefaihjb",     0),
- 
-    TEST ("",       "<U0>@2ab",     "<U0>@2ab",      0),  
+
+    TEST ("",       "<U0>@2ab",     "<U0>@2ab",      0),
     TEST ("c<U0>d", "<U0>@2ab",     "<U0>@2ab",      0),
-    TEST ("",       "a<U0>@2b",     "a<U0>@2b",      0), 
-    TEST ("bcd",    "a<U0>@2b",     "a<U0>@2b",      0), 
-    TEST ("<U0>",   "ab<U0>@2",     "ab<U0>@2",      0), 
-    TEST ("x@4096", "ab<U0>@2",     "ab<U0>@2",      0), 
-    TEST ("<U0>a",  "abefdcc<U0>a", "abefdcc<U0>a",  0),  
+    TEST ("",       "a<U0>@2b",     "a<U0>@2b",      0),
+    TEST ("bcd",    "a<U0>@2b",     "a<U0>@2b",      0),
+    TEST ("<U0>",   "ab<U0>@2",     "ab<U0>@2",      0),
+    TEST ("x@4096", "ab<U0>@2",     "ab<U0>@2",      0),
+    TEST ("<U0>a",  "abefdcc<U0>a", "abefdcc<U0>a",  0),
     TEST ("x@4096", "abefdcc<U0>a", "abefdcc<U0>a",  0),
 
     TEST ("",       "x@207",        "x@207",         0),
@@ -498,11 +498,11 @@ cstr_op_set_test_cases [] = {
     TEST ("x@872",  "x@873",        "x@873",         0),
     TEST ("x@873",  "x@3695",       "x@3695",        0),
 
-    TEST ("abc",    "x@4096",       "x@4096",        0),   
+    TEST ("abc",    "x@4096",       "x@4096",        0),
 
     TEST ("",           0,          "",              0),
-    TEST ("a<U0>b<U0>", 0,          "a<U0>b<U0>",    0), 
-    TEST ("x@4096",     0,          "x@4096",        0), 
+    TEST ("a<U0>b<U0>", 0,          "a<U0>b<U0>",    0),
+    TEST ("x@4096",     0,          "x@4096",        0),
 
     TEST ("",       "last test",    "last test",     0)
 };
@@ -525,21 +525,21 @@ val_op_set_test_cases [] = {
     //    +----------------------------------- initial sequence
     //    |          +------------------------ source value
     //    |          |    +------------------- expected result sequence
-    //    |          |    |             
-    //    |          |    |            
-    //    V          V    V         
-    TEST ("",       'a',  "a"), 
+    //    |          |    |
+    //    |          |    |
+    //    V          V    V
+    TEST ("",       'a',  "a"),
     TEST ("abcdef", 'a',  "a"),
     TEST ("",       '\0', "<U0>"),
     TEST ("a",      '\0', "<U0>"),
     TEST ("<U0>@2", 'x',  "x"),
 
-    TEST ("x@207",  'a',  "a"), 
+    TEST ("x@207",  'a',  "a"),
     TEST ("x@873",  '\0', "<U0>"),
     TEST ("x@2284", 't',  "t"),
     TEST ("x@4096", 'x',  "x"),
 
-    TEST ("",       't',  "t") 
+    TEST ("",       't',  "t")
 };
 
 /**************************************************************************/
@@ -589,13 +589,13 @@ struct ConsRangeOverload: RangeBase<String>
     ConsRangeOverload () { }
 
     virtual String&
-    operator() (String& str_arg, 
+    operator() (String& str_arg,
                 const StringTestCaseData<StringChar>& tdata) const {
 
         bool reverse_iter = StringIds::ReverseIterator == tdata.func_.iter_id_
             || StringIds::ConstReverseIterator == tdata.func_.iter_id_;
 
-        const std::size_t off = reverse_iter ? 
+        const std::size_t off = reverse_iter ?
             tdata.arglen_ - tdata.off2_ - tdata.ext2_ : tdata.off2_;
         const std::size_t ext = tdata.ext2_;
 
@@ -625,13 +625,13 @@ void test_cons (charT*, Traits*, Allocator*, const RangeBase<
     const StringFunc     &func  = tdata.func_;
     const StringTestCase &tcase = tdata.tcase_;
 
-    // construct the argument string 
+    // construct the argument string
     /* const */ String arg (tdata.arg_, tdata.arglen_);
 
     // offset and extent function arguments
-    const std::size_t arg_off  = -1 != tcase.off ? 
+    const std::size_t arg_off  = -1 != tcase.off ?
         std::size_t (tcase.off) : std::size_t (tcase.off2);
-    const std::size_t arg_size = -1 != tcase.size ? 
+    const std::size_t arg_size = -1 != tcase.size ?
         std::size_t (tcase.size) : std::size_t (tcase.size2);
 
     // string function argument
@@ -646,7 +646,7 @@ void test_cons (charT*, Traits*, Allocator*, const RangeBase<
 
 #ifndef _RWSTD_NO_EXCEPTIONS
 
-    if (1 == tcase.bthrow && Cons (range) != func.which_ 
+    if (1 == tcase.bthrow && Cons (range) != func.which_
                           && Cons (range_alloc) != func.which_)
         expected = exceptions [1];      // out_of_range
     else if (2 == tcase.bthrow)
@@ -727,7 +727,7 @@ void test_cons (charT*, Traits*, Allocator*, const RangeBase<
         default:
             RW_ASSERT (!"logic error: unknown constructor overload");
         }
-            
+
         // for convenience
         static const int cwidth = sizeof (charT);
 
@@ -743,16 +743,16 @@ void test_cons (charT*, Traits*, Allocator*, const RangeBase<
                        "line %d. %{$FUNCALL} expected %{/*.*Gs} with "
                        "length %zu, got %{/*.*Gs} with length %zu",
                        __LINE__,
-                       cwidth, int (tdata.reslen_), tdata.res_, 
-                       tdata.reslen_, cwidth, int (ret_ptr->size ()), 
+                       cwidth, int (tdata.reslen_), tdata.res_,
+                       tdata.reslen_, cwidth, int (ret_ptr->size ()),
                        ret_ptr->data (), ret_ptr->size ());
 
             if (Cons (void) != func.which_) {
                 // verify the capacity of the resulting string
-                rw_assert (ret_ptr->size () <= ret_ptr->capacity (), 0, 
+                rw_assert (ret_ptr->size () <= ret_ptr->capacity (), 0,
                            tcase.line, "line %d. %{$FUNCALL} expected "
                            "capacity () >= size (), got capacity () == "
-                           "%zu, size () == %zu", __LINE__,   
+                           "%zu, size () == %zu", __LINE__,
                            ret_ptr->capacity (), ret_ptr->size ());
             }
 
@@ -768,7 +768,7 @@ void test_cons (charT*, Traits*, Allocator*, const RangeBase<
                            "got %{/*.*Gs}, difference at offset %zu",
                            __LINE__,
                            cwidth, int (tdata.reslen_), tdata.res_,
-                           cwidth, int (ret_ptr->size ()), 
+                           cwidth, int (ret_ptr->size ()),
                            ret_ptr->data (), match);
             }
 
@@ -790,7 +790,7 @@ void test_cons (charT*, Traits*, Allocator*, const RangeBase<
         rw_assert (caught == expected, 0, tcase.line,
                    "line %d. %{$FUNCALL} %{?}expected %s,%{:}"
                    "unexpectedly%{;} caught std::%s(%#s)",
-                   __LINE__, 0 != expected, expected, caught, ex.what ());    
+                   __LINE__, 0 != expected, expected, caught, ex.what ());
     }
     catch (const std::bad_alloc &ex) {
         caught = exceptions [3];
@@ -920,7 +920,7 @@ void test_op_set (charT*, Traits*, Allocator*,
             default:
                 RW_ASSERT (!"logic error: unknown operator= overload");
             }
-            
+
             // for convenience
             static const int cwidth = sizeof (charT);
 
@@ -929,7 +929,7 @@ void test_op_set (charT*, Traits*, Allocator*,
                        "line %d. %{$FUNCALL} expected %{/*.*Gs} with "
                        "length %zu, got %{/*.*Gs} with length %zu",
                        __LINE__,
-                       cwidth, int (tdata.reslen_), tdata.res_, 
+                       cwidth, int (tdata.reslen_), tdata.res_,
                        tdata.reslen_, cwidth, int (str.size ()), str.data (),
                        str.size ());
 
@@ -950,7 +950,7 @@ void test_op_set (charT*, Traits*, Allocator*,
 
             // verify that Traits::length was used
             if (rg_calls) {
-                rw_assert (n_length_calls - total_length_calls > 0, 
+                rw_assert (n_length_calls - total_length_calls > 0,
                            0, tcase.line, "line %d. %{$FUNCALL} doesn't "
                            "use traits::length()", __LINE__);
             }
@@ -1061,7 +1061,7 @@ void test_cons (charT*, Traits*, Allocator*,
         return;
     }
 
-    if (tdata.func_.which_ == Cons (range) 
+    if (tdata.func_.which_ == Cons (range)
         || tdata.func_.which_ == Cons (range_alloc)) {
 
         switch (tdata.func_.iter_id_) {

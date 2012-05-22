@@ -10,7 +10,7 @@ namespace BloombergLP {
 
 BSLMF_ASSERT(4 == sizeof(int));
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

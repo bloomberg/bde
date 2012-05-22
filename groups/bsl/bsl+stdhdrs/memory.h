@@ -8,8 +8,8 @@
 //
 //@DESCRIPTION: This component provides backwards compatibility for Bloomberg
 // libraries that depend on non-standard STLPort header files.  This header
-// includes the corresponding C++ header and provides any additional
-// symbols that the STLPort header would define via transitive includes.
+// includes the corresponding C++ header and provides any additional symbols
+// that the STLPort header would define via transitive includes.
 
 /* Coppied from stlport */
 /* The header <memory.h> is not part of either the C or C++ standards, but is

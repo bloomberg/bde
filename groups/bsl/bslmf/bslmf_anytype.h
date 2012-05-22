@@ -10,34 +10,34 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a generic type to which any type can be converted.
 //
 //@CLASSES:
-//  bslmf_AnyType: generic type to which any type can be converted
-//  bslmf_TypeRep: meta-function for providing a reference to 'TYPE'
+//  bslmf::AnyType: generic type to which any type can be converted
+//  bslmf::TypeRep: meta-function for providing a reference to 'TYPE'
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: 'bslmf_AnyType' is a type to which any type can be implicitly
+//@DESCRIPTION: 'bslmf::AnyType' is a type to which any type can be implicitly
 // converted.  This is useful for creating an overloaded function that is a
 // catch-all for all types not explicitly provided for in other overloaded
-// functions with the same name.  'bslmf_TypeRep' allows one to create a
+// functions with the same name.  'bslmf::TypeRep' allows one to create a
 // reference to a type.  In complex template programming, one is often dealing
 // with unknown types, about the constructors of which one knows nothing.  One
 // often needs an object of the given type, but since nothing is known about
 // the constructors, one can't just construct and object of the type.
-// 'bslmf_TypeRep' allows one to create a reference to the type.  Note that the
-// 'rep' function in 'bslma_TypeRep' is not implemented, it must never be
+// 'bslmf::TypeRep' allows one to create a reference to the type.  Note that
+// the 'rep' function in 'bslma::TypeRep' is not implemented, it must never be
 // called at run time.
 //
-///Usage Example 1: 'bslmf_AnyType'
+///Usage Example 1: 'bslmf::AnyType'
 ///-------------------------------
 //..
 //  struct X { };
 //  struct Y { };
 //  struct Z : public Y { };
 //
-//  inline bool isY(const bslmf_AnyType&) { return false; }
-//  inline bool isY(const Y&)             { return true;  }
+//  inline bool isY(const bslmf::AnyType&) { return false; }
+//  inline bool isY(const Y&)              { return true;  }
 //
 //  assert(! isY(X()));
 //  assert(  isY(Y()));
@@ -54,7 +54,7 @@ BSLS_IDENT("$Id: $")
 //  assert(  isY(y));
 //  assert(  isY(z));
 //..
-///Usage Example 2: 'bslmf_TypeRep'
+///Usage Example 2: 'bslmf::TypeRep'
 ///--------------------------------
 //..
 //  struct X {};
@@ -79,12 +79,12 @@ BSLS_IDENT("$Id: $")
 //  #define METAINT_TO_UINT(metaint)   (sizeof(metaint) - 1)
 //
 //  MetaInt<1> isX(const X&);
-//  MetaInt<0> isX(const bslmf_AnyType&);
+//  MetaInt<0> isX(const bslmf::AnyType&);
 //
 //  assert(1 == METAINT_TO_UINT(isX(X())));
 //  assert(0 == METAINT_TO_UINT(isX(Y())));
-//  assert(1 == METAINT_TO_UINT(isX(bslmf_TypeRep<HasHorridCtorX>::rep())));
-//  assert(0 == METAINT_TO_UINT(isX(bslmf_TypeRep<HasHorridCtorY>::rep())));
+//  assert(1 == METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorX>::rep())));
+//  assert(0 == METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorY>::rep())));
 //  assert(0 == METAINT_TO_UINT(isX(3)));
 //  assert(0 == METAINT_TO_UINT(isX(3.0)));
 //  assert(0 == METAINT_TO_UINT(isX("The king is a fink!")));
@@ -96,31 +96,33 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ===================
-                        // class bslmf_AnyType
-                        // ===================
+namespace bslmf {
 
-struct bslmf_AnyType {
+                        // =============
+                        // class AnyType
+                        // =============
+
+struct AnyType {
     // Any type can be converted into this type.
 
-    template <typename TYPE> bslmf_AnyType(const TYPE&) { }
+    template <typename TYPE> AnyType(const TYPE&) { }
         // This constructor will match any rvalue or any non-volatile lvalue.
         // A non-const version of this constructor is not necessary and will
         // cause some compilers to complain of ambiguities.
 
-    template <typename TYPE> bslmf_AnyType(const volatile TYPE&) { }
+    template <typename TYPE> AnyType(const volatile TYPE&) { }
         // This constructor will match any volatile lvalue.  According to the
         // standard, it should NOT match an rvalue.  A non-const version of
         // this constructor is not necessary and will cause some compilers to
         // complain of ambiguities.
 };
 
-                        // ===================
-                        // class bslmf_TypeRep
-                        // ===================
+                        // =============
+                        // class TypeRep
+                        // =============
 
 template <typename TYPE>
-struct bslmf_TypeRep {
+struct TypeRep {
     // Generate a reference to 'TYPE' for use in meta-functions.
 
     static TYPE& rep();
@@ -130,9 +132,9 @@ struct bslmf_TypeRep {
 };
 
 template <typename TYPE>
-struct bslmf_TypeRep<TYPE&> {
+struct TypeRep<TYPE&> {
     // Generate a reference to 'TYPE' for use in meta-functions.  This is a
-    // partial specialization of 'bslmf_TypeRep' instantiated with a reference.
+    // partial specialization of 'TypeRep' instantiated with a reference.
 
     static TYPE& rep();
         // Provide a reference to a 'TYPE' object.  This function has no body
@@ -140,7 +142,22 @@ struct bslmf_TypeRep<TYPE&> {
         // 'TYPE' has a default constructor or not.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_TypeRep
+#undef bslmf_TypeRep
+#endif
+#define bslmf_TypeRep bslmf::TypeRep
+    // This alias is defined for backward compatibility.
+
+typedef bslmf::AnyType bslmf_AnyType;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

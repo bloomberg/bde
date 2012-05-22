@@ -3,7 +3,7 @@
  * 21.string.iterators.cpp - string test exercising lib.string.iterators
  *
  * $Id: 21.string.iterators.cpp 648752 2008-04-16 17:01:56Z faridz $
- * 
+ *
  ***************************************************************************
  *
  * Licensed to the Apache Software  Foundation (ASF) under one or more
@@ -46,7 +46,7 @@ static const char* const exceptions[] = {
 
 // used to exercise
 // begin () and rend ()
-static const StringTestCase 
+static const StringTestCase
 begin_void_test_cases [] = {
 
 #undef TEST
@@ -57,24 +57,24 @@ begin_void_test_cases [] = {
 }
 
     //    +--------------------------------- controlled sequence
-    //    |                 +--------------- expected result 
-    //    |                 |     
-    //    V                 V     
-    TEST ("a",             'a' ), 
+    //    |                 +--------------- expected result
+    //    |                 |
+    //    V                 V
+    TEST ("a",             'a' ),
     TEST ("<U0>",          '\0'),
-    TEST ("abc",           'a' ),  
-    TEST ("<U0>ab<U0>@2c", '\0'), 
-    TEST ("a<U0>b<U0>@2c", 'a' ),  
-    TEST ("a<U0>bc<U0>@2", 'a' ), 
-    TEST ("x@4096",        'x' ),  
-    TEST ("last",          'l' )  
+    TEST ("abc",           'a' ),
+    TEST ("<U0>ab<U0>@2c", '\0'),
+    TEST ("a<U0>b<U0>@2c", 'a' ),
+    TEST ("a<U0>bc<U0>@2", 'a' ),
+    TEST ("x@4096",        'x' ),
+    TEST ("last",          'l' )
 };
 
 /**************************************************************************/
 
 // used to exercise
 // end () and rbegin ()
-static const StringTestCase 
+static const StringTestCase
 end_void_test_cases [] = {
 
 #undef TEST
@@ -85,17 +85,17 @@ end_void_test_cases [] = {
 }
 
     //    +--------------------------------- controlled sequence
-    //    |                 +--------------- expected result 
-    //    |                 |     
-    //    V                 V     
-    TEST ("a",             'a' ), 
+    //    |                 +--------------- expected result
+    //    |                 |
+    //    V                 V
+    TEST ("a",             'a' ),
     TEST ("<U0>",          '\0'),
-    TEST ("abc",           'c' ),  
-    TEST ("<U0>ab<U0>@2c", 'c' ), 
-    TEST ("a<U0>b<U0>@2c", 'c' ),  
-    TEST ("a<U0>bc<U0>@2", '\0'), 
-    TEST ("x@4096",        'x' ),  
-    TEST ("last",          't' )  
+    TEST ("abc",           'c' ),
+    TEST ("<U0>ab<U0>@2c", 'c' ),
+    TEST ("a<U0>b<U0>@2c", 'c' ),
+    TEST ("a<U0>bc<U0>@2", '\0'),
+    TEST ("x@4096",        'x' ),
+    TEST ("last",          't' )
 };
 
 /**************************************************************************/
@@ -113,50 +113,50 @@ c_str_void_test_cases [] = {
 }
 
     //    +-------------------------------- controlled sequence
-    //    |                   
-    //    |                   
-    //    |                   
-    //    |                   
-    //    |                   
-    //    |                   
-    //    |                   
-    //    V                   
+    //    |
+    //    |
+    //    |
+    //    |
+    //    |
+    //    |
+    //    |
+    //    V
     TEST ("ab"              ),
 
     TEST (""                ),
-                             
+
     TEST ("<U0>"              ),
-                             
+
     TEST ("abcdefghij"      ),
     TEST ("abcdefghi"       ),
-                             
+
     TEST ("abbdefghij"      ),
     TEST ("abcdeeghij"      ),
     TEST ("abcdefghii"      ),
-                             
+
     TEST ("bbcdefghij"      ),
     TEST ("eeeeeeghij"      ),
     TEST ("a"               ),
     TEST ("aeeee"           ),
-                             
+
     TEST ("bbcdefghij"      ),
     TEST ("abcdffghij"      ),
     TEST ("abcdefghjj"      ),
-                             
+
     TEST ("a<U0>b<U0>@2c"   ),
     TEST ("abc<U0>@3"       ),
     TEST ("<U0>ab<U0>@2c"   ),
-                             
+
     TEST ("a<U0>b"          ),
     TEST ("ab<U0>"          ),
     TEST ("<U0>ab"          ),
-                             
+
     TEST ("x@4096"          ),
     TEST ("xx"              ),
-                             
+
     TEST ("a@2048b@2048"    ),
     TEST ("a@2048cb@2047"   ),
-                             
+
     TEST ("last"            )
 };
 
@@ -175,14 +175,14 @@ get_allocator_void_test_cases [] = {
 }
 
     //    +------------------------------------------ controlled sequence
-    //    | 
-    //    | 
-    //    |    
-    //    |    
-    //    | 
-    //    | 
-    //    | 
-    //    V 
+    //    |
+    //    |
+    //    |
+    //    |
+    //    |
+    //    |
+    //    |
+    //    V
     TEST ("ab"            ),
     TEST (""              ),
     TEST ("<U0>"          ),
@@ -208,8 +208,8 @@ void test_iterators (charT*, Traits*, Allocator*,
     const StringFunc     &func  = tdata.func_;
     const StringTestCase &tcase = tdata.tcase_;
 
-    const bool test_iters = func.which_ == StringIds::begin_void 
-        || func.which_ == StringIds::begin_const_void 
+    const bool test_iters = func.which_ == StringIds::begin_void
+        || func.which_ == StringIds::begin_const_void
         || func.which_ == StringIds::end_void
         || func.which_ == StringIds::end_const_void
         || func.which_ == StringIds::rbegin_void
@@ -217,12 +217,12 @@ void test_iterators (charT*, Traits*, Allocator*,
         || func.which_ == StringIds::rend_void
         || func.which_ == StringIds::rend_const_void;
 
-    const bool test_const_iters = func.which_ == StringIds::begin_const_void 
+    const bool test_const_iters = func.which_ == StringIds::begin_const_void
         || func.which_ == StringIds::end_const_void
         || func.which_ == StringIds::rbegin_const_void
         || func.which_ == StringIds::rend_const_void;
 
-    const bool test_end_iters = func.which_ == StringIds::end_void 
+    const bool test_end_iters = func.which_ == StringIds::end_void
         || func.which_ == StringIds::end_const_void
         || func.which_ == StringIds::rend_void
         || func.which_ == StringIds::rend_const_void;
@@ -230,7 +230,7 @@ void test_iterators (charT*, Traits*, Allocator*,
     // allocator object for test get_allocator
     Allocator alloc;
 
-    // construct the string object 
+    // construct the string object
     String str (tdata.str_, tdata.strlen_, alloc);
     // construct the constant string object
     const String cstr (tdata.str_, tdata.strlen_, alloc);
@@ -354,9 +354,9 @@ void test_iterators (charT*, Traits*, Allocator*,
 #if TEST_RW_PEDANTIC || DRQS // std::allocator is assignable in standard
                 resalloc = cstr.get_allocator ();
 #else
-		// Hack to make any allocator assignable
-		resalloc.~Allocator();
-		new ((void*) &resalloc) Allocator(cstr.get_allocator ());
+        // Hack to make any allocator assignable
+        resalloc.~Allocator();
+        new ((void*) &resalloc) Allocator(cstr.get_allocator ());
 #endif
                 break;
 
@@ -388,20 +388,20 @@ void test_iterators (charT*, Traits*, Allocator*,
                     // initial element of an array whose first size() elements
                     // equal the corresponding elements of the string controlled
                     // by *this
-                    const std::size_t match = 
+                    const std::size_t match =
                         rw_match (tcase.res, ret_ptr, tdata.reslen_);
 
                     rw_assert (match == tdata.reslen_, 0, tcase.line,
                                "line %d. %{$FUNCALL} expected %{#*s}, "
                                "got %{/*.*Gs}, differ at pos %zu",
-                               __LINE__, int (tdata.reslen_), tdata.res_, 
+                               __LINE__, int (tdata.reslen_), tdata.res_,
                                cwidth, int (s_size), ret_ptr, match);
 
                     if (func.which_ == StringIds::c_str_void) {
 
                         // check the last element is equal to char ()
                         const char null = char ();
-                        const bool success = 
+                        const bool success =
                             (1 == rw_match (&null, &ret_ptr[s_size], 1));
 
                         rw_assert(success, 0, tcase.line,
@@ -410,46 +410,46 @@ void test_iterators (charT*, Traits*, Allocator*,
                                   __LINE__, null, ret_ptr[s_size]);
                     }
                 }
-            } 
+            }
 
             if (test_iters) {
 
                 if (s_size) {
 
-                    const char exp_res = 
+                    const char exp_res =
                         (NPOS != tcase.nres ? char (tcase.nres) : char ());
 
                     const bool success = (1 == rw_match (&exp_res, &res, 1));
 
                     rw_assert (success, 0, tcase.line,
                                "line %d. %{$FUNCALL}%{?} - 1%{;} expected "
-                               "%{#c}, got %{#c}", __LINE__, 
+                               "%{#c}, got %{#c}", __LINE__,
                                test_end_iters, exp_res, res);
-                } 
+                }
                 else {
                     bool success = true;
 
-                    if (   func.which_ == StringIds::begin_void 
-                        || func.which_ == StringIds::end_void) 
+                    if (   func.which_ == StringIds::begin_void
+                        || func.which_ == StringIds::end_void)
                         success = it == str.begin () && it == str.end ();
 
-                    if (   func.which_ == StringIds::begin_const_void 
-                        || func.which_ == StringIds::end_const_void) 
+                    if (   func.which_ == StringIds::begin_const_void
+                        || func.which_ == StringIds::end_const_void)
                         success = cit == cstr.begin () && cit == cstr.end ();
 
-                    if (   func.which_ == StringIds::rbegin_void 
-                        || func.which_ == StringIds::rend_void) 
+                    if (   func.which_ == StringIds::rbegin_void
+                        || func.which_ == StringIds::rend_void)
                         success = rit == str.rbegin () && rit == str.rend ();
 
-                    if (   func.which_ == StringIds::rbegin_const_void 
-                        || func.which_ == StringIds::rend_const_void) 
-                        success = 
+                    if (   func.which_ == StringIds::rbegin_const_void
+                        || func.which_ == StringIds::rend_const_void)
+                        success =
                             crit == cstr.rbegin () && crit == cstr.rend ();
 
                     // check the begin () == end (), rbegin () == rend ()
                     rw_assert(success, 0, tcase.line,
                               "line %d. %{$FUNCALL} returned iterator is not "
-                              "equal to begin and end for an empty string", 
+                              "equal to begin and end for an empty string",
                               __LINE__);
                 }
 
@@ -457,7 +457,7 @@ void test_iterators (charT*, Traits*, Allocator*,
                 rw_assert(it_relations, 0, tcase.line,
                           "line %d. %{$FUNCALL} iterators "
                           "relationship is broken", __LINE__);
-            } 
+            }
 
             if (func.which_ == StringIds::get_allocator_void) {
 

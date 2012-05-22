@@ -17,7 +17,7 @@ using namespace BloombergLP;
 //                                --------
 // TBD
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_AddReference
+// [ 1] bslmf::AddReference
 // [ 2] USAGE EXAMPLE
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -111,7 +111,7 @@ namespace USAGE_EXAMPLE_1 {
 
       public:
         // TYPES
-        typedef typename bslmf_AddReference<TYPE>::Type WrappedType;
+        typedef typename bslmf::AddReference<TYPE>::Type WrappedType;
 
         // CREATORS
         Wrapper(TYPE value) : d_data(value) {}
@@ -125,21 +125,21 @@ namespace USAGE_EXAMPLE_1 {
 // there would be a problem if the user supplied a parameterized type 'TYPE'
 // that is a reference type, as references-to-references were not permitted by
 // the language (prior the C++11 standard).  We can resolve such problems
-// using the meta-function 'bslmf_AddReference'.
+// using the meta-function 'bslmf::AddReference'.
 //..
         // MANIPULATORS
-        typename bslmf_AddReference<TYPE>::Type value()
+        typename bslmf::AddReference<TYPE>::Type value()
         {
             return d_data;
         }
 //..
 // Next, we supply an accessor function, 'value', that similarly wraps the
-// parameterized type 'TYPE' with the 'bslmf_AddReference' meta-function.
+// parameterized type 'TYPE' with the 'bslmf::AddReference' meta-function.
 // In this case we must remember to const-quality 'TYPE' before passing it
 // on to the meta-function.
 //..
         // ACCESSORS
-        typename bslmf_AddReference<const TYPE>::Type value() const
+        typename bslmf::AddReference<const TYPE>::Type value() const
         {
             return d_data;
         }
@@ -175,6 +175,7 @@ namespace USAGE_EXAMPLE_1 {
         ASSERT(42 == TR.value());
     }
 //..
+
 }  // close namespace USAGE_EXAMPLE_1
 
 //=============================================================================
@@ -197,7 +198,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf_AddReference'.
+        //   Simple example illustrating use of 'bslmf::AddReference'.
         //
         // Concerns:
         //
@@ -214,28 +215,28 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 //..
-        ASSERT_SAME(bslmf_AddReference<int >::Type, int&);
-        ASSERT_SAME(bslmf_AddReference<int&>::Type, int&);
-        ASSERT_SAME(bslmf_AddReference<int volatile >::Type, volatile int&);
-        ASSERT_SAME(bslmf_AddReference<int volatile&>::Type, volatile int&);
+        ASSERT_SAME(bslmf::AddReference<int >::Type, int&);
+        ASSERT_SAME(bslmf::AddReference<int&>::Type, int&);
+        ASSERT_SAME(bslmf::AddReference<int volatile >::Type, volatile int&);
+        ASSERT_SAME(bslmf::AddReference<int volatile&>::Type, volatile int&);
 
-        ASSERT_SAME(bslmf_AddReference<MyType >::Type, MyType&);
-        ASSERT_SAME(bslmf_AddReference<MyType&>::Type, MyType&);
-        ASSERT_SAME(bslmf_AddReference<MyTypeRef>::Type, MyType&);
-        ASSERT_SAME(bslmf_AddReference<MyType const >::Type, const MyType&);
-        ASSERT_SAME(bslmf_AddReference<MyType const&>::Type, const MyType&);
-        ASSERT_SAME(bslmf_AddReference<const MyTypeRef>::Type, MyType&);
-//      ASSERT_SAME(bslmf_AddReference<const MyTypeRef&>::Type, MyType&); C++11
+        ASSERT_SAME(bslmf::AddReference<MyType >::Type, MyType&);
+        ASSERT_SAME(bslmf::AddReference<MyType&>::Type, MyType&);
+        ASSERT_SAME(bslmf::AddReference<MyTypeRef>::Type, MyType&);
+        ASSERT_SAME(bslmf::AddReference<MyType const >::Type, const MyType&);
+        ASSERT_SAME(bslmf::AddReference<MyType const&>::Type, const MyType&);
+        ASSERT_SAME(bslmf::AddReference<const MyTypeRef>::Type, MyType&);
+//      ASSERT_SAME(bslmf::AddReference<const MyTypeRef&>::Type, MyType&);C++11
 
-        ASSERT_SAME(bslmf_AddReference<void  >::Type, void);
-        ASSERT_SAME(bslmf_AddReference<void *>::Type, void *&);
+        ASSERT_SAME(bslmf::AddReference<void  >::Type, void);
+        ASSERT_SAME(bslmf::AddReference<void *>::Type, void *&);
 //..
 
       } break;
        case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf_AddReference'.
+        //   Simple example illustrating use of 'bslmf::AddReference'.
         //
         // Concerns:
         //
@@ -257,58 +258,58 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf_AddReference' with various types and verify
+        //   Instantiate 'bslmf::AddReference' with various types and verify
         //   that its 'Type' typedef is set to a non-reference type.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nbslmf_AddReference"
                             "\n==================\n");
 
-        ASSERT_SAME(bslmf_AddReference<int       >::Type, int&);
-        ASSERT_SAME(bslmf_AddReference<int&      >::Type, int&);
-        ASSERT_SAME(bslmf_AddReference<int const >::Type, const int&);
-        ASSERT_SAME(bslmf_AddReference<int const&>::Type, const int&);
+        ASSERT_SAME(bslmf::AddReference<int       >::Type, int&);
+        ASSERT_SAME(bslmf::AddReference<int&      >::Type, int&);
+        ASSERT_SAME(bslmf::AddReference<int const >::Type, const int&);
+        ASSERT_SAME(bslmf::AddReference<int const&>::Type, const int&);
 
-        ASSERT_SAME(bslmf_AddReference<void *          >::Type, void *&);
-        ASSERT_SAME(bslmf_AddReference<void *&         >::Type, void *&);
-        ASSERT_SAME(bslmf_AddReference<void volatile *&>::Type,
-                                       volatile void *&);
-        ASSERT_SAME(bslmf_AddReference<char const *const&>::Type,
-                                       const char *const&);
+        ASSERT_SAME(bslmf::AddReference<void *          >::Type, void *&);
+        ASSERT_SAME(bslmf::AddReference<void *&         >::Type, void *&);
+        ASSERT_SAME(bslmf::AddReference<void volatile *&>::Type,
+                    volatile void *&);
+        ASSERT_SAME(bslmf::AddReference<char const *const&>::Type,
+                    const char *const&);
 
-        ASSERT_SAME(bslmf_AddReference<Enum        >::Type, Enum&);
-        ASSERT_SAME(bslmf_AddReference<Enum&       >::Type, Enum&);
-        ASSERT_SAME(bslmf_AddReference<Struct      >::Type, Struct&);
-        ASSERT_SAME(bslmf_AddReference<Struct&     >::Type, Struct&);
-        ASSERT_SAME(bslmf_AddReference<Union       >::Type, Union&);
-        ASSERT_SAME(bslmf_AddReference<Union&      >::Type, Union&);
-        ASSERT_SAME(bslmf_AddReference<Class       >::Type, Class&);
-        ASSERT_SAME(bslmf_AddReference<const Class&>::Type, const Class&);
+        ASSERT_SAME(bslmf::AddReference<Enum        >::Type, Enum&);
+        ASSERT_SAME(bslmf::AddReference<Enum&       >::Type, Enum&);
+        ASSERT_SAME(bslmf::AddReference<Struct      >::Type, Struct&);
+        ASSERT_SAME(bslmf::AddReference<Struct&     >::Type, Struct&);
+        ASSERT_SAME(bslmf::AddReference<Union       >::Type, Union&);
+        ASSERT_SAME(bslmf::AddReference<Union&      >::Type, Union&);
+        ASSERT_SAME(bslmf::AddReference<Class       >::Type, Class&);
+        ASSERT_SAME(bslmf::AddReference<const Class&>::Type, const Class&);
 
-        ASSERT_SAME(bslmf_AddReference<INT >::Type, int&);
-        ASSERT_SAME(bslmf_AddReference<INT&>::Type, int&);
+        ASSERT_SAME(bslmf::AddReference<INT >::Type, int&);
+        ASSERT_SAME(bslmf::AddReference<INT&>::Type, int&);
 
-        ASSERT_SAME(bslmf_AddReference<int Class::* >::Type, int Class::*&);
-        ASSERT_SAME(bslmf_AddReference<int Class::*&>::Type, int Class::*&);
+        ASSERT_SAME(bslmf::AddReference<int Class::* >::Type, int Class::*&);
+        ASSERT_SAME(bslmf::AddReference<int Class::*&>::Type, int Class::*&);
 
-        ASSERT_SAME(bslmf_AddReference<  F>::Type,  F&);
-        ASSERT_SAME(bslmf_AddReference< RF>::Type,  F&);
-        ASSERT_SAME(bslmf_AddReference< PF>::Type, PF&);
-        ASSERT_SAME(bslmf_AddReference<RPF>::Type, PF&);
+        ASSERT_SAME(bslmf::AddReference<  F>::Type,  F&);
+        ASSERT_SAME(bslmf::AddReference< RF>::Type,  F&);
+        ASSERT_SAME(bslmf::AddReference< PF>::Type, PF&);
+        ASSERT_SAME(bslmf::AddReference<RPF>::Type, PF&);
 
-        ASSERT_SAME(bslmf_AddReference< Fi >::Type, Fi&);
-        ASSERT_SAME(bslmf_AddReference<RFi >::Type, Fi&);
-        ASSERT_SAME(bslmf_AddReference< FRi>::Type, FRi&);
-        ASSERT_SAME(bslmf_AddReference<RFRi>::Type, FRi&);
+        ASSERT_SAME(bslmf::AddReference< Fi >::Type, Fi&);
+        ASSERT_SAME(bslmf::AddReference<RFi >::Type, Fi&);
+        ASSERT_SAME(bslmf::AddReference< FRi>::Type, FRi&);
+        ASSERT_SAME(bslmf::AddReference<RFRi>::Type, FRi&);
 
-        ASSERT_SAME(bslmf_AddReference< A>::Type, A&);
-        ASSERT_SAME(bslmf_AddReference<RA>::Type, A&);
+        ASSERT_SAME(bslmf::AddReference< A>::Type, A&);
+        ASSERT_SAME(bslmf::AddReference<RA>::Type, A&);
 
-        ASSERT_SAME(bslmf_AddReference<void         >::Type, void);
-        ASSERT_SAME(bslmf_AddReference<void const   >::Type, const void);
-        ASSERT_SAME(bslmf_AddReference<void volatile>::Type, volatile void);
-        ASSERT_SAME(bslmf_AddReference<void const volatile>::Type,
-                                       const volatile void);
+        ASSERT_SAME(bslmf::AddReference<void         >::Type, void);
+        ASSERT_SAME(bslmf::AddReference<void const   >::Type, const void);
+        ASSERT_SAME(bslmf::AddReference<void volatile>::Type, volatile void);
+        ASSERT_SAME(bslmf::AddReference<void const volatile>::Type,
+                    const volatile void);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

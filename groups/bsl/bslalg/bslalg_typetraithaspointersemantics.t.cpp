@@ -1,4 +1,4 @@
-// bslalg_typetraithaspointersemantics.t.cpp                  -*-C++-*-
+// bslalg_typetraithaspointersemantics.t.cpp                          -*-C++-*-
 
 #include <bslalg_typetraithaspointersemantics.h>
 
@@ -65,7 +65,7 @@ int verbose = 0;
 int veryVerbose = 0;
 int veryVeryVerbose = 0;
 
-typedef bslalg_TypeTraitHasPointerSemantics  Obj;
+typedef bslalg::TypeTraitHasPointerSemantics  Obj;
 
 //=============================================================================
 //                  USAGE EXAMPLE
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitHasPointerSemantic;
+        //   class bslalg::TypeTraitHasPointerSemantic;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

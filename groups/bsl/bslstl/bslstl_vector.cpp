@@ -1,20 +1,20 @@
-// bslstl_vector.cpp                  -*-C++-*-
+// bslstl_vector.cpp                                                  -*-C++-*-
 #include <bslstl_vector.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-// IMPLEMENTATION NOTES:  The class 'bslstl_Vector' is split in two, for a
+// IMPLEMENTATION NOTES: The class 'bslstl::Vector' is split in two, for a
 // conflation of two reasons:
 //
-//   1. we want the members 'd_data...' and 'd_capacity' to appear *before* the
-//      allocator, which is provided by 'bslstl_ContainerBase' (to potentially
-//      take advantage of the empty-base-class-optimization).
+//  1. We want the members 'd_data...' and 'd_capacity' to appear *before* the
+//     allocator, which is provided by 'bslstl::ContainerBase' (to potentially
+//     take advantage of the empty-base-class-optimization).
 //
-//   2. the 'bslstl_Vector_Imp' containing these members need only be
-//      parameterized by 'VALUE_TYPE' (and not 'ALLOCATOR'), and can provide
-//      the iterator and element access methods, leading to shorter debug
-//      strings for those methods.
+//  2. The 'bslstl_Vector_Imp' containing these members need only be
+//     parameterized by 'VALUE_TYPE' (and not 'ALLOCATOR'), and can provide the
+//     iterator and element access methods, leading to shorter debug strings
+//     for those methods.
 //
 // Moreover, in the spirit of template hoisting (providing functionality to all
 // all templates in a non-templated utility class), the 'swap' methods is

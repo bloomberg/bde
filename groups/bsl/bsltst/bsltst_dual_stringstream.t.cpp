@@ -1,4 +1,4 @@
-// bsltst_dual_stringstream.t.cpp                  -*-C++-*-
+// bsltst_dual_stringstream.t.cpp                                     -*-C++-*-
 #undef  BSL_OVERRIDES_STD
 #include <bsltst_dual_stringstream.h>
 
@@ -124,11 +124,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================

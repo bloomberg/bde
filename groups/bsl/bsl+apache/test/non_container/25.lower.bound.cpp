@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <rw/_config.h>
@@ -31,7 +31,7 @@
 #if defined (__IBMCPP__) && !defined (_RWSTD_NO_IMPLICIT_INCLUSION)
   // disable implicit inclusion to work around a limitation
   // of IBM VisualAge 5.0 (see PR #26959)
-#  define _RWSTD_NO_IMPLICIT_INCLUSION 
+#  define _RWSTD_NO_IMPLICIT_INCLUSION
 #endif
 
 #include <algorithm>

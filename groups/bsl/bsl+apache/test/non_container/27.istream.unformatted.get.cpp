@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2003-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <fstream>
@@ -261,7 +261,7 @@ void test_get_void (charT, const char *cname)
     TEST (T, "f", 1, 'f', Good,       Good, 0, 0);
     TEST (T, "g", 1, eof, Eof | Fail, Good, Underflow, 1);
     TEST (T, "h", 1, eof, Bad,        Good, Underflow | Throw, 1);
-    
+
     eof = '\0';
 
     TEST (T, "\0", 1, eof, Eof | Fail, Good, 0, -1);
@@ -556,7 +556,7 @@ void test_get_char_array (charT, const char *cname)
     TEST (T, "12346", 5, 5, eof, 4, Good, Good, 0, -1);
     TEST (T, "12347", 5, 6, eof, 5, Good, Good, 0, -1);
     TEST (T, "12348", 5, 7, eof, 5, Eof,  Good, 0, -1);
-    
+
     for (std::streamsize i = 0; i < N; i += 256) {
         TEST (T, buf, N, N, eof, '\n' + i, Good, Good, 0, -1);
 

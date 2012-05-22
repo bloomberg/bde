@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2003-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #if TEST_RW_EXTENSIONS // atomic add
@@ -257,7 +257,7 @@ void run_test (intT, thr_args_base::tag_t tag, int inc)
         rw_fatal (0 == rw_thread_create (tid + i, 0, thread_routine, args + i),
                   0, __LINE__, "thread_create() failed");
     }
-            
+
     for (unsigned i = 0; i != Args::nthreads_; ++i) {
 
         rw_error (0 == rw_thread_join (tid [i], 0), 0, __LINE__,

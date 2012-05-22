@@ -1,4 +1,4 @@
-// bslalg_typetraitsgroupstlsequence.t.cpp                  -*-C++-*-
+// bslalg_typetraitsgroupstlsequence.t.cpp                            -*-C++-*-
 
 #include <bslalg_typetraitsgroupstlsequence.h>
 
@@ -115,13 +115,13 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitsGroupStlSequence;
+        //   class bslalg::TypeTraitsGroupStlSequence;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        bslalg_TypeTraitsGroupStlSequence<T, bslma_Allocator *> mX;
+        bslalg::TypeTraitsGroupStlSequence<T, bslma::Allocator *> mX;
 
       } break;
 

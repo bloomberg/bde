@@ -1,4 +1,4 @@
-// bslstl_forwarditerator.cpp                  -*-C++-*-
+// bslstl_forwarditerator.cpp                                         -*-C++-*-
 #include <bslstl_forwarditerator.h>
 
 #include <bsls_ident.h>
@@ -6,7 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

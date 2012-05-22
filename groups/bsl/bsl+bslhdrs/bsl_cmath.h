@@ -61,6 +61,25 @@ namespace bsl
     using native_std::sqrt;
     using native_std::tan;
     using native_std::tanh;
+
+// C99 math functions are available in namespace std
+#if defined(BSLS_PLATFORM__CMP_GNU) \
+    && defined(_GLIBCXX_USE_C99_MATH) \
+    && !defined(_GLIBCXX_USE_C99_FP_MACROS_DYNAMIC)
+
+    using native_std::fpclassify;
+    using native_std::isfinite;
+    using native_std::isinf;
+    using native_std::isnan;
+    using native_std::isnormal;
+    using native_std::signbit;
+    using native_std::isgreater;
+    using native_std::isgreaterequal;
+    using native_std::isless;
+    using native_std::islessequal;
+    using native_std::islessgreater;
+    using native_std::isunordered;
+#endif
 }
 
 #endif

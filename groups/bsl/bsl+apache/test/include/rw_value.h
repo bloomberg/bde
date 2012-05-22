@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2005 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_VALUE_H_INCLUDED
@@ -194,7 +194,7 @@ struct _TEST_EXPORT UserClass
     //    bool operator<= (const UserClass &rhs) const;
     //    UserClass operator- () const;
     //    UserClass operator+ () const;
-    
+
     bool
     is_count (_RWSTD_SIZE_T copy_ctor,
               _RWSTD_SIZE_T op_assign,

@@ -1,4 +1,4 @@
-// bslma_allocator.t.cpp        -*-C++-*-
+// bslma_allocator.t.cpp                                              -*-C++-*-
 
 #include <bslma_allocator.h>
 
@@ -24,13 +24,13 @@ using namespace std;
 // 'new' and 'delete' operators respectively forward the call to the
 // 'allocate' and 'deallocate' method of the supplied allocator.
 //-----------------------------------------------------------------------------
-// [ 1] virtual ~bslma_Allocator();
+// [ 1] virtual ~bslma::Allocator();
 // [ 1] virtual void *allocate(size_type size) = 0;
 // [ 1] virtual void deallocate(void *address) = 0;
 // [ 2] template<typename TYPE> deleteObject(const TYPE *);
 // [ 3] template<typename TYPE> deleteObjectRaw(const TYPE *);
-// [ 4] void *operator new(int size, bslma_Allocator& basicAllocator);
-// [ 5] void operator delete(void *address, bslma_Allocator& basicAllocator);
+// [ 4] void *operator new(int size, bslma::Allocator& basicAllocator);
+// [ 5] void operator delete(void *address, bslma::Allocator& basicAllocator);
 //-----------------------------------------------------------------------------
 // [ 1] PROTOCOL TEST - Make sure derived class compiles and links.
 // [ 4] OPERATOR TEST - Make sure overloaded operators call correct functions.
@@ -64,8 +64,8 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                      CONCRETE DERIVED TYPES
 //-----------------------------------------------------------------------------
-class my_Allocator : public bslma_Allocator {
-  // Test class used to verify protocol.
+class my_Allocator : public bslma::Allocator {
+    // Test class used to verify protocol.
 
     int d_fun;  // holds code describing function:
                 //   + 1 allocate
@@ -78,8 +78,8 @@ class my_Allocator : public bslma_Allocator {
     int d_allocateCount;    // number of times allocate called
     int d_deallocateCount;  // number of times deallocate called
 
-    bsls_AlignmentUtil::MaxAlignedType d_align; // no use but to align this
-                                                // struct
+    bsls::AlignmentUtil::MaxAlignedType d_align; // no use but to align this
+                                                 // struct
 
   public:
     my_Allocator() : d_allocateCount(0), d_deallocateCount(0) { }
@@ -107,8 +107,9 @@ class my_Allocator : public bslma_Allocator {
         // Return number of times deallocate called.
 };
 
-class my_NewDeleteAllocator : public bslma_Allocator {
-  // Test class used to verify examples.
+class my_NewDeleteAllocator : public bslma::Allocator {
+    // Test class used to verify examples.
+
     int d_count;
 
     enum { MAGIC   = 0xDEADBEEF,
@@ -120,16 +121,16 @@ class my_NewDeleteAllocator : public bslma_Allocator {
 
     void *allocate(size_type size)  {
         unsigned *p = (unsigned *) operator new(
-                                size + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT);
+                               size + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
         *p = MAGIC;
 
         ++d_count;
-        return (char *) p + bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+        return (char *) p + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
     }
 
     void deallocate(void *address)  {
         unsigned *p = (unsigned *)
-                          ((bsls_AlignmentUtil::MaxAlignedType *) address - 1);
+                         ((bsls::AlignmentUtil::MaxAlignedType *) address - 1);
         ASSERT(MAGIC == *p);
         *p = DELETED;
 
@@ -182,28 +183,28 @@ static int mostDerivedObjectCount = 0;
 
 class my_VirtualBase {
     int x;
-public:
+  public:
     my_VirtualBase()          { virtualBaseObjectCount = 1; }
     virtual ~my_VirtualBase() { virtualBaseObjectCount = 0; }
 };
 
 class my_LeftBase : virtual public my_VirtualBase {
     int x;
-public:
+  public:
     my_LeftBase()             { leftBaseObjectCount = 1; }
     virtual ~my_LeftBase()    { leftBaseObjectCount = 0; }
 };
 
 class my_RightBase : virtual public my_VirtualBase {
     int x;
-public:
+  public:
     my_RightBase()            { rightBaseObjectCount = 1; }
     virtual ~my_RightBase()   { rightBaseObjectCount = 0; }
 };
 
 class my_MostDerived : public my_LeftBase, public my_RightBase {
     int x;
-public:
+  public:
     my_MostDerived()          { mostDerivedObjectCount = 1; }
     ~my_MostDerived()         { mostDerivedObjectCount = 0; }
 };
@@ -212,13 +213,13 @@ public:
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 class my_DoubleStack {
-    double          *d_stack_p;     // dynamically allocated array (d_size
-                                    // elements)
-    int              d_size;        // physical capacity of this stack (in
-                                    // elements)
-    int              d_length;      // logical index of next available
-                                    // stack element
-    bslma_Allocator *d_allocator_p; // holds (but doesn't own) object
+    double           *d_stack_p;     // dynamically allocated array (d_size
+                                     // elements)
+    int               d_size;        // physical capacity of this stack (in
+                                     // elements)
+    int               d_length;      // logical index of next available
+                                     // stack element
+    bslma::Allocator *d_allocator_p; // holds (but doesn't own) object
 
     friend class my_DoubleStackIter;
 
@@ -227,9 +228,9 @@ class my_DoubleStack {
 
   public:
     // CREATORS
-    my_DoubleStack(bslma_Allocator *basicAllocator = 0);
-    my_DoubleStack(const my_DoubleStack& other,
-                   bslma_Allocator *basicAllocator = 0);
+    my_DoubleStack(bslma::Allocator *basicAllocator = 0);
+    my_DoubleStack(const my_DoubleStack&  other,
+                   bslma::Allocator      *basicAllocator = 0);
     ~my_DoubleStack();
 
     // MANIPULATORS
@@ -248,12 +249,12 @@ enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 
 my_NewDeleteAllocator myA;
 
-my_DoubleStack::my_DoubleStack(bslma_Allocator *basicAllocator)
+my_DoubleStack::my_DoubleStack(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(basicAllocator ? basicAllocator : &myA)
     // The above initialization expression is equivalent to 'basicAllocator
-    // ? basicAllocator : &bslma_NewDeleteAllocator::singleton()'.
+    // ? basicAllocator : &bslma::NewDeleteAllocator::singleton()'.
 {
     ASSERT(d_allocator_p);
     d_stack_p = (double *) d_allocator_p->allocate(d_size * sizeof *d_stack_p);
@@ -282,7 +283,7 @@ void my_DoubleStack::push(double value)
 
 static inline
 void reallocate(double **array, int newSize, int length,
-                bslma_Allocator *basicAllocator)
+                bslma::Allocator *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified
     // 'newSize' using the specified 'basicAllocator'.  The specified
     // 'length' number of leading elements are preserved.  Since the
@@ -345,10 +346,10 @@ ostream& operator<<(ostream& stream, const my_DoubleStack& stack)
 
 class my_Type {
     char *d_stuff_p;
-    bslma_Allocator *d_allocator_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
-    my_Type(int size, bslma_Allocator *basicAllocator)
+    my_Type(int size, bslma::Allocator *basicAllocator)
     : d_allocator_p(basicAllocator)
     {
         d_stuff_p = (char *) d_allocator_p->allocate(size);
@@ -360,10 +361,10 @@ class my_Type {
     }
 };
 
-my_Type *newMyType(bslma_Allocator *basicAllocator) {
+my_Type *newMyType(bslma::Allocator *basicAllocator) {
     return new (*basicAllocator) my_Type(5, basicAllocator);
 }
-void deleteMyType(bslma_Allocator *basicAllocator, my_Type *t) {
+void deleteMyType(bslma::Allocator *basicAllocator, my_Type *t) {
     t->~my_Type();
     basicAllocator->deallocate(t);
 }
@@ -423,7 +424,7 @@ int main(int argc, char *argv[])
                 "\tCreating a stack with a specified allocator." << endl;
         {
             my_NewDeleteAllocator myA;
-            bslma_Allocator& a = myA;
+            bslma::Allocator& a = myA;
             my_DoubleStack s(&a);
             s.push(1.25);
             s.push(1.5);
@@ -450,7 +451,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nUsage test for 'new' operator." << endl;
         {
             my_NewDeleteAllocator myA;
-            bslma_Allocator& a = myA;
+            bslma::Allocator& a = myA;
             my_Type *t = newMyType(&a);
             deleteMyType(&a, t);
         }
@@ -470,7 +471,7 @@ int main(int argc, char *argv[])
         //   was performed automatically.
         //
         // Testing:
-        //   void operator delete(void *address, bslma_Allocator& bA);
+        //   void operator delete(void *address, bslma::Allocator& bA);
         //   EXCEPTION SAFETY
         // --------------------------------------------------------------------
 
@@ -479,7 +480,7 @@ int main(int argc, char *argv[])
                           << "=====================================" << endl;
         {
             my_Allocator myA;
-            bslma_Allocator& a = myA;
+            bslma::Allocator& a = myA;
 
             my_ClassThatMayThrowFromConstructor *p=0;
 #ifdef BDE_BUILD_TARGET_EXC
@@ -516,13 +517,13 @@ int main(int argc, char *argv[])
         //   correct parameters are passed to allocate method.
         //
         // Testing:
-        //   void *operator new(int size, bslma_Allocator& basicAllocator);
+        //   void *operator new(int size, bslma::Allocator& basicAllocator);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "OPERATOR TEST" << endl
                                   << "=============" << endl;
         my_Allocator myA;
-        bslma_Allocator& a = myA;
+        bslma::Allocator& a = myA;
 
         if (verbose) cout << "\nTesting scalar input operators." << endl;
         {
@@ -566,7 +567,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'deleteObjectRaw':" << endl;
         {
-            my_NewDeleteAllocator myA;  bslma_Allocator& a = myA;
+            my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
 
             if (verbose) cout << "\twith a my_Class1 object" << endl;
 
@@ -637,7 +638,7 @@ int main(int argc, char *argv[])
             ASSERT(6 == myA.getCount());
         }
         {
-            my_NewDeleteAllocator myA;  bslma_Allocator& a = myA;
+            my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
 
             if (verbose) cout << "\tdeleteObjectRaw(my_MostDerived*)" << endl;
 
@@ -689,7 +690,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'deleteObject':" << endl;
         {
-            my_NewDeleteAllocator myA;  bslma_Allocator& a = myA;
+            my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
 
             if (verbose) cout << "\twith a my_Class1 object" << endl;
 
@@ -760,7 +761,7 @@ int main(int argc, char *argv[])
             ASSERT(6 == myA.getCount());
         }
         {
-            my_NewDeleteAllocator myA;  bslma_Allocator& a = myA;
+            my_NewDeleteAllocator myA;  bslma::Allocator& a = myA;
 
             if (verbose) cout << "\tdeleteObject(my_MostDerived*)" << endl;
 
@@ -852,18 +853,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PROTOCOL TEST:
         //   All we need to do is make sure that a subclass of the
-        //   'bslma_Allocator' class compiles and links when all virtual
+        //   'bslma::Allocator' class compiles and links when all virtual
         //   functions are defined.
         //
         // Plan:
-        //   Construct an object of a class derived from 'bslma_Allocator'.
+        //   Construct an object of a class derived from 'bslma::Allocator'.
         //   Up-cast a reference to the object to the base class
-        //   'bslma_Allocator'.  Using the base class reference invoke both
+        //   'bslma::Allocator'.  Using the base class reference invoke both
         //   'allocate' and 'deallocate' methods.  Verify that the correct
         //   implementations of the methods are called.
         //
         // Testing:
-        //   virtual ~bslma_Allocator();
+        //   virtual ~bslma::Allocator();
         //   virtual void *allocate(size_type size) = 0;
         //   virtual void deallocate(void *address) = 0;
         // --------------------------------------------------------------------
@@ -871,7 +872,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "PROTOCOL TEST" << endl
                                   << "=============" << endl;
         my_Allocator myA;
-        bslma_Allocator& a = myA;
+        bslma::Allocator& a = myA;
 
         if (verbose) cout << "\nTesting allocate/deallocate" << endl;
         {

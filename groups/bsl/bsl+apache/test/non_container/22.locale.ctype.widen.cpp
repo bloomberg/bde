@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2008 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <locale>

@@ -159,7 +159,7 @@ void test_virtual (charT, Traits, const VFun *pfid,
                    std::size_t,                // length of string
                    int         mode,           // ctor mode argument
                    int         gbump,          // initial gptr offset
-                   int         arg0,           // first argument 
+                   int         arg0,           // first argument
                    int         arg1,           // second argument
                    int         arg2,           // third argument
                    int         ret_expect,     // expected return value
@@ -413,7 +413,7 @@ void test_virtual (VFun         *pfid,
     }
 
     pfid->fname_ = fnames [pfid->vfun_];
-    
+
     if (VFun:: DefaultTraits == pfid->tid_) {
         if (VFun::Char == pfid->cid_)
             TEST (char, std::char_traits<char>);
@@ -795,7 +795,7 @@ test_underflow (VFun *pfid)
     // 27.7.1.3 + LWG issue 432
     //
     // int_type undeflow ()
-    // 
+    //
     // -1- If the input sequence has a read position available, returns
     //     traits::to_int_type(*gptr()). Otherwise, returns traits::eof().
     //     Any character in the underlying buffer which has been initialized
@@ -891,7 +891,7 @@ test_seek (VFun *pfid)
     //
     // Table 91 -- newoff values
     // ----------------------------
-    // 
+    //
     // Condition       Newoff value
     // --------------- ------------
     // (way == beg)    0

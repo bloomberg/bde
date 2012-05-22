@@ -21,8 +21,8 @@ using namespace std;
 // accessors for the attributes by creating objects initialized with varying
 // values, and ensure that the accessors return the expected values.
 //-----------------------------------------------------------------------------
-// [1] bslma_Testallocatorexception(int numBytes);
-// [1] ~bslma_Testallocatorexception();
+// [1] bslma::Testallocatorexception(int numBytes);
+// [1] ~bslma::Testallocatorexception();
 // [1] int numBytes() const;
 //-----------------------------------------------------------------------------
 // [2] USAGE TEST - Make sure main usage example compiles and works.
@@ -67,7 +67,7 @@ static void aSsErT(int c, const char *s, int i)
 //-----------------------------------------------------------------------------
 // my_allocator.h
 
-class my_Allocator : public bslma_Allocator {
+class my_Allocator : public bslma::Allocator {
     int d_allocationLimit;
     // ...
 
@@ -96,7 +96,7 @@ void *my_Allocator::allocate(size_type size)
     if (0 <= d_allocationLimit) {
         --d_allocationLimit;
         if (0 > d_allocationLimit) {
-            throw bslma_TestAllocatorException(size);
+            throw bslma::TestAllocatorException(size);
         }
     }
 #endif
@@ -110,14 +110,14 @@ class my_ShortArray {
     short *d_array_p; // dynamically-allocated array of short integers
     int d_size;       // physical size of the 'd_array_p' array (elements)
     int d_length;     // logical length of the 'd_array_p' array (elements)
-    bslma_Allocator *d_allocator_p; // holds (but does not own) allocator
+    bslma::Allocator *d_allocator_p; // holds (but does not own) allocator
 
   private:
     void increaseSize(); // Increase the capacity by at least one element.
 
   public:
     // CREATORS
-    my_ShortArray(bslma_Allocator *basicAllocator = 0);
+    my_ShortArray(bslma::Allocator *basicAllocator = 0);
         // Create a empty array.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, global
         // operators 'new' and 'delete' are used.
@@ -135,7 +135,7 @@ enum { INITIAL_SIZE = 1, GROW_FACTOR = 2 };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_shortarray.cpp
 
-my_ShortArray::my_ShortArray(bslma_Allocator *basicAllocator)
+my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(basicAllocator)
@@ -173,8 +173,10 @@ inline void my_ShortArray::append(int value)
 }
 
 inline static
-void reallocate(short **array, int newSize, int length,
-                bslma_Allocator *basicAllocator)
+void reallocate(short            **array, 
+                int                newSize, 
+                int                length,
+                bslma::Allocator  *basicAllocator)
     // Reallocate memory in the specified 'array' to the specified 'newSize'
     // using the specified 'basicAllocator', or, if 'basicAllocator' is 0,
     // global operators 'new' and 'delete'.  The specified 'length' number of
@@ -246,7 +248,7 @@ ostream& operator<<(ostream& stream, const my_ShortArray& array)
         try {
 
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                            \
-        } catch (bslma_TestAllocatorException& e) {                       \
+        } catch (bslma::TestAllocatorException& e) {                      \
             if (veryVerbose && bslmaExceptionLimit || veryVeryVerbose) {  \
                 --bslmaExceptionLimit;                                    \
                 cout << "(*** " << bslmaExceptionCounter << ')';          \
@@ -358,13 +360,13 @@ int main(int argc, char *argv[]) {
       case 1: {
         // --------------------------------------------------------------------
         // BASIC TEST
-        //   Create 'bslma_TestAllocatorException' objects with varying initial
-        //   value.  Verify that each object contains the expected value using
-        //   basic accessor 'numBytes'.
+        //   Create 'bslma::TestAllocatorException' objects with varying
+        //   initial value.  Verify that each object contains the expected
+        //   value using basic accessor 'numBytes'.
         //
         // Testing:
-        //   bslma_Testallocatorexception(int numBytes);
-        //   ~bslma_Testallocatorexception();
+        //   bslma::Testallocatorexception(int numBytes);
+        //   ~bslma::Testallocatorexception();
         //   int numBytes() const;
         // --------------------------------------------------------------------
 
@@ -376,7 +378,7 @@ int main(int argc, char *argv[]) {
             const int NUM_BYTES[] = { 0, 1, 5, 100, -1, -100 };
             const int NUM_TEST = sizeof NUM_BYTES / sizeof *NUM_BYTES;
             for (int i = 0; i < NUM_TEST; ++i) {
-                const bslma_TestAllocatorException X(NUM_BYTES[i]);
+                const bslma::TestAllocatorException X(NUM_BYTES[i]);
                 LOOP_ASSERT(i, NUM_BYTES[i] == X.numBytes());
             }
         }

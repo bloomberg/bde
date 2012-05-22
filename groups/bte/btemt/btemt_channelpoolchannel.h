@@ -59,14 +59,16 @@ BDES_IDENT("$Id: $")
 #include <bsl_climits.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
 class btemt_ChannelPool;
 class bcema_PooledBufferChainFactory;
 class bcema_PooledBlobBufferFactory;
 class bcema_PoolAllocator;
-class bslma_Allocator;
-
                        // ==============================
                        // class btemt_ChannelPoolChannel
                        // ==============================
