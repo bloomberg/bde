@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for equal
@@ -36,7 +36,7 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
@@ -44,16 +44,16 @@ _RWSTD_NAMESPACE (std) {
 
 template
 bool
-equal (InputIter<eq_comp<base<> > >, 
+equal (InputIter<eq_comp<base<> > >,
        InputIter<eq_comp<base<> > >,
        InputIter<eq_comp<base<> > >);
 
 #if TEST_RW_PEDANTIC // std::equal should not assume that the result of binary_predict supports operator!.  Convertible to bool is the only requirement.
 template
 bool
-equal (InputIter<eq_comp<base<> > >, 
-       InputIter<eq_comp<base<> > >, 
-       InputIter<eq_comp<base<> > >, 
+equal (InputIter<eq_comp<base<> > >,
+       InputIter<eq_comp<base<> > >,
+       InputIter<eq_comp<base<> > >,
        binary_predicate<eq_comp<base<> > >);
 #endif
 
@@ -100,7 +100,7 @@ void test_equal (std::size_t           N,
     new (buf2 + mid_inx) UserClass ();
 
     for (std::size_t i = 0; i != N; ++i) {
-    
+
         // exercise 25.1.8 - std::equal()
         std::size_t last_n_op_eq  = UserClass::n_total_op_eq_;
 
@@ -139,7 +139,7 @@ void test_equal (std::size_t           N,
 
         // verify 25.1.8, p2
         success = UserClass::n_total_op_eq_ - last_n_op_eq <= (N + 1);
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. equal(%s, %2$s, %s%s%{?}, %s%{;}) complexity: "
                    "%zu <= %zu",
                    i + 1, it1name, it2name,

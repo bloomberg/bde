@@ -30,6 +30,7 @@ BSLS_IDENT("$Id: $")
 #include <algorithm>
 
 namespace bsl {
+
     // Import selected symbols into bsl namespace
     using native_std::new_handler;
     using native_std::adjacent_find;
@@ -112,12 +113,13 @@ namespace bsl {
     using native_std::unique;
     using native_std::unique_copy;
     using native_std::upper_bound;
+
 }  // close namespace bsl
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included
-// by the Bloomberg supplied standard header file.
+// implementation, in which case the implementation file will be included by
+// the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
 #include <bslstl_exalgorithm.h>

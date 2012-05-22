@@ -1,4 +1,4 @@
-// bsltst_stringstream.t.cpp                  -*-C++-*-
+// bsltst_stringstream.t.cpp                                          -*-C++-*-
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif
@@ -129,11 +129,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 template <typename TYPE>
@@ -174,10 +174,10 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator ta;
-    bslma_TestAllocator tda;
+    bslma::TestAllocator ta;
+    bslma::TestAllocator tda;
 
-    bslma_DefaultAllocatorGuard defaultGuard(&tda);
+    bslma::DefaultAllocatorGuard defaultGuard(&tda);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 5: {
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
         {
             const int vals[] = { -2, -1, 0, 1, 2, 3, 4, 5, 6, 1023, 1024,
                                  -1023, -1024 };
-                                 
+
             enum { NUM_VALS = sizeof vals / sizeof *vals };
 
             bsl::stringstream ss;
@@ -208,8 +208,9 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 ss << vals[j] << " ";
             }
-            LOOP_ASSERT(ss.str(),
-                        ss.str() == "-2 -1 0 1 2 3 4 5 6 1023 1024 -1023 -1024 ");
+            LOOP_ASSERT(
+                     ss.str(),
+                     ss.str() == "-2 -1 0 1 2 3 4 5 6 1023 1024 -1023 -1024 ");
 
             for (j = 0; ss >> k; ++j) {
                 ASSERT(vals[j] == k);
@@ -231,11 +232,11 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM__CMP_MSVC
             const char *EXPECTED = "0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ";
-#else 
+#else
             const char *EXPECTED = "0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-92 ";
 #endif
             LOOP2_ASSERT(ss.str(), EXPECTED,
-                        ss.str() == EXPECTED);
+                         ss.str() == EXPECTED);
             double d;
             for (j = 0; ss >> d; ++j) {
                 ASSERT(vals[j] == d);
@@ -255,11 +256,11 @@ int main(int argc, char *argv[])
             }
 #ifdef BSLS_PLATFORM__CMP_MSVC
             const char *EXPECTED ="0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ";
-#else 
+#else
             const char *EXPECTED ="0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-28 ";
 #endif
             LOOP2_ASSERT(ss.str(), EXPECTED,
-                        ss.str() == EXPECTED);
+                         ss.str() == EXPECTED);
 
             float f;
             for (j = 0; ss >> f; ++j) {
@@ -394,7 +395,7 @@ int main(int argc, char *argv[])
             bsl::istringstream is();
             const int vals[] = { -2, -1, 0, 1, 2, 3, 4, 5, 6, 1023, 1024,
                                  -1023, -1024 };
-                                 
+
             enum { NUM_VALS = sizeof vals / sizeof *vals };
 
             Bwsstream bss;
@@ -423,7 +424,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM__CMP_MSVC
             const wchar_t *EXPECTED =
                                   L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ";
-#else 
+#else
             const wchar_t *EXPECTED =
                                     L"0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-92 ";
 #endif
@@ -452,7 +453,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM__CMP_MSVC
             const wchar_t *EXPECTED =
                                   L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ";
-#else 
+#else
             const wchar_t *EXPECTED =
                                     L"0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-28 ";
 #endif
@@ -611,7 +612,7 @@ int main(int argc, char *argv[])
         {
             const int vals[] = { -2, -1, 0, 1, 2, 3, 4, 5, 6, 1023, 1024,
                                  -1023, -1024 };
-                                 
+
             enum { NUM_VALS = sizeof vals / sizeof *vals };
 
             bsl::stringstream ss(&ta);
@@ -619,8 +620,9 @@ int main(int argc, char *argv[])
             for (j = 0; j < NUM_VALS; ++j) {
                 ss << vals[j] << " ";
             }
-            LOOP_ASSERT(ss.str(),
-                        ss.str() == "-2 -1 0 1 2 3 4 5 6 1023 1024 -1023 -1024 ");
+            LOOP_ASSERT(
+                     ss.str(),
+                     ss.str() == "-2 -1 0 1 2 3 4 5 6 1023 1024 -1023 -1024 ");
 
             for (j = 0; ss >> k; ++j) {
                 ASSERT(vals[j] == k);
@@ -642,11 +644,11 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_PLATFORM__CMP_MSVC
             const char *EXPECTED = "0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ";
-#else 
+#else
             const char *EXPECTED = "0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-92 ";
 #endif
             LOOP2_ASSERT(ss.str(), EXPECTED,
-                        ss.str() == EXPECTED);
+                         ss.str() == EXPECTED);
             double d;
             for (j = 0; ss >> d; ++j) {
                 ASSERT(vals[j] == d);
@@ -666,11 +668,11 @@ int main(int argc, char *argv[])
             }
 #ifdef BSLS_PLATFORM__CMP_MSVC
             const char *EXPECTED ="0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ";
-#else 
+#else
             const char *EXPECTED ="0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-28 ";
 #endif
             LOOP2_ASSERT(ss.str(), EXPECTED,
-                        ss.str() == EXPECTED);
+                         ss.str() == EXPECTED);
 
             float f;
             for (j = 0; ss >> f; ++j) {
@@ -791,7 +793,7 @@ int main(int argc, char *argv[])
             bsl::istringstream is();
             const int vals[] = { -2, -1, 0, 1, 2, 3, 4, 5, 6, 1023, 1024,
                                  -1023, -1024 };
-                                 
+
             enum { NUM_VALS = sizeof vals / sizeof *vals };
 
             Bwsstream bss(&ta);
@@ -820,7 +822,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM__CMP_MSVC
             const wchar_t *EXPECTED =
                                   L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-092 ";
-#else 
+#else
             const wchar_t *EXPECTED =
                                     L"0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-92 ";
 #endif
@@ -849,7 +851,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM__CMP_MSVC
             const wchar_t *EXPECTED =
                                   L"0 0 1 2 3.21 4.5 -7.3 4.3e+028 -2.4e-028 ";
-#else 
+#else
             const wchar_t *EXPECTED =
                                     L"0 0 1 2 3.21 4.5 -7.3 4.3e+28 -2.4e-28 ";
 #endif
@@ -1024,7 +1026,7 @@ int main(int argc, char *argv[])
         {
             const int vals[] = { -2, -1, 0, 1, 2, 3, 4, 5, 6, 1023, 1024,
                                  -1023, -1024 };
-                                 
+
             enum { NUM_VALS = sizeof vals / sizeof *vals };
 
             bsl::ostringstream os;
@@ -1137,7 +1139,7 @@ int main(int argc, char *argv[])
         {
             const int vals[] = { -2, -1, 0, 1, 2, 3, 4, 5, 6, 1023, 1024,
                                  -1023, -1024 };
-                                 
+
             enum { NUM_VALS = sizeof vals / sizeof *vals };
 
             bsl::basic_ostringstream<wchar_t,
@@ -1275,7 +1277,7 @@ int main(int argc, char *argv[])
         {
             const int vals[] = { -2, -1, 0, 1, 2, 3, 4, 5, 6, 1023, 1024,
                                  -1023, -1024 };
-                                 
+
             enum { NUM_VALS = sizeof vals / sizeof *vals };
 
             bsl::ostringstream os(&ta);
@@ -1388,7 +1390,7 @@ int main(int argc, char *argv[])
         {
             const int vals[] = { -2, -1, 0, 1, 2, 3, 4, 5, 6, 1023, 1024,
                                  -1023, -1024 };
-                                 
+
             enum { NUM_VALS = sizeof vals / sizeof *vals };
 
             bsl::basic_ostringstream<wchar_t,

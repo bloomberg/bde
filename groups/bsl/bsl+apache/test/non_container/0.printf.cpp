@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 // tell Compaq C++ we need ENOMEM (defined by POSIX
@@ -407,7 +407,7 @@ test_string ()
 
     TEST ("|%*.*s|",  7, 2, "xyz", "|     xy|");
     TEST ("|%*.*s|", -8, 1, "xyz", "|x       |");
- 
+
     TEST ("%s%s",       "A", "BC", 0,     "ABC");
     TEST ("1%s2%s3",    "A", "BC", 0,     "1A2BC3");
     TEST ("%s%s%s",     "A", "BC", "DEF", "ABCDEF");
@@ -604,7 +604,7 @@ test_chararray ()
         const short s_a []   = { 'a', '\0' };
         const short s_ab []  = { 'a', 'b', '\0' };
         const short s_abc [] = { 'a', 'b', 'c', '\0' };
-            
+
         TEST ("%{2Ac}", 0,     0, 0, "(null)");
         TEST ("%{2Ac}", s_,    0, 0, "\"\"");
         TEST ("%{2Ac}", s_a,   0, 0, "\"a\"");
@@ -1259,7 +1259,7 @@ test_dec (char spec)
     TEST_SPEC ("%",    123, 0, 0, "123");
     TEST_SPEC ("%",   2345, 0, 0, "2345");
     TEST_SPEC ("%",  34567, 0, 0, "34567");
-   
+
     TEST_SPEC ("%",   -124, 0, 0, sgn ? "-124" : "4294967172");
     TEST_SPEC ("%",  -2346, 0, 0, sgn ? "-2346" : "4294964950");
     TEST_SPEC ("%", -34568, 0, 0, sgn ? "-34568" : "4294932728");
@@ -2158,7 +2158,7 @@ test_memptr ()
         TEST ("%{#M}", uval.mptr, 0, 0, "0x00000000ffffffff");
 
         uval.lval [hi_inx] = 0xdeadbeefUL;
-        
+
         uval.lval [lo_inx] = 0UL;
         TEST ("%{M}",  uval.mptr, 0, 0,   "deadbeef00000000");
         TEST ("%{#M}", uval.mptr, 0, 0, "0xdeadbeef00000000");
@@ -2188,7 +2188,7 @@ test_memptr ()
         TEST ("%{#M}", uval.mptr, 0, 0, "0x000000000000000000000000ffffffff");
 
         uval.lval [hi_inx] = 0x0123456789abcdefUL;
-        
+
         uval.lval [lo_inx] = 0UL;
         TEST ("%{M}",  uval.mptr, 0, 0,   "0123456789abcdef0000000000000000");
         TEST ("%{#M}", uval.mptr, 0, 0, "0x0123456789abcdef0000000000000000");
@@ -2672,7 +2672,7 @@ make_tm (int sec = 0,            // [0,60]
 
     // GNU glibc uses gmtoff and zone instead of timezone and
     // tzname when computing/formatting time zone information
-    // 
+    //
     // http://www.gnu.org/manual/glibc-2.2.3/html_node/libc_425.html#SEC434
 
 #  ifndef __USE_BSD
@@ -2967,7 +2967,7 @@ user_fun_va (const char *fun_name,   // name of calling function
         // special value indicating to the caller that we're
         // returning control to it and letting it to handle
         // the directive to set/push/pop a user-defined
-        // formatting function 
+        // formatting function
         return _RWSTD_INT_MIN;
     }
 
@@ -3012,7 +3012,7 @@ user_fun_va (const char *fun_name,   // name of calling function
         RW_ASSERT (0 != pva);
 
         // extract an integer value from rw_snprintfa's variable argument
-        // list pass through to us by the caller 
+        // list pass through to us by the caller
         arg = va_arg (*pva, int);
 
         // extract the address where to store the extracted argument

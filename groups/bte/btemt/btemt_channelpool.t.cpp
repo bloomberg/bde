@@ -620,6 +620,188 @@ void populateMessage(bcema_Blob      *msg,
     msg->appendDataBuffer(blobBuffer);
 }
 
+
+//-----------------------------------------------------------------------------
+// CASE 41
+//-----------------------------------------------------------------------------
+
+namespace CASE41 {
+
+void poolStateCb(int state, int source, int severity)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Pool state callback called with"
+                  << " State: " << state
+                  << " Source: "  << source
+                  << " Severity: " << severity << bsl::endl;
+    }
+}
+
+void channelStateCb(int              channelId,
+                    int              serverId,
+                    int              state,
+                    void            *arg,
+                    int             *id,
+                    bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Channel state callback called with"
+                  << " Channel Id: " << channelId
+                  << " Server Id: "  << serverId
+                  << " State: " << state << bsl::endl;
+    }
+    if (btemt_ChannelPool::BTEMT_CHANNEL_UP == state) {
+        *id = channelId;
+        barrier->wait();
+    }
+}
+
+void blobBasedReadCb(int             *needed,
+                     bcema_Blob      *msg,
+                     int              channelId,
+                     void            *arg,
+                     string          *data,
+                     bcemt_Barrier   *barrier)
+{
+    if (veryVerbose) {
+        bcemt_LockGuard<bcemt_Mutex> guard(&coutMutex);
+        bsl::cout << "Blob Based Read Cb called with"
+                  << " Channel Id: " << channelId
+                  << " of length: "  << msg->length() << bsl::endl;
+    }
+    *needed = 1;
+
+    barrier->wait();
+
+    ostringstream os;
+    bcema_BlobUtil::asciiDump(os, *msg);
+    data->append(os.str());
+
+    msg->removeAll();
+}
+
+struct ReadData {
+    bteso_StreamSocket<bteso_IPv4Address> *d_socket_p;
+    bcemt_Mutex                           *d_mutex_p;
+    int                                   *d_stopReading_p;
+};
+
+void *readData(void *data)
+{
+    ReadData& td = *(ReadData *) data;
+
+    bteso_StreamSocket<bteso_IPv4Address> *socket      = td.d_socket_p;
+    bcemt_Mutex&                           mutex       = *td.d_mutex_p;
+    int&                                   stopReading = *td.d_stopReading_p;
+
+    const int BUF_SIZE = 1000 * 100;
+    char buffer[BUF_SIZE];
+
+    bsls_Types::Uint64 br = 0;
+    while (1) {
+        int rc = socket->read(buffer, BUF_SIZE);
+        if (rc != bteso_SocketHandle::BTESO_ERROR_WOULDBLOCK) {
+            br += rc;
+        }
+        bcemt_LockGuard<bcemt_Mutex> lock(&mutex);
+        if (stopReading) {
+            break;
+        }
+    }
+    return 0;
+}
+
+struct WriteData {
+    btemt_ChannelPool                     *d_pool_p;
+    int                                    d_channelId;
+    bteso_StreamSocket<bteso_IPv4Address> *d_socket_p;
+    bcema_Blob                            *d_blob_p;
+};
+
+void *writeData(void *data)
+{
+    WriteData& td = *(WriteData *) data;
+
+    btemt_ChannelPool&                     pool      = *td.d_pool_p;
+    int                                    channelId = td.d_channelId;;
+    bteso_StreamSocket<bteso_IPv4Address> *socket    = td.d_socket_p;
+    bcema_Blob                            *blob      = td.d_blob_p;
+
+    int curr = 0, max = 0;
+    int rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
+
+    if (verbose) cout << "\nFIRST SET"
+                      << "\n=========" << endl;
+
+    for (int i = 0; i < 100; ++i) {
+        bcemt_ThreadUtil::microSleep(1000);
+
+        rc = pool.write(channelId, *blob);
+        LOOP_ASSERT(rc, !rc);
+
+        rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
+        LOOP_ASSERT(rc, !rc);
+        LOOP_ASSERT(max, max >= 0);
+        LOOP_ASSERT(curr, curr >= 0);
+//         LOOP2_ASSERT(max, curr, curr <= max);
+        if (veryVerbose) {
+            MTCOUT << "Max: " << max << " Curr: " << curr << MTENDL;
+        }
+    }
+
+    if (verbose) cout << "\nSECOND SET"
+                      << "\n==========" << endl;
+
+    rc = pool.resetRecordedMaxWriteCacheSize(channelId);
+    LOOP_ASSERT(rc, !rc);
+
+    for (int i = 0; i < 100; ++i) {
+        bcemt_ThreadUtil::microSleep(1000);
+
+        rc = pool.write(channelId, *blob);
+        LOOP_ASSERT(rc, !rc);
+
+        rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
+        LOOP_ASSERT(rc, !rc);
+        LOOP_ASSERT(max, max >= 0);
+        LOOP_ASSERT(curr, curr >= 0);
+//         LOOP2_ASSERT(max, curr, curr <= max);
+        if (veryVerbose) {
+            MTCOUT << "Max: " << max << " Curr: " << curr << MTENDL;
+        }
+    }
+
+    if (verbose) cout << "\nTHIRD SET"
+                      << "\n=========" << endl;
+
+    rc = pool.resetRecordedMaxWriteCacheSize(channelId);
+    LOOP_ASSERT(rc, !rc);
+
+    for (int i = 0; i < 100; ++i) {
+        bcemt_ThreadUtil::microSleep(1000);
+
+        rc = pool.resetRecordedMaxWriteCacheSize(channelId);
+        LOOP_ASSERT(rc, !rc);
+
+        rc = pool.write(channelId, *blob);
+        LOOP_ASSERT(rc, !rc);
+
+        rc = pool.getChannelWriteCacheStatistics(&max, &curr, channelId);
+        LOOP_ASSERT(rc, !rc);
+        LOOP_ASSERT(max, max >= 0);
+        LOOP_ASSERT(curr, curr >= 0);
+//         LOOP2_ASSERT(max, curr, curr <= max);
+        if (veryVerbose) {
+            MTCOUT << "Max: " << max << " Curr: " << curr << MTENDL;
+        }
+    }
+    return 0;
+}
+
+}  // namespace TEST_CASE_41_NAMESPACE
+
 //-----------------------------------------------------------------------------
 // CASE 37
 //-----------------------------------------------------------------------------
@@ -1488,7 +1670,7 @@ void ReadServer::blobBasedReadCb(int             *needed,
 }
 
 // MANIPULATORS
-std::string& ReadServer::data()
+bsl::string& ReadServer::data()
 {
     return d_data;
 }
@@ -1500,7 +1682,7 @@ int ReadServer::portNumber() const
     return d_cp_p->serverAddress(SERVER_ID)->portNumber();
 }
 
-const std::string& ReadServer::data() const
+const bsl::string& ReadServer::data() const
 {
     return d_data;
 }
@@ -2518,6 +2700,7 @@ int drainSocket(bteso_StreamSocket<bteso_IPv4Address> *clientSocket,
     while (numBytesRead < numBytesExpected &&
            (rc = clientSocket->read(buffer, BUFF_SIZE)) > 0) {
         numBytesRead += rc;
+//         P_(rc) P(numBytesRead);
     }
     LOOP2_ASSERT(numBytesRead, numBytesExpected,
                                              numBytesRead == numBytesExpected);
@@ -2579,8 +2762,9 @@ TestCase25ConcurrencyTest::TestCase25ConcurrencyTest(
 
 void TestCase25ConcurrencyTest::executeTest()
 {
-    enum { HI_WATERMARK = 1096,
-           NUM_BYTES    = HI_WATERMARK * 25 };
+    enum { LOW_WATERMARK = 64,
+           HI_WATERMARK  = 1096,
+           NUM_BYTES     = HI_WATERMARK * 25 };
 
     int rc = 0, totalBytesWritten = 0;
     bcema_Blob oneByteMsg;
@@ -2589,6 +2773,8 @@ void TestCase25ConcurrencyTest::executeTest()
     d_barrier.wait();
 
     d_pool_p->setWriteCacheHiWatermark(d_channelId, HI_WATERMARK);
+    d_pool_p->setWriteCacheLowWatermark(d_channelId, LOW_WATERMARK);
+
     while (totalBytesWritten < NUM_BYTES) {
         int currentBytesWritten = 0;
         while (currentBytesWritten < (HI_WATERMARK / 4) &&
@@ -2599,6 +2785,7 @@ void TestCase25ConcurrencyTest::executeTest()
         }
 
         d_pool_p->setWriteCacheHiWatermark(d_channelId, 2 * HI_WATERMARK);
+        d_pool_p->setWriteCacheLowWatermark(d_channelId, 2 * LOW_WATERMARK);
 
         currentBytesWritten = 0;
         while (currentBytesWritten < (HI_WATERMARK / 4) &&
@@ -2609,6 +2796,7 @@ void TestCase25ConcurrencyTest::executeTest()
         }
 
         d_pool_p->setWriteCacheHiWatermark(d_channelId, HI_WATERMARK);
+        d_pool_p->setWriteCacheLowWatermark(d_channelId, LOW_WATERMARK);
     }
     ++d_done;
 }
@@ -7776,6 +7964,117 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 41: {
+        // --------------------------------------------------------------------
+        // ADDING WRITE STATISTICS - DRQS 30994480
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << "\nADDING WRITE STATISTICS DRQS 30994480"
+                 << "\n====================================="
+                 << endl;
+
+        using namespace CASE41;
+
+        btemt_ChannelPoolConfiguration config;
+        config.setMaxThreads(1);
+        config.setWriteCacheWatermarks(0, 1024 * 1024 * 1024);
+        config.setReadTimeout(0);        // in seconds
+        if (verbose) {
+            P(config);
+        }
+
+        bcemt_Barrier   channelCbBarrier(2);
+        int             channelId;
+        btemt_ChannelPool::ChannelStateChangeCallback channelCb(
+                                       bdef_BindUtil::bind(&channelStateCb,
+                                                           _1, _2, _3, _4,
+                                                           &channelId,
+                                                           &channelCbBarrier));
+
+        btemt_ChannelPool::PoolStateChangeCallback poolCb(&poolStateCb);
+
+        string        data;
+        bcemt_Barrier dataCbBarrier(2);
+
+        btemt_ChannelPool::BlobBasedReadCallback dataCb(
+                                     bdef_BindUtil::bind(&blobBasedReadCb,
+                                                         _1, _2, _3, _4,
+                                                         &data,
+                                                         &dataCbBarrier));
+
+        btemt_ChannelPool pool(channelCb, dataCb, poolCb, config);
+
+        ASSERT(0 == pool.start());
+
+        const int SERVER_ID = 100;
+
+        bteso_InetStreamSocketFactory<bteso_IPv4Address> factory;
+        bteso_StreamSocket<bteso_IPv4Address> *socket = factory.allocate();
+        ASSERT(0 == socket->bind(bteso_IPv4Address()));
+        ASSERT(0 == socket->listen(5));
+
+        bteso_IPv4Address serverAddr;
+        ASSERT(0 == socket->localAddress(&serverAddr));
+        P(serverAddr);
+
+        int rc = pool.connect(serverAddr,
+                              10,
+                              bdet_TimeInterval(1),
+                              SERVER_ID);
+        ASSERT(!rc);
+
+        channelCbBarrier.wait();
+
+        bteso_StreamSocket<bteso_IPv4Address> *client;
+        rc = socket->accept(&client);
+        ASSERT(!rc);
+        ASSERT(0 == client->setBlockingMode(
+                                          bteso_Flag::BTESO_NONBLOCKING_MODE));
+
+        const int SIZE = 1000;
+        bcema_PooledBlobBufferFactory f(SIZE);
+        bcema_Blob                    b(&f);
+        b.setLength(SIZE * 10);
+
+        WriteData wd;
+        wd.d_pool_p    = &pool;
+        wd.d_channelId = channelId;
+        wd.d_socket_p  = client;
+        wd.d_blob_p    = &b;
+
+        const int NUM_THREADS = 5;
+        bcemt_ThreadUtil::Handle handles[NUM_THREADS + 1];
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            bcemt_ThreadUtil::create(&handles[i], &writeData, &wd);
+        }
+
+        bcemt_Mutex mutex;
+        int         stopReading = 0;
+
+        ReadData rd;
+        rd.d_socket_p      = client;
+        rd.d_mutex_p       = &mutex;
+        rd.d_stopReading_p = &stopReading;
+
+        bcemt_ThreadUtil::create(&handles[NUM_THREADS], &readData, &rd);
+
+        for (int i = 0; i < NUM_THREADS; ++i) {
+            ASSERT(0 == bcemt_ThreadUtil::join(handles[i]));
+        }
+
+        mutex.lock();
+        stopReading = 1;
+        mutex.unlock();
+
+        ASSERT(0 == bcemt_ThreadUtil::join(handles[NUM_THREADS]));
+      } break;
       case 37: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 3
@@ -10278,7 +10577,7 @@ int main(int argc, char *argv[])
       } break;
       case 25: {
         // --------------------------------------------------------------------
-        // TESTING: 'setWriteCacheHighWatermark()'
+        // TESTING: 'setWriteCacheHigh/LowWatermark()'
         //
         // Concerns:
         //   o That 'setWriteCacheHighWatermark()' modifies the high watermark
@@ -10309,12 +10608,16 @@ int main(int argc, char *argv[])
         //      'HIWAT' alert is generated an no data can be written to the
         //      cache.
         //   6. Empty the write-cache and perform a concurrency test.
+        //
         // Testing:
         //   int setWriteCacheHighWatermark(int, int);
+        //   int setWriteCacheLowWatermark(int, int);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING: setWriteCacheHighWatermark()" << endl
-                          << "=====================================" << endl;
+        if (verbose) cout << "TESTING: setWriteCacheHigh/LowWatermark()"
+                          << endl
+                          << "========================================"
+                          << endl;
 
         using namespace TEST_CASE_25_NAMESPACE;
         bcema_TestAllocator ta(veryVeryVerbose);
@@ -10333,8 +10636,7 @@ int main(int argc, char *argv[])
             config.setMaxConnections(NUM_SOCKETS);
             config.setIncomingMessageSizes(1, 1, 1);
             config.setReadTimeout(100000);
-            config.setWriteCacheWatermarks(LOW_WATERMARK,
-                                           HI_WATERMARK);
+            config.setWriteCacheWatermarks(LOW_WATERMARK, HI_WATERMARK);
             if (verbose) { P(config); }
 
             ChannelPoolStateCbTester mX(config, &ta);
@@ -10394,11 +10696,31 @@ int main(int argc, char *argv[])
             ASSERT(0 == pool.setWriteCacheHiWatermark(channelId,
                                                       LOW_WATERMARK + 1));
             ASSERT(0 == pool.setWriteCacheHiWatermark(channelId,
-                                                      LOW_WATERMARK))
+                                                      LOW_WATERMARK));
+
+            pool.setWriteCacheHiWatermark(channelId, HI_WATERMARK);
+            ASSERT(0 != pool.setWriteCacheLowWatermark(channelId + 1,
+                                                       LOW_WATERMARK + 1));
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       LOW_WATERMARK + 1));
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       LOW_WATERMARK));
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       HI_WATERMARK));
+            ASSERT(0 != pool.setWriteCacheLowWatermark(channelId,
+                                                       HI_WATERMARK + 1));
+
             ASSERT(0 != pool.setWriteCacheHiWatermark(channelId,
                                                       LOW_WATERMARK - 1));
             ASSERT(0 == pool.setWriteCacheHiWatermark(channelId,
                                                       HI_WATERMARK));
+
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       LOW_WATERMARK));
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       LOW_WATERMARK - 1));
+            ASSERT(0 == pool.setWriteCacheLowWatermark(channelId,
+                                                       LOW_WATERMARK + 1));
 
             // 2. Fill the write cache, verify the 'HIWAT' alert is delivered
             //    and no more data can be written.
@@ -15005,7 +15327,6 @@ int main(int argc, char *argv[])
             factory.deallocate(channels[i].first);
         }
       } break;
-
       default: {
         cerr << "WARNING: CASE " << test << " NOT FOUND." << endl;
         testStatus = -1;

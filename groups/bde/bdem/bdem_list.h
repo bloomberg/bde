@@ -372,6 +372,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
 
 #ifndef INCLUDED_BDEM_ROW
@@ -381,8 +385,6 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 class bdet_Date;
 class bdet_Datetime;

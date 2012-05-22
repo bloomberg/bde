@@ -439,7 +439,7 @@ struct AssignRange: RangeBase<String> {
     AssignRange () { }
 
     virtual String&
-    operator() (String &str, 
+    operator() (String &str,
                 const StringTestCaseData<StringChar>& tdata) const {
 
         const StringTestCase &tcase = tdata.tcase_;
@@ -474,7 +474,7 @@ struct AssignRangeOverload: RangeBase<String>
     AssignRangeOverload () { }
 
     virtual String&
-    operator() (String &str, 
+    operator() (String &str,
                 const StringTestCaseData<StringChar>& tdata) const {
 
         const StringTestCase &tcase = tdata.tcase_;
@@ -484,7 +484,7 @@ struct AssignRangeOverload: RangeBase<String>
 
         const std::size_t srclen_ = tcase.arg ? tdata.arglen_ : str.size ();
 
-        const std::size_t off = 
+        const std::size_t off =
             reverse_iter ? srclen_ - tdata.off2_ - tdata.ext2_ : tdata.off2_;
         const std::size_t ext = tdata.ext2_;
 
@@ -579,7 +579,7 @@ void test_assign (charT*, Traits*, Allocator*, const RangeBase<
 
 #else   // if defined (_RWSTD_NO_EXCEPTIONS)
 
-        if (tcase.bthrow) 
+        if (tcase.bthrow)
             return;
 
 #endif   // _RWSTD_NO_EXCEPTIONS
@@ -641,7 +641,7 @@ void test_assign (charT*, Traits*, Allocator*, const RangeBase<
             // verfiy that strings length are equal
             rw_assert (tdata.reslen_ == str.size (), 0, tcase.line,
                        "line %d. %{$FUNCALL}: expected %{/*.*Gs} with length "
-                       "%zu, got %{/*.*Gs} with length %zu", __LINE__, 
+                       "%zu, got %{/*.*Gs} with length %zu", __LINE__,
                        cwidth, int (tdata.reslen_), tdata.res_, tdata.reslen_,
                        cwidth, int (str.size ()), str.c_str (), str.size ());
 
@@ -663,7 +663,7 @@ void test_assign (charT*, Traits*, Allocator*, const RangeBase<
 
             // verify that Traits::length was used
             if (Assign (cptr) == func.which_ && rg_calls) {
-                rw_assert (n_length_calls - total_length_calls > 0, 
+                rw_assert (n_length_calls - total_length_calls > 0,
                            0, tcase.line, "line %d. %{$FUNCALL} doesn't "
                            "use traits::length()", __LINE__);
             }
@@ -763,7 +763,7 @@ void test_assign (charT*, Traits*, Allocator*, const RangeBase<
 
 #else   // if defined (_RWSTD_NO_REPLACEABLE_NEW_DELETE)
 
-    expect_throws = (StringIds::UserAlloc == func.alloc_id_) 
+    expect_throws = (StringIds::UserAlloc == func.alloc_id_)
         ? str_state.capacity_ < str.capacity (): 0;
 
 #endif   // _RWSTD_NO_REPLACEABLE_NEW_DELETE

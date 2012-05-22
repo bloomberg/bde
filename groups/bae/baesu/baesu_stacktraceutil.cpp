@@ -51,6 +51,36 @@ const char *findBasename(const char *pathName)
 
 namespace BloombergLP {
 
+template <typename RESOLVER_POLICY>
+class baesu_StackTraceResolverImpl;
+
+template <>
+class baesu_StackTraceResolverImpl<baesu_ObjectFileFormat::Dummy>
+{
+  public:
+    // PUBLIC CLASS METHODS
+    static
+    int resolve(baesu_StackTrace *stackTrace,
+                bool              demangle)
+        // Populate information for the specified 'stackFrames', a vector of
+        // stack trace frames in a stack trace object.  Specify 'demangle', to
+        // determine whether demangling is to occur, and 'basicAllocator',
+        // which is to be used for memory allocation.  The behavior is
+        // undefined unless all the 'address' field in 'stackFrames' are valid
+        // and other fields are invalid, and 'basicAllocator != 0'.
+    {
+        return -1;
+    }
+
+    static inline
+    int testFunc()
+        // For testing only.  Do some random garbage and return a line number
+        // from within the routine.
+    {
+        return -1;
+    }
+};
+
 int baesu_StackTraceUtil::loadStackTraceFromAddressArray(
                                    baesu_StackTrace   *result,
                                    const void * const  addresses[],

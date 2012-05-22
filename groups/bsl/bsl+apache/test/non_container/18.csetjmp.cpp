@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2007 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #include <csetjmp>

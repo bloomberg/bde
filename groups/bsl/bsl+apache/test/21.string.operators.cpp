@@ -2,7 +2,7 @@
  *
  * 21.string.operators.cpp - test exercising [lib.string.nonmembers]
  *      except lib.string::op+ and lib.string.io
- *      
+ *
  * $Id: 21.string.operators.cpp 590052 2007-10-30 12:44:14Z faridz $
  *
  ***************************************************************************
@@ -73,14 +73,14 @@ cptr_cstr_test_cases [] = {
     }
 
     //    +----------------------------------------- first sequence
-    //    |                 +----------------------- second sequence 
-    //    |                 |                  +---- expected result 
+    //    |                 +----------------------- second sequence
+    //    |                 |                  +---- expected result
     //    |                 |                  |         -1 - first is less
     //    |                 |                  |          0 - equal
     //    |                 |                  |          1 - first is greater
-    //    |                 |                  |        
-    //    |                 |                  |        
-    //    V                 V                  V          
+    //    |                 |                  |
+    //    |                 |                  |
+    //    V                 V                  V
     TEST ("ab",             "c",              -1),
 
     TEST ("",               "",                0),
@@ -144,14 +144,14 @@ cstr_cstr_test_cases [] = {
     }
 
     //    +----------------------------------------- first sequence
-    //    |                 +----------------------- second sequence 
-    //    |                 |                  +---- expected result 
+    //    |                 +----------------------- second sequence
+    //    |                 |                  +---- expected result
     //    |                 |                  |        -1 - first is less
     //    |                 |                  |         0 - equal
     //    |                 |                  |         1 - first is greater
-    //    |                 |                  |            
-    //    |                 |                  |        
-    //    V                 V                  V          
+    //    |                 |                  |
+    //    |                 |                  |
+    //    V                 V                  V
     TEST ("ab",             "c",              -1),
 
     TEST ("",               "",                0),
@@ -227,14 +227,14 @@ cstr_cptr_test_cases [] = {
     }
 
     //    +----------------------------------------- first sequence
-    //    |                 +----------------------- second sequence 
-    //    |                 |                  +---- expected result 
+    //    |                 +----------------------- second sequence
+    //    |                 |                  +---- expected result
     //    |                 |                  |        -1 - first is less
     //    |                 |                  |         0 - equal
     //    |                 |                  |         1 - first is greater
-    //    |                 |                  |        
-    //    |                 |                  |        
-    //    V                 V                  V          
+    //    |                 |                  |
+    //    |                 |                  |
+    //    V                 V                  V
     TEST ("ab",             "c",              -1),
 
     TEST ("",               "",                0),
@@ -371,101 +371,101 @@ void test_operators (charT, Traits*, Allocator*,
 
             switch (func.which_) {
             // exercise cptr_cstr cases
-            case OpEqual (cptr_cstr): 
+            case OpEqual (cptr_cstr):
                 res = arg1_ptr == arg2_str;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpNotEqual (cptr_cstr): 
+
+            case OpNotEqual (cptr_cstr):
                 res = arg1_ptr != arg2_str;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpLess (cptr_cstr): 
+
+            case OpLess (cptr_cstr):
                 res = arg1_ptr < arg2_str;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpLessEqual (cptr_cstr): 
+
+            case OpLessEqual (cptr_cstr):
                 res = arg1_ptr <= arg2_str;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpGreater (cptr_cstr): 
+
+            case OpGreater (cptr_cstr):
                 res = arg1_ptr > arg2_str;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpGreaterEqual (cptr_cstr): 
+
+            case OpGreaterEqual (cptr_cstr):
                 res = arg1_ptr >= arg2_str;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
+
 
             // exercise cstr_cstr cases
-            case OpEqual (cstr_cstr): 
+            case OpEqual (cstr_cstr):
                 res = arg1_str == arg2_str;
                 break;
-            
-            case OpNotEqual (cstr_cstr): 
+
+            case OpNotEqual (cstr_cstr):
                 res = arg1_str != arg2_str;
                 break;
-            
-            case OpLess (cstr_cstr): 
+
+            case OpLess (cstr_cstr):
                 res = arg1_str < arg2_str;
                 break;
-            
-            case OpLessEqual (cstr_cstr): 
+
+            case OpLessEqual (cstr_cstr):
                 res = arg1_str <= arg2_str;
                 break;
-            
-            case OpGreater (cstr_cstr): 
+
+            case OpGreater (cstr_cstr):
                 res = arg1_str > arg2_str;
                 break;
-            
-            case OpGreaterEqual (cstr_cstr): 
+
+            case OpGreaterEqual (cstr_cstr):
                 res = arg1_str >= arg2_str;
                 break;
-            
+
 
             // exercise cstr_cptr cases
-            case OpEqual (cstr_cptr): 
+            case OpEqual (cstr_cptr):
                 res = arg1_str == arg2_ptr;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpNotEqual (cstr_cptr): 
+
+            case OpNotEqual (cstr_cptr):
                 res = arg1_str != arg2_ptr;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpLess (cstr_cptr): 
+
+            case OpLess (cstr_cptr):
                 res = arg1_str < arg2_ptr;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpLessEqual (cstr_cptr): 
+
+            case OpLessEqual (cstr_cptr):
                 res = arg1_str <= arg2_ptr;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpGreater (cstr_cptr): 
+
+            case OpGreater (cstr_cptr):
                 res = arg1_str > arg2_ptr;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
                 break;
-            
-            case OpGreaterEqual (cstr_cptr): 
+
+            case OpGreaterEqual (cstr_cptr):
                 res = arg1_str >= arg2_ptr;
                 if (rg_calls)
                     n_length_calls = rg_calls [UTMemFun::length];
@@ -479,27 +479,27 @@ void test_operators (charT, Traits*, Allocator*,
             // form the expected result
             bool exp_res = false;
             switch (StringIds::fid_mask & int (func.which_)) {
-                case StringIds::fid_op_equal: 
+                case StringIds::fid_op_equal:
                     exp_res = 0 == tcase.nres;
                     break;
-                
-                case StringIds::fid_op_not_equal: 
+
+                case StringIds::fid_op_not_equal:
                     exp_res = 0 != tcase.nres;
                     break;
-                
-                case StringIds::fid_op_less: 
+
+                case StringIds::fid_op_less:
                     exp_res = NPOS == tcase.nres;
                     break;
-                
-                case StringIds::fid_op_less_equal: 
+
+                case StringIds::fid_op_less_equal:
                     exp_res = 1 != tcase.nres;
                     break;
-                
-                case StringIds::fid_op_greater: 
+
+                case StringIds::fid_op_greater:
                     exp_res = 1 == tcase.nres;
                     break;
-                
-                case StringIds::fid_op_greater_equal: 
+
+                case StringIds::fid_op_greater_equal:
                     exp_res = NPOS != tcase.nres;
                     break;
             }
@@ -510,16 +510,16 @@ void test_operators (charT, Traits*, Allocator*,
                        __LINE__, exp_res, res);
 
             // verify that Traits::length was used
-            std::size_t exp_len_used = 
+            std::size_t exp_len_used =
                 (StringIds::arg_cstr << int (StringIds::fid_bits))
               | (StringIds::arg_cstr << int (StringIds::arg_bits)
                                      << int (StringIds::fid_bits));
 
-            std::size_t verlen = 
+            std::size_t verlen =
                 func.which_ & ~StringIds::fid_mask & ~exp_len_used;
 
             if (verlen && rg_calls) {
-                rw_assert (n_length_calls - total_length_calls > 0, 
+                rw_assert (n_length_calls - total_length_calls > 0,
                            0, tcase.line, "line %d. %{$FUNCALL} doesn't "
                            "use traits::length()", __LINE__);
             }

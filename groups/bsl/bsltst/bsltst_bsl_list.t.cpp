@@ -1,4 +1,4 @@
-// bsltst_list.t.cpp                  -*-C++-*-
+// bsltst_list.t.cpp                                                  -*-C++-*-
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif
@@ -130,11 +130,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================
@@ -143,24 +143,24 @@ bool usesBslmaAllocator(const TYPE& arg)
 
 struct Cargo {
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
     enum {
         BALLAST_SIZE = 4000
     };
 
-    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
     explicit
-    Cargo(bslma_Allocator *a = 0) {
+    Cargo(bslma::Allocator *a = 0) {
         QV_("Default:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BALLAST_SIZE);
     }
-    Cargo(const Cargo& in, bslma_Allocator* a = 0) {
+    Cargo(const Cargo& in, bslma::Allocator* a = 0) {
         QV_("Copy:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BALLAST_SIZE);
         std::memcpy(d_p, in.d_p, BALLAST_SIZE);
     }
@@ -206,10 +206,10 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator ta;
-    bslma_TestAllocator tda;
+    bslma::TestAllocator ta;
+    bslma::TestAllocator tda;
 
-    bslma_DefaultAllocatorGuard defaultGuard(&tda);
+    bslma::DefaultAllocatorGuard defaultGuard(&tda);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
 
         for (j = 0, it  = la.begin(); j < 5; ++j, ++it ) { }
         for (j = 0, itb = lb.begin(); j < 5; ++j, ++itb) { }
-            
+
         lb.splice(itb, la, la.begin(), it);
         ASSERT(15 == lb.size());
         ASSERT(15 == la.size());
@@ -360,7 +360,7 @@ int main(int argc, char *argv[])
 
         for (j = -5, itb = lb.begin(); lb.end() != itb; ++j, ++itb) {
             LOOP3_ASSERT(*itb, j, (j < 0 ? j : j + 1),
-                                                  *itb == (j < 0 ? j : j + 1));
+                         *itb == (j < 0 ? j : j + 1));
         }
 
         for (j = 0, itc = lb.begin(); j < 5; ++j, ++itc) { }
@@ -393,7 +393,7 @@ int main(int argc, char *argv[])
 
         for (j = -5, itb = lb.begin(); lb.end() != itb; ++j, ++itb) {
             LOOP2_ASSERT(*itb, j,
-                               *itb == (j < 0 ? j : (j < 10 ? j / 2 : j - 5)));
+                         *itb == (j < 0 ? j : (j < 10 ? j / 2 : j - 5)));
         }
 
         lb.unique(equals);
@@ -731,12 +731,11 @@ int main(int argc, char *argv[])
         ASSERT(true  == sameType(bsl::list<int>::iterator(),
                                  std::list<int>::iterator()));
         ASSERT(false == sameType(bsl::list<int>::iterator(),
-                          native_std::list<int>::iterator()));
+                                 native_std::list<int>::iterator()));
 
         ASSERT(false == usesBslmaAllocator(bsl::list<int>::iterator()));
         ASSERT(false == usesBslmaAllocator(std::list<int>::iterator()));
-        ASSERT(false == usesBslmaAllocator(
-                                    native_std::list<int>::iterator()));
+        ASSERT(false == usesBslmaAllocator(native_std::list<int>::iterator()));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

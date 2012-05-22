@@ -225,6 +225,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_new.h>         // placement syntax
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 
 namespace BloombergLP {
 
@@ -233,8 +237,6 @@ class bdeci_HashtableSlotIter;
 
 template <class T, class HASH>
 class bdeci_HashtableSlotManip;
-
-class bslma_Allocator;
 
                         // ==========================
                         // class bdeci_Hashtable_Link

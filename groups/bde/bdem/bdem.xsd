@@ -101,6 +101,17 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='EncodeDateAndTimeTypesAsBinary' type='xs:boolean'
+                  default='false'
+                  bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            This option allows users to control if date and time types are
+            encoded as binary integers.  By default these types are encoded as 
+            strings in the ISO 8601 format.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 

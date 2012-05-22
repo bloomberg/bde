@@ -1,4 +1,4 @@
-// bslmf_anytype.t.cpp                  -*-C++-*-
+// bslmf_anytype.t.cpp                                                -*-C++-*-
 
 #include <bslmf_anytype.h>
 
@@ -79,7 +79,7 @@ struct MetaInt { char d_array[i + 1]; };
 #define METAINT_TO_UINT(metaint)   (sizeof(metaint) - 1)
 
 MetaInt<1> isX(const X&);
-MetaInt<0> isX(const bslmf_AnyType&);
+MetaInt<0> isX(const bslmf::AnyType&);
 
 }  // namespace USAGE_TYPEREP_NAMESPACE
 
@@ -89,8 +89,8 @@ struct X { };
 struct Y { };
 struct Z : public Y { };
 
-inline bool isY(const bslmf_AnyType&) { return false; }
-inline bool isY(const Y&)             { return true;  }
+inline bool isY(const bslmf::AnyType&) { return false; }
+inline bool isY(const Y&)              { return true;  }
 
 }  // namespace USAGE_ANYTYPE_NAMESPACE
 
@@ -111,7 +111,7 @@ template <> struct my_Traits<my_B> : my_Atraits, my_Btraits { };
 template <> struct my_Traits<my_C> : my_Atraits, my_Btraits { };
 
 inline bool my_isBtraits(my_Btraits) { return true; }
-inline bool my_isBtraits(bslmf_AnyType) { return false; }
+inline bool my_isBtraits(bslmf::AnyType) { return false; }
 
 template <class T>
 inline bool my_isB(const T&) { return my_isBtraits(my_Traits<T>()); }
@@ -139,13 +139,13 @@ int main(int argc, char *argv[])
         // TypeRep Usage Example
         //
         // Concerns:
-        //   Demonstrate a use for bslmf_TypeRep
+        //   Demonstrate a use for bslmf::TypeRep
         //
         // Plan:
         //   Create a situation where we have a type with a difficult to use
         //   c'tor, and we just want an instance of it within an expression
         //   that won't run.  We create the types 'HasHorridCtor*' which
-        //   have inconvenient constructors and use bslmf_TypeRep to avoid
+        //   have inconvenient constructors and use bslmf::TypeRep to avoid
         //   using them.
         // --------------------------------------------------------------------
 
@@ -154,9 +154,9 @@ int main(int argc, char *argv[])
         ASSERT(1 == METAINT_TO_UINT(isX(X())));
         ASSERT(0 == METAINT_TO_UINT(isX(Y())));
         ASSERT(1 ==
-            METAINT_TO_UINT(isX(bslmf_TypeRep<HasHorridCtorX>::rep())));
+            METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorX>::rep())));
         ASSERT(0 ==
-            METAINT_TO_UINT(isX(bslmf_TypeRep<HasHorridCtorY>::rep())));
+            METAINT_TO_UINT(isX(bslmf::TypeRep<HasHorridCtorY>::rep())));
         ASSERT(0 == METAINT_TO_UINT(isX(3)));
         ASSERT(0 == METAINT_TO_UINT(isX(3.0)));
         ASSERT(0 == METAINT_TO_UINT(isX("The king is a fink!")));
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Overload a function such that one version of it take an argument
         //   of type 'Y' and the other takes an argument of type
-        //   'bslmf_AnyType', and the combination produces a function that
+        //   'bslmf::AnyType', and the combination produces a function that
         //   can evaluate whether a type is 'Y' or not.
         // --------------------------------------------------------------------
 
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
         ASSERT(! my_isBtraits(ta));
         ASSERT(  my_isBtraits(tb));
 
-        // int or void* matches bslmf_AnyType
+        // int or void* matches bslmf::AnyType
         ASSERT(! my_isBtraits(0));
         ASSERT(! my_isBtraits((void*) 0));
 

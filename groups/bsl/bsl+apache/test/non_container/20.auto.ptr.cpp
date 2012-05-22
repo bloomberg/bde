@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2000-2007 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #include <rw/_defs.h>
@@ -31,7 +31,7 @@
 #if defined (__IBMCPP__) && !defined (_RWSTD_NO_IMPLICIT_INCLUSION)
   // disable implicit inclusion to work around
   // a limitation in IBM VisualAge 5.0.2.0 (see PR #26959)
-#  define _RWSTD_NO_IMPLICIT_INCLUSION 
+#  define _RWSTD_NO_IMPLICIT_INCLUSION
 #endif
 
 #include <memory>
@@ -109,7 +109,7 @@ struct Base
     static void sink (std::auto_ptr<Base>) { }
 };
 
-int Base::cnt_;   // Base object counter 
+int Base::cnt_;   // Base object counter
 int Base::gen_;   // Base unique id generator
 
 struct Derived: Base
@@ -276,7 +276,7 @@ void test_auto_ptr (T*, const char *tname)
     rw_assert (pt == ap1.release () && 0 == ap1.get (), 0, __LINE__,
                "auto_ptr<%s>::release ()", tname);
 
-    
+
     // 20.4.5.2, p7
     ap1.reset (pt);
     rw_assert (pt == ap1.get (),  0, __LINE__,
@@ -399,7 +399,7 @@ test_auto_ptr_conversions ()
 
 #endif   // HP aCC > 5
 
-    { 
+    {
         // see CWG issue 84 for some background on the sequence below
         // http://anubis.dkuug.dk/jtc1/sc22/wg21/docs/cwg_defects.html#84
 

@@ -1,4 +1,4 @@
-// bslalg_dequeprimitives.t.cpp                  -*-C++-*-
+// bslalg_dequeprimitives.t.cpp                                       -*-C++-*-
 
 #include <bslalg_dequeprimitives.h>
 #include <bslalg_dequeiterator.h>
@@ -52,19 +52,19 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // [ 2] void destruct(Itr beg, Itr end);
 // [ 3] Itr erase(Itr *toBeg, Itr *toEnd, Itr fromBeg,
-//                Itr      f,      Itr l, Itr fromEnd, bslma_Allocator *a)
+//                Itr      f,      Itr l, Itr fromEnd, bslma::Allocator *a)
 // [ 4] void uninitializedFillNBack(Itr *toEnd, Itr fromEnd, size_type n,
-//                                  const T& v, bslma_Allocator *a)
+//                                  const T& v, bslma::Allocator *a)
 // [ 5] void uninitializedFillNFront(Itr *toBeg, Itr fromBeg, size_type n,
-//                                   const T& v, bslma_Allocator *a)
+//                                   const T& v, bslma::Allocator *a)
 // [ 6] void insertAndMoveToBack(Itr *toEnd, Itr fromEnd, Itr p, size_type n,
-//                               const T& v, bslma_Allocator *a)
+//                               const T& v, bslma::Allocator *a)
 // [ 7] void insertAndMoveToFront(Itr *toBeg, Itr fromBeg, Itr p, size_type n,
-//                                const T& v, bslma_Allocator *a)
+//                                const T& v, bslma::Allocator *a)
 // [ 8] void insertAndMoveToBack(Itr *toEnd, Itr fromEnd, Itr p, FWD_ITR f,
-//                               FWD_ITR l, size_type n, bslma_Allocator *a)
+//                               FWD_ITR l, size_type n, bslma::Allocator *a)
 // [ 9] void insertAndMoveToFront(Itr *toEnd, Itr fromEnd, Itr p, FWD_ITR f,
-//                                FWD_ITR l, size_type n, bslma_Allocator *a)
+//                                FWD_ITR l, size_type n, bslma::Allocator *a)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -125,12 +125,12 @@ namespace {
         try {
 
 #define END_bslma_EXCEPTION_TEST                                           \
-        } catch (bslma_TestAllocatorException& e) {                        \
+        } catch (bslma::TestAllocatorException& e) {                       \
             if (veryVerbose && bslmaExceptionLimit || veryVeryVerbose) {   \
                 --bslmaExceptionLimit;                                     \
                 printf("(*** %d)", bslmaExceptionCounter);                 \
                 if (veryVeryVerbose) {                                     \
-                    printf(" bslma_EXCEPTION:"                             \
+                    printf(" bslma::EXCEPTION:"                            \
                            " alloc limit = %d,"                            \
                            " last alloc size = %d\n",                      \
                            bslmaExceptionCounter, e.numBytes());           \
@@ -183,13 +183,13 @@ typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
 typedef BitwiseMoveableTestType       BMT;  // uses 'bslma' allocators
 typedef BitwiseCopyableTestType       BCT;  // uses 'bslma' allocators
 
-typedef bsls_Types::Int64      Int64;
-typedef bsls_Types::Uint64     Uint64;
+typedef bsls::Types::Int64      Int64;
+typedef bsls::Types::Uint64     Uint64;
 
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose;
 
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 static int numDefaultCtorCalls = 0;
 static int numCharCtorCalls    = 0;
@@ -211,7 +211,7 @@ const struct {
     {5,  3,  5}
 };
 
-bslma_TestAllocator *Z;  // initialized at the start of main()
+bslma::TestAllocator *Z;  // initialized at the start of main()
 
                                // ===============
                                // class TestDeque
@@ -220,7 +220,7 @@ bslma_TestAllocator *Z;  // initialized at the start of main()
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 class TestDeque {
     // This test deque is created to allow testing of the
-    // 'bslalg_DequePrimitives' on a data structure that is modeled after
+    // 'bslalg::DequePrimitives' on a data structure that is modeled after
     // 'bslstl_Deque'.  It has a block length of 3 and a total of 5 blocks for
     // holding a total of 15 objects of type "VALUE_TYPE".
 
@@ -230,25 +230,25 @@ class TestDeque {
         NOMINAL_BLOCK_BYTES = sizeof(VALUE_TYPE) * BLOCK_LENGTH
     };
 
-    typedef bslalg_DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>        Imp;
+    typedef bslalg::DequeImpUtil<VALUE_TYPE, BLOCK_LENGTH>       Imp;
     typedef typename Imp::Block                                  Block;
     typedef typename Imp::BlockPtr                               BlockPtr;
-    typedef bslalg_DequeIterator<VALUE_TYPE, BLOCK_LENGTH>       Iterator;
+    typedef bslalg::DequeIterator<VALUE_TYPE, BLOCK_LENGTH>      Iterator;
 
   private:
     // DATA
-    BlockPtr        *d_blocks_p;     // array of block pointers (owned)
-    int              d_blockNum;
-    Iterator         d_start;        // start of the 'TestDeque'
-    Iterator         d_finish;       // end of the 'TestDeque'
-    bslma_Allocator *d_allocator_p;
+    BlockPtr         *d_blocks_p;     // array of block pointers (owned)
+    int               d_blockNum;
+    Iterator          d_start;        // start of the 'TestDeque'
+    Iterator          d_finish;       // end of the 'TestDeque'
+    bslma::Allocator *d_allocator_p;
 
   public:
     // CREATORS
-    TestDeque(int n, int blockNum, bslma_Allocator *ba = 0)
+    TestDeque(int n, int blockNum, bslma::Allocator *ba = 0)
     : d_blocks_p(0)
     , d_blockNum(blockNum)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ASSERT(n <= BLOCK_LENGTH * d_blockNum);
         ASSERT(n >= 0);
@@ -321,36 +321,36 @@ class TestType {
     // It could have the bit-wise moveable traits but we defer that trait to
     // the 'MoveableTestType'.
 
-    char            *d_data_p;
-    bslma_Allocator *d_allocator_p;
+    char             *d_data_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestType(bslma_Allocator *ba = 0)
+    TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numDefaultCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = '?';
     }
 
-    TestType(char c, bslma_Allocator *ba = 0)
+    TestType(char c, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCharCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = c;
     }
 
-    TestType(const TestType& original, bslma_Allocator *ba = 0)
+    TestType(const TestType& original, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCopyCtorCalls;
         if (&original != this) {
@@ -421,9 +421,9 @@ class TestTypeNoAlloc {
 
     // DATA
     union {
-        char                                   d_char;
-        char                                   d_fill[sizeof(TestType)];
-        bsls_AlignmentFromType<TestType>::Type d_align;
+        char                                    d_char;
+        char                                    d_fill[sizeof(TestType)];
+        bsls::AlignmentFromType<TestType>::Type d_align;
     } d_u;
 
   public:
@@ -474,7 +474,7 @@ class TestTypeNoAlloc {
 };
 
 bool operator==(const TestTypeNoAlloc& lhs,
-               const TestTypeNoAlloc& rhs)
+                const TestTypeNoAlloc& rhs)
 {
     ASSERT(isalpha(lhs.datum()));
     ASSERT(isalpha(rhs.datum()));
@@ -493,22 +493,22 @@ class BitwiseMoveableTestType : public TestType {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(BitwiseMoveableTestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
-    BitwiseMoveableTestType(bslma_Allocator *ba = 0)
+    BitwiseMoveableTestType(bslma::Allocator *ba = 0)
     : TestType(ba)
     {
     }
 
-    BitwiseMoveableTestType(char c, bslma_Allocator *ba = 0)
+    BitwiseMoveableTestType(char c, bslma::Allocator *ba = 0)
     : TestType(c, ba)
     {
     }
 
     BitwiseMoveableTestType(const BitwiseMoveableTestType&  original,
-                            bslma_Allocator                *ba = 0)
+                            bslma::Allocator               *ba = 0)
     : TestType(original, ba)
     {
     }
@@ -525,7 +525,7 @@ class BitwiseCopyableTestType : public TestTypeNoAlloc {
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(BitwiseCopyableTestType,
-                                 bslalg_TypeTraitBitwiseCopyable);
+                                 bslalg::TypeTraitBitwiseCopyable);
 
     // CREATORS
     BitwiseCopyableTestType()
@@ -557,7 +557,7 @@ void cleanup(TestDeque<TYPE, BLOCK_LENGTH> *deque, const char *spec)
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
         if (isalpha(c)) {
-            bslalg_ScalarDestructionPrimitives::destroy(&(*deque)[i]);
+            bslalg::ScalarDestructionPrimitives::destroy(&(*deque)[i]);
         }
     }
 }
@@ -584,7 +584,7 @@ void generateAry(TYPE *ary, const char *spec)
     // 'ary' according to the specified 'SPEC'.
 {
     for (int i = 0; spec[i]; ++i) {
-        bslalg_ScalarPrimitives::construct(&ary[i], spec[i], Z);
+        bslalg::ScalarPrimitives::construct(&ary[i], spec[i], Z);
     }
 }
 
@@ -594,7 +594,7 @@ void destroyAry(TYPE *ary, const char *spec)
     // 'ary' according to the specified 'SPEC.'
 {
     for (int i = 0; spec[i]; ++i) {
-        bslalg_ScalarDestructionPrimitives::destroy(&ary[i]);
+        bslalg::ScalarDestructionPrimitives::destroy(&ary[i]);
     }
 }
 
@@ -662,13 +662,13 @@ class CleanupGuard {
         if (d_isFront) {
             Iterator itr = *d_start;
             for (; itr != d_stop; ++itr) {
-                bslalg_ScalarDestructionPrimitives::destroy(itr.valuePtr());
+                bslalg::ScalarDestructionPrimitives::destroy(itr.valuePtr());
             }
         }
         else {
             Iterator itr = d_stop;
             for (; itr != *d_start; ++itr) {
-                bslalg_ScalarDestructionPrimitives::destroy(itr.valuePtr());
+                bslalg::ScalarDestructionPrimitives::destroy(itr.valuePtr());
             }
         }
     }
@@ -731,7 +731,7 @@ int ggg(TestDeque<TYPE, BLOCK_LENGTH> *deque,
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
         if (isalpha(c)) {
-            bslalg_ScalarPrimitives::construct(itr.valuePtr(), c, Z);
+            bslalg::ScalarPrimitives::construct(itr.valuePtr(), c, Z);
             ++itr;
             deque->setEnd(itr);
         }
@@ -826,14 +826,14 @@ const int NUM_DATA_9 = sizeof DATA_9 / sizeof *DATA_9;
 template <class TYPE, int BLOCK_LENGTH>
 void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
 {
-    typedef TestDeque<TYPE, BLOCK_LENGTH>              Deque;
-    typedef bslalg_DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
+    typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
+    typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
     const char *INPUTREF = "tuvwxyz";
     const int   MAX_SIZE = 15;
 
     ASSERT(std::strlen(INPUTREF) < 8);
-    bsls_ObjectBuffer<TYPE> input[8];
+    bsls::ObjectBuffer<TYPE> input[8];
     generateAry(&(input[0].object()), INPUTREF);
 
     const TYPE *INPUT = &(input[0].object());
@@ -873,7 +873,7 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
                 }
 
                 if (exceptionSafetyFlag) {
-                    bslma_TestAllocator& testAllocator = *Z;
+                    bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
                         const int AL = testAllocator.allocationLimit();
@@ -1003,14 +1003,14 @@ const int NUM_DATA_8 = sizeof DATA_8 / sizeof *DATA_8;
 template <class TYPE, int BLOCK_LENGTH>
 void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
 {
-    typedef TestDeque<TYPE, BLOCK_LENGTH>              Deque;
-    typedef bslalg_DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
+    typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
+    typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
     const char *INPUTREF = "tuvwxyz";
     const int   MAX_SIZE = 15;
 
     ASSERT(std::strlen(INPUTREF) < 8);
-    bsls_ObjectBuffer<TYPE> input[8];
+    bsls::ObjectBuffer<TYPE> input[8];
     generateAry(&(input[0].object()), INPUTREF);
 
     const TYPE *INPUT = &(input[0].object());
@@ -1049,7 +1049,7 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
                 }
 
                 if (exceptionSafetyFlag) {
-                    bslma_TestAllocator& testAllocator = *Z;
+                    bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
                         const int AL = testAllocator.allocationLimit();
@@ -1178,13 +1178,13 @@ const int NUM_DATA_7 = sizeof DATA_7 / sizeof *DATA_7;
 template <class TYPE, int BLOCK_LENGTH>
 void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
 {
-    typedef TestDeque<TYPE, BLOCK_LENGTH>              Deque;
-    typedef bslalg_DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
+    typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
+    typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
     const int MAX_SIZE = 15;
 
-    bsls_ObjectBuffer<TYPE> mV;
-    bslalg_ScalarPrimitives::construct(&mV.object(), 'V', Z);
+    bsls::ObjectBuffer<TYPE> mV;
+    bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
     const TYPE& V = mV.object();
     ASSERT('V' == V.datum());
 
@@ -1222,7 +1222,7 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
                 }
 
                 if (exceptionSafetyFlag) {
-                    bslma_TestAllocator& testAllocator = *Z;
+                    bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
                         const int AL = testAllocator.allocationLimit();
@@ -1279,7 +1279,7 @@ void testInsertAndMoveToFrontRaw(bool exceptionSafetyFlag = false)
             }
         }
     }
-    bslalg_ScalarDestructionPrimitives::destroy(&mV.object());
+    bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
 
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1352,14 +1352,14 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
 {
     typedef TestDeque<TYPE, BLOCK_LENGTH>                                Deque;
 
-    typedef bslalg_DequePrimitives<
+    typedef bslalg::DequePrimitives<
             TYPE,
             BLOCK_LENGTH>                                                Obj;
 
     const int MAX_SIZE = 15;
 
-    bsls_ObjectBuffer<TYPE> mV;
-    bslalg_ScalarPrimitives::construct(&mV.object(), 'V', Z);
+    bsls::ObjectBuffer<TYPE> mV;
+    bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
     const TYPE& V = mV.object();
     ASSERT('V' == V.datum());
 
@@ -1398,7 +1398,7 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
                 }
 
                 if (exceptionSafetyFlag) {
-                    bslma_TestAllocator& testAllocator = *Z;
+                    bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
                         const int AL = testAllocator.allocationLimit();
@@ -1454,7 +1454,7 @@ void testInsertAndMoveToBackRaw(bool exceptionSafetyFlag = false)
             }
         }
     }
-    bslalg_ScalarDestructionPrimitives::destroy(&mV.object());
+    bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
 
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1505,13 +1505,13 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
 {
     typedef TestDeque<TYPE, BLOCK_LENGTH>                                Deque;
 
-    typedef bslalg_DequePrimitives<
+    typedef bslalg::DequePrimitives<
             TYPE,
             BLOCK_LENGTH>                                                  Obj;
     const int MAX_SIZE = 15;
 
-    bsls_ObjectBuffer<TYPE> mV;
-    bslalg_ScalarPrimitives::construct(&mV.object(), 'V', Z);
+    bsls::ObjectBuffer<TYPE> mV;
+    bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
     const TYPE& V = mV.object();
     ASSERT('V' == V.datum());
 
@@ -1548,7 +1548,7 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
                 }
 
                 if (exceptionSafetyFlag) {
-                    bslma_TestAllocator& testAllocator = *Z;
+                    bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
                         const int AL = testAllocator.allocationLimit();
                         testAllocator.setAllocationLimit(-1);
@@ -1559,7 +1559,8 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
 
                         typename Deque::Iterator begin = deque.begin() + BEGIN;
 
-                        CleanupGuard<TYPE, BLOCK_LENGTH> guard(&deque, &begin,
+                        CleanupGuard<TYPE, BLOCK_LENGTH> guard(
+                                            &deque, &begin,
                                             deque.begin() + BEGIN, SPEC, true);
 
                         testAllocator.setAllocationLimit(AL);
@@ -1599,7 +1600,7 @@ void testUninitializedFillNFront(bool exceptionSafetyFlag = false)
             }
         }
     }
-    bslalg_ScalarDestructionPrimitives::destroy(&mV.object());
+    bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
 
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
@@ -1648,13 +1649,13 @@ const int NUM_DATA_4 = sizeof DATA_4 / sizeof *DATA_4;
 template <class TYPE, int BLOCK_LENGTH>
 void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
 {
-    typedef TestDeque<TYPE, BLOCK_LENGTH>              Deque;
-    typedef bslalg_DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
+    typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
+    typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
     const int MAX_SIZE = 15;
 
-    bsls_ObjectBuffer<TYPE> mV;
-    bslalg_ScalarPrimitives::construct(&mV.object(), 'V', Z);
+    bsls::ObjectBuffer<TYPE> mV;
+    bslalg::ScalarPrimitives::construct(&mV.object(), 'V', Z);
     const TYPE& V = mV.object();
     ASSERT('V' == V.datum());
 
@@ -1691,7 +1692,7 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
                 }
 
                 if (exceptionSafetyFlag) {
-                    bslma_TestAllocator& testAllocator = *Z;
+                    bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
                         const int AL = testAllocator.allocationLimit();
@@ -1703,7 +1704,8 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
 
                         typename Deque::Iterator end(deque.begin() + END);
 
-                        CleanupGuard<TYPE, BLOCK_LENGTH> guard(&deque, &end,
+                        CleanupGuard<TYPE, BLOCK_LENGTH> guard(
+                                             &deque, &end,
                                              deque.begin() + END, SPEC, false);
 
                         testAllocator.setAllocationLimit(AL);
@@ -1744,7 +1746,7 @@ void testUninitializedFillNBack(bool exceptionSafetyFlag = false)
             }
         }
     }
-    bslalg_ScalarDestructionPrimitives::destroy(&mV.object());
+    bslalg::ScalarDestructionPrimitives::destroy(&mV.object());
     ASSERT(0 == Z->numMismatches());
     ASSERT(0 == Z->numBytesInUse());
 }
@@ -1865,8 +1867,8 @@ const int NUM_DATA_3 = sizeof DATA_3 / sizeof *DATA_3;
 template <class TYPE, int BLOCK_LENGTH>
 void testErase(bool exceptionSafetyFlag = false)
 {
-    typedef TestDeque<TYPE, BLOCK_LENGTH>              Deque;
-    typedef bslalg_DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
+    typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
+    typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
     const int MAX_SIZE = 15;
 
@@ -1908,7 +1910,7 @@ void testErase(bool exceptionSafetyFlag = false)
                 }
 
                 if (exceptionSafetyFlag) {
-                    bslma_TestAllocator& testAllocator = *Z;
+                    bslma::TestAllocator& testAllocator = *Z;
                     BEGIN_bslma_EXCEPTION_TEST {
 
                         const int AL = testAllocator.allocationLimit();
@@ -1925,7 +1927,8 @@ void testErase(bool exceptionSafetyFlag = false)
                         // Guard just have to destruct according to the given
                         // 'SPEC'.  'erase' will not modify the existing range
                         // of objects in case of an exception.
-                        CleanupGuard<TYPE, BLOCK_LENGTH> guard(&deque, &begin,
+                        CleanupGuard<TYPE, BLOCK_LENGTH> guard(
+                                                           &deque, &begin,
                                                            begin, SPEC, false);
 
                         testAllocator.setAllocationLimit(AL);
@@ -2016,8 +2019,8 @@ const int NUM_DATA_2 = sizeof DATA_2 / sizeof *DATA_2;
 template <class TYPE, int BLOCK_LENGTH>
 void testDestruct()
 {
-    typedef TestDeque<TYPE, BLOCK_LENGTH>              Deque;
-    typedef bslalg_DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
+    typedef TestDeque<TYPE, BLOCK_LENGTH>               Deque;
+    typedef bslalg::DequePrimitives<TYPE, BLOCK_LENGTH> Obj;
 
     for (int numBlocks  = CONFIG[BLOCK_LENGTH].d_blockNumMin;
              numBlocks <= CONFIG[BLOCK_LENGTH].d_blockNumMax;
@@ -2080,7 +2083,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator  testAllocator(veryVeryVerbose);
+    bslma::TestAllocator  testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -2112,7 +2115,7 @@ int main(int argc, char *argv[])
         //                             FWD_ITER           first,
         //                             FWD_ITER           last,
         //                             size_type          numElements,
-        //                             bslma_Allocator   *allocator);
+        //                             bslma::Allocator  *allocator);
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting 'testInsertAndMoveToFrontRange'"
                             "\n=======================================\n");
@@ -2175,13 +2178,13 @@ int main(int argc, char *argv[])
         //   the standard bslma exception macro.
         //
         // Testing:
-        //   void insertAndMoveToBack(Iterator        *toEnd,
-        //                            Iterator         fromEnd,
-        //                            Iterator         position,
-        //                            FWD_ITER         first,
-        //                            FWD_ITER         last,
-        //                            size_type        numElements,
-        //                            bslma_Allocator *allocator);
+        //   void insertAndMoveToBack(Iterator         *toEnd,
+        //                            Iterator          fromEnd,
+        //                            Iterator          position,
+        //                            FWD_ITER          first,
+        //                            FWD_ITER          last,
+        //                            size_type         numElements,
+        //                            bslma::Allocator *allocator);
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting 'testInsertAndMoveToBack(p,f,l)'"
                             "\n========================================\n");
@@ -2243,12 +2246,12 @@ int main(int argc, char *argv[])
         //   the standard bslma exception macro.
         //
         // Testing:
-        //   void insertAndMoveToFront(Iterator          *toBegin,
-        //                             Iterator           fromBegin,
-        //                             Iterator           position,
-        //                             size_type          numElements,
-        //                             const VALUE_TYPE&  value,
-        //                             bslma_Allocator   *allocator);
+        //   void insertAndMoveToFront(Iterator           *toBegin,
+        //                             Iterator            fromBegin,
+        //                             Iterator            position,
+        //                             size_type           numElements,
+        //                             const VALUE_TYPE&   value,
+        //                             bslma::Allocator   *allocator);
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting 'insertAndMoveToFront(n,p)'"
                             "\n===================================\n");
@@ -2310,12 +2313,12 @@ int main(int argc, char *argv[])
         //   the standard bslma exception macro.
         //
         // Testing:
-        //   void insertAndMoveToBack(Iterator          *toEnd,
-        //                            Iterator           fromEnd,
-        //                            Iterator           position,
-        //                            size_type          numElements,
-        //                            const VALUE_TYPE&  value,
-        //                            bslma_Allocator   *allocator);
+        //   void insertAndMoveToBack(Iterator           *toEnd,
+        //                            Iterator            fromEnd,
+        //                            Iterator            position,
+        //                            size_type           numElements,
+        //                            const VALUE_TYPE&   value,
+        //                            bslma::Allocator   *allocator);
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting 'insertAndMoveToBack(p,n,v)'"
                             "\n====================================\n");
@@ -2378,11 +2381,11 @@ int main(int argc, char *argv[])
         //   test under the standard bslma exception macro.
         //
         // Testing:
-        //   void uninitializedFillNFront(Iterator          *toBegin,
-        //                                Iterator           fromBegin,
-        //                                size_type          numElements,
-        //                                const VALUE_TYPE&  value,
-        //                                bslma_Allocator   *allocator)
+        //   void uninitializedFillNFront(Iterator           *toBegin,
+        //                                Iterator            fromBegin,
+        //                                size_type           numElements,
+        //                                const VALUE_TYPE&   value,
+        //                                bslma::Allocator   *allocator)
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting 'uninitializedFillNFront'"
                             "\n=================================\n");
@@ -2444,11 +2447,11 @@ int main(int argc, char *argv[])
         //   under the standard bslma exception macro.
         //
         // Testing:
-        //   void uninitializedFillNBack(Iterator          *toEnd,
-        //                               Iterator           fromEnd,
-        //                               size_type          numElements,
-        //                               const VALUE_TYPE&  value,
-        //                               bslma_Allocator   *allocator)
+        //   void uninitializedFillNBack(Iterator           *toEnd,
+        //                               Iterator            fromEnd,
+        //                               size_type           numElements,
+        //                               const VALUE_TYPE&   value,
+        //                               bslma::Allocator   *allocator)
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting 'uninitializedFillNBack'"
                             "\n================================\n");
@@ -2509,13 +2512,13 @@ int main(int argc, char *argv[])
         //   the test under the standard bslma exception macro.
         //
         // Testing:
-        //   void erase(Iterator        *toBegin,
-        //              Iterator        *toEnd,
-        //              Iterator         fromBegin
-        //              Iterator         first,
-        //              Iterator         last,
-        //              Iterator         fromEnd,
-        //              bslma_Allocator *allocator)
+        //   void erase(Iterator         *toBegin,
+        //              Iterator         *toEnd,
+        //              Iterator          fromBegin
+        //              Iterator          first,
+        //              Iterator          last,
+        //              Iterator          fromEnd,
+        //              bslma::Allocator *allocator)
         // --------------------------------------------------------------------
         if (verbose) printf("\nTesting 'erase'"
                             "\n===============\n");

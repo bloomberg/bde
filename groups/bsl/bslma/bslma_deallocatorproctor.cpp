@@ -1,4 +1,4 @@
-// bslma_deallocatorproctor.cpp    -*-C++-*-
+// bslma_deallocatorproctor.cpp                                       -*-C++-*-
 #include <bslma_deallocatorproctor.h>
 
 #include <bsls_ident.h>

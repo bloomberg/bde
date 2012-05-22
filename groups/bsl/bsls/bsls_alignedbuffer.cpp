@@ -1,4 +1,4 @@
-// bsls_alignedbuffer.cpp                  -*-C++-*-
+// bsls_alignedbuffer.cpp                                             -*-C++-*-
 #include <bsls_alignedbuffer.h>
 
 #include <bsls_ident.h>

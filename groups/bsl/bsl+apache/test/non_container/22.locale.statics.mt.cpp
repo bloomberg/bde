@@ -105,7 +105,7 @@ test_global (void*)
         // global() made by the last call to the function by
         // the last thread
     }
-    
+
     return 0;
 }
 

@@ -238,6 +238,10 @@ BSLS_IDENT("$Id$")
 #include <bsls_annotation.h>
 #endif
 
+#ifndef INCLUDED_BSL_CSTDDEF
+#include <bsl_cstddef.h>
+#endif
+
 namespace BloombergLP {
 
                         // ============================

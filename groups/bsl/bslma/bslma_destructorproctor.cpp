@@ -1,4 +1,4 @@
-// bslma_destructorproctor.cpp    -*-C++-*-
+// bslma_destructorproctor.cpp                                        -*-C++-*-
 #include <bslma_destructorproctor.h>
 
 #include <bsls_ident.h>

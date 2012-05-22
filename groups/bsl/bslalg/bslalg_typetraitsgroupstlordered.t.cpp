@@ -1,4 +1,4 @@
-// bslalg_typetraitsgroupstlordered.t.cpp                  -*-C++-*-
+// bslalg_typetraitsgroupstlordered.t.cpp                             -*-C++-*-
 
 #include <bslalg_typetraitsgroupstlordered.h>
 
@@ -119,13 +119,13 @@ int main(int argc, char *argv[])
         // Plan:  Create an instance of the trait class.
         //
         // Testing:
-        //   class bslalg_TypeTraitsGroupStlOrdered;
+        //   class bslalg::TypeTraitsGroupStlOrdered;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============");
 
-        bslalg_TypeTraitsGroupStlOrdered<T, Less, bslma_Allocator *> mX;
+        bslalg::TypeTraitsGroupStlOrdered<T, Less, bslma::Allocator *> mX;
 
       } break;
 

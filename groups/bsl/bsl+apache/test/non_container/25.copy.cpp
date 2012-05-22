@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for copy
@@ -35,19 +35,19 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
 OutputIter<assign<base<> > >
-copy (InputIter<const_cvt<base<>, assign<base<> > > >, 
-      InputIter<const_cvt<base<>, assign<base<> > > >, 
+copy (InputIter<const_cvt<base<>, assign<base<> > > >,
+      InputIter<const_cvt<base<>, assign<base<> > > >,
       OutputIter<assign<base<> > >);
 
 template
 BidirIter<assign<base<> > >
-copy_backward (BidirIter<const_cvt<base<>, assign<base<> > > >, 
+copy_backward (BidirIter<const_cvt<base<>, assign<base<> > > >,
                BidirIter<const_cvt<base<>, assign<base<> > > >,
                BidirIter<assign <base<> > >);
 
@@ -101,7 +101,7 @@ void test_copy (std::size_t N,
 
         // verify 25.2.1, p2
         bool success = resptr == dst_end;
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. copy(%p, %p, %p) == %p, got %p",
                    i, src, src_end, dst, dst_end, resptr);
 
@@ -116,7 +116,7 @@ void test_copy (std::size_t N,
                 break;
         }
 
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. copy(%p, %p, %p) mismatch at "
                    "offset %zu: expected %d, got %d: (%p, %p, %zu)",
                    i, src, src_end, dst,
@@ -128,7 +128,7 @@ void test_copy (std::size_t N,
 
         // verify 25.2.1, p4
         success = T::n_total_op_assign_ - last_n_op_assign == i + 1;
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. copy(%p, %p, %p) complexity: ",
                    "%zu != %zu", i + 1, src, src_end, dst,
                    T::n_total_op_assign_ - last_n_op_assign, i + 1);
@@ -190,7 +190,7 @@ void test_copy_backward (std::size_t N,
 
         // verify 25.2.1, p7
         bool success = resptr == dst;
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. copy_backward(%p, %p, %p) == %p, got %p",
                    i, src, src_end, dst_end, dst, resptr);
 
@@ -205,7 +205,7 @@ void test_copy_backward (std::size_t N,
                 break;
         }
 
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. copy_backward(%p, %p, %p) mismatch at "
                    "offset %zu: expected %d, got %d: (%p, %p, %zu)",
                    i, src, src_end, dst_end,
@@ -217,7 +217,7 @@ void test_copy_backward (std::size_t N,
 
         // verify 25.2.1, p8
         success = T::n_total_op_assign_ - last_n_op_assign == i + 1;
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. copy_backward(%p, %p, %p) complexity: "
                    "%zu != %zu", i + 1, src, src_end, dst_end,
                    T::n_total_op_assign_ - last_n_op_assign, i + 1);
@@ -256,9 +256,9 @@ void test_copy (const std::size_t N, const InputIterator &dummy, T*)
     else {
         test_copy (N, dummy, FwdIter<UserClass>(), (UserClass*)0);
     }
-    
+
     if (rw_opt_no_bidir_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "BidirectionalIterator test disabled");
     }
     else {
@@ -266,7 +266,7 @@ void test_copy (const std::size_t N, const InputIterator &dummy, T*)
     }
 
     if (rw_opt_no_rnd_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "RandomAccessIterator test disabled");
     }
     else {
@@ -300,7 +300,7 @@ test_copy (const std::size_t N)
     }
 
     if (rw_opt_no_bidir_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "BidirectionalIterator test disabled");
     }
     else {
@@ -308,7 +308,7 @@ test_copy (const std::size_t N)
     }
 
     if (rw_opt_no_rnd_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "RandomAccessIterator test disabled");
     }
     else {
@@ -322,7 +322,7 @@ template <class InputIterator, class T>
 void test_copy_backward (const std::size_t N, const InputIterator &dummy, T*)
 {
     if (rw_opt_no_bidir_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "BidirectionalIterator test disabled");
     }
     else {
@@ -330,7 +330,7 @@ void test_copy_backward (const std::size_t N, const InputIterator &dummy, T*)
     }
 
     if (rw_opt_no_rnd_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "RandomAccessIterator test disabled");
     }
     else {
@@ -350,7 +350,7 @@ test_copy_backward (const std::size_t N)
               "BidirectionalIterator1", "BidirectionalIterator2");
 
     if (rw_opt_no_bidir_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "BidirectionalIterator test disabled");
     }
     else {
@@ -358,7 +358,7 @@ test_copy_backward (const std::size_t N)
     }
 
     if (rw_opt_no_rnd_iter) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
             "RandomAccessIterator test disabled");
     }
     else {

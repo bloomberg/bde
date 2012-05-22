@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time type conversion checker.
 //
 //@CLASSES:
-//  bslmf_IsConvertible: compile-time type conversion checker
+//  bslmf::IsConvertible: compile-time type conversion checker
 //
 //@AUTHOR: Paul Staniforth (pstaniforth)
 //
@@ -18,25 +18,25 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a meta-function (i.e., a compile-time
 // function using the C++ type system) for checking whether a conversion exists
-// from one C++ type to another.  'bslmf_IsConvertible' is a template struct
+// from one C++ type to another.  'bslmf::IsConvertible' is a template struct
 // that takes two parameters and provides an enumerator with a predicate value
 // of '1' if a conversion from the first parameter to the second exists, and a
 // value of '0' otherwise.  For example, a conversion exists from an 'int' to a
 // 'char', but one does not exists from an 'int' to an 'char' pointer.
 //..
-//   static const int A = bslmf_IsConvertible<int, char >::VALUE; // A is 1
-//   static const int B = bslmf_IsConvertible<int, char*>::VALUE; // B is 0
+//  static const int A = bslmf::IsConvertible<int, char >::VALUE; // A is 1
+//  static const int B = bslmf::IsConvertible<int, char*>::VALUE; // B is 0
 //..
 // Note that the result is undefined if either parameter is 'void'.  Note also
-// that 'bslmf_IsConvertible' can produce compiler errors if the conversion is
+// that 'bslmf::IsConvertible' can produce compiler errors if the conversion is
 // ambiguous.  For example,
 //..
-//   struct A {};
-//   struct B : public A {};
-//   struct C : public A {};
-//   struct D : public B, public C {};
+//  struct A {};
+//  struct B : public A {};
+//  struct C : public A {};
+//  struct D : public B, public C {};
 //
-//   static int const C = bslmf_IsConvertible<D*, A*>::VALUE; // ERROR!
+//  static int const C = bslmf::IsConvertible<D*, A*>::VALUE; // ERROR!
 //..
 ///Usage
 ///-----
@@ -56,57 +56,58 @@ BSLS_IDENT("$Id: $")
 // constructor that takes a pointer to an allocator as its sole argument, and
 // another version if the type provides only a default constructor.
 //
-// The first 'createObj' function takes a 'bslmf_MetaInt<0>' as its last
-// argument, whereas the second 'createObj' function takes a 'bslmf_MetaInt<1>'
-// object.  The result of the 'isConvertible' meta-function (i.e., its 'Type'
-// member) is used to create the last argument to 'createObj'.  Neither version
-// of 'createObj' makes use of this argument -- it is used only to
-// differentiate the argument list so we can overload the function.
+// The first 'createObj' function takes a 'bslmf::MetaInt<0>' as its last
+// argument, whereas the second 'createObj' function takes a
+// 'bslmf::MetaInt<1>' object.  The result of the 'isConvertible' meta-function
+// (i.e., its 'Type' member) is used to create the last argument to
+// 'createObj'.  Neither version of 'createObj' makes use of this argument --
+// it is used only to differentiate the argument list so we can overload the
+// function.
 //..
-//     template<class T>
-//     void createObj(T *space, MyAllocator *, bslmf_MetaInt<1>)
-//     {
-//        // Use the type's default constructor if
-//        // bslmf_IsConvertible<MyAllocator*, T>::VALUE == 0 -- i.e., there is
-//        // no conversion from a MyAllocator pointer to a T.
+//  template<class T>
+//  void createObj(T *space, MyAllocator *, bslmf::MetaInt<1>)
+//  {
+//     // Use the type's default constructor if
+//     // bslmf::IsConvertible<MyAllocator*, T>::VALUE == 0 -- i.e., there is
+//     // no conversion from a MyAllocator pointer to a T.
 //
-//        new (space) T();
-//     }
+//     new (space) T();
+//  }
 //
-//     template<class T>
-//     void createObj(T *space, MyAllocator *alloc, bslmf_MetaInt<0>)
-//     {
-//        // Use the type's constructor that takes a pointer to an allocator if
-//        // bslmf_IsConvertible<MyAllocator*, T>::VALUE == 1, i.e., there is
-//        // a conversion from a MyAllocator pointer to a T.
+//  template<class T>
+//  void createObj(T *space, MyAllocator *alloc, bslmf::MetaInt<0>)
+//  {
+//     // Use the type's constructor that takes a pointer to an allocator if
+//     // bslmf::IsConvertible<MyAllocator*, T>::VALUE == 1, i.e., there is
+//     // a conversion from a MyAllocator pointer to a T.
 //
-//        new (space) T(alloc);
-//     }
+//     new (space) T(alloc);
+//  }
 //
-//     template <class T>
-//     class MyContainer {
-//         T *d_array_p;           // underlying array
-//         MyAllocator *d_alloc_p; // allocator protocol
-//         int d_length;           // logical length of array
-//         // ...
+//  template <class T>
+//  class MyContainer {
+//      T *d_array_p;           // underlying array
+//      MyAllocator *d_alloc_p; // allocator protocol
+//      int d_length;           // logical length of array
+//      // ...
 //
-//         void resizeInternalArrayIfNeeded() { /* ... */ };
-//       public:
-//         MyContainer(MyAllocator *alloc)
-//         : d_alloc_p(alloc)
-//         , d_length(0)
-//         {
-//             d_array_p = (T*) d_alloc_p->allocate(sizeof(T));
-//         }
+//      void resizeInternalArrayIfNeeded() { /* ... */ };
+//    public:
+//      MyContainer(MyAllocator *alloc)
+//      : d_alloc_p(alloc)
+//      , d_length(0)
+//      {
+//          d_array_p = (T*) d_alloc_p->allocate(sizeof(T));
+//      }
 //
-//         void addObj()
-//         {
-//             resizeInternalArrayIfNeeded();
-//             createObj(d_array_p + d_length++,
-//                       d_alloc_p,
-//                       bslmf_IsConvertible<MyAllocator*, T>::Type());
-//         }
-//     };
+//      void addObj()
+//      {
+//          resizeInternalArrayIfNeeded();
+//          createObj(d_array_p + d_length++,
+//                    d_alloc_p,
+//                    bslmf::IsConvertible<MyAllocator*, T>::Type());
+//      }
+//  };
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -135,27 +136,29 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
+namespace bslmf {
+
                          // ==============================
                          // private implementation classes
                          // ==============================
 
-// IMPLEMENTATION NOTE: Why is this so complicated?  The 'bslmf_IsConvertible'
-// meta-function is fairly simple at its core (see 'bslmf_IsConvertible_Imp',
-// below).  All that's needed is to have a function that can be called with
-// 'TO_TYPE' and test if that function is callable with 'FROM_TYPE'.  The
-// complications are as follows:
+// IMPLEMENTATION NOTE: Why is this so complicated?  The 'IsConvertible'
+// meta-function is fairly simple at its core (see 'IsConvertible_Imp', below).
+// All that's needed is to have a function that can be called with 'TO_TYPE'
+// and test if that function is callable with 'FROM_TYPE'.  The complications
+// are as follows:
 //
 // It is should be possible to determine that some conversions are valid even
 // if 'FROM_TYPE' is an incomplete type.  For example, given an incomplete
 // type, X, the following can be assumed:
 //..
-//   X is convertible to X
-//   X is convertible to const X
-//   const X is convertible to X
-//   cvq X& is convertible to cvq X
-//   etc.
+//  X is convertible to X
+//  X is convertible to const X
+//  const X is convertible to X
+//  cvq X& is convertible to cvq X
+//  etc.
 //..
-// It is not acceptable for 'bslmf_IsConvertible' to fail to compile when
+// It is not acceptable for 'IsConvertible' to fail to compile when
 // instantiated on incomplete types, so we make the additional assumption that
 // nothing else is convertible to or from X, even though additional information
 // may prove that to be incorrect.
@@ -176,13 +179,13 @@ namespace BloombergLP {
 // full specializations corresponding to the cross-product of the following
 // parameter patterns:
 //..
-//    FROM_TYPE is volatile, a volatile reference, void, or other
-//    TO_TYPE   is a reference, void, or other
+//  FROM_TYPE is volatile, a volatile reference, void, or other
+//  TO_TYPE   is a reference, void, or other
 //..
 // To make things more complicated, the Sun CC 5.2 compiler has serious bugs
 // that cause incorrect matching behavior, allowing a function to be called
 // with a 'const' argument even if its parameter is a non-const reference.  We
-// create the 'bslmf_IsConvertible_Overload' meta-function to work around this
+// create the 'IsConvertible_Overload' meta-function to work around this
 // problem.
 //
 // Finally, the 'gcc' compiler generates copious warnings for floating point to
@@ -193,39 +196,39 @@ namespace BloombergLP {
 // most common case.  A full solution to this warning problem is likely to be
 // much more involved.
 
-struct bslmf_IsConvertible_Match {
+struct IsConvertible_Match {
     // Private functions to check for successful match.  Sun CC 5.2 requires
-    // that this struct not be nested within 'bslmf_IsConvertible_Imp'.
+    // that this struct not be nested within 'IsConvertible_Imp'.
 
-    static bslmf_MetaInt<1> match(bslmf_IsConvertible_Match&);
-    template <typename T> static bslmf_MetaInt<0> match(const T&);
-    template <typename T> static bslmf_MetaInt<0> match(const volatile T&);
-        // Return 'bslmf_MetaInt<1>' if called on an argument of type
-        // 'bslmf_IsConvertible_Match' and 'bslmf_MetaInt<0>' otherwise.
+    static MetaInt<1> match(IsConvertible_Match&);
+    template <typename T> static MetaInt<0> match(const T&);
+    template <typename T> static MetaInt<0> match(const volatile T&);
+        // Return 'MetaInt<1>' if called on an argument of type
+        // 'IsConvertible_Match' and 'MetaInt<0>' otherwise.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE
 #if defined(BSLS_PLATFORM__CMP_GNU)
-         , int IS_FROM_FUNDAMENTAL = bslmf_IsFundamental<FROM_TYPE>::VALUE
-         , int IS_TO_FUNDAMENTAL   = bslmf_IsFundamental<TO_TYPE>::VALUE
+         , int IS_FROM_FUNDAMENTAL = IsFundamental<FROM_TYPE>::VALUE
+         , int IS_TO_FUNDAMENTAL   = IsFundamental<TO_TYPE>::VALUE
 #endif
          >
-struct bslmf_IsConvertible_Imp {
+struct IsConvertible_Imp {
     // Private class.
 
-    // General instance: Implements 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>'
-    // where conversion to 'TO_TYPE' is not necessarily the same as conversion
-    // to 'const TO_TYPE&'.  Will not compile if 'TO_TYPE' is an incomplete
-    // type (although it may be a pointer or reference to incomplete type).
+    // General instance: Implements 'IsConvertible<FROM_TYPE, TO_TYPE>' where
+    // conversion to 'TO_TYPE' is not necessarily the same as conversion to
+    // 'const TO_TYPE&'.  Will not compile if 'TO_TYPE' is an incomplete type
+    // (although it may be a pointer or reference to incomplete type).
 
   private:
     struct Test
     {
         // A unique (empty) type returned by the comma operator.
 
-        bslmf_IsConvertible_Match& operator, (TO_TYPE) const;
-            // Return a reference to type 'bslmf_IsConvertible_Match' if called
-            // with an argument convertible to 'TO_TYPE'; otherwise the default
+        IsConvertible_Match& operator, (TO_TYPE) const;
+            // Return a reference to type 'IsConvertible_Match' if called with
+            // an argument convertible to 'TO_TYPE'; otherwise the default
             // comma operator will simply return its second argument (of type
             // 'TO_TYPE').
     };
@@ -239,19 +242,19 @@ struct bslmf_IsConvertible_Imp {
     enum {
         // Invoke the comma operator with 'Test&' on the left and 'FROM_TYPE'
         // on the right.  If 'FROM_TYPE' is convertible to 'TO_TYPE', the comma
-        // will return 'bslmf_IsConvertible_Match' and cause a match, otherwise
-        // it will return 'FROM_TYPE', which does not match.
+        // will return 'IsConvertible_Match' and cause a match, otherwise it
+        // will return 'FROM_TYPE', which does not match.
         VALUE =
-        BSLMF_METAINT_TO_BOOL(bslmf_IsConvertible_Match::match(
-                (bslmf_TypeRep<Test>::rep(), bslmf_TypeRep<FROM_TYPE>::rep())))
+        BSLMF_METAINT_TO_BOOL(IsConvertible_Match::match(
+                            (TypeRep<Test>::rep(), TypeRep<FROM_TYPE>::rep())))
             // 'VALUE' will be true if 'FROM_TYPE' is convertible to 'TO_TYPE'.
     };
 #ifdef BSLS_PLATFORM__CMP_MSVC
 #   pragma warning(pop)
 #endif
 
-    typedef bslmf_MetaInt<VALUE> Type;
-        // 'bslmf_MetaInt<1>' if 'FROM_TYPE' is convertible to 'TO_TYPE', else
+    typedef MetaInt<VALUE> Type;
+        // 'MetaInt<1>' if 'FROM_TYPE' is convertible to 'TO_TYPE', else
         // 'bdmef_MetaInt<0>'.
 };
 
@@ -265,33 +268,33 @@ struct bslmf_IsConvertible_Imp {
 
 #define BSLMF_ISCONVERTIBLE_SAMETYPEVALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)\
 template <typename TYPE> \
-struct bslmf_IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND> \
-: bslmf_MetaInt<VALUE> {};
-    // Define a partial specialization of 'bslmf_IsConvertible_Imp' in terms of
-    // a single template parameter 'TYPE', defined as 'bslmf_MetaInt<VALUE>'
-    // for the specified macro argument 'VALUE'.  The specified macro arguments
-    // 'FROM' and 'TO' are cv-qualified type expressions constructed out of
-    // 'TYPE'.
+struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND> \
+: MetaInt<VALUE> {};
+    // Define a partial specialization of 'bslmf::IsConvertible_Imp' in terms
+    // of a single template parameter 'TYPE', defined as
+    // 'bslmf::MetaInt<VALUE>' for the specified macro argument 'VALUE'.  The
+    // specified macro arguments 'FROM' and 'TO' are cv-qualified type
+    // expressions constructed out of 'TYPE'.
 
 #define BSLMF_ISCONVERTIBLE_VALUE(VALUE, FROM, TO, FROM_FUND, TO_FUND)\
 template <typename FROM_TYPE, typename TO_TYPE> \
-struct bslmf_IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND> \
-: bslmf_MetaInt<VALUE> {};
-    // Define a partial specialization of 'bslmf_IsConvertible_Imp' in terms of
-    // two template parameters 'FROM_TYPE' and 'TO_TYPE', defined as
-    // 'bslmf_MetaInt<VALUE>' for the specified macro argument 'VALUE'.  The
+struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND> \
+: MetaInt<VALUE> {};
+    // Define a partial specialization of 'bslmf::IsConvertible_Imp' in terms
+    // of two template parameters 'FROM_TYPE' and 'TO_TYPE', defined as
+    // 'bslmf::MetaInt<VALUE>' for the specified macro argument 'VALUE'.  The
     // specified macro arguments 'FROM' and 'TO' are cv-qualified type
     // expression constructed out of 'FROM_TYPE' and 'TO_TYPE', respectively.
 
 #define BSLMF_ISCONVERTIBLE_FORWARD( FROM, TO, FROM_FUND, TO_FUND )\
 template <typename FROM_TYPE, typename TO_TYPE> \
-struct bslmf_IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND> \
-: bslmf_IsConvertible_Imp<FROM, TO, 0, 0> {};
-    // Define a partial specialization of 'bslmf_IsConvertible_Imp' in terms of
-    // two template parameters 'FROM_TYPE' and 'TO_TYPE', that simply applies
-    // the general mechanism for non-fundamental types.  The specified macro
-    // arguments 'FROM' and 'TO' are cv-qualified type expressions constructed
-    // out of 'FROM_TYPE' and 'TO_TYPE', respectively.
+struct IsConvertible_Imp<FROM, TO, FROM_FUND, TO_FUND> \
+: IsConvertible_Imp<FROM, TO, 0, 0> {};
+    // Define a partial specialization of 'bslmf::IsConvertible_Imp' in terms
+    // of two template parameters 'FROM_TYPE' and 'TO_TYPE', that simply
+    // applies the general mechanism for non-fundamental types.  The specified
+    // macro arguments 'FROM' and 'TO' are cv-qualified type expressions
+    // constructed out of 'FROM_TYPE' and 'TO_TYPE', respectively.
 
 // The logic we follow is to rely on the above implementation in cases that we
 // know never produce a warning.  There are two cases we must guard against:
@@ -378,12 +381,12 @@ BSLMF_ISCONVERTIBLE_FORWARD(FROM_TYPE, TO_TYPE&, 1, 1)
 // point type.
 
 template <typename FROM_TYPE, typename TO_TYPE>
-struct bslmf_IsConvertible_Imp<const FROM_TYPE, TO_TYPE, 1, 1>
-    : bslmf_IsConvertible_Imp<const FROM_TYPE, double, 0, 0>::Type {
+struct IsConvertible_Imp<const FROM_TYPE, TO_TYPE, 1, 1>
+    : IsConvertible_Imp<const FROM_TYPE, double, 0, 0>::Type {
 };
 template <typename FROM_TYPE, typename TO_TYPE>
-struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 1>
-    : bslmf_IsConvertible_Imp<FROM_TYPE, double, 0, 0>::Type {
+struct IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 1>
+    : IsConvertible_Imp<FROM_TYPE, double, 0, 0>::Type {
 };
 
 // SECTION 2: ONLY THE 'TO_TYPE' IS FUNDAMENTAL
@@ -394,8 +397,8 @@ struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 1>
 // 'TO_TYPE' is an integral type and the 'FROM_TYPE' is a floating point type.
 
 template <typename FROM_TYPE, typename TO_TYPE>
-struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 0, 1>
-    : bslmf_IsConvertible_Imp<FROM_TYPE, double, 0, 0>::Type {
+struct IsConvertible_Imp<FROM_TYPE, TO_TYPE, 0, 1>
+    : IsConvertible_Imp<FROM_TYPE, double, 0, 0>::Type {
 };
 
 // SECTION 3: ONLY THE 'FROM_TYPE' IS FUNDAMENTAL
@@ -407,8 +410,8 @@ struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 0, 1>
 // point type.
 
 template <typename FROM_TYPE, typename TO_TYPE>
-struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 0>
-    : bslmf_IsConvertible_Imp<int, TO_TYPE, 0, 0>::Type {
+struct IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 0>
+    : IsConvertible_Imp<int, TO_TYPE, 0, 0>::Type {
 };
 
 #undef BSLMF_ISCONVERTIBLE_SAMETYPEVALUE
@@ -416,14 +419,14 @@ struct bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE, 1, 0>
 #undef BSLMF_ISCONVERTIBLE_FORWARD
 #endif
 
-                         // ==========================
-                         // struct bslmf_IsConvertible
-                         // ==========================
+                         // ====================
+                         // struct IsConvertible
+                         // ====================
 
 template <typename FROM_TYPE, typename TO_TYPE>
-struct bslmf_IsConvertible
-    : bslmf_IsConvertible_Imp<FROM_TYPE,
-                        typename bslmf_RemoveCvq<TO_TYPE>::Type const&>::Type {
+struct IsConvertible
+    : IsConvertible_Imp<FROM_TYPE,
+                        typename RemoveCvq<TO_TYPE>::Type const&>::Type {
     // Implement a meta function which computes -- at compile time -- whether
     // 'FROM_TYPE' is convertible to 'TO_TYPE'.  Note that if 'TO_TYPE' is not
     // a reference type, then the cv-qualification of 'TO_TYPE' is ignored.
@@ -436,82 +439,93 @@ struct bslmf_IsConvertible
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
-struct bslmf_IsConvertible<FROM_TYPE, TO_TYPE&>
-    : bslmf_IsConvertible_Imp<FROM_TYPE, TO_TYPE&>::Type {
-    // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
-    // the case where 'TO_TYPE' is a reference.
+struct IsConvertible<FROM_TYPE, TO_TYPE&>
+    : IsConvertible_Imp<FROM_TYPE, TO_TYPE&>::Type {
+    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for the
+    // case where 'TO_TYPE' is a reference.
 };
 
 template <typename FROM_TYPE>
-struct bslmf_IsConvertible<FROM_TYPE, void> : bslmf_MetaInt<0> {
-    // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
-    // the case where 'TO_TYPE' is 'void'.  Evaluates to false.
+struct IsConvertible<FROM_TYPE, void> : MetaInt<0> {
+    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for the
+    // case where 'TO_TYPE' is 'void'.  Evaluates to false.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
-struct bslmf_IsConvertible<volatile FROM_TYPE, TO_TYPE>
-    : bslmf_IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE>::Type {
-    // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
-    // for the case where 'FROM_TYPE' is volatile.
+struct IsConvertible<volatile FROM_TYPE, TO_TYPE>
+    : IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE>::Type {
+    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
+    // the case where 'FROM_TYPE' is volatile.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
-struct bslmf_IsConvertible<volatile FROM_TYPE, TO_TYPE&>
-    : bslmf_IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE&>::Type {
-    // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
-    // for the case where 'FROM_TYPE' is volatile and 'TO_TYPE' is a reference.
+struct IsConvertible<volatile FROM_TYPE, TO_TYPE&>
+    : IsConvertible_Imp<volatile FROM_TYPE, TO_TYPE&>::Type {
+    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
+    // the case where 'FROM_TYPE' is volatile and 'TO_TYPE' is a reference.
 };
 
 template <typename FROM_TYPE>
-struct bslmf_IsConvertible<volatile FROM_TYPE, void> : bslmf_MetaInt<0> {
-    // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
-    // for the case where 'FROM_TYPE' is volatile and 'TO_TYPE' is void.
-    // Evaluates to false.  In that case, disable the check for fundamentals.
+struct IsConvertible<volatile FROM_TYPE, void> : MetaInt<0> {
+    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
+    // the case where 'FROM_TYPE' is volatile and 'TO_TYPE' is void.  Evaluates
+    // to false.  In that case, disable the check for fundamentals.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
-struct bslmf_IsConvertible<volatile FROM_TYPE&, TO_TYPE>
-    : bslmf_IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE>::Type {
-    // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
-    // for the case where 'FROM_TYPE' is a reference to 'volatile'.
+struct IsConvertible<volatile FROM_TYPE&, TO_TYPE>
+    : IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE>::Type {
+    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
+    // the case where 'FROM_TYPE' is a reference to 'volatile'.
 };
 
 template <typename FROM_TYPE, typename TO_TYPE>
-struct bslmf_IsConvertible<volatile FROM_TYPE&, TO_TYPE&>
-    : bslmf_IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE&>::Type {
-    // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
-    // for the case where 'FROM_TYPE' is a reference to 'volatile' and
-    // 'TO_TYPE' is a reference.
+struct IsConvertible<volatile FROM_TYPE&, TO_TYPE&>
+    : IsConvertible_Imp<volatile FROM_TYPE&, TO_TYPE&>::Type {
+    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
+    // the case where 'FROM_TYPE' is a reference to 'volatile' and 'TO_TYPE' is
+    // a reference.
 };
 
 template <typename FROM_TYPE>
-struct bslmf_IsConvertible<volatile FROM_TYPE&, void> : bslmf_MetaInt<0> {
-    // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
-    // for the case where 'FROM_TYPE' is a reference to 'volatile' and
-    // 'TO_TYPE' is void.  Evaluates to false.
+struct IsConvertible<volatile FROM_TYPE&, void> : MetaInt<0> {
+    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
+    // the case where 'FROM_TYPE' is a reference to 'volatile' and 'TO_TYPE' is
+    // void.  Evaluates to false.
 };
 
 template <typename TO_TYPE>
-struct bslmf_IsConvertible<void, TO_TYPE> : bslmf_MetaInt<0> {
-    // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
-    // for the case where 'FROM_TYPE' is void.  Evaluates to false.
+struct IsConvertible<void, TO_TYPE> : MetaInt<0> {
+    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
+    // the case where 'FROM_TYPE' is void.  Evaluates to false.
 };
 
 template <typename TO_TYPE>
-struct bslmf_IsConvertible<void, TO_TYPE&> : bslmf_MetaInt<0> {
-    // Partial specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for
-    // for the case where 'FROM_TYPE' is void and 'TO_TYPE' is a reference.
+struct IsConvertible<void, TO_TYPE&> : MetaInt<0> {
+    // Partial specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for
+    // the case where 'FROM_TYPE' is void and 'TO_TYPE' is a reference.
     // Evaluates to false.
 };
 
 template <>
-struct bslmf_IsConvertible<void, void> : bslmf_MetaInt<1> {
-    // Specialization of 'bslmf_IsConvertible<FROM_TYPE, TO_TYPE>' for for the
-    // case where 'FROM_TYPE' and 'TO_TYPE' are both 'void'.  Evaluates to
-    // true.
+struct IsConvertible<void, void> : MetaInt<1> {
+    // Specialization of 'IsConvertible<FROM_TYPE, TO_TYPE>' for for the case
+    // where 'FROM_TYPE' and 'TO_TYPE' are both 'void'.  Evaluates to true.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsConvertible
+#undef bslmf_IsConvertible
+#endif
+#define bslmf_IsConvertible bslmf::IsConvertible
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

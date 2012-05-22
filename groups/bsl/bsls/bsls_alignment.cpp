@@ -7,12 +7,14 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        // ---------------------
-                        // struct bsls_Alignment
-                        // ---------------------
+namespace bsls {
+
+                        // ----------------
+                        // struct Alignment
+                        // ----------------
 
 // CLASS METHODS
-const char *bsls_Alignment::toAscii(bsls_Alignment::Strategy value)
+const char *Alignment::toAscii(Alignment::Strategy value)
 {
 #define CASE(X) case(BSLS_ ## X): return #X;
 
@@ -25,7 +27,9 @@ const char *bsls_Alignment::toAscii(bsls_Alignment::Strategy value)
 #undef CASE
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

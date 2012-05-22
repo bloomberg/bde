@@ -15,6 +15,7 @@ bslmf_ispointer
 bslmf_ispointertomember
 bslmf_ispolymorphic
 bslmf_issame
+bslmf_isvoid
 bslmf_memberfunctionpointertraits
 bslmf_metaint
 bslmf_nil

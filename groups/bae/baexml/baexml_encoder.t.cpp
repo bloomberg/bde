@@ -23,6 +23,7 @@
 #include <bsl_sstream.h>
 
 #include <bsl_cstdio.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -498,8 +499,6 @@ int veryVeryVeryVerbose;
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -1199,8 +1198,6 @@ bsl::ostream& MySequence::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -1992,8 +1989,6 @@ bsl::ostream& MySequenceWithNullables::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -2796,8 +2791,6 @@ bsl::ostream& MyChoice::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -3899,8 +3892,6 @@ bsl::ostream& MySequenceWithArrays::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class MySequenceWithAnonymousChoiceChoice {
@@ -4733,8 +4724,6 @@ bsl::ostream& MySequenceWithAnonymousChoiceChoice::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class MySequenceWithAnonymousChoice {
@@ -5543,8 +5532,6 @@ bsl::ostream& MySequenceWithAnonymousChoice::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -6424,8 +6411,6 @@ bsl::ostream& MySequenceWithAttributes::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class MySimpleContent {
@@ -7224,8 +7209,6 @@ bsl::ostream& MySimpleContent::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 
@@ -8027,8 +8010,6 @@ bsl::ostream& MySimpleIntContent::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class MySequenceWithNillables {
@@ -8818,8 +8799,6 @@ bsl::ostream& MySequenceWithNillables::print(
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test {
 
 class Address {
@@ -9584,8 +9563,6 @@ bsl::ostream& Address::print(
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test {
 

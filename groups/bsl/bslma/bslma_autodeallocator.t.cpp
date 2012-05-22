@@ -1,4 +1,4 @@
-// bslma_autodeallocator.t.cpp  -*-C++-*-
+// bslma_autodeallocator.t.cpp                                        -*-C++-*-
 
 #include <bslma_autodeallocator.h>
 
@@ -19,7 +19,7 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// A 'bslma_AutoDeallocator' (a kind of "range proctor") is a mechanism (i.e.,
+// A 'bslma::AutoDeallocator' (a kind of "range proctor") is a mechanism (i.e.,
 // having state but no value) that is used to conditionally deallocate a
 // contiguous sequence of memory blocks.  We are mostly concerned that this
 // proctor deallocates the proper sequence of contiguous memory blocks (in
@@ -41,12 +41,12 @@ using namespace std;
 // sequences (differing in 'origin' and 'length') of memory blocks allocated by
 // the test allcoator.  Rather than using the primary manipulators ('reset' and
 // 'setLength'), we will use the "state" constructor to bring the
-// 'bslma_AutoDeallocator' directly to any desired state.  After each proctor
+// 'bslma::AutoDeallocator' directly to any desired state.  After each proctor
 // is destroyed, we will verify that memory supplied by the test allocator are
 // all deallocated.
 //-----------------------------------------------------------------------------
-// [3] bslma_AutoDeallocator<ALLOCATOR>(origin, allocator, length = 0);
-// [3] ~bslma_AutoDeallocator<ALLOCATOR>();
+// [3] bslma::AutoDeallocator<ALLOCATOR>(origin, allocator, length = 0);
+// [3] ~bslma::AutoDeallocator<ALLOCATOR>();
 // [4] void release();
 // [5] void reset(origin);
 // [6] void setLength(length);
@@ -205,7 +205,7 @@ void TestAllocator::deallocate(void *address)
     }
     else {
         LOOP_ASSERT(segment - s_segmentAllocated,
-                                             0 && "Unallocated segment freed");
+                    0 && "Unallocated segment freed");
     }
 }
 
@@ -219,41 +219,41 @@ int TestAllocator::numOutstandingAllocations() const
 //=============================================================================
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// The 'bslma_AutoDeallocator' proctor object can be used to achieve
+// The 'bslma::AutoDeallocator' proctor object can be used to achieve
 // *exception* *safety* in an *exception* *neutral* way during manipulation of
 // "out-of-place" arrays of raw resources or memory.  Since there are no
 // destructor calls, this component is more efficient compared to the
-// 'bslma_AutoRawDeleter'.  The following illustrates the insertion operation
+// 'bslma::AutoRawDeleter'.  The following illustrates the insertion operation
 // for an "out-of-place" array of raw character sequences.  Assume that an
 // array initially contains 5 character sequences as its elements:
 //..
-//                          0     1     2     3     4
-//                        _____ _____ _____ _____ _____
-//                       |  o  |  o  |  o  |  o  |  o  |
-//                       `==|==^==|==^==|==^==|==^==|=='
-//                          |    _V___  |   __V___  |
-//                          |   |"Bye"| |  |"berg"| |
-//                          |   `=====' |  `======' |
-//                         _V_____     _V_____     _V__
-//                        |"Hello"|   |"Bloom"|   |"LP"|
-//                        `======='   `======='   `===='
+//     0     1     2     3     4
+//   _____ _____ _____ _____ _____
+//  |  o  |  o  |  o  |  o  |  o  |
+//  `==|==^==|==^==|==^==|==^==|=='
+//     |    _V___  |   __V___  |
+//     |   |"Bye"| |  |"berg"| |
+//     |   `=====' |  `======' |
+//    _V_____     _V_____     _V__
+//   |"Hello"|   |"Bloom"|   |"LP"|
+//   `======='   `======='   `===='
 //..
 // To insert two more character sequences at index position 2, the array is
 // first reallocated if it is not big enough, and then the existing elements
 // at index position 2 - 4 are shifted:
 //..
-//                  0     1     2     3     4     5     6
-//                _____ _____ _____ _____ _____ _____ _____
-//               |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
-//               `==|==^==|==^=====^=====^==|==^==|==^==|=='
-//                  |    _V___              |   __V___  |
-//                  |   |"Bye"|             |  |"berg"| |
-//                  |   `====='             |  `======' |
-//                 _V_____                 _V_____     _V__
-//                |"Hello"|               |"Bloom"|   |"LP"|
-//                `======='               `======='   `===='
+//     0     1     2     3     4     5     6
+//   _____ _____ _____ _____ _____ _____ _____
+//  |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
+//  `==|==^==|==^=====^=====^==|==^==|==^==|=='
+//     |    _V___              |   __V___  |
+//     |   |"Bye"|             |  |"berg"| |
+//     |   `====='             |  `======' |
+//    _V_____                 _V_____     _V__
+//   |"Hello"|               |"Bloom"|   |"LP"|
+//   `======='               `======='   `===='
 //
-//               Note: "xxxxx" denotes undefined value.
+//  Note: "xxxxx" denotes undefined value.
 //..
 // Next, two new memory blocks must be allocated to position 2 and 3.  If,
 // one of the two allocations fails and an exception is thrown, the array will
@@ -264,24 +264,24 @@ int TestAllocator::numOutstandingAllocations() const
 // the string objects, but there is still a problem: the character sequences
 // "Bloom", "berg", and "LP" (at index positions 4 - 6) are "orphaned" and will
 // never be deallocated -- a memory leak.  To prevent this potential memory
-// leak, we can additionally create an instance of 'bslma_AutoDeallocator' to
+// leak, we can additionally create an instance of 'bslma::AutoDeallocator' to
 // manage (temporarily) the memory at index positions 4 - 6 prior to allocating
 // the new memory:
 //..
-//                  0     1     2     3     4     5     6
-//                _____ _____ _____ _____ _____ _____ _____
-//               |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
-//               `==|==^==|==^=====^=====^==|==^==|==^==|=='
-//                  |    _V___              |   __V___  |
-//                  |   |"Bye"|             |  |"berg"| |
-//                  |   `====='             |  `======' |
-//                 _V_____                 _V_____     _V__
-//                |"Hello"|               |"Bloom"|   |"LP"|
-//                `======='               `======='   `===='
-//               my_StrArray              ^---------------bslma_AutoDeallocator
-//               (length = 2)                          (origin = 4, length = 3)
+//      0     1     2     3     4     5     6
+//    _____ _____ _____ _____ _____ _____ _____
+//   |  o  |  o  |xxxxx|xxxxx|  o  |  o  |  o  |
+//   `==|==^==|==^=====^=====^==|==^==|==^==|=='
+//      |    _V___              |   __V___  |
+//      |   |"Bye"|             |  |"berg"| |
+//      |   `====='             |  `======' |
+//     _V_____                 _V_____     _V__
+//    |"Hello"|               |"Bloom"|   |"LP"|
+//    `======='               `======='   `===='
+//   my_StrArray              ^---------------bslma::AutoDeallocator
+//   (length = 2)                          (origin = 4, length = 3)
 //
-//              Note: Configuration after initializing the proctor.
+//  Note: Configuration after initializing the proctor.
 //..
 // If an exception occurs, the array (now of length 2) is in a perfectly valid
 // state, while the proctor is responsible for deallocating the orphaned memory
@@ -289,7 +289,7 @@ int TestAllocator::numOutstandingAllocations() const
 // and the proctor's 'release()' method is called, releasing its control over
 // the (temporarily) managed memory.
 //
-// The following example illustrates the use of 'bslma_AutoDeallocator' to
+// The following example illustrates the use of 'bslma::AutoDeallocator' to
 // manage temporarily an "out-of-place" array of character sequences during the
 // array's insertion operation.
 //
@@ -302,7 +302,7 @@ int TestAllocator::numOutstandingAllocations() const
         // sequences.  Memory will be supplied by the parameterized 'ALLOCATOR'
         // type provided at construction (which must remain valid throughout
         // the lifetime of this guard object).  Note that memory is managed by
-        // a parametrized 'ALLCOATOR' type, instead of a 'bslma_Allocator', to
+        // a parametrized 'ALLCOATOR' type, instead of a 'bslma::Allocator', to
         // enable clients to pass in a pool (such as a sequential pool)
         // optimized for allocations of character sequences.
 
@@ -362,82 +362,7 @@ int TestAllocator::numOutstandingAllocations() const
 // Next, we define the 'insert' method of 'my_StrArray':
 //..
     template <class ALLOCATOR>
-    void my_StrArray<ALLOCATOR>::insert(int                          dstIndex,
-                                       const my_StrArray<ALLOCATOR>& srcArray)
-    {
-        int srcLength  = srcArray.d_length;
-        int newLength  = d_length + srcLength;
-        int numShifted = d_length - dstIndex;
-
-        if (newLength > d_size) {
-            while (d_size < newLength) {
-                d_size = ! d_size ? 1 : 2 * d_size;
-            }
-
-            char ** newArray =
-                    (char **) d_allocator_p->allocate(d_size * sizeof(char *));
-            memcpy(newArray, d_array_p, d_length * sizeof(char *));
-            if (d_array_p) {
-                d_allocator_p->deallocate(d_array_p);
-            }
-            d_array_p = newArray;
-        }
-
-        char **tmpSrc = srcArray.d_array_p;
-        if (this == &srcArray) {
-            // self-alias
-            int size = srcLength * sizeof(char *);
-            tmpSrc = (char **) d_allocator_p->allocate(size);
-            memcpy(tmpSrc, d_array_p, size);
-        }
-        bslma_DeallocatorProctor<ALLOCATOR> guard(this == &srcArray ? tmpSrc
-                                                                    : 0,
-                                                  d_allocator_p);
-
-        // First shift the elements to the back of the array.
-        memmove(d_array_p + dstIndex + srcLength,
-                d_array_p + dstIndex,
-                numShifted * sizeof *d_array_p);
-
-        // Shorten 'd_length' and use 'bslma_AutoDeallocator' to proctor the
-        // memory shifted.
-        d_length = dstIndex;
-
-        //*******************************************************
-        // Note use of auto deallocator on tail memory (below). *
-        //*******************************************************
-
-        bslma_AutoDeallocator<ALLOCATOR> tailDeallocator(
-                                    (void **) d_array_p + dstIndex + srcLength,
-                                    d_allocator_p,
-                                    numShifted);
-//..
-// Now, if any allocation for the inserted character sequences throws, the
-// memory used for the character sequences that had been moved to the end of
-// array will be deallocated automatically by the 'bslma_AutoDeallocator'.
-//..
-        // Copy the character sequences from the 'srcArray'.
-        for (int i = 0; i < srcLength; ++i, ++d_length) {
-            std::size_t size = std::strlen(tmpSrc[i]) + 1;
-            d_array_p[dstIndex + i] = (char *) d_allocator_p->allocate(size);
-            memcpy(d_array_p[dstIndex + i], tmpSrc[i], size);
-        }
-
-        //*********************************************
-        // Note that the proctor is released (below). *
-        //*********************************************
-
-        tailDeallocator.release();
-        d_length = newLength;
-    }
-//..
-// The above method copies the source elements (visually) from left to right.
-// Another (functionally equivalent) implementation copies the source elements
-// from right to left, and makes use of the 'operator--()' of the
-// 'bslma_AutoDeallocator' interface:
-//..
-    template <class ALLOCATOR>
-    void my_StrArray<ALLOCATOR>::insert2(int                          dstIndex,
+    void my_StrArray<ALLOCATOR>::insert(int                           dstIndex,
                                         const my_StrArray<ALLOCATOR>& srcArray)
     {
         int srcLength  = srcArray.d_length;
@@ -465,8 +390,8 @@ int TestAllocator::numOutstandingAllocations() const
             tmpSrc = (char **) d_allocator_p->allocate(size);
             memcpy(tmpSrc, d_array_p, size);
         }
-        bslma_DeallocatorProctor<ALLOCATOR> guard(this == &srcArray ? tmpSrc
-                                                                    : 0,
+        bslma::DeallocatorProctor<ALLOCATOR> guard(this == &srcArray ? tmpSrc
+                                                                     : 0,
                                                   d_allocator_p);
 
         // First shift the elements to the back of the array.
@@ -474,7 +399,83 @@ int TestAllocator::numOutstandingAllocations() const
                 d_array_p + dstIndex,
                 numShifted * sizeof *d_array_p);
 
-        // Shorten 'd_length' and use 'bslma_AutoDeallocator' to proctor the
+        // Shorten 'd_length' and use 'bslma::AutoDeallocator' to proctor the
+        // memory shifted.
+        d_length = dstIndex;
+
+        //*******************************************************
+        // Note use of auto deallocator on tail memory (below). *
+        //*******************************************************
+
+        bslma::AutoDeallocator<ALLOCATOR> tailDeallocator(
+                                    (void **) d_array_p + dstIndex + srcLength,
+                                    d_allocator_p,
+                                    numShifted);
+//..
+// Now, if any allocation for the inserted character sequences throws, the
+// memory used for the character sequences that had been moved to the end of
+// array will be deallocated automatically by the 'bslma::AutoDeallocator'.
+//..
+        // Copy the character sequences from the 'srcArray'.
+        for (int i = 0; i < srcLength; ++i, ++d_length) {
+            std::size_t size = std::strlen(tmpSrc[i]) + 1;
+            d_array_p[dstIndex + i] = (char *) d_allocator_p->allocate(size);
+            memcpy(d_array_p[dstIndex + i], tmpSrc[i], size);
+        }
+
+        //*********************************************
+        // Note that the proctor is released (below). *
+        //*********************************************
+
+        tailDeallocator.release();
+        d_length = newLength;
+    }
+//..
+// The above method copies the source elements (visually) from left to right.
+// Another (functionally equivalent) implementation copies the source elements
+// from right to left, and makes use of the 'operator--()' of the
+// 'bslma::AutoDeallocator' interface:
+//..
+    template <class ALLOCATOR>
+    void my_StrArray<ALLOCATOR>::insert2(
+                                        int                           dstIndex,
+                                        const my_StrArray<ALLOCATOR>& srcArray)
+    {
+        int srcLength  = srcArray.d_length;
+        int newLength  = d_length + srcLength;
+        int numShifted = d_length - dstIndex;
+
+        if (newLength > d_size) {
+            while (d_size < newLength) {
+                d_size = ! d_size ? 1 : 2 * d_size;
+            }
+
+            char ** newArray =
+                    (char **) d_allocator_p->allocate(d_size * sizeof(char *));
+            memcpy(newArray, d_array_p, d_length * sizeof(char *));
+            if (d_array_p) {
+                d_allocator_p->deallocate(d_array_p);
+            }
+            d_array_p = newArray;
+        }
+
+        char **tmpSrc = srcArray.d_array_p;
+        if (this == &srcArray) {
+            // self-alias
+            int size = srcLength * sizeof(char *);
+            tmpSrc = (char **) d_allocator_p->allocate(size);
+            memcpy(tmpSrc, d_array_p, size);
+        }
+        bslma::DeallocatorProctor<ALLOCATOR> guard(this == &srcArray ? tmpSrc
+                                                                     : 0,
+                                                  d_allocator_p);
+
+        // First shift the elements to the back of the array.
+        memmove(d_array_p + dstIndex + srcLength,
+                d_array_p + dstIndex,
+                numShifted * sizeof *d_array_p);
+
+        // Shorten 'd_length' and use 'bslma::AutoDeallocator' to proctor the
         // memory shifted.
         d_length = dstIndex;
 
@@ -483,13 +484,13 @@ int TestAllocator::numOutstandingAllocations() const
         //* memory with negative length (below).     *
         //********************************************
 
-        bslma_AutoDeallocator<ALLOCATOR> tailDeallocator(
+        bslma::AutoDeallocator<ALLOCATOR> tailDeallocator(
                        (void **) d_array_p + d_length + srcLength + numShifted,
                        d_allocator_p,
                        -numShifted);
 //..
 // Since we have decided to copy the source elements from right to left, we
-// set the origin of the 'bslma_AutoDeallocator' to the end of the array, and
+// set the origin of the 'bslma::AutoDeallocator' to the end of the array, and
 // decrement the (signed) length on each copy to extend the proctor range by
 // 1.
 //..
@@ -605,7 +606,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Run the usage example and exercise the creators and manipulators
-        //   of 'myQueue' using a 'bslma_TestAllocator' to verify that memory
+        //   of 'myQueue' using a 'bslma::TestAllocator' to verify that memory
         //   is allocated and deallocated properly.
         //
         // Testing:
@@ -615,15 +616,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "USAGE EXAMPLE TEST" << endl
                                   << "==================" << endl;
 
-        bslma_TestAllocator testAllocator(veryVeryVeryVerbose);
-        const bslma_TestAllocator& TA = testAllocator;
+        bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
+        const bslma::TestAllocator& TA = testAllocator;
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nTesting with exceptions";
 #endif
 
         BEGIN_BSLMA_EXCEPTION_TEST {
-            my_StrArray<bslma_Allocator> arrayA(&testAllocator);
+            my_StrArray<bslma::Allocator> arrayA(&testAllocator);
 
             arrayA.append("Hello");
             arrayA.append("Bye");
@@ -631,7 +632,7 @@ int main(int argc, char *argv[])
             arrayA.append("berg");
             arrayA.append("LP");
 
-            my_StrArray<bslma_Allocator> arrayB(&testAllocator);
+            my_StrArray<bslma::Allocator> arrayB(&testAllocator);
 
             arrayB.append("BDE");
             arrayB.append("101");
@@ -655,7 +656,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == TA.numBytesInUse());
 
         BEGIN_BSLMA_EXCEPTION_TEST {
-            my_StrArray<bslma_Allocator> arrayA(&testAllocator);
+            my_StrArray<bslma::Allocator> arrayA(&testAllocator);
 
             arrayA.append("Hello");
             arrayA.append("Bye");
@@ -663,7 +664,7 @@ int main(int argc, char *argv[])
             arrayA.append("berg");
             arrayA.append("LP");
 
-            my_StrArray<bslma_Allocator> arrayB(&testAllocator);
+            my_StrArray<bslma::Allocator> arrayB(&testAllocator);
 
             arrayB.append("BDE");
             arrayB.append("101");
@@ -687,7 +688,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == TA.numBytesInUse());
 
         BEGIN_BSLMA_EXCEPTION_TEST {
-            my_StrArray<bslma_Allocator> arrayA(&testAllocator);
+            my_StrArray<bslma::Allocator> arrayA(&testAllocator);
 
             arrayA.append("Hello");
             arrayA.append("Bye");
@@ -714,7 +715,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == TA.numBytesInUse());
 
         BEGIN_BSLMA_EXCEPTION_TEST {
-            my_StrArray<bslma_Allocator> arrayA(&testAllocator);
+            my_StrArray<bslma::Allocator> arrayA(&testAllocator);
 
             arrayA.append("Hello");
             arrayA.append("Bye");
@@ -766,13 +767,13 @@ int main(int argc, char *argv[])
 
         enum { NUM_BLOCKS = 10};
         void *pointers[NUM_BLOCKS];  // dummy pointer passed to the proctor
-        bslma_TestAllocator ta(veryVeryVeryVerbose);  // dummy allocator passed
+        bslma::TestAllocator ta(veryVeryVeryVerbose); // dummy allocator passed
                                                       // to the proctor
 
         if (verbose) cout << "\nTesting 'operator++' with positive length"
                           << endl;
 
-        bslma_AutoDeallocator<bslma_Allocator> proctor(pointers, &ta, 0);
+        bslma::AutoDeallocator<bslma::Allocator> proctor(pointers, &ta, 0);
         for (int i = 0; i < NUM_BLOCKS; ++i) {
             LOOP_ASSERT(i, i == proctor.length());
             ++proctor;
@@ -815,11 +816,11 @@ int main(int argc, char *argv[])
         //      memory blocks protected by the 'TestAllocator'.
         //   2) That the 'length' method properly returns the number of memory
         //      blocks currently protected by a 'const'
-        //      'bslma_AutoDeallocator'.
+        //      'bslma::AutoDeallocator'.
         //
         // Plan:
         //   For concern 1, allocate a sequence of memory blocks using a
-        //   'TestAllocator'.  Then, initialize a 'bslma_AutoDeallocator'
+        //   'TestAllocator'.  Then, initialize a 'bslma::AutoDeallocator'
         //   object with the sequence of memory blocks, the
         //   'TestAllocator' and a fixed length.  Invoke 'setLength' to
         //   modify the number of elements covered by the range proctor before
@@ -829,7 +830,7 @@ int main(int argc, char *argv[])
         //
         //   For concern 2, allocate a sequence of memory blocks of various
         //   lengths using a 'TestAllocator'.  Then, initialize a
-        //   'bslma_AutoDeallocator' object with the sequence of memory blocks.
+        //   'bslma::AutoDeallocator' object with the sequence of memory blocks.
         //   Verify that 'length' returns the number of memory blocks currently
         //   protected by the range proctor.
         //
@@ -860,10 +861,10 @@ int main(int argc, char *argv[])
             ASSERT(NUM_BLOCKS == T.numOutstandingAllocations());
 
             {
-                bslma_AutoDeallocator<TestAllocator> proctor(
-                                                      &pointers[NUM_BLOCKS/2],
-                                                      &t,
-                                                      0);
+                bslma::AutoDeallocator<TestAllocator> proctor(
+                                                       &pointers[NUM_BLOCKS/2],
+                                                       &t,
+                                                       0);
 
                 if (veryVerbose) { T_ P_(i) P(T.numOutstandingAllocations()) }
                 ASSERT(NUM_BLOCKS == T.numOutstandingAllocations());
@@ -907,7 +908,7 @@ int main(int argc, char *argv[])
             void *pointers[NUM_BLOCKS];  // dummy
 
             {
-                bslma_AutoDeallocator<TestAllocator> proctor(pointers, &t, i);
+                bslma::AutoDeallocator<TestAllocator> proctor(pointers, &t, i);
 
                 if (veryVerbose) { T_ P_(i) P(proctor.length()) }
                 ASSERT(i == proctor.length());
@@ -928,10 +929,10 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Allocate a sequence of memory blocks using a
-        //   'bslma_TestAllocator'.  Next allocate another sequence of memory
+        //   'bslma::TestAllocator'.  Next allocate another sequence of memory
         //   blocks of the same length, but different size.  Finally,
-        //   initialize a 'bslma_AutoDeallocator' object with the first
-        //   sequence of memory blocks and the 'bslma_TestAllocator'.  Call
+        //   initialize a 'bslma::AutoDeallocator' object with the first
+        //   sequence of memory blocks and the 'bslma::TestAllocator'.  Call
         //   'reset' on the proctor with the second sequence of memory blocks
         //   before the proctor goes out of scope.  Once the proctor goes out
         //   of scope, verify that only the second sequence of memory blocks
@@ -948,12 +949,12 @@ int main(int argc, char *argv[])
 
         enum { NUM_TEST = 20, SIZE1 = sizeof(int), SIZE2 = sizeof(char) };
 
-        bslma_TestAllocator ta1(veryVeryVeryVerbose);
-        bslma_TestAllocator ta2(veryVeryVeryVerbose);
-        bslma_TestAllocator ta3(veryVeryVeryVerbose);
-        const bslma_TestAllocator& TA1 = ta1;
-        const bslma_TestAllocator& TA2 = ta2;
-        const bslma_TestAllocator& TA3 = ta3;
+        bslma::TestAllocator ta1(veryVeryVeryVerbose);
+        bslma::TestAllocator ta2(veryVeryVeryVerbose);
+        bslma::TestAllocator ta3(veryVeryVeryVerbose);
+        const bslma::TestAllocator& TA1 = ta1;
+        const bslma::TestAllocator& TA2 = ta2;
+        const bslma::TestAllocator& TA3 = ta3;
 
         static void *pointers1a[NUM_TEST];
         static void *pointers1b[NUM_TEST];
@@ -975,12 +976,12 @@ int main(int argc, char *argv[])
         ASSERT((SIZE1 + SIZE2) * NUM_TEST == TA2.numBytesInUse());
 
         {
-            bslma_AutoDeallocator<bslma_Allocator> proctor1(pointers1a,
-                                                            &ta1,
-                                                            NUM_TEST);
-            bslma_AutoDeallocator<bslma_Allocator> proctor2(pointers2a,
-                                                            &ta2,
-                                                            NUM_TEST);
+            bslma::AutoDeallocator<bslma::Allocator> proctor1(pointers1a,
+                                                              &ta1,
+                                                              NUM_TEST);
+            bslma::AutoDeallocator<bslma::Allocator> proctor2(pointers2a,
+                                                              &ta2,
+                                                              NUM_TEST);
 
             if (veryVerbose) { T_ P_(TA1.numBytesInUse())
                                P(TA2.numBytesInUse()) }
@@ -1021,8 +1022,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Allocate two array of memory blocks of equal length using
-        //   'bslma_TestAllocator'.  Next initialize two
-        //   'bslma_AutoDeallocator' proctors, one with the first array and the
+        //   'bslma::TestAllocator'.  Next initialize two
+        //   'bslma::AutoDeallocator' proctors, one with the first array and the
         //   other with the second.  Call 'release' on the first proctor before
         //   it goes out of scope.  Verify that only the memory blocks managed
         //   by the second proctor are deallocated.
@@ -1036,10 +1037,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting the 'release' method." << endl;
 
-        bslma_TestAllocator ta1(veryVeryVerbose);
-        bslma_TestAllocator ta2(veryVeryVerbose);
-        const bslma_TestAllocator& TA1 = ta1;
-        const bslma_TestAllocator& TA2 = ta2;
+        bslma::TestAllocator ta1(veryVeryVerbose);
+        bslma::TestAllocator ta2(veryVeryVerbose);
+        const bslma::TestAllocator& TA1 = ta1;
+        const bslma::TestAllocator& TA2 = ta2;
 
         enum { NUM_TEST = 20, SIZE = sizeof(int) };
 
@@ -1059,12 +1060,12 @@ int main(int argc, char *argv[])
         ASSERT(SIZE * NUM_TEST == TA2.numBytesInUse());
 
         {
-            bslma_AutoDeallocator<bslma_Allocator> proctor1(pointers1,
-                                                            &ta1,
-                                                            NUM_TEST);
-            bslma_AutoDeallocator<bslma_Allocator> proctor2(pointers2,
-                                                            &ta2,
-                                                            NUM_TEST);
+            bslma::AutoDeallocator<bslma::Allocator> proctor1(pointers1,
+                                                              &ta1,
+                                                              NUM_TEST);
+            bslma::AutoDeallocator<bslma::Allocator> proctor2(pointers2,
+                                                              &ta2,
+                                                              NUM_TEST);
 
             if (veryVerbose) { T_ P(TA1.numBytesInUse()) }
             if (veryVerbose) { T_ P(TA2.numBytesInUse()) }
@@ -1097,32 +1098,32 @@ int main(int argc, char *argv[])
         // CTOR / DTOR TEST
         //
         // Concerns:
-        //   1) That the 'bslma_AutoDeallocator' automatically guards a
+        //   1) That the 'bslma::AutoDeallocator' automatically guards a
         //      sequence of memory blocks of the provided length (positive).
-        //   2) That the 'bslma_AutoDeallocator' automatically guards a
+        //   2) That the 'bslma::AutoDeallocator' automatically guards a
         //      sequence of memory blocks of the provided length (negative).
-        //   3) That the 'bslma_AutoDeallocator' guards nothing when supplied a
+        //   3) That the 'bslma::AutoDeallocator' guards nothing when supplied a
         //      zero length at construction.
-        //   4) That we can construct a 'bslma_AutoDeallocator' with zero
+        //   4) That we can construct a 'bslma::AutoDeallocator' with zero
         //      length and a null pointer.
         //   5) That when an allocator (or pool) not inherited from
-        //      'bslma_Allocator' is supplied to the 'bslma_AutoDeallocator',
+        //      'bslma::Allocator' is supplied to the 'bslma::AutoDeallocator',
         //      the 'deallocate' method of the allocator (or pool) supplied is
         //      still invoked.
         //
         // Plan:
-        //   Allocate a sequence of memory blocks using 'bslma_TestAllocator'.
-        //   Next create a 'bslma_AutoDeallocator' to proctor the array of
+        //   Allocate a sequence of memory blocks using 'bslma::TestAllocator'.
+        //   Next create a 'bslma::AutoDeallocator' to proctor the array of
         //   memory blocks.  When the range proctor goes out of scope, verify
         //   that the allocated memory blocks are deallocated.  Repeat for the
         //   different lengths outlined under concerns 1 - 4.
         //
         //   Finally, repeat the all of the above using the 'TestAllocator',
-        //   which does not inherit from 'bslma_Allocator'.
+        //   which does not inherit from 'bslma::Allocator'.
         //
         // Testing:
-        //   bslma_AutoDeallocator<ALLOCATOR>(origin, allocator, length = 0);
-        //   ~bslma_AutoDeallocator<ALLOCATOR>();
+        //   bslma::AutoDeallocator<ALLOCATOR>(origin, allocator, length = 0);
+        //   ~bslma::AutoDeallocator<ALLOCATOR>();
         //   CONCERN: the 'deallocate' method for pools is also invoked
         // --------------------------------------------------------------------
 
@@ -1132,8 +1133,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting with bslma_TestAllocator." << endl;
 
         enum { NUM_TEST = 20, SIZE = sizeof(int) };
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
-        const bslma_TestAllocator &TA = ta;
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        const bslma::TestAllocator &TA = ta;
 
         if (verbose) cout << "\tTesting positive length." << endl;
 
@@ -1152,9 +1153,9 @@ int main(int argc, char *argv[])
 
             // Test the range proctor.
             {
-                bslma_AutoDeallocator<bslma_Allocator> ad(pointers,
-                                                          &ta,
-                                                          i);
+                bslma::AutoDeallocator<bslma::Allocator> ad(pointers,
+                                                            &ta,
+                                                            i);
 
                 if (veryVerbose) { T_ T_ P_(i) P(TA.numBytesInUse()); }
                 ASSERT(NUM_TEST * SIZE == TA.numBytesInUse());
@@ -1167,7 +1168,7 @@ int main(int argc, char *argv[])
             // proctor.
             for (int j = i; j <  NUM_TEST; ++j) {
                 LOOP2_ASSERT(i, j,
-                            (NUM_TEST - j) * SIZE == TA.numBytesInUse());
+                             (NUM_TEST - j) * SIZE == TA.numBytesInUse());
                 ta.deallocate(pointers[j]);
             }
 
@@ -1191,9 +1192,10 @@ int main(int argc, char *argv[])
 
             // Test the range proctor.
             {
-                bslma_AutoDeallocator<bslma_Allocator> ad(pointers + NUM_TEST,
-                                                          &ta,
-                                                          -i);
+                bslma::AutoDeallocator<bslma::Allocator> ad(
+                                                           pointers + NUM_TEST,
+                                                           &ta,
+                                                           -i);
                 if (veryVerbose) { T_ T_ P_(i) P(TA.numBytesInUse()); }
                 ASSERT(NUM_TEST * SIZE == TA.numBytesInUse());
             }
@@ -1205,7 +1207,7 @@ int main(int argc, char *argv[])
             // proctor.
             for (int j = 0; j < NUM_TEST - i; ++j) {
                 LOOP2_ASSERT(i, j,
-                        (NUM_TEST - j - i) * SIZE == TA.numBytesInUse());
+                             (NUM_TEST - j - i) * SIZE == TA.numBytesInUse());
                 ta.deallocate(pointers[j]);
             }
 
@@ -1225,7 +1227,7 @@ int main(int argc, char *argv[])
         ASSERT(NUM_TEST * SIZE == TA.numBytesInUse());
 
         {
-            bslma_AutoDeallocator<bslma_Allocator> ad(pointers, &ta);
+            bslma::AutoDeallocator<bslma::Allocator> ad(pointers, &ta);
 
             if (veryVerbose) { T_ T_ P(TA.numBytesInUse()); }
             ASSERT(NUM_TEST * SIZE == TA.numBytesInUse());
@@ -1245,7 +1247,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
-            bslma_AutoDeallocator<bslma_Allocator> ad(0, &ta);
+            bslma::AutoDeallocator<bslma::Allocator> ad(0, &ta);
         }
 
         if (verbose) cout << "\nTesting with TestAllocator." << endl;
@@ -1268,9 +1270,9 @@ int main(int argc, char *argv[])
 
             // Test the range proctor.
             {
-                bslma_AutoDeallocator<TestAllocator> ad(pointers,
-                                                        &t,
-                                                        i);
+                bslma::AutoDeallocator<TestAllocator> ad(pointers,
+                                                         &t,
+                                                         i);
 
                 if (veryVeryVerbose) { T_ T_ P(T.numOutstandingAllocations());}
                 ASSERT(NUM_TEST == T.numOutstandingAllocations());
@@ -1283,7 +1285,7 @@ int main(int argc, char *argv[])
             // proctor.
             for (int j = i; j <  NUM_TEST; ++j) {
                 LOOP2_ASSERT(i, j,
-                                NUM_TEST - j == T.numOutstandingAllocations());
+                             NUM_TEST - j == T.numOutstandingAllocations());
                 t.deallocate(pointers[j]);
             }
 
@@ -1307,9 +1309,9 @@ int main(int argc, char *argv[])
 
             // Test the range proctor.
             {
-                bslma_AutoDeallocator<TestAllocator> ad(pointers + NUM_TEST,
-                                                        &t,
-                                                        -i);
+                bslma::AutoDeallocator<TestAllocator> ad(pointers + NUM_TEST,
+                                                         &t,
+                                                         -i);
 
                 if (veryVerbose) { T_ T_ P_(i)
                                    P(T.numOutstandingAllocations());}
@@ -1322,7 +1324,8 @@ int main(int argc, char *argv[])
             // Deallocate the remaining memory not guarded by the range
             // proctor.
             for (int j = 0; j < NUM_TEST - i; ++j) {
-                LOOP2_ASSERT(i, j,
+                LOOP2_ASSERT(
+                            i, j,
                             NUM_TEST - i - j == T.numOutstandingAllocations());
                 t.deallocate(pointers[j]);
             }
@@ -1343,7 +1346,7 @@ int main(int argc, char *argv[])
         ASSERT(NUM_TEST == T.numOutstandingAllocations());
 
         {
-            bslma_AutoDeallocator<TestAllocator> ad(pointers, &t);
+            bslma::AutoDeallocator<TestAllocator> ad(pointers, &t);
 
             if (veryVerbose) { T_ T_ P(T.numOutstandingAllocations()); }
             ASSERT(NUM_TEST == T.numOutstandingAllocations());
@@ -1363,7 +1366,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
-            bslma_AutoDeallocator<TestAllocator> ad(0, &t);
+            bslma::AutoDeallocator<TestAllocator> ad(0, &t);
         }
 
       } break;
@@ -1434,7 +1437,7 @@ int main(int argc, char *argv[])
             maxNumAllocated = intMax(maxNumAllocated, numAllocated);
 
             LOOP2_ASSERT(mX.numOutstandingAllocations(), numAllocated,
-                               NUMALLOCATED == mX.numOutstandingAllocations());
+                         NUMALLOCATED == mX.numOutstandingAllocations());
         }
 
         if (verbose) cout << "Max num allocated: " << maxNumAllocated << endl;
@@ -1454,15 +1457,15 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1) The 'bslma_AutoDeallocator' can be constructed and destructed
+        //   1) The 'bslma::AutoDeallocator' can be constructed and destructed
         //      gracefully with both 'void **' and 'char **'.
         //   2) The allocator's 'deallocate' method is invoked.
         //
         // Plan:
-        //   Allocate a sequence of memory with a 'bslma_TestAllocator' and
-        //   guard it with 'bslma_AutoDeallocator' to show that the
+        //   Allocate a sequence of memory with a 'bslma::TestAllocator' and
+        //   guard it with 'bslma::AutoDeallocator' to show that the
         //   'deallocate' method is called (by verifying all memory is returned
-        //   to the 'bslma_TestAllocator').
+        //   to the 'bslma::TestAllocator').
         //
         // Testing:
         //   Breathing Test
@@ -1471,8 +1474,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "BREATHING TEST" << endl
                                   << "==============" << endl;
 
-        bslma_TestAllocator ta(veryVeryVeryVerbose);
-        const bslma_TestAllocator& TA = ta;
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        const bslma::TestAllocator& TA = ta;
 
         enum {NUM_TEST = 10};
 
@@ -1489,9 +1492,9 @@ int main(int argc, char *argv[])
                                                         == TA.numBytesInUse());
 
         {
-            bslma_AutoDeallocator<bslma_Allocator> proctor(&memory[0],
-                                                           &ta,
-                                                           NUM_TEST);
+            bslma::AutoDeallocator<bslma::Allocator> proctor(&memory[0],
+                                                             &ta,
+                                                             NUM_TEST);
         }
 
         ASSERT(0 == TA.numBytesInUse());
@@ -1508,9 +1511,9 @@ int main(int argc, char *argv[])
                                                         == TA.numBytesInUse());
 
         {
-            bslma_AutoDeallocator<bslma_Allocator> proctor(&cmemory[0],
-                                                           &ta,
-                                                           NUM_TEST);
+            bslma::AutoDeallocator<bslma::Allocator> proctor(&cmemory[0],
+                                                             &ta,
+                                                             NUM_TEST);
         }
 
         ASSERT(0 == TA.numBytesInUse());

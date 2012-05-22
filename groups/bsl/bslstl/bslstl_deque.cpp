@@ -1,4 +1,4 @@
-// bslstl_deque.cpp                  -*-C++-*-
+// bslstl_deque.cpp                                                   -*-C++-*-
 #include <bslstl_deque.h>
 
 #include <bsls_ident.h>
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id$ $CSID$")
 ///INVARIANTS
 /// - - - - -
 //..
-// Class 'bslstl_DequeIterator' invariants for non-singular iterators:
+// Class 'bslstl::DequeIterator' invariants for non-singular iterators:
 //   - 'd_blockPtr_p' always points to a valid pointer to a valid block.
 //   - 'd_value_p' always points within range '[blockBegin(), blockEnd())'
 //   - Thus 'd_value_p' never points past the end of a block.

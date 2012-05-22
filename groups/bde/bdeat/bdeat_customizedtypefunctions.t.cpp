@@ -9,6 +9,7 @@
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -133,8 +134,6 @@ static int globalFlag = 0;
 
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace mine {
 

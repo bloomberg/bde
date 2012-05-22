@@ -1,4 +1,4 @@
-// bslalg_dequeimputil.t.cpp                  -*-C++-*-
+// bslalg_dequeimputil.t.cpp                                          -*-C++-*-
 
 #include <bslalg_dequeimputil.h>
 
@@ -20,7 +20,7 @@ using namespace std;
 // integral 'enum' values.  The concerns for testing are merely that the
 // computation of 'BLOCK_LENGTH' be correct and that the names are as expected.
 //-----------------------------------------------------------------------------
-// [ 2] 'bslalg_DequeImp::BLOCK_LENGTH'
+// [ 2] 'bslalg::DequeImp::BLOCK_LENGTH'
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -38,6 +38,7 @@ void aSsErT(int c, const char *s, int i) {
         if (testStatus >= 0 && testStatus <= 100) ++testStatus;
     }
 }
+
 }  // close unnamed namespace
 
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -75,7 +76,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'bslstl_DequeImpUtil' TEMPLATE
+        // TESTING 'bslstl::DequeImpUtil' TEMPLATE
         //
         // Concerns:  That all the names are defined.
         //
@@ -86,23 +87,23 @@ int main(int argc, char *argv[])
         //   that exercise the various branches and boundary conditions.
         //
         // Testing:
-        //   class template 'bslstl_DequeImp'
+        //   class template 'bslstl::DequeImp'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslalg_DequeImp"
-                            "\n========================\n");
+        if (verbose) printf("\nTESTING 'bslalg::DequeImp"
+                            "\n=========================\n");
 
 #define TEST_DEQUE_IMP(LINE_NUM, VALUE_TYPE, BLOCK_LENGTH)  {                \
                 const int LINE               = LINE_NUM;                     \
                                                                              \
-                typedef bslalg_DequeImpUtil<VALUE_TYPE,                      \
+                typedef bslalg::DequeImpUtil<VALUE_TYPE,                     \
                                             BLOCK_LENGTH> Obj;               \
                                                                              \
-                LOOP_ASSERT(LINE, (bslmf_IsSame<VALUE_TYPE,                  \
+                LOOP_ASSERT(LINE, (bslmf::IsSame<VALUE_TYPE,                 \
                                                 Obj::ValueType>::VALUE));    \
                                                                              \
                 LOOP_ASSERT(LINE, Obj::BLOCK_BYTES == sizeof(Obj::Block));   \
-                LOOP_ASSERT(LINE, (bslmf_IsSame<Obj::BlockPtr,               \
+                LOOP_ASSERT(LINE, (bslmf::IsSame<Obj::BlockPtr,              \
                                                Obj::Block *>::VALUE));       \
             }
 
@@ -141,7 +142,7 @@ int main(int argc, char *argv[])
                             "\n==============");
 
         enum { BLOCK_LENGTH = 200 };
-        typedef bslalg_DequeImpUtil<char, BLOCK_LENGTH> Obj;
+        typedef bslalg::DequeImpUtil<char, BLOCK_LENGTH> Obj;
 
         Obj::Block block[4];
         std::memset(block[0].d_data, 'A', BLOCK_LENGTH);

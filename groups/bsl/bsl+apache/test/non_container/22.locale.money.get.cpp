@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <ios>
@@ -318,7 +318,7 @@ void do_test (bool        intl,    // international?
     // expand (widen) currency symbol
     PunctData<charT>::curr_symbol_ [intl] = rw_expand ((charT*)0, cursym);
     PunctData<charT>::curr_symbol_ [locl] = 0;
-    
+
     PunctData<charT>::grouping_ [intl] = grouping;
     PunctData<charT>::grouping_ [locl] = 0;
 
@@ -417,7 +417,7 @@ void do_test (bool        intl,    // international?
             const char fmt[] = "%" _RWSTD_LDBL_PRINTF_PREFIX "g";
             int n = std::sscanf (narrow_buf, fmt, &x);
 
-            success = 
+            success =
                 !(   err_expect & std::ios::failbit && !*grouping
                   && (1 == n || bs != initial)
                   || !(err_expect & std::ios::failbit)
@@ -1030,7 +1030,7 @@ run_test (int, char*[])
 
     rw_fatal ('\4' == std::money_base::value, 0, 0,
               "'\\4' == money_base::value, got %d", std::money_base::value);
-               
+
     if (rw_enabled ("char")) {
         test_long_double (char (), "char");
         test_string (char (), "char");

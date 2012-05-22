@@ -157,13 +157,15 @@ BDES_IDENT("$Id: $")
 #include <bsl_deque.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 namespace BloombergLP {
 
                           // ================================
                           // class bael_FixedSizeRecordBuffer
                           // ================================
-
-class bslma_Allocator;
 
 class bael_FixedSizeRecordBuffer: public bael_RecordBuffer {
     // This class provides a concrete, thread-safe implementation of the

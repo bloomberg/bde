@@ -1,4 +1,4 @@
-// bslmf_ispointertomember.cpp              -*-C++-*-
+// bslmf_ispointertomember.cpp                                        -*-C++-*-
 #include <bslmf_ispointertomember.h>
 
 #include <bsls_ident.h>

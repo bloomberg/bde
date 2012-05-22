@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifdef TEST_TR1
@@ -465,7 +465,7 @@ test_observers ()
     {   // lock()
         std::tr1::weak_ptr<void>   weak;
         std::tr1::shared_ptr<void> shared (weak.lock ());
-        
+
         rw_assert (0 == weak.use_count (), 0, __LINE__,
                    "weak_ptr<void>::use_count() == 1, got %ld",
                    weak.use_count ());
@@ -479,7 +479,7 @@ test_observers ()
         std::tr1::shared_ptr<void> shared0 (p);
         std::tr1::weak_ptr<void>   weak (shared0);
         std::tr1::shared_ptr<void> shared1 (weak.lock ());
-        
+
         rw_assert (2 == weak.use_count (), 0, __LINE__,
                    "weak_ptr<void>::use_count() == 2, got %ld",
                    weak.use_count ());
@@ -494,7 +494,7 @@ test_observers ()
         std::tr1::weak_ptr<void>   weak (shared0);
         std::tr1::shared_ptr<void> shared1 (weak.lock ());
         std::tr1::shared_ptr<void> shared2 (shared1);
-        
+
         rw_assert (3 == weak.use_count (), 0, __LINE__,
                    "weak_ptr<void>::use_count() == 3, got %ld",
                    weak.use_count ());
@@ -548,14 +548,14 @@ test_specialized ()
 
 /**************************************************************************/
 
-static int no_ctor; 
-static int no_copy_ctor; 
-static int no_dtor; 
-static int no_assign; 
-static int no_modifiers; 
-static int no_observers; 
-static int no_comparison; 
-static int no_specialized; 
+static int no_ctor;
+static int no_copy_ctor;
+static int no_dtor;
+static int no_assign;
+static int no_modifiers;
+static int no_observers;
+static int no_comparison;
+static int no_specialized;
 
 
 static int
@@ -596,13 +596,13 @@ int main (int argc, char *argv[])
                     "|-no-observers# "
                     "|-no-comparison# "
                     "|-no-specialized# ",
-                    &no_ctor, 
-                    &no_copy_ctor, 
-                    &no_dtor, 
-                    &no_assign, 
-                    &no_modifiers, 
-                    &no_observers, 
-                    &no_comparison, 
+                    &no_ctor,
+                    &no_copy_ctor,
+                    &no_dtor,
+                    &no_assign,
+                    &no_modifiers,
+                    &no_observers,
+                    &no_comparison,
                     &no_specialized);
 }
 

@@ -256,9 +256,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_cstring.h>          // for 'bsl::memset'
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
                         // =========================
                         // class bdem_ChoiceArrayImp

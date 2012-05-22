@@ -72,14 +72,16 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bsl_string.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #define INCLUDED_BSL_IOSFWD
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 
                       // ===============================                       

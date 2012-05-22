@@ -1,0 +1,21 @@
+ bbescm.txt
+
+@PURPOSE: Provide versioning information for library components in 'bbe'.
+
+@MNEMONIC: Basic Business Environment Source Control Management (bbescm)
+
+@AUTHOR: Mike Giroux (mgiroux)
+
+@SEE_ALSO: bdescm
+
+@DESCRIPTION: This package is for use only by the BBE library.  Components in
+ the 'bbe' package group include this component in order to generate versioning
+ information.  Developers use this versioning information to track releases of
+ individual components when diagnosing problems using the 'bbe' library.
+
+ This component is only used within the 'bbe' package group.  Each BDE package
+ group contains a similar component that provides the same functionality for
+ components in that package group.  Thus separate package groups can be
+ deployed independently from one another.
+
+ In normal usage, developers should not need to refer to this component.

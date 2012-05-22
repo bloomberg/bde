@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for includes
@@ -35,18 +35,18 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
-template 
+template
 bool
 includes (InputIter<lt_comp<base<no_ctor> > >,
           InputIter<lt_comp<base<no_ctor> > >,
           InputIter<lt_comp<base<no_ctor> > >,
           InputIter<lt_comp<base<no_ctor> > > );
 
-template 
+template
 bool
 includes (InputIter<lt_comp<base<no_ctor> > >,
           InputIter<lt_comp<base<no_ctor> > >,
@@ -61,7 +61,7 @@ includes (InputIter<lt_comp<base<no_ctor> > >,
 /**************************************************************************/
 
 template <class T>
-struct Less 
+struct Less
 {
     static std::size_t funcalls_;
 
@@ -88,7 +88,7 @@ template<class T> std::size_t Less<T>::funcalls_;
 
 /**************************************************************************/
 
-template 
+template
 <class T, class InputIterator1, class InputIterator2, class Predicate>
 void test_includes (int                     line,
                     const char             *src1,
@@ -133,7 +133,7 @@ void test_includes (int                     line,
                __LINE__, fname, it1name, it2name, ppred, predname, src1, src2,
                res, result);
 
-    std::size_t n_ops_lt = ppred ? 
+    std::size_t n_ops_lt = ppred ?
         Predicate::funcalls_ : T::n_total_op_lt_ - last_n_op_lt;
 
     // check the complexity
@@ -151,11 +151,11 @@ void test_includes (int                     line,
 
 /**************************************************************************/
 
-template 
+template
 <class T, class InputIterator1, class InputIterator2, class Predicate>
 void test_includes (const InputIterator1   &it1,
                     const InputIterator2   &it2,
-                    const T*, 
+                    const T*,
                     const Predicate        *ppred)
 {
     const char* const it1name  = type_name (it1, (T*)0);
@@ -168,7 +168,7 @@ void test_includes (const InputIterator1   &it1,
              fname, it1name, it2name, ppred, predname);
 
 #define TEST(src1, src2, res)                                              \
-    test_includes (__LINE__, src1, src2, res, it1, it2, (T*)0, ppred)  
+    test_includes (__LINE__, src1, src2, res, it1, it2, (T*)0, ppred)
 
     TEST ("", "", true);
     TEST ("a", "", true);
@@ -268,7 +268,7 @@ void test_includes (const T*,
     rw_info (0, 0, 0,
         "template <class %s, class %s%{?}, class %s%{;}> "
              "bool std::includes (%1$s, %1$s, %2$s, %2$s%{?}, %s%{;})",
-             "InputIterator1", "InputIterator2", ppred, "Compare", 
+             "InputIterator1", "InputIterator2", ppred, "Compare",
              ppred, "Compare");
 
     if (rw_opt_no_input_iter) {
@@ -307,7 +307,7 @@ static int run_test (int, char*[])
     test_includes ((UserClass*)0, (Less<UserClass>*)0);
 
     if (rw_opt_no_predicate) {
-        rw_note (0, __FILE__, __LINE__, 
+        rw_note (0, __FILE__, __LINE__,
                  "std::includes predicate test disabled");
     }
     else {

@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2005 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_ALG_TEST_H_INCLUDED
@@ -36,14 +36,14 @@
 // generate a unique sequential number starting from 0
 _TEST_EXPORT int gen_seq ();
 
-// generate numbers in the sequence 0, 0, 1, 1, 2, 2, 3, 3, etc... 
+// generate numbers in the sequence 0, 0, 1, 1, 2, 2, 3, 3, etc...
 _TEST_EXPORT int gen_seq_2lists ();
 
 // generate a sequence of subsequences (i.e., 0, 1, 2, 3, 4, 0, 1, 2, etc...)
 _TEST_EXPORT int gen_subseq ();
 
 // wrapper around a (possibly) extern "C" int rand()
-// extern "C++" 
+// extern "C++"
 _TEST_EXPORT int gen_rnd ();
 
 
@@ -204,7 +204,7 @@ struct binary_func {
     typedef T              argument_type;
     typedef argument_type& reference;
 
-    reference operator() (const argument_type&, 
+    reference operator() (const argument_type&,
                           const argument_type&) const {
         return _RWSTD_REINTERPRET_CAST (reference,
                    _RWSTD_CONST_CAST (binary_func*, this)->dummy);
@@ -328,11 +328,11 @@ private:
 // conversion structs
 
 // struct split into 2 to eliminate the following g++ 2.95.2 warning:
-// warning: choosing `convert<T>::operator U&()' over 
+// warning: choosing `convert<T>::operator U&()' over
 //                   `convert<T>::operator const U&() const'
 
 template <class T, class U>
-struct cvt : T 
+struct cvt : T
 {
     operator U& () {
         return _RWSTD_REINTERPRET_CAST (U&, *this);
@@ -395,7 +395,7 @@ struct DummyBase { };
 
 #  define ITER_BASE(ign1, ign2, ign3, ign4, ign5) DummyBase
 #else   // if defined (_RWSTD_NO_CLASS_PARTIAL_SPEC)
-   // when partial specialization isn't supported 
+   // when partial specialization isn't supported
 #  define ITER_BASE(Cat, T, Dist, Ptr, Ref) \
           std::iterator<Cat, T, Dist, Ptr, Ref >
 #endif   // _RWSTD_NO_CLASS_PARTIAL_SPEC
@@ -819,10 +819,10 @@ struct BidirIter: ITER_BASE (std::bidirectional_iterator_tag, T, int, T*, T&)
         begin_ = end_ = cur_ = 0;
     }
 
-    BidirIter& operator= (const BidirIter &rhs) { 
+    BidirIter& operator= (const BidirIter &rhs) {
         cur_ = rhs.cur_;
         end_ = rhs.end_;
-        return *this; 
+        return *this;
     }
 
     bool operator== (const BidirIter &rhs) const {
@@ -919,7 +919,7 @@ struct RandomAccessIter
         cur_   = rhs.cur_;
         begin_ = rhs.begin_;
         end_   = rhs.end_;
-        return *this; 
+        return *this;
     }
 
     reference operator* () const {
@@ -967,7 +967,7 @@ struct RandomAccessIter
         return RandomAccessIter (*this) -= n;
     }
 
-    difference_type operator- (const RandomAccessIter &rhs) const { 
+    difference_type operator- (const RandomAccessIter &rhs) const {
         RW_ASSERT (cur_ != 0 && rhs.cur_ != 0);
         return static_cast<difference_type>(cur_ - rhs.cur_);
     }
@@ -998,7 +998,7 @@ struct RandomAccessIter
         return !(*this < rhs);
     }
 
-    reference operator[] (difference_type inx) const { 
+    reference operator[] (difference_type inx) const {
         RW_ASSERT (   cur_ != 0
                    && (!end_ || cur_ + inx < end_)
                    && !(begin_ || cur_ + inx >= begin_));

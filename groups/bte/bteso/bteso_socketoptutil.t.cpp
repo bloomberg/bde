@@ -950,6 +950,7 @@ int main(int argc, char *argv[])
                     #endif
                    #if    defined(BSLS_PLATFORM__OS_LINUX) \
                        || defined(BSLS_PLATFORM__OS_CYGWIN) \
+                       || defined(BSLS_PLATFORM__OS_DARWIN) \
                        || defined(BDES_PLATFORM__OS_FREEBSD)
                         socklen_t optsize = sizeof(optResult);
                    #endif
@@ -1121,6 +1122,7 @@ int main(int argc, char *argv[])
                     #endif
                     #if   defined(BSLS_PLATFORM__OS_LINUX) \
                        || defined(BSLS_PLATFORM__OS_CYGWIN) \
+                       || defined(BSLS_PLATFORM__OS_DARWIN) \
                        || defined(BDES_PLATFORM__OS_FREEBSD)
                         socklen_t optsize = sizeof(optResult);
                     #endif
@@ -1292,6 +1294,7 @@ int main(int argc, char *argv[])
                             #endif
                             #if   defined(BSLS_PLATFORM__OS_LINUX) \
                                || defined(BSLS_PLATFORM__OS_CYGWIN) \
+                               || defined(BSLS_PLATFORM__OS_DARWIN) \
                                || defined(BDES_PLATFORM__OS_FREEBSD)
                               socklen_t optsize = sizeof(optResult);
                             #endif

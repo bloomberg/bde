@@ -8,7 +8,7 @@ BDES_IDENT_RCSID(bteso_socketoptions_t_cpp,"$Id$ $CSID$")
 // #include <bteso_socketoptutil.h>
 // #include <bteso_socketimputil.h>
 
-#include <cstdlib>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 

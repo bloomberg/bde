@@ -1,4 +1,4 @@
-// bslma_autorawdeleter.t.cpp  -*-C++-*-
+// bslma_autorawdeleter.t.cpp                                         -*-C++-*-
 
 #include <bslma_autorawdeleter.h>
 #include <bslma_allocator.h>   // for testing only
@@ -34,12 +34,12 @@ using namespace std;
 // which the method is invoked.  We then initialize the proctor object with
 // this allocator and verify that when the proctor is destroyed the expected
 // memory addresses are recorded in the allocator.  Note that since
-// 'TestAllocator' is not derived from 'bslma_Allocator' and does not implement
+// 'TestAllocator' is not derived from 'bslma::Allocator' and does not implement
 // an 'allocate' method, we ensure that this proctor works with any 'ALLOCATOR'
 // object that supports the required 'deallocate' method.
 //-----------------------------------------------------------------------------
-// [3] bslma_AutoRawDeleter<TYPE, ALLOCATOR>(origin, allocator, length = 0);
-// [3] ~bslma_AutoRawDeleter<TYPE, ALLOCATOR>();
+// [3] bslma::AutoRawDeleter<TYPE, ALLOCATOR>(origin, allocator, length = 0);
+// [3] ~bslma::AutoRawDeleter<TYPE, ALLOCATOR>();
 // [3] void operator++();
 // [3] void operator--();
 // [3] void reset();
@@ -275,10 +275,10 @@ class my_AutoDeallocator {
 
 template <class TYPE>
 class my_Array2 {
-    TYPE           **d_array_p;     // dynamically allocated array
-    int              d_size;        // physical capacity of this array
-    int              d_length;      // logical length of this array
-    bslma_Allocator *d_allocator_p; // holds (but does not own) allocator
+    TYPE            **d_array_p;     // dynamically allocated array
+    int               d_size;        // physical capacity of this array
+    int               d_length;      // logical length of this array
+    bslma::Allocator *d_allocator_p; // holds (but does not own) allocator
 
   private:
 
@@ -292,16 +292,16 @@ class my_Array2 {
 
     static int calculateSufficientSize(int minLength, int size);
 
-    static void reallocate(TYPE          ***array,
-                           int             *size,
-                           int              newSize,
-                           int              length,
-                           bslma_Allocator *basicAllocator);
+    static void reallocate(TYPE             ***array,
+                           int                *size,
+                           int                 newSize,
+                           int                 length,
+                           bslma::Allocator   *basicAllocator);
 
     void increaseSize();
 
   public:
-    my_Array2(bslma_Allocator *basicAllocator = 0);
+    my_Array2(bslma::Allocator *basicAllocator = 0);
     ~my_Array2();
 
     void append(const TYPE& item);
@@ -335,11 +335,11 @@ int my_Array2<TYPE>::calculateSufficientSize(int minLength, int size)
 }
 
 template <class TYPE> inline
-void my_Array2<TYPE>::reallocate(TYPE          ***array,
-                                 int             *size,
-                                 int              newSize,
-                                 int              length,
-                                 bslma_Allocator *basicAllocator)
+void my_Array2<TYPE>::reallocate(TYPE             ***array,
+                                 int                *size,
+                                 int                 newSize,
+                                 int                 length,
+                                 bslma::Allocator   *basicAllocator)
     // Reallocate memory in the specified 'array' using the specified
     // 'basicAllocator' and update the specified size to the specified
     // 'newSize'.  The specified 'length' number of leading elements are
@@ -363,7 +363,7 @@ void my_Array2<TYPE>::increaseSize()
 
 // CREATORS
 template <class TYPE> inline
-my_Array2<TYPE>::my_Array2(bslma_Allocator *basicAllocator)
+my_Array2<TYPE>::my_Array2(bslma::Allocator *basicAllocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_allocator_p(basicAllocator)
@@ -388,7 +388,7 @@ void my_Array2<TYPE>::append(const TYPE& item)
         this->increaseSize();
     }
     TYPE *elem = (TYPE *) d_allocator_p->allocate(sizeof *elem);
-    my_AutoDeallocator<bslma_Allocator> autoDeallocator(elem, d_allocator_p);
+    my_AutoDeallocator<bslma::Allocator> autoDeallocator(elem, d_allocator_p);
     new(elem) TYPE(item, d_allocator_p);
     autoDeallocator.release();
     d_array_p[d_length++] = elem;
@@ -420,12 +420,12 @@ void my_Array2<TYPE>::insert(int dstIndex, const my_Array2<TYPE>& srcArray)
 
     // Shorten 'd_length' and use auto deleter to proctor tail elements.
     d_length = dstIndex;
-    bslma_AutoRawDeleter<TYPE, bslma_Allocator>
+    bslma::AutoRawDeleter<TYPE, bslma::Allocator>
                      tailDeleter(d_array_p + dstIndex + srcLength,
                                  d_allocator_p, numShifted);
 
     // Used to temporarily proctor each new element's memory.
-    my_AutoDeallocator<bslma_Allocator>
+    my_AutoDeallocator<bslma::Allocator>
                      elementDeallocator(0, d_allocator_p);
 
     if (this == &srcArray) { // self-alias
@@ -480,7 +480,7 @@ ostream& operator<<(ostream& stream, const my_Array2<TYPE>& array)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_mallocfreeallocator.h
 
-class my_MallocFreeAllocator : public bslma_Allocator {
+class my_MallocFreeAllocator : public bslma::Allocator {
     // This allocator object allocates memory using the global 'malloc'
     // function and deallocates the memory using the global 'free' function.
 
@@ -504,11 +504,11 @@ class my_String {
     char *d_string_p;
     int d_length;
     int d_size;
-    bslma_Allocator *d_allocator_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
-    my_String(const char *string, bslma_Allocator *basicAllocator);
-    my_String(const my_String& original, bslma_Allocator *basicAllocator);
+    my_String(const char *string, bslma::Allocator *basicAllocator);
+    my_String(const my_String& original, bslma::Allocator *basicAllocator);
     ~my_String();
 
     inline int length() const { return d_length; }
@@ -522,7 +522,7 @@ inline bool operator==(const my_String& lhs, const char *rhs)
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // my_string.cpp
 
-my_String::my_String(const char *string, bslma_Allocator *basicAllocator)
+my_String::my_String(const char *string, bslma::Allocator *basicAllocator)
 : d_length(strlen(string))
 , d_allocator_p(basicAllocator)
 {
@@ -533,8 +533,8 @@ my_String::my_String(const char *string, bslma_Allocator *basicAllocator)
     memcpy(d_string_p, string, d_size);
 }
 
-my_String::my_String(const my_String& original,
-                     bslma_Allocator *basicAllocator)
+my_String::my_String(const my_String&  original,
+                     bslma::Allocator *basicAllocator)
 : d_length(original.d_length)
 , d_size(original.d_length + 1)
 , d_allocator_p(basicAllocator)
@@ -783,7 +783,7 @@ int main(int argc, char *argv[])
 
                 TestAllocator a;
                 {
-                    typedef bslma_AutoRawDeleter<my_Class, TestAllocator> T;
+                    typedef bslma::AutoRawDeleter<my_Class, TestAllocator> T;
                     T mX(myClassArray + ORIGIN, &a, PLEN);
                     if (0 < INCDEC) {       // increment
                         for (int ii = 0; ii < INCDEC; ++ii, ++mX);
@@ -839,7 +839,7 @@ int main(int argc, char *argv[])
         //   objects and a corresponding array of counters.  Initialize each
         //   element in the array of 'my_Class' objects with the element in the
         //   array of counters at the respective index position.  Create a
-        //   'bslma_AutoRawDeleter' proctor initialized with 'd_origin' and
+        //   'bslma::AutoRawDeleter' proctor initialized with 'd_origin' and
         //   'd_proctorLength' as specified in the test vector to manage a
         //   sequence of 'my_Class' objects.  Also initialize the proctor with
         //   a 'TestAllocator' object to trace memory deallocation.  Increment
@@ -850,9 +850,9 @@ int main(int argc, char *argv[])
         //   are deallocated and recorded in the allocator.
         //
         // Testing:
-        //   bslma_AutoRawDeleter<TYPE, ALLOCATOR>(origin, allocator,
+        //   bslma::AutoRawDeleter<TYPE, ALLOCATOR>(origin, allocator,
         //                                                         length = 0);
-        //   ~bslma_AutoRawDeleter<TYPE, ALLOCATOR>();
+        //   ~bslma::AutoRawDeleter<TYPE, ALLOCATOR>();
         //   void operator++();
         //   void operator--();
         //   void release();
@@ -945,7 +945,7 @@ int main(int argc, char *argv[])
             }
             TestAllocator a;
             {
-                typedef bslma_AutoRawDeleter<my_Class, TestAllocator> T;
+                typedef bslma::AutoRawDeleter<my_Class, TestAllocator> T;
                 T mX(myClassArray + ORIGIN, &a, PLEN);
                 if (0 < INCDEC) {       // increment
                     for (int ii = 0; ii < INCDEC; ++ii, ++mX);
@@ -995,7 +995,7 @@ int main(int argc, char *argv[])
             }
             TestAllocator a;
             {
-                typedef bslma_AutoRawDeleter<my_Class, TestAllocator> T;
+                typedef bslma::AutoRawDeleter<my_Class, TestAllocator> T;
                 T mX(myClassArray + 100, &a, 12);    // configured for disaster
                 mX.reset(myClassArray + ORIGIN);
                 mX.setLength(LENGTH);
@@ -1041,7 +1041,7 @@ int main(int argc, char *argv[])
             }
             TestAllocator a;
             {
-                typedef bslma_AutoRawDeleter<my_Class, TestAllocator> T;
+                typedef bslma::AutoRawDeleter<my_Class, TestAllocator> T;
                 T mX(myClassArray + ORIGIN, &a, PLEN);
                 if (0 < INCDEC) {       // increment
                     for (int ii = 0; ii < INCDEC; ++ii, ++mX);
@@ -1080,7 +1080,7 @@ int main(int argc, char *argv[])
             }
             TestAllocator a;
             {
-                typedef bslma_AutoRawDeleter<my_Class, TestAllocator> T;
+                typedef bslma::AutoRawDeleter<my_Class, TestAllocator> T;
                 T mX(myClassArray + ORIGIN, &a);
                 LOOP_ASSERT(LINE, 0 == mX.length());
             }
