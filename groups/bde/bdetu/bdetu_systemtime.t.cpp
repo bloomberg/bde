@@ -23,15 +23,16 @@ using namespace bsl;  // automatically added by script
 //---------------------------------------------------------------------------
 // [11] bdet_DatetimeInterval localTimeOffset();
 // [10] bdet_Datetime nowAsDatetimeLocal();
-// [ 6] bdet_Datetime nowAsDatetime();
 // [ 5] bdet_Datetime nowAsDatetimeUtc();
+// [ 6] bdet_Datetime nowAsDatetime();
+// [12] bdet_Datetime nowAsDatetimeGMT();
 // [ 5] bdet_TimeInterval now();
 // [ 3] void loadCurrentTime(bdet_TimeInterval *result);
 // [ 1] void loadSystemTimeDefault(bdet_TimeInterval *result);
 // [ 2] SystemTimeCallback setSystemTimeCallback(SystemTimeCallback callback);
 // [ 2] SystemTimeCallback currentCallback();
 //---------------------------------------------------------------------------
-// [12] USAGE example
+// [13] USAGE example
 // [ 9] bdet_Datetime nowAsDatetime() stress test
 // [ 8] bdet_Datetime nowAsDatetimeUtc() stress test
 // [ 7] bdet_TimeInterval now() stress test
@@ -153,7 +154,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-    case 12: {
+    case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -228,6 +229,29 @@ int main(int argc, char *argv[])
             ASSERT( 1 == i6.nanoseconds() );
         }
 
+    } break;
+    case 12: {
+      // --------------------------------------------------------------------
+      // TESTING 'nowAsDatetimeGMT' METHOD
+      //  This deprecated method returns a 'nowAsDatetimeUtc'
+      //
+      // Plan:
+      //  Call 'nowAsDatetimeGMT' and compare that the results are the same as
+      //  'nowAsDatetimeUtc'.
+      //
+      //
+      // Testing:
+      //  bdet_Datetime nowAsDatetimeGMT()
+      // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting 'nowAsDatetimeGMT'" << endl;
+
+        const bdet_Datetime EXP_RESULT = bdetu_SystemTime::nowAsDatetimeUtc();
+        const bdet_Datetime result     = bdetu_SystemTime::nowAsDatetimeGMT();
+
+        const double diffS = (EXP_RESULT - result).totalSecondsAsDouble();
+        ASSERT(-0.01 < diffS);
+        ASSERT( 0.01 > diffS);
     } break;
     case 11: {
       // --------------------------------------------------------------------

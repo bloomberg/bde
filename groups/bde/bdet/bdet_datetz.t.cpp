@@ -38,7 +38,7 @@ using namespace bsl;  // automatically added by script
 // CREATORS
 // [ 2] bdet_DateTz();
 // [ 7] bdet_DateTz(const bdet_DateTz& original);
-// [13] bdet_DateTz(const bdet_Date& localDate, int offset);
+// [12] bdet_DateTz(const bdet_Date& localDate, int offset);
 //
 // MANIPULATORS
 // [2]  void setDateTz(const bdet_Date& localDate, int offset);
@@ -47,6 +47,7 @@ using namespace bsl;  // automatically added by script
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [11] bdet_Datetime utcStartTime() const;
+// [13] bdet_Datetime gmtStartTime() const;
 // [ 4] bdet_Date localDate() const;
 // [ 4] int offset() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int l, int spl) const;
@@ -57,7 +58,7 @@ using namespace bsl;  // automatically added by script
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const bdet_DateTz&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -139,7 +140,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -224,6 +225,86 @@ if (veryVerbose)
 //  31DEC2005-0500
 //  01JAN2001-0800
 //..
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'gmtStartTime'
+        //
+        // Concerns:
+        //   That the deprecated 'gmtStartTime' computes the correct UTC start
+        //   time of the local date accordingly to its timezone.
+        //
+        // Plan:
+        //   Given a table of possible dates their offset and their starting
+        //   UTC time verify that 'utcStartTime' computation corresponds to the
+        //   tabulated data and that it also holds that
+        //   'utcStartTime() == localDate() - offset()'
+        //
+        // Testing:
+        //   bdet_Datetime gmtStartTime() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'gmtStartTime'" << endl
+                          << "======================" << endl;
+        struct {
+            int d_line;
+            int d_year;
+            int d_month;
+            int d_day;
+            int d_offset;
+            int d_gmtYear;
+            int d_gmtMonth;
+            int d_gmtDay;
+            int d_gmtHour;
+            int d_gmtMinute;
+        } DATA[] = {
+            //LINE YR MO D  OFF G_Y G_M G_D G_H G_M
+            //---- -- -- -- --- --- --- --- --- ---
+            { L_,   1, 1, 1,  0,  1,  1,  1,  0,  0 },
+            { L_,   1, 1, 1, -1,  1,  1,  1,  0,  1 },
+            { L_,   1, 1, 2,  1,  1,  1,  1, 23, 59 }
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int LINE       = DATA[i].d_line;
+            const int YEAR       = DATA[i].d_year;
+            const int MONTH      = DATA[i].d_month;
+            const int DAY        = DATA[i].d_day;
+            const int OFFSET     = DATA[i].d_offset;
+            const int GMT_YEAR   = DATA[i].d_gmtYear;
+            const int GMT_MONTH  = DATA[i].d_gmtMonth;
+            const int GMT_DAY    = DATA[i].d_gmtDay;
+            const int GMT_HOUR   = DATA[i].d_gmtHour;
+            const int GMT_MINUTE = DATA[i].d_gmtMinute;
+
+            if(veryVerbose) {
+                T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P_(OFFSET) P_(GMT_YEAR)
+                          P_(GMT_MONTH) P_(GMT_DAY) P_(GMT_HOUR) P(GMT_MINUTE)
+            }
+
+            const bdet_Date TEMP_DATE(YEAR, MONTH, DAY);
+            Obj x; const Obj& X = x;
+            x.setDateTz(TEMP_DATE, OFFSET);
+
+            const bdet_Datetime EXP1(GMT_YEAR,
+                                     GMT_MONTH,
+                                     GMT_DAY,
+                                     GMT_HOUR,
+                                     GMT_MINUTE);
+
+            bdet_Datetime exp2(bdet_Datetime(X.localDate()));
+            const bdet_Datetime& EXP2 = exp2;
+            exp2.addMinutes(-X.offset());
+
+            if (veryVerbose) {
+                T_  cout << "GMT START TIME: " << X.gmtStartTime() << endl;
+            }
+            LOOP_ASSERT(i, EXP1 == X.gmtStartTime());
+            LOOP_ASSERT(i, EXP2 == X.gmtStartTime());
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------

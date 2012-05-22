@@ -43,6 +43,7 @@ using namespace bsl;  // automatically added by script
 // ACCESSORS
 // [10] STREAM& bdexStreamOut(STREAM& stream, int version) const;
 // [11] bdet_Time utcTime() const;
+// [13] bdet_Time gmtTime() const;
 // [ 4] bdet_Time localTime() const;
 // [ 4] int offset() const;
 // [ 5] bsl::ostream& print(bsl::ostream& stream, int l, int spl) const;
@@ -53,7 +54,7 @@ using namespace bsl;  // automatically added by script
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const bdet_TimeTz&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 //=============================================================================
