@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a representation of a time with time zone offset.
 //
 //@CLASSES:
-//     bdet_TimeTz: local-time value with time zone offset from GMT
+//     bdet_TimeTz: local-time value with time zone offset from UTC
 //
 //@SEE_ALSO: bdet_time, bdet_datetimetz
 //
@@ -18,19 +18,19 @@ BDES_IDENT("$Id: $")
 //
 //@CONTACT: Rohan Bhindwale (rbhindwa)
 //
-//@DESCRIPTION: This component provides a time value and an offset from GMT.
+//@DESCRIPTION: This component provides a time value and an offset from UTC.
 // Specifically, the 'bdet_TimeTz' class provided by this component represents
 // a time value similar to 'bdet_Time', but explicitly as a local time; the
-// offset of that local time from GMT (in minutes) is also part of the value of
+// offset of that local time from UTC (in minutes) is also part of the value of
 // a 'bdet_TimeTz' object.  For logical consistency, the time value and offset
 // should correspond to a geographically valid time zone, but such consistency
 // is the user's responsibility.  This component does not enforce logical
 // constraints on any values.
 //
-// The 'localTime' and 'gmtTime' methods return 'bdet_Time' values
-// corresponding to the local time and GMT time represented by the object,
+// The 'localTime' and 'utcTime' methods return 'bdet_Time' values
+// corresponding to the local time and UTC time represented by the object,
 // respectively.  In addition, the 'offset' method returns the time zone offset
-// in minutes from GMT (i.e., 'GMT + offset' equals local time).
+// in minutes from UTC (i.e., 'UTC + offset' equals local time).
 //
 ///A Note on Time Zone Support
 ///---------------------------
@@ -42,7 +42,7 @@ BDES_IDENT("$Id: $")
 // rest is left to convention and to the interpretations of the user.
 //
 // A 'bdet_TimeTz' value is intended to be interpreted as a value in some local
-// time zone, along with the offset of that value from GMT.  However, there are
+// time zone, along with the offset of that value from UTC.  However, there are
 // some problems with this simple interpretation.  First of all, the offset
 // value may not correspond to any time zone that has ever existed.  For
 // example, the offset value could be set to one minute, or to 1,234 minutes.
@@ -60,7 +60,7 @@ BDES_IDENT("$Id: $")
 // The following snippets of code illustrate how to create and use
 // 'bdet_TimeTz' objects.  First we will default construct an object 'timeTz'.
 // A default constructed object contains an offset of 0, implying that the
-// object represents time in the GMT time zone.  The value of the time is the
+// object represents time in the UTC time zone.  The value of the time is the
 // same as that of a default constructed 'bdet_Time' object:
 //..
 //  bdet_TimeTz timeTz1;
@@ -68,7 +68,7 @@ BDES_IDENT("$Id: $")
 //  assert(timeTz1.localTime() == bdet_Time());
 //..
 // Next we set 'timeTz1' to 12:00 noon (12:00:00.000) in the EST time zone
-// (GMT-5):
+// (UTC-5):
 //..
 //  bdet_Time time1(12, 0, 0, 0);
 //  bdet_Time time2(time1);
@@ -76,22 +76,22 @@ BDES_IDENT("$Id: $")
 //
 //  timeTz1.setTimeTz(time1, offset1);
 //  assert(offset1             == timeTz1.offset());
-//  assert(timeTz1.localTime() != timeTz1.gmtTime());
+//  assert(timeTz1.localTime() != timeTz1.utcTime());
 //  assert(timeTz1.localTime() == time1);
-//  assert(timeTz1.gmtTime()   != time2);
+//  assert(timeTz1.utcTime()   != time2);
 //
 //  time2.addMinutes(-offset1);
-//  assert(timeTz1.gmtTime()   == time2);
+//  assert(timeTz1.utcTime()   == time2);
 //..
 // Then we create 'timeTz2' as a copy of 'timeTz1':
 //..
 //  bdet_TimeTz timeTz2(timeTz1);
 //  assert(offset1             == timeTz2.offset());
 //  assert(timeTz2.localTime() == time1);
-//  assert(timeTz2.gmtTime()   == time2);
+//  assert(timeTz2.utcTime()   == time2);
 //..
 // We now create a third object, 'timeTz3', representing the time 10:33:25.000
-// in the PST time zone (GMT-8):
+// in the PST time zone (UTC-8):
 //..
 //  bdet_Time time3(10, 33, 25, 0);
 //  bdet_Time time4(time3);
@@ -99,12 +99,12 @@ BDES_IDENT("$Id: $")
 //
 //  bdet_TimeTz timeTz3(time3, offset2);
 //  assert(offset2             == timeTz3.offset());
-//  assert(timeTz3.localTime() != timeTz3.gmtTime());
+//  assert(timeTz3.localTime() != timeTz3.utcTime());
 //  assert(timeTz3.localTime() == time3);
-//  assert(timeTz3.gmtTime()   != time4);
+//  assert(timeTz3.utcTime()   != time4);
 //
 //  time4.addMinutes(-offset2);
-//  assert(timeTz3.gmtTime()   == time4);
+//  assert(timeTz3.utcTime()   == time4);
 //..
 // Finally we stream the values of 'timeTz1', 'timeTz2' and 'timeTz3' to
 // 'stdout':
@@ -136,15 +136,15 @@ BDES_IDENT("$Id: $")
 //      // user-specified city.
 //
 //      // PRIVATE CLASS METHODS
-//      static bdet_Time getCurrentGMTTime();
-//          // Return the current GMT time.
+//      static bdet_Time getCurrentUTCTime();
+//          // Return the current UTC time.
 //
 //      enum { MINUTES_PER_HOUR = 60 };
 //
 //    public:
 //      // TYPES
 //      enum CITY {
-//          // This enumeration provides the offsets from GMT corresponding to
+//          // This enumeration provides the offsets from UTC corresponding to
 //          // various cities.
 //
 //          LOS_ANGELES      = -8 * MINUTES_PER_HOUR,
@@ -171,24 +171,24 @@ BDES_IDENT("$Id: $")
 //  #include <bsl_ctime.h>         // various time functions
 //
 //  // PRIVATE CLASS METHODS
-//  bdet_Time TimeOracle::getCurrentGMTTime()
+//  bdet_Time TimeOracle::getCurrentUTCTime()
 //  {
 //      bsl::time_t currentTime = bsl::time(0);
-//      bsl::tm     gmtTime;
+//      bsl::tm     utcTime;
 //
 //  #if defined(BSLS_PLATFORM__OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
-//      gmtTime = *bsl::gmtime(&currentTime);
+//      utcTime = *bsl::gmtime(&currentTime);
 //  #else
-//      gmtime_r(&currentTime, &gmtTime);
+//      gmtime_r(&currentTime, &utcTime);
 //  #endif
 //
-//      return bdet_Time(gmtTime.tm_hour, gmtTime.tm_min, gmtTime.tm_sec);
+//      return bdet_Time(utcTime.tm_hour, utcTime.tm_min, utcTime.tm_sec);
 //  }
 //
 //  // CLASS METHODS
 //  bdet_TimeTz TimeOracle::getLocalTime(CITY city)
 //  {
-//      bdet_Time localTime(getCurrentGMTTime());
+//      bdet_Time localTime(getCurrentUTCTime());
 //      localTime.addMinutes((int) city);
 //      return bdet_TimeTz(localTime, (int) city);
 //  }
@@ -254,9 +254,9 @@ namespace BloombergLP {
 
 class bdet_TimeTz {
     // This 'class' represents a time value explicitly in a local time zone;
-    // the offset of that time (in minutes) from GMT is also part of the value
+    // the offset of that time (in minutes) from UTC is also part of the value
     // of this class.  The offset is available via the 'offset' method, and is
-    // defined by the relationship: 'GMT + offset' equals local time.  The time
+    // defined by the relationship: 'UTC + offset' equals local time.  The time
     // and offset values are logically assumed to correspond to geographically
     // valid values, however, this constraint is not enforced.  The default
     // output format is 'ddMONyyyy_hh:mm:ss.sss[+-]hhmm'.
@@ -278,7 +278,7 @@ class bdet_TimeTz {
 
     // DATA
     bdet_Time d_time;    // time (local)
-    int       d_offset;  // offset from GMT (in minutes)
+    int       d_offset;  // offset from UTC (in minutes)
 
   public:
     // TRAITS
@@ -304,7 +304,7 @@ class bdet_TimeTz {
 
     bdet_TimeTz(const bdet_Time& time, int offset);
         // Create a 'bdet_TimeTz' object having a local time value equal to the
-        // specified 'time' and a time zone offset value from GMT equal to the
+        // specified 'time' and a time zone offset value from UTC equal to the
         // specified 'offset' (in minutes).  The behavior is undefined unless
         // 'offset' is in the range '( -1440 .. 1440 )', and 'offset' is 0 if
         // 'time' has the value '24:00:00.000'.  Note that this method provides
@@ -361,10 +361,19 @@ class bdet_TimeTz {
         // package-level documentation for more information on 'bdex' streaming
         // of value-semantic types and containers.
 
-    bdet_Time gmtTime() const;
-        // Return a 'bdet_Time' object having the value of the GMT time
+    bdet_Time utcTime() const;
+        // Return a 'bdet_Time' object having the value of the UTC time
         // represented by this object.  Note that the returned value is equal
         // to 'localTime() - offset()' minutes.
+
+#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+    bdet_Time gmtTime() const;
+        // Return a 'bdet_Time' object having the value of the UTC time
+        // represented by this object.  Note that the returned value is equal
+        // to 'localTime() - offset()' minutes.
+        //
+        // DEPRECATED: replaced by 'utcTime'.
+#endif
 
     bdet_Time localTime() const;
         // Return a 'bdet_Time' object having the value of the local time
@@ -374,7 +383,7 @@ class bdet_TimeTz {
 
     int offset() const;
         // Return the time zone offset of this 'bdet_TimeTz' object.  Note that
-        // the offset is in minutes from GMT.
+        // the offset is in minutes from UTC.
 
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -529,14 +538,23 @@ STREAM& bdet_TimeTz::bdexStreamOut(STREAM& stream, int version) const
 }
 
 inline
+bdet_Time bdet_TimeTz::utcTime() const
+{
+    bdet_Time utc(d_time);
+    if (d_offset) {
+        utc.addMinutes(-d_offset);
+    }
+    return utc;
+}
+
+#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
+inline
 bdet_Time bdet_TimeTz::gmtTime() const
 {
-    bdet_Time gmt(d_time);
-    if (d_offset) {
-        gmt.addMinutes(-d_offset);
-    }
-    return gmt;
+    return utcTime();
 }
+#endif
+
 
 inline
 bdet_Time bdet_TimeTz::localTime() const

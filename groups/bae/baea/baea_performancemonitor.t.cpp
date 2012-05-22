@@ -8,6 +8,8 @@
 #include <bael_loggermanagerconfiguration.h>
 #include <bael_severity.h>
 
+#include <bdetu_systemtime.h>
+
 #include <bcema_testallocator.h>
 #include <bcemt_thread.h>
 

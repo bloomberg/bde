@@ -255,7 +255,7 @@ void bael_Logger::logMessage(const bael_Category&            category,
                              bael_Record                    *record,
                              const bael_ThresholdAggregate&  levels)
 {
-    record->fixedFields().setTimestamp(bdetu_SystemTime::nowAsDatetimeGMT());
+    record->fixedFields().setTimestamp(bdetu_SystemTime::nowAsDatetimeUtc());
 
     record->fixedFields().setCategory(category.categoryName());
     record->fixedFields().setSeverity(severity);
@@ -636,7 +636,7 @@ bael_Record *bael_LoggerManager::getRecord(const char *file, int line)
 void bael_LoggerManager::logMessage(int severity, bael_Record *record)
 {
     bsl::ostringstream datetimeStream;
-    datetimeStream << bdetu_SystemTime::nowAsDatetimeGMT();
+    datetimeStream << bdetu_SystemTime::nowAsDatetimeUtc();
 
     static int pid = bdesu_ProcessUtil::getProcessId();
 

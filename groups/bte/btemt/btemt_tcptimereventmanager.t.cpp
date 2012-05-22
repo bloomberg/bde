@@ -591,7 +591,7 @@ static void recordCb(void *context,
                      bsl::vector<my_Event> *result) {
     my_Event event;
     event.d_thread = bcemt_ThreadUtil::selfIdAsInt();
-    event.d_timestamp = bdetu_SystemTime::nowAsDatetimeGMT().time();
+    event.d_timestamp = bdetu_SystemTime::nowAsDatetimeUtc().time();
     event.d_context = context;
     result->push_back(event);
 }
@@ -636,7 +636,7 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test
-         << " STARTED " << bdetu_SystemTime::nowAsDatetimeGMT() << endl;;
+         << " STARTED " << bdetu_SystemTime::nowAsDatetimeUtc() << endl;;
 
     bcema_TestAllocator testAllocator(veryVeryVerbose);
 
@@ -1840,7 +1840,7 @@ int main(int argc, char *argv[])
     }
 
     cout << "TEST CASE " << test << " ENDED "
-         << bdetu_SystemTime::nowAsDatetimeGMT() << endl;
+         << bdetu_SystemTime::nowAsDatetimeUtc() << endl;
 
     return testStatus;
 }

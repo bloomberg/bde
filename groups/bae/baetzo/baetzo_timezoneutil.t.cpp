@@ -2141,7 +2141,7 @@ int main(int argc, char *argv[])
                                                         TZID,
                                                         POLICY));
 
-                const bdet_Datetime EXP_UTC_TIME = EXP_TIME_TZ.gmtDatetime();
+                const bdet_Datetime EXP_UTC_TIME = EXP_TIME_TZ.utcDatetime();
 
                 const baet_LocalDatetime EXP_UTC_LCL_TIME(
                                               bdet_DatetimeTz(EXP_UTC_TIME, 0),
@@ -2195,7 +2195,7 @@ int main(int argc, char *argv[])
                                                         TIME,
                                                         TZID));
 
-                const bdet_Datetime EXP_UTC_TIME(EXP_TIME_TZ.gmtDatetime());
+                const bdet_Datetime EXP_UTC_TIME(EXP_TIME_TZ.utcDatetime());
 
                 const baet_LocalDatetime EXP_UTC_LCL_TIME(
                                               bdet_DatetimeTz(EXP_UTC_TIME, 0),

@@ -24,7 +24,7 @@ using namespace bsl;  // automatically added by script
 // [11] bdet_DatetimeInterval localTimeOffset();
 // [10] bdet_Datetime nowAsDatetimeLocal();
 // [ 6] bdet_Datetime nowAsDatetime();
-// [ 5] bdet_Datetime nowAsDatetimeGMT();
+// [ 5] bdet_Datetime nowAsDatetimeUtc();
 // [ 5] bdet_TimeInterval now();
 // [ 3] void loadCurrentTime(bdet_TimeInterval *result);
 // [ 1] void loadSystemTimeDefault(bdet_TimeInterval *result);
@@ -33,7 +33,7 @@ using namespace bsl;  // automatically added by script
 //---------------------------------------------------------------------------
 // [12] USAGE example
 // [ 9] bdet_Datetime nowAsDatetime() stress test
-// [ 8] bdet_Datetime nowAsDatetimeGMT() stress test
+// [ 8] bdet_Datetime nowAsDatetimeUtc() stress test
 // [ 7] bdet_TimeInterval now() stress test
 // [ 4] static int inOrder();
 //=============================================================================
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
             i0 = bdetu_SystemTime::now();
             ASSERT( 0 != i0 );
 
-            bdet_Datetime i1 = bdetu_SystemTime::nowAsDatetimeGMT();
+            bdet_Datetime i1 = bdetu_SystemTime::nowAsDatetimeUtc();
             ASSERT( bdetu_Epoch::epoch() < i1 );
             bdet_DatetimeInterval dti = i1-bdetu_Epoch::epoch();
             ASSERT( 0 <= inOrder(i0, dti) );  // i0 <= i1
@@ -233,17 +233,17 @@ int main(int argc, char *argv[])
       // --------------------------------------------------------------------
       // TESTING 'localTimeOffset' METHOD
       //  The 'localTimeOffset' function returns the difference between the
-      //  GMT and local times.  We have to verify that 1) the offset should
+      //  UTC and local times.  We have to verify that 1) the offset should
       //  remain constant over time (unless the time zone changes) and 2) the
       //  offset should be very close to the difference in results returned by
-      //  'nowAsDatetimeGMT' and 'nowAsDatetimeLocal'.
+      //  'nowAsDatetimeUtc' and 'nowAsDatetimeLocal'.
       //
       // Plan:
       //  First create a bdet_TimeInterval object and then load the local time
       //  offset.  Call 'localtimeOffset' several times and verify that the
       //  results are always equal to the first bdet_TimeInterval object.
       //
-      //  Next, call 'nowAsDatetimeLocal' first and then 'nowAsDatetimeGMT'.
+      //  Next, call 'nowAsDatetimeLocal' first and then 'nowAsDatetimeUtc'.
       //  Verify that the difference in results is no greater than the local
       //  time offset returned by 'localTimeOffset'.  Then call those methods
       //  in reverse order, and verify that the difference is no smaller than
@@ -266,14 +266,14 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < 10; ++i) {
             bdet_Datetime dt1 = bdetu_SystemTime::nowAsDatetimeLocal();
-            bdet_Datetime dt2 = bdetu_SystemTime::nowAsDatetimeGMT();
+            bdet_Datetime dt2 = bdetu_SystemTime::nowAsDatetimeUtc();
             if (veryVerbose) { P_(dt1); P_(dt2); P(i2); }
             ASSERT(i2 == bdetu_SystemTime::localTimeOffset());
             ASSERT(i2 >= dt1 - dt2);
         }
 
         for (int i = 0; i < 10; ++i) {
-            bdet_Datetime dt1 = bdetu_SystemTime::nowAsDatetimeGMT();
+            bdet_Datetime dt1 = bdetu_SystemTime::nowAsDatetimeUtc();
             bdet_Datetime dt2 = bdetu_SystemTime::nowAsDatetimeLocal();
             if (veryVerbose) { P_(dt1); P_(dt2); P(i2); }
             ASSERT(i2 == bdetu_SystemTime::localTimeOffset());
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
     case 10: {
       // --------------------------------------------------------------------
       // TESTING 'nowAsDatetimeLocal' METHOD
-      //  The 'nowAsDatetimeGMT' function returns a 'bdet_DatetimeInterval'
+      //  The 'nowAsDatetimeUtc' function returns a 'bdet_DatetimeInterval'
       //  value representing the current local time.  We have to verify that
       //  each subsequent call to 'nowAsDatetimeLocal' reports a time that is
       //  non-decreasing.
@@ -414,23 +414,23 @@ int main(int argc, char *argv[])
     } break;
     case 8: {
       // --------------------------------------------------------------------
-      // TESTING 'nowAsDatetimeGMT' METHOD - stress testing for monotonicity
-      //  The 'nowAsDatetimeGMT' function returns a 'bdet_TimeInterval' value
+      // TESTING 'nowAsDatetimeUtc' METHOD - stress testing for monotonicity
+      //  The 'nowAsDatetimeUtc' function returns a 'bdet_TimeInterval' value
       //  representing the current system time using the currently installed
       //  callback function.  We have to verify that each subsequent call to
-      //  'nowAsDatetimeGMT' reports a time that is non-decreasing.
+      //  'nowAsDatetimeUtc' reports a time that is non-decreasing.
       //
       // Plan:
       //  Exercise the method in a loop a large, configurable number of times,
-      //  ('nowAsDatetimeGMT' runs in approximately 0.0000016 sec per
+      //  ('nowAsDatetimeUtc' runs in approximately 0.0000016 sec per
       //  iteration) verifying in each iteration that the system time is
       //  non-decreasing.
       //
       // Testing:
-      //  bdet_TimeInterval nowAsDatetimeGMT()
+      //  bdet_TimeInterval nowAsDatetimeUtc()
       // --------------------------------------------------------------------
         if (verbose)
-            cout << "\nStress-testing monotonicity of 'nowAsDatetimeGMT'"
+            cout << "\nStress-testing monotonicity of 'nowAsDatetimeUtc'"
                     "\n================================================="
                  << endl;
         {
@@ -467,9 +467,9 @@ int main(int argc, char *argv[])
             }
 
             for (int i = 0; i < iterations; ++i) {
-                bdet_Datetime prev = bdetu_SystemTime::nowAsDatetimeGMT();
+                bdet_Datetime prev = bdetu_SystemTime::nowAsDatetimeUtc();
                 for (int j = 0; j < testsPerIteration; ++j) {
-                    bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT();
+                    bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
                     if (prev > now) {
                         cout << "*** Warning: system time is not "
                              << "reliably monotonic on this platform\n."
@@ -743,34 +743,34 @@ int main(int argc, char *argv[])
     } break;
     case 5: {
       // --------------------------------------------------------------------
-      // TESTING 'now' and 'nowAsDatetimeGMT' METHODS
+      // TESTING 'now' and 'nowAsDatetimeUtc' METHODS
       //  The 'now' function returns a 'bdet_TimeInterval' value representing
       //  the current system time using the currently installed callback
       //  function.  We have to verify that each subsequent call to 'now'
       //  reports a time that is non-decreasing.
       //
-      //  The 'nowAsDatetimeGMT' function returns a 'bdet_DatetimeInterval'
+      //  The 'nowAsDatetimeUtc' function returns a 'bdet_DatetimeInterval'
       //  value representing the current system time using the currently
       //  installed callback function.  We have to verify that each subsequent
-      //  call to 'nowAsDatetimeGMT' reports a time that is non-decreasing.
+      //  call to 'nowAsDatetimeUtc' reports a time that is non-decreasing.
       //
       // Plan:
       //  First create several bdet_TimeInterval objects and then load the
       //  system time by using default callback function.  Then verify that
       //  the system time is non-decreasing.
       //
-      //  For 'nowAsDatetimeGMT' create several bdet_DatetimeInterval objects
+      //  For 'nowAsDatetimeUtc' create several bdet_DatetimeInterval objects
       //  and then load the system time by using default callback function.
       //  Then verify that the system time is non-decreasing.
       //
       //
       // Testing:
       //  bdet_TimeInterval now()
-      //  bdet_Datetime nowAsDatetimeGMT()
+      //  bdet_Datetime nowAsDatetimeUtc()
       // --------------------------------------------------------------------
 
         if (verbose) cout <<
-            "\nTesting 'now' and 'nowAsDatetimeGMT' (default implementation)"
+            "\nTesting 'now' and 'nowAsDatetimeUtc' (default implementation)"
             "\n============================================================="
                           << endl;
         {
@@ -789,7 +789,7 @@ int main(int argc, char *argv[])
             i1 = bdetu_SystemTime::now();
             ASSERT( 0 != i1 );
 
-            dt1 = bdetu_SystemTime::nowAsDatetimeGMT();
+            dt1 = bdetu_SystemTime::nowAsDatetimeUtc();
             bdet_DatetimeInterval dti = dt1-bdetu_Epoch::epoch();
             ASSERT(0 <= inOrder(i1, dti) ); // i1 <= dt1
 
@@ -820,7 +820,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            cout << "\nTesting 'now' and 'nowAsDatetimeGMT' with user "
+            cout << "\nTesting 'now' and 'nowAsDatetimeUtc' with user "
                     "defined functions"
                     "\n==============================================="
                     "=================" << endl;
@@ -843,7 +843,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == dt1.time().second());
             ASSERT( 0 == dt1.time().millisecond());
 
-            dt1 = bdetu_SystemTime::nowAsDatetimeGMT();
+            dt1 = bdetu_SystemTime::nowAsDatetimeUtc();
             ASSERT( 1970 == dt1.date().year());
             ASSERT( 1 == dt1.date().month());
             ASSERT( 1 == dt1.date().day());
@@ -864,7 +864,7 @@ int main(int argc, char *argv[])
             i2 = bdetu_SystemTime::now();
             ASSERT( 0 == i2 );
 
-            bdet_Datetime dt2 = bdetu_SystemTime::nowAsDatetimeGMT();
+            bdet_Datetime dt2 = bdetu_SystemTime::nowAsDatetimeUtc();
             ASSERT( 1970 == dt2.date().year());
             ASSERT( 1 == dt2.date().month());
             ASSERT( 1 == dt2.date().day());
@@ -875,7 +875,7 @@ int main(int argc, char *argv[])
             bdet_DatetimeInterval dti2 = dt2-bdetu_Epoch::epoch();
             ASSERT( 1 == inOrder(i2, dti2) );    // i2 < dt2-epoch()
 
-            bdet_Datetime dt3 = bdetu_SystemTime::nowAsDatetimeGMT();
+            bdet_Datetime dt3 = bdetu_SystemTime::nowAsDatetimeUtc();
             ASSERT( 1970 == dt3.date().year());
             ASSERT( 1 == dt3.date().month());
             ASSERT( 1 == dt3.date().day());
@@ -1148,7 +1148,7 @@ int main(int argc, char *argv[])
         // TESTING 'loadSystemTimeDefault' METHOD
         //   Provides a default implementation for system time retrieval.
         //   The obtained system time is expressed as a time interval between
-        //   the current time and '00:00 GMT, January 1, 1970'.  On UNIX
+        //   the current time and '00:00 UTC, January 1, 1970'.  On UNIX
         //   (Solaris, LINUX and DG-UNIX) this function provides a
         //   'microseconds' resolution.  On Windows (NT, WIN2000, 95, 98 etc)
         //   it provides resolution in '100*nanoseconds'.

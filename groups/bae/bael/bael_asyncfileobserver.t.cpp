@@ -2156,7 +2156,7 @@ int main(int argc, char *argv[])
                 } else {
                     ASSERT(0 && "can't substr(11,2), string too short");
                 }
-                int difference = bdetu_SystemTime::nowAsDatetimeGMT().hour() -
+                int difference = bdetu_SystemTime::nowAsDatetimeUtc().hour() -
                                  bdetu_SystemTime::nowAsDatetimeLocal().hour();
                 LOOP3_ASSERT(fileObsHour, defaultObsHour, difference,
                        (fileObsHour + difference + 24) % 24 == defaultObsHour);

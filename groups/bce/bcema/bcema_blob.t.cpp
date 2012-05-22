@@ -666,7 +666,7 @@ int timestampMessage(bcema_Blob          *blob,
     ASSERT(0 < blob->numDataBuffers());
 
     bcema_BlobBuffer buffer;
-    bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT();
+    bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc();
 
     SimpleBlobBufferFactory fa(128, allocator);
     bcema_BlobBuffer timestampBuffer;
