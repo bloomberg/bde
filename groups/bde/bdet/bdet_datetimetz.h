@@ -10,7 +10,7 @@ BDES_IDENT("$Id: $")
 //@PURPOSE: Provide a representation of a date and time with time zone offset.
 //
 //@CLASSES:
-//     bdet_DatetimeTz: local-datetime value with time zone offset from UTC
+//  bdet_DatetimeTz: local-datetime value with time zone offset from UTC
 //
 //@SEE_ALSO: bdet_datetime
 //
@@ -415,14 +415,12 @@ class bdet_DatetimeTz {
         // represented by this object.  Note that the returned value is equal
         // to 'localDatetime() - offset()' minutes.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
     bdet_Datetime gmtDatetime() const;
         // Return a 'bdet_Datetime' object having the value of the UTC time
         // represented by this object.  Note that the returned value is equal
         // to 'localDatetime() - offset()' minutes.
         //
         // DEPRECATED: replaced by 'utcDatetime.'
-#endif 
 
     bdet_Datetime localDatetime() const;
         // Return a 'bdet_Datetime' object having the value of the local time
@@ -613,13 +611,11 @@ bdet_Datetime bdet_DatetimeTz::utcDatetime() const
     return gmt;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 inline
 bdet_Datetime bdet_DatetimeTz::gmtDatetime() const
 {
     return utcDatetime();
 }
-#endif
 
 inline
 bdet_Datetime bdet_DatetimeTz::localDatetime() const

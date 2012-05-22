@@ -202,7 +202,6 @@ class bdetu_SystemTime {
         // using the currently installed callback function consistent with
         // 'now'.  Note that the returned value is in Utc.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
     static bdet_Datetime nowAsDatetime();
         // Return a 'bdet_Datetime' value representing the current system time
         // using the currently installed callback function consistent with
@@ -216,7 +215,6 @@ class bdetu_SystemTime {
         // 'now'.  Note that the returned value is in Utc.
         //
         // DEPRECATED: replaced by 'nowAsDatetimeUtc'
-#endif
 
     static bdet_Datetime nowAsDatetimeLocal();
         // Return a 'bdet_Datetime' value representing the current system time
@@ -278,7 +276,6 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeUtc()
     return bdetu_Epoch::epoch() + datetimeInterval;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 inline
 bdet_Datetime bdetu_SystemTime::nowAsDatetime()
 {
@@ -290,7 +287,6 @@ bdet_Datetime bdetu_SystemTime::nowAsDatetimeGMT()
 {
     return nowAsDatetimeUtc();
 }
-#endif
 
 inline
 void bdetu_SystemTime::loadCurrentTime(bdet_TimeInterval *result)

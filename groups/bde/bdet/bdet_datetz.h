@@ -294,7 +294,6 @@ class bdet_DateTz {
         //  bdet_Datetime(localDate()).addMinutes(-offset());
         //..
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
     bdet_Datetime gmtStartTime() const;
         // Return a 'bdet_Datetime' object having the value of the UTC "point
         // in time" when the local date starts (i.e., 0000 hours local time).
@@ -305,7 +304,6 @@ class bdet_DateTz {
         //  bdet_Datetime(localDate()).addMinutes(-offset());
         //..
         // DEPRECATED: replaced by 'utcStartTime'.
-#endif
 
     bdet_Date localDate() const;
         // Return a 'bdet_Date' object having the value of the local date
@@ -477,13 +475,11 @@ bdet_Datetime bdet_DateTz::utcStartTime() const
     return utc;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 inline
 bdet_Datetime bdet_DateTz::gmtStartTime() const
 {
     return utcStartTime();
 }
-#endif
 
 inline
 bdet_Date bdet_DateTz::localDate() const

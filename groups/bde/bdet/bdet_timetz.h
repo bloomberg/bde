@@ -366,14 +366,12 @@ class bdet_TimeTz {
         // represented by this object.  Note that the returned value is equal
         // to 'localTime() - offset()' minutes.
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
     bdet_Time gmtTime() const;
         // Return a 'bdet_Time' object having the value of the UTC time
         // represented by this object.  Note that the returned value is equal
         // to 'localTime() - offset()' minutes.
         //
         // DEPRECATED: replaced by 'utcTime'.
-#endif
 
     bdet_Time localTime() const;
         // Return a 'bdet_Time' object having the value of the local time
@@ -547,14 +545,11 @@ bdet_Time bdet_TimeTz::utcTime() const
     return utc;
 }
 
-#if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 inline
 bdet_Time bdet_TimeTz::gmtTime() const
 {
     return utcTime();
 }
-#endif
-
 
 inline
 bdet_Time bdet_TimeTz::localTime() const
