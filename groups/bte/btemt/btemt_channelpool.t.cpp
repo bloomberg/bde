@@ -1236,7 +1236,7 @@ int setOption(SocketOptions *options, const char *specString)
       case 'M': {  // LINGER
         LOOP_ASSERT(value, 'Y' == value || 'N' == value);
         LingerOptions linger;
-        linger.setUseLingering('Y' == value ? true : false);
+        linger.setLingerFlag('Y' == value ? true : false);
         const char nextValue = *(specString + 2);
         LOOP_ASSERT(nextValue, '0' == nextValue
                     || '1' == nextValue || '2' == nextValue);
@@ -1371,8 +1371,8 @@ int verify(const Obj&                 pool,
         }
 
         LOOP2_ASSERT((bool) lingerData.l_onoff,
-                     options.linger().value().useLingering(),
-         (bool) lingerData.l_onoff == options.linger().value().useLingering());
+                     options.linger().value().lingerFlag(),
+         (bool) lingerData.l_onoff == options.linger().value().lingerFlag());
         LOOP2_ASSERT(lingerData.l_linger, options.linger().value().timeout(),
                     lingerData.l_linger == options.linger().value().timeout());
     }
