@@ -1,9 +1,9 @@
-// baea_serializableobjectproxyutil.t.cpp   -*-C++-*-
+// baea_serializableobjectproxyutil.t.cpp                             -*-C++-*-
 
 #include <baea_serializableobjectproxyutil.h>
 #include <baea_serializableobjectproxy.h>
 
-#include <baea_messages.h>
+#include <baea_testmessages.h>
 
 #include <bael_defaultobserver.h>
 #include <bael_log.h>
@@ -1465,7 +1465,113 @@ int main(int argc, char *argv[])
                                                        bael_Severity::BAEL_OFF);
 
     switch (test) { case 0: // Zero is always the leading case.
+      case 14: {
+        // --------------------------------------------------------------------
+        // Usage Example
+        // --------------------------------------------------------------------
+
+///Usage Example
+///=============
+// In this section we show the intended usage of this component.
+//
+///Example 1: Serializing a BAS Request
+///------------------------------------
+// In this example, we demonstrate how to encode a BAS message object using
+// 'SerializableObjectProxy' to reduce the complexity of the resulting object
+// code as compared with encoding and decoding the message object directly.
+//
+// Suppose we are given a BAS message component with a request type named
+// 'SimpleRequest' which has the field 'data' of type 'bsl::string' and
+// 'responseLength' of type 'int'.  First, we create a 'Request' object named
+// 'encodeMessage' that we would like to encode:
+//..
+    baea::Request encodeMessage;
+    encodeMessage.makeSimpleRequest();
+    encodeMessage.simpleRequest().data() = "Test message";
+    encodeMessage.simpleRequest().responseLength() = 12;
+//..
+// Then, we create a proxy object to be used when encoding:
+//..
+    baea::SerializableObjectProxy encodeProxy;
+//..
+// Next, we use the 'makeEncodeProxy' method to populate 'encodeProxy' to
+// represent the object that we would like to encode.
+//..
+    baea::SerializableObjectProxyUtil::makeEncodeProxy(&encodeProxy,
+                                                       &encodeMessage);
+//..
+// Now, we setup the encoder and encode the request into a memory stream
+// buffer:
+//..
+    baexml_EncoderOptions eOptions;
+    baexml_Encoder encoder(&eOptions);
+    bdesb_MemOutStreamBuf osb;
+    encoder.encode(&osb, encodeProxy);
+//..
+// Finally, we can print out the XML string that is stored in the memory
+// buffer:
+//..
+    if (verbose)
+    std::cout << osb.data() << std::endl;
+//..
+//
+///Example 2: Decoding an XML String
+///---------------------------------
+// In this example, we demonstrate how to decode a XML string using the
+// 'SerializableObjectProxy'.
+//
+// First, we create the XML string that we would like to decode into a
+// 'SimpleRequest' that was described in the previous example:
+//..
+    const char *xmlString =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+            "<Request xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
+            "<simpleRequest>"
+                "<data>Hello, world!</data>"
+                "<responseLength>13</responseLength>"
+            "</simpleRequest>"
+        "</Request>";
+//..
+// Then, we create the request object we would like the XML string to be
+// decoded into.
+//..
+    baea::Request decodeMessage;
+//..
+// Next, we create the proxy object to be used when decoding:
+//..
+    baea::SerializableObjectProxy decodeProxy;
+//..
+// Then, we use the 'makeDecodeProxy' method to populate 'decodeProxy' to
+// represent the object that we would like to decode to.
+//..
+    baea::SerializableObjectProxyUtil::makeDecodeProxy(&decodeProxy,
+                                                       &decodeMessage);
+//..
+// Next, we setup the decoder and decode the message:
+//..
+    baexml_DecoderOptions dOptions;
+    baexml_MiniReader reader;
+    baexml_Decoder decoder(&dOptions, &reader);
+//
+    bdesb_FixedMemInStreamBuf isb(xmlString, strlen(xmlString));
+    decoder.decode(&isb, &decodeProxy);
+//..
+// Finally, we verify the 'decodeMessage' contains the expected values.
+//..
+    ASSERT(true == decodeMessage.isSimpleRequestValue());
+    ASSERT("Hello, world!" == decodeMessage.simpleRequest().data());
+    ASSERT(13 == decodeMessage.simpleRequest().responseLength());
+//..
+      } break;
       case 13: {
+        // --------------------------------------------------------------------
+        // Testing Customized
+        // --------------------------------------------------------------------
+        baea::CustomInt object;
+        Proxy mX;  const Proxy& X = mX;
+        Obj::makeEncodeProxy(&mX, &object);
+      } break;
+      case 12: {
         // --------------------------------------------------------------------
         // Testing Nullable
         // --------------------------------------------------------------------
@@ -1506,7 +1612,7 @@ int main(int argc, char *argv[])
             ASSERTV(1 == object.value());
         }
       } break;
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // Testing Sequence
         // --------------------------------------------------------------------
@@ -1543,7 +1649,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // Testing Choice
         // --------------------------------------------------------------------
@@ -1558,15 +1664,30 @@ int main(int argc, char *argv[])
             const int ID = INFO[ti].d_id;
 
             object.makeSelection(ID);
+            if (3 == ti) {
+                object.selection4().makeSelection(1);
+            }
 
             Obj::makeEncodeProxy(&mX, &object);
 
             ChoiceAccessor accessor;
+            ASSERT(0 == bdeat_choiceAccessSelection(mX, accessor));
 
-            ASSERT(ti == bdeat_choiceAccessSelection(mX, accessor));
-
-            ASSERT(&object == accessor.d_address);
-            ASSERT(INFO[ti] == accessor.d_info);
+            switch (ti) {
+              case 0:
+              case 1: {
+                ASSERT(&object == accessor.d_address);
+                ASSERT(INFO[ti] == accessor.d_info);
+              } break;
+              case 2: {
+                ASSERT(&object.selection3() == accessor.d_address);
+                ASSERT(INFO[ti] == accessor.d_info);
+              } break;
+              case 3: {
+                ASSERT(&object.selection4() == accessor.d_address);
+                ASSERT(INFO[ti] == accessor.d_info);
+              } break;
+            }
         }
 
         // manipulator
@@ -1599,7 +1720,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING Array
         // --------------------------------------------------------------------
@@ -1668,7 +1789,7 @@ int main(int argc, char *argv[])
             ASSERTV(&object == manipulator.d_address);
         }
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING Enum
         // --------------------------------------------------------------------
@@ -1709,7 +1830,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING SIMPLE TYPE
         // --------------------------------------------------------------------
@@ -1745,7 +1866,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // XML decoder feature test
         //
@@ -1791,7 +1912,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // BER decoder feature test
         //
@@ -1831,7 +1952,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // XML encoder feature test
         //
@@ -1875,7 +1996,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // BER encoder feature test
         //
@@ -1910,7 +2031,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // XML breathing test
         //
@@ -1949,7 +2070,7 @@ int main(int argc, char *argv[])
         ASSERT(request.isSimpleRequestValue());
         ASSERT(request.simpleRequest().data() == "The quick brown fox");
       } break;
-      case 2: {
+      case 1: {
         // --------------------------------------------------------------------
         // BER breathing test
         //
@@ -1984,35 +2105,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == decoder.decode(&isb, &decorator));
         ASSERT(request.isSimpleRequestValue());
         ASSERT(request.simpleRequest().data() == "The quick brown fox");
-
-      } break;
-      case 1: {
-        // --------------------------------------------------------------------
-        // Usage Example
-        // --------------------------------------------------------------------
-
-          baea::Request message1, message2;
-          message1.makeSimpleRequest();
-          baexml_EncoderOptions eOptions;
-          baexml_Encoder encoder(&eOptions);
-          baexml_DecoderOptions dOptions;
-          baexml_MiniReader reader;
-          baexml_Decoder decoder(&dOptions, &reader);
-
-          baea::SerializableObjectProxy encodeProxy;
-          baea::SerializableObjectProxyUtil::makeEncodeProxy(&encodeProxy,
-                                                               &message1);
-          bdesb_MemOutStreamBuf osb;
-          encoder.encode(&osb, encodeProxy);
-
-          baea::SerializableObjectProxy decodeProxy;
-          baea::SerializableObjectProxyUtil::makeDecodeProxy(&decodeProxy,
-                                                               &message2);
-
-          bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
-          decoder.decode(&isb, &decodeProxy);
-
-          ASSERT(message1 == message2);
 
       } break;
       case -2: {

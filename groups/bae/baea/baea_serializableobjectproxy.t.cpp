@@ -1,4 +1,4 @@
-// baea_serializableobjectproxy.t.cpp   -*-C++-*-
+// baea_serializableobjectproxy.t.cpp                                 -*-C++-*-
 #include <baea_serializableobjectproxy.h>
 
 #include <baexml_encoder.h>
@@ -1189,8 +1189,7 @@ void executeSimpleCategoryTest(const char *typeName, const TYPE& testValue)
     // TBD: fix this!! object() is 0 instead of the address of the object as
     // documented.
 
-    //ASSERTV(typeName, (void*)&obj, X.object(), &obj == (TYPE*) X.object());
-    //ASSERTV(typeName, false == X.isNull());
+    ASSERTV(typeName, (void*)&obj, X.object(), &obj == (TYPE*) X.object());
     ASSERTV(false == X.isByteArrayValue());
     ASSERTV(true  == X.isValidForEncoding());
     ASSERTV(true  == X.isValidForDecoding());
@@ -1200,7 +1199,7 @@ void executeSimpleCategoryTest(const char *typeName, const TYPE& testValue)
     {
         SimpleAccessor accessor;
         ASSERTV(typeName, 0 == X.accessSimple(accessor));
-        ASSERTV(typeName, &obj == accessor.d_address);
+        ASSERTV(typeName, &obj, accessor.d_address, &obj == accessor.d_address);
 
         accessor.d_rc = 1;
         ASSERTV(typeName, 1 == X.accessSimple(accessor));
@@ -1327,7 +1326,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
-// Then, we define the XML string that we would like to decode:
+// Then, we define the XML string that we would like to decode.  This XML
+// string defines a 'Simple' object to have a 'status' of 42:
+//..
     const char data[] =
         "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
         "<Simple xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
@@ -1393,7 +1394,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == X.className());
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            //ASSERTV(false == X.isNull());
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(true  == X.isValidForEncoding());
             ASSERTV(false == X.isValidForDecoding());
@@ -1411,7 +1411,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == X.className());
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isNull());
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(false == X.isValidForEncoding());
             ASSERTV(true  == X.isValidForDecoding());
@@ -1430,7 +1429,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == X.className());
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isNull());
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(true  == X.isValidForEncoding());
             ASSERTV(false == X.isValidForDecoding());
@@ -1450,7 +1448,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == X.className());
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isNull());
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(false == X.isValidForEncoding());
             ASSERTV(true  == X.isValidForDecoding());
@@ -1462,7 +1459,7 @@ int main(int argc, char *argv[])
             bdeat_SelectionInfo info;
             const char *const   className = "foo";
 
-            mX.loadChoice(0, &value, &info, className, &accessorFn<int>);
+            mX.loadChoice(&value, &info, className, &accessorFn<int>);
 
             ASSERTV(Category::BDEAT_CHOICE_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_CHOICE_CATEGORY ==
@@ -1471,7 +1468,6 @@ int main(int argc, char *argv[])
             ASSERTV(className == X.className());
             ASSERTV(className ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isNull());
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(true  == X.isValidForEncoding());
             ASSERTV(false == X.isValidForDecoding());
@@ -1489,7 +1485,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == X.className());
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isNull());
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(false == X.isValidForEncoding());
             ASSERTV(true  == X.isValidForDecoding());
@@ -1509,7 +1504,6 @@ int main(int argc, char *argv[])
             ASSERTV(className == X.className());
             ASSERTV(className ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isNull());
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(true  == X.isValidForEncoding());
             ASSERTV(true  == X.isValidForDecoding());
@@ -1526,7 +1520,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == X.className());
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(true  == X.isNull());
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(true  == X.isValidForEncoding());
             ASSERTV(false == X.isValidForDecoding());
@@ -1541,7 +1534,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == X.className());
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isNull());
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(true  == X.isValidForEncoding());
             ASSERTV(false == X.isValidForDecoding());
@@ -1560,7 +1552,6 @@ int main(int argc, char *argv[])
             ASSERTV(0 == X.className());
             ASSERTV(0 ==
                     bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(true == X.isNull());
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(false == X.isValidForEncoding());
             ASSERTV(true  == X.isValidForDecoding());
@@ -1770,10 +1761,12 @@ int main(int argc, char *argv[])
 
             int obj;
 
-            mX.loadChoice(ID, &obj, &INFO[ti], NAME, &accessorFn<int>);
+            mX.loadChoice(&obj, &INFO[ti], NAME, &accessorFn<int>);
 
             ChoiceAccessor accessor;
             accessor.d_rc = ti;
+
+            ASSERT(ID == X.selectionId());
 
             ASSERT(ti == X.choiceAccessSelection(accessor));
             ASSERT(s_accessorFn_proxy == accessor.d_proxy);
@@ -1963,7 +1956,7 @@ int main(int argc, char *argv[])
             // Load 'char' vector.  A byte array is the same for both encoding
             // and decoding.
 
-            mX.loadArray(obj.size(), sizeof(char), &obj, 0);
+            mX.loadByteArray(&obj);
 
             ASSERTV(true == X.isByteArrayValue());
 
@@ -2269,7 +2262,6 @@ int main(int argc, char *argv[])
 
         Obj mX; const Obj& X = mX;
 
-        ASSERTV(X.isNull());
         ASSERTV(0 == X.className());
         ASSERTV(Category::BDEAT_DYNAMIC_CATEGORY == X.category());
         ASSERTV(Category::BDEAT_DYNAMIC_CATEGORY ==

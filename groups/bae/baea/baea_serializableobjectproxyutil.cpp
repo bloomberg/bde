@@ -1,10 +1,10 @@
-// baea_serializableobjectproxyutil.cpp   -*-C++-*-
+// baea_serializableobjectproxyutil.cpp                               -*-C++-*-
 #include <baea_serializableobjectproxyutil.h>
 
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baea_serializableobjectproxyutil_cpp,"$Id$ $CSID$")
 
-#include <baea_messages.h>  // for testing only
+#include <baea_testmessages.h>  // for testing only
 
 namespace BloombergLP {
 namespace baea {
@@ -23,18 +23,18 @@ void voidAccessorFn(SerializableObjectProxy*,
 
 
 void SerializableObjectProxyUtil::makeProxyForEmptySequence(
-                                            SerializableObjectProxy *decorator,
+                                            SerializableObjectProxy *proxy,
                                             const char              *className)
 {
-    decorator->loadSequence(0, 0, 0, className, &voidAccessorFn);
+    proxy->loadSequence(0, 0, 0, className, &voidAccessorFn);
 }
 
 void SerializableObjectProxyUtil::makeEncodeProxy(
-                                            SerializableObjectProxy *decorator,
+                                            SerializableObjectProxy *proxy,
                                             bsl::vector<char>       *object,
                                             bdeat_TypeCategory::Array)
 {
-    decorator->loadArray(object->size(), sizeof(char), object, 0);
+    proxy->loadArray(object->size(), sizeof(char), object, 0);
 }
 
 }  // close namespace baea

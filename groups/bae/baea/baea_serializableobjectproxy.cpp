@@ -1,4 +1,4 @@
-// baea_serializableobjectproxy.cpp   -*-C++-*-
+// baea_serializableobjectproxy.cpp                                   -*-C++-*-
 #include <baea_serializableobjectproxy.h>
 
 #include <bdes_ident.h>
@@ -30,13 +30,13 @@ bool areEqual(const char* string1, int length1,
 //
 // Some decoders, in some situations, use instantiations of
 // bdef_Function<int(*)(TYPE*)> where TYPE is the ElementType of
-// SerializableObjectProxy...which is SerializableObjectProxy.  This is in
+// 'SerializableObjectProxy', which is SerializableObjectProxy.  This is in
 // contrast to the usual approach of using an object with a function-call
 // (operator()) method with a templatized argument.  In these situations,
 // passing a SerializableObjectProxy_NullableAdapter breaks compilation -- but
 // is unnecessary, given that they are not attempting to detect anything about
 // the type via metaprogramming.  They can be passed the
-// SerializableObjectProxy directly.
+// 'SerializableObjectProxy' directly.
 
 int SerializableObjectProxy::manipulateContainedElement(
                  SerializableObjectProxy                           *proxy,
@@ -69,7 +69,7 @@ void SerializableObjectProxy::loadSimple(char* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_CHAR };
+    SimplePointer pointer = { SimplePointer::TYPE_CHAR };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -77,7 +77,7 @@ void SerializableObjectProxy::loadSimple(unsigned char* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_UCHAR };
+    SimplePointer pointer = { SimplePointer::TYPE_UCHAR };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -85,7 +85,7 @@ void SerializableObjectProxy::loadSimple(short* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_SHORT };
+    SimplePointer pointer = { SimplePointer::TYPE_SHORT };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -93,7 +93,7 @@ void SerializableObjectProxy::loadSimple(int* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_INT };
+    SimplePointer pointer = { SimplePointer::TYPE_INT };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -101,7 +101,7 @@ void SerializableObjectProxy::loadSimple(bsls_Types::Int64* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_INT64 };
+    SimplePointer pointer = { SimplePointer::TYPE_INT64 };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -109,7 +109,7 @@ void SerializableObjectProxy::loadSimple(unsigned short* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_USHORT };
+    SimplePointer pointer = { SimplePointer::TYPE_USHORT };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -117,7 +117,7 @@ void SerializableObjectProxy::loadSimple(unsigned int* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_UINT };
+    SimplePointer pointer = { SimplePointer::TYPE_UINT };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -125,7 +125,7 @@ void SerializableObjectProxy::loadSimple(bsls_Types::Uint64* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_UINT64 };
+    SimplePointer pointer = { SimplePointer::TYPE_UINT64 };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -133,7 +133,7 @@ void SerializableObjectProxy::loadSimple(float* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_FLOAT };
+    SimplePointer pointer = { SimplePointer::TYPE_FLOAT };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -141,21 +141,23 @@ void SerializableObjectProxy::loadSimple(double* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_DOUBLE };
+    SimplePointer pointer = { SimplePointer::TYPE_DOUBLE };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
 void SerializableObjectProxy::loadSimple(bsl::string* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_STRING };
+    SimplePointer pointer = { SimplePointer::TYPE_STRING };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
 void SerializableObjectProxy::loadSimple(bdet_Datetime* value)
 {
+    d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_DATETIME };
+    SimplePointer pointer = { SimplePointer::TYPE_DATETIME };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -163,7 +165,7 @@ void SerializableObjectProxy::loadSimple(bdet_Date* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_DATE };
+    SimplePointer pointer = { SimplePointer::TYPE_DATE };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -171,7 +173,7 @@ void SerializableObjectProxy::loadSimple(bdet_Time* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_TIME };
+    SimplePointer pointer = { SimplePointer::TYPE_TIME };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -179,7 +181,7 @@ void SerializableObjectProxy::loadSimple(bool* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_BOOL };
+    SimplePointer pointer = { SimplePointer::TYPE_BOOL };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -187,7 +189,7 @@ void SerializableObjectProxy::loadSimple(bdet_DatetimeTz* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_DATETIMETZ };
+    SimplePointer pointer = { SimplePointer::TYPE_DATETIMETZ };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -195,7 +197,7 @@ void SerializableObjectProxy::loadSimple(bdet_DateTz* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_DATETZ };
+    SimplePointer pointer = { SimplePointer::TYPE_DATETZ };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
@@ -203,39 +205,37 @@ void SerializableObjectProxy::loadSimple(bdet_TimeTz* value)
 {
     d_object_p = value;
     d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { value, SimplePointer::TYPE_TIMETZ };
+    SimplePointer pointer = { SimplePointer::TYPE_TIMETZ };
     new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
 }
 
 void SerializableObjectProxy::loadChoice(
-                        int                                        selectionId,
-                        void                                      *object,
-                        const bdeat_SelectionInfo                 *info,
-                        const char                                *className,
-                        SerializableObjectProxyFunctions::Accessor accessor)
+                         void                                       *object,
+                         const bdeat_SelectionInfo                  *info,
+                         const char                                 *className,
+                         SerializableObjectProxyFunctions::Loader  loader)
 {
     d_object_p = object;
     d_category = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(ChoiceEncodeInfo(selectionId,
-                                                                 info,
-                                                                 accessor,
+    new (d_objectInfoArena.buffer()) ObjectInfo(ChoiceEncodeInfo(info,
+                                                                 loader,
                                                                  className));
 }
 
 void SerializableObjectProxy::loadChoice(
-               int numSelections,
-               void *choice,
-               const bdeat_SelectionInfo* selectionInfoArray,
-               SerializableObjectProxyFunctions::AccessorAndExtractor accessor,
-               SerializableObjectProxyFunctions::Chooser chooser)
+         int                                                numSelections,
+         void                                              *choice,
+         const bdeat_SelectionInfo                         *selectionInfoArray,
+         SerializableObjectProxyFunctions::SelectionLoader  loader,
+         SerializableObjectProxyFunctions::Chooser          chooser)
 {
     d_object_p = choice;
     d_category = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
     new (d_objectInfoArena.buffer()) ObjectInfo(
-                                ChoiceDecodeInfo(numSelections,
-                                                 selectionInfoArray,
-                                                 accessor,
-                                                 chooser));
+                                           ChoiceDecodeInfo(numSelections,
+                                                            selectionInfoArray,
+                                                            loader,
+                                                            chooser));
 }
 
 int SerializableObjectProxy::loadSequenceElementDecodeProxy(
@@ -249,7 +249,7 @@ int SerializableObjectProxy::loadSequenceElementDecodeProxy(
     for(int i = 0; i < info.d_numAttributes; ++i)
     {
         if (info.d_attributeInfo_p[i].id() == elementId) {
-            info.d_accessor(proxy, *this, i);
+            info.d_loader(proxy, *this, i);
             *attrInfo = info.d_attributeInfo_p + i;
             return 0;                                                 // RETURN
         }
@@ -274,7 +274,7 @@ int SerializableObjectProxy::loadSequenceElementDecodeProxy(
         if (areEqual(elementName, elementNameLength,
                      (*attrInfo)->name(), (*attrInfo)->nameLength()))
         {
-            info.d_accessor(proxy, *this, i);
+            info.d_loader(proxy, *this, i);
             return 0;                                                 // RETURN
         }
     }
@@ -325,6 +325,9 @@ int SerializableObjectProxy::choiceMakeSelection(
 
 bool SerializableObjectProxy::isNull() const
 {
+    BSLS_ASSERT_SAFE(d_objectInfo.is<NullableEncodeInfo>() ||
+                     d_objectInfo.is<NullableDecodeInfo>());
+
     return d_object_p == 0 ||
         (d_objectInfo.is<NullableDecodeInfo>() &&
          d_objectInfo.the<NullableDecodeInfo>().d_fetcher(d_object_p) == 0);
@@ -374,13 +377,19 @@ void SerializableObjectProxy::loadSequence(
               void                                              *object,
               const bdeat_AttributeInfo                         *info,
               const char                                        *className,
-              SerializableObjectProxyFunctions::ElementAccessor  accessor)
+              SerializableObjectProxyFunctions::ElementLoader  loader)
 {
     d_object_p = object;
     d_category = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(
-                                SequenceInfo(numAttributes, info,
-                                             className, accessor));
+    new (d_objectInfoArena.buffer()) ObjectInfo(SequenceInfo(numAttributes,
+                                                             info,
+                                                             className,
+                                                             loader));
+}
+
+void SerializableObjectProxy::loadByteArray(bsl::vector<char> *object)
+{
+    loadArray(object->size(), sizeof(char), object, 0);
 }
 
 void SerializableObjectProxy::loadArray(
@@ -389,26 +398,28 @@ void SerializableObjectProxy::loadArray(
                        int                                         elementSize,
                        void                                       *begin,
                        SerializableObjectProxyFunctions::Resizer   resizer,
-                       SerializableObjectProxyFunctions::Accessor  accessor)
+                       SerializableObjectProxyFunctions::Loader  loader)
 {
     d_object_p = array;
     d_category = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(
-                         ArrayDecodeInfo(length, elementSize, begin,
-                                         resizer, accessor));
+    new (d_objectInfoArena.buffer()) ObjectInfo(ArrayDecodeInfo(length,
+                                                                elementSize,
+                                                                begin,
+                                                                resizer,
+                                                                loader));
 }
 
 void SerializableObjectProxy::loadArray(
                         int                                        length,
                         int                                        elementSize,
                         void                                      *begin,
-                        SerializableObjectProxyFunctions::Accessor accessor)
+                        SerializableObjectProxyFunctions::Loader loader)
 {
     d_object_p = begin;
     d_category = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
     new (d_objectInfoArena.buffer()) ObjectInfo(ArrayEncodeInfo(length,
                                                                 elementSize,
-                                                                accessor));
+                                                                loader));
 }
 
 void SerializableObjectProxy::loadEnumeration(
@@ -416,6 +427,7 @@ void SerializableObjectProxy::loadEnumeration(
                                     const bdeat_EnumeratorInfo *infoArray,
                                     int                         numEnumerators)
 {
+    d_object_p = 0;
     EnumEncodeInfo info = { value, infoArray, numEnumerators};
     d_category = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
     new (d_objectInfoArena.buffer()) ObjectInfo(info);
@@ -437,22 +449,22 @@ void SerializableObjectProxy::loadEnumeration(
 
 void SerializableObjectProxy::loadNullable(
                           void                                       *object,
-                          SerializableObjectProxyFunctions::Accessor  accessor)
+                          SerializableObjectProxyFunctions::Loader  loader)
 {
     d_object_p = object; // 0 if null value
     d_category = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(accessor);
+    new (d_objectInfoArena.buffer()) ObjectInfo(loader);
 }
 
 void SerializableObjectProxy::loadNullable(
                  void                                            *object,
-                 SerializableObjectProxyFunctions::Accessor       accessor,
-                 SerializableObjectProxyFunctions::Manipulator    valueMaker,
+                 SerializableObjectProxyFunctions::Loader         loader,
+                 SerializableObjectProxyFunctions::ValueMaker     valueMaker,
                  SerializableObjectProxyFunctions::ObjectFetcher  valueFetcher)
 {
     d_object_p = object;
     d_category = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
-    NullableDecodeInfo info = { valueMaker, valueFetcher, accessor };
+    NullableDecodeInfo info = { valueMaker, valueFetcher, loader };
     new (d_objectInfoArena.buffer()) ObjectInfo(info);
 }
 
@@ -555,7 +567,7 @@ void SerializableObjectProxy::loadArrayElementEncodeProxy(
 
     const ArrayEncodeInfo& info = d_objectInfo.the<ArrayEncodeInfo>();
     void* address = (char*)d_object_p + info.d_elementSize * index;
-    info.d_accessor(elementProxy, address);
+    info.d_loader(elementProxy, address);
 }
 
 void SerializableObjectProxy::loadArrayElementDecodeProxy(
@@ -566,7 +578,7 @@ void SerializableObjectProxy::loadArrayElementDecodeProxy(
 
     const ArrayDecodeInfo& info = d_objectInfo.the<ArrayDecodeInfo>();
     void* address = (char*)info.d_begin + info.d_elementSize * index;
-    info.d_accessor(elementProxy, address);
+    info.d_loader(elementProxy, address);
 }
 
 bsl::size_t SerializableObjectProxy::size() const
@@ -604,7 +616,8 @@ const char *SerializableObjectProxy::className() const
 int SerializableObjectProxy::selectionId() const
 {
     if (d_objectInfo.is<ChoiceEncodeInfo>()) {
-        return d_objectInfo.the<ChoiceEncodeInfo>().d_selectionId;    // RETURN
+        return d_objectInfo.the<ChoiceEncodeInfo>().d_selectionInfo_p->id();
+                                                                      // RETURN
     }
     else if (d_objectInfo.is<ChoiceDecodeInfo>()) {
         return d_objectInfo.the<ChoiceDecodeInfo>().d_currentSelection;

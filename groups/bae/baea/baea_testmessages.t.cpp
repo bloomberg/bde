@@ -4,7 +4,7 @@
 static char RCSid_baea_messages_t_cpp[] = "$Id: $ $CCId: $  $CSID:  $  $SCMId:  $";
 #endif
 
-#include <baea_messages.h>
+#include <baea_testmessages.h>
 
 #include <cstdlib>
 #include <bsl_iostream.h>
