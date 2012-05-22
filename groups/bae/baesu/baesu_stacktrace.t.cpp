@@ -641,7 +641,9 @@ int main(int argc, char *argv[])
 //..
 // Next, we output the stack-trace object:
 //..
-    stackTrace.print(cout, 1, 2);
+    if (verbose) {
+        stackTrace.print(cout, 1, 2);
+    }
 //..
 // Finally, we observe the default allocator was never used.
 //..

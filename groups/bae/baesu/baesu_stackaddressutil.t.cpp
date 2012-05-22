@@ -349,12 +349,12 @@ CASE3_FUNC(3, 4)
 CASE3_FUNC(4, 5)
 
 #if    defined(BSLS_PLATFORM__OS_HPUX) && defined(BSLS_PLATFORM__CPU_32_BIT)
-# define FUNC_ADDRESS(p) (((UintPtr *) (UintPtr) (p))[1])
+# define FUNC_ADDRESS_NUM(p) (((UintPtr *) (UintPtr) (p))[1])
 #elif (defined(BSLS_PLATFORM__OS_HPUX) && defined(BSLS_PLATFORM__CPU_64_BIT)) \
     || defined(BSLS_PLATFORM__OS_AIX)
-# define FUNC_ADDRESS(p) (((UintPtr *) (UintPtr) (p))[0])
+# define FUNC_ADDRESS_NUM(p) (((UintPtr *) (UintPtr) (p))[0])
 #else
-# define FUNC_ADDRESS(p) ((UintPtr) (p))
+# define FUNC_ADDRESS_NUM(p) ((UintPtr) (p))
 #endif
 
 int func0()
@@ -366,12 +366,12 @@ int func0()
     void *buffer[BUFFER_LENGTH];
     AddressEntry entries[BUFFER_LENGTH];
 
-    UintPtr funcAddrs[] = { FUNC_ADDRESS(&func0),
-                            FUNC_ADDRESS(&func1),
-                            FUNC_ADDRESS(&func2),
-                            FUNC_ADDRESS(&func3),
-                            FUNC_ADDRESS(&func4),
-                            FUNC_ADDRESS(&func5) };
+    UintPtr funcAddrs[] = { FUNC_ADDRESS_NUM(&func0),
+                            FUNC_ADDRESS_NUM(&func1),
+                            FUNC_ADDRESS_NUM(&func2),
+                            FUNC_ADDRESS_NUM(&func3),
+                            FUNC_ADDRESS_NUM(&func4),
+                            FUNC_ADDRESS_NUM(&func5) };
     enum { NUM_FUNC_ADDRS = sizeof funcAddrs / sizeof *funcAddrs };
 
     bsl::memset(buffer, 0, sizeof(buffer));

@@ -109,6 +109,8 @@ struct baesu_ObjectFileFormat {
 
     struct Windows {};    // format used on Microsoft Windows platform
 
+    struct MachO {};      // format used on Apple platform
+
 #if defined(BSLS_PLATFORM__OS_SOLARIS) || \
     defined(BSLS_PLATFORM__OS_LINUX)   || \
     defined(BSLS_PLATFORM__OS_HPUX)
@@ -129,6 +131,13 @@ struct baesu_ObjectFileFormat {
 
     typedef Windows Policy;
 #   define BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS 1
+
+#endif
+
+#if defined(BSLS_PLATFORM__OS_DARWIN)
+
+    typedef MachO Policy;
+#   define BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO 1
 
 #endif
 

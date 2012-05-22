@@ -208,7 +208,8 @@ struct baesu_StackAddressUtil {
     // 'BAESU_IGNORE_FRAMES' instructs the caller as to whether the first frame
     // is such an unwanted frame.
 
-#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_WINDOWS)
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_WINDOWS) || \
+    defined(BSLS_PLATFORM__OS_DARWIN)
     enum { BAESU_IGNORE_FRAMES = 1 };
 #else
     enum { BAESU_IGNORE_FRAMES = 0 };

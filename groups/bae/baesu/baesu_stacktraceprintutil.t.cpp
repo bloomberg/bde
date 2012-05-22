@@ -132,7 +132,7 @@ typedef baesu_StackTracePrintUtil           PrintUtil;
 typedef baesu_StackTracePrintUtil_Test      PrintUtilTest;
 
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
-    enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0 };
+    enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_MACHO = 0 };
 
 # if   defined(BSLS_PLATFORM__OS_SOLARIS)
     enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
@@ -144,11 +144,14 @@ typedef baesu_StackTracePrintUtil_Test      PrintUtilTest;
 #   error unknown platform
 # endif
 
+#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO)
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_MACHO = 1 };
+    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
 #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_XCOFF = 0 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_MACHO = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1 };
 #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 1 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_MACHO = 0 };
     enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0 };
 #else
 # error unknown object file format
@@ -279,8 +282,9 @@ void top()
     bsl::string dump(&ta);
     (*testDumpUnion.d_funcPtr)(&dump);
 
-    if (!FORMAT_ELF && !FORMAT_WINDOWS && DEBUG_ON) {
-        // Elf totally doesn't provide souce file names of global routines,
+    if (!FORMAT_ELF && !FORMAT_MACHO && !FORMAT_WINDOWS && DEBUG_ON) {
+        // Elf doesn't provide souce file names of global routines,
+        // Macho never provides source file names for anything,
         // Windows doesn't provide the source file name for an inline routine.
 
         bsl::vector<const char *> matches(&ta);
@@ -415,7 +419,7 @@ static int phonyCompare(const void *, const void *)
         { L_, false, "phonyCompare" },
         { L_, false, "qsort" },
         { L_, true,  " in " },
-        { L_, true,  "/libc." },
+        { L_, true,  FORMAT_MACHO ? "/libsystem_c" : "/libc." },
         { L_, false, "main" } };
     enum { NUM_STRINGS = sizeof STRINGS / sizeof *STRINGS };
 

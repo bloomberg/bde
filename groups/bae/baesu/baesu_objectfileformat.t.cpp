@@ -129,6 +129,11 @@ int typeTest(const baesu_ObjectFileFormat::Windows &)
 {
     return 3;
 }
+
+int typeTest(const baesu_ObjectFileFormat::MachO &)
+{
+    return 4;
+}
 //..
 
 // ============================================================================
@@ -178,14 +183,14 @@ int main(int argc, char *argv[])
 
     #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
         ASSERT(1 == typeTest(policy));
-    #endif
-
-    #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+    #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
         ASSERT(2 == typeTest(policy));
-    #endif
-
-    #if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+    #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
         ASSERT(3 == typeTest(policy));
+    #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO)
+        ASSERT(4 == typeTest(policy));
+    #else
+        #error No resolver format defined
     #endif
 //..
 
@@ -213,23 +218,31 @@ int main(int argc, char *argv[])
         ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::MachO>()));
 
-#endif
-
-#if defined(BSLS_PLATFORM__OS_AIX)
+#elif defined(BSLS_PLATFORM__OS_AIX)
 
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
         ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::MachO>()));
 
-#endif
-
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM__OS_WINDOWS)
 
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
         ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
         ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::MachO>()));
 
+#elif defined(BSLS_PLATFORM__OS_DARWIN)
+
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Elf>()));
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Xcoff>()));
+        ASSERT(0 == (bslmf_IsSame<Obj::Policy, Obj::Windows>()));
+        ASSERT(1 == (bslmf_IsSame<Obj::Policy, Obj::MachO>()));
+
+#else
+#       error Unrecognized platform
 #endif
       }  break;
       case 2: {
@@ -262,6 +275,10 @@ int main(int argc, char *argv[])
         ++count;
 #endif
 
+#if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO)
+        ++count;
+#endif
+
         ASSERT(1 == count);
       }  break;
       case 1: {
@@ -290,7 +307,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_ELF);
 
 # if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO)
 #  error multiple file formats defined
 # endif
 
@@ -299,7 +317,8 @@ int main(int argc, char *argv[])
         ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF);
 
 # if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS) || \
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO)
 #  error multiple file formats defined
 # endif
 
@@ -308,7 +327,19 @@ int main(int argc, char *argv[])
         ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS);
 
 # if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
-     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO)
+#  error multiple file formats defined
+# endif
+
+
+#elif defined(BSLS_PLATFORM__OS_DARWIN)
+
+        ASSERT(1 == BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO);
+
+# if defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF) || \
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF) || \
+     defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
 #  error multiple file formats defined
 # endif
 

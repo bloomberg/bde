@@ -5,7 +5,7 @@
 #include <baesu_stackaddressutil.h>
 #include <baesu_stacktrace.h>
 
-#include <bcemt_threadutil.h>
+// #include <bcemt_threadutil.h> // TBDBCE
 
 #include <bdef_function.h>
 #include <bdema_sequentialallocator.h>
@@ -138,24 +138,37 @@ typedef baesu_StackTraceFrame          Frame;
 typedef baesu_StackTraceUtil           Util;
 
 #if   defined(BAESU_OBJECTFILEFORMAT_RESOLVER_ELF)
-    enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0 };
+    enum { FORMAT_ELF = 1, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
+           FORMAT_MACHO = 0 };
 
-# if   defined(BSLS_PLATFORM__OS_SOLARIS)
-    enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
+# if   defined(BSLS_PLATFORM__OS_HPUX)
+    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=1, PLAT_AIX=0, PLAT_WIN=0,
+           PLAT_DARWIN = 0 };
 # elif defined(BSLS_PLATFORM__OS_LINUX)
-    enum { PLAT_SUN=0, PLAT_LINUX=1, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0 };
-# elif defined(BSLS_PLATFORM__OS_HPUX)
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=1, PLAT_AIX=0, PLAT_WIN=0 };
+    enum { PLAT_SUN=0, PLAT_LINUX=1, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0,
+           PLAT_DARWIN = 0 };
+# elif defined(BSLS_PLATFORM__OS_SOLARIS)
+    enum { PLAT_SUN=1, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0,
+           PLAT_DARWIN = 0 };
 # else
 #   error unknown platform
 # endif
 
+#elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO)
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 0,
+           FORMAT_MACHO = 1 };
+    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=0,
+           PLAT_DARWIN = 1 };
 #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_XCOFF = 0 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 1, FORMAT_XCOFF = 0,
+           FORMAT_MACHO = 0 };
+    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=0, PLAT_WIN=1,
+           PLAT_DARWIN = 0 };
 #elif defined(BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 1 };
-    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0 };
+    enum { FORMAT_ELF = 0, FORMAT_WINDOWS = 0, FORMAT_XCOFF = 1,
+           FORMAT_MACHO = 0 };
+    enum { PLAT_SUN=0, PLAT_LINUX=0, PLAT_HP=0, PLAT_AIX=1, PLAT_WIN=0,
+           PLAT_DARWIN = 0 };
 #else
 # error unknown object file format
 #endif
@@ -165,7 +178,6 @@ typedef baesu_StackTraceUtil           Util;
 #else
     enum { DEBUG_ON = 0 };
 #endif
-
 
 #if defined(BSLS_PLATFORM__OS_WINDOWS) && defined(BSLS_PLATFORM__CPU_64_BIT)
 // On Windows, longs aren't big enough to hold pointers or 'size_t's
@@ -317,7 +329,7 @@ void testStackTrace(const baesu_StackTrace& st)
             LOOP2_ASSERT(i, offset, reachedMain || offset < maxOffset);
         }
 
-        if (!FORMAT_ELF && DEBUG_ON && !reachedMain) {
+        if (!FORMAT_ELF && !FORMAT_MACHO && DEBUG_ON && !reachedMain) {
             ASSERT(frame.isSourceFileNameKnown());
             ASSERT(frame.lineNumber() > 0);
         }
@@ -494,7 +506,7 @@ void case_8_recurse(int *depth)
                                 // case 7
                                 // ------
 
-#ifdef BSLS_PLATFORM__OS_UNIX
+#if defined(BSLS_PLATFORM__OS_UNIX) && !defined(BSLS_PLATFORM__OS_DARWIN)
 // The goal here is to create an identifier > 32,000 bytes
 // and < '((1 << 15) - 64)' bytes long.
 
@@ -686,7 +698,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
                                    !demangle || !bsl::strncmp(sn, match, len));
             LOOP2_ASSERT(sn, match,              bsl::strstr( sn, match));
 
-            if (!FORMAT_ELF && DEBUG_ON) {
+            if (!FORMAT_ELF && !FORMAT_MACHO && DEBUG_ON) {
                 // 'case_5_top' is global -- elf can't find source file names
                 // for globals
 
@@ -724,17 +736,17 @@ void case_5_top(bool demangle, bool useTestAllocator)
                 }
 
                 LOOP3_ASSERT(i, sn, match, bsl::strstr(sn, match));
-                if (demangle) {
+                if (demangle && !FORMAT_MACHO) {
                     LOOP4_ASSERT(i, sn, match, len,
                                                 !bsl::strncmp(sn, match, len));
                 }
 
                 ++recursersFound;
 
-                if (DEBUG_ON) {
+                if (!FORMAT_MACHO && DEBUG_ON) {
                     // 'case_5_bottom' is static, so the source file name will
                     // be known on elf, thus it will be known for all
-                    // platforms.
+                    // platforms other than Mach-O.
 
                     const char *sfnMatch = "baesu_stacktraceutil.t.cpp";
                     const char *sfn = st[i].sourceFileName().c_str();
@@ -1374,6 +1386,7 @@ int main(int argc, char *argv[])
         //   we know it's safe.
         // --------------------------------------------------------------------
 
+#if 0 // TDBBCE
         if (verbose) cout << "Multithreaded Test\n"
                              "==================\n";
 
@@ -1394,6 +1407,7 @@ int main(int argc, char *argv[])
             int rc = bcemt_ThreadUtil::join(handles[i]);
             ASSERT(0 == rc);
         }
+#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1477,7 +1491,7 @@ int main(int argc, char *argv[])
             lastAddress = thisAddress;
             lastOffset = offset;
 
-            if (DEBUG_ON && !FORMAT_ELF) {
+            if (DEBUG_ON && !FORMAT_ELF && !FORMAT_MACHO) {
                 int lineNumber = frame.lineNumber();
                 LOOP3_ASSERT(i, lineNumber, lineNumbers[i],
                                                  lineNumber == lineNumbers[i]);
