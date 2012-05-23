@@ -1165,6 +1165,10 @@ int main(int argc, char *argv[]) {
             { L_,   "abcD",              "ABcD",    },
             { L_,   "abcd",              "accd",    },
             { L_,   "abc123de",          "Abc123DeF"},
+            
+            { L_,   "\xc8\xc9\xca",    "\xc7\xc9\xca" }, 
+            { L_,   "\xc8\xc9\xca",    "\xc9\xc9\xca" }, 
+            { L_,   "\xc8\xc9\xca",    "" }, 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 

@@ -24,8 +24,8 @@ bool bdeu_String::areEqualCaseless(const char *lhsString,
 
     int i = 0;
     while (lhsString[i]) {
-        char lhs = bsl::tolower(static_cast<unsigned char>(lhsString[i]));
-        char rhs = bsl::tolower(static_cast<unsigned char>(rhsString[i]));
+        unsigned char lhs = bsl::tolower(static_cast<unsigned char>(lhsString[i]));
+        unsigned char rhs = bsl::tolower(static_cast<unsigned char>(rhsString[i]));
         if (lhs != rhs) {
             return false;                                             // RETURN
         }
@@ -43,8 +43,8 @@ bool bdeu_String::areEqualCaseless(const char *lhsString,
     BSLS_ASSERT(0 <= rhsLength);
 
     for (int i = 0; i < rhsLength; ++i) {
-        char lhs = bsl::tolower(static_cast<unsigned char>(lhsString[i]));
-        char rhs = bsl::tolower(static_cast<unsigned char>(rhsString[i]));
+        unsigned char lhs = bsl::tolower(static_cast<unsigned char>(lhsString[i]));
+        unsigned char rhs = bsl::tolower(static_cast<unsigned char>(rhsString[i]));
         if (lhs != rhs || !lhs) {
             return false;                                             // RETURN
         }
@@ -67,8 +67,8 @@ bool bdeu_String::areEqualCaseless(const char *lhsString,
     }
     int i = 0;
     while (i < lhsLength) {
-        char lhs = bsl::tolower(static_cast<unsigned char>(lhsString[i]));
-        char rhs = bsl::tolower(static_cast<unsigned char>(rhsString[i]));
+        unsigned char lhs = bsl::tolower(static_cast<unsigned char>(lhsString[i]));
+        unsigned char rhs = bsl::tolower(static_cast<unsigned char>(rhsString[i]));
         if (lhs != rhs) {
             return false;                                             // RETURN
         }
@@ -100,8 +100,10 @@ int bdeu_String::lowerCaseCmp(const char *lhsString, const char *rhsString)
 
     int i = 0;
     while (lhsString[i]) {
-        char lhs = bsl::tolower(static_cast<unsigned char>(lhsString[i]));
-        char rhs = bsl::tolower(static_cast<unsigned char>(rhsString[i]));
+        unsigned char lhs = 
+                        bsl::tolower(static_cast<unsigned char>(lhsString[i]));
+        unsigned char rhs = 
+                        bsl::tolower(static_cast<unsigned char>(rhsString[i]));
         if (lhs != rhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
@@ -119,8 +121,10 @@ int bdeu_String::lowerCaseCmp(const char *lhsString,
     BSLS_ASSERT(0 <= rhsLength);
 
     for (int i = 0; i < rhsLength; ++i) {
-        char lhs = bsl::tolower(static_cast<unsigned char>(lhsString[i]));
-        char rhs = bsl::tolower(static_cast<unsigned char>(rhsString[i]));
+        unsigned char lhs = 
+                        bsl::tolower(static_cast<unsigned char>(lhsString[i]));
+        unsigned char rhs = 
+                        bsl::tolower(static_cast<unsigned char>(rhsString[i]));
         if (lhs != rhs || !lhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
@@ -141,8 +145,10 @@ int bdeu_String::lowerCaseCmp(const char *lhsString,
     int min = lhsLength < rhsLength ? lhsLength : rhsLength;
     int i = 0;
     while (i < min) {
-        char lhs = bsl::tolower(static_cast<unsigned char>(lhsString[i]));
-        char rhs = bsl::tolower(static_cast<unsigned char>(rhsString[i]));
+        unsigned char lhs = 
+                        bsl::tolower(static_cast<unsigned char>(lhsString[i]));
+        unsigned char rhs = 
+                        bsl::tolower(static_cast<unsigned char>(rhsString[i]));
         if (lhs != rhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
@@ -382,8 +388,10 @@ int bdeu_String::upperCaseCmp(const char *lhsString, const char *rhsString)
 
     int i = 0;
     while (lhsString[i]) {
-        char lhs = bsl::toupper(static_cast<unsigned char>(lhsString[i]));
-        char rhs = bsl::toupper(static_cast<unsigned char>(rhsString[i]));
+        unsigned char lhs = 
+                        bsl::toupper(static_cast<unsigned char>(lhsString[i]));
+        unsigned char rhs = 
+                        bsl::toupper(static_cast<unsigned char>(rhsString[i]));
         if (lhs != rhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
@@ -401,8 +409,10 @@ int bdeu_String::upperCaseCmp(const char *lhsString,
     BSLS_ASSERT(0 <= rhsLength);
 
     for (int i = 0; i < rhsLength; ++i) {
-        char lhs = bsl::toupper(static_cast<unsigned char>(lhsString[i]));
-        char rhs = bsl::toupper(static_cast<unsigned char>(rhsString[i]));
+        unsigned char lhs = 
+                        bsl::toupper(static_cast<unsigned char>(lhsString[i]));
+        unsigned char rhs =
+                        bsl::toupper(static_cast<unsigned char>(rhsString[i]));
         if (lhs != rhs || !lhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
@@ -423,8 +433,10 @@ int bdeu_String::upperCaseCmp(const char *lhsString,
     int min = lhsLength < rhsLength ? lhsLength : rhsLength;
     int i = 0;
     while (i < min) {
-        char lhs = bsl::toupper(static_cast<unsigned char>(lhsString[i]));
-        char rhs = bsl::toupper(static_cast<unsigned char>(rhsString[i]));
+        unsigned char lhs = 
+                        bsl::toupper(static_cast<unsigned char>(lhsString[i]));
+        unsigned char rhs = 
+                        bsl::toupper(static_cast<unsigned char>(rhsString[i]));
         if (lhs != rhs) {
             return lhs < rhs ? -1 : 1;                                // RETURN
         }
