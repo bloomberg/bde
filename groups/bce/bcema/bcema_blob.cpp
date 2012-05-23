@@ -350,8 +350,8 @@ void bcema_Blob::appendDataBuffer(const bcema_BlobBuffer& buffer)
         d_dataLength = bufferSize;
     }
     else {
-	BSLS_ASSERT_SAFE(d_dataLength > 0);
-	BSLS_ASSERT_SAFE(d_totalSize > d_dataLength);
+        BSLS_ASSERT_SAFE(d_dataLength > 0);
+        BSLS_ASSERT_SAFE(d_totalSize > d_dataLength);
 
         // Complicated case -- buffer(s) with data exist, trimming
         // 'lastDataBuf' migth or might not be necessary, empty buffer(s) might
