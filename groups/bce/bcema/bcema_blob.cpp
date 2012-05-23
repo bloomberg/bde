@@ -326,50 +326,56 @@ void bcema_Blob::appendDataBuffer(const bcema_BlobBuffer& buffer)
     // BSLS_ASSERT_SAFE(0 == assertInvariants());
 
     const int bufferSize = buffer.size();
+    const int oldDataLength = d_dataLength;
+
+    d_totalSize  += bufferSize;
+    d_dataLength += bufferSize;
 
     if (d_totalSize == d_dataLength) {
-        // Fast path.  We have 0 or more data buffers in the blob and they are
-        // all full.
+        // Fast path.  At the start, we had 0 or more buffers in the blob and
+        // they were all full.
     
+        BSLS_ASSERT_SAFE(d_dataIndex == (int) d_buffers.size() - 1 ||
+                                  (0 == d_dataIndex && 0 == d_buffers.size()));
+
         d_buffers.push_back(buffer);
-        d_preDataIndexLength = d_dataLength;
-        d_totalSize  += bufferSize;
-        d_dataLength += bufferSize;
+        d_preDataIndexLength = oldDataLength;
         d_dataIndex = d_buffers.size() - 1;
     }
-    else if (0 == d_dataLength) {
-        BSLS_ASSERT_SAFE(0 != d_totalSize);
+    else if (bufferSize == d_dataLength) {
+        // Another fast path.  At the start, there was no data, but empty
+        // buffers were present.  Put the new buffer at the front.
 
-        // Another fast path.  No data, but empty buffers are present.  Put the
-        // new buffer at the front.
+        BSLS_ASSERT_SAFE(d_totalSize > d_dataLength);
+        BSLS_ASSERT_SAFE(0 == d_dataIndex);
+        BSLS_ASSERT_SAFE(0 == d_preDataIndexLength);
 
-        BSLS_ASSERT(0 == d_dataIndex);
-        BSLS_ASSERT(0 == d_preDataIndexLength);
         d_buffers.insert(d_buffers.begin(), buffer);
-        d_totalSize += bufferSize;
-        d_dataLength = bufferSize;
     }
     else {
-        BSLS_ASSERT_SAFE(d_dataLength > 0);
-        BSLS_ASSERT_SAFE(d_totalSize > d_dataLength);
+        // Complicated case -- at the start, buffer(s) with data were present,
+        // trimming 'prevBuf' might or might not be necessary, empty space was
+        // present on the end, whole empty buffer(s) might or might not have
+        // been present on the end.
 
-        // Complicated case -- buffer(s) with data exist, trimming
-        // 'lastDataBuf' migth or might not be necessary, empty buffer(s) might
-        // or might not be present on the end.
-
+        BSLS_ASSERT_SAFE(d_dataLength > bufferSize);
+        BSLS_ASSERT_SAFE(d_dataLength < d_totalSize);
         BSLS_ASSERT_SAFE((unsigned) d_dataIndex < d_buffers.size());
-        bcema_BlobBuffer& lastDataBuf = d_buffers[d_dataIndex];
-        int lastDataBufSize = lastDataBuf.size();
-        int trim = lastDataBufSize - (d_dataLength - d_preDataIndexLength);
-        BSLS_ASSERT(trim < lastDataBufSize);  BSLS_ASSERT(trim >= 0);
+        BSLS_ASSERT_SAFE(oldDataLength >= d_preDataIndexLength);
 
-        lastDataBuf.setSize(lastDataBufSize - trim);
+        bcema_BlobBuffer& prevBuf     = d_buffers[d_dataIndex];
+        const unsigned newPrevBufSize = oldDataLength - d_preDataIndexLength;
+        const unsigned trim           = prevBuf.size() - newPrevBufSize;
+
+        BSLS_ASSERT_SAFE(trim < (unsigned) prevBuf.size() ||
+                                           (0 == trim && 0 == prevBuf.size()));
+
+        prevBuf.setSize(newPrevBufSize);
 
         ++d_dataIndex;
         d_buffers.insert(d_buffers.begin() + d_dataIndex, buffer);
-        d_preDataIndexLength = d_dataLength;
-        d_totalSize  += bufferSize - trim;
-        d_dataLength += bufferSize;
+        d_preDataIndexLength = oldDataLength;
+        d_totalSize -= trim;
     }
 }
 
