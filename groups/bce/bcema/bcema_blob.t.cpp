@@ -801,12 +801,42 @@ int main(int argc, char *argv[])
       case 13: {
         // --------------------------------------------------------------------
         // TESTING IMPLICIT TRIM
+        //
+        // Concerns:
+        //   DRQS 30331343 found a serious bug where 'appendDataBuffer' failed
+        //   to trim 'd_totalSize', leading to corrupt datastructures and
+        //   reads through invalid pointers.
+        //
+        // Plan:
+        //   Repeat the test case from that DRQS, and also do some more
+        //   thorough testing of 'appendDataBuffer'.  Call the method on blobs
+        //   in a variety of different states, observing the state of the blob
+        //   very closely.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING IMPLICIT TRIM\n"
                              "=====================\n";
 
         bslma_TestAllocator ta;
+
+        {
+            // Kevin's McMahon's example from DRQS 30331343
+
+//          bslma_Allocator *allocator = bslma_Default::allocator();
+            bslma_Allocator *allocator = &ta;
+//          bcema_PooledBlobBufferFactory factory(1024);
+            SimpleBlobBufferFactory       factory(1024, allocator);
+            bcema_Blob blob(&factory);
+            blob.setLength(1);
+            bcema_SharedPtr<char> buf((char*) allocator->allocate(4),
+                                      allocator);
+            bcema_BlobBuffer blobBuffer(buf, 4);
+            blob.appendDataBuffer(blobBuffer);
+            blob.setLength(blob.length() + 1);
+
+            // with old code, blob fails invariants test upon destruction
+        }
+
         SimpleBlobBufferFactory sbbf(1024, &ta);
 
         {
