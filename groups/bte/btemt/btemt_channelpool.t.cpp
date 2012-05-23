@@ -1493,7 +1493,7 @@ class ReadServer
     enum { SERVER_ID = 1066 };
 
     int                d_port;         // well-known port for service requests
-    bsl::string        d_data;
+    string             d_data;
     int                d_expDataSize;
     bslma_Allocator   *d_allocator_p;
     btemt_ChannelPool *d_cp_p;
@@ -1541,7 +1541,7 @@ class ReadServer
         // leave server in listen-mode.  Returns zero if successful,
         // and non-zero if an error occurs.
 
-    bsl::string& data();
+    string& data();
         // Return the data stored by this server.
 
     // ACCESSORS
@@ -1549,7 +1549,7 @@ class ReadServer
         // Return the port number on the local host on which this server
         // listens to connections.
 
-    const bsl::string& data() const;
+    const string& data() const;
         // Return the data stored by this server.
 };
 
@@ -1704,7 +1704,7 @@ class DataReader {
 
     int                 d_msgId;           // message id
     int                 d_msgLength;       // message length
-    bsl::string         d_data;            // actual data
+    string              d_data;            // actual data
     mutable bcemt_Mutex d_mutex;           // mutex for data
 
   public:
@@ -1729,7 +1729,7 @@ class DataReader {
         // Pooled Buffer Chain based read callback.
 
     // ACCESSORS
-    const bsl::string& data() const;
+    const string& data() const;
         // Return the data stored in this reader.
 
     int msgId() const;
@@ -2125,7 +2125,7 @@ void DataReader::blobBasedReadCb(int        *numNeeded,
         }
     }
 
-    bsl::string msgData;
+    string msgData;
 
     const int numDataBufs = msg->numDataBuffers();
     for (int i = 0; i < numDataBufs - 1; ++i) {
@@ -2216,7 +2216,7 @@ void DataReader::pbcBasedReadCb(int                  *numConsumed,
         }
     }
 
-    bsl::string msgData;
+    string msgData;
     if (bufOffset >= bufSize) {
         ++bufIdx;
         bufOffset = 0;
@@ -2251,7 +2251,7 @@ void DataReader::pbcBasedReadCb(int                  *numConsumed,
 }
 
 // ACCESSORS
-const bsl::string& DataReader::data() const
+const string& DataReader::data() const
 {
     bcemt_LockGuard<bcemt_Mutex> guard(&d_mutex);
     return d_data;
@@ -2283,7 +2283,7 @@ struct TestData {
     // This 'struct' represents the data passed the testing thread.
 
     int                                     d_threadIntId; // integer thread id
-    bsl::string                             d_expData;  // expected data
+    string                                  d_expData;  // expected data
     bool                                    d_useBlobs; // use blobs
     bteso_IPv4Address                       d_address;  // ip address
     bteso_StreamSocket<bteso_IPv4Address>  *d_socket_p; // socket to write to
@@ -9422,9 +9422,9 @@ int main(int argc, char *argv[])
 
         bcemt_ThreadUtil::sleep(bdet_TimeInterval(5));
 
-        const bsl::string& DATA = server.data();
+        const string& DATA = server.data();
 
-        LOOP_ASSERT(DATA, DATA == bsl::string(TEXT));
+        LOOP_ASSERT(DATA, DATA == string(TEXT));
       } break;
       case 30: {
         // --------------------------------------------------------------------
@@ -9494,7 +9494,7 @@ int main(int argc, char *argv[])
 
                 for (int i = 0; i < NUM_DATA; ++i) {
                     const int          LINE = DATA[i].d_line;
-                    const bsl::string& TEXT = DATA[i].d_text;
+                    const string&      TEXT = DATA[i].d_text;
 
                     TestData& testData      = tests[i];
                     testData.d_threadIntId  = i;
@@ -9520,10 +9520,10 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < NUM_DATA; ++i) {
                     DataReader        *READER = server.dataReader(i);
                     const int          MSG_ID = READER->msgId();
-                    const bsl::string  MSG    = READER->data();
+                    const string       MSG    = READER->data();
 
                     const int          LINE      = DATA[MSG_ID].d_line;
-                    const bsl::string  EXP_MSG   = DATA[MSG_ID].d_text;
+                    const string       EXP_MSG   = DATA[MSG_ID].d_text;
 
                     LOOP3_ASSERT(LINE, MSG, EXP_MSG, MSG == EXP_MSG);
                 }
