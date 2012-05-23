@@ -1,4 +1,4 @@
-// bsls_ident.cpp          -*-C++-*-
+// bsls_ident.cpp                                                     -*-C++-*-
 #include <bsls_ident.h>
 
 BSLS_IDENT("$Id: $")

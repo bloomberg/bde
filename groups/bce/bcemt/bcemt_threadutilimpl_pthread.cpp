@@ -136,7 +136,7 @@ static int initPthreadAttribute(pthread_attr_t                *dest,
 // CLASS DATA
 const pthread_t
 bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::INVALID_HANDLE =
-                                                    static_cast<pthread_t>(-1);
+                                                                (pthread_t) -1;
 
 // CLASS METHODS
 int bcemt_ThreadUtilImpl<bces_Platform::PosixThreads>::create(

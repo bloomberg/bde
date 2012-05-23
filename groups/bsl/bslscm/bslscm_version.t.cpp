@@ -1,4 +1,4 @@
-// bslscm_version.t.cpp    -*-C++-*-
+// bslscm_version.t.cpp                                               -*-C++-*-
 
 #include <bslscm_version.h>
 
@@ -79,10 +79,10 @@ int main(int argc, char *argv[])
 
 // If a program wants to display the version of BSL used to build the
 // current executable, it can simply print the version string returned by
-// 'bslscm_Version::version()':
+// 'bslscm::Version::version()':
 //..
     if (verbose) std::printf("BSL version: %s\n",
-                             bslscm_Version::version());
+                             bslscm::Version::version());
 //..
       } break;
 

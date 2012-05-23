@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <cmdopt.h>
@@ -285,7 +285,7 @@ mkargv (const char *s0,
 
     return argv;
 }
-                              
+
 /**************************************************************************/
 
 // convenience macros for brevity
@@ -445,7 +445,7 @@ test_tristate ()
     T ("#0,2",           0, A ("--enable-bar"),   1, "|-bar~32:2", C0, C1);
     T ("#0,3",           0, A ("--enable-bar"),   1, "|-bar~32:3", C0, C1);
     T ("#0,4",           0, A ("--enable-bar"),   1, "|-bar~32:4", C0, C1);
- 
+
     // enable bits 0 through 4 in C0 one at a time
     T ("#1", 0, A ("--with-0"), 4, "|-0~0 |-1~1 |-2~2 |-3~3", C0, C0, C0, C0);
     T ("#2", 0, A ("--with-1"), 4, "|-0~0 |-1~1 |-2~2 |-3~3", C0, C0, C0, C0);
@@ -662,7 +662,7 @@ int main ()
     // exercise the handling of options with an optional argument
     test_optional_argument ();
 
-    // exercise the handling of tristate options 
+    // exercise the handling of tristate options
     test_tristate ();
 
     // exercise the handling of options with a required argument

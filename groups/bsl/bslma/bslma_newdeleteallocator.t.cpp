@@ -93,10 +93,10 @@ static void aSsErT(int c, const char *s, int i)
 // redefining these global operators and instrumenting them to be sure that
 // these operators are in fact called.
 //--------------------------------------------------------------------------
-// [ 2] static bslma_NewDeleteAllocator& singleton();
-// [ 2] static bslma_Allocator *allocator(bslma_Allocator *basicAllocator);
-// [ 1] bslma_NewDeleteAllocator();
-// [ 1] ~bslma_NewDeleteAllocator();
+// [ 2] static bslma::NewDeleteAllocator& singleton();
+// [ 2] static bslma::Allocator *allocator(bslma::Allocator *basicAllocator);
+// [ 1] bslma::NewDeleteAllocator();
+// [ 1] ~bslma::NewDeleteAllocator();
 // [ 1] void *allocate(int size);
 // [ 1] void deallocate(void *address);
 //--------------------------------------------------------------------------
@@ -109,7 +109,7 @@ static void aSsErT(int c, const char *s, int i)
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-// The most common and proper use of 'bslma_NewDeleteAllocator' is both
+// The most common and proper use of 'bslma::NewDeleteAllocator' is both
 // *indirect* and *by* *default* (see 'bslma_default').  For example,
 // consider (along with its destructor) the default and copy constructors for,
 // say, a simple container, such as 'my_ShortArray', each of which take as
@@ -117,23 +117,23 @@ static void aSsErT(int c, const char *s, int i)
 //..
 //  // my_shortarray.h:
 //  // ...
-//  class bslma_Allocator;
+//  namespace bslma { class Allocator; }
 
     class my_ShortArray {
-        short           *d_array_p;     // dynamically-allocated array
-        int              d_capacity;    // physical capacity (in elements)
-        int              d_length;      // logical length (in elements)
-        bslma_Allocator *d_allocator_p; // memory allocator (not owned)
+        short            *d_array_p;     // dynamically-allocated array
+        int               d_capacity;    // physical capacity (in elements)
+        int               d_length;      // logical length (in elements)
+        bslma::Allocator *d_allocator_p; // memory allocator (not owned)
 
       public:
-        my_ShortArray(bslma_Allocator *basicAllocator = 0);
+        my_ShortArray(bslma::Allocator *basicAllocator = 0);
             // Create an empty 'my_shortArray'.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator'
             // is 0, the currently installed default allocator is used.
 
         my_ShortArray(const my_ShortArray&  other,
-                      bslma_Allocator      *basicAllocator = 0);
-            // Create a 'bslma_ShortArray' having the same value as the
+                      bslma::Allocator     *basicAllocator = 0);
+            // Create a 'bslma::ShortArray' having the same value as the
             // specified 'other' array.  Optionally specify a 'basicAllocator'
             // used to supply memory.  If 'basicAllocator' is 0, the currently
             // installed default allocator is used.
@@ -148,22 +148,22 @@ static void aSsErT(int c, const char *s, int i)
 //..
 // In order to satisfy this contract, we will need a globally accessible
 // utility (see 'bslma_default'), which by default returns the singleton
-// 'bslma_NewDeleteAllocator', but which could be configured to return some
+// 'bslma::NewDeleteAllocator', but which could be configured to return some
 // other allocator, say a *test* allocator (see 'bslma_testallocator'):
 //..
 //  // my_default.h:
 //  // ...
-//  class bslma_Allocator;
+//  namespace bslma { class Allocator; }
 
     struct my_Default {
         // This class maintains a process-wide 'bslma_allocator' object
         // to be used when an allocator is needed, and not suppled explicitly.
         // By default, the currently installed default allocator is the unique
-        // 'bslma_NewDeleteAllocator' object returned by the 'static' method,
-        // 'bslma_NewDeleteAllocator::singleton()'.  Note that the default
+        // 'bslma::NewDeleteAllocator' object returned by the 'static' method,
+        // 'bslma::NewDeleteAllocator::singleton()'.  Note that the default
         // allocator will exist longer than any possibility of its use.
 
-        static bslma_Allocator *allocator(bslma_Allocator *basicAllocator);
+        static bslma::Allocator *allocator(bslma::Allocator *basicAllocator);
             // Return the address of the specified modifiable
             // 'basicAllocator' or, if 'basicAllocator' is 0, an instance of
             // the currently installed default 'bslma_allocator' object, which
@@ -171,10 +171,10 @@ static void aSsErT(int c, const char *s, int i)
             // that this function can safely be called concurrently (from
             // multiple threads).
 
-        static bslma_Allocator *replace(bslma_Allocator *basicAllocator);
+        static bslma::Allocator *replace(bslma::Allocator *basicAllocator);
             // Replace the address of the currently installed allocator with
             // that of the specified modifiable 'basicAllocator' (or if 0,
-            // with the "factory" default, 'bslma_NewDeleteAllocator'), and
+            // with the "factory" default, 'bslma::NewDeleteAllocator'), and
             // return the address of the previous allocator.  The behavior is
             // undefined unless 'basicAllocator' will exist longer than any
             // possibility of its use.  Note that this function is *not* *at*
@@ -187,28 +187,28 @@ static void aSsErT(int c, const char *s, int i)
 
 //  #include <my_default.h>
 
-    static bslma_Allocator *s_default_p = 0; // load-time initialized
+    static bslma::Allocator *s_default_p = 0; // load-time initialized
 
-    bslma_Allocator *my_Default::allocator(bslma_Allocator *basicAllocator)
+    bslma::Allocator *my_Default::allocator(bslma::Allocator *basicAllocator)
     {
-        return bslma_NewDeleteAllocator::allocator(s_default_p);
+        return bslma::NewDeleteAllocator::allocator(s_default_p);
     }
 
-    bslma_Allocator *my_Default::replace(bslma_Allocator *basicAllocator)
+    bslma::Allocator *my_Default::replace(bslma::Allocator *basicAllocator)
     {
-        bslma_Allocator *tmp =
-                              bslma_NewDeleteAllocator::allocator(s_default_p);
-        s_default_p = bslma_NewDeleteAllocator::allocator(basicAllocator);
+        bslma::Allocator *tmp =
+                             bslma::NewDeleteAllocator::allocator(s_default_p);
+        s_default_p = bslma::NewDeleteAllocator::allocator(basicAllocator);
         return tmp;
     }
 //..
-// Notice that the only part of the 'bslma_NewDeleteAllocator' class we used
+// Notice that the only part of the 'bslma::NewDeleteAllocator' class we used
 // directly was its static 'allocator' method, which -- in addition to safely
-// constructing the singleton 'bslma_NewDeleteAllocator' object on first
+// constructing the singleton 'bslma::NewDeleteAllocator' object on first
 // access -- also automatically replaces a 0 address value with that of
-// singleton 'bslma_NewDeleteAllocator' object.  From now on, we will never
+// singleton 'bslma::NewDeleteAllocator' object.  From now on, we will never
 // again need to invoke the 'bslma_newdeleteallocator' component's interface
-// directly, but instead use it through 'my_Default' (see bslma_Default' for
+// directly, but instead use it through 'my_Default' (see bslma::Default' for
 // what is actually used in practice).
 //
 // Turning back to our 'my_shortarray' example, let's now implement the two
@@ -225,14 +225,14 @@ static void aSsErT(int c, const char *s, int i)
     enum {
         INITIAL_CAPACITY = 0, // recommended to avoid unnecessary allocations
                               // possibly resulting in locking and extra thread
-                              // contention for the 'bslma_NewDeleteAllocator'
+                              // contention for the 'bslma::NewDeleteAllocator'
 
         GROW_FACTOR = 2       // typical value for geometric growth
     };
 
     // ...
 
-    my_ShortArray::my_ShortArray(bslma_Allocator *basicAllocator)
+    my_ShortArray::my_ShortArray(bslma::Allocator *basicAllocator)
     : d_capacity(INITIAL_CAPACITY)
     , d_length(0)
     , d_allocator_p(my_Default::allocator(basicAllocator))
@@ -244,7 +244,7 @@ static void aSsErT(int c, const char *s, int i)
     }
 
     my_ShortArray::my_ShortArray(const my_ShortArray&  other,
-                                 bslma_Allocator      *basicAllocator)
+                                 bslma::Allocator     *basicAllocator)
     : d_capacity(other.d_capacity)
     , d_length(other.d_length)
     , d_allocator_p(my_Default::allocator(basicAllocator))
@@ -268,13 +268,13 @@ static void aSsErT(int c, const char *s, int i)
 // 'allocator' (provided in 'my_Default') is used to assign the value of the
 // 'basicAllocator' address passed in, or if that is 0, the address of the
 // currently installed default allocator, which by default is the singleton
-// object of type 'bslma_NewDeleteAllocator', defined in this component.  Note
+// object of type 'bslma::NewDeleteAllocator', defined in this component.  Note
 // that since 'INITIAL_CAPACITY' is 0, a default constructed object that is
-// created using a 'bslma_NewDeleteAllocator' will *not* invoke the 'operator
+// created using a 'bslma::NewDeleteAllocator' will *not* invoke the 'operator
 // new' function, which on some platforms may needlessly acquire a lock,
 // causing unnecessary overhead (the same potential overhead is avoided for
 // 'operator delete' whenever a 0 'd_array_p' value is deallocated in the
-// destructor) and 'd_allocator_p refers to a 'bslma_NewDeleteAllocator'.
+// destructor) and 'd_allocator_p refers to a 'bslma::NewDeleteAllocator'.
 // Note also that, for the copy constructor, the currently installed default
 // allocator, and not the 'other' array's allocator is used whenever
 // 'basicAllocator' is 0 or not explicitly supplied.
@@ -345,7 +345,7 @@ void operator delete(void *address)
             printf(" not");
         }
         printf(" enabled - count = %d: freeing %p\n",
-                globalDeleteCalledCount, address);
+               globalDeleteCalledCount, address);
     }
 
     free(address);
@@ -374,7 +374,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //   Run the usage example and exercise the creators and manipulators
-        //   of 'my_Queue' using a 'bslma_TestAllocator' to verify that memory
+        //   of 'my_Queue' using a 'bslma::TestAllocator' to verify that memory
         //   is allocated and deallocated properly.
         //
         // Testing:
@@ -405,8 +405,8 @@ int main(int argc, char *argv[])
         //   that is defined prior the first use of the allocator.
         //
         // Testing:
-        //   static bslma_NewDeleteAllocator& singleton();
-        //   static bslma_Allocator *allocator(bslma_Allocator *basicAlloc);
+        //   static bslma::NewDeleteAllocator& singleton();
+        //   static bslma::Allocator *allocator(bslma::Allocator *basicAlloc);
         //
         //   Make sure that the lifetime of the singleton is sufficient.
         //   Make sure that memory is not leaked.
@@ -423,10 +423,10 @@ int main(int argc, char *argv[])
             globalNewCalledCountIsEnabled = 1;
             globalDeleteCalledCountIsEnabled = 1;
 
-            bslma_NewDeleteAllocator *p =
-                                &bslma_NewDeleteAllocator::singleton();
-            bslma_NewDeleteAllocator *q =
-                                &bslma_NewDeleteAllocator::singleton();
+            bslma::NewDeleteAllocator *p =
+                                &bslma::NewDeleteAllocator::singleton();
+            bslma::NewDeleteAllocator *q =
+                                &bslma::NewDeleteAllocator::singleton();
 
             globalNewCalledCountIsEnabled = 0;
             globalDeleteCalledCountIsEnabled = 0;
@@ -456,16 +456,16 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\nTesting 'allocator'." << endl;
         {
-            bslma_Allocator *p = (bslma_Allocator *) 0xDeadBeef;
-            bslma_Allocator *q = &bslma_NewDeleteAllocator::singleton();
+            bslma::Allocator *p = (bslma::Allocator *) 0xDeadBeef;
+            bslma::Allocator *q = &bslma::NewDeleteAllocator::singleton();
 
-            bslma_Allocator *r = bslma_NewDeleteAllocator::allocator(p);
+            bslma::Allocator *r =  bslma::NewDeleteAllocator::allocator(p);
             ASSERT(r == p);
 
-            bslma_Allocator *s = bslma_NewDeleteAllocator::allocator(0);
+            bslma::Allocator *s =  bslma::NewDeleteAllocator::allocator(0);
             ASSERT(q == s);
 
-            bslma_Allocator *t = bslma_NewDeleteAllocator::allocator(q);
+            bslma::Allocator *t =  bslma::NewDeleteAllocator::allocator(q);
             ASSERT(q == t);
         }
 
@@ -478,8 +478,8 @@ int main(int argc, char *argv[])
         //   invocation, and with the appropriate arguments.
         //
         // Testing:
-        //    bslma_NewDeleteAllocator();
-        //    ~bslma_NewDeleteAllocator();
+        //    bslma::NewDeleteAllocator();
+        //    ~bslma::NewDeleteAllocator();
         //    void *allocate(int size);
         //    void deallocate(void *address);
         //
@@ -491,7 +491,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\nCreate an allocator" << endl;
 
-        bslma_NewDeleteAllocator a;
+        bslma::NewDeleteAllocator a;
 
         ASSERT(0 == globalNewCalledCount);
         ASSERT(0 == globalNewCalledLastArg);

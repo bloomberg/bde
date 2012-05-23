@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2004-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_STREAMBUF_H_INCLUDED
@@ -230,7 +230,7 @@ MyStreambuf (std::streamsize bufsize, int fail_set, int when)
     traits_type::assign (buf_, bufsize_, make_char ('\xfe', buf_));
 
     // set the put area to 0 size to force a call to overflow()
-    // on the first write attempt to the buffer 
+    // on the first write attempt to the buffer
     this->setp (buf_, buf_);
 
     // set the fail and throw flags
@@ -309,7 +309,7 @@ underflow ()
         this->gbump (1);
         return traits_type::to_int_type (*this->gptr ());
     }
-        
+
     if (this->egptr () < buf_ + bufsize_) {
 
         // increase the pending input sequence by no more than
@@ -324,7 +324,7 @@ underflow ()
     }
 
     failed_ = Underflow;
-    return traits_type::eof ();        
+    return traits_type::eof ();
 }
 
 
@@ -341,7 +341,7 @@ overflow (int_type c /* = traits_type::eof () */)
         this->pbump (1);
         return traits_type::not_eof (c);
     }
-        
+
     if (this->epptr () < buf_ + bufsize_) {
 
         // increase the pending output sequence by no more than
@@ -365,7 +365,7 @@ overflow (int_type c /* = traits_type::eof () */)
     }
 
     failed_ = Overflow;
-    return traits_type::eof ();        
+    return traits_type::eof ();
 }
 
 
@@ -405,7 +405,7 @@ uflow ()
         this->gbump (1);
         return traits_type::to_int_type (*this->gptr ());
     }
-        
+
     if (this->egptr () < buf_ + bufsize_) {
 
         // increase the pending input sequence by no more than
@@ -423,7 +423,7 @@ uflow ()
     }
 
     failed_ = Uflow;
-    return traits_type::eof ();        
+    return traits_type::eof ();
 }
 
 template <class charT, class Traits>
@@ -453,7 +453,7 @@ ncalls (MemFun which) const
     int inx = memfun_inx (which);
     if (0 <= inx)
         return ncalls_ [inx];
-    
+
     return -1;
 }
 
@@ -485,8 +485,8 @@ test (MemFun which) const
         self->threw_ = which;
         self->allthrows_++;
 
-        rw_throw (ex_stream, __FILE__, __LINE__, 
-                  streambuf_func_names [inx], 
+        rw_throw (ex_stream, __FILE__, __LINE__,
+                  streambuf_func_names [inx],
                   "%s", "test exception");
     }
 

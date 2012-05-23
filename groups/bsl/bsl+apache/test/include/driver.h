@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2005 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_DRIVER_H_INCLUDED
@@ -76,7 +76,7 @@
  * After the callback function returns the driver displays a summary detailing
  * the number of recorded diagnostics in each of the two states (active and
  * inactive).
- * 
+ *
  */
 _TEST_EXPORT int
 rw_test (int           argc,

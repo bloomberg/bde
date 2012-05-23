@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>     // for replace(), replace_copy()
@@ -35,37 +35,37 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
-void replace (FwdIter<eq_comp<assign<base<> > > >, 
+void replace (FwdIter<eq_comp<assign<base<> > > >,
               FwdIter<eq_comp<assign<base<> > > >,
               const eq_comp<assign<base<> > >&,
               const eq_comp<assign<base<> > >&);
 
 template
-void replace_if (FwdIter<assign<base<> > > , 
+void replace_if (FwdIter<assign<base<> > > ,
                  FwdIter<assign<base<> > > ,
                  predicate<assign<base<> > > ,
                  const assign<base<> > &);
 
 template
 OutputIter<eq_comp<assign<base<> > > >
-replace_copy (InputIter<eq_comp<assign<base<> > > >, 
+replace_copy (InputIter<eq_comp<assign<base<> > > >,
               InputIter<eq_comp<assign<base<> > > >,
-              OutputIter<eq_comp<assign<base<> > > >, 
+              OutputIter<eq_comp<assign<base<> > > >,
               const eq_comp<assign<base<> > >&,
               const eq_comp<assign<base<> > >&);
 
 template
 OutputIter<assign<base<> > >
-replace_copy_if (InputIter<assign<base<> > > , 
+replace_copy_if (InputIter<assign<base<> > > ,
                  InputIter<assign<base<> > > ,
-                 OutputIter<assign<base<> > > , 
+                 OutputIter<assign<base<> > > ,
                  predicate<assign<base<> > > ,
                  const assign<base<> > &);
 
@@ -148,7 +148,7 @@ void test_replace (int line,
                    ReplaceTag  tag)       // replace() or replace_if()
 {
     static const char* const itname = type_name (Iterator (), (T*)0);
-    static const char* const fname = tag.use_predicate ? 
+    static const char* const fname = tag.use_predicate ?
         fnames_if [tag.fname_inx] : fnames [tag.fname_inx];
 
     // compute the length of the source sequence
@@ -196,7 +196,7 @@ void test_replace (int line,
             break;
     }
 
-    rw_assert (success, 0, line, 
+    rw_assert (success, 0, line,
                "line %d: %s<%s>(\"%s\", ..., %#c, %#c) ==> "
                "\"%{X=*.*}\"; unexpected element value %#c",
                __LINE__, fname, itname, src, val, new_val,
@@ -258,7 +258,7 @@ void test_replace (int line,
                    ReplaceCopyTag tag)       // replace_copy or replace_copy_if
 {
     static const char* const itname = type_name (it, (T*)0);
-    static const char* const fname = tag.use_predicate ? 
+    static const char* const fname = tag.use_predicate ?
         fnames_if [tag.fname_inx] : fnames [tag.fname_inx];
 
     const std::size_t nsrc = std::strlen (src);
@@ -359,9 +359,9 @@ void test_replace (int line,
 /**************************************************************************/
 
 // exercises all four function templates
-template <class Iterator1, class Iterator2, class T, 
+template <class Iterator1, class Iterator2, class T,
           class Predicate, class Tag>
-void test_replace (Iterator1 it1, Iterator2 it2, const T*, 
+void test_replace (Iterator1 it1, Iterator2 it2, const T*,
                    const Predicate* pred, Tag tag)
 {
     static const char* const it1name = type_name (it1, (T*)0);
@@ -431,13 +431,13 @@ void test_replace (Iterator1 it1, Iterator2 it2, const T*,
 /* extern */ int rw_opt_no_bidir_iter;         // --no-BidirectionalIterator
 /* extern */ int rw_opt_no_rnd_iter;           // --no-RandomAccessIterator
 
-template <class T, class Predicate, class Tag> 
+template <class T, class Predicate, class Tag>
 void test_replace (const T* , const Predicate* pred, Tag tag)
 {
-    rw_info (0, 0, 0,  
+    rw_info (0, 0, 0,
             "template <class ForwardIterator, class T> "
             "std::%s (ForwardIterator, ForwardIterator, "
-            "%s, const T&)", 
+            "%s, const T&)",
             tag.use_predicate ? "replace_if" : "replace",
             tag.use_predicate ? "Predicate" : "const T&");
 
@@ -490,8 +490,8 @@ void test_replace (const T* )
 
 /**************************************************************************/
 
-template <class InputIterator, class T, class Predicate, class Tag> 
-void test_replace_copy (const InputIterator& iter, const T*, 
+template <class InputIterator, class T, class Predicate, class Tag>
+void test_replace_copy (const InputIterator& iter, const T*,
                         const Predicate* pred, Tag tag)
 {
     if (rw_opt_no_output_iter) {
@@ -525,10 +525,10 @@ void test_replace_copy (const InputIterator& iter, const T*,
 
 /**************************************************************************/
 
-template <class T, class Predicate, class Tag> 
+template <class T, class Predicate, class Tag>
 void test_replace_copy (const T*, const Predicate* pred, Tag tag)
 {
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "template "
              "<class InputIterator, class OutputIterator, class T> "
              "std::%s (InputIterator, InputIterator, "
@@ -618,7 +618,7 @@ int main (int argc, char *argv[])
                     "|-no-OutputIterator# "
                     "|-no-ForwardIterator# "
                     "|-no-BidirectionalIterator# "
-                    "|-no-RandomAccessIterator#",                    
+                    "|-no-RandomAccessIterator#",
                     &rw_opt_no_replace,
                     &rw_opt_no_replace_if,
                     &rw_opt_no_replace_copy,

@@ -1,4 +1,4 @@
-// bsltst_dual_slist.t.cpp                  -*-C++-*-
+// bsltst_dual_slist.t.cpp                                            -*-C++-*-
 #undef  BSL_OVERRIDES_STD
 #include <bsltst_dual_slist.h>
 
@@ -30,7 +30,7 @@ using std::atoi;
 //
 // All we do here is verify that the slist is not indicated as allocating
 // memory via bslma_Allocator.  Note that there is a c'tor that takes a
-// bslma_Allocator pointer, but the class does not actually allocate with
+// bslma::Allocator pointer, but the class does not actually allocate with
 // it.  slist is not a standard part of the native libraries, it's part of
 // the SGI STL extensions, which are available on some platforms but not
 // on others, and not as part of the namespace std.
@@ -130,11 +130,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================
@@ -143,21 +143,21 @@ bool usesBslmaAllocator(const TYPE& arg)
 
 struct Cargo {
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
 
-    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
     explicit
-    Cargo(bslma_Allocator *a = 0) {
+    Cargo(bslma::Allocator *a = 0) {
         P(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(4000);
     }
-    Cargo(const Cargo& in, bslma_Allocator* a = 0) {
+    Cargo(const Cargo& in, bslma::Allocator* a = 0) {
         P(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(4000);
         std::memcpy(d_p, in.d_p, 4000);
     }
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator ta;
+    bslma::TestAllocator ta;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 2: {
@@ -191,15 +191,15 @@ int main(int argc, char *argv[])
         // SLIST STORING TEST
         //
         // Concerns:
-        //   That memory allocated by the class comes from the bslma_Allocator
+        //   That memory allocated by the class comes from the bslma::Allocator
         //   passed at construction.
         //
         // Plan:
         //   Store objects of the locally defined 'Cargo' type, which
         //   allcocates a large amount of memory, in the container, and
-	//   observe that all of the memory comes from the passed allocator.
-	//   Note this test is disabled because slist does not yet have the
-	//   correct behavior.
+    //   observe that all of the memory comes from the passed allocator.
+    //   Note this test is disabled because slist does not yet have the
+    //   correct behavior.
         // --------------------------------------------------------------------
 
         {
@@ -232,8 +232,8 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Since there is no standard std::slist, all we can really do here
-	//   is verify that bsl::slist does not think it can allocate using
-	//   bslma_Allocator, since there is a bug in it and it can't.
+    //   is verify that bsl::slist does not think it can allocate using
+    //   bslma::Allocator, since there is a bug in it and it can't.
         //
         // Plan:
         //   Use the local created template functions 'sameType' and

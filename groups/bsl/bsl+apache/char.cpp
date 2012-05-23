@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -71,14 +71,14 @@ compare (const char_type *s1, const char_type *s2, size_t n)
     return Base::compare (s1, s2, n);
 }
 
-        
+
 size_t UserTraits<char>::
 length (const char_type *s)
 {
     ++n_calls_ [MemFun::length];
     return Base::length (s);
 }
- 
+
 
 const UserTraits<char>::char_type*
 UserTraits<char>::
@@ -133,7 +133,7 @@ to_char_type (const int_type &i)
     return Base::to_char_type (i);
 }
 
-      
+
 UserTraits<char>::int_type
 UserTraits<char>::
 to_int_type (const char_type &ch)
@@ -201,14 +201,14 @@ compare (const char_type *s1, const char_type *s2, size_t n)
     return Base::compare (s1, s2, n);
 }
 
-        
+
 size_t UserTraits<wchar_t>::
 length (const char_type *s)
 {
     ++n_calls_ [MemFun::length];
     return Base::length (s);
 }
- 
+
 
 const UserTraits<wchar_t>::char_type*
 UserTraits<wchar_t>::
@@ -263,7 +263,7 @@ to_char_type (const int_type &i)
     return Base::to_char_type (i);
 }
 
-      
+
 UserTraits<wchar_t>::int_type
 UserTraits<wchar_t>::
 to_int_type (const char_type &ch)
@@ -355,7 +355,7 @@ compare (const char_type *s1, const char_type *s2, size_t n)
 
     return 0;
 }
-        
+
 
 size_t UserTraits<UserChar>::
 length (const char_type *s)
@@ -370,7 +370,7 @@ length (const char_type *s)
 
     return len;
 }
- 
+
 
 const UserTraits<UserChar>::char_type*
 UserTraits<UserChar>::
@@ -463,7 +463,7 @@ to_char_type (const int_type &i)
 
     return i.to_char ();
 }
-      
+
 
 UserTraits<UserChar>::int_type
 UserTraits<UserChar>::
@@ -679,7 +679,7 @@ _rw_expand (void *dst, size_t elemsize,
 
             pnext   = (char*)pnext + count * elemsize;
             buflen += count;
-            
+
 #else   // disabled
 
             // FIXME: enable UCS to UTF-8 conversion
@@ -799,7 +799,7 @@ rw_match (const char *s1, const char *s2, size_t len /* = SIZE_MAX */)
 
         return count;
     }
-    
+
     const char* p2 = s2;
 
     size_t n1 = 0;
@@ -1257,7 +1257,7 @@ _rw_fmtstringv (char **pbuf, size_t *pbufsize, const char *fmt, va_list va)
     }
 
     // extract a pointer to the first character from rw_snprintfa's
-    // variable argument list pass through to us by the caller 
+    // variable argument list pass through to us by the caller
     const UPtr beg = { va_arg (*pva, char*) };
 
     {

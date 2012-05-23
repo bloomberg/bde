@@ -174,7 +174,7 @@ test_has_facet (void*)
         HAS (MoneyGet, money_get);
         HAS (MoneyPut, money_put);
         HAS (Numpunct, numpunct);
-        HAS (NumGet, num_get); 
+        HAS (NumGet, num_get);
         HAS (NumPut, num_put);
         HAS (TimeGet, time_get);
         HAS (TimePut, time_put);
@@ -204,7 +204,7 @@ test_has_facet (void*)
         HAS (WMoneyGet, money_get);
         HAS (WMoneyPut, money_put);
         HAS (WNumpunct, numpunct);
-        HAS (WNumGet, num_get); 
+        HAS (WNumGet, num_get);
         HAS (WNumPut, num_put);
         HAS (WTimeGet, time_get);
         HAS (WTimePut, time_put);

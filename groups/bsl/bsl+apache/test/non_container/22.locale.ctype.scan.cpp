@@ -814,7 +814,7 @@ void test_libstd (charT, const char *cname)
     test_libstd_scan_is (charT (), cname, ct, "abcA2BC",  DIGIT | UPPER, 3);
 #else
     static const std::ctype_base::mask DIGIT_OR_UPPER =
-	std::ctype_base::mask(DIGIT | UPPER);
+    std::ctype_base::mask(DIGIT | UPPER);
     test_libstd_scan_is (charT (), cname, ct, "abc1ABC",  DIGIT_OR_UPPER, 3);
     test_libstd_scan_is (charT (), cname, ct, "abcA2BC",  DIGIT_OR_UPPER, 3);
 #endif

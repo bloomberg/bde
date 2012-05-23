@@ -1,4 +1,4 @@
-// bslstl_allocator.t.cpp                  -*-C++-*-
+// bslstl_allocator.t.cpp                                             -*-C++-*-
 
 #include <bslstl_allocator.h>
 
@@ -26,7 +26,7 @@ using namespace std;
 //                              Overview
 //                              --------
 // An allocator is a value-semantic type whose value consists of a single
-// pointer to a 'bslma_Allocator' instance (its underlying "mechanism").  This
+// pointer to a 'bslma::Allocator' object (its underlying "mechanism").  This
 // pointer can be set at construction (and if 0 is passed, then it uses
 // 'bslma_default' to substitute a pointer to the currently installed default
 // allocator), and it can be accessed through the 'mechanism' accessor.  It
@@ -49,7 +49,7 @@ using namespace std;
 // [allocator.requirements]).
 //-----------------------------------------------------------------------------
 // [ 3] bsl::allocator();
-// [ 3] bsl::allocator(bslma_Allocator *);
+// [ 3] bsl::allocator(bslma::Allocator *);
 // [ 3] bsl::allocator(bsl::allocator const&);
 // [ 3] bsl::allocator(bsl::allocator<U> const&);
 // [ 3] ~bsl::allocator();
@@ -152,7 +152,7 @@ template <class T, class ALLOC>
             // elements in that array are default-constructed.
 
         my_FixedSizeArray(const my_FixedSizeArray& original,
-                         const ALLOC&            allocator = ALLOC());
+                          const ALLOC&             allocator = ALLOC());
             // Create a copy of the specified 'original' fixed-size array,
             // using the optionally specified 'allocator' to supply memory.  If
             // 'allocator' is not specified, a default-constructed instance of
@@ -294,8 +294,8 @@ inline
                              // class my_CountingAllocator
                              // ==========================
 
-    class my_CountingAllocator : public bslma_Allocator {
-        // This concrete implementation of the 'bslma_Allocator' protocol
+    class my_CountingAllocator : public bslma::Allocator {
+        // This concrete implementation of the 'bslma::Allocator' protocol
         // maintains some statistics of the number of blocks outstanding (i.e.,
         // allocated but not yet deallocated).
 
@@ -362,8 +362,8 @@ inline
     void usageExample() {
 
         my_FixedSizeArray<int, bsl::allocator<int> > a1(5);
-                   ASSERT(5 == a1.length());
-                   ASSERT(bslma_Default::defaultAllocator() == a1.allocator());
+        ASSERT(5 == a1.length());
+        ASSERT(bslma::Default::defaultAllocator() == a1.allocator());
 
         for (int i = 0; i < a1.length(); ++i) {
             a1[i] = i + 1;
@@ -485,48 +485,48 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'pointer'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::pointer, int*>::VALUE));
-            ASSERT((bslmf_IsSame<AF::pointer, float*>::VALUE));
-            ASSERT((bslmf_IsSame<AV::pointer, void*>::VALUE));
+            ASSERT((bslmf::IsSame<AI::pointer, int*>::VALUE));
+            ASSERT((bslmf::IsSame<AF::pointer, float*>::VALUE));
+            ASSERT((bslmf::IsSame<AV::pointer, void*>::VALUE));
         }
 
         if (verbose) printf("\tTesting 'const_pointer'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::const_pointer, const int*>::VALUE));
-            ASSERT((bslmf_IsSame<AF::const_pointer, const float*>::VALUE));
-            ASSERT((bslmf_IsSame<AV::const_pointer, const void*>::VALUE));
+            ASSERT((bslmf::IsSame<AI::const_pointer, const int*>::VALUE));
+            ASSERT((bslmf::IsSame<AF::const_pointer, const float*>::VALUE));
+            ASSERT((bslmf::IsSame<AV::const_pointer, const void*>::VALUE));
         }
 
         if (verbose) printf("\tTesting 'reference'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::reference, int&>::VALUE));
-            ASSERT((bslmf_IsSame<AF::reference, float&>::VALUE));
+            ASSERT((bslmf::IsSame<AI::reference, int&>::VALUE));
+            ASSERT((bslmf::IsSame<AF::reference, float&>::VALUE));
         }
 
         if (verbose) printf("\tTesting 'const_reference'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::const_reference, const int&>::VALUE));
-            ASSERT((bslmf_IsSame<AF::const_reference, const float&>::VALUE));
+            ASSERT((bslmf::IsSame<AI::const_reference, const int&>::VALUE));
+            ASSERT((bslmf::IsSame<AF::const_reference, const float&>::VALUE));
         }
 
         if (verbose) printf("\tTesting 'value_type'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::value_type, int>::VALUE));
-            ASSERT((bslmf_IsSame<AF::value_type, float>::VALUE));
-            ASSERT((bslmf_IsSame<AV::value_type, void>::VALUE));
+            ASSERT((bslmf::IsSame<AI::value_type, int>::VALUE));
+            ASSERT((bslmf::IsSame<AF::value_type, float>::VALUE));
+            ASSERT((bslmf::IsSame<AV::value_type, void>::VALUE));
         }
 
         if (verbose) printf("\tTesting 'rebind'.\n");
         {
-            ASSERT((bslmf_IsSame<AI::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf_IsSame<AI::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf_IsSame<AI::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf_IsSame<AF::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf_IsSame<AF::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf_IsSame<AF::rebind<void >::other, AV>::VALUE));
-            ASSERT((bslmf_IsSame<AV::rebind<int  >::other, AI>::VALUE));
-            ASSERT((bslmf_IsSame<AV::rebind<float>::other, AF>::VALUE));
-            ASSERT((bslmf_IsSame<AV::rebind<void >::other, AV>::VALUE));
+            ASSERT((bslmf::IsSame<AI::rebind<int  >::other, AI>::VALUE));
+            ASSERT((bslmf::IsSame<AI::rebind<float>::other, AF>::VALUE));
+            ASSERT((bslmf::IsSame<AI::rebind<void >::other, AV>::VALUE));
+            ASSERT((bslmf::IsSame<AF::rebind<int  >::other, AI>::VALUE));
+            ASSERT((bslmf::IsSame<AF::rebind<float>::other, AF>::VALUE));
+            ASSERT((bslmf::IsSame<AF::rebind<void >::other, AV>::VALUE));
+            ASSERT((bslmf::IsSame<AV::rebind<int  >::other, AI>::VALUE));
+            ASSERT((bslmf::IsSame<AV::rebind<float>::other, AF>::VALUE));
+            ASSERT((bslmf::IsSame<AV::rebind<void >::other, AV>::VALUE));
         }
 
       } break;
@@ -535,9 +535,9 @@ int main(int argc, char *argv[])
         // ACCESSORS TEST
         //
         // Concerns:
-        //   o that the correct 'bslma_Allocator *' is returned by 'mechanism'.
+        //   o that the correct 'bslma::Allocator*' is returned by 'mechanism'.
         //   o that the result of 'max_size' fits and represents the maximum
-        //     possible number of bytes in a 'bslma_Allocator::size_type'.
+        //     possible number of bytes in a 'bslma::Allocator::size_type'.
         //   o that all comparisons exist and resolve to comparing the
         //     mechanisms.
         //
@@ -547,8 +547,8 @@ int main(int argc, char *argv[])
         //   mechanism();
         //   max_size();
         //   operator==(bsl::allocator<T>, bsl::allocator<T>);
-        //   operator==(bslma_Allocator *,    bsl::allocator<T>);
-        //   operator==(bsl::allocator<T>, bslma_Allocator*);
+        //   operator==(bslma::Allocator *,    bsl::allocator<T>);
+        //   operator==(bsl::allocator<T>, bslma::Allocator*);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ACCESSORS"
@@ -556,8 +556,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'mechanism()'.\n");
         {
-        bslma_TestAllocator ta1(veryVeryVerbose), ta2(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard allocGuard(&ta1);
+        bslma::TestAllocator ta1(veryVeryVerbose), ta2(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard allocGuard(&ta1);
 
         bsl::allocator<int>  ai1;       ASSERT(&ta1 == ai1.mechanism());
         bsl::allocator<int>  ai2(&ta2); ASSERT(&ta2 == ai2.mechanism());
@@ -574,12 +574,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\tTesting 'max_size()'.\n");
         {
             // Note that these tests will work, no matter whether
-            // 'bslma_Allocator::size_type' is signed or unsigned.
+            // 'bslma::Allocator::size_type' is signed or unsigned.
 
-            typedef bslma_Allocator::size_type bsize;
+            typedef bslma::Allocator::size_type bsize;
 
             enum {
-                BSLMA_SIZE_IS_SIGNED = ~bslma_Allocator::size_type(0) < 0,
+                BSLMA_SIZE_IS_SIGNED = ~bslma::Allocator::size_type(0) < 0,
                 MAX_NUM_BYTES = ~std::size_t(0) /
                                                 (BSLMA_SIZE_IS_SIGNED ? 2 : 1),
                 MAX_ELEMENTS1 = MAX_NUM_BYTES / sizeof(char),
@@ -638,8 +638,8 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'operator=='.\n");
         {
-            bslma_TestAllocator ta1(veryVeryVerbose), ta2(veryVeryVerbose);
-            bslma_DefaultAllocatorGuard allocGuard(&ta1);
+            bslma::TestAllocator ta1(veryVeryVerbose), ta2(veryVeryVerbose);
+            bslma::DefaultAllocatorGuard allocGuard(&ta1);
 
             bsl::allocator<int>  ai1(&ta1);
             bsl::allocator<int>  ai2(&ta2);
@@ -647,7 +647,7 @@ int main(int argc, char *argv[])
             bsl::allocator<void> av1(&ta1);
             bsl::allocator<void> av2(&ta2);
 
-            // One of lhs or rhs is 'bslma_Allocator *'.
+            // One of lhs or rhs is 'bslma::Allocator *'.
 
             ASSERT(&ta1 == ai1);  ASSERT(ai1 == &ta1);
             ASSERT(&ta2 != ai1);  ASSERT(ai1 != &ta2);
@@ -695,7 +695,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::allocator();
-        //   bsl::allocator(bslma_Allocator *);
+        //   bsl::allocator(bslma::Allocator *);
         //   bsl::allocator(const bsl::allocator&);
         //   bsl::allocator(const bsl::allocator<U>&);
         // --------------------------------------------------------------------
@@ -703,8 +703,8 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONSTRUCTORS"
                             "\n====================");
 
-        bslma_TestAllocator ta1(veryVeryVerbose), ta2(veryVeryVerbose);
-        bslma_DefaultAllocatorGuard allocGuard(&ta1);
+        bslma::TestAllocator ta1(veryVeryVerbose), ta2(veryVeryVerbose);
+        bslma::DefaultAllocatorGuard allocGuard(&ta1);
 
         bsl::allocator<int>  ai1;        ASSERT(&ta1 == ai1);
         bsl::allocator<int>  ai2(&ta2);  ASSERT(&ta2 == ai2);
@@ -728,32 +728,32 @@ int main(int argc, char *argv[])
         //   That an allocator has the proper traits defined.
         //
         // Plan:  Since it does not matter what type 'bsl::allocator' is
-        //   instantiated with, use 'int' and test for the traits using
-        //   'bslalg_HasTrait'.  Note that 'void' also needs to be tested since
-        //   it is a specialization.
+        // instantiated with, use 'int' and test for the traits using
+        // 'bslalg::HasTrait'.  Note that 'void' also needs to be tested since
+        // it is a specialization.
         //
         // Testing:
-        //   bslalg_TypeTrait<bsl::allocator>
+        //   bslalg::TypeTrait<bsl::allocator>
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TRAITS"
                             "\n==============");
 
-        ASSERT((bslalg_HasTrait<bsl::allocator<int>,
-                                bslalg_TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg_HasTrait<bsl::allocator<int>,
-                                bslalg_TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg_HasTrait<
-                           bsl::allocator<int>,
-                           bslalg_TypeTraitBitwiseEqualityComparable>::VALUE));
+        ASSERT((bslalg::HasTrait<bsl::allocator<int>,
+                                 bslalg::TypeTraitBitwiseMoveable>::VALUE));
+        ASSERT((bslalg::HasTrait<bsl::allocator<int>,
+                                 bslalg::TypeTraitBitwiseCopyable>::VALUE));
+        ASSERT((bslalg::HasTrait<
+                          bsl::allocator<int>,
+                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
 
-        ASSERT((bslalg_HasTrait<bsl::allocator<void>,
-                                bslalg_TypeTraitBitwiseMoveable>::VALUE));
-        ASSERT((bslalg_HasTrait<bsl::allocator<void>,
-                                bslalg_TypeTraitBitwiseCopyable>::VALUE));
-        ASSERT((bslalg_HasTrait<
-                           bsl::allocator<void>,
-                           bslalg_TypeTraitBitwiseEqualityComparable>::VALUE));
+        ASSERT((bslalg::HasTrait<bsl::allocator<void>,
+                                 bslalg::TypeTraitBitwiseMoveable>::VALUE));
+        ASSERT((bslalg::HasTrait<bsl::allocator<void>,
+                                 bslalg::TypeTraitBitwiseCopyable>::VALUE));
+        ASSERT((bslalg::HasTrait<
+                          bsl::allocator<void>,
+                          bslalg::TypeTraitBitwiseEqualityComparable>::VALUE));
 
       } break;
 
@@ -774,7 +774,7 @@ int main(int argc, char *argv[])
 
         my_FixedSizeArray<int, bsl::allocator<int> > a1(5);
                 ASSERT(5 == a1.length());
-                ASSERT(bslma_Default::defaultAllocator() == a1.allocator());
+                ASSERT(bslma::Default::defaultAllocator() == a1.allocator());
 
         for (int i = 0; i < a1.length(); ++i) {
             a1[i] = i + 1;

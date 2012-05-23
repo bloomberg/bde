@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide test utilities for 'bsl' that do not use <iostream>.
 //
 //@CLASSES:
-//   bsls_BslTestUtil: utilities to aid writing 'bsl' test drivers
+//  bsls::BslTestUtil: utilities to aid writing 'bsl' test drivers
 //
 //@MACROS:
 //  BSLS_BSLTESTUTIL_LOOP_ASSERT(I, X)
@@ -97,29 +97,29 @@ BSLS_IDENT("$Id: $")
 // Finally, we write the test case for the 'static' 'fortyTwo' method, using
 // the (standard) abbreviated macro names we have just defined.
 //..
-//    case 2: {
-//      // --------------------------------------------------------------------
-//      // TESTING USAGE EXAMPLE
-//      //
-//      // Concerns
-//      //: 1 The usage example provided in the component header file must
-//      //:   compile, link, and run on all platforms as shown.
-//      //
-//      // Plan:
-//      //: 1 Incorporate usage example from header into driver, remove leading
-//      //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
-//      //
-//      // Testing:
-//      //   USAGE EXAMPLE
-//      // --------------------------------------------------------------------
+//  case 2: {
+//    // --------------------------------------------------------------------
+//    // TESTING USAGE EXAMPLE
+//    //
+//    // Concerns
+//    //: 1 The usage example provided in the component header file must
+//    //:   compile, link, and run on all platforms as shown.
+//    //
+//    // Plan:
+//    //: 1 Incorporate usage example from header into driver, remove leading
+//    //:   comment characters, and replace 'assert' with 'ASSERT'.  (C-1)
+//    //
+//    // Testing:
+//    //   USAGE EXAMPLE
+//    // --------------------------------------------------------------------
 //
-//      if (verbose) printf("\nTESTING USAGE EXAMPLE"
-//                          "\n---------------------\n");
+//    if (verbose) printf("\nTESTING USAGE EXAMPLE"
+//                        "\n---------------------\n");
 //
-//      const int value = bsls_BslTestUtil_FortyTwo::value();
-//      if (verbose) P(value);
-//      LOOP_ASSERT(value, 42 == value);
-//    } break;
+//    const int value = bsls::BslTestUtil_FortyTwo::value();
+//    if (verbose) P(value);
+//    LOOP_ASSERT(value, 42 == value);
+//  } break;
 //..
 
                        // =================
@@ -127,70 +127,72 @@ BSLS_IDENT("$Id: $")
                        // =================
 
 # define BSLS_BSLTESTUTIL_LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, ",\t"); \
+    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 # define BSLS_BSLTESTUTIL_LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls_BslTestUtil::debugPrint(#J ": ", J, ",\t"); \
+    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
+                bsls::BslTestUtil::debugPrint(#J ": ", J, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP3_ASSERT(I,J,K,X) { \
-    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls_BslTestUtil::debugPrint(#J ": ", J, "\t");  \
-                bsls_BslTestUtil::debugPrint(#K ": ", K, ",\t"); \
+    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
+                bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
+                bsls::BslTestUtil::debugPrint(#K ": ", K, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls_BslTestUtil::debugPrint(#J ": ", J, "\t");  \
-                bsls_BslTestUtil::debugPrint(#K ": ", K, "\t");  \
-                bsls_BslTestUtil::debugPrint(#L ": ", L, ",\t"); \
+    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
+                bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
+                bsls::BslTestUtil::debugPrint(#K ": ", K, "\t");  \
+                bsls::BslTestUtil::debugPrint(#L ": ", L, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X) { \
-    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls_BslTestUtil::debugPrint(#J ": ", J, "\t");  \
-                bsls_BslTestUtil::debugPrint(#K ": ", K, "\t");  \
-                bsls_BslTestUtil::debugPrint(#L ": ", L, "\t");  \
-                bsls_BslTestUtil::debugPrint(#M ": ", M, ",\t"); \
+    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
+                bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
+                bsls::BslTestUtil::debugPrint(#K ": ", K, "\t");  \
+                bsls::BslTestUtil::debugPrint(#L ": ", L, "\t");  \
+                bsls::BslTestUtil::debugPrint(#M ": ", M, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-    if (!(X)) { bsls_BslTestUtil::debugPrint(#I ": ", I, "\t");  \
-                bsls_BslTestUtil::debugPrint(#J ": ", J, "\t");  \
-                bsls_BslTestUtil::debugPrint(#K ": ", K, "\t");  \
-                bsls_BslTestUtil::debugPrint(#L ": ", L, "\t");  \
-                bsls_BslTestUtil::debugPrint(#M ": ", M, "\t");  \
-                bsls_BslTestUtil::debugPrint(#N ": ", N, ",\t"); \
+    if (!(X)) { bsls::BslTestUtil::debugPrint(#I ": ", I, "\t");  \
+                bsls::BslTestUtil::debugPrint(#J ": ", J, "\t");  \
+                bsls::BslTestUtil::debugPrint(#K ": ", K, "\t");  \
+                bsls::BslTestUtil::debugPrint(#L ": ", L, "\t");  \
+                bsls::BslTestUtil::debugPrint(#M ": ", M, "\t");  \
+                bsls::BslTestUtil::debugPrint(#N ": ", N, ",\t"); \
                 aSsErT(!(X), #X, __LINE__); } }
 
 #define BSLS_BSLTESTUTIL_Q(X)                                                 \
-                        bsls_BslTestUtil::printStringNoFlush("<| " #X " |>\n");
+                       bsls::BslTestUtil::printStringNoFlush("<| " #X " |>\n");
     // Quote identifier literally.
 
-#define BSLS_BSLTESTUTIL_P(X)  bsls_BslTestUtil::debugPrint(#X " = ", X, "\n");
+#define BSLS_BSLTESTUTIL_P(X) bsls::BslTestUtil::debugPrint(#X " = ", X, "\n");
     // Print identifier and its value.
 
-#define BSLS_BSLTESTUTIL_P_(X) bsls_BslTestUtil::debugPrint(#X " = ", X, ", ");
+#define BSLS_BSLTESTUTIL_P_(X)                                                \
+                              bsls::BslTestUtil::debugPrint(#X " = ", X, ", ");
     // P(X) without '\n'.
 
 #define BSLS_BSLTESTUTIL_L_ __LINE__
     // current Line number
 
-#define BSLS_BSLTESTUTIL_T_ bsls_BslTestUtil::printTab();
+#define BSLS_BSLTESTUTIL_T_ bsls::BslTestUtil::printTab();
     // Print a tab (w/o newline).
 
 namespace BloombergLP {
 
-struct bsls_BslTestUtil {
+namespace bsls {
+
+struct BslTestUtil {
     // This class provides a namespace for utilities that are useful when
     // writing a test driver that is not permitted to use the standard C++
     // iostream facilities, which is typical of test drivers in the 'bsl'
     // package group.
 
   public:
-
     static void debugPrint(const char *s, bool b, const char *t);
         // Print a message to the console, consististing of the specified
         // initial string, 's', followed by the string "true" if the specified
@@ -255,7 +257,9 @@ struct bsls_BslTestUtil {
         // underlying stream to ensure the text is written.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 #endif
 

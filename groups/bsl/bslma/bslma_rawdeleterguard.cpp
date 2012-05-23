@@ -1,4 +1,4 @@
-// bslma_rawdeleterguard.cpp    -*-C++-*-
+// bslma_rawdeleterguard.cpp                                          -*-C++-*-
 #include <bslma_rawdeleterguard.h>
 
 #include <bsls_ident.h>

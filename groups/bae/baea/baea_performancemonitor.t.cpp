@@ -201,7 +201,7 @@ class MmapAllocator : public bslma_Allocator {
 
         return result;
 
-#elif defined(BSLS_PLATFORM__OS_LINUX)
+#elif defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)
         return d_allocator_p->allocate(size);
 #else
 #error Not implemented.
@@ -210,7 +210,7 @@ class MmapAllocator : public bslma_Allocator {
 
     virtual void deallocate(void *address)
     {
-#if defined(BSLS_PLATFORM__OS_LINUX)
+#if defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_DARWIN)
         d_allocator_p->deallocate(address);
 #else
         MapType::iterator it = d_map.find(address);

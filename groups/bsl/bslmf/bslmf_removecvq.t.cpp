@@ -18,7 +18,7 @@ using namespace std;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_RemoveCvq
+// [ 1] bslmf::RemoveCvq
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ static void aSsErT(int c, const char *s, int i) {
 //-----------------------------------------------------------------------------
 
 #define ASSERT_REFTYPE_ISSAME(T)  \
-    BSLMF_ASSERT((bslmf_IsSame<T, bslmf_RemoveCvq<T>::Type>::VALUE));
+    BSLMF_ASSERT((bslmf::IsSame<T, bslmf::RemoveCvq<T>::Type>::VALUE));
 
 // from component doc
 
@@ -66,8 +66,8 @@ bool isSame(TYPEA& a, TYPEB& b) { return false; }
 template <typename TYPEA, typename TYPEB>
 bool isSortaSame(TYPEA& a, TYPEB& b)
 {
-    typename bslmf_RemoveCvq<TYPEA>::Type aa = a;
-    typename bslmf_RemoveCvq<TYPEB>::Type bb = b;
+    typename bslmf::RemoveCvq<TYPEA>::Type aa = a;
+    typename bslmf::RemoveCvq<TYPEB>::Type bb = b;
 
     return isSame(aa, bb);
 }
@@ -128,26 +128,26 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf_RemoveCvq' with various types and verify
+        //   Instantiate 'bslmf::RemoveCvq' with various types and verify
         //   that their 'Type' member is initialized properly.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "bslmf_RemoveCvq" << endl
-                          << "===============" << endl;
+                          << "bslmf::RemoveCvq" << endl
+                          << "================" << endl;
 
         // from component doc
 
-        bslmf_RemoveCvq<int              >::Type i1; // int
-        bslmf_RemoveCvq<const int        >::Type i2; // int
-        bslmf_RemoveCvq<volatile int     >::Type i3; // int
-        bslmf_RemoveCvq<int *            >::Type i4; // int *
-        bslmf_RemoveCvq<int **           >::Type i5; // int **
-        bslmf_RemoveCvq<int *const       >::Type i6; // int *
-        bslmf_RemoveCvq<int *const *     >::Type i7; // int *const *
-        bslmf_RemoveCvq<int *const *const>::Type i8; // int *const *
-        bslmf_RemoveCvq<MyType           >::Type m1; // MyType
-        bslmf_RemoveCvq<MyType const     >::Type m2; // MyType
+        bslmf::RemoveCvq<int              >::Type i1; // int
+        bslmf::RemoveCvq<const int        >::Type i2; // int
+        bslmf::RemoveCvq<volatile int     >::Type i3; // int
+        bslmf::RemoveCvq<int *            >::Type i4; // int *
+        bslmf::RemoveCvq<int **           >::Type i5; // int **
+        bslmf::RemoveCvq<int *const       >::Type i6; // int *
+        bslmf::RemoveCvq<int *const *     >::Type i7; // int *const *
+        bslmf::RemoveCvq<int *const *const>::Type i8; // int *const *
+        bslmf::RemoveCvq<MyType           >::Type m1; // MyType
+        bslmf::RemoveCvq<MyType const     >::Type m2; // MyType
 
         int i = 3;
         int *const J = &i;
@@ -200,11 +200,11 @@ int main(int argc, char *argv[])
         ASSERT_REFTYPE_ISSAME(MyType           &);
         ASSERT_REFTYPE_ISSAME(MyType const     &);
 
-        bslmf_RemoveCvq<const int *            >::Type a1; // const int *
-        bslmf_RemoveCvq<const int **           >::Type a2; // const int **
-        bslmf_RemoveCvq<const int *const       >::Type a3; // const int *
-        bslmf_RemoveCvq<const int *const *     >::Type a4; // const int *const*
-        bslmf_RemoveCvq<const int *const *const>::Type a5; // const int *const*
+        bslmf::RemoveCvq<const int *            >::Type a1; //const int *
+        bslmf::RemoveCvq<const int **           >::Type a2; //const int **
+        bslmf::RemoveCvq<const int *const       >::Type a3; //const int *
+        bslmf::RemoveCvq<const int *const *     >::Type a4; //const int *const*
+        bslmf::RemoveCvq<const int *const *const>::Type a5; //const int *const*
 
         const int M = 4;
         const int *const N = &M;
@@ -227,9 +227,9 @@ int main(int argc, char *argv[])
 
         ASSERT(ppci && pppci && ppcpci);
 
-        bslmf_RemoveCvq<const volatile int     >::Type b1; // int
-        bslmf_RemoveCvq<const volatile int *   >::Type b2; // cv int *
-        bslmf_RemoveCvq<int *const volatile    >::Type b3; // int *
+        bslmf::RemoveCvq<const volatile int     >::Type b1; // int
+        bslmf::RemoveCvq<const volatile int *   >::Type b2; // cv int *
+        bslmf::RemoveCvq<int *const volatile    >::Type b3; // int *
 
         b1 = i;
         b2 = &i;

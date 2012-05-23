@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 // PROBLEM DESCRIPTION:
@@ -46,13 +46,13 @@
 //   the codecvt facet installed in the imbued locale
 
 
-#include <rw/_defs.h> 
+#include <rw/_defs.h>
 #if defined (__IBMCPP__) && !defined (_RWSTD_NO_IMPLICIT_INCLUSION)
    // disable implicit inclusion to work around a limitation
    // in IBM VisualAge
-#  define _RWSTD_NO_IMPLICIT_INCLUSION 
-#endif 
- 
+#  define _RWSTD_NO_IMPLICIT_INCLUSION
+#endif
+
 
 #include <fstream>
 #include <sstream>
@@ -102,18 +102,18 @@ public:
 protected:
 
     virtual result
-    do_out (state_type&, 
-            const intern_type*, const intern_type*, 
-            const intern_type*&, 
+    do_out (state_type&,
+            const intern_type*, const intern_type*,
+            const intern_type*&,
             extern_type*, extern_type*, extern_type*&) const;
 
     virtual result
-    do_in (state_type&, const extern_type*, 
-           const extern_type*, const extern_type*&, 
+    do_in (state_type&, const extern_type*,
+           const extern_type*, const extern_type*&,
            intern_type*, intern_type*, intern_type*&) const;
 
     virtual result
-    do_unshift (state_type&, extern_type*, 
+    do_unshift (state_type&, extern_type*,
                 extern_type*, extern_type*&) const {
         // stateless encoding, no conversion necessary
         return noconv;
@@ -132,7 +132,7 @@ protected:
     // returns the maximum `N' of extern chars in the range [from, from_end)
     // such that N represents max or fewer internal chars
     virtual int
-    do_length (state_type&, const extern_type*, 
+    do_length (state_type&, const extern_type*,
                const extern_type*, std::size_t) const;
 
     // returns the max value do_length (s, from, from_end, 1) can return
@@ -152,7 +152,7 @@ std::codecvt_base::result
 cformat::do_out (      state_type& /* unused */,
                  const intern_type *from,
                  const intern_type *from_end,
-                 const intern_type *&from_next, 
+                 const intern_type *&from_next,
                        extern_type *to,
                        extern_type *to_end,
                        extern_type *&to_next) const
@@ -206,7 +206,7 @@ cformat::do_out (      state_type& /* unused */,
                 if (!(mask & horizontal_tab)) {
                     ch  = 't';
                     esc = '\\';
-                }    
+                }
                 break;
 
             case '\n':
@@ -328,7 +328,7 @@ cformat::do_out (      state_type& /* unused */,
                 }
             }
             else {
-                // need room for an escape followed by a single char 
+                // need room for an escape followed by a single char
                 if (2 > to_end - to_next) {
                     res = partial;
                     break;
@@ -380,7 +380,7 @@ std::codecvt_base::result
 cformat::do_in (      state_type& /* unused */,
                 const extern_type *from,
                 const extern_type *from_end,
-                const extern_type *&from_next, 
+                const extern_type *&from_next,
                       intern_type *to,
                       intern_type *to_end,
                       intern_type *&to_next) const
@@ -424,7 +424,7 @@ cformat::do_in (      state_type& /* unused */,
                 for (; ; ++next) {
 
                     if (next == from_end) {
-                        // do not advance to the end since there may be 
+                        // do not advance to the end since there may be
                         // more digits following it (e.g., '\x012' with
                         // from_end pointing at '1' or '2')
                         return partial;
@@ -457,7 +457,7 @@ cformat::do_in (      state_type& /* unused */,
                 for (; next - from_next < 4; ++next) {
 
                     if (next == from_end) {
-                        // do not advance to the end since there may be 
+                        // do not advance to the end since there may be
                         // more digits following it (e.g., '\x012' with
                         // from_end pointing at '1' or '2')
                         return partial;
@@ -492,7 +492,7 @@ cformat::do_in (      state_type& /* unused */,
                 // optional but allowed and escaped backslash
                 case '?': case '"': case '\'': case '\\': c = ch ; break;
 
-                // bad escape sequence                    
+                // bad escape sequence
                 default: return error;
                 }
 
@@ -552,7 +552,7 @@ cformat::do_in (      state_type& /* unused */,
         if (from_next == from_end)
             break;
     }
-    
+
     rw_fatal (from_next >= from && from_next <= from_end, 0, __LINE__,
               "user-defined codecvt: internal inconsistency");
 
@@ -565,7 +565,7 @@ cformat::do_in (      state_type& /* unused */,
 
 int
 cformat::do_length (state_type&,
-                    const extern_type *from, 
+                    const extern_type *from,
                     const extern_type *from_end,
                     std::size_t        max) const
 {
@@ -632,7 +632,7 @@ self_test ()
           cformat::intern_type *intrn_next_1 = 0;
 
           cformat::extern_type *extrn_next   = 0;
-    
+
 
     // dummy (state not used, conversion is stateless)
     std::mbstate_t st;
@@ -735,7 +735,7 @@ test_noconv (const char *fname)
     rw_assert (filesize == fsize (fname), 0, __LINE__,
                "streambuf::showmanyc () == %ld, got %ld",
                fsize (fname), filesize);
-    
+
     // exercise 27.5.2.2.3, p1
     filesize = f.rdbuf ()->in_avail ();
 

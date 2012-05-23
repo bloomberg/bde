@@ -36,8 +36,8 @@ using namespace BloombergLP;
 // monitors the number of constructions and destructions, and that allocates in
 // order to take advantage of the standard 'bslma' exception test.
 //-----------------------------------------------------------------------------
-// [ 2] bslalg_AutoArrayMoveDestructor(T *b, T *e);
-// [ 2] ~bslalg_AutoArrayMoveDestructor();
+// [ 2] bslalg::AutoArrayMoveDestructor(T *b, T *e);
+// [ 2] ~bslalg::AutoArrayMoveDestructor();
 // [ 2] T *advance();
 // [ 2] T *begin() const;
 // [ 2] T *middle() const;
@@ -105,7 +105,7 @@ typedef TestType                      T;    // uses 'bslma' allocators
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose;
 
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 static int numDefaultCtorCalls = 0;
 static int numCharCtorCalls    = 0;
@@ -113,7 +113,7 @@ static int numCopyCtorCalls    = 0;
 static int numAssignmentCalls  = 0;
 static int numDestructorCalls  = 0;
 
-bslma_TestAllocator *Z;  // initialized at the start of main()
+bslma::TestAllocator *Z;  // initialized at the start of main()
 
                                // ==============
                                // class TestType
@@ -126,37 +126,37 @@ class TestType {
     // It could have the bit-wise moveable traits but we defer that trait to
     // the 'MoveableTestType'.
 
-    char            *d_data_p;
-    bslma_Allocator *d_allocator_p;
+    char             *d_data_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS2(TestType,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  bslalg_TypeTraitBitwiseMoveable);
+                                  bslalg::TypeTraitUsesBslmaAllocator,
+                                  bslalg::TypeTraitBitwiseMoveable);
 
     // CREATORS
-    TestType(bslma_Allocator *ba = 0)
+    TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numDefaultCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = '?';
     }
 
-    TestType(char c, bslma_Allocator *ba = 0)
+    TestType(char c, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCharCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = c;
     }
 
-    TestType(const TestType& original, bslma_Allocator *ba = 0)
+    TestType(const TestType& original, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCopyCtorCalls;
         if (&original != this) {
@@ -234,7 +234,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -274,26 +274,27 @@ int main(int argc, char *argv[])
         //   T *destination() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING class bslalg_AutoArrayMoveDestructor"
-                            "\n==========================================\n");
+        if (verbose)
+            printf("\nTESTING class bslalg::AutoArrayMoveDestructor"
+                   "\n=============================================\n");
 
         const int GUARD_SIZE = 8;
         const int MAX_SIZE   = 2 * GUARD_SIZE;  // do not change
 
         static union {
-            char                               d_raw[MAX_SIZE * sizeof(T)];
-            bsls_AlignmentUtil::MaxAlignedType d_align;
+            char                                d_raw[MAX_SIZE * sizeof(T)];
+            bsls::AlignmentUtil::MaxAlignedType d_align;
         } u;
         T *buf = (T*)&u.d_raw[0];
 
         if (verbose)
             printf("\tSimple interface test.\n");
         {
-            bslalg_AutoArrayMoveDestructor<T> mG(&buf[GUARD_SIZE],
-                                                 &buf[0],
-                                                 &buf[0],
-                                                 &buf[GUARD_SIZE]);
-            const bslalg_AutoArrayMoveDestructor<T>& G = mG;
+            bslalg::AutoArrayMoveDestructor<T> mG(&buf[GUARD_SIZE],
+                                                  &buf[0],
+                                                  &buf[0],
+                                                  &buf[GUARD_SIZE]);
+            const bslalg::AutoArrayMoveDestructor<T>& G = mG;
 
             ASSERT(&buf[0]          == G.begin());
             ASSERT(&buf[0]          == G.middle());
@@ -320,8 +321,8 @@ int main(int argc, char *argv[])
         {
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
-                bslalg_AutoArrayDestructor<T> mExcGuard(&buf[0], &buf[0]);
-                const bslalg_AutoArrayDestructor<T>& EXC_GUARD = mExcGuard;
+                bslalg::AutoArrayDestructor<T> mExcGuard(&buf[0], &buf[0]);
+                const bslalg::AutoArrayDestructor<T>& EXC_GUARD = mExcGuard;
 
                 char c = 'a';
                 for (int i = 0; i < GUARD_SIZE; ++i, ++c) {
@@ -331,11 +332,11 @@ int main(int argc, char *argv[])
                 }
 
                 {
-                    bslalg_AutoArrayMoveDestructor<T> mG(&buf[GUARD_SIZE],
-                                                         &buf[0],
-                                                         &buf[0],
-                                                         &buf[GUARD_SIZE]);
-                    const bslalg_AutoArrayMoveDestructor<T>& G = mG;
+                    bslalg::AutoArrayMoveDestructor<T> mG(&buf[GUARD_SIZE],
+                                                          &buf[0],
+                                                          &buf[0],
+                                                          &buf[GUARD_SIZE]);
+                    const bslalg::AutoArrayMoveDestructor<T>& G = mG;
                         // guards as follows (upon destruction): destroys first
                         // portion of first half, move second portion of first
                         // half beyond constructed elements in second half
@@ -386,17 +387,17 @@ int main(int argc, char *argv[])
         const int MAX_SIZE   = 2 * GUARD_SIZE;  // do not change
 
         static union {
-            char                               d_raw[MAX_SIZE * sizeof(T)];
-            bsls_AlignmentUtil::MaxAlignedType d_align;
+            char                                d_raw[MAX_SIZE * sizeof(T)];
+            bsls::AlignmentUtil::MaxAlignedType d_align;
         } u;
         T *buf = (T*)&u.d_raw[0];
 
         {
-            bslalg_AutoArrayMoveDestructor<T> mG(&buf[GUARD_SIZE],
-                                                 &buf[0],
-                                                 &buf[1],
-                                                 &buf[GUARD_SIZE]);
-            const bslalg_AutoArrayMoveDestructor<T>& G = mG;
+            bslalg::AutoArrayMoveDestructor<T> mG(&buf[GUARD_SIZE],
+                                                  &buf[0],
+                                                  &buf[1],
+                                                  &buf[GUARD_SIZE]);
+            const bslalg::AutoArrayMoveDestructor<T>& G = mG;
 
             ASSERT(&buf[GUARD_SIZE] == G.destination());
             ASSERT(&buf[0]          == G.begin());

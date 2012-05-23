@@ -192,6 +192,8 @@ class baea_PerformanceMonitor {
     typedef bsls_Platform::OsLinux   OsType;
 #elif defined(BDES_PLATFORM__OS_FREEBSD)
     typedef bsls_Platform::OsFreeBsd OsType;
+#elif defined(BDES_PLATFORM__OS_DARWIN)
+    typedef bsls_Platform::OsDarwin OsType;
 /*
 #elif defined(BSLS_PLATFORM__OS_HPUX)
 typedef bsls_Platform::OsHpUx OsType;

@@ -27,7 +27,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006-2007 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #include <limits>
@@ -134,7 +134,7 @@ void test_limits (const volatile T*, const char *tname)
     typedef const T          const_T;
     typedef volatile T       volatile_T;
     typedef const volatile T const_volatile_T;
-    
+
     rw_info (0, 0, __LINE__,
              "std::numeric_limits<T> with T = cv-qualified %s", tname);
 

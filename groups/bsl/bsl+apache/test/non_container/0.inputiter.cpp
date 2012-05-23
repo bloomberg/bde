@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2005 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <setjmp.h>
@@ -158,7 +158,7 @@ test_1 ()
     rw_assert (!equal, 0, __LINE__,
                "InputIter<UserClass> unexpectedly equal to end: "
                "%p == %p", it.cur_, end.cur_);
-    
+
     PASS (y [0] = *it);
     PASS (++it);
     PASS (equal = it == end);
@@ -195,7 +195,7 @@ test_1 ()
     rw_assert (0 == UserClass::compare (x, y, 6), 0, __LINE__,
                "InputIter<UserClass> data mismatch: %s != %s",
                X2STR (x, 6), X2STR (y, 6));
-    
+
     delete[] x;
     delete[] y;
 }
@@ -240,7 +240,7 @@ test_2 ()
     rw_assert (0 == UserClass::compare (x, y, 6), 0, __LINE__,
                "InputIter<UserClass> data mismatch: %s != %s",
                X2STR (x, 6), X2STR (y, 6));
-    
+
     delete[] x;
     delete[] y;
 }
@@ -258,7 +258,7 @@ test_3 ()
           Iterator it1 = it0;
 
     bool equal;
-    
+
     PASS (equal = it0 == it1);
 
     rw_assert (equal, 0, __LINE__,

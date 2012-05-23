@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #if TEST_RW_EXTENSIONS // TR1 cstdint

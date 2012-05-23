@@ -152,8 +152,8 @@ size_size_test_cases [] = {
     //    |                     |   |  |         +--- exception info:
     //    |                     |   |  |         |      0 - no exception
     //    |                     |   |  |         |      1 - out_of_range
-    //    |                     |   |  |         |      
-    //    |                     |   |  |         +-------+          
+    //    |                     |   |  |         |
+    //    |                     |   |  |         +-------+
     //    V                     V   V  V                 V
     TEST ("abc",                0,  3, "abc",            0),
 

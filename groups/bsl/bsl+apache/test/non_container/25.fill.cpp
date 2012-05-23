@@ -23,19 +23,19 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for fill
 #include <cstddef>      // for size_t
 
-#include <alg_test.h>   
+#include <alg_test.h>
 #include <rw_value.h>   // for UserClass
 #include <driver.h>     // for rw_test()
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
@@ -104,7 +104,7 @@ void test_fill (std::size_t            N,
             success = buf [j].data_.val_ == value.data_.val_;
         }
 
-        if (!rw_assert (success, 0, __LINE__, 
+        if (!rw_assert (success, 0, __LINE__,
                         "%zu. fill (%s, %2$s, const %s&): buf [%zu]: %d != %d",
                         i, itname, tname, j, buf [j].data_.val_,
                         value.data_.val_))
@@ -169,7 +169,7 @@ void test_fill_n (std::size_t           N,
             success = buf [j].data_.val_ == value.data_.val_;
         }
 
-        rw_assert (success, 0, __LINE__, 
+        rw_assert (success, 0, __LINE__,
                    "%zu. fill_n (%s, %s, const %s&): buf [%zu]: %d != %d",
                    i, itname, szname, tname, j, buf [j].data_.val_,
                    value.data_.val_);

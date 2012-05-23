@@ -1,4 +1,4 @@
-// bsltst_dual_vector.t.cpp                  -*-C++-*-
+// bsltst_dual_vector.t.cpp                                           -*-C++-*-
 #undef  BSL_OVERRIDES_STD
 #include <bsltst_dual_vector.h>
 
@@ -121,11 +121,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================
@@ -168,9 +168,9 @@ int main(int argc, char *argv[])
 
         ASSERT(false == sameType(bsl::vector<int>(), std::vector<int>()));
         ASSERT(false == sameType(bsl::vector<int>(),
-                                                   native_std::vector<int>()));
+                                 native_std::vector<int>()));
         ASSERT(true  == sameType(std::vector<int>(),
-                                                   native_std::vector<int>()));
+                                 native_std::vector<int>()));
 
         ASSERT(true  == usesBslmaAllocator(bsl::vector<int>()));
         ASSERT(false == usesBslmaAllocator(std::vector<int>()));
@@ -181,13 +181,13 @@ int main(int argc, char *argv[])
                                  std::vector<int>::iterator()));
 
         ASSERT(true  == sameType(bsl::vector<int>::iterator(),
-                          native_std::vector<int>::iterator()));
+                                 native_std::vector<int>::iterator()));
 #endif
 
         ASSERT(false == usesBslmaAllocator(bsl::vector<int>::iterator()));
         ASSERT(false == usesBslmaAllocator(std::vector<int>::iterator()));
         ASSERT(false == usesBslmaAllocator(
-                                    native_std::vector<int>::iterator()));
+                                         native_std::vector<int>::iterator()));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

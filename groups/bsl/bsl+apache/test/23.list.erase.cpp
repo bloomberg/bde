@@ -423,7 +423,7 @@ void test_erase (T*, Allocator*,
 
         const std::size_t got_size = lst.size ();
         char* const got = new char [got_size + 1];
- 
+
         std::size_t index = 0;
         for (ListCIter it = lst.begin (),
             end = lst.end (); it != end; ++it) {

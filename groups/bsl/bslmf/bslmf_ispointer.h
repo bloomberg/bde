@@ -10,28 +10,28 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a compile-time check for pointer types.
 //
 //@CLASSES:
-//  bslmf_IsPointer: meta-function for determining pointer types
+//  bslmf::IsPointer: meta-function for determining pointer types
 //
 //@AUTHOR: Shawn Edwards (sedwards)
 //
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a simple template structure used to
-// evaluate whether it's parameter is a pointer.  'bslmf_IsPointer' defines a
+// evaluate whether it's parameter is a pointer.  'bslmf::IsPointer' defines a
 // member, 'VALUE', whose value is initialized (at compile-time) to 1 if the
 // parameter is a pointer (to anything) (ignoring any 'const' or 'volatile'
 // qualification), and 0 if it is not.  For example:
 //..
-//   struct MyType {};
-//   typedef MyType* PMT;
+//  struct MyType {};
+//  typedef MyType* PMT;
 //
-//   static const int a1 = bslmf_IsPointer<int *        >::VALUE; // a1 == 1
-//   static const int a2 = bslmf_IsPointer<int *const   >::VALUE; // a2 == 1
-//   static const int a3 = bslmf_IsPointer<int *volatile>::VALUE; // a3 == 1
-//   static const int a4 = bslmf_IsPointer<int          >::VALUE; // a4 == 0
-//   static const int a5 = bslmf_IsPointer<MyType       >::VALUE; // a5 == 0
-//   static const int a6 = bslmf_IsPointer<MyType*      >::VALUE; // a6 == 1
-//   static const int a7 = bslmf_IsPointer<PMT          >::VALUE; // a7 == 1
+//  static const int a1 = bslmf::IsPointer<int *        >::VALUE; // a1 == 1
+//  static const int a2 = bslmf::IsPointer<int *const   >::VALUE; // a2 == 1
+//  static const int a3 = bslmf::IsPointer<int *volatile>::VALUE; // a3 == 1
+//  static const int a4 = bslmf::IsPointer<int          >::VALUE; // a4 == 0
+//  static const int a5 = bslmf::IsPointer<MyType       >::VALUE; // a5 == 0
+//  static const int a6 = bslmf::IsPointer<MyType*      >::VALUE; // a6 == 1
+//  static const int a7 = bslmf::IsPointer<PMT          >::VALUE; // a7 == 1
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -44,12 +44,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                         // ======================
-                         // struct bslmf_IsPointer
-                         // ======================
+namespace bslmf {
+
+                         // ================
+                         // struct IsPointer
+                         // ================
 
 template <typename T>
-struct bslmf_IsPointer : bslmf_MetaInt<0>
+struct IsPointer : MetaInt<0>
 {
     // This class implements a meta-function for checking if a type is a
     // pointer.
@@ -57,18 +59,30 @@ struct bslmf_IsPointer : bslmf_MetaInt<0>
 
 // Specializations for pointer types
 template <typename T>
-struct bslmf_IsPointer<T*> : bslmf_MetaInt<1> { };
+struct IsPointer<T*> : MetaInt<1> { };
 
 template <typename T>
-struct bslmf_IsPointer<T* const> : bslmf_MetaInt<1> { };
+struct IsPointer<T* const> : MetaInt<1> { };
 
 template <typename T>
-struct bslmf_IsPointer<T* volatile> : bslmf_MetaInt<1> { };
+struct IsPointer<T* volatile> : MetaInt<1> { };
 
 template <typename T>
-struct bslmf_IsPointer<T* const volatile> : bslmf_MetaInt<1> { };
+struct IsPointer<T* const volatile> : MetaInt<1> { };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslmf_IsPointer
+#undef bslmf_IsPointer
+#endif
+#define bslmf_IsPointer bslmf::IsPointer
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

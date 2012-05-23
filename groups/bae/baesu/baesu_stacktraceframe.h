@@ -160,6 +160,10 @@ BDES_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
+#ifndef INCLUDED_BSL_ALGORITHM
+#include <bsl_algorithm.h>    // bsl::swap
+#endif
+
 #ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>      // bsl::size_t
 #endif
