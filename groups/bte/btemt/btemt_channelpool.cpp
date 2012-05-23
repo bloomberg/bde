@@ -340,8 +340,8 @@ class btemt_Channel {
                                                   // with 'd_writeMutex'
 
     bces_AtomicInt            d_recordedMaxWriteCacheSize;
-                                                  // max recorded write cache
-                                                  // size
+                                                  // maximum recorded size of
+                                                  // the write cache
 
     // Memory allocation section (pointers held, not owned)
     bcema_PooledBufferChainFactory *d_chainFactory_p;     // for d_currentMsg
@@ -626,8 +626,8 @@ class btemt_Channel {
         // written to this channel.
 
     int recordedMaxWriteCacheSize() const;
-        // Return a snapshot of the maximum number of bytes ever cached to be
-        // written to this channel.
+        // Return a snapshot of the maximum recorded size, in bytes, of the
+        // cache of data to be written to this channeel.
 
     StreamSocket *socket() const;
         // Return a pointer to this channel's underlying socket.
