@@ -254,6 +254,15 @@ typedef bdem_Choice           Choice;
 typedef bdem_ChoiceArrayItem  ChoiceItem;
 typedef bdem_ChoiceArray      ChoiceArray;
 
+typedef bdet_Time             Time;
+typedef bdet_Date             Date;
+typedef bdet_Datetime         Datetime;
+typedef bdet_DatetimeTz       DatetimeTz;
+typedef bdet_DateTz           DateTz;
+typedef bdet_TimeTz           TimeTz;
+
+typedef bsls_PlatformUtil::Int64         Int64;
+
 const int BCEM_ERR_TBD = -1;
 
 const char *errorNm(int errorCode) {
@@ -1867,6 +1876,195 @@ static int getLength(const CERef& value)
     return -1;
 }
 
+static bool compareNillableElement(bcem_AggregateRaw agg, const CERef& elemRef)
+{
+    bdem_ElemType::Type type = elemRef.type();
+    switch (type) {
+      case bdem_ElemType::BDEM_CHAR:
+        return agg.asChar() == elemRef.theChar();
+      case bdem_ElemType::BDEM_SHORT:
+        return agg.asShort() == elemRef.theShort();
+      case bdem_ElemType::BDEM_INT:
+        return agg.asInt() == elemRef.theInt();
+      case bdem_ElemType::BDEM_INT64:
+        return agg.asInt64() == elemRef.theInt64();
+      case bdem_ElemType::BDEM_FLOAT:
+        return agg.asFloat() == elemRef.theFloat();
+      case bdem_ElemType::BDEM_DOUBLE:
+        return agg.asDouble() == elemRef.theDouble();
+      case bdem_ElemType::BDEM_STRING:
+        return agg.asString() == elemRef.theString();
+      case bdem_ElemType::BDEM_DATETIME:
+        return agg.asDatetime() == elemRef.theDatetime();
+      case bdem_ElemType::BDEM_DATE:
+        return agg.asDate() == elemRef.theDate();
+      case bdem_ElemType::BDEM_TIME:
+        return agg.asTime() == elemRef.theTime();
+      case bdem_ElemType::BDEM_BOOL:
+        return agg.asBool() == elemRef.theBool();
+      case bdem_ElemType::BDEM_DATETIMETZ:
+        return agg.asDatetimeTz() == elemRef.theDatetimeTz();
+      case bdem_ElemType::BDEM_DATETZ:
+        return agg.asDateTz() == elemRef.theDateTz();
+      case bdem_ElemType::BDEM_TIMETZ:
+        return agg.asTimeTz() == elemRef.theTimeTz();
+
+      default:
+        ASSERT(0);
+    }
+    return -1;
+}
+
+static void assignToNillableTable(bcem_AggregateRaw *agg,
+                                  const CERef&       arrayRef)
+{
+    bdem_ElemType::Type arrayType = arrayRef.type();
+    Error err;
+    int   rc;
+    switch (arrayType) {
+      case bdem_ElemType::BDEM_CHAR_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theCharArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_SHORT_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theShortArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_INT_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theIntArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_INT64_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theInt64Array());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_FLOAT_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theFloatArray());
+        return;
+      case bdem_ElemType::BDEM_DOUBLE_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theDoubleArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_STRING_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theStringArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_DATETIME_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theDatetimeArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_DATE_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theDateArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_TIME_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theTimeArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_BOOL_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theBoolArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_DATETIMETZ_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theDatetimeTzArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_DATETZ_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theDateTzArray());
+        ASSERT(!rc);
+        return;
+      case bdem_ElemType::BDEM_TIMETZ_ARRAY:
+        rc = agg->setValue(&err, arrayRef.theTimeTzArray());
+        ASSERT(!rc);
+        return;
+      default:
+        ASSERT(0);
+    }
+}
+
+static bool compareNillableElement(bcem_AggregateRaw agg,
+                                   const CERef&      elemRef,
+                                   int               index)
+{
+    bdem_ElemType::Type arrayType = elemRef.type();
+    bdem_ElemType::Type subType   = bdem_ElemType::fromArrayType(arrayType);
+    switch (arrayType) {
+      case bdem_ElemType::BDEM_CHAR_ARRAY:
+        return agg.asChar() == elemRef.theCharArray()[index];
+      case bdem_ElemType::BDEM_SHORT_ARRAY:
+        return agg.asShort() == elemRef.theShortArray()[index];
+      case bdem_ElemType::BDEM_INT_ARRAY:
+        return agg.asInt() == elemRef.theIntArray()[index];
+      case bdem_ElemType::BDEM_INT64_ARRAY:
+        return agg.asInt64() == elemRef.theInt64Array()[index];
+      case bdem_ElemType::BDEM_FLOAT_ARRAY:
+        return agg.asFloat() == elemRef.theFloatArray()[index];
+      case bdem_ElemType::BDEM_DOUBLE_ARRAY:
+        return agg.asDouble() == elemRef.theDoubleArray()[index];
+      case bdem_ElemType::BDEM_STRING_ARRAY:
+        return agg.asString() == elemRef.theStringArray()[index];
+      case bdem_ElemType::BDEM_DATETIME_ARRAY:
+        return agg.asDatetime() == elemRef.theDatetimeArray()[index];
+      case bdem_ElemType::BDEM_DATE_ARRAY:
+        return agg.asDate() == elemRef.theDateArray()[index];
+      case bdem_ElemType::BDEM_TIME_ARRAY:
+        return agg.asTime() == elemRef.theTimeArray()[index];
+      case bdem_ElemType::BDEM_BOOL_ARRAY:
+        return agg.asBool() == elemRef.theBoolArray()[index];
+      case bdem_ElemType::BDEM_DATETIMETZ_ARRAY:
+        return agg.asDatetimeTz() == elemRef.theDatetimeTzArray()[index];
+      case bdem_ElemType::BDEM_DATETZ_ARRAY:
+        return agg.asDateTz() == elemRef.theDateTzArray()[index];
+      case bdem_ElemType::BDEM_TIMETZ_ARRAY:
+        return agg.asTimeTz() == elemRef.theTimeTzArray()[index];
+
+      default:
+        ASSERT(0);
+    }
+    return -1;
+}
+
+static bool compareNillableTable(bcem_AggregateRaw agg, const CERef& elemRef)
+{
+    ASSERT(bdem_ElemType::BDEM_TABLE == agg.dataType());
+    const int LEN = getLength(elemRef);
+    if (LEN != agg.length()) {
+        return false;
+    }
+    for (int i = 0; i < LEN; ++i) {
+        Obj   tmp;
+        Error err;
+        int rc = agg.arrayItem(&tmp, &err, i);
+        ASSERT(!rc);
+        if (!compareNillableElement(tmp, elemRef, i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool compareCERefs(const CERef& lhs, const CERef& rhs)
+{
+    // Special Handling of list/row and choice/choice-array-item combinations:
+    if (ET::BDEM_ROW == lhs.type() && ET::BDEM_LIST == rhs.type()) {
+        return *(Row *) lhs.data() == rhs.theList().row();
+    }
+    else if (ET::BDEM_LIST == lhs.type() && ET::BDEM_ROW == rhs.type()) {
+        return lhs.theList().row() == *(Row *) rhs.data();
+    }
+    else if (ET::BDEM_CHOICE_ARRAY_ITEM == lhs.type()
+          && ET::BDEM_CHOICE            == rhs.type()) {
+        return *(ChoiceItem *) lhs.data() == rhs.theChoice().item();
+    }
+    else if (ET::BDEM_CHOICE            == lhs.type()
+          && ET::BDEM_CHOICE_ARRAY_ITEM == rhs.type()) {
+        return lhs.theChoice().item() == *(ChoiceItem *) rhs.data();
+    }
+    else {
+        return lhs == rhs;
+    }
+}
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -2443,6 +2641,289 @@ int main(int argc, char *argv[])
               }
           }
       } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING 'asElemRef' and related ACCESSORS:
+        //
+        // Concerns:
+        //   - That the asElemRef accessors return the correct data
+        //   - The const and non-const versions of 'asElemRef' return the
+        //     correct type (bdem_ConstElemRef and bdem_ElemRef).
+        //   - 'dataType' returns the correct data type
+        //   - 'asString' returns a string representation of the value
+        //
+        // Plan:
+        //   For each data type create two aggregates of that data type and
+        //   different values.  Call the 'asElemRef' functions and verify that
+        //   they return the correct data.  Additionally, we also call the
+        //   const and non-const versions of 'asElemRef' and verify that
+        //   const-correctness is maintained.  Call 'dataType' and 'asString'
+        //   while testing 'asElemRef' and check that the work correctly.
+        //
+        // Testing:
+        //   bdem_ElemRef asElemRef();
+        //   bsl::string asString() const;
+        //   bdem_ConstElemRef asElemRef() const;
+        //   ET::Type dataType() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'asElemRef' and related ACCESSORS"
+                          << "\n========================================="
+                          << bsl::endl;
+
+        if (veryVerbose) { T_ cout << "Testing for empty aggregates" << endl; }
+        {
+            Obj mX; const Obj& X = mX;
+            ASSERT(X.isNull());
+
+            ASSERT(ET::BDEM_VOID == X.dataType());
+            ASSERT(bsl::string() == X.asString());
+        }
+
+        if (veryVerbose) { T_ cout << "Testing for scalar aggregates"
+                                   << endl; }
+        {
+            for (int i = 0; i < ET::BDEM_NUM_TYPES; ++i) {
+                ET::Type    TYPE = (ET::Type) i;
+                const CERef CER  = getCERef(TYPE, 1);
+
+                int nf = 0;
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(TYPE);
+                mX.setDataPointer((void *) CER.data());
+                mX.setTopLevelAggregateNullnessPointer(&nf);
+                LOOP_ASSERT(TYPE, !X.isNull());
+                LOOP_ASSERT(TYPE, TYPE == X.dataType());
+
+                const bdem_ElemRef ER = X.asElemRef();
+                LOOP_ASSERT(TYPE, CER == ER);
+
+                X.makeNull();
+                LOOP_ASSERT(TYPE, X.isNull());
+                LOOP_ASSERT(TYPE, ER.isNull());
+                LOOP_ASSERT(TYPE, isUnset(ER));
+            }
+        }
+
+        if (veryVerbose) { T_ cout << "Testing for aggregates" << endl; }
+        {
+            const struct {
+                int         d_line;
+                const char *d_spec;
+            } DATA[] = {
+                // Line         Spec
+                // ----         ----
+                // For List Aggregates
+                {   L_,         ":aCa" },
+                {   L_,         ":aCa&NT" },
+                {   L_,         ":aCa&NF" },
+                {   L_,         ":aCa&D0" },
+                {   L_,         ":aFa" },
+                {   L_,         ":aFa&NT" },
+                {   L_,         ":aFa&NF" },
+                {   L_,         ":aFa&D0" },
+                {   L_,         ":aGa" },
+                {   L_,         ":aGa&NT" },
+                {   L_,         ":aGa&NF" },
+                {   L_,         ":aGa&D0" },
+                {   L_,         ":aHa"    },
+                {   L_,         ":aHa&NT" },
+                {   L_,         ":aHa&NF" },
+                {   L_,         ":aHa&D0" },
+                {   L_,         ":aNa"    },
+                {   L_,         ":aNa&NT" },
+                {   L_,         ":aNa&NF" },
+                {   L_,         ":aNa&D0" },
+                {   L_,         ":aNa&FN" },
+                {   L_,         ":aPa" },
+                {   L_,         ":aPa&NT" },
+                {   L_,         ":aPa&NF" },
+                {   L_,         ":aPa&D0" },
+                {   L_,         ":aPa&FN" },
+                {   L_,         ":aQa" },
+                {   L_,         ":aQa&NT" },
+                {   L_,         ":aQa&NF" },
+                {   L_,         ":aQa&D0" },
+                {   L_,         ":aQa&FN" },
+                {   L_,         ":aRa" },
+                {   L_,         ":aRa&NT" },
+                {   L_,         ":aRa&NF" },
+                {   L_,         ":aRa&D0" },
+                {   L_,         ":aRa&FN" },
+                {   L_,         ":aWa" },
+                {   L_,         ":aWa&NT" },
+                {   L_,         ":aWa&NF" },
+                {   L_,         ":aWa&D0" },
+                {   L_,         ":aaa&FN" },
+                {   L_,         ":aVa" },
+                {   L_,         ":aVa&NT" },
+                {   L_,         ":aVa&NF" },
+                {   L_,         ":afa" },
+                {   L_,         ":afa&NT" },
+                {   L_,         ":afa&NF" },
+
+                {   L_,         ":b=tu5v :a$ab" },
+                {   L_,         ":b=tu5v :a$ab&NT" },
+                {   L_,         ":b=tu5v :a$ab&NF" },
+
+                {   L_,         ":b=tu5v :a^ab" },
+                {   L_,         ":b=tu5v :a^ab&NT" },
+                {   L_,         ":b=tu5v :a^ab&NF" },
+
+                {   L_,         ":b=tu5v :a!ab" },
+                {   L_,         ":b=tu5v :a!ab&NT" },
+                {   L_,         ":b=tu5v :a!ab&NF" },
+                {   L_,         ":b=tu5v :a!ab&FN" },
+
+                {   L_,         ":b=tu5v :a/ab" },
+                {   L_,         ":b=tu5v :a/ab&NT" },
+                {   L_,         ":b=tu5v :a/ab&NF" },
+                {   L_,         ":b=tu5v :a/ab&FN" },
+
+                {   L_,         ":aCbFcGdQf :g+ha" },
+                {   L_,         ":aCbFcGdQf :g+ha&NT" },
+                {   L_,         ":aCbFcGdQf :g+ha&NF" },
+
+                {   L_,         ":aCbFcGdQf :g#ha" },
+                {   L_,         ":aCbFcGdQf :g#ha&NT" },
+                {   L_,         ":aCbFcGdQf :g#ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g%ha" },
+                {   L_,         ":a?CbFcGdQf :g%ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g%ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g@ha" },
+                {   L_,         ":a?CbFcGdQf :g@ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g@ha&NF" },
+
+                // For Choice Aggregates
+                {   L_,         ":a?Ca" },
+                {   L_,         ":a?Ca&NT" },
+                {   L_,         ":a?Ca&NF" },
+                {   L_,         ":a?Ca&D0" },
+                {   L_,         ":a?Fa" },
+                {   L_,         ":a?Fa&NT" },
+                {   L_,         ":a?Fa&NF" },
+                {   L_,         ":a?Fa&D0" },
+                {   L_,         ":a?Ga" },
+                {   L_,         ":a?Ga&NT" },
+                {   L_,         ":a?Ga&NF" },
+                {   L_,         ":a?Ga&D0" },
+                {   L_,         ":a?Ha" },
+                {   L_,         ":a?Ha&NT" },
+                {   L_,         ":a?Ha&NF" },
+                {   L_,         ":a?Ha&D0" },
+                {   L_,         ":a?Na" },
+                {   L_,         ":a?Na&NT" },
+                {   L_,         ":a?Na&NF" },
+                {   L_,         ":a?Na&D0" },
+                {   L_,         ":a?Pa" },
+                {   L_,         ":a?Pa&NT" },
+                {   L_,         ":a?Pa&NF" },
+                {   L_,         ":a?Pa&D0" },
+                {   L_,         ":a?Qa" },
+                {   L_,         ":a?Qa&NT" },
+                {   L_,         ":a?Qa&NF" },
+                {   L_,         ":a?Qa&D0" },
+                {   L_,         ":a?Ra" },
+                {   L_,         ":a?Ra&NT" },
+                {   L_,         ":a?Ra&NF" },
+                {   L_,         ":a?Ra&D0" },
+                {   L_,         ":a?Wa" },
+                {   L_,         ":a?Wa&NT" },
+                {   L_,         ":a?Wa&NF" },
+                {   L_,         ":a?Wa&D0" },
+                {   L_,         ":a?Va" },
+                {   L_,         ":a?Va&NT" },
+                {   L_,         ":a?Va&NF" },
+                {   L_,         ":a?fa" },
+                {   L_,         ":a?fa&NT" },
+                {   L_,         ":a?fa&NF" },
+
+                {   L_,         ":aCbFcGdQf :g?+ha" },
+                {   L_,         ":aCbFcGdQf :g?+ha&NT" },
+                {   L_,         ":aCbFcGdQf :g?+ha&NF" },
+
+                {   L_,         ":aCbFcGdQf :g?#ha" },
+                {   L_,         ":aCbFcGdQf :g?#ha&NT" },
+                {   L_,         ":aCbFcGdQf :g?#ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g?%ha"    },
+                {   L_,         ":a?CbFcGdQf :g?%ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g?%ha&NF" },
+
+                {   L_,         ":a?CbFcGdQf :g?@ha" },
+                {   L_,         ":a?CbFcGdQf :g?@ha&NT" },
+                {   L_,         ":a?CbFcGdQf :g?@ha&NF" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE = DATA[i].d_line;
+                const char *SPEC = DATA[i].d_spec;
+                const bool  NSA  = (bool) bsl::strstr(SPEC, "&FN");
+
+                Schema s; ggSchema(&s, SPEC);
+                const RecDef *r = NSA
+                                ? &s.record(0)
+                                : &s.record(s.numRecords() - 1);
+
+                if (veryVerbose) { T_ P(s) };
+
+                bslma_TestAllocator t(veryVeryVerbose);
+                Obj mX; const Obj& X = mX;
+                int rc = ggAggData(&mX, *r, &t);
+                ASSERT(!rc);
+
+                if (veryVerbose) { T_ P(X) };
+
+                const char *fldName = r->fieldName(0);
+                ET::Type    TYPE    = NSA
+                             ? ET::toArrayType(s.record(1).field(0).elemType())
+                             : r->field(0).elemType();
+
+                const CERef CER = getCERef(TYPE, 1);
+
+                if (veryVerbose) { T_ T_ P(s) P(CER) P(X) }
+
+                Obj   mY; const Obj& Y = mY;
+                Error err;
+                if (RecDef::BDEM_CHOICE_RECORD == r->recordType()) {
+                    mX.makeSelection(&mY, &err, fldName);
+                }
+
+                LOOP_ASSERT(LINE, !X.isNull());
+                const bdem_ElemRef ERX = X.asElemRef();
+                LOOP_ASSERT(LINE, !ERX.isNull());
+
+                mY.reset();
+                rc = X.getField(&mY, &err, false, fldName);
+                ASSERT(!rc);
+
+                const bdem_ElemRef ERY = Y.asElemRef();
+
+                Obj mZ; const Obj& Z = mZ;
+                rc = X.setField(&mZ, &err, fldName, CER);
+                ASSERT(!rc);
+                LOOP_ASSERT(LINE, !X.isNull());
+                LOOP_ASSERT(LINE, !Y.isNull());
+                LOOP_ASSERT(LINE, !ERX.isNull());
+                LOOP_ASSERT(LINE, !ERY.isNull());
+                if (NSA) {
+                    ASSERT(ET::BDEM_TABLE == ERY.type());
+                    ASSERT(compareNillableTable(Y, CER));
+                }
+                else {
+                    LOOP_ASSERT(LINE, CER == ERY);
+                }
+
+                mZ.makeNull();
+                LOOP_ASSERT(LINE, Z.isNull());
+                LOOP_ASSERT(LINE, ERX.isNull());
+                LOOP_ASSERT(LINE, isUnset(ERX));
+            }
+        }
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING 'asXXX' ACCESSORS:
@@ -2487,1116 +2968,1560 @@ int main(int argc, char *argv[])
         //   TOTYPE convertScalar() const
         // --------------------------------------------------------------------
 
-        if (verbose) tst::cout << "\nTESTING 'asXXX' ACCESSORS"
-                               << "\n=========================" << bsl::endl;
+        if (verbose) cout << "\nTESTING 'asXXX' ACCESSORS"
+                          << "\n=========================" << endl;
 
         if (veryVerbose) { T_ cout << "Testing for BOOL" << endl; }
         {
             typedef bool TYPE;
 
-            const CERef VN = getCERef(ET::BDEM_BOOL, 0);
-            const CERef VA = getCERef(ET::BDEM_BOOL, 1);
-            const CERef VB = getCERef(ET::BDEM_BOOL, 2);
+            ET::Type type = ET::BDEM_BOOL;
 
-            Obj mX; const Obj& X = mX;
-            mX.setDataType(ET::BDEM_BOOL);
-            mX.setDataPointer(VA.data());
-            int nf1 = 0;
-            mX.setTopLevelAggregateNullnessPointer(&nf1);
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            ASSERT(VA.theBool() == X.asBool());
-            ASSERT(VA           == X.asElemRef());
-            ASSERT(!X.isNull());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theBool() == X.asBool());
+                ASSERT(VA.theBool() == X.asBool());
+                ASSERT(VA           == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Obj mY; const Obj& Y = mY;
-            mY.setDataType(ET::BDEM_BOOL);
-            mY.setDataPointer(VB.data());
-            int nf2 = 0;
-            mY.setTopLevelAggregateNullnessPointer(&nf2);
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theBool() == X.asBool());
 
-            ASSERT(VB.theBool() == Y.asBool());
-            ASSERT(VB           == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theBool() == Y.asBool());
+                ASSERT(VB.theBool() == Y.asBool());
+                ASSERT(VB           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theBool() == Y.asBool());
+            }
 
             // nillable bool array
-            const char *SPEC = ":aaa&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+            {
+                const char *SPEC = ":aaa&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            Obj mZ; const Obj& Z = mZ;
-            int rc = ggAggData(&mZ, *r, &t);
-            ASSERT(!rc);
+                bslma_TestAllocator t;
 
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theBool() == B.field(i).asBool());
-                LOOP_ASSERT(i, VN.theBool() ==
-                                             B.field(i).asElemRef().theBool());
-                LOOP3_ASSERT(i, B.field(i), B.field(i).asElemRef(),
-                             B.field(i).asElemRef().isNull());
-                LOOP3_ASSERT(i, B.field(i), B.field(i).asElemRef(),
-                             isUnset(B.field(i).asElemRef()));
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
+
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
+
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theBool() == Y.asBool());
+                    LOOP_ASSERT(i, VN.theBool() == Y.asElemRef().theBool());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theBool() == Y.asBool());
+                ASSERT(VA           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theBool() == Y.asBool());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theBool() == Y.asBool());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theBool() == Y.asBool());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theBool() == Y.asBool());
+                ASSERT(VA           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theBool() == Y.asBool());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
             }
-
-            mB.setField(0, VA);
-            ASSERT(VA.theBool() == B.field(0).asBool());
-            ASSERT(VA           == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
-
-            mB.setFieldNull(0);
-            ASSERT(VN.theBool() == B.field(0).asBool());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
-
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theBool() == A.field(fldName, 1).asBool());
-            LOOP2_ASSERT(VB, A.field(fldName, 1).asElemRef(),
-                         VB           == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
-
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theBool() == A.field(fldName, 1).asBool());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
-
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theBool() == C.asBool());
-            ASSERT(VA           == C.asElemRef());
-            ASSERT(!C.isNull());
-
-            mC.makeNull();
-            ASSERT(VN.theBool() == C.asBool());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
         }
 
-#if 0
         if (veryVerbose) { T_ cout << "Testing for CHAR" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_CHAR, 0);
-            const CERef VA = getCERef(ET::BDEM_CHAR, 1);
-            const CERef VB = getCERef(ET::BDEM_CHAR, 2);
+            typedef char TYPE;
 
-            Obj mX(ET::BDEM_CHAR, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_CHAR, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_CHAR;
 
-            ASSERT(VA.theChar() == X.asChar());
-            ASSERT(VA           == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theChar() == X.asChar());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theChar() == Y.asChar());
-            ASSERT(VB           == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theChar() == X.asChar());
+                ASSERT(VA           == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theChar() == Y.asChar());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theChar() == X.asChar());
 
-            // nillable char array
-            const char *SPEC = ":aKa&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theChar() == Y.asChar());
+                ASSERT(VB           == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theChar() == B.field(i).asChar());
-                LOOP_ASSERT(i, VN.theChar() ==
-                                             B.field(i).asElemRef().theChar());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theChar() == Y.asChar());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theChar() == B.field(0).asChar());
-            ASSERT(VA           == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable char array
+            {
+                const char *SPEC = ":aKa&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theChar() == B.field(0).asChar());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            LOOP2_ASSERT(VB.theChar(), A.field(fldName, 1).asChar(),
-                         VB.theChar() == A.field(fldName, 1).asChar());
-            ASSERT(VB           == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theChar() == A.field(fldName, 1).asChar());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theChar() == C.asChar());
-            ASSERT(VA           == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theChar() == C.asChar());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theChar() == Y.asChar());
+                    LOOP_ASSERT(i, VN.theChar() == Y.asElemRef().theChar());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theChar() == Y.asChar());
+                ASSERT(VA           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theChar() == Y.asChar());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theChar() == Y.asChar());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theChar() == Y.asChar());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theChar() == Y.asChar());
+                ASSERT(VA           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theChar() == Y.asChar());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for SHORT" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_SHORT, 0);
-            const CERef VA = getCERef(ET::BDEM_SHORT, 1);
-            const CERef VB = getCERef(ET::BDEM_SHORT, 2);
+            typedef short TYPE;
 
-            Obj mX(ET::BDEM_SHORT, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_SHORT, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_SHORT;
 
-            ASSERT(VA.theShort() == X.asShort());
-            ASSERT(VA            == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theShort() == X.asShort());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theShort() == Y.asShort());
-            ASSERT(VB            == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theShort() == X.asShort());
+                ASSERT(VA           == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theShort() == Y.asShort());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theShort() == X.asShort());
 
-            // nillable short array
-            const char *SPEC = ":aLa&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theShort() == Y.asShort());
+                ASSERT(VB           == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theShort() == B.field(i).asShort());
-                LOOP_ASSERT(i, VN.theShort() ==
-                                            B.field(i).asElemRef().theShort());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theShort() == Y.asShort());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theShort() == B.field(0).asShort());
-            ASSERT(VA            == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable short array
+            {
+                const char *SPEC = ":aLa&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theShort() == B.field(0).asShort());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theShort() == A.field(fldName, 1).asShort());
-            ASSERT(VB            == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theShort() == A.field(fldName, 1).asShort());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theShort() == C.asShort());
-            ASSERT(VA            == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theShort() == C.asShort());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theShort() == Y.asShort());
+                    LOOP_ASSERT(i, VN.theShort() == Y.asElemRef().theShort());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theShort() == Y.asShort());
+                ASSERT(VA           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theShort() == Y.asShort());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theShort() == Y.asShort());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theShort() == Y.asShort());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theShort() == Y.asShort());
+                ASSERT(VA           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theShort() == Y.asShort());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for INT" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_INT, 0);
-            const CERef VA = getCERef(ET::BDEM_INT, 1);
-            const CERef VB = getCERef(ET::BDEM_INT, 2);
+            typedef int TYPE;
 
-            Obj mX(ET::BDEM_INT, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_INT, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_INT;
 
-            ASSERT(VA.theInt() == X.asInt());
-            ASSERT(VA          == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theInt() == X.asInt());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theInt() == Y.asInt());
-            ASSERT(VB          == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theInt() == X.asInt());
+                ASSERT(VA          == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theInt() == Y.asInt());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theInt() == X.asInt());
 
-            // nillable int array
-            const char *SPEC = ":aMa&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theInt() == Y.asInt());
+                ASSERT(VB          == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theInt() == B.field(i).asInt());
-                LOOP_ASSERT(i, VN.theInt() == B.field(i).asElemRef().theInt());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theInt() == Y.asInt());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theInt() == B.field(0).asInt());
-            ASSERT(VA          == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable int array
+            {
+                const char *SPEC = ":aMa&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theInt() == B.field(0).asInt());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theInt() == A.field(fldName, 1).asInt());
-            ASSERT(VB          == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theInt() == A.field(fldName, 1).asInt());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theInt() == C.asInt());
-            ASSERT(VA          == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theInt() == C.asInt());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theInt() == Y.asInt());
+                    LOOP_ASSERT(i, VN.theInt() == Y.asElemRef().theInt());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theInt() == Y.asInt());
+                ASSERT(VA          == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theInt() == Y.asInt());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theInt() == Y.asInt());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theInt() == Y.asInt());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theInt() == Y.asInt());
+                ASSERT(VA          == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theInt() == Y.asInt());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for INT64" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_INT64, 0);
-            const CERef VA = getCERef(ET::BDEM_INT64, 1);
-            const CERef VB = getCERef(ET::BDEM_INT64, 2);
+            typedef Int64 TYPE;
 
-            Obj mX(ET::BDEM_INT64, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_INT64, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_INT64;
 
-            ASSERT(VA.theInt64() == X.asInt64());
-            ASSERT(VA            == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theInt64() == X.asInt64());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theInt64() == Y.asInt64());
-            ASSERT(VB            == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theInt64() == X.asInt64());
+                ASSERT(VA          == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theInt64() == Y.asInt64());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theInt64() == X.asInt64());
 
-            // nillable int64 array
-            const char *SPEC = ":aNa&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theInt64() == Y.asInt64());
+                ASSERT(VB          == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theInt64() == B.field(i).asInt64());
-                LOOP_ASSERT(i, VN.theInt64() ==
-                                            B.field(i).asElemRef().theInt64());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theInt64() == Y.asInt64());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theInt64() == B.field(0).asInt64());
-            ASSERT(VA            == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable int64 array
+            {
+                const char *SPEC = ":aNa&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theInt64() == B.field(0).asInt64());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theInt64() == A.field(fldName, 1).asInt64());
-            ASSERT(VB            == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theInt64() == A.field(fldName, 1).asInt64());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theInt64() == C.asInt64());
-            ASSERT(VA            == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theInt64() == C.asInt64());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theInt64() == Y.asInt64());
+                    LOOP_ASSERT(i, VN.theInt64() == Y.asElemRef().theInt64());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theInt64() == Y.asInt64());
+                ASSERT(VA          == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theInt64() == Y.asInt64());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theInt64() == Y.asInt64());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theInt64() == Y.asInt64());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theInt64() == Y.asInt64());
+                ASSERT(VA          == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theInt64() == Y.asInt64());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for FLOAT" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_FLOAT, 0);
-            const CERef VA = getCERef(ET::BDEM_FLOAT, 1);
-            const CERef VB = getCERef(ET::BDEM_FLOAT, 2);
+            typedef float TYPE;
 
-            Obj mX(ET::BDEM_FLOAT, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_FLOAT, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_FLOAT;
 
-            ASSERT(VA.theFloat() == X.asFloat());
-            ASSERT(VA            == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theFloat() == X.asFloat());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theFloat() == Y.asFloat());
-            ASSERT(VB            == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theFloat() == X.asFloat());
+                ASSERT(VA          == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theFloat() == Y.asFloat());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theFloat() == X.asFloat());
 
-            // nillable float array
-            const char *SPEC = ":aOa&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theFloat() == Y.asFloat());
+                ASSERT(VB          == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theFloat() == B.field(i).asFloat());
-                LOOP_ASSERT(i, VN.theFloat() ==
-                                            B.field(i).asElemRef().theFloat());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theFloat() == Y.asFloat());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theFloat() == B.field(0).asFloat());
-            ASSERT(VA            == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable float array
+            {
+                const char *SPEC = ":aOa&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theFloat() == B.field(0).asFloat());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theFloat() == A.field(fldName, 1).asFloat());
-            ASSERT(VB            == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theFloat() == A.field(fldName, 1).asFloat());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theFloat() == C.asFloat());
-            ASSERT(VA            == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theFloat() == C.asFloat());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theFloat() == Y.asFloat());
+                    LOOP_ASSERT(i, VN.theFloat() == Y.asElemRef().theFloat());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theFloat() == Y.asFloat());
+                ASSERT(VA          == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theFloat() == Y.asFloat());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theFloat() == Y.asFloat());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theFloat() == Y.asFloat());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theFloat() == Y.asFloat());
+                ASSERT(VA          == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theFloat() == Y.asFloat());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for DOUBLE" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_DOUBLE, 0);
-            const CERef VA = getCERef(ET::BDEM_DOUBLE, 1);
-            const CERef VB = getCERef(ET::BDEM_DOUBLE, 2);
+            typedef double TYPE;
 
-            Obj mX(ET::BDEM_DOUBLE, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_DOUBLE, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_DOUBLE;
 
-            ASSERT(VA.theDouble() == X.asDouble());
-            ASSERT(VA           == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theDouble() == X.asDouble());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theDouble() == Y.asDouble());
-            ASSERT(VB             == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theDouble() == X.asDouble());
+                ASSERT(VA             == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theDouble() == Y.asDouble());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theDouble() == X.asDouble());
 
-            // nillable double array
-            const char *SPEC = ":aPa&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theDouble() == Y.asDouble());
+                ASSERT(VB             == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theDouble() == B.field(i).asDouble());
-                LOOP_ASSERT(i, VN.theDouble() ==
-                                           B.field(i).asElemRef().theDouble());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theDouble() == Y.asDouble());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theDouble() == B.field(0).asDouble());
-            ASSERT(VA             == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable double array
+            {
+                const char *SPEC = ":aPa&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theDouble() == B.field(0).asDouble());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theDouble() == A.field(fldName, 1).asDouble());
-            ASSERT(VB             == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theDouble() == A.field(fldName, 1).asDouble());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theDouble() == C.asDouble());
-            ASSERT(VA             == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theDouble() == C.asDouble());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theDouble() == Y.asDouble());
+                    LOOP_ASSERT(i,
+                                VN.theDouble() == Y.asElemRef().theDouble());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theDouble() == Y.asDouble());
+                ASSERT(VA             == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDouble() == Y.asDouble());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theDouble() == Y.asDouble());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDouble() == Y.asDouble());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theDouble() == Y.asDouble());
+                ASSERT(VA             == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDouble() == Y.asDouble());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for DATETIME" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_DATETIME, 0);
-            const CERef VA = getCERef(ET::BDEM_DATETIME, 1);
-            const CERef VB = getCERef(ET::BDEM_DATETIME, 2);
+            typedef Datetime TYPE;
 
-            Obj mX(ET::BDEM_DATETIME, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_DATETIME, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_DATETIME;
 
-            ASSERT(VA.theDatetime() == X.asDatetime());
-            ASSERT(VA               == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theDatetime() == X.asDatetime());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theDatetime() == Y.asDatetime());
-            ASSERT(VB               == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theDatetime() == X.asDatetime());
+                ASSERT(VA               == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theDatetime() == Y.asDatetime());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theDatetime() == X.asDatetime());
 
-            // nillable datetime array
-            const char *SPEC = ":aRa&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theDatetime() == Y.asDatetime());
+                ASSERT(VB               == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theDatetime() == B.field(i).asDatetime());
-                LOOP_ASSERT(i, VN.theDatetime() ==
-                                         B.field(i).asElemRef().theDatetime());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theDatetime() == Y.asDatetime());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theDatetime() == B.field(0).asDatetime());
-            ASSERT(VA               == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable datetime array
+            {
+                const char *SPEC = ":aRa&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theDatetime() == B.field(0).asDatetime());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theDatetime() == A.field(fldName, 1).asDatetime());
-            ASSERT(VB               == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theDatetime() == A.field(fldName, 1).asDatetime());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theDatetime() == C.asDatetime());
-            ASSERT(VA               == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theDatetime() == C.asDatetime());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theDatetime() == Y.asDatetime());
+                    LOOP_ASSERT(i, VN.theDatetime() ==
+                                                  Y.asElemRef().theDatetime());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theDatetime() == Y.asDatetime());
+                ASSERT(VA             == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDatetime() == Y.asDatetime());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theDatetime() == Y.asDatetime());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDatetime() == Y.asDatetime());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theDatetime() == Y.asDatetime());
+                ASSERT(VA             == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDatetime() == Y.asDatetime());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for DATE" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_DATE, 0);
-            const CERef VA = getCERef(ET::BDEM_DATE, 1);
-            const CERef VB = getCERef(ET::BDEM_DATE, 2);
+            typedef Date TYPE;
 
-            Obj mX(ET::BDEM_DATE, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_DATE, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_DATE;
 
-            ASSERT(VA.theDate() == X.asDate());
-            ASSERT(VA           == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theDate() == X.asDate());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theDate() == Y.asDate());
-            ASSERT(VB           == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theDate() == X.asDate());
+                ASSERT(VA           == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theDate() == Y.asDate());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theDate() == X.asDate());
 
-            // nillable date array
-            const char *SPEC = ":aSa&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theDate() == Y.asDate());
+                ASSERT(VB           == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theDate() == B.field(i).asDate());
-                LOOP_ASSERT(i, VN.theDate() ==
-                                             B.field(i).asElemRef().theDate());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theDate() == Y.asDate());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theDate() == B.field(0).asDate());
-            ASSERT(VA           == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable date array
+            {
+                const char *SPEC = ":aSa&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theDate() == B.field(0).asDate());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theDate() == A.field(fldName, 1).asDate());
-            ASSERT(VB           == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theDate() == A.field(fldName, 1).asDate());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theDate() == C.asDate());
-            ASSERT(VA           == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theDate() == C.asDate());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theDate() == Y.asDate());
+                    LOOP_ASSERT(i, VN.theDate() == Y.asElemRef().theDate());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theDate() == Y.asDate());
+                ASSERT(VA           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDate() == Y.asDate());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theDate() == Y.asDate());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDate() == Y.asDate());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theDate() == Y.asDate());
+                ASSERT(VA           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDate() == Y.asDate());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for TIME" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_TIME, 0);
-            const CERef VA = getCERef(ET::BDEM_TIME, 1);
-            const CERef VB = getCERef(ET::BDEM_TIME, 2);
+            typedef Time TYPE;
 
-            Obj mX(ET::BDEM_TIME, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_TIME, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_TIME;
 
-            ASSERT(VA.theTime() == X.asTime());
-            ASSERT(VA           == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theTime() == X.asTime());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theTime() == Y.asTime());
-            ASSERT(VB           == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theTime() == X.asTime());
+                ASSERT(VA           == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theTime() == Y.asTime());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theTime() == X.asTime());
 
-            // nillable char array
-            const char *SPEC = ":aTa&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theTime() == Y.asTime());
+                ASSERT(VB           == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theTime() == B.field(i).asTime());
-                LOOP_ASSERT(i, VN.theTime() ==
-                                             B.field(i).asElemRef().theTime());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theTime() == Y.asTime());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theTime() == B.field(0).asTime());
-            ASSERT(VA           == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable time array
+            {
+                const char *SPEC = ":aTa&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theTime() == B.field(0).asTime());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theTime() == A.field(fldName, 1).asTime());
-            ASSERT(VB           == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theTime() == A.field(fldName, 1).asTime());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theTime() == C.asTime());
-            ASSERT(VA           == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theTime() == C.asTime());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theTime() == Y.asTime());
+                    LOOP_ASSERT(i, VN.theTime() == Y.asElemRef().theTime());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theTime() == Y.asTime());
+                ASSERT(VA           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theTime() == Y.asTime());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theTime() == Y.asTime());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theTime() == Y.asTime());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theTime() == Y.asTime());
+                ASSERT(VA           == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theTime() == Y.asTime());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for DATETIMETZ" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_DATETIMETZ, 0);
-            const CERef VA = getCERef(ET::BDEM_DATETIMETZ, 1);
-            const CERef VB = getCERef(ET::BDEM_DATETIMETZ, 2);
+            typedef DatetimeTz TYPE;
 
-            Obj mX(ET::BDEM_DATETIMETZ, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_DATETIMETZ, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_DATETIMETZ;
 
-            ASSERT(VA.theDatetimeTz() == X.asDatetimeTz());
-            ASSERT(VA                 == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theDatetimeTz() == X.asDatetimeTz());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theDatetimeTz() == Y.asDatetimeTz());
-            ASSERT(VB                 == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theDatetimeTz() == X.asDatetimeTz());
+                ASSERT(VA                 == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theDatetimeTz() == Y.asDatetimeTz());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theDatetimeTz() == X.asDatetimeTz());
 
-            // nillable datetimeTz array
-            const char *SPEC = ":aba&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theDatetimeTz() == Y.asDatetimeTz());
+                ASSERT(VB                 == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theDatetimeTz() ==
-                                                    B.field(i).asDatetimeTz());
-                LOOP_ASSERT(i, VN.theDatetimeTz() ==
-                                       B.field(i).asElemRef().theDatetimeTz());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theDatetimeTz() == Y.asDatetimeTz());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theDatetimeTz() == B.field(0).asDatetimeTz());
-            ASSERT(VA                 == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable datetimeTz array
+            {
+                const char *SPEC = ":aba&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theDatetimeTz() == B.field(0).asDatetimeTz());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theDatetimeTz() == A.field(fldName, 1).asDatetimeTz());
-            ASSERT(VB                 == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theDatetimeTz() == A.field(fldName, 1).asDatetimeTz());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theDatetimeTz() == C.asDatetimeTz());
-            ASSERT(VA                 == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theDatetimeTz() == C.asDatetimeTz());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theDatetimeTz() == Y.asDatetimeTz());
+                    LOOP_ASSERT(i, VN.theDatetimeTz() ==
+                                                Y.asElemRef().theDatetimeTz());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theDatetimeTz() == Y.asDatetimeTz());
+                ASSERT(VA                 == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDatetimeTz() == Y.asDatetimeTz());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theDatetimeTz() == Y.asDatetimeTz());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDatetimeTz() == Y.asDatetimeTz());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theDatetimeTz() == Y.asDatetimeTz());
+                ASSERT(VA                 == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDatetimeTz() == Y.asDatetimeTz());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for DATETZ" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_DATETZ, 0);
-            const CERef VA = getCERef(ET::BDEM_DATETZ, 1);
-            const CERef VB = getCERef(ET::BDEM_DATETZ, 2);
+            typedef DateTz TYPE;
 
-            Obj mX(ET::BDEM_DATETZ, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_DATETZ, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_DATETZ;
 
-            ASSERT(VA.theDateTz() == X.asDateTz());
-            ASSERT(VA             == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theDateTz() == X.asDateTz());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theDateTz() == Y.asDateTz());
-            ASSERT(VB             == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theDateTz() == X.asDateTz());
+                ASSERT(VA             == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theDateTz() == Y.asDateTz());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theDateTz() == X.asDateTz());
 
-            // nillable dateTz array
-            const char *SPEC = ":aca&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theDateTz() == Y.asDateTz());
+                ASSERT(VB           == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theDateTz() == B.field(i).asDateTz());
-                LOOP_ASSERT(i, VN.theDateTz() ==
-                                           B.field(i).asElemRef().theDateTz());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theDateTz() == Y.asDateTz());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theDateTz() == B.field(0).asDateTz());
-            ASSERT(VA             == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable dateTz array
+            {
+                const char *SPEC = ":aca&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theDateTz() == B.field(0).asDateTz());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theDateTz() == A.field(fldName, 1).asDateTz());
-            ASSERT(VB             == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theDateTz() == A.field(fldName, 1).asDateTz());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theDateTz() == C.asDateTz());
-            ASSERT(VA             == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theDateTz() == C.asDateTz());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theDateTz() == Y.asDateTz());
+                    LOOP_ASSERT(i,
+                                VN.theDateTz() == Y.asElemRef().theDateTz());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theDateTz() == Y.asDateTz());
+                ASSERT(VA             == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDateTz() == Y.asDateTz());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theDateTz() == Y.asDateTz());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDateTz() == Y.asDateTz());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theDateTz() == Y.asDateTz());
+                ASSERT(VA             == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theDateTz() == Y.asDateTz());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
 
         if (veryVerbose) { T_ cout << "Testing for TIMETZ" << endl; }
         {
-            const CERef VN = getCERef(ET::BDEM_TIMETZ, 0);
-            const CERef VA = getCERef(ET::BDEM_TIMETZ, 1);
-            const CERef VB = getCERef(ET::BDEM_TIMETZ, 2);
+            typedef TimeTz TYPE;
 
-            Obj mX(ET::BDEM_TIMETZ, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_TIMETZ, VB); const Obj& Y = mY;
+            ET::Type type = ET::BDEM_TIMETZ;
 
-            ASSERT(VA.theTimeTz() == X.asTimeTz());
-            ASSERT(VA             == X.asElemRef());
-            ASSERT(!X.isNull());
+            const CERef VN = getCERef(type, 0);
+            const CERef VA = getCERef(type, 1);
+            const CERef VB = getCERef(type, 2);
 
-            X.makeNull();
-            ASSERT(X.isNull());
-            ASSERT(X.asElemRef().isNull());
-            ASSERT(VN.theTimeTz() == X.asTimeTz());
+            {
+                Obj mX; const Obj& X = mX;
+                mX.setDataType(type);
+                mX.setDataPointer((void *) VA.data());
+                int nf1 = 0;
+                mX.setTopLevelAggregateNullnessPointer(&nf1);
 
-            ASSERT(VB.theTimeTz() == Y.asTimeTz());
-            ASSERT(VB             == Y.asElemRef());
-            ASSERT(!Y.isNull());
+                ASSERT(VA.theTimeTz() == X.asTimeTz());
+                ASSERT(VA             == X.asElemRef());
+                ASSERT(!X.isNull());
 
-            Y.makeNull();
-            ASSERT(Y.isNull());
-            ASSERT(Y.asElemRef().isNull());
-            ASSERT(VN.theTimeTz() == Y.asTimeTz());
+                X.makeNull();
+                ASSERT(X.isNull());
+                ASSERT(X.asElemRef().isNull());
+                ASSERT(VN.theTimeTz() == X.asTimeTz());
 
-            // nillable timeTz array
-            const char *SPEC = ":ada&FN";
-            Schema schema; const Schema& SCHEMA = schema;
-            ggSchema(&schema, SPEC);
+                Obj mY; const Obj& Y = mY;
+                mY.setDataType(type);
+                mY.setDataPointer((void *) VB.data());
+                int nf2 = 0;
+                mY.setTopLevelAggregateNullnessPointer(&nf2);
 
-            const RecDef *RECORD  = &SCHEMA.record(0);
-            const char   *fldName = RECORD->fieldName(0);
+                ASSERT(VB.theTimeTz() == Y.asTimeTz());
+                ASSERT(VB             == Y.asElemRef());
+                ASSERT(!Y.isNull());
 
-            ConstRecDefShdPtr crp(&SCHEMA.record(0), NilDeleter(), 0);
-            const ConstRecDefShdPtr& CRP = crp;
-
-            Obj mA(CRP); const Obj& A = mA;
-            Obj mB = mA.field(fldName); const Obj& B = mB;
-            const int NE = 3;
-            mB.resize(NE);
-            for (int i = 0; i < NE; ++i) {
-                LOOP_ASSERT(i, B.field(i).isNull());
-                LOOP_ASSERT(i, VN.theTimeTz() == B.field(i).asTimeTz());
-                LOOP_ASSERT(i, VN.theTimeTz() ==
-                                           B.field(i).asElemRef().theTimeTz());
-                LOOP_ASSERT(i, B.field(i).asElemRef().isNull());
-                LOOP_ASSERT(i, isUnset(B.field(i).asElemRef()));
+                Y.makeNull();
+                ASSERT(Y.isNull());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(VN.theTimeTz() == Y.asTimeTz());
             }
 
-            mB.setField(0, VA);
-            ASSERT(VA.theTimeTz() == B.field(0).asTimeTz());
-            ASSERT(VA             == B.field(0).asElemRef());
-            ASSERT(!B.field(0).isNull());
+            // nillable timeTz array
+            {
+                const char *SPEC = ":ada&FN";
+                Schema schema; const Schema& SCHEMA = schema;
+                ggSchema(&schema, SPEC);
 
-            mB.setFieldNull(0);
-            ASSERT(VN.theTimeTz() == B.field(0).asTimeTz());
-            ASSERT(B.field(0).asElemRef().isNull());
-            ASSERT(B.field(0).isNull());
+                const RecDef *RECORD  = &SCHEMA.record(0);
+                const char   *fldName = RECORD->fieldName(0);
 
-            mA.setField(fldName, 1, VB);
-            ASSERT(VB.theTimeTz() == A.field(fldName, 1).asTimeTz());
-            ASSERT(VB             == A.field(fldName, 1).asElemRef());
-            ASSERT(!A.field(fldName, 1).isNull());
+                bslma_TestAllocator t;
 
-            mA.setFieldNull(fldName, 1);
-            ASSERT(VN.theTimeTz() == A.field(fldName, 1).asTimeTz());
-            ASSERT(A.field(fldName, 1).asElemRef().isNull());
-            ASSERT(A.field(fldName, 1).isNull());
+                Obj mA; const Obj& A = mA;
+                int rc = ggAggData(&mA, *RECORD, &t);
+                ASSERT(!rc);
 
-            Obj mC = B.field(2); const Obj& C = mC;
-            mC.setValue(VA);
-            ASSERT(VA.theTimeTz() == C.asTimeTz());
-            ASSERT(VA             == C.asElemRef());
-            ASSERT(!C.isNull());
+                Error err;
+                Obj mX; const Obj& X = mX;
+                rc = mA.getField(&mX, &err, false, fldName);
+                ASSERT(!rc);
 
-            mC.makeNull();
-            ASSERT(VN.theTimeTz() == C.asTimeTz());
-            ASSERT(C.asElemRef().isNull());
-            ASSERT(C.isNull());
+                const int NE = 3;
+                rc = mX.resize(&err, NE);
+                ASSERT(!rc);
+
+                Obj mY; const Obj& Y = mY;
+                for (int i = 0; i < NE; ++i) {
+                    rc = X.getField(&mY, &err, false, i);
+                    ASSERT(!rc);
+
+                    LOOP_ASSERT(i, Y.isNull());
+                    LOOP_ASSERT(i, VN.theTimeTz() == Y.asTimeTz());
+                    LOOP_ASSERT(i,
+                                VN.theTimeTz() == Y.asElemRef().theTimeTz());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), Y.asElemRef().isNull());
+                    LOOP3_ASSERT(i, Y, Y.asElemRef(), isUnset(Y.asElemRef()));
+                }
+
+                rc = mX.setField(&mY, &err, 0, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theTimeTz() == Y.asTimeTz());
+                ASSERT(VA             == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theTimeTz() == Y.asTimeTz());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mA.setField(&mY, &err, fldName, 1, VB);
+                ASSERT(!rc);
+                ASSERT(VB.theTimeTz() == Y.asTimeTz());
+                LOOP2_ASSERT(VB, Y.asElemRef(), VB == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theTimeTz() == Y.asTimeTz());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                mY.reset();
+                rc = mX.getField(&mY, &err, false, 2);
+                ASSERT(!rc);
+                rc = mY.setValue(&err, VA);
+                ASSERT(!rc);
+                ASSERT(VA.theTimeTz() == Y.asTimeTz());
+                ASSERT(VA             == Y.asElemRef());
+                ASSERT(!Y.isNull());
+
+                mY.makeNull();
+                ASSERT(VN.theTimeTz() == Y.asTimeTz());
+                ASSERT(Y.asElemRef().isNull());
+                ASSERT(Y.isNull());
+
+                destroyAggData(&mA, &t);
+            }
         }
-
-        if (veryVerbose) { T_ cout << "Test error message output" << endl; }
-        {
-            const CERef VA = getCERef(ET::BDEM_TIMETZ, 1);
-            const CERef VB = getCERef(ET::BDEM_DOUBLE, 1);
-
-            Obj mX(ET::BDEM_TIMETZ, VA); const Obj& X = mX;
-            Obj mY(ET::BDEM_DOUBLE, VB); const Obj& Y = mY;
-
-            ASSERT(0 == X.asChar());
-            ASSERT(bdetu_Unset<bdet_Datetime>::isUnset(Y.asDatetime()));
-        }
-#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
