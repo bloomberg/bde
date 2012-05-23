@@ -1221,6 +1221,11 @@ unix-*                  _   RATIONAL_WIN_OPT = -windows=no
 !! unix-HP_UX           _       PLINK_ARCH      = hp
 !! unix-Linux           _       PLINK_ARCH      = linux
 
+!! *            _   PLINK_ARCH64        = $(PLINK_ARCH)$(BDE_WORD64)
+!! *            _   PLINK_ARCH_64       = $(PLINK_ARCH)$(BDE_WORD_64)
+!! *            _   PLINK_ARCH32_OR_64  = $(PLINK_ARCH)$(BDE_WORD_32_OR_64)
+!! *            _   PLINK_ARCH_32_OR_64 = $(PLINK_ARCH)_$(BDE_WORD_32_OR_64)
+
 !! *            _   BBSRC       = /bbsrc/proot/include
 !! *            _   BBSRCBBINC  = $(BBSRC)/bbinc
 !! *            _   DEPLOYED_INCLUDE   = $(BBSRC)/00deployed
