@@ -339,7 +339,7 @@ class btemt_Channel {
                                                   // modification synchronized
                                                   // with 'd_writeMutex'
 
-    bces_AtomicInt            d_recordedMaxWriteCacheSize; 
+    bces_AtomicInt            d_recordedMaxWriteCacheSize;
                                                   // maximum recorded size of
                                                   // the write cache
 
@@ -4458,15 +4458,15 @@ int btemt_ChannelPool::getChannelStatistics(
 }
 
 int btemt_ChannelPool::getChannelWriteCacheStatistics(
-                                                    int *maxWriteCacheSize,
-                                                    int *currentWriteCacheSize,
-                                                    int  channelId) const
+                                                int *recordedMaxWriteCacheSize,
+                                                int *currentWriteCacheSize,
+                                                int  channelId) const
 {
     ChannelHandle channelHandle;
     if (0 == findChannelHandle(&channelHandle, channelId)) {
         btemt_Channel *channel = channelHandle.ptr();
-        *maxWriteCacheSize     = channel->recordedMaxWriteCacheSize();
-        *currentWriteCacheSize = channel->currentWriteCacheSize();
+        *recordedMaxWriteCacheSize = channel->recordedMaxWriteCacheSize();
+        *currentWriteCacheSize     = channel->currentWriteCacheSize();
         return 0;                                                     // RETURN
     }
     return 1;

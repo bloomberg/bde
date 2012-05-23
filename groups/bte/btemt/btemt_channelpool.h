@@ -1768,10 +1768,10 @@ class btemt_ChannelPool {
         // the time one of the values is captured, another may already have
         // changed.
 
-    int getChannelWriteCacheStatistics(int *maxWriteCacheSize,
+    int getChannelWriteCacheStatistics(int *recordedMaxWriteCacheSize,
                                        int *currentWriteCacheSize,
                                        int  channelId) const;
-        // Load into the specified 'maxWriteCacheSize' and
+        // Load into the specified 'recordedMaxWriteCacheSize' and
         // 'currentWriteCacheSize' the maximum and current size respectively of
         // the write cache of the channel identified by the specified
         // 'channelId' and return 0 if the specified 'channelId' is a valid
