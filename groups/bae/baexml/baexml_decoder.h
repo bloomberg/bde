@@ -103,7 +103,7 @@ BDES_IDENT("$Id: $")
 //
 //  using namespace BloombergLP;
 //
-//  void main()
+//  int main()
 //  {
 //      const char INPUT[] = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 //                           "<Employee>\n"
@@ -134,6 +134,8 @@ BDES_IDENT("$Id: $")
 //      assert("Some City"   == bob.homeAddress().city());
 //      assert("Some State"  == bob.homeAddress().state());
 //      assert(21            == bob.age());
+//
+//      return 0;
 //  }
 //..
 ///Usage Example 2
