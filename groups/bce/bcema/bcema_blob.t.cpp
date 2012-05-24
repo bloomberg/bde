@@ -775,7 +775,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -797,6 +797,23 @@ int main(int argc, char *argv[])
 
         usageExample2();
 
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // VERIFYING NOT PARANOID
+        //
+        // Concerns:
+        //   A developer may have checked in code with the expensive 'paranoid'
+        //   checks turned on.
+        //
+        // Plan:
+        //   Call the 'notParanoid' class method which will return the value
+        //   of the 'NOT_PARANOID' enum and assert that it is true; thus if a
+        //   developer checks in code with '0 == NOT_PARANOID', the tests of
+        //   the nightly build will fail.
+        // --------------------------------------------------------------------
+
+        ASSERT(bcema_Blob::notParanoid());
       } break;
       case 13: {
         // --------------------------------------------------------------------

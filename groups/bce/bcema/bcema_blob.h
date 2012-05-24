@@ -553,6 +553,9 @@ class bcema_Blob {
     bcema_BlobBufferFactory       *d_bufferFactory_p;     // factory used to
                                                           // grow blob (held)
 
+    // TRAITS
+    BSLALG_DECLARE_NESTED_TRAITS(bcema_BlobBuffer, NestedTraits);
+
     // FRIENDS
     friend bool operator==(const bcema_Blob&, const bcema_Blob&);
     friend bool operator!=(const bcema_Blob&, const bcema_Blob&);
@@ -567,8 +570,10 @@ class bcema_Blob {
         // Assert the invariants of this object and return 0 on success.
 
   public:
-    // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS(bcema_BlobBuffer, NestedTraits);
+    // STATIC METHODS
+    static
+    int notParanoid();
+        // For testing only, not to be used by clients of this component.
 
     // CREATORS
     explicit bcema_Blob(bslma_Allocator *basicAllocator = 0);
