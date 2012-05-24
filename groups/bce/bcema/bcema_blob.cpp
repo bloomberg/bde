@@ -234,7 +234,7 @@ void bcema_Blob::slowSetLength(int length)
         left -= d_buffers[d_dataIndex].size();
     } while (left >= 0);
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 }
 
 // CLASS METHODS
@@ -319,8 +319,8 @@ bcema_Blob::~bcema_Blob()
 // MANIPULATORS
 bcema_Blob& bcema_Blob::operator=(const bcema_Blob& rhs)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
-    BSLS_ASSERT(NOT_PARANOID || 0 == rhs.assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == rhs.assertInvariants());
 
     d_buffers.reserve(rhs.numBuffers());
 
@@ -330,24 +330,24 @@ bcema_Blob& bcema_Blob::operator=(const bcema_Blob& rhs)
     d_dataIndex          = rhs.d_dataIndex;
     d_preDataIndexLength = rhs.d_preDataIndexLength;
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     return *this;
 }
 
 void bcema_Blob::appendBuffer(const bcema_BlobBuffer& buffer)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     d_buffers.push_back(buffer);
     d_totalSize += buffer.size();
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 }
 
 void bcema_Blob::appendDataBuffer(const bcema_BlobBuffer& buffer)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     const int bufferSize = buffer.size();
     const int oldDataLength = d_dataLength;
@@ -401,12 +401,12 @@ void bcema_Blob::appendDataBuffer(const bcema_BlobBuffer& buffer)
         d_totalSize -= trim;
     }
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 }
 
 void bcema_Blob::insertBuffer(int index, const bcema_BlobBuffer& buffer)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(     index <= static_cast<int>(d_buffers.size()));
@@ -422,12 +422,12 @@ void bcema_Blob::insertBuffer(int index, const bcema_BlobBuffer& buffer)
         ++d_dataIndex;
     }
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 }
 
 void bcema_Blob::prependDataBuffer(const bcema_BlobBuffer& buffer)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     const int bufferSize = buffer.size();
     BSLS_ASSERT(0 < bufferSize);
@@ -439,12 +439,12 @@ void bcema_Blob::prependDataBuffer(const bcema_BlobBuffer& buffer)
     d_totalSize  += bufferSize;
     d_dataLength += bufferSize;
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 }
 
 void bcema_Blob::removeAll()
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     d_buffers.clear();
     d_totalSize  = 0;
@@ -452,12 +452,12 @@ void bcema_Blob::removeAll()
     d_dataIndex  = 0;
     d_preDataIndexLength = 0;
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 }
 
 void bcema_Blob::removeBuffer(int index)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(     index < static_cast<int>(d_buffers.size()));
@@ -483,12 +483,12 @@ void bcema_Blob::removeBuffer(int index)
     }
     d_buffers.erase(d_buffers.begin() + index);
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 }
 
 void bcema_Blob::setLength(int length)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     BSLS_ASSERT(0 <= length);
 
@@ -506,7 +506,7 @@ void bcema_Blob::setLength(int length)
 
 void bcema_Blob::swapBufferRaw(int index, bcema_BlobBuffer *srcBuffer)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     BSLS_ASSERT(0 <= index);
     BSLS_ASSERT(     index < numBuffers());
@@ -514,12 +514,12 @@ void bcema_Blob::swapBufferRaw(int index, bcema_BlobBuffer *srcBuffer)
 
     d_buffers[index].buffer().swap(srcBuffer->buffer());
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 }
 
 void bcema_Blob::trimLastDataBuffer()
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     if (0 != d_dataLength
      && d_dataLength - d_preDataIndexLength < d_buffers[d_dataIndex].size()) {
@@ -528,12 +528,12 @@ void bcema_Blob::trimLastDataBuffer()
         d_totalSize += d_dataLength - d_preDataIndexLength;
     }
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 }
 
 void bcema_Blob::moveBuffers(bcema_Blob *srcBlob)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 
     d_buffers.resize(srcBlob->d_buffers.size());
 
@@ -549,13 +549,13 @@ void bcema_Blob::moveBuffers(bcema_Blob *srcBlob)
     d_preDataIndexLength = srcBlob->d_preDataIndexLength;
     srcBlob->removeAll();
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
 }
 
 void bcema_Blob::moveDataBuffers(bcema_Blob *srcBlob)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
-    BSLS_ASSERT(NOT_PARANOID || 0 == srcBlob->assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == srcBlob->assertInvariants());
 
     if (0 == srcBlob->length()) {
         d_dataIndex          = 0;
@@ -590,14 +590,14 @@ void bcema_Blob::moveDataBuffers(bcema_Blob *srcBlob)
     srcBlob->d_preDataIndexLength  = 0;
     srcBlob->d_totalSize          -= d_totalSize;
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
-    BSLS_ASSERT(NOT_PARANOID || 0 == srcBlob->assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == srcBlob->assertInvariants());
 }
 
 void bcema_Blob::moveAndAppendDataBuffers(bcema_Blob *srcBlob)
 {
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
-    BSLS_ASSERT(NOT_PARANOID || 0 == srcBlob->assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == srcBlob->assertInvariants());
 
     if (0 == srcBlob->length()) {
         return;                                                       // RETURN
@@ -638,8 +638,8 @@ void bcema_Blob::moveAndAppendDataBuffers(bcema_Blob *srcBlob)
     srcBlob->d_preDataIndexLength  = 0;
     srcBlob->d_totalSize          -= totalSizeAdded;
 
-    BSLS_ASSERT(NOT_PARANOID || 0 == assertInvariants());
-    BSLS_ASSERT(NOT_PARANOID || 0 == srcBlob->assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == assertInvariants());
+    BSLS_ASSERT_SAFE(NOT_PARANOID || 0 == srcBlob->assertInvariants());
 }
 
 // FREE OPERATORS
