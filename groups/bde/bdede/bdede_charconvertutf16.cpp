@@ -569,20 +569,16 @@ struct Utf16 {
 
 }  // close unnamed namespace
 
-namespace BloombergLP {
-
-                        // ----------------------------
-                        // struct bdede_CharConvertUtf16
-                        // ----------------------------
-
-// CLASS METHODS
-int bdede_CharConvertUtf16::utf8ToUtf16(unsigned short *dstBuffer,
-                                      bsl::size_t       dstCapacity,
-                                      const char       *srcString,
-                                      bsl::size_t      *numCharsWritten,
-                                      bsl::size_t      *numWordsWritten,
-                                      unsigned short    errorCharacter)
+static
+int localUtf8ToUtf16(unsigned short   *dstBuffer,
+                     bsl::size_t       dstCapacity,
+                     const char      **srcStringArg,
+                     bsl::size_t      *numCharsWritten,
+                     bsl::size_t      *numWordsWritten,
+                     unsigned short    errorCharacter)
 {
+    const char *srcString = *srcStringArg;
+
     // We need at least room for a null character in the output.
     if (dstCapacity < 1) {
         if (numCharsWritten) {
@@ -797,16 +793,20 @@ int bdede_CharConvertUtf16::utf8ToUtf16(unsigned short *dstBuffer,
         *numWordsWritten = dstBuffer - dstStart;
     }
 
+    *srcStringArg = srcString;
     return returnStatus;
 }
 
-int bdede_CharConvertUtf16::utf16ToUtf8(char               *dstBuffer,
-                                      bsl::size_t           dstCapacity,
-                                      const unsigned short *srcString,
-                                      bsl::size_t          *numCharsWritten,
-                                      bsl::size_t          *numBytesWritten,
-                                      char                  errorCharacter)
+static
+int localUtf16ToUtf8(char                  *dstBuffer,
+                     bsl::size_t            dstCapacity,
+                     const unsigned short **srcStringArg,
+                     bsl::size_t           *numCharsWritten,
+                     bsl::size_t           *numBytesWritten,
+                     char                   errorCharacter)
 {
+    const unsigned short *srcString = *srcStringArg;
+
     if (dstCapacity < 1) {
         if (numCharsWritten) {
             *numCharsWritten = 0;
@@ -940,8 +940,47 @@ int bdede_CharConvertUtf16::utf16ToUtf8(char               *dstBuffer,
         *numCharsWritten = nChars;
     }
 
+    *srcStringArg = srcString;
     return returnStatus;
 }
+
+namespace BloombergLP {
+
+                        // -----------------------------
+                        // struct bdede_CharConvertUtf16
+                        // -----------------------------
+
+// CLASS METHODS
+int bdede_CharConvertUtf16::utf8ToUtf16(unsigned short *dstBuffer,
+                                      bsl::size_t       dstCapacity,
+                                      const char       *srcString,
+                                      bsl::size_t      *numCharsWritten,
+                                      bsl::size_t      *numWordsWritten,
+                                      unsigned short    errorCharacter)
+{
+    return localUtf8ToUtf16(dstBuffer,
+                            dstCapacity,
+                            &srcString,
+                            numCharsWritten,
+                            numWordsWritten,
+                            errorCharacter);
+}
+
+int bdede_CharConvertUtf16::utf16ToUtf8(char               *dstBuffer,
+                                      bsl::size_t           dstCapacity,
+                                      const unsigned short *srcString,
+                                      bsl::size_t          *numCharsWritten,
+                                      bsl::size_t          *numBytesWritten,
+                                      char                  errorCharacter)
+{
+    return localUtf16ToUtf8(dstBuffer,
+                            dstCapacity,
+                            &srcString,
+                            numCharsWritten,
+                            numBytesWritten,
+                            errorCharacter);
+}
+
 
 }  // close namespace BloombergLP
 
