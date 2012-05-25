@@ -570,11 +570,6 @@ class bcema_Blob {
         // Assert the invariants of this object and return 0 on success.
 
   public:
-    // STATIC METHODS
-    static
-    int notParanoid();
-        // For testing only, not to be used by clients of this component.
-
     // CREATORS
     explicit bcema_Blob(bslma_Allocator *basicAllocator = 0);
         // Create an empty blob having no factory to allocate blob buffers.
