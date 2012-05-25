@@ -5,17 +5,13 @@
 BDES_IDENT_RCSID(bdet_datetime_cpp,"$Id$ $CSID$")
 
 #include <bdesb_fixedmemoutstreambuf.h>
-
 #include <bdeu_print.h>
-
-#include <bsl_ostream.h>
-#include <bsl_sstream.h>
-
-#include <bsl_c_stdio.h>   // for 'snprintf'
 
 #include <bsls_assert.h>
 
 #include <bsl_c_stdio.h>          // 'snprintf'
+#include <bsl_ostream.h>
+#include <bsl_sstream.h>
 
 static const char *const MONTHS[] = {
     0,
