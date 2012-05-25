@@ -4,7 +4,6 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(bdet_datetime_cpp,"$Id$ $CSID$")
 
-#include <bdesb_fixedmemoutstreambuf.h>
 #include <bdeu_print.h>
 
 #include <bsls_assert.h>
