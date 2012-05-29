@@ -224,13 +224,17 @@ bdesu_FileUtil::open(const char *pathName,
                                          : 0);
     DWORD creationInfo = existFlag ? OPEN_EXISTING : CREATE_ALWAYS;
 
+    // The file locking behavior for the opened file 
+    // ('FILE_SHARE_READ | FILE_SHARE_WRITE') is chosen to match the posix
+    // behavior for open (DRQS 30568749).
+ 
     return CreateFile(pathName,
                       accessMode,
-                      FILE_SHARE_READ,       // share for reading??
-                      NULL,                  // default security
-                      creationInfo,          // existing file only
-                      FILE_ATTRIBUTE_NORMAL, // normal file
-                      NULL);                 // no attr
+                      FILE_SHARE_READ | FILE_SHARE_WRITE, // do not lock
+                      NULL,                               // default security
+                      creationInfo,                       // existing file only
+                      FILE_ATTRIBUTE_NORMAL,              // normal file
+                      NULL);                              // no attr
 
 }
 

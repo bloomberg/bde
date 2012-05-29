@@ -105,8 +105,10 @@ static void aSsErT(int c, const char *s, int i)
 #define T_()  cout << "\t" << flush;          // Print tab w/o newline
 
 //=============================================================================
-//                  GLOBAL HELPER FUNCTIONS FOR TESTING
+//                  GLOBAL HELPER TYPE FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+typedef bdesu_FileUtil Obj;
 
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 inline
@@ -123,12 +125,68 @@ bool isForwardSlash (char t)
 
 #endif
 
+void localTouch(const char *fileName)
+{
+    Obj::FileDescriptor fd = Obj::open(fileName, true, false);
+    ASSERT(Obj::INVALID_FD != fd);
+    // ASSERT(1 == Obj::write(fd, "x", 1));
+
+    Obj::close(fd);
+}
+
 void localSleep(int seconds)
 {
 #ifdef BSLS_PLATFORM__OS_UNIX
     sleep(seconds);
 #else
     ::Sleep(seconds * 1000);
+#endif
+}
+
+static
+void localForkExec(const char *command)
+{
+    char buf[1000];
+    const unsigned cmdLen = bsl::strlen(command);
+    BSLS_ASSERT(sizeof(buf) >= cmdLen + 1);
+    bsl::strcpy(buf, command);
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+    if (0 == fork()) {
+        // child process
+
+        bsl::vector<char *> argvec;
+        const char *endp = buf + cmdLen;
+        for (char *pc = buf; pc < endp; ) {
+            char *start = pc;
+            while (*pc && ' ' != *pc) {
+                ++pc;
+            }
+            *pc = 0;
+            argvec.push_back(start);
+            ++pc;
+        }
+        argvec.push_back(0);
+
+        execv(argvec[0], &argvec[0]);
+    }
+#else
+    STARTUPINFO sui;
+    GetStartupInfo(&sui);
+
+    PROCESS_INFORMATION proci;
+
+    bool rc = CreateProcess(NULL,       // lpApplicationName
+                            buf,        // lpCommandLine
+                            NULL,       // lpProcessAttributes
+                            NULL,       // lpThreadAttibutes
+                            true,       // bInheritHandles
+                            0,          // dwCreationFlags
+                            NULL,       // lpEnvironment
+                            NULL,       // lpCurrentDirectory
+                            &sui,       // lpStartupInfo - in
+                            &proci);    // lpProcessInformation - out
+    ASSERT(rc);
 #endif
 }
 
@@ -295,7 +353,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch(test) { case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 2
         //
@@ -382,7 +440,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
 
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -474,6 +532,142 @@ int main(int argc, char *argv[])
         ASSERT(0 == bdesu_PathUtil::popLeaf(&logPath));
         ASSERT(0 == bdesu_FileUtil::remove(logPath.c_str(), true));
       } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // Append test
+        //
+        // Concerns:
+        //   On Unix, if a file is opened for append, all writes to that file,
+        //   event following an lseek or a write from another process, are to
+        //   append to the end of the file.  The MSDN doc specifically says
+        //   that the doc's author doesn't know what will happen, so this test
+        //   is to verify whatever the behavior is.
+        // --------------------------------------------------------------------
+
+        typedef bdesu_FileUtil::FileDescriptor FD;
+
+        const char *testFile = "tmp.bdesu_fileutil_12.append.txt.";
+        const char *tag1     = "tmp.bdesu_fileUtil_12.tag.1.txt";
+        const char *success  = "tmp.bdesu_fileUtil_12.success.txt";
+
+        const char testString[] = { "123456789" };
+
+        enum { SZ10 = sizeof(testString) };  // satisfy pedants who won't
+        ASSERT(10 == SZ10);                  // tolerate a magic number
+
+        Obj::Offset fs;                      // file size cache variable
+
+        bool isParent = !verbose || bsl::string(argv[2]) != "child";
+        if (isParent)  {
+            if (verbose) cout << "APPEND TEST\n"
+                                 "===========\n";
+
+            Obj::remove(testFile);
+            Obj::remove(tag1);
+            Obj::remove(success);
+
+            // First, test with lseek on one file desc
+
+            FD fd = Obj::open(testFile, true, false, true); // append mode
+            ASSERT(Obj::INVALID_FD != fd);
+
+            int rc = Obj::write(fd, testString, SZ10);
+            ASSERT(SZ10 == rc);
+
+            Obj::Offset off =Obj::seek(fd, 0, Obj::BDESU_SEEK_FROM_BEGINNING);
+            ASSERT(0 == off);
+
+            rc = Obj::write(fd, testString, SZ10);
+            ASSERT(SZ10 == rc);
+
+            LOOP_ASSERT(fs, 2 * SZ10 == (fs = Obj::getFileSize(testFile)));
+            off = Obj::seek(fd, 0, Obj::BDESU_SEEK_FROM_CURRENT);
+            ASSERT(2 * SZ10 == off);
+
+            // Next, see what happens when another file desc from the same
+            // process writes to the end of the file.
+
+            FD fd2 = Obj::open(testFile, true, true);
+            ASSERT(Obj::INVALID_FD != fd2);
+
+            off = Obj::seek(fd2, 0, Obj::BDESU_SEEK_FROM_END);
+            LOOP_ASSERT(off, 2 * SZ10 == off);
+
+            rc = Obj::write(fd2, testString, SZ10);
+            ASSERT(SZ10 == rc);
+            LOOP_ASSERT(fs, 3 * SZ10 == (fs = Obj::getFileSize(testFile)));
+
+            rc = Obj::write(fd, testString, SZ10);
+            ASSERT(SZ10 == rc);
+
+            LOOP_ASSERT(fs, 4 * SZ10 == (fs = Obj::getFileSize(testFile)));
+            off = Obj::seek(fd, 0, Obj::BDESU_SEEK_FROM_CURRENT);
+            LOOP_ASSERT(off, 4 * SZ10 == off);
+
+            bsl::stringstream cmd;
+            cmd << argv[0] << ' ' << argv[1] << " child";
+            cmd << (verbose     ? " v" : "");
+            cmd << (veryVerbose ? " v" : "");
+
+            localForkExec(cmd.str().c_str());
+
+            while (!Obj::exists(tag1)) {
+                if (veryVerbose) Q(Parent sleeping);
+                localSleep(1);
+            }
+            if (verbose) Q(Parent detected tag1);
+
+            rc = Obj::write(fd, testString, SZ10);
+            ASSERT(SZ10 == rc);
+
+            LOOP_ASSERT(fs, 6 * SZ10 == (fs = Obj::getFileSize(testFile)));
+            off = Obj::seek(fd, 0, Obj::BDESU_SEEK_FROM_CURRENT);
+            LOOP_ASSERT(off, 6 * SZ10 == off);
+
+            ASSERT(Obj::exists(success));
+
+            Obj::close(fd);
+            Obj::close(fd2);
+            Obj::remove(testFile);
+            Obj::remove(tag1);
+            Obj::remove(success);
+
+            if (verbose) Q(Parent finished);
+
+#ifdef BSLS_PLATFORM__OS_UNIX
+            wait(0);
+#endif
+        }
+        else {
+            // child process
+
+            verbose = veryVerbose;
+            veryVerbose = veryVeryVerbose;
+            veryVeryVerbose = false;
+
+            ASSERT(bdesu_FileUtil::exists(testFile));
+            LOOP_ASSERT(fs, 4 * SZ10 == (fs = Obj::getFileSize(testFile)));
+
+            FD fdChild = Obj::open(testFile, true, true);
+            ASSERT(Obj::INVALID_FD != fdChild);
+
+            Obj::Offset off = Obj::seek(fdChild, 0, Obj::BDESU_SEEK_FROM_END);
+            LOOP_ASSERT(off, 4 * SZ10 == off);
+
+            int rc = Obj::write(fdChild, testString, SZ10);
+            ASSERT(SZ10 == rc);
+
+            if (0 == testStatus) {
+                localTouch(success);
+            }
+
+            localTouch(tag1);
+
+            Obj::close(fdChild);
+
+            if (verbose) Q(Child finished);
+        }
+      } break;
 
       // ----------------------------------------------------------------------
       // TRYLOCK TESTS
@@ -495,7 +689,11 @@ int main(int argc, char *argv[])
       //   on Windoze, and I don't know what the corresponding windows call
       //   would be (searching for 'fork' on MSDN just refers you to
       //   stackOverflow talking about Unix fork).  So the tests were redone
-      //   using 'system' rather than fork.
+      //   using 'system' rather than fork.  Later, when I did the 'append'
+      //   test, I found that on Windows, 'system' was ignoring the '&' and
+      //   blocking until the child process terminated.  This wasnt a problem
+      //   in the tryLock tests, but it caused the append test to hang.  So
+      //   'localForkExec' was written.
       //
       // Plan:
       //   Given that the behaviors are so different, I'm doing completely
@@ -525,6 +723,14 @@ int main(int argc, char *argv[])
             if (verbose) cout << "tryLock test\n"
                                  "============\n";
 
+            if (verbose) {
+                cout << "Parent:";
+                for (int i = 0; i < argc; ++i) {
+                    cout << ' ' << argv[i];
+                }
+                cout << endl;
+            }
+
             bdesu_FileUtil::remove(fileNameWrite);
             bdesu_FileUtil::remove(fileNameRead);
             bdesu_FileUtil::remove(fileNameSuccess);
@@ -537,22 +743,23 @@ int main(int argc, char *argv[])
             ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
             rc = bdesu_FileUtil::write(fdWrite, "woof", 4);
             ASSERT(4 == rc);
+#if 0
             rc = bdesu_FileUtil::close(fdWrite);
             ASSERT(0 == rc);
             fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
+#endif
 
             fdRead  = bdesu_FileUtil::open(fileNameRead,  true, false);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
             rc = bdesu_FileUtil::write(fdRead , "woof", 4);
             ASSERT(4 == rc);
+#if 0
             rc = bdesu_FileUtil::close(fdRead);
             ASSERT(0 == rc);
             fdRead  = bdesu_FileUtil::open(fileNameRead, false, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdRead);
-
-            // Unix can only lock a writable file for write
-
+#endif
             rc = bdesu_FileUtil::tryLock(fdWrite, true);
             ASSERT(0 == rc);
             rc = bdesu_FileUtil::tryLock(fdRead,  false);
@@ -562,9 +769,8 @@ int main(int argc, char *argv[])
             cmd << argv[0] << ' ' << argv[1] << " child";
             cmd << (verbose     ? " v" : "");
             cmd << (veryVerbose ? " v" : "");
-            cmd << " &";
 
-            bsl::system(cmd.str().c_str());
+            localForkExec(cmd.str().c_str());
 
             localSleep(3);
 
@@ -602,6 +808,14 @@ int main(int argc, char *argv[])
         else {
             // child process
 
+            if (veryVerbose) {
+                cout << "Child:";
+                for (int i = 0; i < argc; ++i) {
+                    cout << ' ' << argv[i];
+                }
+                cout << endl;
+            }
+
             verbose = veryVerbose;
             veryVerbose = veryVeryVerbose;
             veryVeryVerbose = false;
@@ -616,7 +830,7 @@ int main(int argc, char *argv[])
             // read and locked for write, you can open it for read, but you
             // can't actually read from it.
 
-            fdWrite = bdesu_FileUtil::open(fileNameWrite, false, true);
+            fdWrite = bdesu_FileUtil::open(fileNameWrite,  true, true);
             ASSERT(bdesu_FileUtil::INVALID_FD != fdWrite);
 
             fdRead  = bdesu_FileUtil::open(fileNameRead,  false, true);
@@ -743,9 +957,8 @@ int main(int argc, char *argv[])
             cmd << argv[0] << ' ' << argv[1] << " child";
             cmd << (verbose     ? " v" : "");
             cmd << (veryVerbose ? " v" : "");
-            cmd << " &";
 
-            bsl::system(cmd.str().c_str());
+            localForkExec(cmd.str().c_str());
 
             localSleep(3);
 
