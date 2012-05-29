@@ -839,9 +839,9 @@ void SerializableObjectProxyUtil::makeDecodeProxy(
 
 
 template<typename VECTOR>
-void SerializableObjectProxyUtil::vectorResizeFn(void* object,
-                                                 void** newBegin,
-                                                 bsl::size_t newSize)
+void SerializableObjectProxyUtil::vectorResizeFn(void         *object,
+                                                 void        **newBegin,
+                                                 bsl::size_t   newSize)
 {
     VECTOR *array = (VECTOR *)object;
     array->resize(newSize);
@@ -905,8 +905,8 @@ void SerializableObjectProxyUtil::makeDecodeProxy(
                                             TYPE                    *object,
                                             bdeat_TypeCategory::CustomizedType)
 {
-    typedef typename
-        bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+    typedef typename bdeat_CustomizedTypeFunctions::BaseType<TYPE>::Type
+                                                                      BaseType;
 
     // We rely on the knowledge that codegen's 'toString', 'toInt', etc methods
     // return references to the underlying base-type member variable, so that
@@ -915,7 +915,7 @@ void SerializableObjectProxyUtil::makeDecodeProxy(
     // differently?
 
     const BaseType& baseRef =
-        bdeat_CustomizedTypeFunctions::convertToBaseType(*object);
+                     bdeat_CustomizedTypeFunctions::convertToBaseType(*object);
 
     makeDecodeProxy(proxy, (BaseType*)&baseRef);
 }

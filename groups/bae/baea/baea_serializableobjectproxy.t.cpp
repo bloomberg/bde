@@ -59,123 +59,127 @@ using bsl::endl;
 // [  ] STREAM& bdexStreamOut(STREAM& stream, int) const;
 //
 // MANIPULATORS
-// [ 6] void resize(size_t newSize);
-// [ 7] int choiceMakeSelection(int selectionId);
-// [ 7] int choiceMakeSelection(const char *name, int length);
-// [ 7] int choiceManipulateSelection(MANIPULATOR& manipulator);
-// [ 6] int arrayManipulateElement(MANIPULATOR& manipulator, int index);
-// [ 8] int sequenceManipulateAttribute(MANIPULATOR& manipulator, int id);
-// [ 8] int sequenceManipulateAttribute(MANIPULATOR& m, const char*  n, int l);
-// [ 4] int manipulateSimple(MANIPULATOR& manipulator);
-// [ 9] int manipulateNullable(MANIPULATOR& manipulator);
-// [ 5] int enumFromInt(int value);
-// [ 5] int enumFromString(const char *stringValue, int stringLength);
-// [ 9] void makeValue();
-// [ 4] void loadSimple(char               *value);
-// [ 4] void loadSimple(unsigned char      *value);
-// [ 4] void loadSimple(short              *value);
-// [ 4] void loadSimple(int                *value);
-// [ 4] void loadSimple(bsls_Types::Int64  *value);
-// [ 4] void loadSimple(unsigned short     *value);
-// [ 4] void loadSimple(unsigned int       *value);
-// [ 4] void loadSimple(bsls_Types::Uint64 *value);
-// [ 4] void loadSimple(float              *value);
-// [ 4] void loadSimple(double             *value);
-// [ 4] void loadSimple(bsl::string        *value);
-// [ 4] void loadSimple(bdet_Datetime      *value);
-// [ 4] void loadSimple(bdet_Date          *value);
-// [ 4] void loadSimple(bdet_Time          *value);
-// [ 4] void loadSimple(bool               *value);
-// [ 4] void loadSimple(bdet_DatetimeTz    *value);
-// [ 4] void loadSimple(bdet_DateTz        *value);
-// [ 4] void loadSimple(bdet_TimeTz        *value);
-// [ 7] loadChoice(int, void *, const SInfo *, const char *, Accessor);
-// [ 7] loadChoice(int, void *, const SInfo *, AccssrNExtrctr, Chooser);
-// [ 8] loadSequence(int, void *, const AInfo *, const char *, ElmtAccssr);
-// [ 6] loadArray(int length, int elementSize, void *begin, Accessor a);
-// [ 6] loadArray(void *, int, int, void *, Resizer, Accessor);
-// [ 9] loadNullable(void *object, Accessor accessor);
-// [ 9] loadNullable(void *obj, Accessor, Manipulator, ObjectFetcher);
-// [ 5] loadEnumeration(int v, const EnumeratorInfo *a, int s);
-// [ 5] loadEnumeration(void *, IntSetter, StrSetter, const EInfo *, int);
+// [ 4] void resize(size_t newSize);
+// [ 5] int choiceMakeSelection(int selectionId);
+// [ 5] int choiceMakeSelection(const char *name, int length);
+// [ 5] int choiceManipulateSelection(MANIPULATOR& manipulator);
+// [ 4] int arrayManipulateElement(MANIPULATOR& manipulator, int index);
+// [ 6] int sequenceManipulateAttribute(MANIPULATOR& manipulator, int id);
+// [ 6] int sequenceManipulateAttribute(MANIPULATOR& m, const char*  n, int l);
+// [ 2] int manipulateSimple(MANIPULATOR& manipulator);
+// [ 7] int manipulateNullable(MANIPULATOR& manipulator);
+// [ 3] int enumFromInt(int value);
+// [ 3] int enumFromString(const char *stringValue, int stringLength);
+// [ 7] void makeValue();
+// [ 2] void loadSimple(char               *value);
+// [ 2] void loadSimple(unsigned char      *value);
+// [ 2] void loadSimple(short              *value);
+// [ 2] void loadSimple(int                *value);
+// [ 2] void loadSimple(bsls_Types::Int64  *value);
+// [ 2] void loadSimple(unsigned short     *value);
+// [ 2] void loadSimple(unsigned int       *value);
+// [ 2] void loadSimple(bsls_Types::Uint64 *value);
+// [ 2] void loadSimple(float              *value);
+// [ 2] void loadSimple(double             *value);
+// [ 2] void loadSimple(bsl::string        *value);
+// [ 2] void loadSimple(bdet_Datetime      *value);
+// [ 2] void loadSimple(bdet_Date          *value);
+// [ 2] void loadSimple(bdet_Time          *value);
+// [ 2] void loadSimple(bool               *value);
+// [ 2] void loadSimple(bdet_DatetimeTz    *value);
+// [ 2] void loadSimple(bdet_DateTz        *value);
+// [ 2] void loadSimple(bdet_TimeTz        *value);
+// [ 5] loadChoice(int, void *, const SInfo *, const char *, Accessor);
+// [ 5] loadChoice(int, void *, const SInfo *, AccssrNExtrctr, Chooser);
+// [ 6] loadSequence(int, void *, const AInfo *, const char *, ElmtAccssr);
+// [ 4] loadArray(int length, int elementSize, void *begin, Accessor a);
+// [ 4] loadArray(void *, int, int, void *, Resizer, Accessor);
+// [ 7] loadNullable(void *object, Accessor accessor);
+// [ 7] loadNullable(void *obj, Accessor, Manipulator, ObjectFetcher);
+// [ 3] loadEnumeration(int v, const EnumeratorInfo *a, int s);
+// [ 3] loadEnumeration(void *, IntSetter, StrSetter, const EInfo *, int);
 //
 // ACCESSORS
-// [11] const char *className() const;
-// [11] bdeat_TypeCategory::Value category() const;
-// [ 7] int selectionId() const;
-// [ 6] bsl::size_t size() const;
-// [11] const void* object() const;
-// [ 6] bool isByteArrayValue() const;
-// [ 9] bool isNull() const;
-// [11] bool isValidForEncoding() const;
-// [11] bool isValidForDecoding() const;
-// [ 7] bool choiceHasSelection(const char *name, int len) const;
-// [ 7] bool choiceHasSelection(int selectionId) const;
-// [ 8] bool sequenceHasAttribute(const char *name, int len) const;
-// [ 8] bool sequenceHasAttribute(int attributeId) const;
-// [ 7] int choiceAccessSelection(ACCESSOR& accessor) const;
-// [ 8] int sequenceAccessAttribute(ACCESSOR& accessor, int attrId) const;
-// [ 8] int sequenceAccessAttributes(ACCESSOR& accessor) const;
-// [ 9] int accessNullable(ACCESSOR& accessor) const;
-// [ 4] int accessSimple(ACCESSOR& accessor) const;
-// [ 6] int arrayAccessElement(ACCESSOR& accessor, int index) const;
-// [ 5] int enumToInt() const;
-// [ 5] const char* enumToString() const;
+// [ 9] const char *className() const;
+// [ 9] bdeat_TypeCategory::Value category() const;
+// [ 5] int selectionId() const;
+// [ 4] bsl::size_t size() const;
+// [ 9] const void* object() const;
+// [ 4] bool isByteArrayValue() const;
+// [ 7] bool isNull() const;
+// [ 9] bool isValidForEncoding() const;
+// [ 9] bool isValidForDecoding() const;
+// [ 5] bool choiceHasSelection(const char *name, int len) const;
+// [ 5] bool choiceHasSelection(int selectionId) const;
+// [ 6] bool sequenceHasAttribute(const char *name, int len) const;
+// [ 6] bool sequenceHasAttribute(int attributeId) const;
+// [ 5] int choiceAccessSelection(ACCESSOR& accessor) const;
+// [ 6] int sequenceAccessAttribute(ACCESSOR& accessor, int attrId) const;
+// [ 6] int sequenceAccessAttributes(ACCESSOR& accessor) const;
+// [ 7] int accessNullable(ACCESSOR& accessor) const;
+// [ 2] int accessSimple(ACCESSOR& accessor) const;
+// [ 4] int arrayAccessElement(ACCESSOR& accessor, int index) const;
+// [ 3] int enumToInt() const;
+// [ 3] const char* enumToString() const;
 
 // 'bdeat_typecategory' OVERLOADS
-// [11] Value bdeat_typeCategorySelect(const ObjectProxy& obj);
-// [ 4] int bdeat_typeCategoryAccessSimple(const ObjProxy&, ACCESSOR& a);
-// [ 4] int bdeat_typeCategoryManipulateSimple(ObjProxy *, MANIPULATOR&);
-// [ 6] int bdeat_typeCategoryManipulateArray(ObjProxy *, MANIPULATOR&);
-// [ 6] int bdeat_typeCategoryAccessArray(const ObjectProxy&, ACCESSOR&);
-// [ 9] int bdeat_typeCategoryAccessNullableValue(const ObjProxy&, ACC&);
-// [ 9] int bdeat_typeCategoryManipulateNullableValue(ObjProxy*, MANIP&);
+// [ 9] Value bdeat_typeCategorySelect(const ObjectProxy& obj);
+// [ 2] int bdeat_typeCategoryAccessSimple(const ObjProxy&, ACCESSOR& a);
+// [ 2] int bdeat_typeCategoryManipulateSimple(ObjProxy *, MANIPULATOR&);
+// [ 4] int bdeat_typeCategoryManipulateArray(ObjProxy *, MANIPULATOR&);
+// [ 4] int bdeat_typeCategoryAccessArray(const ObjectProxy&, ACCESSOR&);
+// [ 7] int bdeat_typeCategoryAccessNullableValue(const ObjProxy&, ACC&);
+// [ 7] int bdeat_typeCategoryManipulateNullableValue(ObjProxy*, MANIP&);
 //
 // 'bdeat_EnumFunctions' OVERLOADS
 //
-// [ 5] void bdeat_enumToInt(int *, const ObjectProxy& object)
-// [ 5] int bdeat_enumFromInt(ObjectProxy *result, int value)
-// [ 5] void bdeat_enumToString(bsl::string *, const ObjectProxy& object)
-// [ 5] int bdeat_enumFromString(ObjectProxy *, const char *str, int len)
+// [ 3] void bdeat_enumToInt(int *, const ObjectProxy& object)
+// [ 3] int bdeat_enumFromInt(ObjectProxy *result, int value)
+// [ 3] void bdeat_enumToString(bsl::string *, const ObjectProxy& object)
+// [ 3] int bdeat_enumFromString(ObjectProxy *, const char *str, int len)
 //
 // 'bdeat_arrayfunctions' OVERLOADS AND SPECIALIZATIONS
-// [ 6] bsl::size_t bdeat_arraySize(const ObjectProxy& object)
-// [ 6] void bdeat_arrayResize(ObjectProxy* object, int newSize)
-// [ 6] int bdeat_arrayAccessElement(const ObjectProxy&, ACCESSOR&, int)
-// [ 6] int bdeat_arrayManipulateElement(ObjectProxy*, MANIPULATOR&, int)
+// [ 4] bsl::size_t bdeat_arraySize(const ObjectProxy& object)
+// [ 4] void bdeat_arrayResize(ObjectProxy* object, int newSize)
+// [ 4] int bdeat_arrayAccessElement(const ObjectProxy&, ACCESSOR&, int)
+// [ 4] int bdeat_arrayManipulateElement(ObjectProxy*, MANIPULATOR&, int)
 //
 // 'bdeat_sequencefunctions' OVERLOADS AND SPECIALIZATIONS
-// [  ] int bdeat_sequenceAccessAttributes(const ObjectProxy&, ACCESSOR&)
-// [  ] int bdeat_sequenceAccessAttribute(const ObjProxy&, ACCESSOR&, int)
-// [  ] bdeat_sequenceManipulateAttribute(ObjProxy *, MANIPULATOR&, int)
-// [  ] bdeat_sequenceManipulateAttribute(ObjProxy *, MANIP&, const char*, int)
-// [  ] bdeat_sequenceHasAttribute(const ObjectProxy&, int)
-// [  ] bdeat_sequenceHasAttribute(const ObjProxy&, const char *, int)
+// [ 6] int bdeat_sequenceAccessAttributes(const ObjectProxy&, ACCESSOR&)
+// [ 6] int bdeat_sequenceAccessAttribute(const ObjProxy&, ACCESSOR&, int)
+// [ 6] bdeat_sequenceAccessAttribute(const Proxy&, AC&, const char*, int)
+// [ 6] int bdeat_sequenceManipulateAttributes(ObjProxy *, MANIPULATOR&)
+// [ 6] bdeat_sequenceManipulateAttribute(ObjProxy *, MANIPULATOR&, int)
+// [ 6] bdeat_sequenceManipulateAttribute(Proxy*, MAN&, const char*, int)
+// [ 6] bdeat_sequenceHasAttribute(const ObjectProxy&, int)
+// [ 6] bdeat_sequenceHasAttribute(const ObjProxy&, const char *, int)
 //
 // 'bdeat_nullablevaluefunctions' OVERLOADS AND SPECIALIZATIONS
-// [10] bool bdeat_nullableValueIsNull(const NullableAdapter& object)
-// [10] void bdeat_nullableValueMakeValue(NullableAdapter *object)
-// [10] int bdeat_nullableValueManipulateValue(Nullable*, MANIPULATOR&)
-// [10] int bdeat_nullableValueAccessValue(const Nullable&, ACCESSOR&)
+// [ 8] bool bdeat_nullableValueIsNull(const NullableAdapter& object)
+// [ 8] void bdeat_nullableValueMakeValue(NullableAdapter *object)
+// [ 8] int bdeat_nullableValueManipulateValue(Nullable*, MANIPULATOR&)
+// [ 8] int bdeat_nullableValueAccessValue(const Nullable&, ACCESSOR&)
 //
 // 'bdeat_typename' overloads
-// [11] const char *bdeat_TypeName_className(const ObjectProxy& object)
+// [ 9] const char *bdeat_TypeName_className(const ObjectProxy& object)
 //
 // 'bdeat_choicefunctions' overloads and specializations
-// [  ] int bdeat_choiceSelectionId(const ObjectProxy& object)
-// [  ] int bdeat_choiceAccessSelection(const ObjectProxy&, ACCESSOR&)
-// [  ] bool bdeat_choiceHasSelection(const ObjProxy&, const char *, int)
-// [  ] bool bdeat_choiceHasSelection(const ObjectProxy&, int)
-// [  ] int bdeat_choiceMakeSelection(ObjectProxy *obj, int selectionId)
-// [  ] int bdeat_choiceMakeSelection(ObjectProxy  *, const char *, int)
-// [  ] int bdeat_choiceManipulateSelection(ObjectProxy *, MANIPULATOR&)
+// [ 5] int bdeat_choiceSelectionId(const ObjectProxy& object)
+// [ 5] int bdeat_choiceAccessSelection(const ObjectProxy&, ACCESSOR&)
+// [ 5] bool bdeat_choiceHasSelection(const ObjProxy&, const char *, int)
+// [ 5] bool bdeat_choiceHasSelection(const ObjectProxy&, int)
+// [ 5] int bdeat_choiceMakeSelection(ObjectProxy *obj, int selectionId)
+// [ 5] int bdeat_choiceMakeSelection(ObjectProxy  *, const char *, int)
+// [ 5] int bdeat_choiceManipulateSelection(ObjectProxy *, MANIPULATOR&)
 
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+namespace {
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -183,6 +187,8 @@ static void aSsErT(int c, const char *s, int i)
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
 }
+
+}  // close anonymous namespace
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 
@@ -814,7 +820,7 @@ struct ExtractAddressAccessor {
     int operator() (const TYPE&)
     {
         // needed to compile due to nullable adapter, but should not be called
-        ASSERT(!"Should be unreachable");
+        ASSERTV(!"Should be unreachable");
         return -1;
     }
 };
@@ -834,31 +840,39 @@ struct ExtractAddressManipulator {
     int operator() (TYPE *)
     {
         // needed to compile due to nullable adapter, but should not be called
-        ASSERT(!"Should be unreachable");
+        ASSERTV(!"Should be unreachable");
         return -1;
     }
 };
 
+template<typename TYPE>
 struct SimpleAccessor {
     const void *d_address;
     int         d_rc;
 
+    // CREATORS
     SimpleAccessor() : d_address(0), d_rc(0) {};
 
-    template<typename TYPE>
+    // MANIPULATORS
+    void reset()
+    {
+        d_address = 0;
+        d_rc = 0;
+    }
+
     int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
     {
         d_address = &object;
         return d_rc;
     }
 
-    template<typename TYPE, typename CATEGORY>
-    int operator()(const TYPE& object, const CATEGORY&)
+    template<typename OTHER_TYPE, typename OTHER_CATEGORY>
+    int operator()(const OTHER_TYPE& object, const OTHER_CATEGORY&)
     {
-        // This is needed to compile for use with nullable proxy, but should
-        // not be called.
+        // This is needed to compile because there are many Simple types, but
+        // should not be called.
 
-        ASSERT(!"Should be unreachable");
+        ASSERTV(!"Should be unreachable");
         return -1;
     }
 };
@@ -868,7 +882,15 @@ struct SimpleManipulator {
     void *d_address;
     int  d_rc;
 
+    // CREATORS
     SimpleManipulator() : d_address(0), d_rc(0) {};
+
+    // MANIPULATORS
+    void reset()
+    {
+        d_address = 0;
+        d_rc = 0;
+    }
 
     int operator()(TYPE *value, bdeat_TypeCategory::Simple)
     {
@@ -880,7 +902,7 @@ struct SimpleManipulator {
     int operator()(OTHER_TYPE *, const OTHER_CATEGORY&)
     {
         // needed to compile due to nullable adapter, but should not be called
-        ASSERT(!"Should be unreachable");
+        ASSERTV(!"Should be unreachable");
         return -1;
     }
 };
@@ -891,13 +913,22 @@ struct ArrayElementAccessor {
     const void                    *d_address;
     int                            d_rc;
 
+    // CREATORS
     ArrayElementAccessor() : d_address(0), d_rc(0) {}
+
+    // MANIPULATORS
+    void reset()
+    {
+        d_proxy = 0;
+        d_address = 0;
+        d_rc = 0;
+    }
 
     int operator() (const SerializableObjectProxy& object)
     {
         d_proxy = &object;
 
-        SimpleAccessor accessor;
+        SimpleAccessor<TYPE> accessor;
         object.accessSimple(accessor);
         d_address = accessor.d_address;
 
@@ -907,12 +938,11 @@ struct ArrayElementAccessor {
     int operator() (const SerializableObjectProxy_NullableAdapter&)
     {
         // needed to compile due to nullable adapter, but should not be called
-        ASSERT(!"Should be unreachable");
+        ASSERTV(!"Should be unreachable");
         return -1;
     }
 };
 
-template <class TYPE>
 struct ArrayAccessor {
     const void                    *d_address;
     int                            d_rc;
@@ -940,7 +970,16 @@ struct ArrayElementManipulator {
     void                          *d_address;
     int                            d_rc;
 
+    // CREATORS
     ArrayElementManipulator() : d_address(0), d_rc(0) {}
+
+    // MANIPULATORS
+    void reset()
+    {
+        d_proxy = 0;
+        d_address = 0;
+        d_rc = 0;
+    }
 
     int operator() (SerializableObjectProxy *object)
     {
@@ -955,12 +994,11 @@ struct ArrayElementManipulator {
     int operator() (SerializableObjectProxy_NullableAdapter *)
     {
         // needed to compile due to nullable adapter, but should not be called
-        ASSERT(!"Should be unreachable");
+        ASSERTV(!"Should be unreachable");
         return -1;
     }
 };
 
-template <class TYPE>
 struct ArrayManipulator {
     const void *d_address;
     int         d_rc;
@@ -988,16 +1026,25 @@ struct SequenceAccessor {
     bdeat_AttributeInfo            d_info;
     int                            d_rc;
 
+    // CREATORS
     SequenceAccessor() : d_proxy(0), d_address(0), d_rc(0) {}
+
+    // MANIPULATORS
+    void reset()
+    {
+        d_proxy = 0;
+        d_address = 0;
+        d_rc = 0;
+    }
 
     int operator() (const SerializableObjectProxy& object,
                     const bdeat_AttributeInfo&     info)
     {
         d_proxy = &object;
-        SimpleAccessor extractor;
-        object.accessSimple(extractor);
+        SimpleAccessor<int> accessor;
+        object.accessSimple(accessor);
 
-        d_address = extractor.d_address;
+        d_address = accessor.d_address;
         d_info = info;
         return d_rc;
     }
@@ -1007,7 +1054,46 @@ struct SequenceAccessor {
     {
         // needed to compile due to nullable adapter, but should not be called
 
-        ASSERT(!"Should be unreachable");
+        ASSERTV(!"Should be unreachable");
+        return -1;
+    }
+};
+
+struct SequenceManipulator {
+    const SerializableObjectProxy *d_proxy;
+    const void                    *d_address;
+    bdeat_AttributeInfo            d_info;
+    int                            d_rc;
+
+    // CREATORS
+    SequenceManipulator() : d_proxy(0), d_address(0), d_rc(0) {}
+
+    // MANIPULATORS
+    void reset()
+    {
+        d_proxy = 0;
+        d_address = 0;
+        d_rc = 0;
+    }
+
+    int operator() (SerializableObjectProxy    *object,
+                    const bdeat_AttributeInfo&  info)
+    {
+        d_proxy = object;
+        SimpleAccessor<int> extractor;
+        object->accessSimple(extractor);
+
+        d_address = extractor.d_address;
+        d_info = info;
+        return d_rc;
+    }
+
+    template <typename TYPE>
+    int operator() (TYPE *, const bdeat_AttributeInfo&)
+    {
+        // needed to compile due to nullable adapter, but should not be called
+
+        ASSERTV(!"Should be unreachable");
         return -1;
     }
 };
@@ -1034,7 +1120,7 @@ struct ChoiceAccessor {
     {
         // needed to compile due to nullable adapter, but should not be called
 
-        ASSERT(!"Should be unreachable");
+        ASSERTV(!"Should be unreachable");
         return -1;
     }
 };
@@ -1061,48 +1147,48 @@ struct ChoiceManipulator
     int operator() (TYPE*, const bdeat_SelectionInfo&)
     {
         // needed to compile due to nullable adapter, but should not be called
-        ASSERT(!"Should be unreachable");
+        ASSERTV(!"Should be unreachable");
         return -1;
     }
 };
 
-SerializableObjectProxy *elementAccessorFn_proxy;
-const void              *elementAccessorFn_object;
-int                      elementAccessorFn_int;
-int                      elementAccessorFn_index;
-void elementAccessorFn(SerializableObjectProxy       *proxy,
-                       const SerializableObjectProxy &object,
-                       int                            index)
+SerializableObjectProxy *s_elementLoaderFn_proxy;
+const void              *s_elementLoaderFn_object;
+int                      s_elementLoaderFn_int;
+int                      s_elementLoaderFn_index;
+void elementLoaderFn(SerializableObjectProxy        *proxy,
+                     const SerializableObjectProxy&  object,
+                     int                             index)
 {
-    elementAccessorFn_proxy = proxy;
-    elementAccessorFn_object = &object;
-    elementAccessorFn_index = index;
-    proxy->loadSimple(&elementAccessorFn_int);
+    s_elementLoaderFn_proxy = proxy;
+    s_elementLoaderFn_object = &object;
+    s_elementLoaderFn_index = index;
+    proxy->loadSimple(&s_elementLoaderFn_int);
 }
 
-SerializableObjectProxy *s_accessorFn_proxy;
-void                    *s_accessorFn_object;
-int                      s_accessorFn_int;
+SerializableObjectProxy *s_loaderFn_proxy;
+void                    *s_loaderFn_object;
+int                      s_loaderFn_int;
 template<class TYPE>
-void accessorFn(SerializableObjectProxy *proxy, void* object)
+void loaderFn(SerializableObjectProxy *proxy, void* object)
 {
-    s_accessorFn_proxy = proxy;
-    s_accessorFn_object = object;
-    proxy->loadSimple(&s_accessorFn_int);
+    s_loaderFn_proxy = proxy;
+    s_loaderFn_object = object;
+    proxy->loadSimple(&s_loaderFn_int);
 }
 
-SerializableObjectProxy   *s_accessorAndExtractorFn_proxy;
-void                      *s_accessorAndExtractorFn_object;
-const bdeat_SelectionInfo *s_accessorAndExtractorFn_selectInfoPtr;
-int                        s_accessorAndExtractorFn_int;
-void accessorAndExtractorFn(SerializableObjectProxy *proxy,
-                                  void* object,
-                                  const bdeat_SelectionInfo **selectInfoPtr)
+SerializableObjectProxy   *s_selectionLoaderFn_proxy;
+void                      *s_selectionLoaderFn_object;
+const bdeat_SelectionInfo *s_selectionLoaderFn_selectInfoPtr;
+int                        s_selectionLoaderFn_int;
+void selectionLoaderFn(SerializableObjectProxy    *proxy,
+                       void                       *object,
+                       const bdeat_SelectionInfo **selectInfoPtr)
 {
-    s_accessorAndExtractorFn_proxy = proxy;
-    s_accessorAndExtractorFn_object = object;
-    *selectInfoPtr = s_accessorAndExtractorFn_selectInfoPtr;
-    proxy->loadSimple(&s_accessorAndExtractorFn_int);
+    s_selectionLoaderFn_proxy = proxy;
+    s_selectionLoaderFn_object = object;
+    *selectInfoPtr = s_selectionLoaderFn_selectInfoPtr;
+    proxy->loadSimple(&s_selectionLoaderFn_int);
 }
 
 int   s_chooserFn_rc = 0;
@@ -1175,58 +1261,64 @@ int stringSetterFn(void *object, const char *value, int length)
 // ----------------------------------------------------------------------------
 
 template <class TYPE>
-void executeSimpleCategoryTest(const char *typeName, const TYPE& testValue)
+void executeSimpleCategoryTest(const char *typeName)
 {
     Obj mX; const Obj& X = mX;
     const TYPE DEFAULT = TYPE();
     TYPE obj = DEFAULT;
     mX.loadSimple(&obj);
 
-    ASSERTV(typeName, Category::BDEAT_SIMPLE_CATEGORY == X.category());
-    ASSERTV(typeName,
-            Category::BDEAT_SIMPLE_CATEGORY == bdeat_typeCategorySelect(X));
-
-    // TBD: fix this!! object() is 0 instead of the address of the object as
-    // documented.
-
-    ASSERTV(typeName, (void*)&obj, X.object(), &obj == (TYPE*) X.object());
-    ASSERTV(false == X.isByteArrayValue());
-    ASSERTV(true  == X.isValidForEncoding());
-    ASSERTV(true  == X.isValidForDecoding());
-
-    //SimpleAccessor<TYPE> accessor1;
-    //SimpleAccessor<TYPE> accessor2;
+    if (verbose) cout << "\nTesting properties" << endl;
     {
-        SimpleAccessor accessor;
-        ASSERTV(typeName, 0 == X.accessSimple(accessor));
-        ASSERTV(typeName, &obj, accessor.d_address, &obj == accessor.d_address);
+        ASSERTV(typeName, Category::BDEAT_SIMPLE_CATEGORY == X.category());
+        ASSERTV(typeName, Category::BDEAT_SIMPLE_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
 
+        ASSERTV(&obj == (TYPE*) X.object());
+        ASSERTV(false == X.isByteArrayValue());
+        ASSERTV(0     == X.className());
+        ASSERTV(true  == X.isValidForEncoding());
+        ASSERTV(true  == X.isValidForDecoding());
+    }
+
+    if (verbose) cout << "\naccessSimple" << endl;
+    {
+        SimpleAccessor<TYPE> accessor;
+        ASSERTV(typeName, 0 == X.accessSimple(accessor));
+        ASSERTV(typeName, &obj == accessor.d_address);
+
+        accessor.reset();
         accessor.d_rc = 1;
         ASSERTV(typeName, 1 == X.accessSimple(accessor));
         ASSERTV(typeName, &obj == accessor.d_address);
     }
 
+    if (verbose) cout << "\nbdeat_typeCategoryAccessSimple" << endl;
     {
-        SimpleAccessor accessor;
+        SimpleAccessor<TYPE> accessor;
         ASSERTV(typeName, 0 == bdeat_typeCategoryAccessSimple(X, accessor));
         ASSERTV(typeName, &obj == accessor.d_address);
 
+        accessor.reset();
         accessor.d_rc = 1;
         ASSERTV(typeName, 1 == bdeat_typeCategoryAccessSimple(X, accessor));
         ASSERTV(typeName, &obj == accessor.d_address);
     }
 
+    if (verbose) cout << "\nmanipulateSimple" << endl;
     {
         SimpleManipulator<TYPE> manipulator;
 
         ASSERTV(typeName, 0 == mX.manipulateSimple(manipulator));
         ASSERTV(typeName, &obj == manipulator.d_address);
 
+        manipulator.reset();
         manipulator.d_rc = 1;
         ASSERTV(typeName, 1 == mX.manipulateSimple(manipulator));
         ASSERTV(typeName, &obj == manipulator.d_address);
     }
 
+    if (verbose) cout << "\nbdeat_typeCategoryManipulateSimple" << endl;
     {
         SimpleManipulator<TYPE> manipulator;
 
@@ -1234,6 +1326,7 @@ void executeSimpleCategoryTest(const char *typeName, const TYPE& testValue)
                 0 == bdeat_typeCategoryManipulateSimple(&mX, manipulator));
         ASSERTV(typeName, &obj == manipulator.d_address);
 
+        manipulator.reset();
         manipulator.d_rc = 1;
         ASSERTV(typeName,
                 1 == bdeat_typeCategoryManipulateSimple(&mX, manipulator));
@@ -1306,7 +1399,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0: // Zero is always the leading case.
-      case 12: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1367,211 +1460,42 @@ int main(int argc, char *argv[])
     ASSERT(42 == result.status());
 //..
       } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // TESTING PROPERTIES
-        // --------------------------------------------------------------------
-
-        Obj mX;  const Obj& X = mX;
-
-        if (verbose) cout << "Testing properties of simple type." << endl;
-        {
-            int value;
-            mX.loadSimple(&value);
-
-        }
-
-        if (verbose) cout << "Testing properties of enumeration type." << endl;
-        {
-            int value;
-            bdeat_EnumeratorInfo enumInfo;
-            mX.loadEnumeration(0, &enumInfo, 0);
-
-            ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY == X.category());
-            ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY ==
-                                                  bdeat_typeCategorySelect(X));
-            //ASSERTV(&value, X.object(), &value == X.object());
-            ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(false == X.isValidForDecoding());
-
-            mX.loadEnumeration(&value,
-                               &intSetterFn,
-                               &stringSetterFn,
-                               &enumInfo,
-                               0);
-
-            ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY == X.category());
-            ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY ==
-                                                  bdeat_typeCategorySelect(X));
-            ASSERTV(&value, X.object(), &value == X.object());
-            ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(false == X.isValidForEncoding());
-            ASSERTV(true  == X.isValidForDecoding());
-        }
-
-        if (verbose) cout << "Testing properties of array type." << endl;
-        {
-            std::vector<int> value(1);
-
-            mX.loadArray(1, sizeof(int), value.data(), &accessorFn<int>);
-
-            ASSERTV(Category::BDEAT_ARRAY_CATEGORY == X.category());
-            ASSERTV(Category::BDEAT_ARRAY_CATEGORY ==
-                                                  bdeat_typeCategorySelect(X));
-            ASSERTV(value.data(), X.object(), value.data() == X.object());
-            ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(false == X.isValidForDecoding());
-
-            mX.loadArray(&value,
-                         value.size(),
-                         sizeof(int),
-                         value.data(),
-                         &resizerFn<int>,
-                         &accessorFn<int>);
-
-            ASSERTV(Category::BDEAT_ARRAY_CATEGORY == X.category());
-            ASSERTV(Category::BDEAT_ARRAY_CATEGORY ==
-                                                  bdeat_typeCategorySelect(X));
-            ASSERTV(&value, X.object(),
-                    &value == (std::vector<int> *) X.object());
-            ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(false == X.isValidForEncoding());
-            ASSERTV(true  == X.isValidForDecoding());
-        }
-
-        if (verbose) cout << "Testing properties of selection type." << endl;
-        {
-            int                 value;
-            bdeat_SelectionInfo info;
-            const char *const   className = "foo";
-
-            mX.loadChoice(&value, &info, className, &accessorFn<int>);
-
-            ASSERTV(Category::BDEAT_CHOICE_CATEGORY == X.category());
-            ASSERTV(Category::BDEAT_CHOICE_CATEGORY ==
-                                                  bdeat_typeCategorySelect(X));
-            ASSERTV(&value, X.object(), &value == X.object());
-            ASSERTV(className == X.className());
-            ASSERTV(className ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(false == X.isValidForDecoding());
-
-            mX.loadChoice(1,
-                          &value,
-                          &info,
-                          &accessorAndExtractorFn,
-                          &chooserFn);
-
-            ASSERTV(Category::BDEAT_CHOICE_CATEGORY == X.category());
-            ASSERTV(Category::BDEAT_CHOICE_CATEGORY ==
-                                                  bdeat_typeCategorySelect(X));
-            ASSERTV(&value, X.object(), &value == X.object());
-            ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(false == X.isValidForEncoding());
-            ASSERTV(true  == X.isValidForDecoding());
-        }
-
-        if (verbose) cout << "Testing properties of sequence type." << endl;
-        {
-            int                 value;
-            bdeat_AttributeInfo info;
-            const char *const   className = "foo";
-            mX.loadSequence(1, &value, &info, className, &elementAccessorFn);
-
-            ASSERTV(Category::BDEAT_SEQUENCE_CATEGORY == X.category());
-            ASSERTV(Category::BDEAT_SEQUENCE_CATEGORY ==
-                                                  bdeat_typeCategorySelect(X));
-            ASSERTV(&value, X.object(), &value == X.object());
-            ASSERTV(className == X.className());
-            ASSERTV(className ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(true  == X.isValidForDecoding());
-        }
-
-        if (verbose) cout << "Testing properties of nullable type." << endl;
-        {
-            mX.loadNullable(0, &accessorFn<int>);
-
-            ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY == X.category());
-            ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY ==
-                                                  bdeat_typeCategorySelect(X));
-            ASSERTV(X.object(), 0 == X.object());
-            ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(false == X.isValidForDecoding());
-
-            int value;
-            mX.loadNullable(&value, &accessorFn<int>);
-
-            ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY == X.category());
-            ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY ==
-                                                  bdeat_typeCategorySelect(X));
-            ASSERTV(&value, X.object(), &value == X.object());
-            ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(true  == X.isValidForEncoding());
-            ASSERTV(false == X.isValidForDecoding());
-
-
-            bdeut_NullableValue<int> nullable;
-            mX.loadNullable(&nullable,
-                            &accessorFn<int>,
-                            &nullableValueMaker<bdeut_NullableValue<int> >,
-                            &nullableValueFetcher<bdeut_NullableValue<int> >);
-
-            ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY == X.category());
-            ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY ==
-                                                  bdeat_typeCategorySelect(X));
-            ASSERTV(&nullable, X.object(), &nullable == X.object());
-            ASSERTV(0 == X.className());
-            ASSERTV(0 ==
-                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
-            ASSERTV(false == X.isByteArrayValue());
-            ASSERTV(false == X.isValidForEncoding());
-            ASSERTV(true  == X.isValidForDecoding());
-        }
-
-      } break;
-      case 10: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING 'SerializableObjectProxy_NullableAdapter'
+        //
+        // Concerns:
+        //: 1 The 'bdeat' methods overload correctly fowards the invocation to
+        //:   the proxy object held by the nullable adaptor.
+        //
+        // Plan:
+        //: 1 Load a Nullable value to a proxy and create a Nullable adapter
+        //:   for that proxy.
+        //:
+        //: 2 Invoke the 'bdeat' methods and verify the results.
+        //
+        // Testing:
+        //   bool bdeat_nullableValueIsNull(const NullableAdapter& object)
+        //   void bdeat_nullableValueMakeValue(NullableAdapter *object)
+        //   int bdeat_nullableValueManipulateValue(Nullable*, MANIPULATOR&)
+        //   int bdeat_nullableValueAccessValue(const Nullable&, ACCESSOR&)
         // --------------------------------------------------------------------
- 
+
+        if (verbose) cout << endl
+                          << "TESTING Nullable Adapter" << endl
+                          << "========================" << endl;
+
+        if (verbose) cout << "\nTesting Adapter for Nullable for Encoding"
+                          << endl;
         {
             Obj mX; const Obj& X = mX;
             int value = 1;
- 
-            mX.loadNullable(0, &accessorFn<int>);
+
+            mX.loadNullable(0, &loaderFn<int>);
             SerializableObjectProxy_NullableAdapter adapter = { &mX };
             ASSERTV(true == bdeat_nullableValueIsNull(adapter));
 
-            mX.loadNullable(&value, &accessorFn<int>);
+            mX.loadNullable(&value, &loaderFn<int>);
             ASSERTV(false == bdeat_nullableValueIsNull(adapter));
 
             ExtractAddressAccessor accessor;
@@ -1579,13 +1503,15 @@ int main(int argc, char *argv[])
             ASSERTV(&value == accessor.d_address);
         }
 
+        if (verbose) cout << "\nTesting Adapter for Nullable for Decoding"
+                          << endl;
         {
             Obj mX; const Obj& X = mX;
 
             bdeut_NullableValue<int> value;
 
             mX.loadNullable(&value,
-                            &accessorFn<int>,
+                            &loaderFn<int>,
                             &nullableValueMaker<bdeut_NullableValue<int> >,
                             &nullableValueFetcher<bdeut_NullableValue<int> >);
 
@@ -1599,13 +1525,50 @@ int main(int argc, char *argv[])
             ASSERTV(0     == value.value());
 
             ExtractAddressManipulator manipulator;
-            ASSERTV(0 == bdeat_nullableValueManipulateValue(&adapter, manipulator));
+            ASSERTV(0 == bdeat_nullableValueManipulateValue(&adapter,
+                                                            manipulator));
             ASSERTV(&value.value() == manipulator.d_address);
         }
       } break;
-      case 9: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING Nullable
+        //
+        // Concerns:
+        //: 1 'loadNullable' creates a proxy object for Nullable type.
+        //:
+        //: 2 Return 'true' if the proxy object represents a Nullable value
+        //:   that is currently null, and 'false' otherwise.
+        //:
+        //: 3 'accessNullable' and 'manipulateNullable'
+        //:   returns the value returned by the suppliced functor.
+        //:
+        //: 4 The 'accessNullable' and 'manipulateNullable' methods passes the
+        //:   correct reference to the function pointers supplied on load.
+        //:
+        //: 5 'manipulateNullable' invoke the 'ObjectFetcher' supplied at the
+        //:   'loadNullable' and pass the return value to the loader.
+        //:
+        //: 6 'makeValue' invokes the 'ValueMaker' funciton supplied at the
+        //:   'loadNullable' method.
+        //:
+        //: 7 'object', 'isValidForEncoding' and 'isValidForDecoding'
+        //:   returns ths expected result.
+        //:
+        //: 8 'bdeat' functions are correctly overloaded and can be found
+        //:   through ADL.
+        //
+        // Plan:
+        //: 1 Load a Nullable object into a proxy object.
+        //:
+        //: 2 Verify properties such as 'object', 'isByteArrayValue', etc.
+        //:
+        //: 3 Invoke 'access*' and 'manipulate*' method with functors that
+        //:   extract the address ofthe object passed to the function.  Verify
+        //:   the extracted address and the return value.
+        //:
+        //: 4 Invoke all the 'bdeat' functions related to for Simple type and
+        //:   verify the results.
         //
         // Testing:
         //   int manipulateNullable(MANIPULATOR& manipulator);
@@ -1618,39 +1581,77 @@ int main(int argc, char *argv[])
         //   int bdeat_typeCategoryManipulateNullableValue(ObjProxy*, MANIP&);
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl
+                          << "TESTING Nullable" << endl
+                          << "================" << endl;
+
+        if (verbose) cout << "\nTesting 'isNull'" << endl;
         {
             Obj mX; const Obj& X = mX;
 
-            mX.loadNullable(0, &accessorFn<int>);
+            mX.loadNullable(0, 0);
+
+            ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY == X.category());
+            ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
+            ASSERTV(0 == X.object());
+            ASSERTV(0 == X.className());
+            ASSERTV(0 == bdeat_TypeName_Overloadable
+                                                ::bdeat_TypeName_className(X));
+            ASSERTV(false == X.isByteArrayValue());
+            ASSERTV(true  == X.isValidForEncoding());
+            ASSERTV(false == X.isValidForDecoding());
+
             ASSERTV(true == X.isNull());
         }
+
+        if (verbose) cout << "\nTesting Nullable for Encoding" << endl;
         {
             Obj mX; const Obj& X = mX;
 
-            int value = 1;
+            int obj = 1;
 
-            mX.loadNullable(&value, &accessorFn<int>);
-            {
-                SimpleAccessor accessor;
-                ASSERTV(0 == X.accessNullable(accessor));
-                ASSERTV(&s_accessorFn_int == accessor.d_address);
-            }
+            mX.loadNullable(&obj, &loaderFn<int>);
 
-            {
-                SimpleAccessor accessor;
-                ASSERTV(0 == bdeat_typeCategoryAccessNullableValue(X,
-                                                                   accessor));
-                ASSERTV(&s_accessorFn_int == accessor.d_address);
-            }
+            ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY == X.category());
+            ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
+            ASSERTV(&obj == X.object());
+            ASSERTV(0 == X.className());
+            ASSERTV(0 == bdeat_TypeName_Overloadable
+                                                ::bdeat_TypeName_className(X));
+            ASSERTV(false == X.isByteArrayValue());
+            ASSERTV(true  == X.isValidForEncoding());
+            ASSERTV(false == X.isValidForDecoding());
+
+            ASSERTV(false == X.isNull());
+
+            SimpleAccessor<int> accessor;
+            s_loaderFn_proxy = 0;
+            s_loaderFn_object = 0;
+
+            ASSERTV(0 == X.accessNullable(accessor));
+            ASSERTV(s_loaderFn_object == &obj);
+            ASSERTV(&s_loaderFn_int == accessor.d_address);
+
+            accessor.reset();
+            accessor.d_rc = 1;
+            s_loaderFn_proxy = 0;
+            s_loaderFn_object = 0;
+
+            ASSERTV(1 == bdeat_typeCategoryAccessNullableValue(X, accessor));
+            ASSERTV(s_loaderFn_object == &obj);
+            ASSERTV(&s_loaderFn_int == accessor.d_address);
         }
 
+        if (verbose) cout << "\nTesting Nullable for Decoding" << endl;
         {
             Obj mX; const Obj& X = mX;
 
-            bdeut_NullableValue<int> value;
+            bdeut_NullableValue<int> obj;
 
-            mX.loadNullable(&value,
-                            &accessorFn<int>,
+            mX.loadNullable(&obj,
+                            &loaderFn<int>,
                             &nullableValueMaker<bdeut_NullableValue<int> >,
                             &nullableValueFetcher<bdeut_NullableValue<int> >);
 
@@ -1658,27 +1659,68 @@ int main(int argc, char *argv[])
 
             mX.makeValue();
             ASSERTV(false == X.isNull());
-            ASSERTV(false == value.isNull());
-            ASSERTV(0     == value.value());
+            ASSERTV(false == obj.isNull());
+            ASSERTV(0     == obj.value());
 
-            {
-                SimpleManipulator<int> manipulator;
-                ASSERTV(0 == mX.manipulateNullable(manipulator));
-                ASSERTV(&s_accessorFn_int == manipulator.d_address);
-            }
+            SimpleManipulator<int> manipulator;
+            s_loaderFn_proxy = 0;
+            s_loaderFn_object = 0;
 
-            {
-                SimpleManipulator<int> manipulator;
-                ASSERTV(0 == bdeat_typeCategoryManipulateNullableValue(
+            ASSERTV(0 == mX.manipulateNullable(manipulator));
+            ASSERTV(&s_loaderFn_int == manipulator.d_address);
+
+            manipulator.reset();
+            manipulator.d_rc = 1;
+            s_loaderFn_proxy = 0;
+            s_loaderFn_object = 0;
+
+            ASSERTV(1 == bdeat_typeCategoryManipulateNullableValue(
                                                                  &mX,
                                                                  manipulator));
-                ASSERTV(&s_accessorFn_int == manipulator.d_address);
-            }
+            ASSERTV(&s_loaderFn_int == manipulator.d_address);
         }
       } break;
-      case 8: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING Sequence
+        //
+        // Concerns
+        //: 1 'loadSequence' creates a proxy object for Sequence type.
+        //:
+        //: 2 The 'sequenceAccessAttribute' and 'sequenceManipulateAttribute'
+        //:   methods passes the correct reference to the function pointers
+        //:   supplied on load.
+        //:
+        //: 3 'sequenceAccessAttribute' and 'sequenceManipulateAttribute'
+        //:   returns the value returned by the suppliced functor.
+        //:
+        //: 4 The 'sequenceAccessAttributes' and 'sequenceManipulateAttributes'
+        //:   methods passes the correct reference to the function pointers
+        //:   supplied on load.
+        //:
+        //: 5 'sequenceAccessAttributes' and 'sequenceManipulateAttributes'
+        //:   returns the value returned by the suppliced functor.
+        //:
+        //: 6 'sequenceHasAttribute' correctly returns whether the supplied
+        //:   selection is valid.
+        //:
+        //: 8 'object', 'isNull', 'isValidForEncoding' and 'isValidForDecoding'
+        //:   returns ths expected result.
+        //:
+        //: 9 'bdeat' functions are correctly overloaded and can be found
+        //:   through ADL.
+        //
+        // Plan:
+        //: 1 Load a Sequence object into a proxy object.
+        //:
+        //: 2 Verify properties such as 'object', 'isByteArrayValue', etc.
+        //:
+        //: 3 Invoke 'access*' and 'manipulate*' method with functors that
+        //:   extract the address ofthe object passed to the function.  Verify
+        //:   the extracted address and the return value.
+        //:
+        //: 4 Invoke all the 'bdeat' functions related to for Simple type and
+        //:   verify the results.
         //
         // Testing:
         //   int sequenceManipulateAttribute(MANIPULATOR& manipulator, int id);
@@ -1688,7 +1730,20 @@ int main(int argc, char *argv[])
         //   bool sequenceHasAttribute(int attributeId) const;
         //   int sequenceAccessAttribute(ACCESSOR& accessor, int attrId) const;
         //   int sequenceAccessAttributes(ACCESSOR& accessor) const;
+        //   int bdeat_sequenceAccessAttributes(const ObjectProxy&, ACCESSOR&)
+        //   int bdeat_sequenceAccessAttribute(const ObjProxy&, ACCESSOR&, int)
+        //   bdeat_sequenceAccessAttribute(const Proxy&, AC&, const char*, int)
+        //   int bdeat_sequenceManipulateAttributes(ObjProxy *, MANIPULATOR&)
+        //   bdeat_sequenceManipulateAttribute(ObjProxy *, MANIPULATOR&, int)
+        //   bdeat_sequenceManipulateAttribute(Proxy*, MAN&, const char*, int)
+        //   bdeat_sequenceHasAttribute(const ObjectProxy&, int)
+        //   bdeat_sequenceHasAttribute(const ObjProxy&, const char *, int)
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING Sequence" << endl
+                          << "================" << endl;
+
         bdeat_AttributeInfo INFO[] = {
             { 0,   "",         0,  "",         0 },
             { 1,   "A",        1,  "a",        1 },
@@ -1700,33 +1755,186 @@ int main(int argc, char *argv[])
             { 8,   "ABCDEFG",  7,  "abcdefg",  4 }
         };
         const int NUM_INFO = sizeof INFO / sizeof *INFO;
+        const char *NAME = "foo";
 
-        int someObject;
+        int obj;
 
-        Obj proxy;
-        proxy.loadSequence(NUM_INFO,
-                           &someObject,
-                           INFO,
-                           "foo",
-                           &elementAccessorFn);
+        if (verbose) cout << "\nTesting Sequence for encoding" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
 
-        for (int ti = 0; ti < NUM_INFO; ++ti) {
-            const int ID = INFO[ti].d_id;
+            mX.loadSequence(NUM_INFO, &obj, INFO, NAME, &elementLoaderFn);
 
-            SequenceAccessor accessor;
-            accessor.d_rc = ti;
-            ASSERT(ti == proxy.sequenceAccessAttribute(accessor, ID));
+            ASSERTV(Category::BDEAT_SEQUENCE_CATEGORY == X.category());
+            ASSERTV(Category::BDEAT_SEQUENCE_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
+            ASSERTV(&obj == X.object());
+            ASSERTV(0 == strcmp(NAME, X.className()));
+            ASSERTV(0 == strcmp(NAME, bdeat_TypeName_Overloadable
+                                               ::bdeat_TypeName_className(X)));
+            ASSERTV(false == X.isByteArrayValue());
+            ASSERTV(true  == X.isValidForEncoding());
+            ASSERTV(true  == X.isValidForDecoding());
 
-            ASSERT(elementAccessorFn_proxy == accessor.d_proxy);
-            ASSERT(elementAccessorFn_object == &proxy);
-            ASSERT(elementAccessorFn_index == ti);
-            ASSERT(accessor.d_address == &elementAccessorFn_int);
-            ASSERT(accessor.d_info == INFO[ti]);
+            for (int ti = 0; ti < NUM_INFO; ++ti) {
+                const int ID = INFO[ti].d_id;
+
+                SequenceAccessor accessor;
+                accessor.d_rc = ti;
+                s_elementLoaderFn_proxy = 0;
+                s_elementLoaderFn_object = 0;
+                s_elementLoaderFn_index = 0;
+
+                ASSERTV(ti == X.sequenceAccessAttribute(accessor, ID));
+
+                ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
+                ASSERTV(s_elementLoaderFn_object == &X);
+                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
+                ASSERTV(accessor.d_info == INFO[ti]);
+
+                accessor.reset();
+                accessor.d_rc = ti;
+                s_elementLoaderFn_proxy = 0;
+                s_elementLoaderFn_object = 0;
+                s_elementLoaderFn_index = 0;
+
+                ASSERTV(ti == bdeat_sequenceAccessAttribute(X, accessor, ID));
+
+                ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
+                ASSERTV(s_elementLoaderFn_object == &X);
+                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
+                ASSERTV(accessor.d_info == INFO[ti]);
+
+            }
+        }
+
+        if (verbose) cout << "\nTesting Sequence for decoding" << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            mX.loadSequence(NUM_INFO, &obj, INFO, NAME, &elementLoaderFn);
+
+            ASSERTV(false == X.sequenceHasAttribute(-1));
+            ASSERTV(false == X.sequenceHasAttribute(2));
+            ASSERTV(false == bdeat_sequenceHasAttribute(X, -1));
+            ASSERTV(false == bdeat_sequenceHasAttribute(X, 2));
+
+            ASSERTV(false == X.sequenceHasAttribute("foo", 3));
+            ASSERTV(false == bdeat_sequenceHasAttribute(X, "foo", 3));
+
+            for (int ti = 0; ti < NUM_INFO; ++ti) {
+                const int   ID     = INFO[ti].d_id;
+                const char *NAME   = INFO[ti].d_name_p;
+                const int   LENGTH = INFO[ti].d_nameLength;
+
+                ASSERTV(true == X.sequenceHasAttribute(ID));
+                ASSERTV(true == X.sequenceHasAttribute(NAME, LENGTH));
+                ASSERTV(true == bdeat_sequenceHasAttribute(X, ID));
+                ASSERTV(true == bdeat_sequenceHasAttribute(X, NAME, LENGTH));
+
+                SequenceManipulator manipulator;
+                manipulator.d_rc = ti;
+                s_elementLoaderFn_proxy = 0;
+                s_elementLoaderFn_object = 0;
+                s_elementLoaderFn_index = 0;
+
+                ASSERTV(ti == mX.sequenceManipulateAttribute(manipulator, ID));
+
+                ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
+                ASSERTV(s_elementLoaderFn_object == &X);
+                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
+                ASSERTV(manipulator.d_info == INFO[ti]);
+
+                manipulator.reset();
+                manipulator.d_rc = ti;
+                s_elementLoaderFn_proxy = 0;
+                s_elementLoaderFn_object = 0;
+                s_elementLoaderFn_index = 0;
+
+                ASSERTV(ti == mX.sequenceManipulateAttribute(manipulator,
+                                                             NAME,
+                                                             LENGTH));
+
+                ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
+                ASSERTV(s_elementLoaderFn_object == &X);
+                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
+                ASSERTV(manipulator.d_info == INFO[ti]);
+
+                manipulator.reset();
+                manipulator.d_rc = ti;
+                s_elementLoaderFn_proxy = 0;
+                s_elementLoaderFn_object = 0;
+                s_elementLoaderFn_index = 0;
+
+                ASSERTV(ti == bdeat_sequenceManipulateAttribute(&mX,
+                                                                manipulator,
+                                                                ID));
+
+                ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
+                ASSERTV(s_elementLoaderFn_object == &X);
+                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
+                ASSERTV(manipulator.d_info == INFO[ti]);
+
+                manipulator.reset();
+                manipulator.d_rc = ti;
+                s_elementLoaderFn_proxy = 0;
+                s_elementLoaderFn_object = 0;
+                s_elementLoaderFn_index = 0;
+
+                ASSERTV(ti == bdeat_sequenceManipulateAttribute(&mX,
+                                                                manipulator,
+                                                                NAME,
+                                                                LENGTH));
+
+                ASSERTV(s_elementLoaderFn_proxy == manipulator.d_proxy);
+                ASSERTV(s_elementLoaderFn_object == &X);
+                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(manipulator.d_address == &s_elementLoaderFn_int);
+                ASSERTV(manipulator.d_info == INFO[ti]);
+            }
         }
       } break;
-      case 7: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING Choice
+        //
+        // Concerns:
+        //: 1 'loadChoice' creates a proxy object for Choice type.
+        //:
+        //: 2 The 'choiceAccessSelection' and 'choiceManipulateSelection'
+        //:   methods passes the correct reference to the function pointers
+        //:   supplied on load.
+        //:
+        //: 3 'choiceAccessSelection' and 'choiceManipulateSelection'
+        //:   returns the value returned by the suppliced functor.
+        //:
+        //: 4 'choiceHasSelection' correctly returns whether the supplied
+        //:   selection is valid.
+        //:
+        //: 5 'choiceMakeSelection' invokes the chooser function supplied at
+        //: 'loadChoice' and supply the correct argument.
+        //:
+        //: 6 'object', 'isNull', 'isValidForEncoding' and 'isValidForDecoding'
+        //:   returns ths expected result.
+        //:
+        //: 7 'bdeat' functions are correctly overloaded and can be found
+        //:   through ADL.
+        //
+        // Plan:
+        //: 1 Load a Choice object into a proxy object.
+        //:
+        //: 2 Verify properties such as 'object', 'isByteArrayValue', etc.
+        //:
+        //: 3 Invoke 'access*' and 'manipulate*' method with functors that
+        //:   extract the address ofthe object passed to the function.  Verify
+        //:   the extracted address and the return value.
+        //:
+        //: 4 Invoke all the 'bdeat' functions related to for Simple type and
+        //:   verify the results.
         //
         // Testing:
         //   int choiceMakeSelection(int selectionId);
@@ -1738,7 +1946,18 @@ int main(int argc, char *argv[])
         //   bool choiceHasSelection(const char *name, int len) const;
         //   bool choiceHasSelection(int selectionId) const;
         //   int choiceAccessSelection(ACCESSOR& accessor) const;
+        //   int bdeat_choiceSelectionId(const ObjectProxy& object)
+        //   int bdeat_choiceAccessSelection(const ObjectProxy&, ACCESSOR&)
+        //   bool bdeat_choiceHasSelection(const ObjProxy&, const char *, int)
+        //   bool bdeat_choiceHasSelection(const ObjectProxy&, int)
+        //   int bdeat_choiceMakeSelection(ObjectProxy *obj, int selectionId)
+        //   int bdeat_choiceMakeSelection(ObjectProxy  *, const char *, int)
+        //   int bdeat_choiceManipulateSelection(ObjectProxy *, MANIPULATOR&)
         // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING Choice" << endl
+                          << "==============" << endl;
 
         bdeat_SelectionInfo INFO[] = {
             { 0,   "",         0,  "",         0 },
@@ -1752,7 +1971,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_INFO = sizeof INFO / sizeof *INFO;
 
-        // accessor
+        if (verbose) cout << "\nTesting Choice for encoding." << endl;
         for (int ti = 0; ti < NUM_INFO; ++ti) {
             const int ID = INFO[ti].d_id;
             const char NAME[] = "foo";
@@ -1761,27 +1980,45 @@ int main(int argc, char *argv[])
 
             int obj;
 
-            mX.loadChoice(&obj, &INFO[ti], NAME, &accessorFn<int>);
+            mX.loadChoice(&obj, &INFO[ti], NAME, &loaderFn<int>);
+
+            ASSERTV(Category::BDEAT_CHOICE_CATEGORY == X.category());
+            ASSERTV(Category::BDEAT_CHOICE_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
+            ASSERTV(&obj == X.object());
+            ASSERTV(0 == strcmp(NAME, X.className()));
+            ASSERTV(0 == strcmp(NAME,
+                                bdeat_TypeName_Overloadable
+                                               ::bdeat_TypeName_className(X)));
+            ASSERTV(false == X.isByteArrayValue());
+            ASSERTV(true  == X.isValidForEncoding());
+            ASSERTV(false == X.isValidForDecoding());
+
+            ASSERTV(ID == X.selectionId());
+            ASSERTV(ID == bdeat_choiceSelectionId(X));
 
             ChoiceAccessor accessor;
             accessor.d_rc = ti;
+            s_loaderFn_proxy = 0;
+            s_loaderFn_object = 0;
 
-            ASSERT(ID == X.selectionId());
+            ASSERTV(ti == X.choiceAccessSelection(accessor));
+            ASSERTV(s_loaderFn_proxy == accessor.d_proxy);
+            ASSERTV(s_loaderFn_object == &obj);
+            ASSERTV(accessor.d_address == &s_loaderFn_int);
+            ASSERTV(accessor.d_info == INFO[ti]);
 
-            ASSERT(ti == X.choiceAccessSelection(accessor));
-            ASSERT(s_accessorFn_proxy == accessor.d_proxy);
-            ASSERT(s_accessorFn_object == &obj);
-            ASSERT(accessor.d_address == &s_accessorFn_int);
-            ASSERT(accessor.d_info == INFO[ti]);
+            s_loaderFn_proxy = 0;
+            s_loaderFn_object = 0;
 
-            ASSERT(ti == bdeat_choiceAccessSelection(X, accessor));
-            ASSERT(s_accessorFn_proxy == accessor.d_proxy);
-            ASSERT(s_accessorFn_object == &obj);
-            ASSERT(accessor.d_address == &s_accessorFn_int);
-            ASSERT(accessor.d_info == INFO[ti]);
+            ASSERTV(ti == bdeat_choiceAccessSelection(X, accessor));
+            ASSERTV(s_loaderFn_proxy == accessor.d_proxy);
+            ASSERTV(s_loaderFn_object == &obj);
+            ASSERTV(accessor.d_address == &s_loaderFn_int);
+            ASSERTV(accessor.d_info == INFO[ti]);
         }
 
-        // manipulator
+        if (verbose) cout << "\nTesting Choice for decoding." << endl;
         {
             Obj mX;  const Obj& X = mX;
 
@@ -1789,36 +2026,66 @@ int main(int argc, char *argv[])
             mX.loadChoice(NUM_INFO,
                           &obj,
                           INFO,
-                          &accessorAndExtractorFn,
+                          &selectionLoaderFn,
                           &chooserFn);
-            s_accessorAndExtractorFn_selectInfoPtr = INFO;
+
+            ASSERTV(Category::BDEAT_CHOICE_CATEGORY == X.category());
+            ASSERTV(Category::BDEAT_CHOICE_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
+            ASSERTV(&obj == X.object());
+            ASSERTV(0 == X.className());
+            ASSERTV(0 ==
+                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(false == X.isByteArrayValue());
+            ASSERTV(false == X.isValidForEncoding());
+            ASSERTV(true  == X.isValidForDecoding());
+
+            ASSERTV(false == X.choiceHasSelection(-1));
+            ASSERTV(false == X.choiceHasSelection(2));
+            ASSERTV(false == bdeat_choiceHasSelection(X, -1));
+            ASSERTV(false == bdeat_choiceHasSelection(X, 2));
+
+            ASSERTV(false == X.choiceHasSelection("foo", 3));
+            ASSERTV(false == bdeat_choiceHasSelection(X, "foo", 3));
 
             for (int ti = 0; ti < NUM_INFO; ++ti) {
-                const int ID = INFO[ti].d_id;
+                const int   ID     = INFO[ti].d_id;
+                const char *NAME   = INFO[ti].d_name_p;
+                const int   LENGTH = INFO[ti].d_nameLength;
+
+                s_selectionLoaderFn_selectInfoPtr = &INFO[ti];
+
+                ASSERTV(true == X.choiceHasSelection(ID));
+                ASSERTV(true == X.choiceHasSelection(NAME, LENGTH));
+                ASSERTV(true == bdeat_choiceHasSelection(X, ID));
+                ASSERTV(true == bdeat_choiceHasSelection(X, NAME, LENGTH));
 
                 s_chooserFn_rc = ti;
-                ASSERT(ti   == mX.choiceMakeSelection(ID));
-                ASSERT(ID   == s_chooserFn_id);
-                ASSERT(&obj == s_chooserFn_object);
-                ASSERT(ti   == bdeat_choiceMakeSelection(&mX, ID));
-                ASSERT(ID   == s_chooserFn_id);
-                ASSERT(&obj == s_chooserFn_object);
-
+                ASSERTV(ti   == mX.choiceMakeSelection(ID));
+                ASSERTV(ID   == s_chooserFn_id);
+                ASSERTV(&obj == s_chooserFn_object);
+                ASSERTV(ti   == bdeat_choiceMakeSelection(&mX, ID));
+                ASSERTV(ID   == s_chooserFn_id);
+                ASSERTV(&obj == s_chooserFn_object);
 
                 ChoiceManipulator manipulator;
-                ASSERT(0 == mX.choiceManipulateSelection(manipulator));
+                ASSERTV(0 == mX.choiceManipulateSelection(manipulator));
 
-                ASSERT(s_accessorAndExtractorFn_proxy == manipulator.d_proxy);
-                ASSERT(s_accessorAndExtractorFn_object == &obj);
-                ASSERT(manipulator.d_address = &s_accessorAndExtractorFn_int);
-                ASSERT(manipulator.d_info == INFO[0]);
+                ASSERTV(s_selectionLoaderFn_proxy == manipulator.d_proxy);
+                ASSERTV(s_selectionLoaderFn_object == &obj);
+
+                ASSERTV(manipulator.d_address = &s_selectionLoaderFn_int);
+                ASSERTV(manipulator.d_info == INFO[ti]);
 
                 manipulator.d_rc = ti;
-                ASSERT(ti == mX.choiceManipulateSelection(manipulator));
+                ASSERTV(ti == mX.choiceManipulateSelection(manipulator));
+
+                ASSERTV(ID == X.selectionId());
+                ASSERTV(ID == bdeat_choiceSelectionId(X));
             }
         }
       } break;
-      case 6: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING Array
         //
@@ -1845,6 +2112,18 @@ int main(int argc, char *argv[])
         //: 7 'bdeat' functions are correctly overloaded and can be found
         //:   through ADL.
         //
+        // Plan:
+        //: 1 Load an Array object into a proxy object.
+        //:
+        //: 2 Verify properties such as 'object', 'isByteArrayValue', etc.
+        //:
+        //: 3 Invoke 'access*' and 'manipulate*' method with functors that
+        //:   extract the address ofthe object passed to the function.  Verify
+        //:   the extracted address and the return value.
+        //:
+        //: 4 Invoke all the 'bdeat' functions related to for Simple type and
+        //:   verify the results.
+        //
         // Testing:
         //   void resize(size_t newSize);
         //   int arrayManipulateElement(MANIPULATOR& manipulator, int index);
@@ -1853,88 +2132,148 @@ int main(int argc, char *argv[])
         //   bsl::size_t size() const;
         //   bool isByteArrayValue() const;
         //   int arrayAccessElement(ACCESSOR& accessor, int index) const;
+        //   bsl::size_t bdeat_arraySize(const ObjectProxy& object)
+        //   void bdeat_arrayResize(ObjectProxy* object, int newSize)
+        //   int bdeat_arrayAccessElement(const ObjectProxy&, ACCESSOR&, int)
+        //   int bdeat_arrayManipulateElement(ObjectProxy*, MANIPULATOR&, int)
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "Testing Array type" << endl;
+        if (verbose) cout << endl
+                          << "TESTING Array" << endl
+                          << "=============" << endl;
+
+        bsl::vector<int> obj;
+        const int SIZE = 5;
+        obj.resize(SIZE);
+        for (int i = 0; i < SIZE; ++i) {
+            obj[i] = i;
+        }
+
+        if (verbose) cout << "\nTesting Array for encoding." << endl;
         {
             Obj mX; const Obj& X = mX;
 
-            bsl::vector<int> obj;
-            const int SIZE = 5;
-            obj.resize(SIZE);
-            for (int i = 0; i < SIZE; ++i) {
-                obj[i] = i;
-            }
+            mX.loadArray(obj.size(), sizeof(int), obj.data(), &loaderFn<int>); 
 
-            mX.loadArray(obj.size(),
-                         sizeof(int),
-                         obj.data(),
-                         &accessorFn<int>);
-
+            ASSERTV(Category::BDEAT_ARRAY_CATEGORY == X.category());
+            ASSERTV(Category::BDEAT_ARRAY_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
+            ASSERTV(obj.data() == X.object());
+            ASSERTV(0 == X.className());
+            ASSERTV(0 ==
+                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
             ASSERTV(false == X.isByteArrayValue());
+            ASSERTV(true  == X.isValidForEncoding());
+            ASSERTV(false == X.isValidForDecoding());
+
             ASSERTV(SIZE  == X.size());
             ASSERTV(SIZE  == bdeat_arraySize(X));
 
             for (int i = 0; i < obj.size(); ++i) {
+                s_loaderFn_object = 0;
+                s_loaderFn_proxy  = 0;
+
                 ArrayElementAccessor<int> accessor;
                 ASSERTV(0 == mX.arrayAccessElement(accessor, i));
-                ASSERTV(&obj[i] == s_accessorFn_object);
-                ASSERTV(s_accessorFn_proxy == accessor.d_proxy);
-                ASSERTV(&s_accessorFn_int == accessor.d_address);
+                ASSERTV(&obj[i] == s_loaderFn_object);
+                ASSERTV(s_loaderFn_proxy == accessor.d_proxy);
+                ASSERTV(&s_loaderFn_int  == accessor.d_address);
+
+                accessor.reset();
+                s_loaderFn_object = 0;
+                s_loaderFn_proxy  = 0;
 
                 ASSERTV(0 == bdeat_arrayAccessElement(X, accessor, i));
-                ASSERTV(&obj[i] == s_accessorFn_object);
-                ASSERTV(s_accessorFn_proxy == accessor.d_proxy);
-                ASSERTV(&s_accessorFn_int == accessor.d_address);
+                ASSERTV(&obj[i] == s_loaderFn_object);
+                ASSERTV(s_loaderFn_proxy == accessor.d_proxy);
+                ASSERTV(&s_loaderFn_int  == accessor.d_address);
             }
 
-            ArrayAccessor<int> accessor;
+            ArrayAccessor accessor;
             ASSERTV(0          == bdeat_typeCategoryAccessArray(X, accessor));
             ASSERTV(obj.data() == accessor.d_address);
+        }
+
+        if (verbose) cout << "\nTesting Array for decoding." << endl;
+        {
+            Obj mX; const Obj& X = mX;
 
             mX.loadArray(&obj,
                          obj.size(),
                          sizeof(int),
                          obj.data(),
                          &resizerFn<int>,
-                         &accessorFn<int>);
+                         &loaderFn<int>);
 
+            ASSERTV(Category::BDEAT_ARRAY_CATEGORY == X.category());
+            ASSERTV(Category::BDEAT_ARRAY_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
+            ASSERTV(&obj == X.object());
+            ASSERTV(0 == X.className());
+            ASSERTV(0 ==
+                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
             ASSERTV(false == X.isByteArrayValue());
+            ASSERTV(false == X.isValidForEncoding());
+            ASSERTV(true  == X.isValidForDecoding());
+
             ASSERTV(SIZE == X.size());
             ASSERTV(SIZE == bdeat_arraySize(X));
 
             for (int i = 0; i < obj.size(); ++i) {
                 ArrayElementManipulator<int> manipulator;
+                s_loaderFn_object = 0;
+                s_loaderFn_proxy  = 0;
+
                 ASSERTV(0       == mX.arrayManipulateElement(manipulator, i));
-                ASSERTV(&obj[i] == s_accessorFn_object);
-                ASSERTV(s_accessorFn_proxy == manipulator.d_proxy);
-                ASSERTV(&s_accessorFn_int == manipulator.d_address);
+                ASSERTV(&obj[i] == s_loaderFn_object);
+                ASSERTV(s_loaderFn_proxy == manipulator.d_proxy);
+                ASSERTV(&s_loaderFn_int  == manipulator.d_address);
+
+                manipulator.reset();
+                s_loaderFn_object = 0;
+                s_loaderFn_proxy  = 0;
 
                 ASSERTV(0 ==
                             bdeat_arrayManipulateElement(&mX, manipulator, i));
-                ASSERTV(&obj[i] == s_accessorFn_object);
-                ASSERTV(s_accessorFn_proxy == manipulator.d_proxy);
-                ASSERTV(&s_accessorFn_int == manipulator.d_address);
+                ASSERTV(&obj[i] == s_loaderFn_object);
+                ASSERTV(s_loaderFn_proxy == manipulator.d_proxy);
+                ASSERTV(&s_loaderFn_int  == manipulator.d_address);
             }
 
-            ArrayManipulator<int> manipulator;
+            ArrayManipulator manipulator;
             ASSERTV(0  == bdeat_typeCategoryManipulateArray(&mX, manipulator));
             ASSERTV(&obj == manipulator.d_address);
+
+            s_resizerFn_object = 0;
+            s_resizerFn_newSize = -1;
+            s_resizerFn_begin = 0;
 
             mX.resize(0);
             ASSERTV(&obj       ==  s_resizerFn_object);
             ASSERTV(0          ==  s_resizerFn_newSize);
             ASSERTV(obj.data() == *s_resizerFn_begin);
 
+            s_resizerFn_object = 0;
+            s_resizerFn_newSize = -1;
+            s_resizerFn_begin = 0;
+
             mX.resize(1);
             ASSERTV(&obj       ==  s_resizerFn_object);
             ASSERTV(1          ==  s_resizerFn_newSize);
             ASSERTV(obj.data() == *s_resizerFn_begin);
 
+            s_resizerFn_object = 0;
+            s_resizerFn_newSize = -1;
+            s_resizerFn_begin = 0;
+
             bdeat_arrayResize(&mX, 0);
             ASSERTV(&obj       ==  s_resizerFn_object);
             ASSERTV(0          ==  s_resizerFn_newSize);
             ASSERTV(obj.data() == *s_resizerFn_begin);
+
+            s_resizerFn_object = 0;
+            s_resizerFn_newSize = -1;
+            s_resizerFn_begin = 0;
 
             bdeat_arrayResize(&mX, 1);
             ASSERTV(&obj       ==  s_resizerFn_object);
@@ -1958,19 +2297,29 @@ int main(int argc, char *argv[])
 
             mX.loadByteArray(&obj);
 
+            ASSERTV(Category::BDEAT_ARRAY_CATEGORY == X.category());
+            ASSERTV(Category::BDEAT_ARRAY_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
+            ASSERTV(&obj == X.object());
+            ASSERTV(0 == X.className());
+            ASSERTV(0 ==
+                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(true == X.isValidForEncoding());
+            ASSERTV(true == X.isValidForDecoding());
+
             ASSERTV(true == X.isByteArrayValue());
 
-            ArrayAccessor<char> accessor;
+            ArrayAccessor accessor;
             ASSERTV(0 == bdeat_typeCategoryAccessArray(X, accessor));
             ASSERTV(&obj == accessor.d_address);
 
-            ArrayManipulator<char> manipulator;
+            ArrayManipulator manipulator;
             ASSERTV(0 == bdeat_typeCategoryManipulateArray(&mX, manipulator));
             ASSERTV(&obj == manipulator.d_address);
         }
 
       }  break;
-      case 5: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING Enum
         //
@@ -1991,6 +2340,18 @@ int main(int argc, char *argv[])
         //: 6 'bdeat' functions are correctly overloaded and can be found
         //:   through ADL.
         //
+        // Plan:
+        //: 1 Load an Enumerated object into a proxy object.
+        //:
+        //: 2 Verify properties such as 'object', 'isByteArrayValue', etc.
+        //:
+        //: 3 Invoke 'access*' and 'manipulate*' method with functors that
+        //:   extract the address ofthe object passed to the function.  Verify
+        //:   the extracted address and the return value.
+        //:
+        //: 4 Invoke all the 'bdeat' functions related to for Simple type and
+        //:   verify the results.
+        //
         // Testing:
         //   int enumFromInt(int value);
         //   int enumFromString(const char *stringValue, int stringLength);
@@ -2004,8 +2365,9 @@ int main(int argc, char *argv[])
         //   int bdeat_enumFromString(ObjectProxy *, const char *str, int len)
         // --------------------------------------------------------------------
 
-        using namespace bdeat_EnumFunctions;
-
+        if (verbose) cout << endl
+                          << "TESTING Enumeration" << endl
+                          << "===================" << endl;
 
         const bdeat_EnumeratorInfo INFO[] = {
             { 0, "", 0, "" },
@@ -2023,6 +2385,18 @@ int main(int argc, char *argv[])
             Obj mX; const Obj& X = mX;
 
             mX.loadEnumeration(VALUE, INFO, INFO_SIZE);
+
+            ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY == X.category());
+            ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
+            ASSERTV(0 == X.object());
+            ASSERTV(0 == X.className());
+            ASSERTV(0 ==
+                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(false == X.isByteArrayValue());
+            ASSERTV(true  == X.isValidForEncoding());
+            ASSERTV(false == X.isValidForDecoding());
+
 
             ASSERTV(VALUE == X.enumToInt());
             ASSERTV(0     == strcmp(NAME, X.enumToString()));
@@ -2047,34 +2421,49 @@ int main(int argc, char *argv[])
                                INFO,
                                INFO_SIZE);
 
-            for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
-                for (int i = 0; i < INFO_SIZE; ++i) {
-                    const int         VALUE  = INFO[i].d_value;
-                    const char *const NAME   = INFO[i].d_name_p;
-                    const int         LENGTH = INFO[i].d_nameLength;
+            ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY == X.category());
+            ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY ==
+                                                  bdeat_typeCategorySelect(X));
+            ASSERTV(&obj == X.object());
+            ASSERTV(0 == X.className());
+            ASSERTV(0 ==
+                    bdeat_TypeName_Overloadable::bdeat_TypeName_className(X));
+            ASSERTV(false == X.isByteArrayValue());
+            ASSERTV(false == X.isValidForEncoding());
+            ASSERTV(true  == X.isValidForDecoding());
 
-                    s_intSetterFn_rc    = i;
-                    s_stringSetterFn_rc = i;
+            for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+                for (int ti = 0; ti < INFO_SIZE; ++ti) {
+                    const int         VALUE  = INFO[ti].d_value;
+                    const char *const NAME   = INFO[ti].d_name_p;
+                    const int         LENGTH = INFO[ti].d_nameLength;
+
+                    s_intSetterFn_object    = 0;
+                    s_intSetterFn_value     = 0;
+                    s_intSetterFn_rc        = ti;
+                    s_stringSetterFn_object = 0;
+                    s_stringSetterFn_value  = 0;
+                    s_stringSetterFn_rc     = ti;
 
                     switch (cfg) {
                       case 'a': {
-                        ASSERTV(i == mX.enumFromInt(VALUE));
+                        ASSERTV(ti == mX.enumFromInt(VALUE));
                         ASSERTV(&obj  == s_intSetterFn_object);
                         ASSERTV(VALUE == s_intSetterFn_value);
                       } break;
                       case 'b': {
-                        ASSERTV(i == mX.enumFromString(NAME, LENGTH));
+                        ASSERTV(ti == mX.enumFromString(NAME, LENGTH));
                         ASSERTV(&obj   == s_stringSetterFn_object);
                         ASSERTV(NAME   == s_stringSetterFn_value);
                         ASSERTV(LENGTH == s_stringSetterFn_length);
                       } break;
                       case 'c': {
-                        ASSERTV(i == bdeat_enumFromInt(&mX, VALUE));
+                        ASSERTV(ti == bdeat_enumFromInt(&mX, VALUE));
                         ASSERTV(&obj  == s_intSetterFn_object);
                         ASSERTV(VALUE == s_intSetterFn_value);
                       } break;
                       case 'd': {
-                        ASSERTV(i == bdeat_enumFromString(&mX, NAME, LENGTH));
+                        ASSERTV(ti == bdeat_enumFromString(&mX, NAME, LENGTH));
                         ASSERTV(&obj   == s_stringSetterFn_object);
                         ASSERTV(NAME   == s_stringSetterFn_value);
                         ASSERTV(LENGTH == s_stringSetterFn_length);
@@ -2084,7 +2473,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 4: {
+      case 2: {
         // --------------------------------------------------------------------
         // TESTING Simple Pointer
         //
@@ -2097,11 +2486,23 @@ int main(int argc, char *argv[])
         //: 3 'accessSimple' and 'manipulateSimple' returns the value returned
         //:   by the suppliced functor.
         //:
-        //: 4 'object', 'isNull', 'isValidForEncoding' and 'isValidForDecoding'
-        //:   returns ths expected result.
+        //: 4 'object', 'isByteArrayValue', 'className', 'isValidForEncoding'
+        //:   and 'isValidForDecoding' returns ths expected result.
         //:
         //: 5 'bdeat' functions are correctly overloaded and can be found
         //:   through ADL.
+        //
+        // Plan:
+        //: 1 Load a Simple object into a proxy object.
+        //:
+        //: 2 Verify properties such as 'object', 'isByteArrayValue', etc.
+        //:
+        //: 3 Invoke 'access*' and 'manipulate*' method with functors that
+        //:   extract the address ofthe object passed to the function.  Verify
+        //:   the extracted address and the return value.
+        //:
+        //: 4 Invoke all the 'bdeat' functions related to for Simple type and
+        //:   verify the results.
         //
         // Testing:
         //   int manipulateSimple(MANIPULATOR& manipulator);
@@ -2128,123 +2529,25 @@ int main(int argc, char *argv[])
         //   int bdeat_typeCategoryManipulateSimple(ObjProxy *, MANIPULATOR&);
         // --------------------------------------------------------------------
 
-        executeSimpleCategoryTest<char>("char", 1);
-        executeSimpleCategoryTest<unsigned char>("uchar", 2);
-        executeSimpleCategoryTest<short>("short", 3);
-        executeSimpleCategoryTest<int>("int", 4);
-        executeSimpleCategoryTest<bsls_Types::Uint64>("uint64", 5);
-        executeSimpleCategoryTest<float>("float", 6.1);
-        executeSimpleCategoryTest<double>("double", 7.2);
-        executeSimpleCategoryTest<bsl::string>("string", "hello world");
-        executeSimpleCategoryTest<bdet_Datetime>("datetime",
-                                                 bdet_Datetime(2001, 9, 3));
-        executeSimpleCategoryTest<bdet_Date>("date", bdet_Date(2002, 10, 4));
-        executeSimpleCategoryTest<bdet_Time>("time", bdet_Time(3, 11, 5));
-        executeSimpleCategoryTest<bool>("bool", true);
-        executeSimpleCategoryTest<bdet_DatetimeTz>(
-                               "datetimetz",
-                               bdet_DatetimeTz(bdet_Datetime(2004, 12, 6), 1));
-        executeSimpleCategoryTest<bdet_DateTz>(
-                                        "datetz",
-                                        bdet_DateTz(bdet_Date(2005, 1, 7), 2));
-        executeSimpleCategoryTest<bdet_TimeTz>(
-                                           "timetz",
-                                           bdet_TimeTz(bdet_Time(6, 2, 8), 3));
-      } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING Sequence callback
-        //
-        // Test that the callback function supplied to the 'loadSequence'
-        // method is invoked properly.
-        // --------------------------------------------------------------------
+        if (verbose) cout << endl
+                          << "TESTING Simple Pointer" << endl
+                          << "======================" << endl;
 
-        /*
-
-        bdeat_AttributeInfo someInfo;
-        someInfo.id() = 10;
-        someInfo.name() = "plugh";
-        someInfo.nameLength() = 5;
-
-        int someObject;
-
-        Obj proxy;
-        proxy.loadSequence(1, &someObject, &someInfo, "foo",
-                           &elementAccessorFn);
-
-        SequenceAccessor sequenceAccessor;
-        ASSERT(0 == proxy.sequenceAccessAttribute(sequenceAccessor, 10));
-
-        ASSERT(elementAccessorFn_proxy == sequenceAccessor.d_proxy);
-        ASSERT(elementAccessorFn_object == &proxy);
-        ASSERT(elementAccessorFn_index == 0);
-        ASSERT(sequenceAccessor.d_address == &elementAccessorFn_int);
-        ASSERT(sequenceAccessor.d_info == someInfo);
-
-        sequenceAccessor.d_rc = 5;
-        ASSERT(5 == proxy.sequenceAccessAttribute(sequenceAccessor, 10));
-        */
-
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // TESTING Choice callbacks
-        //
-        // Test that the callback functions supplied to the 'loadChoice'
-        // methods are invoked properly.
-        // --------------------------------------------------------------------
-
-          /*
-        // accessor
-        int someObject;
-        bdeat_SelectionInfo someInfo;
-        someInfo.id() = 10;
-        someInfo.name() = "plugh";
-        someInfo.nameLength() = 5;
-
-        Obj proxy;
-
-        proxy.loadChoice(10, &someObject, &someInfo, "foo", &accessorFn<int>);
-
-        ChoiceAccessor choiceAccessor;
-
-        ASSERT(0 == proxy.choiceAccessSelection(choiceAccessor));
-
-        ASSERT(accessorFn_proxy == choiceAccessor.d_proxy);
-        ASSERT(accessorFn_object == &someObject);
-        ASSERT(choiceAccessor.d_address = &someObject);
-        ASSERT(choiceAccessor.d_info == someInfo);
-
-        choiceAccessor.d_rc = 5;
-        ASSERT(5 == proxy.choiceAccessSelection(choiceAccessor));
-
-        // manipulator
-        int someChoice; // different than someObject
-        proxy.loadChoice(1, &someChoice, &someInfo,
-                         &accessorAndExtractorFn,
-                         &chooserFn);
-        accessorAndExtractorFn_selectInfoPtr = &someInfo;
-
-        ASSERT(0 == proxy.choiceMakeSelection(2));
-        ASSERT(2 == chooserFn_id);
-        ASSERT(&someChoice == chooserFn_object);
-        ASSERT(0 == proxy.choiceMakeSelection(10));
-
-
-        ChoiceManipulator choiceManipulator;
-        ASSERT(0 == proxy.choiceManipulateSelection(choiceManipulator));
-
-        ASSERT(accessorAndExtractorFn_proxy == choiceManipulator.d_proxy);
-        ASSERT(accessorAndExtractorFn_object == &someChoice);
-        ASSERT(choiceManipulator.d_address = &accessorAndExtractorFn_int);
-        ASSERT(choiceManipulator.d_info == someInfo);
-
-        choiceManipulator.d_rc = 7;
-        ASSERT(7 == proxy.choiceManipulateSelection(choiceManipulator));
-
-        chooserFn_rc = 6;
-        ASSERT(6 == proxy.choiceMakeSelection(2));
-        */
+        executeSimpleCategoryTest<char>("char");
+        executeSimpleCategoryTest<unsigned char>("uchar");
+        executeSimpleCategoryTest<short>("short");
+        executeSimpleCategoryTest<int>("int");
+        executeSimpleCategoryTest<bsls_Types::Uint64>("uint64");
+        executeSimpleCategoryTest<float>("float");
+        executeSimpleCategoryTest<double>("double");
+        executeSimpleCategoryTest<bsl::string>("string");
+        executeSimpleCategoryTest<bdet_Datetime>("datetime");
+        executeSimpleCategoryTest<bdet_Date>("date");
+        executeSimpleCategoryTest<bdet_Time>("time");
+        executeSimpleCategoryTest<bool>("bool");
+        executeSimpleCategoryTest<bdet_DatetimeTz>("datetimetz");
+        executeSimpleCategoryTest<bdet_DateTz>("datetz");
+        executeSimpleCategoryTest<bdet_TimeTz>("timetz");
 
       } break;
       case 1: {

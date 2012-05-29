@@ -1,9 +1,5 @@
 // baea_messages.t.cpp   -*-C++-*-
 
-#ifndef lint
-static char RCSid_baea_messages_t_cpp[] = "$Id: $ $CCId: $  $CSID:  $  $SCMId:  $";
-#endif
-
 #include <baea_testmessages.h>
 
 #include <cstdlib>
@@ -18,8 +14,8 @@ using namespace BloombergLP::baea;
 //-----------------------------------------------------------------------------
 //                                 Overview
 //                                 --------
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
+// This component is generated.  Therefore, we will only test that the classes
+// in the component can be instantiated.
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -97,14 +93,89 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
         // --------------------------------------------------------------------
-        // Basic Attribute Test:
+        // BREATHING TEST
+        //
+        // Concerns:
+        //: 1 All class can be instantiated.
+        //
+        // Plan:
+        //: 1 Create an object for every test message type.
+        //
+        // Testing:
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "Basic Attribute Test" << bsl::endl
-                      << "====================" << bsl::endl;
+        if (verbose) bsl::cout << bsl::endl
+                               << "BREATHING TEST" << bsl::endl
+                               << "==============" << bsl::endl;
+
+        {
+            baea::CustomInt obj;
         }
 
+        {
+            baea::CustomString obj;
+        }
+
+        {
+            baea::SimpleRequest obj;
+        }
+
+        {
+            baea::UnsignedSequence obj;
+        }
+
+        {
+            baea::VoidSequence obj;
+        }
+
+        {
+            baea::Sequence3 obj;
+        }
+
+        {
+            baea::Sequence5 obj;
+        }
+
+        {
+            baea::Sequence6 obj;
+        }
+
+        {
+            baea::Choice3 obj;
+        }
+
+        {
+            baea::Choice1 obj;
+        }
+
+        {
+            baea::Choice2 obj;
+        }
+
+        {
+            baea::Sequence4 obj;
+        }
+
+        {
+            baea::Sequence1 obj;
+        }
+
+        {
+            baea::Sequence2 obj;
+        }
+
+        {
+            baea::FeatureTestMessage obj;
+        }
+
+        {
+            baea::Request obj;
+        }
+
+        {
+            baea::Response obj;
+        }
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;

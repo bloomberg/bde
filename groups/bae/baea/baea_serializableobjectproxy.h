@@ -2233,11 +2233,25 @@ int bdeat_sequenceAccessAttributes(
 
 template <typename ACCESSOR>
 inline
-int bdeat_sequenceAccessAttribute(const baea::SerializableObjectProxy& object,
-                                  ACCESSOR&             accessor,
-                                  int                   attributeId)
+int bdeat_sequenceAccessAttribute(
+                              const baea::SerializableObjectProxy& object,
+                              ACCESSOR&                            accessor,
+                              int                                  attributeId)
 {
     return object.sequenceAccessAttribute(accessor, attributeId);
+}
+
+template <typename ACCESSOR>
+inline
+int bdeat_sequenceAccessAttribute(
+                           const baea::SerializableObjectProxy&  object,
+                           ACCESSOR&                             accessor,
+                           const char                           *attributeName,
+                           int                                   nameLength)
+{
+    return object->sequenceAccessAttribute(accessor,
+                                           attributeName,
+                                           nameLength);
 }
 
 template <typename MANIPULATOR>
@@ -2261,18 +2275,21 @@ int bdeat_sequenceManipulateAttribute(
 
 template <typename MANIPULATOR>
 inline
-int bdeat_sequenceManipulateAttribute(baea::SerializableObjectProxy *object,
-                                      MANIPULATOR& manipulator,
-                                      const char*  attributeName,
-                                      int          nameLength)
+int bdeat_sequenceManipulateAttribute(
+                                  baea::SerializableObjectProxy *object,
+                                  MANIPULATOR&                   manipulator,
+                                  const char                    *attributeName,
+                                  int                            nameLength)
 {
-    return object->sequenceManipulateAttribute(manipulator, attributeName,
+    return object->sequenceManipulateAttribute(manipulator,
+                                               attributeName,
                                                nameLength);
 }
 
 inline
-bool bdeat_sequenceHasAttribute(const baea::SerializableObjectProxy&  object,
-                                int                         attributeId)
+bool bdeat_sequenceHasAttribute(
+                              const baea::SerializableObjectProxy& object,
+                              int                                  attributeId)
 {
     return object.sequenceHasAttribute(attributeId);
 }

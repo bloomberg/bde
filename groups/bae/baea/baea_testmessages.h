@@ -11,6 +11,19 @@ BDES_IDENT_PRAGMA_ONCE
 //@PURPOSE: Provide value-semantic attribute classes
 //
 //@AUTHOR: Raymond Seehei CHIU (schiu49@bloomberg.net)
+//
+//@DESCRIPTION: This is a generated file for testing purposes and should *not*
+// be used in any production code.
+//
+// The file is generated with the command:
+//..
+//  bas_codegen.pl -m msg -C testmessages test/baea_testmessages.xsd
+//..
+// After the message component is generated, the declarations and definitions
+// of all 'toAggregate' and 'fromAggregate' functions are removed.  The methods
+// are removed due to a bug in 'bas_codegen.pl', which incorrectly creates
+// those functions and causes the component to fail to compile.  This
+// Description section is also added after the component is generated.
 
 #ifndef INCLUDED_BCEM_AGGREGATE
 #include <bcem_aggregate.h>

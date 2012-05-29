@@ -44,15 +44,20 @@ using bsl::endl;
 //=============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
+
+namespace {
+
 static int testStatus = 0;
 
-static void aSsErT(int c, const char *s, int i)
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         bsl::cout << "Error " << __FILE__ << "(" << i << "): " << s
                   << "    (failed)" << bsl::endl;
         if (0 <= testStatus && testStatus <= 100) ++testStatus;
     }
+}
+
 }
 
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
@@ -112,6 +117,7 @@ static int veryVeryVeryVerbose = 0;
 
 typedef baea::SerializableObjectProxy     Proxy;
 typedef baea::SerializableObjectProxyUtil Obj;
+typedef bdeat_TypeCategory                Category;
 
 const char LOG_CATEGORY[] = "BAEA_SERIALIZABLEOBJECTPROXYUTIL.TEST";
 
@@ -1267,41 +1273,54 @@ struct ExtractAddressManipulator {
 
 template <class TYPE>
 struct SimpleAccessor {
-    TYPE d_value;
+    const void *d_address;
+    int         d_rc;
 
-    SimpleAccessor() : d_value() {};
+    // CREATORS
+    SimpleAccessor() : d_address(0), d_rc(0) {};
 
-    int operator()(const TYPE& value, bdeat_TypeCategory::Simple)
+    // MANIPULATORS
+    void reset()
     {
-        d_value = value;
-        return 0;
+        d_address = 0;
+        d_rc = 0;
     }
 
-    template <class OTHER_TYPE, class OTHER_CATEGORY>
-    int operator()(const OTHER_TYPE&, const OTHER_CATEGORY&)
+    int operator()(const TYPE& object, bdeat_TypeCategory::Simple)
     {
-        // needed to compile due to nullable adapter, but should not be called
-        BSLS_ASSERT(!"Should be unreachable");
+        d_address = &object;
+        return d_rc;
+    }
+
+    template<typename OTHER_TYPE, typename OTHER_CATEGORY>
+    int operator()(const OTHER_TYPE& object, const OTHER_CATEGORY&)
+    {
+        // This is needed to compile because there are many Simple types, but
+        // should not be called.
+
+        ASSERTV(!"Should be unreachable");
         return -1;
     }
 };
 
 template <class TYPE>
 struct SimpleManipulator {
-    TYPE d_value;
+    void *d_address;
 
-    SimpleManipulator() : d_value() {};
+    SimpleManipulator() : d_address(0) {};
 
     int operator()(TYPE *value, bdeat_TypeCategory::Simple)
     {
-        *value = d_value;
+        d_address = value;
         return 0;
     }
 
     template <class OTHER_TYPE, class OTHER_CATEGORY>
     int operator()(OTHER_TYPE *, const OTHER_CATEGORY&)
     {
-        // needed to compile due to nullable adapter, but should not be called
+        // This is needed to compile because there are many Simple types, but
+        // should not be called.
+
         BSLS_ASSERT(!"Should be unreachable");
         return -1;
     }
@@ -1429,6 +1448,80 @@ struct SequenceAccessor {
     }
 };
 
+struct SequenceManipulator {
+    const SerializableObjectProxy *d_proxy;
+    const void                    *d_address;
+    bdeat_AttributeInfo            d_info;
+
+    // CREATORS
+    SequenceManipulator() : d_proxy(0), d_address(0) {}
+
+    // MANIPULATORS
+    void reset()
+    {
+        d_proxy = 0;
+        d_address = 0;
+    }
+
+    int operator() (SerializableObjectProxy    *object,
+                    const bdeat_AttributeInfo&  info)
+    {
+        d_proxy = object;
+        d_address = object->object();
+
+        d_info = info;
+        return 0;
+    }
+
+    template <typename TYPE>
+    int operator() (TYPE *object, const bdeat_AttributeInfo& info)
+        // For nullable adaptor.
+    {
+        ExtractAddressAccessor accessor;
+        bdeat_nullableValueAccessValue(*object, accessor);
+        d_address = accessor.d_address;
+        d_info = info;
+        return 0;
+    }
+};
+
+// ============================================================================
+//                      TEST DRIVER
+// ----------------------------------------------------------------------------
+
+template <class TYPE>
+void executeSimpleCategoryTest(const char *typeName)
+{
+    if (verbose) cout << "Simple encode proxy" << endl;
+    {
+        TYPE object;
+        Proxy mX;  const Proxy& X = mX;
+
+        Obj::makeEncodeProxy(&mX, &object);
+        ASSERTV(typeName, Category::BDEAT_SIMPLE_CATEGORY == X.category());
+
+        SimpleAccessor<TYPE> accessor;
+
+        ASSERTV(typeName, 0 == bdeat_typeCategoryAccessSimple(X, accessor));
+        ASSERTV(typeName, &object == accessor.d_address);
+    }
+
+    if (verbose) cout << "Simple decode proxy" << endl;
+    {
+        TYPE object;
+        Proxy mX;  const Proxy& X = mX;
+
+        Obj::makeDecodeProxy(&mX, &object);
+        ASSERTV(typeName, Category::BDEAT_SIMPLE_CATEGORY == X.category());
+
+        SimpleManipulator<TYPE> manipulator;
+
+        ASSERTV(typeName,
+                0 == bdeat_typeCategoryManipulateSimple(&mX, manipulator));
+        ASSERTV(typeName, &object == manipulator.d_address);
+    }
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -1465,9 +1558,21 @@ int main(int argc, char *argv[])
                                                        bael_Severity::BAEL_OFF);
 
     switch (test) { case 0: // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // Usage Example
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
 ///Usage Example
@@ -1563,310 +1668,7 @@ int main(int argc, char *argv[])
     ASSERT(13 == decodeMessage.simpleRequest().responseLength());
 //..
       } break;
-      case 13: {
-        // --------------------------------------------------------------------
-        // Testing Customized
-        // --------------------------------------------------------------------
-        baea::CustomInt object;
-        Proxy mX;  const Proxy& X = mX;
-        Obj::makeEncodeProxy(&mX, &object);
-      } break;
-      case 12: {
-        // --------------------------------------------------------------------
-        // Testing Nullable
-        // --------------------------------------------------------------------
-        {
-            Proxy mX;  const Proxy& X = mX;
-            bdeut_NullableValue<int> object;
-
-            Obj::makeEncodeProxy(&mX, &object);
-
-            SimpleAccessor<int> accessor;
-            ASSERTV(-1 == bdeat_typeCategoryAccessNullableValue(X, accessor));
-            ASSERTV(true == X.isNull());
-
-            object.makeValue(1);
-
-            Obj::makeEncodeProxy(&mX, &object);
-
-            ASSERTV(0 == bdeat_typeCategoryAccessNullableValue(X, accessor));
-            ASSERTV(1 == accessor.d_value);
-        }
-
-        {
-            Proxy mX;  const Proxy& X = mX;
-            bdeut_NullableValue<int> object;
-
-            Obj::makeDecodeProxy(&mX, &object);
-
-            ASSERTV(true == object.isNull());
-
-            mX.makeValue();
-            ASSERTV(false == object.isNull());
-
-            SimpleManipulator<int> manipulator;
-            manipulator.d_value = 1;
-            ASSERTV(0 == bdeat_typeCategoryManipulateNullableValue(
-                                                                 &mX,
-                                                                 manipulator));
-            ASSERTV(1 == object.value());
-        }
-      } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // Testing Sequence
-        // --------------------------------------------------------------------
-
-        const bdeat_AttributeInfo *INFO = Sequence1::ATTRIBUTE_INFO_ARRAY;
-        const int NUM_INFO = Sequence1::NUM_ATTRIBUTES;
-
-        Proxy mX;  const Proxy& X = mX;
-        Sequence1 object;
-        object.element1().makeValue();
-        object.element3().makeSelection(0);
-        Obj::makeEncodeProxy(&mX, &object);
-
-        for (int ti = 0; ti < NUM_INFO; ++ti) {
-            const int ID = INFO[ti].d_id;
-
-            SequenceAccessor accessor;
-            ASSERT(0 == bdeat_sequenceAccessAttribute(X, accessor, ID));
-
-            ASSERT(accessor.d_info == INFO[ti]);
-            switch (ti) {
-              case 0: {
-                  ASSERTV(accessor.d_address == &object.element1());
-              } break;
-              case 1: {
-                  ASSERTV(accessor.d_address == object.element2().data());
-              } break;
-              case 2: {
-                  ASSERTV(accessor.d_address == &object.element3());
-              } break;
-              case 3: {
-                  ASSERTV(accessor.d_address == object.element4().data());
-              } break;
-            }
-        }
-      } break;
-      case 10: {
-        // --------------------------------------------------------------------
-        // Testing Choice
-        // --------------------------------------------------------------------
-        const bdeat_SelectionInfo *INFO = Choice1::SELECTION_INFO_ARRAY;
-        const int NUM_INFO = Choice1::NUM_SELECTIONS;
-
-        // accessor
-        Proxy mX;  const Proxy& X = mX;
-        baea::Choice1 object;
-
-        for (int ti = 0; ti < NUM_INFO; ++ti) {
-            const int ID = INFO[ti].d_id;
-
-            object.makeSelection(ID);
-            if (3 == ti) {
-                object.selection4().makeSelection(1);
-            }
-
-            Obj::makeEncodeProxy(&mX, &object);
-
-            ChoiceAccessor accessor;
-            ASSERT(0 == bdeat_choiceAccessSelection(mX, accessor));
-
-            switch (ti) {
-              case 0:
-              case 1: {
-                ASSERT(&object == accessor.d_address);
-                ASSERT(INFO[ti] == accessor.d_info);
-              } break;
-              case 2: {
-                ASSERT(&object.selection3() == accessor.d_address);
-                ASSERT(INFO[ti] == accessor.d_info);
-              } break;
-              case 3: {
-                ASSERT(&object.selection4() == accessor.d_address);
-                ASSERT(INFO[ti] == accessor.d_info);
-              } break;
-            }
-        }
-
-        // manipulator
-
-        Obj::makeDecodeProxy(&mX, &object);
-
-        for (int ti = 0; ti < NUM_INFO; ++ti) {
-            const int ID = INFO[ti].d_id;
-
-            ASSERT(0  == bdeat_choiceMakeSelection(&mX, ID));
-            ASSERT(ID == object.selectionId());
-
-            ChoiceManipulator manipulator;
-            ASSERT(0 == bdeat_choiceManipulateSelection(&mX, manipulator));
-
-            ASSERT(manipulator.d_info == INFO[ti]);
-            switch (ti) {
-              case 0: {
-                  ASSERTV(manipulator.d_address == &object.selection1());
-              } break;
-              case 1: {
-                  ASSERTV(manipulator.d_address == &object.selection2());
-              } break;
-              case 2: {
-                  ASSERTV(manipulator.d_address == &object.selection3());
-              } break;
-              case 3: {
-                  ASSERTV(manipulator.d_address == &object.selection4());
-              } break;
-            }
-        }
-      } break;
-      case 9: {
-        // --------------------------------------------------------------------
-        // TESTING Array
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "Testing Array type" << endl;
-        {
-            Proxy mX; const Proxy& X = mX;
-
-            bsl::vector<int> object;
-            const int SIZE = 5;
-            object.resize(SIZE);
-            for (int i = 0; i < SIZE; ++i) {
-                object[i] = i;
-            }
-
-            Obj::makeEncodeProxy(&mX, &object);
-
-            ASSERTV(false == X.isByteArrayValue());
-
-            for (int i = 0; i < object.size(); ++i) {
-                ExtractAddressAccessor accessor;
-                ASSERTV(0          == bdeat_arrayAccessElement(X, accessor, i));
-                ASSERTV(&object[i] == accessor.d_address);
-            }
-
-            Obj::makeDecodeProxy(&mX, &object);
-
-            ASSERTV(false == X.isByteArrayValue());
-
-            for (int i = 0; i < object.size(); ++i) {
-                ExtractAddressManipulator manipulator;
-                ASSERTV(0 == 
-                            bdeat_arrayManipulateElement(&mX, manipulator, i));
-                ASSERTV(&object[i] == manipulator.d_address);
-            }
-
-            bdeat_arrayResize(&mX, 1);
-            ASSERTV(1 == object.size());
-        }
-
-        if (verbose) cout << "Testing byte array" << endl;
-        {
-            Proxy mX; const Proxy& X = mX;
-
-            bsl::vector<char> object;
-            object.push_back(0);
-            object.push_back(1);
-            object.push_back(2);
-            object.push_back(3);
-            object.push_back(4);
-
-            Obj::makeEncodeProxy(&mX, &object);
-            
-            ASSERTV(true == X.isByteArrayValue());
-
-            ByteArrayAccessor accessor;
-            ASSERTV(0  == bdeat_typeCategoryAccessArray(X, accessor));
-            ASSERTV(&object == accessor.d_address);
-
-            Obj::makeDecodeProxy(&mX, &object);
-            
-            ASSERTV(true == X.isByteArrayValue());
-
-            ByteArrayManipulator manipulator;
-            ASSERTV(0  == bdeat_typeCategoryManipulateArray(&mX, manipulator));
-            ASSERTV(&object == manipulator.d_address);
-        }
-      } break;
-      case 8: {
-        // --------------------------------------------------------------------
-        // TESTING Enum
-        // --------------------------------------------------------------------
-
-        const bdeat_EnumeratorInfo *INFO = Enumerated::ENUMERATOR_INFO_ARRAY;
-        const int INFO_SIZE = Enumerated::NUM_ENUMERATORS;
-
-        if (verbose) cout << "Enumeration encode proxy" << endl;
-        {
-            for (int ti = 0; ti < INFO_SIZE; ++ti) {
-                const int   VALUE = INFO[ti].d_value;
-                const char *NAME  = INFO[ti].d_name_p;
-
-                Proxy mX; const Proxy& X = mX;
-                Enumerated::Value object;
-                Enumerated::fromInt(&object, VALUE);
-
-                Obj::makeEncodeProxy(&mX, &object);
-
-                int intResult;
-                bdeat_enumToInt(&intResult, X);
-                ASSERTV(VALUE == intResult);
-            }
-        }
-
-        if (verbose) cout << "Enumeration decode proxy" << endl;
-        {
-            Proxy mX; const Proxy& X = mX;
-            Enumerated::Value object;
-
-            Obj::makeDecodeProxy(&mX, &object);
-
-            for (int i = 0; i < INFO_SIZE; ++i) {
-                const int VALUE  = INFO[i].d_value;
-
-                ASSERTV(0 == mX.enumFromInt(VALUE));
-                ASSERTV(VALUE == object);
-            }
-        }
-      } break;
-      case 7: {
-        // --------------------------------------------------------------------
-        // TESTING SIMPLE TYPE
-        // --------------------------------------------------------------------
-
-        using namespace bdeat_TypeCategoryFunctions;
-        {
-            char object = 1;
-            Proxy proxy;
-
-            Obj::makeEncodeProxy(&proxy, &object);
-            ASSERTV(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY ==
-                                                             proxy.category());
-
-            SimpleAccessor<char> accessor;
-
-            ASSERTV(0 == bdeat_typeCategoryAccessSimple(proxy, accessor));
-            ASSERTV(1 == accessor.d_value);
-        }
-        {
-            char object = 1;
-            Proxy proxy;
-
-            Obj::makeDecodeProxy(&proxy, &object);
-            ASSERTV(bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY ==
-                                                             proxy.category());
-
-            SimpleManipulator<char> manipulator;
-            manipulator.d_value = 0;
-
-            ASSERTV(0 == bdeat_typeCategoryManipulateSimple(&proxy,
-                                                            manipulator));
-            ASSERTV(0 == object);
-        }
-
-      } break;
-      case 6: {
+      case 14: {
         // --------------------------------------------------------------------
         // XML decoder feature test
         //
@@ -1912,7 +1714,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 5: {
+      case 13: {
         // --------------------------------------------------------------------
         // BER decoder feature test
         //
@@ -1952,7 +1754,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 4: {
+      case 12: {
         // --------------------------------------------------------------------
         // XML encoder feature test
         //
@@ -1996,7 +1798,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 3: {
+      case 11: {
         // --------------------------------------------------------------------
         // BER encoder feature test
         //
@@ -2031,7 +1833,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 2: {
+      case 10: {
         // --------------------------------------------------------------------
         // XML breathing test
         //
@@ -2070,7 +1872,7 @@ int main(int argc, char *argv[])
         ASSERT(request.isSimpleRequestValue());
         ASSERT(request.simpleRequest().data() == "The quick brown fox");
       } break;
-      case 1: {
+      case 9: {
         // --------------------------------------------------------------------
         // BER breathing test
         //
@@ -2106,6 +1908,653 @@ int main(int argc, char *argv[])
         ASSERT(request.isSimpleRequestValue());
         ASSERT(request.simpleRequest().data() == "The quick brown fox");
 
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING CUSTOMIZED
+        //
+        // Concerns:
+        //: 1 'makeEncodeProxy' and 'makeDecodeProxy' dispatches another
+        //:   'makeEncode/DecodeProxy' method for the the underlying base type
+        //:   of the Customized type.
+        //:
+        //: 2 The 'loader', 'valueMaker' and 'objectFetcher' methods supplied
+        //:   to 'loadNullable' behaves correctly.
+        //
+        // Plan:
+        //: 1 Create a proxy for encoding with a Nullable type.
+        //:
+        //: 2 Verify that the proxy has the expected category.
+        //:
+        //: 3 Verify access methods behave as expected.
+        //:
+        //: 4 Create a proxy for encoding with a Nullable type.
+        //:
+        //: 5 Verify that the proxy has the expected category.
+        //:
+        //: 6 Verify manipulate methods behave as expected.
+        //
+        // Testing:
+        //  void makeEncodeProxy(ObjectProxy *proxy, TYPE *obj, Customized);
+        //  void makeDecodeProxy(ObjectProxy *proxy, TYPE *obj, Customized);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING CUSTOMIZED" << endl
+                          << "==================" << endl;
+
+        if (verbose) cout << "Testing Customized type for encoding" << endl;
+        {
+            Proxy mX;  const Proxy& X = mX;
+
+            baea::CustomInt object;
+            Obj::makeEncodeProxy(&mX, &object);
+
+            ASSERTV(Category::BDEAT_SIMPLE_CATEGORY == X.category());
+
+            SimpleAccessor<int> accessor;
+
+            ASSERTV(0 == bdeat_typeCategoryAccessSimple(X, accessor));
+            ASSERTV(&object.toInt() == accessor.d_address);
+        }
+
+        if (verbose) cout << "Testing Customized type for decoding" << endl;
+        {
+            Proxy mX;  const Proxy& X = mX;
+
+            baea::CustomInt object;
+            Obj::makeDecodeProxy(&mX, &object);
+
+            ASSERTV(Category::BDEAT_SIMPLE_CATEGORY == X.category());
+
+            SimpleManipulator<int> manipulator;
+
+            ASSERTV(0 == bdeat_typeCategoryManipulateSimple(&mX, manipulator));
+            ASSERTV(&object.toInt() == manipulator.d_address);
+        }
+
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING NULLABLE
+        //
+        // Concerns:
+        //: 1 'makeEncodeProxy' and 'makeDecodeProxy' dispatches the correct
+        //:   "load" method when supplied with a Nullable type.
+        //:
+        //: 2 The 'loader', 'valueMaker' and 'objectFetcher' methods supplied
+        //:   to 'loadNullable' behaves correctly.
+        //
+        // Plan:
+        //: 1 Create a proxy for encoding with a Nullable type.
+        //:
+        //: 2 Verify that the proxy has the expected category.
+        //:
+        //: 3 Verify access methods behave as expected.
+        //:
+        //: 4 Create a proxy for encoding with a Nullable type.
+        //:
+        //: 5 Verify that the proxy has the expected category.
+        //:
+        //: 6 Verify manipulate methods behave as expected.
+        //
+        // Testing:
+        //  void makeEncodeProxy(ObjectProxy *proxy, TYPE *obj, Nullable);
+        //  void makeDecodeProxy(ObjectProxy *proxy, TYPE *obj, Nullable);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING NULLABLE" << endl
+                          << "================" << endl;
+
+        if (verbose) cout << "Testing Nullable type for encoding" << endl;
+        {
+            Proxy mX;  const Proxy& X = mX;
+            bdeut_NullableValue<int> object;
+
+            Obj::makeEncodeProxy(&mX, &object);
+
+            SimpleAccessor<int> accessor;
+            ASSERTV(-1 == bdeat_typeCategoryAccessNullableValue(X, accessor));
+            ASSERTV(true == X.isNull());
+
+            object.makeValue(1);
+
+            Obj::makeEncodeProxy(&mX, &object);
+
+            ASSERTV(0 == bdeat_typeCategoryAccessNullableValue(X, accessor));
+            ASSERTV(&object.value() == accessor.d_address);
+        }
+
+        if (verbose) cout << "Testing Nullable type for decoding" << endl;
+        {
+            Proxy mX;  const Proxy& X = mX;
+            bdeut_NullableValue<int> object;
+
+            Obj::makeDecodeProxy(&mX, &object);
+
+            ASSERTV(true == object.isNull());
+
+            mX.makeValue();
+            ASSERTV(false == object.isNull());
+
+            SimpleManipulator<int> manipulator;
+            ASSERTV(0 == bdeat_typeCategoryManipulateNullableValue(
+                                                                 &mX,
+                                                                 manipulator));
+            ASSERTV(&object.value() == manipulator.d_address);
+        }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING SEQUENCE
+        //
+        // Concerns:
+        //: 1 'makeEncodeProxy' and 'makeDecodeProxy' dispatches the correct
+        //:   "load" method when supplied with a Sequence type.
+        //:
+        //: 2 The 'loader' method supplied to 'loadSequence' behaves correctly.
+        //
+        // Plan:
+        //: 1 Create a proxy for encoding with a Sequence type.
+        //:
+        //: 2 Verify that the proxy has the expected category.
+        //:
+        //: 3 Verify access methods behave as expected.
+        //:
+        //: 4 Create a proxy for encoding with a Sequence type.
+        //:
+        //: 5 Verify that the proxy has the expected category.
+        //:
+        //: 6 Verify manipulate methods behave as expected.
+        //
+        // Testing:
+        //  void makeEncodeProxy(ObjectProxy *proxy, TYPE *obj, Sequence);
+        //  void makeDecodeProxy(ObjectProxy *proxy, TYPE *obj, Sequence);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING SEQUENCE" << endl
+                          << "================" << endl;
+
+        const bdeat_AttributeInfo *INFO = Sequence1::ATTRIBUTE_INFO_ARRAY;
+        const int NUM_INFO = Sequence1::NUM_ATTRIBUTES;
+
+        if (verbose) cout << "Testing Sequence type for encoding" << endl;
+        {
+            Proxy mX;  const Proxy& X = mX;
+            Sequence1 object;
+            object.element1().makeValue();
+            object.element3().makeSelection(0);
+            Obj::makeEncodeProxy(&mX, &object);
+
+            ASSERTV(0 == strcmp(baea::Sequence1::CLASS_NAME, X.className()));
+
+            ASSERTV(Category::BDEAT_SEQUENCE_CATEGORY == X.category());
+
+            for (int ti = 0; ti < NUM_INFO; ++ti) {
+                const int ID = INFO[ti].d_id;
+
+                SequenceAccessor accessor;
+                ASSERTV(0 == bdeat_sequenceAccessAttribute(X, accessor, ID));
+
+                ASSERTV(accessor.d_info == INFO[ti]);
+                switch (ti) {
+                  case 0: {
+                      ASSERTV(accessor.d_address ==
+                                                   &object.element1().value());
+                  } break;
+                  case 1: {
+                      ASSERTV(accessor.d_address == object.element2().data());
+                  } break;
+                  case 2: {
+                      ASSERTV(accessor.d_address == &object.element3());
+                  } break;
+                  case 3: {
+                      ASSERTV(accessor.d_address == object.element4().data());
+                  } break;
+                }
+            }
+        }
+
+        if (verbose) cout << "Testing Sequence type for encoding" << endl;
+        {
+            Proxy mX;  const Proxy& X = mX;
+
+            Sequence1 object;
+            object.element1().makeValue();
+            object.element3().makeSelection(0);
+            Obj::makeDecodeProxy(&mX, &object);
+
+            ASSERTV(Category::BDEAT_SEQUENCE_CATEGORY == X.category());
+
+            for (int ti = 0; ti < NUM_INFO; ++ti) {
+                const int ID = INFO[ti].d_id;
+
+                SequenceManipulator manipulator;
+                ASSERTV(0 == bdeat_sequenceManipulateAttribute(&mX,
+                                                               manipulator,
+                                                               ID));
+
+                ASSERTV(manipulator.d_info == INFO[ti]);
+                switch (ti) {
+                  case 0: {
+                      ASSERTV(manipulator.d_address ==
+                                                   &object.element1().value());
+                  } break;
+                  case 1: {
+                      ASSERTV(manipulator.d_address == &object.element2());
+                  } break;
+                  case 2: {
+                      ASSERTV(manipulator.d_address == &object.element3());
+                  } break;
+                  case 3: {
+                      ASSERTV(manipulator.d_address == &object.element4());
+                  } break;
+                }
+            }
+        }
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING CHOICE
+        //
+        // Concerns:
+        //: 1 'makeEncodeProxy' and 'makeDecodeProxy' dispatches the correct
+        //:   "load" method when supplied with a Choice type.
+        //:
+        //: 2 The 'chooser' and 'loader' method supplied to 'loadChoice'
+        //:   behaves correctly.
+        //
+        // Plan:
+        //: 1 Create a proxy for encoding with a Choice type.
+        //:
+        //: 2 Verify that the proxy has the expected category.
+        //:
+        //: 3 Verify access methods behave as expected.
+        //:
+        //: 4 Create a proxy for encoding with a Choice type.
+        //:
+        //: 5 Verify that the proxy has the expected category.
+        //:
+        //: 6 Verify manipulate methods behave as expected.
+        //
+        // Testing:
+        //  void makeEncodeProxy(ObjectProxy *proxy, TYPE *obj, Choice);
+        //  void makeDecodeProxy(ObjectProxy *proxy, TYPE *obj, Choice);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING CHOICE" << endl
+                          << "==============" << endl;
+
+        const bdeat_SelectionInfo *INFO = Choice1::SELECTION_INFO_ARRAY;
+        const int NUM_INFO = Choice1::NUM_SELECTIONS;
+
+        if (verbose) cout << "Testing Choice type for encoding" << endl;
+        {
+            Proxy mX;  const Proxy& X = mX;
+            baea::Choice1 object;
+
+            for (int ti = 0; ti < NUM_INFO; ++ti) {
+                const int ID = INFO[ti].d_id;
+
+                object.makeSelection(ID);
+                if (3 == ti) {
+                    object.selection4().makeSelection(1);
+                }
+
+                Obj::makeEncodeProxy(&mX, &object);
+                ASSERTV(0 == strcmp(baea::Choice1::CLASS_NAME, X.className()));
+
+                ASSERTV(Category::BDEAT_CHOICE_CATEGORY == X.category());
+
+                ChoiceAccessor accessor;
+                ASSERTV(0 == bdeat_choiceAccessSelection(mX, accessor));
+
+                switch (ti) {
+                  case 0:
+                  case 1: {
+                    ASSERTV(&object == accessor.d_address);
+                    ASSERTV(INFO[ti] == accessor.d_info);
+                  } break;
+                  case 2: {
+                    ASSERTV(&object.selection3() == accessor.d_address);
+                    ASSERTV(INFO[ti] == accessor.d_info);
+                  } break;
+                  case 3: {
+                    ASSERTV(&object.selection4() == accessor.d_address);
+                    ASSERTV(INFO[ti] == accessor.d_info);
+                  } break;
+                }
+            }
+        }
+
+        if (verbose) cout << "Testing Choice type for decoding" << endl;
+        {
+            Proxy mX;  const Proxy& X = mX;
+            baea::Choice1 object;
+            Obj::makeDecodeProxy(&mX, &object);
+
+            ASSERTV(Category::BDEAT_CHOICE_CATEGORY == X.category());
+
+            for (int ti = 0; ti < NUM_INFO; ++ti) {
+                const int ID = INFO[ti].d_id;
+
+                ASSERTV(0  == bdeat_choiceMakeSelection(&mX, ID));
+                ASSERTV(ID == object.selectionId());
+
+                ChoiceManipulator manipulator;
+                ASSERTV(0 == bdeat_choiceManipulateSelection(&mX,
+                                                             manipulator));
+
+                ASSERTV(manipulator.d_info == INFO[ti]);
+                switch (ti) {
+                  case 0: {
+                      ASSERTV(manipulator.d_address == &object.selection1());
+                  } break;
+                  case 1: {
+                      ASSERTV(manipulator.d_address == &object.selection2());
+                  } break;
+                  case 2: {
+                      ASSERTV(manipulator.d_address == &object.selection3());
+                  } break;
+                  case 3: {
+                      ASSERTV(manipulator.d_address == &object.selection4());
+                  } break;
+                }
+            }
+        }
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING ARRAY
+        //
+        // Concerns:
+        //: 1 'makeEncodeProxy' and 'makeDecodeProxy' dispatches the correct
+        //:   "load" method when supplied with a Array type.
+        //:
+        //: 2 Supplying a 'vector<char>' to the 'makeEncodeProxy' or
+        //:   'makeDecodeProxy' creates a byte array.
+        //:
+        //: 3 The 'resizer' and 'loader' method supplied to 'loadArray' behaves
+        //:   correctly.
+        //
+        // Plan:
+        //: 1 Create a proxy for encoding with a Array type.
+        //:
+        //: 2 Verify that the proxy has the expected category.
+        //:
+        //: 3 Verify access methods behave as expected.
+        //:
+        //: 4 Create a proxy for encoding with a Array type.
+        //:
+        //: 5 Verify that the proxy has the expected category.
+        //:
+        //: 6 Verify manipulate methods behave as expected.
+        //:
+        //: 7 Invoke 'bdeat_arrayResize' and verify the 'vector' being
+        //:   represented is resized.
+        //:
+        //: 8 Create a proxy for a 'vector<char>'.
+        //:
+        //: 9 Verify that the proxy has the expected category and
+        //:   'isByteArrayValue' is 'true'.
+        //:
+        //:10 Verify access methods behave as expected.
+        //:
+        //:11 Verify manipulate methods behave as expected.
+        //
+        // Testing:
+        //  void makeEncodeProxy(ObjectProxy *proxy, TYPE *obj, Array);
+        //  void makeDecodeProxy(ObjectProxy *proxy, TYPE *obj, Array);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING ARRAY" << endl
+                          << "=============" << endl;
+
+        if (verbose) cout << "Testing Array type for encoding" << endl;
+        {
+            Proxy mX; const Proxy& X = mX;
+
+            bsl::vector<int> object;
+            const int SIZE = 5;
+            object.resize(SIZE);
+            for (int i = 0; i < SIZE; ++i) {
+                object[i] = i;
+            }
+
+            Obj::makeEncodeProxy(&mX, &object);
+
+            ASSERTV(Category::BDEAT_ARRAY_CATEGORY == X.category());
+
+            ASSERTV(false == X.isByteArrayValue());
+
+            for (int i = 0; i < object.size(); ++i) {
+                ExtractAddressAccessor accessor;
+                ASSERTV(0          == bdeat_arrayAccessElement(X, accessor, i));
+                ASSERTV(&object[i] == accessor.d_address);
+            }
+
+        }
+
+        if (verbose) cout << "Testing Array type for decoding" << endl;
+        {
+            Proxy mX; const Proxy& X = mX;
+
+            bsl::vector<int> object;
+            Obj::makeDecodeProxy(&mX, &object);
+
+            ASSERTV(Category::BDEAT_ARRAY_CATEGORY == X.category());
+            ASSERTV(false == X.isByteArrayValue());
+
+            bdeat_arrayResize(&mX, 1);
+            ASSERTV(1 == object.size());
+
+            bdeat_arrayResize(&mX, 5);
+            ASSERTV(5 == object.size());
+
+            ASSERTV(false == X.isByteArrayValue());
+
+            for (int i = 0; i < object.size(); ++i) {
+                ExtractAddressManipulator manipulator;
+                ASSERTV(0 ==
+                            bdeat_arrayManipulateElement(&mX, manipulator, i));
+                ASSERTV(&object[i] == manipulator.d_address);
+            }
+        }
+
+        if (verbose) cout << "Testing byte array" << endl;
+        {
+            Proxy mX; const Proxy& X = mX;
+
+            bsl::vector<char> object;
+            object.push_back(0);
+            object.push_back(1);
+            object.push_back(2);
+            object.push_back(3);
+            object.push_back(4);
+
+            Obj::makeEncodeProxy(&mX, &object);
+
+            ASSERTV(true == X.isByteArrayValue());
+
+            ByteArrayAccessor accessor;
+            ASSERTV(0 == bdeat_typeCategoryAccessArray(X, accessor));
+            ASSERTV(&object == accessor.d_address);
+
+            Obj::makeDecodeProxy(&mX, &object);
+
+            ASSERTV(true == X.isByteArrayValue());
+
+            ByteArrayManipulator manipulator;
+            ASSERTV(0 == bdeat_typeCategoryManipulateArray(&mX, manipulator));
+            ASSERTV(&object == manipulator.d_address);
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING ENUMERATION
+        //
+        // Concerns:
+        //: 1 'makeEncodeProxy' and 'makeDecodeProxy' dispatches the correct
+        //:   "load" method when supplied with a Enumeration type.
+        //:
+        //: 2 The 'intSetter' and 'stringSetter' supplied to 'loadEnum' behaves
+        //:   correctly.
+        //
+        // Plan:
+        //: 1 Create a proxy for encoding with a Enumeration type.
+        //:
+        //: 2 Verify that the proxy has the expected category.
+        //:
+        //: 3 Verify access methods behave as expected.
+        //:
+        //: 4 Create a proxy for encoding with a Enumeration type.
+        //:
+        //: 5 Verify that the proxy has the expected category.
+        //:
+        //: 6 Verify setter methods behave as expected.
+        //
+        // Testing:
+        //  void makeEncodeProxy(ObjectProxy *proxy, TYPE *obj, Enumeration);
+        //  void makeDecodeProxy(ObjectProxy *proxy, TYPE *obj, Enumeration);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING ENUMERATION" << endl
+                          << "===================" << endl;
+
+        const bdeat_EnumeratorInfo *INFO = Enumerated::ENUMERATOR_INFO_ARRAY;
+        const int INFO_SIZE = Enumerated::NUM_ENUMERATORS;
+
+        if (verbose) cout << "Enumeration encode proxy" << endl;
+        {
+            for (int ti = 0; ti < INFO_SIZE; ++ti) {
+                const int   VALUE = INFO[ti].d_value;
+                const char *NAME  = INFO[ti].d_name_p;
+
+                Proxy mX;  const Proxy& X = mX;
+
+                Enumerated::Value object;
+                Enumerated::fromInt(&object, VALUE);
+
+                Obj::makeEncodeProxy(&mX, &object);
+
+                ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY == X.category());
+
+                int intResult;
+                bdeat_enumToInt(&intResult, X);
+                ASSERTV(VALUE == intResult);
+            }
+        }
+
+        if (verbose) cout << "Enumeration decode proxy" << endl;
+        {
+            Proxy mX;  const Proxy& X = mX;
+            Enumerated::Value object;
+
+            Obj::makeDecodeProxy(&mX, &object);
+
+            for (int ti = 0; ti < INFO_SIZE; ++ti) {
+                const int   VALUE  = INFO[ti].d_value;
+                const char *NAME   = INFO[ti].d_name_p;
+                const int   LENGTH = INFO[ti].d_nameLength;
+
+                object = Enumerated::NEW_YORK;  // reset object
+                ASSERTV(0 == bdeat_enumFromInt(&mX, ti));
+                ASSERTV(VALUE == object);
+
+                object = Enumerated::NEW_YORK;  // reset object
+                ASSERTV(0 == bdeat_enumFromString(&mX, NAME, LENGTH));
+                ASSERTV(VALUE == object);
+            }
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING SIMPLE TYPE
+        //
+        // Concerns:
+        //: 1 'makeEncodeProxy' and 'makeDecodeProxy' dispatches the correct
+        //:   "load" method when supplied with a Simple type.
+        //
+        // Plan:
+        //: 1 Create a proxy for encoding with a Simple type.
+        //:
+        //: 2 Verify that the proxy has the expected category.
+        //:
+        //: 3 Verify access methods behave as expected.
+        //:
+        //: 4 Create a proxy for encoding with a Simple type.
+        //:
+        //: 5 Verify that the proxy has the expected category.
+        //:
+        //: 6 Verify manipulate methods behave as expected.
+        //
+        // Testing:
+        //  void makeEncodeProxy(ObjectProxy *proxy, TYPE *obj, Simple);
+        //  void makeDecodeProxy(ObjectProxy *proxy, TYPE *obj, Simple);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING SIMPLE TYPE" << endl
+                          << "===================" << endl;
+
+        executeSimpleCategoryTest<char>("char");
+        executeSimpleCategoryTest<unsigned char>("uchar");
+        executeSimpleCategoryTest<short>("short");
+        executeSimpleCategoryTest<int>("int");
+        executeSimpleCategoryTest<bsls_Types::Uint64>("uint64");
+        executeSimpleCategoryTest<float>("float");
+        executeSimpleCategoryTest<double>("double");
+        executeSimpleCategoryTest<bsl::string>("string");
+        executeSimpleCategoryTest<bdet_Datetime>("datetime");
+        executeSimpleCategoryTest<bdet_Date>("date");
+        executeSimpleCategoryTest<bdet_Time>("time");
+        executeSimpleCategoryTest<bool>("bool");
+        executeSimpleCategoryTest<bdet_DatetimeTz>("datetimetz");
+        executeSimpleCategoryTest<bdet_DateTz>("datetz");
+        executeSimpleCategoryTest<bdet_TimeTz>("timetz");
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Create a Simple proxy object and verify its category.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING SIMPLE TYPE" << endl
+                          << "===================" << endl;
+
+        if (verbose) cout << "Simple encode proxy" << endl;
+        {
+            char object = 1;
+            Proxy mX;  const Proxy& X = mX;
+
+            Obj::makeEncodeProxy(&mX, &object);
+            ASSERTV(Category::BDEAT_SIMPLE_CATEGORY == X.category());
+        }
+
+        if (verbose) cout << "Simple decode proxy" << endl;
+        {
+            char object = 1;
+            Proxy mX;  const Proxy& X = mX;
+
+            Obj::makeDecodeProxy(&mX, &object);
+            ASSERTV(Category::BDEAT_SIMPLE_CATEGORY == X.category());
+        }
       } break;
       case -2: {
         // --------------------------------------------------------------------
