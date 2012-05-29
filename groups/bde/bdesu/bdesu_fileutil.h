@@ -22,13 +22,15 @@ BDES_IDENT("$Id: $")
 ///Platform Specific File Locking Caveats
 ///--------------------------------------
 // Locking has the following caveats for the following operating systems:
-//
-//: o On Posix, closing a file releases ALL locks on ALL file descriptors
+//:
+//: o On Posix, closing a file releases all locks on all file descriptors
 //:   referring to that file within the current process.  [Doc 1] [Doc 2]
+//:
 //: o On Posix, the child of a fork does not inherit the locks of the parent
 //:   process.  [Doc 1] [Doc 2]
-//: o On at least some flavors of Unix, you can't lock for write a file
-//:   descriptor opened for readonly.
+//:
+//: o On at least some flavors of Unix, you can't lock a file for writing using
+//:   file descriptor opened in read-only mode.
 //
 // Documents
 //: 1 POSIX:http://pubs.opengroup.org/onlinepubs/009695399/functions/fcntl.html
