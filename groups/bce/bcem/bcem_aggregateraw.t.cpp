@@ -101,7 +101,7 @@ using namespace bsl;
 // [  ] bdet_DateTz asDateTz() const;
 // [  ] bdet_Time asTime() const;
 // [  ] bdet_TimeTz asTimeTz() const;
-// [  ] const bdem_ElemRef asElemRef() const;
+// [ 6] const bdem_ElemRef asElemRef() const;
 // [ 4] bool hasField(const char *fieldName) const;
 // [  ] bool hasFieldById(int fieldId) const;
 // [  ] bool hasFieldByIndex(int fieldIndex) const;
@@ -262,6 +262,7 @@ typedef bdet_DateTz           DateTz;
 typedef bdet_TimeTz           TimeTz;
 
 typedef bsls_PlatformUtil::Int64         Int64;
+typedef bslma_TestAllocator   TestAllocator;
 
 const int BCEM_ERR_TBD = -1;
 
@@ -1566,6 +1567,218 @@ Schema& ggSchema(Schema *object, const char *spec)
     return *object;
 }
 
+void *makeValuePtr(bdem_ElemType::Type type, TestAllocator *ta)
+{
+    void *data;
+    switch (type) {
+      case bdem_ElemType::BDEM_CHAR: {
+        data = (void *) new (*ta) char;
+      } break;
+      case bdem_ElemType::BDEM_SHORT: {
+        data = (void *) new (*ta) short;
+      } break;
+      case bdem_ElemType::BDEM_INT: {
+        data = (void *) new (*ta) int;
+      } break;
+      case bdem_ElemType::BDEM_INT64: {
+        data = (void *) new (*ta) Int64;
+      } break;
+      case bdem_ElemType::BDEM_FLOAT: {
+        data = (void *) new (*ta) float;
+      } break;
+      case bdem_ElemType::BDEM_DOUBLE: {
+        data = (void *) new (*ta) double;
+      } break;
+      case bdem_ElemType::BDEM_STRING: {
+        data = (void *) new (*ta) string;
+      } break;
+      case bdem_ElemType::BDEM_DATETIME: {
+        data = (void *) new (*ta) Datetime;
+      } break;
+      case bdem_ElemType::BDEM_DATE: {
+        data = (void *) new (*ta) Date;
+      } break;
+      case bdem_ElemType::BDEM_TIME: {
+        data = (void *) new (*ta) Time;
+      } break;
+      case bdem_ElemType::BDEM_BOOL: {
+        data = (void *) new (*ta) bool;
+      } break;
+      case bdem_ElemType::BDEM_DATETIMETZ: {
+        data = (void *) new (*ta) DatetimeTz;
+      } break;
+      case bdem_ElemType::BDEM_DATETZ: {
+        data = (void *) new (*ta) DateTz;
+      } break;
+      case bdem_ElemType::BDEM_TIMETZ: {
+        data = (void *) new (*ta) TimeTz;
+      } break;
+      case bdem_ElemType::BDEM_CHAR_ARRAY: {
+        data = (void *) new (*ta) vector<char>;
+      } break;
+      case bdem_ElemType::BDEM_SHORT_ARRAY: {
+        data = (void *) new (*ta) vector<short>;
+      } break;
+      case bdem_ElemType::BDEM_INT_ARRAY: {
+        data = (void *) new (*ta) vector<int>;
+      } break;
+      case bdem_ElemType::BDEM_INT64_ARRAY: {
+        data = (void *) new (*ta) vector<Int64>;
+      } break;
+      case bdem_ElemType::BDEM_FLOAT_ARRAY: {
+        data = (void *) new (*ta) vector<float>;
+      } break;
+      case bdem_ElemType::BDEM_DOUBLE_ARRAY: {
+        data = (void *) new (*ta) vector<double>;
+      } break;
+      case bdem_ElemType::BDEM_STRING_ARRAY: {
+        data = (void *) new (*ta) vector<string>;
+      } break;
+      case bdem_ElemType::BDEM_DATETIME_ARRAY: {
+        data = (void *) new (*ta) vector<Datetime>;
+      } break;
+      case bdem_ElemType::BDEM_DATE_ARRAY: {
+        data = (void *) new (*ta) vector<Date>;
+      } break;
+      case bdem_ElemType::BDEM_TIME_ARRAY: {
+        data = (void *) new (*ta) vector<Time>;
+      } break;
+      case bdem_ElemType::BDEM_BOOL_ARRAY: {
+        data = (void *) new (*ta) vector<bool>;
+      } break;
+      case bdem_ElemType::BDEM_DATETIMETZ_ARRAY: {
+        data = (void *) new (*ta) vector<DatetimeTz>;
+      } break;
+      case bdem_ElemType::BDEM_DATETZ_ARRAY: {
+        data = (void *) new (*ta) vector<DateTz>;
+      } break;
+      case bdem_ElemType::BDEM_TIMETZ_ARRAY: {
+        data = (void *) new (*ta) vector<TimeTz>;
+      } break;
+      case bdem_ElemType::BDEM_LIST: {
+        data = (void *) new (*ta) List;
+      } break;
+      case bdem_ElemType::BDEM_TABLE: {
+        data = (void *) new (*ta) Table;
+      } break;
+      case bdem_ElemType::BDEM_CHOICE: {
+        data = (void *) new (*ta) Choice;
+      } break;
+      case bdem_ElemType::BDEM_CHOICE_ARRAY: {
+        data = (void *) new (*ta) ChoiceArray;
+      } break;
+      default: {
+        ASSERT(0);
+      } break;
+    }
+    return data;
+}
+
+void destroyValuePtr(void *value, bdem_ElemType::Type type, TestAllocator *ta)
+{
+    switch (type) {
+      case bdem_ElemType::BDEM_CHAR: {
+        ta->deleteObject((char *) value);
+      } break;
+      case bdem_ElemType::BDEM_SHORT: {
+        ta->deleteObject((short *) value);
+      } break;
+      case bdem_ElemType::BDEM_INT: {
+        ta->deleteObject((int *) value);
+      } break;
+      case bdem_ElemType::BDEM_INT64: {
+        ta->deleteObject((Int64 *) value);
+      } break;
+      case bdem_ElemType::BDEM_FLOAT: {
+        ta->deleteObject((float *) value);
+      } break;
+      case bdem_ElemType::BDEM_DOUBLE: {
+        ta->deleteObject((double *) value);
+      } break;
+      case bdem_ElemType::BDEM_STRING: {
+        ta->deleteObject((string *) value);
+      } break;
+      case bdem_ElemType::BDEM_DATETIME: {
+        ta->deleteObject((Datetime *) value);
+      } break;
+      case bdem_ElemType::BDEM_DATE: {
+        ta->deleteObject((Date *) value);
+      } break;
+      case bdem_ElemType::BDEM_TIME: {
+        ta->deleteObject((Time *) value);
+      } break;
+      case bdem_ElemType::BDEM_BOOL: {
+        ta->deleteObject((bool *) value);
+      } break;
+      case bdem_ElemType::BDEM_DATETIMETZ: {
+        ta->deleteObject((DatetimeTz *) value);
+      } break;
+      case bdem_ElemType::BDEM_DATETZ: {
+        ta->deleteObject((DateTz *) value);
+      } break;
+      case bdem_ElemType::BDEM_TIMETZ: {
+        ta->deleteObject((TimeTz *) value);
+      } break;
+      case bdem_ElemType::BDEM_CHAR_ARRAY: {
+        ta->deleteObject((vector<char> *) value);
+      } break;
+      case bdem_ElemType::BDEM_SHORT_ARRAY: {
+        ta->deleteObject((vector<short> *) value);
+      } break;
+      case bdem_ElemType::BDEM_INT_ARRAY: {
+        ta->deleteObject((vector<int> *) value);
+      } break;
+      case bdem_ElemType::BDEM_INT64_ARRAY: {
+        ta->deleteObject((vector<Int64> *) value);
+      } break;
+      case bdem_ElemType::BDEM_FLOAT_ARRAY: {
+        ta->deleteObject((vector<float> *) value);
+      } break;
+      case bdem_ElemType::BDEM_DOUBLE_ARRAY: {
+        ta->deleteObject((vector<double> *) value);
+      } break;
+      case bdem_ElemType::BDEM_STRING_ARRAY: {
+        ta->deleteObject((vector<string> *) value);
+      } break;
+      case bdem_ElemType::BDEM_DATETIME_ARRAY: {
+        ta->deleteObject((vector<Datetime> *) value);
+      } break;
+      case bdem_ElemType::BDEM_DATE_ARRAY: {
+        ta->deleteObject((vector<Date> *) value);
+      } break;
+      case bdem_ElemType::BDEM_TIME_ARRAY: {
+        ta->deleteObject((vector<Time> *) value);
+      } break;
+      case bdem_ElemType::BDEM_BOOL_ARRAY: {
+        ta->deleteObject((vector<bool> *) value);
+      } break;
+      case bdem_ElemType::BDEM_DATETIMETZ_ARRAY: {
+        ta->deleteObject((vector<DatetimeTz> *) value);
+      } break;
+      case bdem_ElemType::BDEM_DATETZ_ARRAY: {
+        ta->deleteObject((vector<DateTz> *) value);
+      } break;
+      case bdem_ElemType::BDEM_TIMETZ_ARRAY: {
+        ta->deleteObject((vector<TimeTz> *) value);
+      } break;
+      case bdem_ElemType::BDEM_LIST: {
+        ta->deleteObject((List *) value);
+      } break;
+      case bdem_ElemType::BDEM_TABLE: {
+        ta->deleteObject((Table *) value);
+      } break;
+      case bdem_ElemType::BDEM_CHOICE: {
+        ta->deleteObject((Choice *) value);
+      } break;
+      case bdem_ElemType::BDEM_CHOICE_ARRAY: {
+        ta->deleteObject((ChoiceArray *) value);
+      } break;
+      default: {
+        ASSERT(0);
+      } break;
+    }
+}
+
 int ggAggData(Obj *agg, const RecDef& record, bslma_Allocator *basicAllocator)
 {
     bslma_Allocator *allocator = bslma_Default::allocator(basicAllocator);
@@ -2615,7 +2828,7 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
     int veryVeryVerbose = argc > 4;
 
-    initStaticData ();
+    initStaticData();
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -2683,17 +2896,24 @@ int main(int argc, char *argv[])
         if (veryVerbose) { T_ cout << "Testing for scalar aggregates"
                                    << endl; }
         {
+            TestAllocator ta;
             for (int i = 0; i < ET::BDEM_NUM_TYPES; ++i) {
+
                 ET::Type    TYPE = (ET::Type) i;
                 const CERef CER  = getCERef(TYPE, 1);
+
+                void *data = makeValuePtr(TYPE, &ta);
+                CER.descriptor()->assign(data, CER.data());
 
                 int nf = 0;
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(TYPE);
-                mX.setDataPointer((void *) CER.data());
+                mX.setDataPointer(data);
                 mX.setTopLevelAggregateNullnessPointer(&nf);
                 LOOP_ASSERT(TYPE, !X.isNull());
                 LOOP_ASSERT(TYPE, TYPE == X.dataType());
+
+                if (veryVerbose) { P_(i) P(TYPE) P(X) }
 
                 const bdem_ElemRef ER = X.asElemRef();
                 LOOP_ASSERT(TYPE, CER == ER);
@@ -2702,6 +2922,8 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(TYPE, X.isNull());
                 LOOP_ASSERT(TYPE, ER.isNull());
                 LOOP_ASSERT(TYPE, isUnset(ER));
+
+                destroyValuePtr(data, TYPE, &ta);
             }
         }
 
@@ -2877,6 +3099,7 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_ P(X) };
 
+
                 const char *fldName = r->fieldName(0);
                 ET::Type    TYPE    = NSA
                              ? ET::toArrayType(s.record(1).field(0).elemType())
@@ -2884,12 +3107,13 @@ int main(int argc, char *argv[])
 
                 const CERef CER = getCERef(TYPE, 1);
 
-                if (veryVerbose) { T_ T_ P(s) P(CER) P(X) }
+                if (veryVerbose) { T_ T_ P(s) P(TYPE) P(CER) P(X) }
 
                 Obj   mY; const Obj& Y = mY;
                 Error err;
                 if (RecDef::BDEM_CHOICE_RECORD == r->recordType()) {
-                    mX.makeSelection(&mY, &err, fldName);
+                    rc = mX.makeSelection(&mY, &err, fldName);
+                    ASSERT(!rc);
                 }
 
                 LOOP_ASSERT(LINE, !X.isNull());
@@ -2900,11 +3124,12 @@ int main(int argc, char *argv[])
                 rc = X.getField(&mY, &err, false, fldName);
                 ASSERT(!rc);
 
+                mY.reset();
+                rc = X.setField(&mY, &err, fldName, CER);
+                ASSERT(!rc);
+
                 const bdem_ElemRef ERY = Y.asElemRef();
 
-                Obj mZ; const Obj& Z = mZ;
-                rc = X.setField(&mZ, &err, fldName, CER);
-                ASSERT(!rc);
                 LOOP_ASSERT(LINE, !X.isNull());
                 LOOP_ASSERT(LINE, !Y.isNull());
                 LOOP_ASSERT(LINE, !ERX.isNull());
@@ -2914,13 +3139,14 @@ int main(int argc, char *argv[])
                     ASSERT(compareNillableTable(Y, CER));
                 }
                 else {
-                    LOOP_ASSERT(LINE, CER == ERY);
+                    LOOP3_ASSERT(LINE, CER, ERY, CER == ERY);
                 }
 
-                mZ.makeNull();
-                LOOP_ASSERT(LINE, Z.isNull());
-                LOOP_ASSERT(LINE, ERX.isNull());
-                LOOP_ASSERT(LINE, isUnset(ERX));
+                mY.makeNull();
+                LOOP_ASSERT(LINE, Y.isNull());
+                LOOP_ASSERT(LINE, isUnset(ERY));
+
+                destroyAggData(&mX, &t);
             }
         }
       } break;
@@ -2971,6 +3197,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'asXXX' ACCESSORS"
                           << "\n=========================" << endl;
 
+        bslma_TestAllocator ta;
+
         if (veryVerbose) { T_ cout << "Testing for BOOL" << endl; }
         {
             typedef bool TYPE;
@@ -2981,10 +3209,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -2997,9 +3228,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theBool() == X.asBool());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -3012,6 +3245,7 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theBool() == Y.asBool());
             }
+            destroyValuePtr(data, type, &ta);
 
             // nillable bool array
             {
@@ -3100,10 +3334,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -3116,9 +3353,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theChar() == X.asChar());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -3131,6 +3370,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theChar() == Y.asChar());
             }
+
+            destroyValuePtr(data, type, &ta);
 
             // nillable char array
             {
@@ -3219,10 +3460,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -3235,9 +3479,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theShort() == X.asShort());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -3250,6 +3496,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theShort() == Y.asShort());
             }
+
+            destroyValuePtr(data, type, &ta);
 
             // nillable short array
             {
@@ -3338,10 +3586,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -3354,9 +3605,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theInt() == X.asInt());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -3369,6 +3622,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theInt() == Y.asInt());
             }
+
+            destroyValuePtr(data, type, &ta);
 
             // nillable int array
             {
@@ -3457,10 +3712,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -3473,9 +3731,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theInt64() == X.asInt64());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -3488,6 +3748,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theInt64() == Y.asInt64());
             }
+
+            destroyValuePtr(data, type, &ta);
 
             // nillable int64 array
             {
@@ -3576,10 +3838,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -3592,9 +3857,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theFloat() == X.asFloat());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -3607,6 +3874,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theFloat() == Y.asFloat());
             }
+
+            destroyValuePtr(data, type, &ta);
 
             // nillable float array
             {
@@ -3695,10 +3964,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -3711,9 +3983,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theDouble() == X.asDouble());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -3726,6 +4000,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theDouble() == Y.asDouble());
             }
+
+            destroyValuePtr(data, type, &ta);
 
             // nillable double array
             {
@@ -3815,10 +4091,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -3831,9 +4110,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theDatetime() == X.asDatetime());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -3846,6 +4127,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theDatetime() == Y.asDatetime());
             }
+
+            destroyValuePtr(data, type, &ta);
 
             // nillable datetime array
             {
@@ -3935,10 +4218,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -3951,9 +4237,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theDate() == X.asDate());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -3966,6 +4254,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theDate() == Y.asDate());
             }
+
+            destroyValuePtr(data, type, &ta);
 
             // nillable date array
             {
@@ -4054,10 +4344,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -4070,9 +4363,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theTime() == X.asTime());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -4085,6 +4380,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theTime() == Y.asTime());
             }
+
+            destroyValuePtr(data, type, &ta);
 
             // nillable time array
             {
@@ -4173,10 +4470,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -4189,9 +4489,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theDatetimeTz() == X.asDatetimeTz());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -4204,6 +4506,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theDatetimeTz() == Y.asDatetimeTz());
             }
+
+            destroyValuePtr(data, type, &ta);
 
             // nillable datetimeTz array
             {
@@ -4293,10 +4597,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -4309,9 +4616,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theDateTz() == X.asDateTz());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -4324,6 +4633,7 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theDateTz() == Y.asDateTz());
             }
+            destroyValuePtr(data, type, &ta);
 
             // nillable dateTz array
             {
@@ -4413,10 +4723,13 @@ int main(int argc, char *argv[])
             const CERef VA = getCERef(type, 1);
             const CERef VB = getCERef(type, 2);
 
+            void *data = makeValuePtr(type, &ta);
             {
+                VA.descriptor()->assign(data, VA.data());
+
                 Obj mX; const Obj& X = mX;
                 mX.setDataType(type);
-                mX.setDataPointer((void *) VA.data());
+                mX.setDataPointer(data);
                 int nf1 = 0;
                 mX.setTopLevelAggregateNullnessPointer(&nf1);
 
@@ -4429,9 +4742,11 @@ int main(int argc, char *argv[])
                 ASSERT(X.asElemRef().isNull());
                 ASSERT(VN.theTimeTz() == X.asTimeTz());
 
+                VA.descriptor()->assign(data, VB.data());
+
                 Obj mY; const Obj& Y = mY;
                 mY.setDataType(type);
-                mY.setDataPointer((void *) VB.data());
+                mY.setDataPointer(data);
                 int nf2 = 0;
                 mY.setTopLevelAggregateNullnessPointer(&nf2);
 
@@ -4444,6 +4759,7 @@ int main(int argc, char *argv[])
                 ASSERT(Y.asElemRef().isNull());
                 ASSERT(VN.theTimeTz() == Y.asTimeTz());
             }
+            destroyValuePtr(data, type, &ta);
 
             // nillable timeTz array
             {
