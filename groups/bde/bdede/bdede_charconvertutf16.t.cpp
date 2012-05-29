@@ -663,11 +663,11 @@ template<typename ARRAY_RANGE> struct GenCheckArrRange {
         // 'd_range', up to the length 'd_range.size()', and false otherwise.
     {
         return 0 == size()
-            ||  static_cast<value_type>(checkBuffer[0]) == d_range.begin()[0]
+            ||  (static_cast<value_type>(checkBuffer[0]) == d_range.begin()[0]
              && ( 1 == size()
                || 0 == memcmp(checkBuffer + 1,
                               d_range.begin() + 1,
-                              sizeof(value_type) * (size() - 1)));
+                              sizeof(value_type) * (size() - 1))));
     }
 };
 
@@ -1093,10 +1093,10 @@ template<typename CHAR_TYPE> struct WorkPiece {
               bsl::size_t winLength,
               CHAR_TYPE   fillChar,
               bsl::size_t margin = 32)
-    : d_memLength(memLength),
-      d_winLength(winLength),
-      d_fillChar(fillChar),
-      d_margin(margin)
+    : d_memLength(memLength)
+    , d_margin(margin)
+    , d_winLength(winLength)
+    , d_fillChar(fillChar)
     {
     }
 
@@ -1212,23 +1212,25 @@ template <typename TO_CHAR, typename FROM_CHAR> struct Conversion {
                         const SrcSpec<FROM_CHAR>& from,
                         const convRslt&           expected)
     {
+        enum { INF = (bsl::size_t) -1 };
+
         convRslt result;
 
         result.d_retVal = (d_converter)(to.begin(dstBuf),
                                         to.d_winLength,
                                         from.d_source,
-                                        expected.d_symbols == -1 ?
+                                        expected.d_symbols == INF ?
                                                     0 : &result.d_symbols,
-                                        expected.d_units == -1 ?
+                                        expected.d_units == INF ?
                                                     0 : &result.d_units,
                                         from.d_errorChar);
 
-        if (-1 == expected.d_symbols) {
-            result.d_symbols = -1;
+        if (INF == expected.d_symbols) {
+            result.d_symbols = INF;
         }
 
-        if (-1 == expected.d_units) {
-            result.d_units = -1;
+        if (INF == expected.d_units) {
+            result.d_units = INF;
         }
 
         return result;
@@ -1466,7 +1468,7 @@ void functionRequiringUtf16(const unsigned short *str, bsl::size_t strLen)
 {
     // Would probably do something more reasonable here.
 
-    ASSERT(wideStrlen(str) + 1 == strLen);
+    ASSERT(wideStrlen(str) + 1 == (int) strLen);
 }
 //..
 // Finally, we can take some UTF-8 as an input and call
@@ -1622,11 +1624,11 @@ void testSingleOctetPerturbation(const char             *input,
                                  bsl::size_t             perturbationPos,
                                  bsl::size_t             perturbationChar,
                                  const unsigned short   *origExpectedOutput,
-                                 bsl::size_t             totalInputLength,
-                                 unsigned short         *characterSizes,
+                                 bsl::size_t,
+                                 unsigned short         *,
                                  bsl::size_t             characterCount,
                                  const PerturbationDesc &perturb,
-                                 int                    verbose,
+                                 int,
                                  int                    veryVerbose)
 {
     char           inputBuffer[256];
@@ -1701,7 +1703,7 @@ void testSingleOctetPerturbation(const char             *input,
 
     pos += before;
 
-    for (int i = 0; i < characterCount; ++i) {
+    for (int i = 0; i < (int) characterCount; ++i) {
         if (i < pos - before) {
             LOOP3_ASSERT(i, outputBuffer[i],   origExpectedOutput[i],
                             outputBuffer[i] == origExpectedOutput[i]);
@@ -1747,8 +1749,6 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                                            int             verbose,
                                            int             veryVerbose)
 {
-    int retVal;
-
     if (veryVerbose) {
         cout << "perturbUtf8AndCheckConversionFailures("
              <<  "\n\tinput             =";
@@ -1821,7 +1821,8 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
     //    |          |           | 4-octet octet 1   |          ? |   1   0 |
     //    +----------+-----------+-------------------+------------+---------+
 
-    for (int currentChar = 0; currentChar < characterCount; ++currentChar) {
+    for (int currentChar = 0; currentChar < (int) characterCount;
+                                                               ++currentChar) {
         int currentCharStart = 0;
         for (int i=0; i < currentChar; ++i) {
             currentCharStart += characterSizes[i];
@@ -1841,7 +1842,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
             bsl::size_t testCount = sizeof oneOctetCharOctetOne /
                                     sizeof *oneOctetCharOctetOne;
 
-            for (int i = 0; i < testCount; ++i) {
+            for (int i = 0; i < (int) testCount; ++i) {
                 testSingleOctetPerturbation(input,
                                             currentCharStart,
                                             currentChar,
@@ -1870,7 +1871,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof twoOctetCharOctetOne
                                       / sizeof *twoOctetCharOctetOne;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart,
                                                 currentChar,
@@ -1898,7 +1899,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof twoOctetCharOctetTwo
                                       / sizeof *twoOctetCharOctetTwo;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart + 1,
                                                 currentChar,
@@ -1927,7 +1928,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof threeOctetCharOctetOne /
                                         sizeof *threeOctetCharOctetOne;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart,
                                                 currentChar,
@@ -1972,7 +1973,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof threeOctetCharOctetTwo /
                                         sizeof *threeOctetCharOctetTwo;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart + 1,
                                                 currentChar,
@@ -2019,7 +2020,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof threeOctetCharOctetThree
                                       / sizeof *threeOctetCharOctetThree;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (int i = 0; i < (int) testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart + 2,
                                                 currentChar,
@@ -2082,7 +2083,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                           verbose,
                                           veryVerbose);
 
-    for(int bufSize = 0; bufSize < characterCount; ++bufSize) {
+    for(int bufSize = 0; bufSize < (int) characterCount; ++bufSize) {
         unsigned short outputBuffer[256] = { 0 };
         bsl::size_t charsWritten = 0;
 
@@ -2096,7 +2097,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
                          bufSize,                   characterCount,
                          OUTPUT_BUFFER_TOO_SMALL == retVal);
         LOOP3_ASSERT(L_, charsWritten,   bufSize,
-                         charsWritten == bufSize);
+                         (int) charsWritten == bufSize);
     }
 
     unsigned short outputBuffer[256] = { 0 };
@@ -2169,7 +2170,7 @@ void buildUpAndTestStringsU8ToU2(int             idx,
 
     characterSizes[characterCount++] = d.d_utf8CharacterLength;
 
-    for (int i = 0; i < precomputedDataCount; ++i) {
+    for (int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU8ToU2(i,
                                     depth - 1,
                                     inputBuffer,
@@ -2273,7 +2274,7 @@ template<bsl::size_t N> struct Permuter {
 
     Permuter()
     {
-        for (int i = 0; i < N; ++i)
+        for (int i = 0; i < (int) N; ++i)
         {
             d_wheel[i] = 0;
             d_val[i] = i;
@@ -2703,7 +2704,7 @@ int main(int argc, char**argv)
                 unsigned short image[MAX_NWORDS];
 
                 for (int ic = 0;
-                       ic < sizeof(u8CodingCases) / sizeof(u8CodingCases[0]);
+                   ic < (int) (sizeof(u8CodingCases)/sizeof(u8CodingCases[0]));
                                                                         ++ic) {
                     int nSymbols = 0;
 
@@ -2766,7 +2767,7 @@ int main(int argc, char**argv)
                                                      | fourContin2 << 6
                                                      | fourContin3 ) - 0x10000;
                               *imgp++ = 0xd800 | isoChar >> 10;
-                              *imgp++ = 0xdc00 | isoChar & 0x3ff;
+                              *imgp++ = 0xdc00 | (isoChar & 0x3ff);
                             }
 
                             ++nSymbols;
@@ -2923,44 +2924,44 @@ int main(int argc, char**argv)
             const char* caseMessage[2];
             unsigned char octet;
         } disallowed [] ={
-            { "\nTest 4a1: disallowed octet 0xff",
-              "\n===============================",
-              0xff, },
-            { "\nTest 4a2: disallowed octet 0xfe "
+            { { "\nTest 4a1: disallowed octet 0xff",
+                "\n===============================" },
+              0xff },
+            { { "\nTest 4a2: disallowed octet 0xfe "
                       "(header for 7-octet character)",
-              "\n================================"
-                      "==============================",
-              0xfe, },
-            { "\nTest 4a3: disallowed octet 0xfc "
+                "\n================================"
+                      "==============================" },
+              0xfe },
+            { { "\nTest 4a3: disallowed octet 0xfc "
                       "(header for 6-octet character + 0)",
-              "\n================================"
-                      "==================================",
-              0xfc, },
-            { "\nTest 4a4: disallowed octet 0xfd "
+                "\n================================"
+                      "==================================" },
+              0xfc },
+            { { "\nTest 4a4: disallowed octet 0xfd "
                       "(header for 6-octet character + 1)",
-              "\n================================"
-                      "==================================",
-              0xfd, },
-            { "\nTest 4a5: disallowed octet 0xf8 "
+                "\n================================"
+                      "==================================" },
+              0xfd },
+            { { "\nTest 4a5: disallowed octet 0xf8 "
                       "(header for 5-octet character + 0)",
-              "\n================================"
-                      "==================================",
-              0xf8, },
-            { "\nTest 4a6: disallowed octet 0xf9 "
+                "\n================================"
+                      "==================================" },
+              0xf8 },
+            { { "\nTest 4a6: disallowed octet 0xf9 "
                       "(header for 5-octet character + 1)",
-              "\n================================"
-                      "==================================",
-              0xf9, },
-            { "\nTest 4a7: disallowed octet 0xfa "
+                "\n================================"
+                      "==================================" },
+              0xf9 },
+            { { "\nTest 4a7: disallowed octet 0xfa "
                       "(header for 5-octet character + 2)",
-              "\n================================"
-                      "==================================",
-              0xfa, },
-            { "\nTest 4a8: disallowed octet 0xfb "
+                "\n================================"
+                      "==================================" },
+              0xfa },
+            { { "\nTest 4a8: disallowed octet 0xfb "
                       "(header for 5-octet character + 3)",
-              "\n================================"
-                      "==================================",
-              0xfb, },
+                "\n================================"
+                      "==================================" },
+              0xfb },
         };
 
         for (DisallowedOctet* disI = disallowed;
@@ -3062,7 +3063,7 @@ int main(int argc, char**argv)
         };
 
         for (int oltI = 0;
-                        oltI < sizeof(cutShortAtOne)/sizeof(cutShortAtOne[0]);
+                 oltI < (int) (sizeof(cutShortAtOne)/sizeof(cutShortAtOne[0]));
                                                                     ++oltI) {
             OctetListTests& olt = cutShortAtOne[oltI];
 
@@ -3130,7 +3131,7 @@ int main(int argc, char**argv)
         };
 
         for (int oltI = 0;
-                        oltI < sizeof(cutShortAtTwo)/sizeof(cutShortAtTwo[0]);
+                 oltI < (int) (sizeof(cutShortAtTwo)/sizeof(cutShortAtTwo[0]));
                                                                     ++oltI) {
             OctetListTests& olt = cutShortAtTwo[oltI];
 
@@ -3271,7 +3272,7 @@ int main(int argc, char**argv)
                 ArrayRange<unsigned short> u16Range(u16);
 
                 char source[2] ={ static_cast<char>(0xc0 | octet >> 6),
-                                  static_cast<char>(0x80 | octet & 0x3f) };
+                                  static_cast<char>(0x80 | (octet & 0x3f)) };
 
                 if (veryVerbose) {
                     cout << hex << "Header " << deChar(source[0])
@@ -3318,7 +3319,7 @@ int main(int argc, char**argv)
 
                 char source[3] ={ static_cast<char>(0xe0),
                                   static_cast<char>((0x80 | octet >> 6)),
-                                  static_cast<char>((0x80 | octet & 0x3f)) };
+                                  static_cast<char>((0x80 | (octet & 0x3f))) };
 
                 if (veryVerbose) {
                     cout << hex << "Header " << deChar(source[0])
@@ -3368,7 +3369,7 @@ int main(int argc, char**argv)
                 char source[4] ={ static_cast<char>(0xf0),
                                   static_cast<char>(0x80),
                                   static_cast<char>(0x80 | octet >> 6),
-                                  static_cast<char>(0x80 | octet & 0x3f) };
+                                  static_cast<char>(0x80 | (octet & 0x3f)) };
 
                 if (veryVerbose) {
                     cout << hex << "Header " << deChar(source[0])
@@ -3413,8 +3414,6 @@ int main(int argc, char**argv)
                                         ((unsigned short) *wheelIters[0] << 6)
                                        | *wheelIters[1];
 
-                unsigned char header  = 0xe0 | (character >> 12);
-                    // 'header' should end up as 0xe0.
                 unsigned char contin1 = 0x80 | (character >> 6 & 0x3f);
                 unsigned char contin2 = 0x80 | (character & 0x3f);
 
@@ -3478,8 +3477,6 @@ int main(int argc, char**argv)
                                         ((unsigned short) *wheelIters[0] << 6)
                                        | *wheelIters[1];
 
-                unsigned char header  = 0xf0 | (character >> 18);
-                    // 'header' should end up as 0xf0.
                 unsigned char contin1 = 0x80 | (character >> 12 & 0x3f);
                     // 'contin1' should end up as 0x80.
                 unsigned char contin2 = 0x80 | (character >> 6 & 0x3f);
@@ -3642,8 +3639,8 @@ int main(int argc, char**argv)
           }
         };
 
-        for(int iOctSet = 0 ; iOctSet < sizeof(reservedRangeOctetSets)/
-                                         sizeof(reservedRangeOctetSets[0]);
+        for(int iOctSet = 0 ; iOctSet < (int) (sizeof(reservedRangeOctetSets)/
+                                            sizeof(reservedRangeOctetSets[0]));
                                                              ++iOctSet) {
             ReservedRangeOctetSet& octSet = reservedRangeOctetSets[iOctSet];
 
@@ -3858,7 +3855,7 @@ int main(int argc, char**argv)
         };
 
         for(int iTwoWordCase = 0 ; iTwoWordCase <
-                                sizeof(twoWordCases)/sizeof(twoWordCases[0]);
+                         (int) (sizeof(twoWordCases)/sizeof(twoWordCases[0]));
                                                              ++iTwoWordCase) {
             TwoWordCase& testCase = twoWordCases[iTwoWordCase];
 
@@ -3981,7 +3978,8 @@ int main(int argc, char**argv)
                     if (! EXPECTED_GOT(u8c,wp.begin(u16)[u8c - 1])) {
                         cout << "\tat "; P(u8c - 1);
                     }
-                    if (! EXPECTED_GOT(u8c,u8[u8c - 1])) {
+                    if (! EXPECTED_GOT(u8c,
+                                       (unsigned) u8[u8c - 1])) {
                         cout << "\tSource string damaged at "; P(u8c - 1);
                     }
                 }
@@ -4297,7 +4295,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                                          << endl;
                                 }
                                 if (! EXPECTED_GOT(
-                                        (val - 0x10000) & 0x3ff | 0xdc00,
+                                        ((val - 0x10000) & 0x3ff) | 0xdc00,
                                         wp.begin(u16)[at + 1])) {
                                     cout << R_(iFirst) << R_(iSecond)
                                          << R_(iThird) << R_(iFourth)
@@ -4388,7 +4386,8 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
             if (RUN_AND_CHECK(wp, u8, result, u16ToU8, source, expected)) {
 // cout << prHexRange(wp.begin(u8), wp.end(u8)) << endl ;
                 for (unsigned u16c = 1; u16c < 0x80; ++u16c) {
-                    if (! EXPECTED_GOT(u16c,wp.begin(u8)[u16c - 1])) {
+                    if (! EXPECTED_GOT(u16c,
+                                       (unsigned) wp.begin(u8)[u16c - 1])) {
                         cout << "\tat "; P(u16c - 1);
                     }
                 }
@@ -4452,7 +4451,7 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                         cout << "\tat "; P(u8c - 0x80);
                     }
                     if (! EXPECTED_GOT(deChar(wp.begin(u8)[at + 1]),
-                                       0x80 | u8c & 0x3f)) {
+                                       0x80 | (u8c & 0x3f))) {
                         cout << "\tat "; P(u8c - 0x80);
                     }
                 }
@@ -4619,12 +4618,12 @@ cout << R_(iFirst) << R_(wp.end(u16) - wp.begin(u16))
                         for (unsigned iFourth = 0x0 ; iFourth < CONTIN_LIM;
                                                                    ++iFourth) {
 // cout << hex << R_(iThird) << R_(iFourth) << R(pos) << dec << endl ;
-                            unsigned long convBuf = (iFirst << 18
-                                                   | iSecond << 12
-                                                   | iThird << 6
+                            unsigned long convBuf = ((iFirst << 18)
+                                                   | (iSecond << 12)
+                                                   | (iThird << 6)
                                                    | iFourth) - 0x10000;
-                            u16[pos++] = 0xd800 | convBuf >> 10;
-                            u16[pos++] = 0xdc00 | convBuf & 0x3ff;
+                            u16[pos++] = 0xd800 | (convBuf >> 10);
+                            u16[pos++] = 0xdc00 | (convBuf & 0x3ff);
 
                             ++nSixteenToEight;
                         }
@@ -5012,7 +5011,6 @@ cout << "ran " << (unsigned) *c3i << ", " << (unsigned) *cC2i
                     }
                 }
 
-                AvCharList *innerIters[2] = { &casesContin, &casesContin };
                 OdomIter<AvCharList::iterator, 2> c3C4(outerIters);
 
                 for( ; c3C4 ; c3C4.next() ) {
@@ -5167,8 +5165,10 @@ cout << "ran " << (unsigned) *c4i << ", " << (unsigned) *cC2i
                                                            expected);
                 RUN_FOUR_WAYS(runner);
 
-                EXPECTED_GOT(deChar(0xc0 | *c2i), deChar(runner.begin(0)[0]));
-                EXPECTED_GOT(deChar(0x80 | *cCi), deChar(runner.begin(0)[1]));
+                EXPECTED_GOT((unsigned) deChar(0xc0 | *c2i),
+                             (unsigned) deChar(runner.begin(0)[0]));
+                EXPECTED_GOT((unsigned) deChar(0x80 | *cCi),
+                             (unsigned) deChar(runner.begin(0)[1]));
 #if 0
 cout << "ran " << (unsigned) *c2i << ", " << (unsigned) *cCi
  << " four ways." << endl ;
@@ -5239,12 +5239,12 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                                                expected);
                     RUN_FOUR_WAYS(runner);
 
-                    EXPECTED_GOT(deChar(0xe0 | *c3i),
-                                 deChar(runner.begin(0)[0]));
-                    EXPECTED_GOT(deChar(0x80 | *cC2i),
-                                 deChar(runner.begin(0)[1]));
-                    EXPECTED_GOT(deChar(0x80 | *cC3i),
-                                 deChar(runner.begin(0)[2]));
+                    EXPECTED_GOT((unsigned) deChar(0xe0 | *c3i),
+                                 (unsigned) deChar(runner.begin(0)[0]));
+                    EXPECTED_GOT((unsigned) deChar(0x80 | *cC2i),
+                                 (unsigned) deChar(runner.begin(0)[1]));
+                    EXPECTED_GOT((unsigned) deChar(0x80 | *cC3i),
+                                 (unsigned) deChar(runner.begin(0)[2]));
 
 // cout << hex << "source " << u16[0] << " "
 //      << prHexRange(&runner.begin(0)[0], 4) << dec << endl ;
@@ -5338,14 +5338,14 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                         }
                     }
 
-                    EXPECTED_GOT(deChar(0xf0 | *c4i),
-                                 deChar(runner.begin(0)[0]));
-                    EXPECTED_GOT(deChar(0x80 | *cC2i),
-                                 deChar(runner.begin(0)[1]));
-                    EXPECTED_GOT(deChar(0x80 | *cC3i),
-                                 deChar(runner.begin(0)[2]));
-                    EXPECTED_GOT(deChar(0x80 | *cC4i),
-                                 deChar(runner.begin(0)[3]));
+                    EXPECTED_GOT((unsigned) deChar(0xf0 | *c4i),
+                                 (unsigned) deChar(runner.begin(0)[0]));
+                    EXPECTED_GOT((unsigned) deChar(0x80 | *cC2i),
+                                 (unsigned) deChar(runner.begin(0)[1]));
+                    EXPECTED_GOT((unsigned) deChar(0x80 | *cC3i),
+                                 (unsigned) deChar(runner.begin(0)[2]));
+                    EXPECTED_GOT((unsigned) deChar(0x80 | *cC4i),
+                                 (unsigned) deChar(runner.begin(0)[3]));
                     nCases++;
 
 // cout << hex << "source " << u16[0] << ", " << u16[1] << " "
@@ -5491,7 +5491,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
 
-            char u8[4][Sizes::FROM_BUF_SIZE];
             unsigned short u16[4][Sizes::TO_BUF_SIZE];
 
             convRslt returned;    // This name gets printed by ASSERTs and
@@ -5526,7 +5525,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
 
-            unsigned short u16[4][Sizes::FROM_BUF_SIZE];
             char u8[4][Sizes::TO_BUF_SIZE];
 
             convRslt returned;    // This name gets printed by ASSERTs and
@@ -5562,7 +5560,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
 
-            char u8[4][Sizes::FROM_BUF_SIZE];
             unsigned short u16[4][Sizes::TO_BUF_SIZE];
 
             convRslt returned;    // This name gets printed by ASSERTs and
@@ -5597,7 +5594,6 @@ cout << "u8 " << prHexRange( SunFake ) << endl ;
                                 1,                        // Dest char size
                                 BUFFER_ZONE> Sizes;
 
-            unsigned short u16[4][Sizes::FROM_BUF_SIZE];
             char u8[4][Sizes::TO_BUF_SIZE];
 
             convRslt returned;    // This name gets printed by ASSERTs and
@@ -5653,7 +5649,7 @@ ostream &operator <<(ostream &os, const hexPrImpl<T> &t)
     const ios_base::fmtflags flags = os.flags();
     const char fill = os.fill();
     os << hex << bsl::internal << "[";
-    for(int i = 0; i < t.d_av.size(); ++i) {
+    for(int i = 0; i < (int) t.d_av.size(); ++i) {
         os << " "
            << bsl::setw(6)
            << deChar(t.d_av[i]);
@@ -5939,7 +5935,7 @@ template<typename ARRAY_TYPE, bsl::size_t N_WAY>
 {
     FixedVector<FixedVector<int, N_WAY>, N_WAY >& eqClasses = *retVal;
     eqClasses.resize(N_WAY);
-    for(int i = 0; i < N_WAY; ++i) {
+    for(int i = 0; i < (int) N_WAY; ++i) {
         eqClasses[i].resize(0);
     }
     eqClasses.resize(0);
@@ -5952,7 +5948,7 @@ template<typename ARRAY_TYPE, bsl::size_t N_WAY>
     eqClasses[0].push_back(0);
 
     // Then, for each remaining string 'n', scan the equivalence classes.
-    for (int n = 1; n < sv.size(); ++n) {
+    for (int n = 1; n < (int) sv.size(); ++n) {
 
         // Check string 'n' against each existing equivalence class in turn.
         for (int eqCl = 0; ; ++eqCl) {
@@ -5960,7 +5956,7 @@ template<typename ARRAY_TYPE, bsl::size_t N_WAY>
             // If we have run out of existing equivalence classes in which to
             // look for string 'n', string 'n' must go in a new equivalence
             // class.
-            if (eqCl >= eqClasses.size()) {
+            if (eqCl >= (int) eqClasses.size()) {
                 eqClasses.resize(eqClasses.size() + 1);
                 eqClasses[eqClasses.size() - 1].push_back(n);
                 break;
@@ -5984,7 +5980,7 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                              bsl::size_t     totalOutputLength,
                                              unsigned short *characterSizes,
                                              bsl::size_t     characterCount,
-                                             int             verbose,
+                                             int,
                                              int             veryVerbose)
 {
     int retVal;
@@ -6008,7 +6004,7 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
         return;
     }
 
-    for(int bufSize = 0; bufSize < totalOutputLength; ++bufSize) {
+    for(int bufSize = 0; bufSize < (int) totalOutputLength; ++bufSize) {
         char outputBuffer[256] = { 0 };
         bsl::size_t bytesWritten = 0;
         bsl::size_t charsWritten = 0;
@@ -6097,7 +6093,7 @@ void buildUpAndTestStringsU2ToU8(int             idx,
 
     characterSizes[characterCount++] = d.d_utf8CharacterLength;
 
-    for(int i = 0; i < precomputedDataCount; ++i) {
+    for(int i = 0; i < (int) precomputedDataCount; ++i) {
         buildUpAndTestStringsU2ToU8(i,
                                     depth - 1,
                                     inputBuffer,
@@ -7285,7 +7281,7 @@ int runPlainTextPerformanceTest(void)
         "to hear about new eBooks.\n"
     };
 
-    int prideLen = sizeof(prideAndPrejudice);
+    bsl::size_t prideLen = sizeof(prideAndPrejudice);
 
     unsigned short *utf16Buffer_p = new unsigned short[prideLen];
     char           *utf8Buffer_p = new char[prideLen];
@@ -7362,7 +7358,6 @@ void WorkPiece<CHAR_TYPE>::fillMargins(CHAR_TYPE* mem)
     fillArray(&mem[0], &mem[d_margin], d_fillChar);
            // from start up to winStart
 
-    CHAR_TYPE *p_end = &mem[2 * d_margin + d_winLength];
     fillArray(&mem[d_margin + d_winLength],
               &mem[2 * d_margin + d_winLength],
               d_fillChar) ;
@@ -7466,7 +7461,6 @@ template<typename TO_CHAR, typename FROM_CHAR, typename FILL_CHECK>
                                 ConversionArg<TO_CHAR, FROM_CHAR>::arg());
 
     FROM_CHAR* from = fromBuf.begin();
-    FROM_CHAR* fromEnd = fromBuf.end();
 
     fillCheck.fill(from);
     from[fillCheck.size()] = 0;
@@ -7709,7 +7703,6 @@ template<typename TO_CHAR,
                                 ConversionArg<TO_CHAR, FR_CHAR>::arg());
 
     FR_CHAR* from = fromBuf.begin();
-    FR_CHAR* fromEnd = fromBuf.end();
 
     fromFillCheck.fill(from);
     from[fromFillCheck.size()] = 0;
