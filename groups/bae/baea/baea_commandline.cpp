@@ -3439,16 +3439,16 @@ void baea_CommandLine::location(bsl::ostream& stream,
         stream << "The error occurred while parsing the "
                << baea_Ordinal(start) << " to "
                << baea_Ordinal(end) << " characters of the "
-               << baea_Ordinal(argc) << " argument." << bsl::endl;
+               << baea_Ordinal(argc - 1) << " argument." << bsl::endl;
     }
     else if (start != -1) {
         stream << "The error occurred while parsing the "
                << baea_Ordinal(start) << " character of the "
-               << baea_Ordinal(argc) << " argument." << bsl::endl;
+               << baea_Ordinal(argc - 1) << " argument." << bsl::endl;
     }
     else {
         stream << "The error occurred while parsing the "
-               << baea_Ordinal(argc) << " argument." << bsl::endl;
+               << baea_Ordinal(argc - 1) << " argument." << bsl::endl;
     }
 }
 
