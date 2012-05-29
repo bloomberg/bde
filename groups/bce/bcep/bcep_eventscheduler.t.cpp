@@ -2085,7 +2085,30 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That 'cancelEvent{AndWait}' and 'cancelRecurringEvent{AndWait}'
-        //   work properly.
+        //   work properly with regard to releasing handles and not segfaulting
+        //   or aborting when called on handles that are already released.
+        //
+        // Plan:
+        //   Create a scheduler and schedule an event on it, far in the future
+        //   so that the test will be over before the event occurs.  When
+        //   creating the event, bind an handle to it.  Cancel the event twice.
+        //   Verify the state of the queue throughout this process by
+        //   monitoring 'scheduler.numEvents()' or
+        //   'scheduler.numRecurrringEvents()', verify that the return codes
+        //   from the cancel calls are what they should be, and verify that the
+        //   handle is in the correct state by casting it to a pointer (a
+        //   released handle will cast to a null ptr, a bound handle will cast
+        //   to some other value).
+        //
+        //   The same test is repeated 4 times, for every combination of handle
+        //   type and cancel method:
+        //
+        //   Handle Type                Cancel Method
+        //   -----------                -------------
+        //   EventHandle                cancelEvent
+        //   EventHandle                cancelEventAndWait
+        //   RecurringEventHandle       cancelEvent
+        //   RecurringEventHandle       cancelEventAndWait
         // --------------------------------------------------------------------
 
         if (verbose) cout <<
@@ -2101,26 +2124,32 @@ int main(int argc, char *argv[])
         Obj::EventHandle eh;
         scheduler.scheduleEvent(&eh, farFuture, &mustBeCancelledCallBack);
         ASSERT(1 == scheduler.numEvents());
+        ASSERT(0 != (const Obj::Event *) eh);
 
         int rc;
         rc = scheduler.cancelEvent(&eh);
         ASSERT(0 == rc);
         ASSERT(0 == scheduler.numEvents());
+        ASSERT(0 == (const Obj::Event *) eh);
 
         rc = scheduler.cancelEvent(&eh);
         ASSERT((bcec_SkipList<int, int>::BCEC_INVALID == rc));
         ASSERT(0 == scheduler.numEvents());
+        ASSERT(0 == (const Obj::Event *) eh);
 
         scheduler.scheduleEvent(&eh, farFuture, &mustBeCancelledCallBack);
         ASSERT(1 == scheduler.numEvents());
+        ASSERT(0 != (const Obj::Event *) eh);
 
         rc = scheduler.cancelEventAndWait(&eh);
         ASSERT(0 == rc);
         ASSERT(0 == scheduler.numEvents());
+        ASSERT(0 == (const Obj::Event *) eh);
 
         rc = scheduler.cancelEventAndWait(&eh);
         ASSERT((bcec_SkipList<int, int>::BCEC_INVALID == rc));
         ASSERT(0 == scheduler.numEvents());
+        ASSERT(0 == (const Obj::Event *) eh);
 
         Obj::RecurringEventHandle reh;
         scheduler.scheduleRecurringEvent(&reh,
@@ -2128,42 +2157,34 @@ int main(int argc, char *argv[])
                                          &mustBeCancelledCallBack,
                                          farFuture);
         ASSERT(1 == scheduler.numRecurringEvents());
+        ASSERT(0 != (const Obj::RecurringEvent *) reh);
 
         rc = scheduler.cancelEvent(&reh);
         ASSERT(0 == rc);
         ASSERT(0 == scheduler.numRecurringEvents());
+        ASSERT(0 == (const Obj::RecurringEvent *) reh);
 
         rc = scheduler.cancelEvent(&reh);
         ASSERT((bcec_SkipList<int, int>::BCEC_INVALID == rc));
         ASSERT(0 == scheduler.numRecurringEvents());
+        ASSERT(0 == (const Obj::RecurringEvent *) reh);
 
         scheduler.scheduleRecurringEvent(&reh,
                                          oneSec,
                                          &mustBeCancelledCallBack,
                                          farFuture);
         ASSERT(1 == scheduler.numRecurringEvents());
-
-        rc = scheduler.cancelEvent(&reh);
-        ASSERT(0 == rc);
-        ASSERT(0 == scheduler.numRecurringEvents());
-
-        rc = scheduler.cancelEvent(&reh);
-        ASSERT((bcec_SkipList<int, int>::BCEC_INVALID == rc));
-        ASSERT(0 == scheduler.numRecurringEvents());
-
-        scheduler.scheduleRecurringEvent(&reh,
-                                         oneSec,
-                                         &mustBeCancelledCallBack,
-                                         farFuture);
-        ASSERT(1 == scheduler.numRecurringEvents());
+        ASSERT(0 != (const Obj::RecurringEvent *) reh);
 
         rc = scheduler.cancelEventAndWait(&reh);
         ASSERT(0 == rc);
         ASSERT(0 == scheduler.numRecurringEvents());
+        ASSERT(0 == (const Obj::RecurringEvent *) reh);
 
         rc = scheduler.cancelEventAndWait(&reh);
         ASSERT((bcec_SkipList<int, int>::BCEC_INVALID == rc));
         ASSERT(0 == scheduler.numRecurringEvents());
+        ASSERT(0 == (const Obj::RecurringEvent *) reh);
       } break;
       case 17: {
         // --------------------------------------------------------------------
