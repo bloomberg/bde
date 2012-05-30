@@ -268,9 +268,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
 class bael_Context;
 class bael_Record;
@@ -465,6 +467,20 @@ class bael_FileObserver : public bael_Observer {
         // severity of 'record' is at least as severe as the severity level
         // specified at construction.
 
+    void publish(const bcema_SharedPtr<const bael_Record>& record,
+                 const bael_Context&                       context);
+        // Process the record referred by the specified shared pointer 'record'
+        // by writing the record and the specified 'context' of the record to
+        // a file if file logging is enabled for this file observer, and to
+        // 'stdout' if the severity of 'record' is at least as severe as the
+        // severity level specified at construction.
+
+    void releaseRecords();
+        // Discard any shared reference to a 'bael_Record' object that was
+        // supplied to the 'publish' method, and is held by this observer.
+        // Note that this operation should be called if resources underlying
+        // the previously provided shared-pointers must be released.
+
     void forceRotation();
         // Forcefully perform a log file rotation by this file observer.  Close
         // the current log file, rename the log file if necessary, and open a
@@ -625,6 +641,19 @@ inline
 void bael_FileObserver::forceRotation()
 {
     d_fileObserver2.forceRotation();
+}
+
+inline
+void bael_FileObserver::publish(
+                             const bcema_SharedPtr<const bael_Record>& record,
+                             const bael_Context&                       context)
+{
+    publish(*record, context);
+}
+
+inline
+void bael_FileObserver::releaseRecords()
+{
 }
 
 inline

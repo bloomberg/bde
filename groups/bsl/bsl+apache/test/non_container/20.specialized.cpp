@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <memory>
@@ -212,7 +212,7 @@ void test_uninitialized_fill (const ForwardIterator*, bool test_count)
 
                 std::uninitialized_fill (first, last, val);
             }
-                
+
             rw_assert (i == 0, 0, __LINE__,
                        "%zu. expected exception not thrown", i);
         }
@@ -305,7 +305,7 @@ run_test (int, char**)
         else
             rw_note (-1 > opt_fwd_iter--, 0, __LINE__,
                      "ForwardIterator tests disabled");
-    
+
         if (-1 < opt_bidir_iter)
             test_uninitialized_copy (ConstBidirIter<int>());
         else

@@ -14,9 +14,9 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
 //
-//@DESCRIPTION: Provide functionality of the corresponding C++ standard
-// header.  This file includes the compiler provided native standard header.
-// In addition, in 'bde-stl' mode (used by Bloomberg managed code, see
+//@DESCRIPTION: Provide functionality of the corresponding C++ standard header.
+// This file includes the compiler provided native standard header.  In
+// addition, in 'bde-stl' mode (used by Bloomberg managed code, see
 // 'bsl+stdhdrs.txt' for more information) include the corresponding header in
 // 'bsl+bslhdrs' as well as 'bsl_stdhdrs_prologue.h' and
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
@@ -31,7 +31,8 @@ BSLS_IDENT("$Id: $")
 #endif  /* INCLUDED_NATIVE_C_MATH */
 
 // <math.h> header on Sun defines 'struct exception' which interferes with
-// 'std::exception'. RW library has a workaround for this, but STLPort doesn't.
+// 'std::exception'.  RW library has a workaround for this, but STLPort
+// doesn't.
 #if defined(BSLS_PLATFORM__CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
 #   define exception math_exception
 #endif

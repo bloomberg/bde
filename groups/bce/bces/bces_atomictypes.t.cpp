@@ -10,6 +10,15 @@
 #include <bsl_cstdlib.h>               // atoi()
 #include <bsl_iostream.h>
 
+// For thread support
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+#include <windows.h>
+typedef HANDLE thread_t;
+#else
+#include <pthread.h>
+typedef pthread_t thread_t;
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
@@ -158,6 +167,173 @@ struct APTestObj
     const APTestObj* self() const { return this;}
         // Return a pointer to this object.
 };
+
+namespace {
+
+class PetersonsLockSeqCst
+    // PetersonsLock class implements the Peterson's locking algorithms for two
+    // concurrently executing threads, using atomic operations on integers with
+    // sequencial consistency memory ordering semantics.
+{
+public:
+    struct Data
+    {
+        bces_AtomicInt  flags[2];
+        bces_AtomicInt  turn;     // 0 or 1 - index into d_flags
+    };
+
+public:
+    PetersonsLockSeqCst(int id, Data& lockData)
+        : d_id(id)
+        , d_data(lockData)
+    {
+        ASSERT(id == 0 || id == 1);
+    }
+
+    void lock()
+    {
+        d().flags[d_id] = 1;
+        d().turn.swap(1 - d_id);
+
+        while (d().flags[1 - d_id] && d().turn == 1 - d_id)
+        {
+            continue;
+        }
+    }
+
+    void unlock()
+    {
+        d().flags[d_id] = 0;
+    }
+
+private:
+    Data& d() const
+    {
+        return d_data;
+    }
+
+private:
+    int     d_id;       // 0 or 1 - id of the thread that owns this object
+    Data&   d_data;
+};
+
+template <typename LOCK>
+struct Guard
+{
+    Guard(LOCK& lock)
+        : d_lock(lock)
+    {
+        d_lock.lock();
+    }
+
+    ~Guard()
+    {
+        d_lock.unlock();
+    }
+
+    LOCK& d_lock;
+};
+
+bces_AtomicInt s_data1(0);
+bces_AtomicInt s_data2(0);
+bces_AtomicInt s_data3(1);
+
+template <typename LOCK>
+void testAtomicLocking(LOCK& lock, int iterations)
+    // Test 'lock' implemented using atomic operations by using it to protect
+    // some shared data, which is both read and written to.
+{
+    for (int i = 0; i < iterations; ++i) {
+        if (rand() & 1) {
+            // read shared data
+            Guard<LOCK> guard(lock);
+
+            int data1 = s_data1.relaxedLoad();
+            int data2 = s_data2.relaxedLoad();
+            int data3 = s_data3.relaxedLoad();
+
+            ASSERT(data1 == -data2 && data1 + 1 == data3);
+        }
+        else {
+            // write to shared data
+            Guard<LOCK> guard(lock);
+
+            int data = rand();
+            s_data1.relaxedStore(data);
+            s_data2.relaxedStore(-data);
+            s_data3.relaxedStore(data + 1);
+        }
+    }
+}
+
+template <typename LOCK>
+struct AtomicLockingThreadParam
+{
+    AtomicLockingThreadParam(LOCK& lock, int iterations)
+        : d_lock(lock)
+        , d_iterations(iterations)
+    {}
+
+    LOCK&   d_lock;
+    int     d_iterations;
+};
+
+template <typename LOCK>
+void *testAtomicLockingThreadFunc(void *arg)
+{
+    AtomicLockingThreadParam<LOCK> *param
+        = reinterpret_cast<AtomicLockingThreadParam<LOCK> *>(arg);
+
+    testAtomicLocking(param->d_lock, param->d_iterations);
+
+    return 0;
+}
+
+
+typedef void *(*thread_func)(void *arg);
+
+thread_t createThread(thread_func func, void *arg)
+{
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    return CreateThread(0, 0, (LPTHREAD_START_ROUTINE) func, arg, 0, 0);
+#else
+    thread_t thr;
+    pthread_create(&thr, 0, func, arg);
+    return thr;
+#endif
+}
+
+void joinThread(thread_t thr)
+{
+#ifdef BSLS_PLATFORM__OS_WINDOWS
+    WaitForSingleObject(thr, INFINITE);
+    CloseHandle(thr);
+#else
+    pthread_join(thr, 0);
+#endif
+}
+
+
+template <typename LOCK>
+void testCaseMemOrder()
+{
+    int iterations = 10000000;
+
+    typename LOCK::Data lockData;
+    LOCK lock0(0, lockData);
+    LOCK lock1(1, lockData);
+
+    AtomicLockingThreadParam<LOCK> param0(lock0, iterations);
+    AtomicLockingThreadParam<LOCK> param1(lock1, iterations);
+
+    thread_t thr0 = createThread(&testAtomicLockingThreadFunc<LOCK>, &param0);
+    thread_t thr1 = createThread(&testAtomicLockingThreadFunc<LOCK>, &param1);
+
+    joinThread(thr0);
+    joinThread(thr1);
+}
+
+}
 
 //=============================================================================
 //                       USAGE EXAMPLES FROM HEADER
@@ -468,10 +644,37 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
-    bsls_ObjectBuffer<bces_AtomicInt> b; // verify we have no alignment problem
-    bsls_ObjectBuffer<bces_AtomicInt64> bb;
 
     switch (test) { case 0:
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING MEMORY ORDERING GUARANTEES OF ATOMIC OPERATIONS
+        //
+        // Concerns:
+        //   Atomic operations with specific memory ordering guarantees do
+        //   indeed implement those memory orderings.
+        //
+        // Plan:
+        //  1. Implement a classical lock free algorithm, the Peterson's lock,
+        //     which has been studied well enough to know the exact atomic
+        //     operations it needs.
+        //  2. Construct a test function which will read and write to some
+        //     shared data protected by the Peterson's lock, and verified the
+        //     consistency of the shared data.
+        //  3. Start two threads, execute the test function in a loop in both
+        //     threads and verify that the consistency of the shared data is
+        //     not violated.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting memory ordering guarantees"
+                          << "\n=================================="
+                          << endl;
+
+        if (verbose) cout << "\nTesting sequencial consistency" << endl;
+
+        testCaseMemOrder<PetersonsLockSeqCst>();
+
+      } break;
       case 8: {
         // TESTING USAGE Examples
         //

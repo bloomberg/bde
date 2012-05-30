@@ -14,6 +14,7 @@ BDES_IDENT_RCSID(baetzo_testloader_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 
 #include <bsl_istream.h>
+#include <bsl_utility.h>
 
 namespace BloombergLP {
 

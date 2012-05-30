@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for rotate, rotate_copy
@@ -34,7 +34,7 @@
 #include <driver.h>     // for rw_test()
 
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 // disable explicit instantiation for compilers (like MSVC)
 // that can't handle it
@@ -43,22 +43,22 @@ _RWSTD_NAMESPACE (std) {
 #if TEST_RW_PEDANTIC || DRQS // rotate should return void
 template
 void
-rotate (FwdIter<assign<base<cpy_ctor> > >, 
-        FwdIter<assign<base<cpy_ctor> > >, 
+rotate (FwdIter<assign<base<cpy_ctor> > >,
+        FwdIter<assign<base<cpy_ctor> > >,
         FwdIter<assign<base<cpy_ctor> > >);
 #else // !DRQS
 template
 FwdIter<assign<base<cpy_ctor> > >
-rotate (FwdIter<assign<base<cpy_ctor> > >, 
-        FwdIter<assign<base<cpy_ctor> > >, 
+rotate (FwdIter<assign<base<cpy_ctor> > >,
+        FwdIter<assign<base<cpy_ctor> > >,
         FwdIter<assign<base<cpy_ctor> > >);
 #endif // !DRQS
 
 template
 OutputIter<assign<base<cpy_ctor> > >
-rotate_copy (FwdIter<assign<base<cpy_ctor> > >, 
+rotate_copy (FwdIter<assign<base<cpy_ctor> > >,
              FwdIter<assign<base<cpy_ctor> > >,
-             FwdIter<assign<base<cpy_ctor> > >, 
+             FwdIter<assign<base<cpy_ctor> > >,
              OutputIter<assign<base<cpy_ctor> > >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
@@ -270,12 +270,12 @@ void test_rotate (Iterator1 it1, Iterator2 it2, const T*, Tag tag)
     static const char* const it2name = type_name (it2, (T*)0);
 
     if (tag.fname_inx) {  // rotate_copy()
-        rw_info (0, 0, 0, 
+        rw_info (0, 0, 0,
                  "std::rotate_copy (%s, %1$s, %1$s, %s)",
                  it1name, it2name);
     }
     else {   // reverse, rotate()
-        rw_info (0, 0, 0, 
+        rw_info (0, 0, 0,
                  "std::rotate (%s, %1$s, %1$s)",
                  it1name);
     }

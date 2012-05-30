@@ -23,31 +23,31 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <algorithm>    // for find_first_of
 #include <cstring>      // for size_t, strlen()
 
-#include <alg_test.h>   
+#include <alg_test.h>
 #include <rw_value.h>   // for UserClass
 #include <driver.h>     // for rw_test
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
 FwdIter<eq_comp<base<> > >
-find_first_of (FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >, 
+find_first_of (FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >,
                FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >);
 
 template
 FwdIter<eq_comp<base<> > >
-find_first_of (FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >, 
-               FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >, 
+find_first_of (FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >,
+               FwdIter<eq_comp<base<> > >, FwdIter<eq_comp<base<> > >,
                binary_predicate<eq_comp<base<> > >);
 
 #endif // _RWSTD_NO_EXPLICIT_INSTANTIATION
@@ -155,15 +155,15 @@ void do_test (int               line,     // line number of test case
 
     const Predicate fun((T*)0, (T*)0);   // dummy arguments
 
-    const ForwardIterator1 res = pred ? 
+    const ForwardIterator1 res = pred ?
           std::find_first_of (first1, last1, first2, last2, fun)
         : std::find_first_of (first1, last1, first2, last2);
-    
+
     // silence a bogus EDG eccp remark #550-D:
     // variable "res" was set but never used
     _RWSTD_UNUSED (res);
 
-    if (!rw_assert (res.cur_ == first1.cur_ + resoff, 0, line, 
+    if (!rw_assert (res.cur_ == first1.cur_ + resoff, 0, line,
                     "line %d: find_first_of<%s, %s>(it = \"%s\", \"%s\")"
                     " == (it + %zu), got (it + %td)",
                     __LINE__, it1name, it2name, src, fseq,
@@ -176,10 +176,10 @@ void do_test (int               line,     // line number of test case
     const std::size_t npreds = pred ?
         fun.funcalls_ : T::n_total_op_assign_ - last_n_op_assign;
 
-    rw_assert (npreds <= nfseq * nsrc, 0, line, 
+    rw_assert (npreds <= nfseq * nsrc, 0, line,
                "line %d: find_first_of<%s, %s>(it = \"%s\", \"%s\")"
                "%s invoked %zu times, expected no more than %td",
-               __LINE__, it1name, it2name, src, fseq, pname, 
+               __LINE__, it1name, it2name, src, fseq, pname,
                npreds, nfseq * nsrc);
 
     delete[] tsrc;
@@ -190,7 +190,7 @@ void do_test (int               line,     // line number of test case
 
 template <class ForwardIterator1, class ForwardIterator2,
           class Predicate, class T>
-void run_tests (const ForwardIterator1 &dummy_iter1, 
+void run_tests (const ForwardIterator1 &dummy_iter1,
                 const ForwardIterator2 &dummy_iter2,
                 const T*,
                 const Predicate        *pred)
@@ -198,17 +198,17 @@ void run_tests (const ForwardIterator1 &dummy_iter1,
     static const char* const it1name = type_name (dummy_iter1, (T*)0);
     static const char* const it2name = type_name (dummy_iter2, (T*)0);
 
-    rw_info (0, 0, 0, 
-             "%s std::find_first_of (%1$s, %1$s, %s, %2$s%{?}, %s%{;})", 
+    rw_info (0, 0, 0,
+             "%s std::find_first_of (%1$s, %1$s, %s, %2$s%{?}, %s%{;})",
              it1name, it2name, 0 != pred, "Predicate");
-    
+
 #define TEST(src, fnd, off_res)                         \
     do_test (__LINE__, src, fnd, std::size_t (off_res), \
              dummy_iter1, dummy_iter2, (UserClass*)0, pred)
 
     //    +------------------ subject sequence
     //    |                 +--- sequence to be found
-    //    |                 |   
+    //    |                 |
     //    |                 |      +-- offset of returned iterator,
     //    |                 |      |   -1 denotes the end of sequence
     //    v                 v      v
@@ -301,10 +301,10 @@ void run_test (const ForwardIterator &dummy, T*, Predicate* pred)
 static void
 run_test (bool test_predicate)
 {
-    rw_info (0, 0, 0, 
+    rw_info (0, 0, 0,
              "template <class %s, class %s> "
              "%1$s std::find_first_of (%1$s, %1$s, %2$s, %2$s%{?}, %s%{;})",
-             "ForwardIterator1", "ForwardIterator2", 
+             "ForwardIterator1", "ForwardIterator2",
              0 != test_predicate, "Predicate");
 
     typedef EqualityPredicate<UserClass, UserClass> EqPred;
@@ -313,7 +313,7 @@ run_test (bool test_predicate)
     if (rw_opt_no_fwd_iter) {
         rw_note (0, __FILE__, __LINE__, "ForwardIterator test disabled");
     }
-    else {       
+    else {
         run_test (FwdIter<UserClass>(), (UserClass*)0, pred);
     }
 
@@ -345,7 +345,7 @@ run_test (int, char*[])
     else {
         run_test (true);
     }
-                
+
     return 0;
 }
 
@@ -355,7 +355,7 @@ int main (int argc, char *argv[])
 {
     return rw_test (argc, argv, __FILE__,
                     "lib.alg.find.first.of",
-                    0 /* no comment */, run_test,                    
+                    0 /* no comment */, run_test,
                     "|-no-ForwardIterator#"
                     "|-no-BidirectionalIterator#"
                     "|-no-RandomAccessIterator#"

@@ -12,17 +12,20 @@
 // inserting SCM (Source Control Management) Ids into source files.  SCM Ids
 // are useful for identifying source revisions in binaries.  Additional
 // information about SCM Ids may be obtained from the following man pages:
-//   'man ident'
-//   'man strings'  ('strings -a' produces more verbose output)
-//   'man mcs'      (Solaris-only)
+// 'man ident' 'man strings' ('strings -a' produces more verbose output)
+// 'man mcs' (Solaris-only)
+//
+// Note that these SCM Ids are only present if the 'BSLS_IDENT_ON' macro is
+// defined at compilation time.  By default, this macro is *not* defined, and
+// ident strings are *not* added to object files.
 //
 // SCM systems may replace Ids with their expanded forms.  Note that we will
 // replace the key symbol '$' with '(DOLLAR)' to avoid any expansion within
 // this header file's documentation.
 //
 // SCM Ids usually take the form "(DOLLAR)Id: (DOLLAR)" which is expanded,
-// automatically, by the source control system into an identifier which maps
-// to specific source revision:
+// automatically, by the source control system into an identifier which maps to
+// specific source revision:
 //..
 //  '(DOLLAR)Id: bsls_ident.h 141104 2010-09-17 00:30:47Z mgiroux (DOLLAR)'
 //..
@@ -95,6 +98,13 @@
 BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #endif
 
+// Enabling BSLS_IDENT by default causes too much bloat - DRQS 29644737.
+#ifndef BSLS_IDENT_ON
+#ifndef BSLS_IDENT_OFF
+#define BSLS_IDENT_OFF
+#endif // ndef BSLS_IDENT_OFF
+#endif // ndef BSLS_IDENT_ON
+
 
 #ifdef BSLS_IDENT_OFF
 
@@ -124,12 +134,13 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
 #elif defined(__IBMC__) || defined(__IBMCPP__)
   #define _BSLS_IDENT(str) _Pragma(#str)
   #define BSLS_IDENT(str) _BSLS_IDENT(comment (user, str))
-#elif (0 && defined(_MSC_VER))
-  /* XXX: Microsoft Visual Studio Compiler, disabled for now - this
-   * formulation is incorrect.
-   */
-  #define _BSLS_IDENT(str) _Pragma(#str)
-  #define BSLS_IDENT(str) _BSLS_IDENT(comment (user, str))
+#elif defined(_MSC_VER) /* Microsoft Visual Studio Compiler */
+  /* Microsoft linker ignores __pragma(comment (user, "str"))
+   * http://msdn.microsoft.com/en-us/library/7f0aews7.aspx */
+ #if 0 /* disable SYSUTIL_IDENT() with Microsoft compiler */
+  #define _BSLS_IDENT(str) __pragma(comment (user, #str))
+  #define BSLS_IDENT(str) _BSLS_IDENT(str)
+ #endif
 #elif defined(__HP_cc) || defined(__HP_aCC)
   #define _BSLS_IDENT(str) _Pragma(#str)
   #define BSLS_IDENT(str) _BSLS_IDENT(versionid str)

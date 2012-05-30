@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide pre-grouped compile-time traits for POD classes.
 //
 //@CLASSES:
-//   bslalg_TypeTraitsGroupPod: for POD types
+//  bslalg::TypeTraitsGroupPod: for POD types
 //
 //@SEE_ALSO: bslmf_typetraits
 //
@@ -37,13 +37,15 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                      // ===============================
-                      // class bslalg_TypeTraitsGroupPod
-                      // ===============================
+namespace bslalg {
 
-struct bslalg_TypeTraitsGroupPod : bslalg_TypeTraitBitwiseCopyable,
-                                   bslalg_TypeTraitBitwiseMoveable,
-                                   bslalg_TypeTraitHasTrivialDefaultConstructor
+                      // ========================
+                      // class TypeTraitsGroupPod
+                      // ========================
+
+struct TypeTraitsGroupPod : TypeTraitBitwiseCopyable,
+                                   TypeTraitBitwiseMoveable,
+                                   TypeTraitHasTrivialDefaultConstructor
 {
     // This type groups together all of the traits of a POD (Plain Old Data)
     // type.  Authors of new POD types (C-style 'structs') can assign traits to
@@ -51,7 +53,16 @@ struct bslalg_TypeTraitsGroupPod : bslalg_TypeTraitBitwiseCopyable,
     // trait separately.
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslalg::TypeTraitsGroupPod bslalg_TypeTraitsGroupPod;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

@@ -36,7 +36,8 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
     || defined(BDES_PLATFORM__OS_FREEBSD) \
     || defined(BSLS_PLATFORM__OS_AIX)     \
     || defined(BSLS_PLATFORM__OS_HPUX)    \
-    || defined(BSLS_PLATFORM__OS_CYGWIN)
+    || defined(BSLS_PLATFORM__OS_CYGWIN)  \
+    || defined(BSLS_PLATFORM__OS_DARWIN)
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -47,7 +48,9 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
     #include <sys/timers.h>       // timespec
     #define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  NO_TIMEOUT
     #define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT INF_TIMEOUT
-#elif defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_CYGWIN)
+#elif defined(BSLS_PLATFORM__OS_LINUX) ||   \
+      defined(BSLS_PLATFORM__OS_CYGWIN) ||  \
+      defined(BSLS_PLATFORM__OS_DARWIN)
     #define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  0
     #define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT -1
 #else

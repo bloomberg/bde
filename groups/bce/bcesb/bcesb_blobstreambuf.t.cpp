@@ -8,12 +8,12 @@
 #include <bslma_testallocatorexception.h>       // for testing only
 
 #include <bsl_algorithm.h>
+#include <bsl_cctype.h>      // isdigit() isupper() islower()
+#include <bsl_cstdlib.h>     // atoi()
+#include <bsl_cstring.h>     // memset()/memcmp()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_vector.h>
-
-#include <bsl_cctype.h>      // isdigit() isupper() islower()
-#include <bsl_cstdlib.h>     // atoi()
 
 using namespace BloombergLP;
 using bsl::cout;

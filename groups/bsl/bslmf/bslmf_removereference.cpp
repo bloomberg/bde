@@ -1,4 +1,4 @@
-// bslmf_removereference.cpp               -*-C++-*-
+// bslmf_removereference.cpp                                          -*-C++-*-
 #include <bslmf_removereference.h>
 
 #include <bsls_ident.h>

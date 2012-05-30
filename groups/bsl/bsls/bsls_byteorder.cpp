@@ -1,4 +1,4 @@
-// bsls_byteorder.cpp      -*-C++-*-
+// bsls_byteorder.cpp                                                 -*-C++-*-
 #include <bsls_byteorder.h>
 
 #include <bsls_ident.h>
@@ -47,7 +47,7 @@ void bsls_ByteOrder__Util_common()
 
 #endif  // BSLS_PLATFORM__CPU_SPARC
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a guard to unconditionally manage a block of memory.
 //
 //@CLASSES:
-//   bslma_DeallocatorGuard: guard to unconditionally manage a block of memory
+//  bslma::DeallocatorGuard: guard to unconditionally manage a block of memory
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //
@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Requirement
 ///-----------
-// The parameterized 'ALLOCATOR' type of the 'bslma_DeallocatorGuard' class
+// The parameterized 'ALLOCATOR' type of the 'bslma::DeallocatorGuard' class
 // template must provide a (possibly 'virtual') method:
 //..
 //  void deallocate(void *address);
@@ -34,14 +34,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// A 'bslma_DeallocatorGuard' can be used to ensure that a dynamically
+// A 'bslma::DeallocatorGuard' can be used to ensure that a dynamically
 // allocated raw memory resource is safely deallocated in the presense of
 // multiple return satements or exceptions in an exception-neutral way (i.e.,
 // without the need for 'try'/'catch' blocks).  In this simple example,
 // consider the function 'evaluatePassword' which attempts to determine how
 // secure a given password might be:
 //..
-//  double evaluatePassword(const char *password, bslma_Allocator *allocator);
+//  double evaluatePassword(const char *password, bslma::Allocator *allocator);
 //      // Evaluate the strength of the specified 'password', using the
 //      // specified 'allocator' to supply memory for evaluation.  Return a
 //      // real value in the range '[ 0.0 .. 1.0 ]' where 0.0 indicates the
@@ -53,9 +53,9 @@ BSLS_IDENT("$Id: $")
 // unbounded amounts of scratch memory (to be allocated and deallocated from a
 // supplied allocator):
 //..
-//  int subroutine1(char *inOut, bslma_Allocator *allocator);
-//  int subroutine2(char *inOut, bslma_Allocator *allocator);
-//  int subroutine3(char *inOut, bslma_Allocator *allocator);
+//  int subroutine1(char *inOut, bslma::Allocator *allocator);
+//  int subroutine2(char *inOut, bslma::Allocator *allocator);
+//  int subroutine3(char *inOut, bslma::Allocator *allocator);
 //..
 // A final subroutine is then used to determine and return the score:
 //..
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //..
 // The top-level routine is implemented as follows:
 //..
-//  double evaluatePassword(const char *password, bslma_Allocator *allocator)
+//  double evaluatePassword(const char *password, bslma::Allocator *allocator)
 //  {
 //
 //      // Set up local writable copy of password in buffer.
@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 //      //* Note the use of the deallocator guard on 'buffer' (below). *
 //      //**************************************************************
 //
-//      bslma_DeallocatorGuard<bslma_Allocator> guard(buffer, allocator);
+//      bslma::DeallocatorGuard<bslma::Allocator> guard(buffer, allocator);
 //
 //      // Process and evaluate the supplied password.
 //
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 // requested memory.  Even if all of these subroutines evaluates successfully,
 // the score calculated using 'finalEval' is returned directly by
 // 'evaluatePassword', yet we still need to deallocate 'buffer'.  By guarding
-// buffer with a 'bslma_DeallocatorGuard' as shown above, all of these issues
+// buffer with a 'bslma::DeallocatorGuard' as shown above, all of these issues
 // are fully addressed, and the top-level routine is also *exception* *neutral*
 // as desired.
 
@@ -115,12 +115,14 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                        // ============================
-                        // class bslma_DeallocatorGuard
-                        // ============================
+namespace bslma {
+
+                        // ======================
+                        // class DeallocatorGuard
+                        // ======================
 
 template <class ALLOCATOR>
-class bslma_DeallocatorGuard {
+class DeallocatorGuard {
     // This class implements a guard that unconditionally deallocates a block
     // of managed memory upon destruction by invoking the 'deallocate' method
     // of an allocator (or pool) of parameterized 'ALLOCATOR' type supplied to
@@ -133,12 +135,12 @@ class bslma_DeallocatorGuard {
     ALLOCATOR *d_allocator_p;  // allocator or pool (held, not owned)
 
     // NOT IMPLEMENTED
-    bslma_DeallocatorGuard(const bslma_DeallocatorGuard&);
-    bslma_DeallocatorGuard& operator=(const bslma_DeallocatorGuard&);
+    DeallocatorGuard(const DeallocatorGuard&);
+    DeallocatorGuard& operator=(const DeallocatorGuard&);
 
   public:
     // CREATORS
-    bslma_DeallocatorGuard(void *memory, ALLOCATOR *allocator);
+    DeallocatorGuard(void *memory, ALLOCATOR *allocator);
         // Create a deallocator guard that unconditionally manages the
         // specified 'memory' block, and that uses the specified 'allocator' to
         // deallocate 'memory' upon destruction of this guard.  The behavior is
@@ -146,7 +148,7 @@ class bslma_DeallocatorGuard {
         // 'allocator' supplied 'memory'.  Note that 'allocator' must remain
         // valid throughout the lifetime of this guard.
 
-    ~bslma_DeallocatorGuard();
+    ~DeallocatorGuard();
         // Destroy this deallocator guard and deallocate the block of memory it
         // manages by invoking the 'deallocate' method of the allocator (or
         // pool) that was supplied with the address of the (managed) memory at
@@ -157,15 +159,15 @@ class bslma_DeallocatorGuard {
 //                      INLINE AND TEMPLATE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ----------------------------
-                        // class bslma_DeallocatorGuard
-                        // ----------------------------
+                        // ----------------------
+                        // class DeallocatorGuard
+                        // ----------------------
 
 // CREATORS
 template <class ALLOCATOR>
 inline
-bslma_DeallocatorGuard<ALLOCATOR>::bslma_DeallocatorGuard(void      *memory,
-                                                          ALLOCATOR *allocator)
+DeallocatorGuard<ALLOCATOR>::DeallocatorGuard(void      *memory,
+                                              ALLOCATOR *allocator)
 : d_memory_p(memory)
 , d_allocator_p(allocator)
 {
@@ -175,7 +177,7 @@ bslma_DeallocatorGuard<ALLOCATOR>::bslma_DeallocatorGuard(void      *memory,
 
 template <class ALLOCATOR>
 inline
-bslma_DeallocatorGuard<ALLOCATOR>::~bslma_DeallocatorGuard()
+DeallocatorGuard<ALLOCATOR>::~DeallocatorGuard()
 {
     BSLS_ASSERT_SAFE(d_memory_p);
     BSLS_ASSERT_SAFE(d_allocator_p);
@@ -183,7 +185,19 @@ bslma_DeallocatorGuard<ALLOCATOR>::~bslma_DeallocatorGuard()
     d_allocator_p->deallocate(d_memory_p);
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslma_DeallocatorGuard
+#undef bslma_DeallocatorGuard
+#endif
+#define bslma_DeallocatorGuard bslma::DeallocatorGuard
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

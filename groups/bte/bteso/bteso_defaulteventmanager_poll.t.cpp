@@ -35,7 +35,8 @@ using namespace BloombergLP;
     || defined(BDES_PLATFORM__OS_FREEBSD) \
     || defined(BSLS_PLATFORM__OS_AIX)     \
     || defined(BSLS_PLATFORM__OS_HPUX)    \
-    || defined(BSLS_PLATFORM__OS_CYGWIN)
+    || defined(BSLS_PLATFORM__OS_CYGWIN)  \
+    || defined(BSLS_PLATFORM__OS_DARWIN)
     #define BTESO_EVENTMANAGER_ENABLETEST
     typedef bteso_DefaultEventManager<bteso_Platform::POLL> Obj;
 #endif

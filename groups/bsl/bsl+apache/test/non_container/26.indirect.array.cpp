@@ -76,7 +76,7 @@ test_indirect_array (int         line,
                      const char *args,
                      const char *result,
                      int         nmatch)
-                     
+
 {
     typedef int T;
 
@@ -188,7 +188,7 @@ run_test (int, char**)
     //    |    |   |   |   +-- expected result
     //    |    |   |   |   |    +-- number of matching elements
     //    |    |   |   |   |    |
-    //    V    V   V   V   V    V 
+    //    V    V   V   V   V    V
     TEST ("",  "", 0, "0", "",  -1);
     TEST ("1", "", 0, "0", "1", -1);
 

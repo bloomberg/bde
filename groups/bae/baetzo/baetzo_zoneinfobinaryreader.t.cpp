@@ -126,7 +126,7 @@ static void aSsErT(int c, const char *s, int i)
 static const bsls_Types::Int64 FIRST_TRANSITION =
               bdetu_Epoch::convertToTimeT64(bdet_Datetime(1, 1, 1));
 // DATA
-const char NEW_YORK_DATA[] = {
+const char unsigned NEW_YORK_DATA[] = {
     // Data from America/New_York
 
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -425,7 +425,7 @@ const char NEW_YORK_DATA[] = {
     0x2e, 0x30, 0x0a
 };
 
-const char LONDON_DATA[] = {
+const unsigned char LONDON_DATA[] = {
     // Data from Europe/London
 
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -736,7 +736,7 @@ const char LONDON_DATA[] = {
     0x0a,
 };
 
-const char TOKYO_DATA[] = {
+const unsigned char TOKYO_DATA[] = {
     // Data from Asia/Tokyo
 
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -769,7 +769,7 @@ const char TOKYO_DATA[] = {
     0x0a, 0x4a, 0x53, 0x54, 0x2d, 0x39, 0x0a,
 };
 
-const char KIRITIMATI_DATA[] = {
+const unsigned char KIRITIMATI_DATA[] = {
     // Data from Pacific/Kiritimati
 
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -791,7 +791,7 @@ const char KIRITIMATI_DATA[] = {
     0x00, 0x00, 0x00, 0x0a, 0x4c, 0x49, 0x4e, 0x54, 0x2d, 0x31, 0x34, 0x0a,
 };
 
-const char CHATHAM_DATA[] = {
+const unsigned char CHATHAM_DATA[] = {
     //Data from Pacific/Catham
 
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -965,7 +965,7 @@ const char CHATHAM_DATA[] = {
     0x35, 0x0a,
 };
 
-const char ASIA_BANGKOK_DATA[] = {
+const unsigned char ASIA_BANGKOK_DATA[] = {
     // Data from Asia/Bangkok.
 
     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -985,7 +985,7 @@ const char ASIA_BANGKOK_DATA[] = {
     0x00, 0x00, 0x00, 0x0a, 0x49, 0x43, 0x54, 0x2d, 0x37, 0x0a
 };
 
-const char TEST_DATA[] = {
+const unsigned char TEST_DATA[] = {
     // Expected data for test case 2.
 
     0x54, 0x5a, 0x69, 0x66, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -2012,7 +2012,7 @@ int main(int argc, char *argv[])
 // obtainable as part of the standard Zoneinfo distribution (see
 // 'http://www.twinsun.com/tz/tz-link.htm'):
 //..
-    const char ASIA_BANGKOK_DATA[] = {
+    const unsigned char ASIA_BANGKOK_DATA[] = {
         0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
         0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
@@ -2032,8 +2032,9 @@ int main(int argc, char *argv[])
 //..
 // Then, we load this data into a stream buffer.
 //..
-    bdesb_FixedMemInStreamBuf inStreamBuf(ASIA_BANGKOK_DATA,
-                                          sizeof(ASIA_BANGKOK_DATA));
+    bdesb_FixedMemInStreamBuf inStreamBuf(
+                            reinterpret_cast<const char *>(ASIA_BANGKOK_DATA),
+                            sizeof(ASIA_BANGKOK_DATA));
     bsl::istream inputStream(&inStreamBuf);
 //..
 // Now, we read the 'inputStream' using 'baetzo_ZoneinfoBinaryReader::read'.
@@ -2222,13 +2223,13 @@ int main(int argc, char *argv[])
 
         {
             static const struct {
-                const char   *d_buffer;
-                int           d_size;
-                int           d_numLocalTimeTypes;
-                int           d_numIsGmt;
-                int           d_numIsStd;
-                int           d_numLeaps;
-                int           d_abbrevDataSize;
+                const unsigned char   *d_buffer;
+                int                    d_size;
+                int                    d_numLocalTimeTypes;
+                int                    d_numIsGmt;
+                int                    d_numIsStd;
+                int                    d_numLeaps;
+                int                    d_abbrevDataSize;
             } DATA [] = {
 
             //BUFFER           SIZE                  LLT  GMT  STD LEAP  ABB
@@ -2245,15 +2246,17 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const char *BUFFER = DATA[ti].d_buffer;
-                const int SIZE     = DATA[ti].d_size;
-                const int LTT      = DATA[ti].d_numLocalTimeTypes;
-                const int IS_GMT   = DATA[ti].d_numIsGmt;
-                const int IS_STD   = DATA[ti].d_numIsStd;
-                const int LEAPS    = DATA[ti].d_numLeaps;
-                const int AB_SIZE  = DATA[ti].d_abbrevDataSize;
+                const unsigned char *BUFFER  = DATA[ti].d_buffer;
+                const int            SIZE    = DATA[ti].d_size;
+                const int            LTT     = DATA[ti].d_numLocalTimeTypes;
+                const int            IS_GMT  = DATA[ti].d_numIsGmt;
+                const int            IS_STD  = DATA[ti].d_numIsStd;
+                const int            LEAPS   = DATA[ti].d_numLeaps;
+                const int            AB_SIZE = DATA[ti].d_abbrevDataSize;
 
-                bdesb_FixedMemInStreamBuf inStreamBuf(BUFFER, SIZE);
+                bdesb_FixedMemInStreamBuf inStreamBuf(
+                                        reinterpret_cast<const char *>(BUFFER),
+                                        SIZE);
                 bsl::istream inputStream(&inStreamBuf);
 
                 baetzo_Zoneinfo TZ;
@@ -2271,7 +2274,8 @@ int main(int argc, char *argv[])
 
                 if (verbose) { T_ P(TZ) }
 
-                ZoneinfoData ZI(BUFFER, SIZE);
+                ZoneinfoData ZI(reinterpret_cast<const char *>(BUFFER),
+                                SIZE);
                 ASSERT(0 == verifyTimeZone(ZI, TZ, L_));
 
             }
@@ -3300,8 +3304,9 @@ int main(int argc, char *argv[])
 
         baetzo_Zoneinfo TZ;
 
-        bdesb_FixedMemInStreamBuf inStreamBuf(CHATHAM_DATA,
-                                              sizeof(CHATHAM_DATA));
+        bdesb_FixedMemInStreamBuf inStreamBuf(
+                                  reinterpret_cast<const char *>(CHATHAM_DATA),
+                                  sizeof(CHATHAM_DATA));
         bsl::istream inputStream(&inStreamBuf);
 
         BinHeader HD;
@@ -3319,7 +3324,8 @@ int main(int argc, char *argv[])
         ASSERT(0   == HD.numLeaps());
         ASSERT(16  == HD.abbrevDataSize());
 
-        ZoneinfoData ZI(CHATHAM_DATA, sizeof(CHATHAM_DATA));
+        ZoneinfoData ZI(reinterpret_cast<const char *>(CHATHAM_DATA),
+                        sizeof(CHATHAM_DATA));
         verifyTimeZone(ZI, TZ, L_);
       } break;
       case -1: {

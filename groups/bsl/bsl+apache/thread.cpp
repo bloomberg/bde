@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2007 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -448,7 +448,7 @@ rw_get_cpus ()
 
         if (fp) {
             int tmp = 0;
-        
+
             int n = fscanf (fp, "%d", &tmp);
 
             if (1 == n)

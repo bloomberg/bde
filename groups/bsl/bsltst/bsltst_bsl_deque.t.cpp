@@ -1,4 +1,4 @@
-// bsltst_deque.t.cpp                  -*-C++-*-
+// bsltst_deque.t.cpp                                                 -*-C++-*-
 #ifndef BSL_OVERRIDES_STD
 #define BSL_OVERRIDES_STD
 #endif
@@ -132,11 +132,11 @@ bool sameType(const TYPE& lhs, const TYPE& rhs)
 
 template<typename TYPE>
 bool usesBslmaAllocator(const TYPE& arg)
-    // returns 'true' if 'TYPE' uses bslma_Allocator and 'false' otherwise.
+    // returns 'true' if 'TYPE' uses bslma::Allocator and 'false' otherwise.
 {
     (void) arg;
 
-    return bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE;
+    return bslalg::HasTrait<TYPE, bslalg::TypeTraitUsesBslmaAllocator>::VALUE;
 }
 
 //=============================================================================
@@ -148,24 +148,24 @@ struct Cargo {
     // memory allocator is properly passed to elements within a container.
 
     void            *d_p;
-    bslma_Allocator *d_alloc;
+    bslma::Allocator *d_alloc;
 
     enum {
         BALLAST_SIZE = 4000
     };
 
-    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg_TypeTraitUsesBslmaAllocator);
+    BSLALG_DECLARE_NESTED_TRAITS(Cargo, bslalg::TypeTraitUsesBslmaAllocator);
       // Declare nested type traits for this class.
 
     explicit
-    Cargo(bslma_Allocator *a = 0) {
+    Cargo(bslma::Allocator *a = 0) {
         QV_("Default:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BALLAST_SIZE);
     }
-    Cargo(const Cargo& in, bslma_Allocator* a = 0) {
+    Cargo(const Cargo& in, bslma::Allocator* a = 0) {
         QV_("Copy:"); PV(a);
-        d_alloc = bslma_Default::allocator(a);
+        d_alloc = bslma::Default::allocator(a);
         d_p = d_alloc->allocate(BALLAST_SIZE);
         std::memcpy(d_p, in.d_p, BALLAST_SIZE);
     }
@@ -196,10 +196,10 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
-    bslma_TestAllocator ta;
-    bslma_TestAllocator tda;
+    bslma::TestAllocator ta;
+    bslma::TestAllocator tda;
 
-    bslma_DefaultAllocatorGuard defaultGuard(&tda);
+    bslma::DefaultAllocatorGuard defaultGuard(&tda);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 4: {
@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() >=
                                            memUsed + 10 * Cargo::BALLAST_SIZE);
             LOOP_ASSERT(tda.numBytesInUse(),
-                                        tda.numBytesInUse() == defaultMemUsed);
+                        tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -456,7 +456,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() >=
                                            memUsed + 10 * Cargo::BALLAST_SIZE);
             LOOP_ASSERT(tda.numBytesInUse(),
-                                        tda.numBytesInUse() == defaultMemUsed);
+                        tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -483,7 +483,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() >=
                                            memUsed + 10 * Cargo::BALLAST_SIZE);
             LOOP_ASSERT(tda.numBytesInUse(),
-                                        tda.numBytesInUse() == defaultMemUsed);
+                        tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -510,7 +510,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() >=
                                            memUsed + 10 * Cargo::BALLAST_SIZE);
             LOOP_ASSERT(tda.numBytesInUse(),
-                                        tda.numBytesInUse() == defaultMemUsed);
+                        tda.numBytesInUse() == defaultMemUsed);
         }
 
         {
@@ -545,7 +545,7 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() >=
                                            memUsed + 11 * Cargo::BALLAST_SIZE);
             LOOP_ASSERT(tda.numBytesInUse(),
-                                        tda.numBytesInUse() == defaultMemUsed);
+                        tda.numBytesInUse() == defaultMemUsed);
         }
       } break;
       case 1: {
@@ -576,11 +576,11 @@ int main(int argc, char *argv[])
         ASSERT(true  == sameType(bsl::deque<int>::iterator(),
                                  std::deque<int>::iterator()));
         ASSERT(false == sameType(bsl::deque<int>::iterator(),
-                          native_std::deque<int>::iterator()));
+                                 native_std::deque<int>::iterator()));
         ASSERT(false == usesBslmaAllocator(bsl::deque<int>::iterator()));
         ASSERT(false == usesBslmaAllocator(std::deque<int>::iterator()));
         ASSERT(false == usesBslmaAllocator(
-                                    native_std::deque<int>::iterator()));
+                                          native_std::deque<int>::iterator()));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

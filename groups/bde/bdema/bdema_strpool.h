@@ -172,10 +172,12 @@ BDES_IDENT("$Id: $")
 #include <bdema_infrequentdeleteblocklist.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
                         // ===================
                         // class bdema_StrPool

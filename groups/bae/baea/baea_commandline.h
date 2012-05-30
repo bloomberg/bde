@@ -201,13 +201,15 @@ BDES_IDENT("$Id: $")
 //  $ mysort -riuomyoutfile
 //  $ mysort -riuo=myoutfile
 //..
+//
 ///Multi-Valued Options and How to Specify Them
 ///--------------------------------------------
 // Options can have several values.  For example, in the command-line
 // specification described by the following usage string, '*' denotes a
-// multi-valued option:
+// multi-valued option, and '+' denotes a multivalued option that must occur
+// at least once.
 //..
-//  usage: mycompiler [-l|library <libName>]* [-o|out outFile] objects...
+//  usage: mycompiler [-l|library <libName>]* [-o|out outFile] [<object>]+
 //..
 // multiple values can be given as follows:
 //..
@@ -233,7 +235,7 @@ BDES_IDENT("$Id: $")
 // Command-line arguments can appear in any order.  For example, given the
 // command-line specification described by the following usage string:
 //..
-//  usage: mysort [-r|reverse] [-o|outputfile <outfile>] files...
+//  usage: mysort [-r|reverse] [-o|outputfile <outfile>] [<file>]+
 //..
 // all the following command lines are valid:
 //..
@@ -593,8 +595,8 @@ BDES_IDENT("$Id: $")
 // following syntax:
 //..
 //  usage: mysort  [-r|reverse] [-i|insensitivetocase] [-u|uniq]
-//                 [-a|algorithm sortAlgo] <-o|outputfile outputFile>
-//                 fileList...
+//                 [-a|algorithm sortAlgo] -o|outputfile <outputFile>
+//                 [<file>]*
 //                            // Sort the specified files (in 'fileList'),
 //                            // using the specified sorting algorithm and
 //                            // write the output to the specified output file.
@@ -645,11 +647,15 @@ BDES_IDENT("$Id: $")
 // them as local variables inside 'main':
 //..
 //  int main(int argc, const char *argv[]) {
-//
-//      // variables to be linked to options
-//      bool isReverse;
-//      bool isCaseInsensitive;
-//      bool isUniq;
+//..
+// Note that it is important that variables that will be bound to optional
+// command line arguments be initialized to their default value, otherwise
+// their value will unspecified if a value isn't provided on the command line
+// (unless a default is specified via 'baea_CommandLineOccurrenceInfo'):
+//..
+//      bool isReverse = false;
+//      bool isCaseInsensitive = false;
+//      bool isUniq = false;
 //
 //      bsl::string outFile;
 //      bsl::string sortAlgo;
@@ -804,6 +810,10 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
+
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
 #ifdef BSLS_PLATFORM__OS_WINDOWS
 #ifdef OPTIONAL
@@ -813,8 +823,6 @@ BDES_IDENT("$Id: $")
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 class bdet_Date;
 class bdet_Datetime;
@@ -1791,8 +1799,8 @@ class baea_CommandLineOption {
   private:
     // PRIVATE MANIPULATORS
     void init(const baea_CommandLineOptionInfo& info);
-       // Initialize the underlying option info from the value of the specified
-       // 'info' object.
+        // Initialize the underlying option info from the value of the
+        // specified 'info' object.
 
   public:
     // TRAITS
@@ -1810,13 +1818,18 @@ class baea_CommandLineOption {
     baea_CommandLineOption(
                         const baea_CommandLineOptionInfo&  optionInfo,
                         bslma_Allocator                   *basicAllocator = 0);
-    baea_CommandLineOption(
-                        const baea_CommandLineOption&      optionInfo,
-                        bslma_Allocator                   *basicAllocator = 0);
         // Create a command-line option containing the value of the specified
         // 'optionInfo'.  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
+
+    baea_CommandLineOption(
+                        const baea_CommandLineOption&      original,
+                        bslma_Allocator                   *basicAllocator = 0);
+        // Create a 'baea_CommandLineOption' object having the same value
+        // as the specified 'original' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
 
     ~baea_CommandLineOption();
         // Destroy this command-line option object.
@@ -2117,12 +2130,12 @@ class baea_CommandLine {
                                  bslalg_TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    template <int SIZE>
-    baea_CommandLine(const baea_CommandLineOptionInfo (&specTable)[SIZE],
+    template <int LENGTH>
+    baea_CommandLine(const baea_CommandLineOptionInfo (&specTable)[LENGTH],
                      bsl::ostream&                      stream,
                      bslma_Allocator                   *basicAllocator = 0);
-    template <int SIZE>
-    baea_CommandLine(baea_CommandLineOptionInfo (&specTable)[SIZE],
+    template <int LENGTH>
+    baea_CommandLine(baea_CommandLineOptionInfo (&specTable)[LENGTH],
                      bsl::ostream&                stream,
                      bslma_Allocator             *basicAllocator = 0);
         // Create an object with the command-line options described by the
@@ -2134,11 +2147,11 @@ class baea_CommandLine {
         // to supply memory.  If 'basicAllocator' is 0, the currently-installed
         // default allocator is used.
 
-    template <int SIZE>
-    baea_CommandLine(const baea_CommandLineOptionInfo (&specTable)[SIZE],
+    template <int LENGTH>
+    baea_CommandLine(const baea_CommandLineOptionInfo (&specTable)[LENGTH],
                      bslma_Allocator                   *basicAllocator = 0);
-    template <int SIZE>
-    baea_CommandLine(baea_CommandLineOptionInfo (&specTable)[SIZE],
+    template <int LENGTH>
+    baea_CommandLine(baea_CommandLineOptionInfo (&specTable)[LENGTH],
                      bslma_Allocator             *basicAllocator = 0);
         // Create an object with the command-line options described by the
         // specified 'specTable'.  The 'specTable' *must* *be* a statically-
@@ -2150,24 +2163,24 @@ class baea_CommandLine {
         // allocator is used.
 
     baea_CommandLine(const baea_CommandLineOptionInfo *specTable,
-                     int                               size,
+                     int                               length,
                      bslma_Allocator                  *basicAllocator = 0);
         // Create an object with the command-line options described by the
-        // specified 'specTable' of the specified 'size'.  The 'specTable' need
-        // not be a statically-created array.  If the tag, description, or name
-        // specified for an option in the 'specTable' is invalid, then the
+        // specified 'specTable' of the specified 'length'.  The 'specTable'
+        // need not be a statically-created array.  If the tag, description, or
+        // name specified for an option in the 'specTable' is invalid, then the
         // behavior is undefined; nevertheless, an appropriate error message is
         // written to 'bsl::cerr'.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
     baea_CommandLine(const baea_CommandLineOptionInfo *specTable,
-                     int                               size,
+                     int                               length,
                      bsl::ostream&                     stream,
                      bslma_Allocator                  *basicAllocator = 0);
         // Create an object with the command-line options described by the
-        // specified 'specTable' of the specified 'size'.  The 'specTable' need
-        // not be a statically-created array.  If the tag, description, or
+        // specified 'specTable' of the specified 'length'.  The 'specTable'
+        // need not be a statically-created array.  If the tag, description, or
         // name specified for an option in the 'specTable' is invalid, then the
         // behavior is undefined; nevertheless, an appropriate error message is
         // written to the specified 'stream'.  Optionally specify a
@@ -2433,11 +2446,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const baea_CommandLine& rhs);
                         // ----------------------
 
 // CREATORS
-template <int SIZE>
+template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
-                           const baea_CommandLineOptionInfo (&specTable)[SIZE],
-                           bsl::ostream&                      stream,
-                           bslma_Allocator                   *basicAllocator)
+                         const baea_CommandLineOptionInfo (&specTable)[LENGTH],
+                         bsl::ostream&                      stream,
+                         bslma_Allocator                   *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2449,18 +2462,18 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < LENGTH; ++i) {
         d_options.push_back(baea_CommandLineOption(specTable[i]));
     }
     validateAndInitialize(stream);
     d_state = BAEA_NOT_PARSED;
 }
 
-template <int SIZE>
+template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
-                                 baea_CommandLineOptionInfo (&specTable)[SIZE],
-                                 bsl::ostream&                stream,
-                                 bslma_Allocator             *basicAllocator)
+                               baea_CommandLineOptionInfo (&specTable)[LENGTH],
+                               bsl::ostream&                stream,
+                               bslma_Allocator             *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2472,17 +2485,17 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < LENGTH; ++i) {
         d_options.push_back(baea_CommandLineOption(specTable[i]));
     }
     validateAndInitialize(stream);
     d_state = BAEA_NOT_PARSED;
 }
 
-template <int SIZE>
+template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
-                           const baea_CommandLineOptionInfo (&specTable)[SIZE],
-                           bslma_Allocator                   *basicAllocator)
+                         const baea_CommandLineOptionInfo (&specTable)[LENGTH],
+                         bslma_Allocator                   *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2494,17 +2507,17 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < LENGTH; ++i) {
         d_options.push_back(baea_CommandLineOption(specTable[i]));
     }
     validateAndInitialize();
     d_state = BAEA_NOT_PARSED;
 }
 
-template <int SIZE>
+template <int LENGTH>
 baea_CommandLine::baea_CommandLine(
-                                 baea_CommandLineOptionInfo (&specTable)[SIZE],
-                                 bslma_Allocator             *basicAllocator)
+                               baea_CommandLineOptionInfo (&specTable)[LENGTH],
+                               bslma_Allocator             *basicAllocator)
 : d_options(basicAllocator)
 , d_positions(basicAllocator)
 , d_nonOptionIndices(basicAllocator)
@@ -2516,7 +2529,7 @@ baea_CommandLine::baea_CommandLine(
 , d_data2(basicAllocator)
 , d_isBindin2Valid(false)
 {
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < LENGTH; ++i) {
         d_options.push_back(baea_CommandLineOption(specTable[i]));
     }
     validateAndInitialize();

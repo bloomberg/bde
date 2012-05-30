@@ -1,4 +1,4 @@
-// bslalg_passthroughtrait.t.cpp                  -*-C++-*-
+// bslalg_passthroughtrait.t.cpp                                      -*-C++-*-
 
 #include <bslalg_passthroughtrait.h>
 
@@ -23,10 +23,10 @@ using namespace std;
 // type as a bit-field from the test driver of 'bslalg_TypeTraits', which can
 // be reused systematically.
 //
-// 'bslalg_PassthroughTrait' is used to simplify the declaration of traits.
+// 'bslalg::PassthroughTrait' is used to simplify the declaration of traits.
 // Since it's purpose is to passthrough a trait from one type to another, it
-// does not matter what trait is used.  'bslalg_TypeTraitBitwiseMoveable' and
-// 'bslalg_TypeTraitUsesBslmaAllocator' will be used in this case.
+// does not matter what trait is used.  'bslalg::TypeTraitBitwiseMoveable' and
+// 'bslalg::TypeTraitUsesBslmaAllocator' will be used in this case.
 //-----------------------------------------------------------------------------
 // [1] BREATHING TEST
 //==========================================================================
@@ -103,30 +103,31 @@ unsigned traitBits()
 {
     unsigned result = TRAIT_NIL;
 
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitBitwiseMoveable>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseMoveable>::VALUE
             ? TRAIT_BITWISEMOVEABLE
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitBitwiseCopyable>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitBitwiseCopyable>::VALUE
             ? TRAIT_BITWISECOPYABLE
             : 0;
-    result |= bslalg_HasTrait<TYPE,
-                           bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE
+    result |= bslalg::HasTrait<TYPE,
+                          bslalg::TypeTraitHasTrivialDefaultConstructor>::VALUE
             ? TRAIT_HASTRIVIALDEFAULTCONSTRUCTOR
             : 0;
-    result |= bslalg_HasTrait<TYPE,
-                              bslalg_TypeTraitBitwiseEqualityComparable>::VALUE
+    result |= bslalg::HasTrait<TYPE,
+                             bslalg::TypeTraitBitwiseEqualityComparable>::VALUE
             ? TRAIT_BITWISEEQUALITYCOMPARABLE
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitPair>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitPair>::VALUE
             ? TRAIT_PAIR
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitUsesBslmaAllocator>::VALUE
+    result |= bslalg::HasTrait<TYPE,
+                               bslalg::TypeTraitUsesBslmaAllocator>::VALUE
             ? TRAIT_USESBSLMAALLOCATOR
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitHasStlIterators>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASSTLITERATORS
             : 0;
-    result |= bslalg_HasTrait<TYPE, bslalg_TypeTraitHasStlIterators>::VALUE
+    result |= bslalg::HasTrait<TYPE, bslalg::TypeTraitHasStlIterators>::VALUE
             ? TRAIT_HASPOINTERSEMANTICS
             : 0;
     return result;
@@ -178,31 +179,31 @@ struct Identity
 
 struct my_BitwiseMoveableClass {
     BSLALG_DECLARE_NESTED_TRAITS(my_BitwiseMoveableClass,
-                                 bslalg_TypeTraitBitwiseMoveable);
+                                 bslalg::TypeTraitBitwiseMoveable);
 };
 
 struct my_UsesBslmaAllocatorClass {
     BSLALG_DECLARE_NESTED_TRAITS(my_UsesBslmaAllocatorClass,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 };
 
 struct my_PassthroughBitwiseMoveableClass {
-    // This class passthrough the 'bslalg_TypeTraitBitwiseMoveable' from
+    // This class passthrough the 'bslalg::TypeTraitBitwiseMoveable' from
     // 'my_BitwiseMoveableClass'.
-    typedef bslalg_PassthroughTrait<
+    typedef bslalg::PassthroughTrait<
                 my_BitwiseMoveableClass,
-                bslalg_TypeTraitBitwiseMoveable>::Type                   Trait;
+                bslalg::TypeTraitBitwiseMoveable>::Type                  Trait;
 
     BSLALG_DECLARE_NESTED_TRAITS(my_PassthroughBitwiseMoveableClass,
                                  Trait);
 };
 
 struct my_PassthroughUsesBslmaAllocatorClass {
-    // This class passthrough the 'bslalg_TypeTraitUsesBslmaAllocator' from
+    // This class passthrough the 'bslalg::TypeTraitUsesBslmaAllocator' from
     // 'my_UsesBslmaAllocatorClass'.
-    typedef bslalg_PassthroughTrait<
+    typedef bslalg::PassthroughTrait<
                 my_UsesBslmaAllocatorClass,
-                bslalg_TypeTraitUsesBslmaAllocator>::Type                Trait;
+                bslalg::TypeTraitUsesBslmaAllocator>::Type               Trait;
 
     BSLALG_DECLARE_NESTED_TRAITS(my_PassthroughUsesBslmaAllocatorClass,
                                  Trait);
@@ -210,9 +211,9 @@ struct my_PassthroughUsesBslmaAllocatorClass {
 
 struct my_PassthroughIncorrectBitwiseMoveableClass {
     // This class attempts to passthrough a trait that is not declared.
-    typedef bslalg_PassthroughTrait<
+    typedef bslalg::PassthroughTrait<
                 my_UsesBslmaAllocatorClass,
-                bslalg_TypeTraitBitwiseMoveable>::Type                   Trait;
+                bslalg::TypeTraitBitwiseMoveable>::Type                  Trait;
 
     BSLALG_DECLARE_NESTED_TRAITS(my_PassthroughIncorrectBitwiseMoveableClass,
                                  Trait);
@@ -220,12 +221,13 @@ struct my_PassthroughIncorrectBitwiseMoveableClass {
 
 struct my_PassthroughIncorrectUsesBslmaAllocatorClass {
     // This class attempts to passthrough a trait that is not declared.
-    typedef bslalg_PassthroughTrait<
+    typedef bslalg::PassthroughTrait<
                 my_BitwiseMoveableClass,
-                bslalg_TypeTraitUsesBslmaAllocator>::Type                Trait;
+                bslalg::TypeTraitUsesBslmaAllocator>::Type               Trait;
 
-    BSLALG_DECLARE_NESTED_TRAITS(my_PassthroughIncorrectUsesBslmaAllocatorClass,
-                                 Trait);
+    BSLALG_DECLARE_NESTED_TRAITS(
+                                my_PassthroughIncorrectUsesBslmaAllocatorClass,
+                                Trait);
 };
 
 //=============================================================================
@@ -249,25 +251,25 @@ int main(int argc, char *argv[])
         // BREATHING TEST
         //
         // Concerns:
-        //   1. That 'bslalg_PassthroughTrait' correctly passes the specified
+        //   1. That 'bslalg::PassthroughTrait' correctly passes the specified
         //      trait from one type to another if the specified trait is
         //      indeed declared in the original type.
         //
-        //   2. That 'bslalg_PassthroughTrait' does not pass the specified
+        //   2. That 'bslalg::PassthroughTrait' does not pass the specified
         //      trait and any other traits declared for the original type to
         //      another if the specified trait is not declared in the original
         //      type.
         //
         // Plan:
         //   Using two classes that have the traits
-        //   'bslalg_TypeTraitBitwiseMoveable' and
-        //   'bslalg_TypeTraitUsesBslmaAllocator'.  Then, using
-        //   'bslalg_PassthroughTrait', create four classes: two with each
+        //   'bslalg::TypeTraitBitwiseMoveable' and
+        //   'bslalg::TypeTraitUsesBslmaAllocator'.  Then, using
+        //   'bslalg::PassthroughTrait', create four classes: two with each
         //   trait properly propagated, and two with each trait incorrectly
         //   propagated.
         //
         // Testing:
-        //   bslalg_PassThroughTrait<typename T, typename TRAIT>::Type
+        //   bslalg::PassThroughTrait<typename T, typename TRAIT>::Type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"

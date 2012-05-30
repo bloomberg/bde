@@ -6,6 +6,9 @@
 #include <bdeat_selectioninfo.h>
 #include <bdeat_valuetypefunctions.h>
 
+#include <bdeimp_dateutil.h>
+#include <bdeimp_prolepticdateutil.h>
+
 #include <bdesb_memoutstreambuf.h>
 
 #include <bdet_date.h>
@@ -33,6 +36,7 @@
 
 #include <bsl_climits.h>
 #include <bsl_fstream.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -107,6 +111,24 @@ static void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+int numOctets(const char *s)
+    // Return the number of octets contained in the specified 's'.  Note that
+    // it is assumed that each octet in 's' is specified in hex format.
+{
+    int length = 0;
+    for (; *s; ++s) {
+        if (' ' == *s) {
+            continue;
+        }
+
+        ++length;
+    }
+    return length / 2;
+}
+
+typedef bdeimp_ProlepticDateUtil ProlepticDateUtil;
+typedef bdeimp_DateUtil          DateUtil;
 
 //typedef bdem_BerEncoder Obj;
 
@@ -469,8 +491,6 @@ void assembleDouble(double *value, int sign, int exponent, long long mantissa)
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test { class MyChoice; }
 namespace test { class MySequenceWithNullable; }
@@ -9887,7 +9907,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -9903,6 +9923,1645 @@ int main(int argc, char *argv[])
                                << "\n=====================" << bsl::endl;
 
         usageExample();
+
+        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'encode' for date/time components
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING 'encode' for date/time"
+                               << "\n=============================="
+                               << bsl::endl;
+
+        if (verbose) bsl::cout << "\nTesting Date." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  year   month   day   opt  exp
+  //----  -----  -----   ---   ---  ---
+  {   L_, 2020,      1,    1,    1, "04 01 00"                       },
+  {   L_, 2020,      1,    1,    0, "1a 0a 323032 302d3031 2d3031"   },
+
+  {   L_, 2020,      1,    2,    1, "04 01 01"                       },
+  {   L_, 2020,      1,    2,    0, "1a 0a 323032 302d3031 2d3032"   },
+
+  {   L_, 2020,      1,   31,    1, "04 01 1E"                       },
+  {   L_, 2020,      1,   31,    0, "1a 0a 323032 302d3031 2d3331"   },
+
+  {   L_, 2020,      2,    1,    1, "04 01 1F"                       },
+  {   L_, 2020,      2,    1,    0, "1a 0a 323032 302d3032 2d3031"   },
+
+  {   L_, 2020,      2,   28,    1, "04 01 3A"                       },
+  {   L_, 2020,      2,   28,    0, "1a 0a 323032 302d3032 2d3238"   },
+
+  {   L_, 2020,      2,   29,    1, "04 01 3B"                       },
+  {   L_, 2020,      2,   29,    0, "1a 0a 323032 302d3032 2d3239"   },
+
+  {   L_, 2020,      3,    1,    1, "04 01 3C"                       },
+  {   L_, 2020,      3,    1,    0, "1a 0a 323032 302d3033 2d3031"   },
+
+  {   L_, 2020,      5,    7,    1, "04 01 7F"                       },
+  {   L_, 2020,      5,    7,    0, "1a 0a 323032 302d3035 2d3037"   },
+
+  {   L_, 2020,      5,    8,    1, "04 02 0080"                     },
+  {   L_, 2020,      5,    8,    0, "1a 0a 323032 302d3035 2d3038"   },
+
+  {   L_, 2020,     12,   31,    1, "04 02 016D"                     },
+  {   L_, 2020,     12,   31,    0, "1a 0a 323032 302d3132 2d3331"   },
+
+  {   L_, 2021,      1,    1,    1, "04 02 016E"                     },
+  {   L_, 2021,      1,    1,    0, "1a 0a 323032 312d3031 2d3031"   },
+
+  {   L_, 2023,     12,   31,    1, "04 02 05B4"                     },
+  {   L_, 2023,     12,   31,    0, "1a 0a 323032 332d3132 2d3331"   },
+
+  {   L_, 2024,      1,    1,    1, "04 02 05B5"                     },
+  {   L_, 2024,      1,    1,    0, "1a 0a 323032 342d3031 2d3031"   },
+
+  {   L_, 2099,     12,   31,    1, "04 02 7223"                     },
+  {   L_, 2099,     12,   31,    0, "1a 0a 323039 392d3132 2d3331"   },
+
+  {   L_, 2100,      1,    1,    1, "04 02 7224"                     },
+  {   L_, 2100,      1,    1,    0, "1a 0a 323130 302d3031 2d3031"   },
+
+  {   L_, 2100,      2,   28,    1, "04 02 725E"                     },
+  {   L_, 2100,      2,   28,    0, "1a 0a 323130 302d3032 2d3238"   },
+
+  {   L_, 2100,      3,    1,    1, "04 02 725F"                     },
+  {   L_, 2100,      3,    1,    0, "1a 0a 323130 302d3033 2d3031"   },
+
+  {   L_, 2109,      9,   18,    1, "04 02 7FFF"                     },
+  {   L_, 2109,      9,   18,    0, "1a 0a 323130 392d3039 2d3138"   },
+
+  {   L_, 2109,      9,   19,    1, "04 03 008000"                   },
+  {   L_, 2109,      9,   19,    0, "1a 0a 323130 392d3039 2d3139"   },
+
+  {   L_, 2119,     12,   31,    1, "04 03 008EAB"                   },
+  {   L_, 2119,     12,   31,    0, "1a 0a 323131 392d3132 2d3331"   },
+
+  {   L_, 2120,      1,    1,    1, "04 03 008EAC"                   },
+  {   L_, 2120,      1,    1,    0, "1a 0a 323132 302d3031 2d3031"   },
+
+  {   L_, 2019,     12,   31,    1, "04 01 FF"                       },
+  {   L_, 2019,     12,   31,    0, "1a 0a 323031 392d3132 2d3331"   },
+
+  {   L_, 2019,      8,   26,    1, "04 01 80"                       },
+  {   L_, 2019,      8,   26,    0, "1a 0a 323031 392d3038 2d3236"   },
+
+  {   L_, 2019,      8,   25,    1, "04 02 FF7F"                     },
+  {   L_, 2019,      8,   25,    0, "1a 0a 323031 392d3038 2d3235"   },
+
+  {   L_, 2016,      2,   28,    1, "04 02 FA85"                     },
+  {   L_, 2016,      2,   28,    0, "1a 0a 323031 362d3032 2d3238"   },
+
+  {   L_, 2016,      2,   29,    1, "04 02 FA86"                     },
+  {   L_, 2016,      2,   29,    0, "1a 0a 323031 362d3032 2d3239"   },
+
+  {   L_, 2016,      3,    1,    1, "04 02 FA87"                     },
+  {   L_, 2016,      3,    1,    0, "1a 0a 323031 362d3033 2d3031"   },
+
+  {   L_, 2012,      2,   28,    1, "04 02 F4D0"                     },
+  {   L_, 2012,      2,   28,    0, "1a 0a 323031 322d3032 2d3238"   },
+
+  {   L_, 2012,      2,   29,    1, "04 02 F4D1"                     },
+  {   L_, 2012,      2,   29,    0, "1a 0a 323031 322d3032 2d3239"   },
+
+  {   L_, 2012,      3,    1,    1, "04 02 F4D2"                     },
+  {   L_, 2012,      3,    1,    0, "1a 0a 323031 322d3033 2d3031"   },
+
+  {   L_, 2000,      2,   28,    1, "04 02 E3B1"                     },
+  {   L_, 2000,      2,   28,    0, "1a 0a 323030 302d3032 2d3238"   },
+
+  {   L_, 2000,      2,   29,    1, "04 02 E3B2"                     },
+  {   L_, 2000,      2,   29,    0, "1a 0a 323030 302d3032 2d3239"   },
+
+  {   L_, 2000,      3,    1,    1, "04 02 E3B3"                     },
+  {   L_, 2000,      3,    1,    0, "1a 0a 323030 302d3033 2d3031"   },
+
+  {   L_, 1930,      4,   15,    1, "04 02 8000"                     },
+  {   L_, 1930,      4,   15,    0, "1a 0a 313933 302d3034 2d3135"   },
+
+  {   L_, 1930,      4,   14,    1, "04 03 FF7FFF"                   },
+  {   L_, 1930,      4,   14,    0, "1a 0a 313933 302d3034 2d3134"   },
+
+  {   L_, 1066,     10,   14,    1, "04 03 FAB005"                   },
+  {   L_, 1066,     10,   14,    0, "1a 0a 313036 362d3130 2d3134"   },
+
+  {   L_, 9999,     12,   31,    1, "04 03 2C794A"                   },
+  {   L_, 9999,     12,   31,    0, "1a 0a 393939 392d3132 2d3331"   },
+
+  {   L_,    1,      1,    1,    1, "04 03 F4BF70"                   },
+  {   L_,    1,      1,    1,    0, "1a 0a 303030 312d3031 2d3031"   },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   YEAR  = DATA[i].d_year;
+                const int   MONTH = DATA[i].d_month;
+                const int   DAY   = DATA[i].d_day;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                                                              MONTH,
+                                                              DAY));
+
+                if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P(EXP) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_Date VALUE(YEAR, MONTH, DAY);
+
+                bdesb_MemOutStreamBuf osb;
+                bdem_BerEncoder encoder(&options);
+                ASSERT(0 == encoder.encode(&osb, VALUE));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting DateTz." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                int         d_tzoffset;  // time zone offset
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  year   month   day   off   opt  exp
+  //----  -----  -----   ---   ---   ---  ---
+  {   L_, 2020,      1,    1,    0,    1, "04 01 00"                         },
+  {   L_, 2020,      1,    1,    0,    0,
+                              "1A 10 323032 302d3031 2d30312B 30303A30 30"   },
+
+  {   L_, 2020,      1,    1, 1439,    1, "04 04 059F0000"                   },
+  {   L_, 2020,      1,    1,  840,    0,
+                              "1A 10 323032 302d3031 2d30312B 31343A30 30"   },
+
+  {   L_, 2020,      1,    1,-1439,    1, "04 04 FA610000"                   },
+  {   L_, 2020,      1,    1, -840,    0,
+                              "1A 10 323032 302d3031 2d30312D 31343A30 30"   },
+
+  {   L_, 2020,      1,    2,    0,    1, "04 01 01"                         },
+  {   L_, 2020,      1,    2,    0,    0,
+                              "1A 10 323032 302d3031 2d30322B 30303A30 30"   },
+
+  {   L_, 2020,      1,    2, 1439,    1, "04 04 059F0001"                   },
+  {   L_, 2020,      1,    2,  840,    0,
+                              "1A 10 323032 302d3031 2d30322B 31343A30 30"   },
+
+  {   L_, 2020,      1,    2,-1439,    1, "04 04 FA610001"                   },
+  {   L_, 2020,      1,    2, -840,    0,
+                              "1A 10 323032 302d3031 2d30322D 31343A30 30"   },
+
+  {   L_, 2019,     12,   31,    0,    1, "04 01 FF"                         },
+  {   L_, 2019,     12,   31,    0,    0,
+                              "1A 10 323031 392d3132 2d33312B 30303A30 30"   },
+
+  {   L_, 2019,     12,   31, 1439,    1, "04 04 059FFFFF"                   },
+  {   L_, 2019,     12,   31,  840,    0,
+                              "1A 10 323031 392d3132 2d33312B 31343A30 30"   },
+
+  {   L_, 2019,     12,   31,-1439,    1, "04 04 FA61FFFF"                   },
+  {   L_, 2019,     12,   31, -840,    0,
+                              "1A 10 323031 392d3132 2d33312D 31343A30 30"   },
+
+  {   L_,    1,      1,    1,    0,    1, "04 03 F4BF70"                     },
+  {   L_,    1,      1,    1,    0,    0,
+                              "1A 10 303030 312d3031 2d30312B 30303A30 30"   },
+
+  {   L_,    1,      1,    1, 1439,    1, "04 05 059FF4BF 70"                },
+  {   L_,    1,      1,    1,  840,    0,
+                              "1A 10 303030 312d3031 2d30312B 31343A30 30"   },
+
+  {   L_,    1,      1,    1,-1439,    1, "04 05 FA61F4BF 70"                },
+  {   L_,    1,      1,    1, -840,    0,
+                              "1A 10 303030 312d3031 2d30312D 31343A30 30"   },
+
+  {   L_, 2020,      5,    7,    0,    1, "04 01 7F"                         },
+  {   L_, 2020,      5,    7,    0,    0,
+                              "1A 10 323032 302d3035 2d30372B 30303A30 30"   },
+
+  {   L_, 2020,      5,    7, 1439,    1, "04 04 059F007F"                   },
+  {   L_, 2020,      5,    7,  840,    0,
+                              "1A 10 323032 302d3035 2d30372B 31343A30 30"   },
+
+  {   L_, 2020,      5,    7,-1439,    1, "04 04 FA61007F"                   },
+  {   L_, 2020,      5,    7, -840,    0,
+                              "1A 10 323032 302d3035 2d30372D 31343A30 30"   },
+
+  {   L_, 2020,      5,    8,    0,    1, "04 02 0080"                       },
+  {   L_, 2020,      5,    8,    0,    0,
+                              "1A 10 323032 302d3035 2d30382B 30303A30 30"   },
+
+  {   L_, 2020,      5,    8, 1439,    1, "04 04 059F0080"                   },
+  {   L_, 2020,      5,    8,  840,    0,
+                              "1A 10 323032 302d3035 2d30382B 31343A30 30"   },
+
+  {   L_, 2020,      5,    8,-1439,    1, "04 04 FA610080"                   },
+  {   L_, 2020,      5,    8, -840,    0,
+                              "1A 10 323032 302d3035 2d30382D 31343A30 30"   },
+
+  {   L_, 2109,      9,   18,    0,    1, "04 02 7FFF"                       },
+  {   L_, 2109,      9,   18,    0,    0,
+                              "1A 10 323130 392d3039 2d31382B 30303A30 30"   },
+
+  {   L_, 2109,      9,   18, 1439,    1, "04 04 059F7FFF"                   },
+  {   L_, 2109,      9,   18,  840,    0,
+                              "1A 10 323130 392d3039 2d31382B 31343A30 30"   },
+
+  {   L_, 2109,      9,   18,-1439,    1, "04 04 FA617FFF"                   },
+  {   L_, 2109,      9,   18, -840,    0,
+                              "1A 10 323130 392d3039 2d31382D 31343A30 30"   },
+
+  {   L_, 2109,      9,   19,    0,    1, "04 03 008000"                     },
+  {   L_, 2109,      9,   19,    0,    0,
+                              "1A 10 323130 392d3039 2d31392B 30303A30 30"   },
+
+  {   L_, 2109,      9,   19, 1439,    1, "04 05 059F008000"                 },
+  {   L_, 2109,      9,   19,  840,    0,
+                              "1A 10 323130 392d3039 2d31392B 31343A30 30"   },
+
+  {   L_, 2109,      9,   19,-1439,    1, "04 05 FA61008000"                 },
+  {   L_, 2109,      9,   19, -840,    0,
+                              "1A 10 323130 392d3039 2d31392D 31343A30 30"   },
+
+  {   L_, 2019,      8,   26,    0,    1, "04 01 80"                         },
+  {   L_, 2019,      8,   26,    0,    0,
+                              "1A 10 323031 392d3038 2d32362B 30303A30 30"   },
+
+  {   L_, 2019,      8,   26, 1439,    1, "04 04 059FFF80"                   },
+  {   L_, 2019,      8,   26,  840,    0,
+                              "1A 10 323031 392d3038 2d32362B 31343A30 30"   },
+
+  {   L_, 2019,      8,   26,-1439,    1, "04 04 FA61FF80"                   },
+  {   L_, 2019,      8,   26, -840,    0,
+                              "1A 10 323031 392d3038 2d32362D 31343A30 30"   },
+
+  {   L_, 2019,      8,   25,    0,    1, "04 02 FF7F"                       },
+  {   L_, 2019,      8,   25,    0,    0,
+                              "1A 10 323031 392d3038 2d32352B 30303A30 30"   },
+
+  {   L_, 2019,      8,   25, 1439,    1, "04 04 059FFF7F"                   },
+  {   L_, 2019,      8,   25,  840,    0,
+                              "1A 10 323031 392d3038 2d32352B 31343A30 30"   },
+
+  {   L_, 2019,      8,   25,-1439,    1, "04 04 FA61FF7F"                   },
+  {   L_, 2019,      8,   25, -840,    0,
+                              "1A 10 323031 392d3038 2d32352D 31343A30 30"   },
+
+  {   L_, 1930,      4,   15,    0,    1, "04 02 8000"                       },
+  {   L_, 1930,      4,   15,    0,    0,
+                              "1A 10 313933 302d3034 2d31352B 30303A30 30"   },
+
+  {   L_, 1930,      4,   15, 1439,    1, "04 04 059F8000"                   },
+  {   L_, 1930,      4,   15,  840,    0,
+                              "1A 10 313933 302d3034 2d31352B 31343A30 30"   },
+
+  {   L_, 1930,      4,   15,-1439,    1, "04 04 FA618000"                   },
+  {   L_, 1930,      4,   15, -840,    0,
+                              "1A 10 313933 302d3034 2d31352D 31343A30 30"   },
+
+  {   L_, 1930,      4,   14,    0,    1, "04 03 FF7FFF"                     },
+  {   L_, 1930,      4,   14,    0,    0,
+                              "1A 10 313933 302d3034 2d31342B 30303A30 30"   },
+
+  {   L_, 1930,      4,   14, 1439,    1, "04 05 059FFF7FFF"                 },
+  {   L_, 1930,      4,   14,  840,    0,
+                              "1A 10 313933 302d3034 2d31342B 31343A30 30"   },
+
+  {   L_, 1930,      4,   14,-1439,    1, "04 05 FA61FF7FFF"                 },
+  {   L_, 1930,      4,   14, -840,    0,
+                              "1A 10 313933 302d3034 2d31342D 31343A30 30"   },
+
+  {   L_, 1066,     10,   14,    0,    1, "04 03 FAB005"                     },
+  {   L_, 1066,     10,   14,    0,    0,
+                              "1A 10 313036 362d3130 2d31342B 30303A30 30"   },
+
+  {   L_, 1066,     10,   14, 1439,    1, "04 05 059FFAB0 05"                },
+  {   L_, 1066,     10,   14,  840,    0,
+                              "1A 10 313036 362d3130 2d31342B 31343A30 30"   },
+
+  {   L_, 1066,     10,   14,-1439,    1, "04 05 FA61FAB0 05"                },
+  {   L_, 1066,     10,   14, -840,    0,
+                              "1A 10 313036 362d3130 2d31342D 31343A30 30"   },
+
+  {   L_, 9999,     12,   31,    0,    1, "04 03 2C794A"                     },
+  {   L_, 9999,     12,   31,    0,    0,
+                              "1A 10 393939 392d3132 2d33312B 30303A30 30"   },
+
+  {   L_, 9999,     12,   31, 1439,    1, "04 05 059F2C79 4A"                },
+  {   L_, 9999,     12,   31,  840,    0,
+                              "1A 10 393939 392d3132 2d33312B 31343A30 30"   },
+
+  {   L_, 9999,     12,   31,-1439,    1, "04 05 FA612C79 4A"                },
+  {   L_, 9999,     12,   31, -840,    0,
+                              "1A 10 393939 392d3132 2d33312D 31343A30 30"   },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   YEAR  = DATA[i].d_year;
+                const int   MONTH = DATA[i].d_month;
+                const int   DAY   = DATA[i].d_day;
+                const int   OFF   = DATA[i].d_tzoffset;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                                                              MONTH,
+                                                              DAY));
+
+                if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(EXP) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_DateTz VALUE(bdet_Date(YEAR, MONTH, DAY), OFF);
+
+                bdesb_MemOutStreamBuf osb;
+                bdem_BerEncoder encoder(&options);
+                ASSERT(0 == encoder.encode(&osb, VALUE));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting Time." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_hour;      // hour under test
+                int         d_min;       // min under test
+                int         d_sec;       // sec under test
+                int         d_milliSec;  // milliSec under test
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  hour   min  sec  ms   opt  exp
+  //----  -----  ---  ---  ---  ---  ---
+  {   L_,     0,   0,   0,   0,   1, "04 01 00"                              },
+  {   L_,     0,   0,   0,   0,   0, "1A 0C 30303A30 303A3030 2E303030"      },
+
+  {   L_,     0,   0,   0, 127,   1, "04 01 7F"                              },
+  {   L_,     0,   0,   0, 127,   0, "1A 0C 30303A30 303A3030 2E313237"      },
+
+  {   L_,     0,   0,   0, 128,   1, "04 02 0080"                            },
+  {   L_,     0,   0,   0, 128,   0, "1A 0C 30303A30 303A3030 2E313238"      },
+
+  {   L_,     0,   0,   0, 255,   1, "04 02 00FF"                            },
+  {   L_,     0,   0,   0, 255,   0, "1A 0C 30303A30 303A3030 2E323535"      },
+
+  {   L_,     0,   0,   0, 256,   1, "04 02 0100"                            },
+  {   L_,     0,   0,   0, 256,   0, "1A 0C 30303A30 303A3030 2E323536"      },
+
+  {   L_,     0,   0,  32, 767,   1, "04 02 7FFF"                            },
+  {   L_,     0,   0,  32, 767,   0, "1A 0C 30303A30 303A3332 2E373637"      },
+
+  {   L_,     0,   0,  32, 768,   1, "04 03 008000"                          },
+  {   L_,     0,   0,  32, 768,   0, "1A 0C 30303A30 303A3332 2E373638"      },
+
+  {   L_,     2,  19,  48, 607,   1, "04 03 7FFFFF"                          },
+  {   L_,     2,  19,  48, 607,   0, "1A 0C 30323A31 393A3438 2E363037"      },
+
+  {   L_,     2,  19,  48, 608,   1, "04 04 00800000"                        },
+  {   L_,     2,  19,  48, 608,   0, "1A 0C 30323A31 393A3438 2E363038"      },
+
+  {   L_,    12,  33,  45, 999,   1, "04 04 02B2180F"                        },
+  {   L_,    12,  33,  45, 999,   0, "1A 0C 31323A33 333A3435 2E393939"      },
+
+  {   L_,    23,  59,  59, 999,   1, "04 04 05265BFF"                        },
+  {   L_,    23,  59,  59, 999,   0, "1A 0C 32333A35 393A3539 2E393939"      },
+
+  {   L_,    24,   0,   0,   0,   1, "04 01 00"                              },
+  // TBD: Current doesnt work
+//   {   L_,    24,   0,   0,   0,   0, "1A 0C 30303A30 303A3030 2E303030"   },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   HOUR  = DATA[i].d_hour;
+                const int   MIN   = DATA[i].d_min;
+                const int   SECS  = DATA[i].d_sec;
+                const int   MSEC  = DATA[i].d_milliSec;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                if (veryVerbose) { P_(HOUR) P_(MIN) P_(SECS) P(MSEC) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_Time VALUE(HOUR, MIN, SECS, MSEC);
+
+                bdesb_MemOutStreamBuf osb;
+                bdem_BerEncoder encoder(&options);
+                ASSERT(0 == encoder.encode(&osb, VALUE));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting TimeTz." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_hour;      // hour under test
+                int         d_min;       // min under test
+                int         d_sec;       // sec under test
+                int         d_milliSec;  // milliSec under test
+                int         d_offset;    // offset
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  hour   min  sec  ms     off  opt  exp
+  //----  -----  ---  ---  ---    ---  ---  ---
+  {   L_,     0,   0,   0,   0,     0,  1, "04 01 00"                        },
+  {   L_,     0,   0,   0,   0,     0,  0,
+                            "1A 12 30303A30 303A3030 2E303030 2B30303A 3030" },
+
+  {   L_,     0,   0,   0,   0,  1439,  1, "04 05 059F0000 00"               },
+  {   L_,     0,   0,   0,   0,   840,  0,
+                            "1A 12 30303A30 303A3030 2E303030 2B31343A 3030" },
+
+  {   L_,     0,   0,   0,   0, -1439,  1, "04 05 FA610000 00"               },
+  {   L_,     0,   0,   0,   0,  -840,  0,
+                            "1A 12 30303A30 303A3030 2E303030 2D31343A 3030" },
+
+  {   L_,     0,   0,   0, 127,     0,  1, "04 01 7F"                        },
+  {   L_,     0,   0,   0, 127,     0,  0,
+                            "1A 12 30303A30 303A3030 2E313237 2B30303A 3030" },
+
+  {   L_,     0,   0,   0, 127,  1439,  1, "04 05 059F0000 7F"               },
+  {   L_,     0,   0,   0, 127,   840,  0,
+                            "1A 12 30303A30 303A3030 2E313237 2B31343A 3030" },
+
+  {   L_,     0,   0,   0, 127, -1439,  1, "04 05 FA610000 7F"               },
+  {   L_,     0,   0,   0, 127,  -840,  0,
+                            "1A 12 30303A30 303A3030 2E313237 2D31343A 3030" },
+
+  {   L_,     0,   0,   0, 128,     0,  1, "04 02 0080"                      },
+  {   L_,     0,   0,   0, 128,     0,  0,
+                            "1A 12 30303A30 303A3030 2E313238 2B30303A 3030" },
+
+  {   L_,     0,   0,   0, 128,  1439,  1, "04 05 059F0000 80"               },
+  {   L_,     0,   0,   0, 128,   840,  0,
+                            "1A 12 30303A30 303A3030 2E313238 2B31343A 3030" },
+
+  {   L_,     0,   0,   0, 128, -1439,  1, "04 05 FA610000 80"               },
+  {   L_,     0,   0,   0, 128,  -840,  0,
+                            "1A 12 30303A30 303A3030 2E313238 2D31343A 3030" },
+
+  {   L_,     0,   0,  32, 767,     0,  1, "04 02 7FFF"                      },
+  {   L_,     0,   0,  32, 767,     0,  0,
+                            "1A 12 30303A30 303A3332 2E373637 2B30303A 3030" },
+
+  {   L_,     0,   0,  32, 767,  1439,  1, "04 05 059F007F FF"               },
+  {   L_,     0,   0,  32, 767,   840,  0,
+                            "1A 12 30303A30 303A3332 2E373637 2B31343A 3030" },
+
+  {   L_,     0,   0,  32, 767, -1439,  1, "04 05 FA61007F FF"               },
+  {   L_,     0,   0,  32, 767,  -840,  0,
+                            "1A 12 30303A30 303A3332 2E373637 2D31343A 3030" },
+
+  {   L_,     0,   0,  32, 768,     0,  1, "04 03 008000"                    },
+  {   L_,     0,   0,  32, 768,     0,  0,
+                            "1A 12 30303A30 303A3332 2E373638 2B30303A 3030" },
+
+  {   L_,     0,   0,  32, 768,  1439,  1, "04 05 059F0080 00"               },
+  {   L_,     0,   0,  32, 768,   840,  0,
+                            "1A 12 30303A30 303A3332 2E373638 2B31343A 3030" },
+
+  {   L_,     0,   0,  32, 768, -1439,  1, "04 05 FA610080 00"               },
+  {   L_,     0,   0,  32, 768,  -840,  0,
+                            "1A 12 30303A30 303A3332 2E373638 2D31343A 3030" },
+
+  {   L_,     2,  19,  48, 607,     0,  1, "04 03 7FFFFF"                    },
+  {   L_,     2,  19,  48, 607,     0,  0,
+                            "1A 12 30323A31 393A3438 2E363037 2B30303A 3030" },
+
+  {   L_,     2,  19,  48, 607,  1439,  1, "04 05 059F7FFFFF"                },
+  {   L_,     2,  19,  48, 607,   840,  0,
+                            "1A 12 30323A31 393A3438 2E363037 2B31343A 3030" },
+
+  {   L_,     2,  19,  48, 607, -1439,  1, "04 05 FA617FFFFF"                },
+  {   L_,     2,  19,  48, 607,  -840,  0,
+                            "1A 12 30323A31 393A3438 2E363037 2D31343A 3030" },
+
+  {   L_,     2,  19,  48, 608,     0,  1, "04 04 00800000"                  },
+  {   L_,     2,  19,  48, 608,     0,  0,
+                            "1A 12 30323A31 393A3438 2E363038 2B30303A 3030" },
+
+  {   L_,     2,  19,  48, 608,  1439,  1, "04 06 059F0080 0000"             },
+  {   L_,     2,  19,  48, 608,   840,  0,
+                            "1A 12 30323A31 393A3438 2E363038 2B31343A 3030" },
+
+  {   L_,     2,  19,  48, 608, -1439,  1, "04 06 FA610080 0000"             },
+  {   L_,     2,  19,  48, 608,  -840,  0,
+                            "1A 12 30323A31 393A3438 2E363038 2D31343A 3030" },
+
+  {   L_,    12,  33,  45, 999,     0,  1, "04 04 02B2180F"                  },
+  {   L_,    12,  33,  45, 999,     0,  0,
+                            "1A 12 31323A33 333A3435 2E393939 2B30303A 3030" },
+
+  {   L_,    12,  33,  45, 999,  1439,  1, "04 06 059F02B2 180F"             },
+  {   L_,    12,  33,  45, 999,   840,  0,
+                            "1A 12 31323A33 333A3435 2E393939 2B31343A 3030" },
+
+  {   L_,    12,  33,  45, 999, -1439,  1, "04 06 FA6102B2 180F"             },
+  {   L_,    12,  33,  45, 999,  -840,  0,
+                            "1A 12 31323A33 333A3435 2E393939 2D31343A 3030" },
+
+  {   L_,    23,  59,  59, 999,     0,  1, "04 04 05265BFF"                  },
+  {   L_,    23,  59,  59, 999,     0,  0,
+                            "1A 12 32333A35 393A3539 2E393939 2B30303A 3030" },
+
+  {   L_,    23,  59,  59, 999,  1439,  1, "04 06 059F0526 5BFF"             },
+  {   L_,    23,  59,  59, 999,   840,  0,
+                            "1A 12 32333A35 393A3539 2E393939 2B31343A 3030" },
+
+  {   L_,    23,  59,  59, 999, -1439,  1, "04 06 FA610526 5BFF"             },
+  {   L_,    23,  59,  59, 999,  -840,  0,
+                            "1A 12 32333A35 393A3539 2E393939 2D31343A 3030" },
+
+  {   L_,    24,   0,   0,   0,     0,  1, "04 01 00"                        },
+  {   L_,    24,   0,   0,   0,  1439,  1, "04 05 059F0000 00"               },
+  {   L_,    24,   0,   0,   0, -1439,  1, "04 05 FA610000 00"               },
+  // TBD: Current doesnt work
+//   {   L_,    24,   0,   0,   0,   0, "04 0C 30303A30 303A3030 2E303030"   },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   HOUR  = DATA[i].d_hour;
+                const int   MIN   = DATA[i].d_min;
+                const int   SECS  = DATA[i].d_sec;
+                const int   MSEC  = DATA[i].d_milliSec;
+                const int   OFF   = DATA[i].d_offset;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                if (veryVerbose) { P_(HOUR) P_(MIN) P_(SECS) P_(MSEC) P(OFF) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_TimeTz VALUE(bdet_Time(HOUR, MIN, SECS, MSEC),
+                                        OFF);
+
+                bdesb_MemOutStreamBuf osb;
+                bdem_BerEncoder encoder(&options);
+                ASSERT(0 == encoder.encode(&osb, VALUE));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting Datetime." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                int         d_hour;      // hour under test
+                int         d_min;       // min under test
+                int         d_sec;       // sec under test
+                int         d_milliSec;  // milliSec under test
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  year  mon  day  hour   min  sec    ms    opt  exp
+  //----  ----- ---  ---  ----   ---  ---    --    ---  ---
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,     1,
+                                               "04 01 00"                    },
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,    1,     1,
+                                               "04 01 01"                    },
+  {   L_, 2020,   1,   1,    0,    0,   0,    1,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3030 3A30302E 303031" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,     1,
+                                               "04 01 7F"                    },
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3030 3A30302E 313237" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,     1,
+                                               "04 02 0080"                  },
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3030 3A30302E 313238" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  999,     1,
+                                               "04 02 03E7"                  },
+  {   L_, 2020,   1,   1,    0,    0,   0,  999,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3030 3A30302E 393939" },
+
+  {   L_, 2020,   1,   1,    0,    0,   1,    0,     1,
+                                               "04 02 03E8"                  },
+  {   L_, 2020,   1,   1,    0,    0,   1,    0,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3030 3A30312E 303030" },
+
+  {   L_, 2020,   1,   1,    0,    0,   1,    1,     1,
+                                               "04 02 03E9"                  },
+  {   L_, 2020,   1,   1,    0,    0,   1,    1,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3030 3A30312E 303031" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,     1,
+                                               "04 02 7FFF"                  },
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3030 3A33322E 373637" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,     1,
+                                               "04 03 008000"                },
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3030 3A33322E 373638" },
+
+  {   L_, 2020,   1,   1,    0,    0,  59,  999,     1,
+                                               "04 03 00EA5F"                },
+  {   L_, 2020,   1,   1,    0,    0,  59,  999,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3030 3A35392E 393939" },
+
+  {   L_, 2020,   1,   1,    0,    1,   0,    0,     1,
+                                               "04 03 00EA60"                },
+  {   L_, 2020,   1,   1,    0,    1,   0,    0,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3031 3A30302E 303030" },
+
+  {   L_, 2020,   1,   1,    0,    1,   0,    1,     1,
+                                               "04 03 00EA61"                },
+  {   L_, 2020,   1,   1,    0,    1,   0,    1,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3031 3A30302E 303031" },
+
+  {   L_, 2020,   1,   1,    0,   59,  59,  999,     1,
+                                               "04 03 36EE7F"                },
+  {   L_, 2020,   1,   1,    0,   59,  59,  999,     0,
+                 "1A 17 32303230 2d30312d 30315430 303A3539 3A35392E 393939" },
+
+  {   L_, 2020,   1,   1,    1,    0,   0,    0,     1,
+                                               "04 03 36EE80"                },
+  {   L_, 2020,   1,   1,    1,    0,   0,    0,     0,
+                 "1A 17 32303230 2d30312d 30315430 313A3030 3A30302E 303030" },
+
+  {   L_, 2020,   1,   1,    1,    0,   0,    1,     1,
+                                               "04 03 36EE81"                },
+  {   L_, 2020,   1,   1,    1,    0,   0,    1,     0,
+                 "1A 17 32303230 2d30312d 30315430 313A3030 3A30302E 303031" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,     1,
+                                               "04 03 7FFFFF"                },
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,     0,
+                 "1A 17 32303230 2d30312d 30315430 323A3139 3A34382E 363037" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,     1,
+                                               "04 04 00800000"              },
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,     0,
+                 "1A 17 32303230 2d30312d 30315430 323A3139 3A34382E 363038" },
+
+  {   L_, 2020,   1,   1,   23,   59,  59,  999,     1,
+                                               "04 04 05265BFF"              },
+  {   L_, 2020,   1,   1,   23,   59,  59,  999,     0,
+                 "1A 17 32303230 2d30312d 30315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2020,   1,   2,    0,    0,   0,    0,     1,
+                                               "04 04 05265C00"              },
+  {   L_, 2020,   1,   2,    0,    0,   0,    0,     0,
+                 "1A 17 32303230 2d30312d 30325430 303A3030 3A30302E 303030" },
+
+  {   L_, 2020,   1,   2,    0,    0,   0,    1,     1,
+                                               "04 04 05265C01"              },
+  {   L_, 2020,   1,   2,    0,    0,   0,    1,     0,
+                 "1A 17 32303230 2d30312d 30325430 303A3030 3A30302E 303031" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,     1,
+                                               "04 04 7FFFFFFF"              },
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,     0,
+                 "1A 17 32303230 2d30312d 32355432 303A3331 3A32332E 363437" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,     1,
+                                               "04 05 00800000 00"           },
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,     0,
+                 "1A 17 32303230 2d30312d 32355432 303A3331 3A32332E 363438" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  649,     1,
+                                               "04 05 00800000 01"           },
+  {   L_, 2020,   1,  25,   20,   31,  23,  649,     0,
+                 "1A 17 32303230 2d30312d 32355432 303A3331 3A32332E 363439" },
+
+  {   L_, 2020,   1,  31,   23,   59,  59,  999,     1,
+                                               "04 05 009FA523 FF"           },
+  {   L_, 2020,   1,  31,   23,   59,  59,  999,     0,
+                 "1A 17 32303230 2d30312d 33315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2020,   2,   1,    0,    0,   0,    0,     1,
+                                               "04 05 009FA524 00"           },
+  {   L_, 2020,   2,   1,    0,    0,   0,    0,     0,
+                 "1A 17 32303230 2d30322d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 2020,   2,   1,    0,    0,   0,    1,     1,
+                                               "04 05 009FA524 01"           },
+  {   L_, 2020,   2,   1,    0,    0,   0,    1,     0,
+                 "1A 17 32303230 2d30322d 30315430 303A3030 3A30302E 303031" },
+
+  {   L_, 2020,   2,  28,   23,   59,  59,  999,     1,
+                                               "04 05 012FD733 FF"           },
+  {   L_, 2020,   2,  28,   23,   59,  59,  999,     0,
+                 "1A 17 32303230 2d30322d 32385432 333A3539 3A35392E 393939" },
+
+  {   L_, 2020,   2,  29,    0,    0,   0,    0,     1,
+                                               "04 05 012FD734 00"           },
+  {   L_, 2020,   2,  29,    0,    0,   0,    0,     0,
+                 "1A 17 32303230 2d30322d 32395430 303A3030 3A30302E 303030" },
+
+  {   L_, 2020,   2,  29,   23,   59,  59,  999,     1,
+                                               "04 05 0134FD8F FF"           },
+  {   L_, 2020,   2,  29,   23,   59,  59,  999,     0,
+                 "1A 17 32303230 2d30322d 32395432 333A3539 3A35392E 393939" },
+
+  {   L_, 2020,   3,   1,    0,    0,   0,    0,     1,
+                                               "04 05 0134FD90 00"           },
+  {   L_, 2020,   3,   1,    0,    0,   0,    0,     0,
+                 "1A 17 32303230 2d30332d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 2020,  12,  31,   23,   59,  59,  999,     1,
+                                               "04 05 075CD787 FF"           },
+  {   L_, 2020,  12,  31,   23,   59,  59,  999,     0,
+                 "1A 17 32303230 2d31322d 33315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2021,   1,   1,    0,    0,   0,    0,     1,
+                                               "04 05 075CD788 00"           },
+  {   L_, 2021,   1,   1,    0,    0,   0,    0,     0,
+                 "1A 17 32303231 2d30312d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 2023,  12,  31,   23,   59,  59,  999,     1,
+                                               "04 05 1D63EB0B FF"           },
+  {   L_, 2023,  12,  31,   23,   59,  59,  999,     0,
+                 "1A 17 32303233 2d31322d 33315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2024,   1,   1,    0,    0,   0,    0,     1,
+                                               "04 05 1D63EB0C 00"           },
+  {   L_, 2024,   1,   1,    0,    0,   0,    0,     0,
+                 "1A 17 32303234 2d30312d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 2024,   1,   1,    0,    0,   0,    1,     1,
+                                               "04 05 1D63EB0C 01"           },
+  {   L_, 2024,   1,   1,    0,    0,   0,    1,     0,
+                 "1A 17 32303234 2d30312d 30315430 303A3030 3A30302E 303031" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,     1,
+                                               "04 05 7FFFFFFF FF"           },
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,     0,
+                 "1A 17 32303337 2d30362d 30325432 313A3536 3A35332E 383837" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,     1,
+                                               "04 06 00800000 0000"         },
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,     0,
+                 "1A 17 32303337 2d30362d 30325432 313A3536 3A35332E 383838" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  889,     1,
+                                               "04 06 00800000 0001"         },
+  {   L_, 2037,   6,   2,   21,   56,  53,  889,     0,
+                 "1A 17 32303337 2d30362d 30325432 313A3536 3A35332E 383839" },
+
+  {   L_, 2099,  12,  31,   23,   59,  59,  999,     1,
+                                               "04 06 024BCE5C EFFF"         },
+  {   L_, 2099,  12,  31,   23,   59,  59,  999,     0,
+                 "1A 17 32303939 2d31322d 33315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2100,   1,   1,    0,    0,   0,    0,     1,
+                                               "04 06 024BCE5C F000"         },
+  {   L_, 2100,   1,   1,    0,    0,   0,    0,     0,
+                 "1A 17 32313030 2d30312d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,     1,
+                                               "04 06 7FFFFFFF FFFF"         },
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,     0,
+                 "1A 17 36343739 2d31302d 31375430 323A3435 3A35352E 333237" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,     1,
+                                            "04 09 00000080 00000000 00"     },
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,     0,
+                 "1A 17 36343739 2d31302d 31375430 323A3435 3A35352E 333238" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  329,     1,
+                                            "04 09 00000080 00000000 01"     },
+  {   L_, 6479,  10,  17,    2,   45,  55,  329,     0,
+                 "1A 17 36343739 2d31302d 31375430 323A3435 3A35352E 333239" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,     1,
+                                               "04 01 FF"                    },
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3539 3A35392E 393939" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,     1,
+                                               "04 01 80"                    },
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3539 3A35392E 383732" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,     1,
+                                               "04 02 FF7F"                  },
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3539 3A35392E 383731" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,    1,     1,
+                                               "04 02 FC19"                  },
+  {   L_, 2019,  12,  31,   23,   59,  59,    1,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3539 3A35392E 303031" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,    0,     1,
+                                               "04 02 FC18"                  },
+  {   L_, 2019,  12,  31,   23,   59,  59,    0,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3539 3A35392E 303030" },
+
+  {   L_, 2019,  12,  31,   23,   59,  58,  999,     1,
+                                               "04 02 FC17"                  },
+  {   L_, 2019,  12,  31,   23,   59,  58,  999,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3539 3A35382E 393939" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,     1,
+                                               "04 02 8000"                  },
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3539 3A32372E 323332" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,     1,
+                                               "04 03 FF7FFF"                },
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3539 3A32372E 323331" },
+
+  {   L_, 2019,  12,  31,   23,   59,   0,    1,     1,
+                                               "04 03 FF15A1"                },
+  {   L_, 2019,  12,  31,   23,   59,   0,    1,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3539 3A30302E 303031" },
+
+  {   L_, 2019,  12,  31,   23,   59,   0,    0,     1,
+                                               "04 03 FF15A0"                },
+  {   L_, 2019,  12,  31,   23,   59,   0,    0,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3539 3A30302E 303030" },
+
+  {   L_, 2019,  12,  31,   23,   58,  59,  999,     1,
+                                               "04 03 FF159F"                },
+  {   L_, 2019,  12,  31,   23,   58,  59,  999,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3538 3A35392E 393939" },
+
+  {   L_, 2019,  12,  31,   23,    0,   0,    1,     1,
+                                               "04 03 C91181"                },
+  {   L_, 2019,  12,  31,   23,    0,   0,    1,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3030 3A30302E 303031" },
+
+  {   L_, 2019,  12,  31,   23,    0,   0,    0,     1,
+                                               "04 03 C91180"                },
+  {   L_, 2019,  12,  31,   23,    0,   0,    0,     0,
+                 "1A 17 32303139 2d31322d 33315432 333A3030 3A30302E 303030" },
+
+  {   L_, 2019,  12,  31,   22,   59,  59,  999,     1,
+                                               "04 03 C9117F"                },
+  {   L_, 2019,  12,  31,   22,   59,  59,  999,     0,
+                 "1A 17 32303139 2d31322d 33315432 323A3539 3A35392E 393939" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,     1,
+                                               "04 03 800000"                },
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,     0,
+                 "1A 17 32303139 2d31322d 33315432 313A3430 3A31312E 333932" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,     1,
+                                               "04 04 FF7FFFFF"              },
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,     0,
+                 "1A 17 32303139 2d31322d 33315432 313A3430 3A31312E 333931" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,     1,
+                                               "04 04 80000000"              },
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,     0,
+                 "1A 17 32303139 2d31322d 30375430 333A3238 3A33362E 333532" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,     1,
+                                               "04 05 FF7FFFFF FF"           },
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,     0,
+                 "1A 17 32303139 2d31322d 30375430 333A3238 3A33362E 333531" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,     1,
+                                               "04 05 80000000 00"           },
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,     0,
+                 "1A 17 32303032 2d30372d 33315430 323A3033 3A30362E 313132" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,     1,
+                                               "04 06 FF7FFFFF FFFF"         },
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,     0,
+                 "1A 17 32303032 2d30372d 33315430 323A3033 3A30362E 313131" },
+
+  {   L_,    1,   1,   1,    0,    0,   0,    0,     1,
+                                               "04 06 C60D8F6C 4000"         },
+  {   L_,    1,   1,   1,    0,    0,   0,    0,     0,
+                 "1A 17 30303031 2d30312d 30315430 303A3030 3A30302E 303030" },
+
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,     1,
+                                            "04 09 000000E5 0873B8F3 FF"     },
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,     0,
+                 "1A 17 39393939 2d31322d 33315432 333A3539 3A35392E 393939" },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   YEAR  = DATA[i].d_year;
+                const int   MONTH = DATA[i].d_month;
+                const int   DAY   = DATA[i].d_day;
+                const int   HOUR  = DATA[i].d_hour;
+                const int   MIN   = DATA[i].d_min;
+                const int   SECS  = DATA[i].d_sec;
+                const int   MSEC  = DATA[i].d_milliSec;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                                                              MONTH,
+                                                              DAY));
+
+                if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY)
+                                   P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_Datetime VALUE(YEAR, MONTH, DAY,
+                                          HOUR, MIN, SECS, MSEC);
+
+                bdesb_MemOutStreamBuf osb;
+                bdem_BerEncoder encoder(&options);
+                ASSERT(0 == encoder.encode(&osb, VALUE));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting DatetimeTz." << bsl::endl;
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_year;      // year under test
+                int         d_month;     // month under test
+                int         d_day;       // day under test
+                int         d_hour;      // hour under test
+                int         d_min;       // min under test
+                int         d_sec;       // sec under test
+                int         d_milliSec;  // milliSec under test
+                int         d_offset;    // timezone offset
+                bool        d_useBinary; // whether to use binary format
+                const char *d_exp;       // expected output
+            } DATA[] = {
+  //line  year  mon  day  hour   min  sec    ms    off    opt  exp
+  //----  ----- ---  ---  ----   ---  ---    --    ---    ---  ---
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,     0,     1,
+                                               "04 01 00"                    },
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,     0,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A30302E 3030302B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,   1439,     1,
+                                               "04 07 059F0000 000000"       },
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,    840,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A30302E 3030302B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,  -1439,     1,
+                                               "04 07 FA610000 000000"       },
+  {   L_, 2020,   1,   1,    0,    0,   0,    0,   -840,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A30302E 3030302D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,     0,     1,
+                                               "04 01 7F"                    },
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,     0,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132372B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,   1439,     1,
+                                               "04 07 059F0000 00007F"       },
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,    840,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132372B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,  -1439,     1,
+                                               "04 07 FA610000 00007F"       },
+  {   L_, 2020,   1,   1,    0,    0,   0,  127,   -840,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132372D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,     0,     1,
+                                               "04 02 0080"                  },
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,     0,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132382B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,   1439,     1,
+                                               "04 07 059F0000 000080"       },
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,    840,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132382B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,  -1439,     1,
+                                               "04 07 FA610000 000080"       },
+  {   L_, 2020,   1,   1,    0,    0,   0,  128,   -840,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A30302E 3132382D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,     0,     1,
+                                               "04 02 7FFF"                  },
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,     0,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736372B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,  1439,     1,
+                                               "04 07 059F0000 007FFF"       },
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,   840,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736372B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  767, -1439,     1,
+                                               "04 07 FA610000 007FFF"       },
+  {   L_, 2020,   1,   1,    0,    0,  32,  767,  -840,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736372D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,     0,     1,
+                                               "04 03 008000"                },
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,     0,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736382B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,  1439,     1,
+                                               "04 07 059F0000 008000"       },
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,   840,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736382B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    0,    0,  32,  768, -1439,     1,
+                                               "04 07 FA610000 008000"       },
+  {   L_, 2020,   1,   1,    0,    0,  32,  768,  -840,     0,
+   "1A 1D 32303230 2d30312d 30315430 303A3030 3A33322E 3736382D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,     0,     1,
+                                               "04 03 7FFFFF"                },
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,     0,     0,
+   "1A 1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630372B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,  1439,     1,
+                                               "04 07 059F0000 7FFFFF"       },
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,   840,     0,
+   "1A 1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630372B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  607, -1439,     1,
+                                               "04 07 FA610000 7FFFFF"       },
+  {   L_, 2020,   1,   1,    2,   19,  48,  607,  -840,     0,
+   "1A 1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630372D 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,     0,     1,
+                                               "04 04 00800000"              },
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,     0,     0,
+   "1A 1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630382B 30303A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,  1439,     1,
+                                               "04 07 059F0000 800000"       },
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,   840,     0,
+   "1A 1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630382B 31343A30 30" },
+
+  {   L_, 2020,   1,   1,    2,   19,  48,  608, -1439,     1,
+                                               "04 07 FA610000 800000"       },
+  {   L_, 2020,   1,   1,    2,   19,  48,  608,  -840,     0,
+   "1A 1D 32303230 2d30312d 30315430 323A3139 3A34382E 3630382D 31343A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,     0,     1,
+                                               "04 04 7FFFFFFF"              },
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,     0,     0,
+   "1A 1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634372B 30303A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,  1439,     1,
+                                               "04 07 059F007F FFFFFF"       },
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,   840,     0,
+   "1A 1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634372B 31343A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  647, -1439,     1,
+                                               "04 07 FA61007F FFFFFF"       },
+  {   L_, 2020,   1,  25,   20,   31,  23,  647,  -840,     0,
+   "1A 1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634372D 31343A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,     0,     1,
+                                               "04 05 00800000 00"           },
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,     0,     0,
+   "1A 1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634382B 30303A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,  1439,     1,
+                                               "04 07 059F0080 000000"       },
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,   840,     0,
+   "1A 1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634382B 31343A30 30" },
+
+  {   L_, 2020,   1,  25,   20,   31,  23,  648, -1439,     1,
+                                               "04 07 FA610080 000000"       },
+  {   L_, 2020,   1,  25,   20,   31,  23,  648,  -840,     0,
+   "1A 1D 32303230 2d30312d 32355432 303A3331 3A32332E 3634382D 31343A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,     0,     1,
+                                               "04 05 7FFFFFFF FF"           },
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,     0,     0,
+   "1A 1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838372B 30303A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,  1439,     1,
+                                               "04 07 059F7FFF FFFFFF"       },
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,   840,     0,
+   "1A 1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838372B 31343A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  887, -1439,     1,
+                                               "04 07 FA617FFF FFFFFF"       },
+  {   L_, 2037,   6,   2,   21,   56,  53,  887,  -840,     0,
+   "1A 1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838372D 31343A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,     0,     1,
+                                               "04 06 00800000 0000"         },
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,     0,     0,
+   "1A 1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838382B 30303A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,  1439,     1,
+                                               "04 08 059F0080 00000000"     },
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,   840,     0,
+   "1A 1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838382B 31343A30 30" },
+
+  {   L_, 2037,   6,   2,   21,   56,  53,  888, -1439,     1,
+                                               "04 08 FA610080 00000000"     },
+  {   L_, 2037,   6,   2,   21,   56,  53,  888,  -840,     0,
+   "1A 1D 32303337 2d30362d 30325432 313A3536 3A35332E 3838382D 31343A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,     0,     1,
+                                               "04 06 7FFFFFFF FFFF"         },
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,     0,     0,
+   "1A 1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332372B 30303A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,  1439,     1,
+                                               "04 08 059F7FFF FFFFFFFF"     },
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,   840,     0,
+   "1A 1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332372B 31343A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  327, -1439,     1,
+                                               "04 08 FA617FFF FFFFFFFF"     },
+  {   L_, 6479,  10,  17,    2,   45,  55,  327,  -840,     0,
+   "1A 1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332372D 31343A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,     0,     1,
+                                            "04 09 00000080 00000000 00 "    },
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,     0,     0,
+   "1A 1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332382B 30303A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,  1439,     1,
+                                            "04 09 059F0080 00000000 00"     },
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,   840,     0,
+   "1A 1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332382B 31343A30 30" },
+
+  {   L_, 6479,  10,  17,    2,   45,  55,  328, -1439,     1,
+                                            "04 09 FA610080 00000000 00"     },
+  {   L_, 6479,  10,  17,    2,   45,  55,  328,  -840,     0,
+   "1A 1D 36343739 2d31302d 31375430 323A3435 3A35352E 3332382D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,     0,     1,
+                                               "04 01 FF"                    },
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,     0,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A35392E 3939392B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,  1439,     1,
+                                               "04 07 059FFFFF FFFFFF"       },
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,   840,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A35392E 3939392B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  999, -1439,     1,
+                                               "04 07 FA61FFFF FFFFFF"       },
+  {   L_, 2019,  12,  31,   23,   59,  59,  999,  -840,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A35392E 3939392D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,     0,     1,
+                                               "04 01 80"                    },
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,     0,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837322B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,  1439,     1,
+                                               "04 07 059FFFFF FFFF80"       },
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,   840,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837322B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  872, -1439,     1,
+                                               "04 07 FA61FFFF FFFF80"       },
+  {   L_, 2019,  12,  31,   23,   59,  59,  872,  -840,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837322D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,     0,     1,
+                                               "04 02 FF7F"                  },
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,     0,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837312B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,  1439,     1,
+                                               "04 07 059FFFFF FFFF7F"       },
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,   840,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837312B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  59,  871, -1439,     1,
+                                               "04 07 FA61FFFF FFFF7F"       },
+  {   L_, 2019,  12,  31,   23,   59,  59,  871,  -840,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A35392E 3837312D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,     0,     1,
+                                               "04 02 8000"                  },
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,     0,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233322B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,  1439,     1,
+                                               "04 07 059FFFFF FF8000"       },
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,   840,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233322B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  232, -1439,     1,
+                                               "04 07 FA61FFFF FF8000"       },
+  {   L_, 2019,  12,  31,   23,   59,  27,  232,  -840,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233322D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,     0,     1,
+                                               "04 03 FF7FFF"                },
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,     0,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233312B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,  1439,     1,
+                                               "04 07 059FFFFF FF7FFF"       },
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,   840,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233312B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   23,   59,  27,  231, -1439,     1,
+                                               "04 07 FA61FFFF FF7FFF"       },
+  {   L_, 2019,  12,  31,   23,   59,  27,  231,  -840,     0,
+   "1A 1D 32303139 2d31322d 33315432 333A3539 3A32372E 3233312D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,     0,     1,
+                                               "04 03 800000"                },
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,     0,     0,
+   "1A 1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339322B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,  1439,     1,
+                                               "04 07 059FFFFF 800000"       },
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,   840,     0,
+   "1A 1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339322B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  392, -1439,     1,
+                                               "04 07 FA61FFFF 800000"       },
+  {   L_, 2019,  12,  31,   21,   40,  11,  392,  -840,     0,
+   "1A 1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339322D 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,     0,     1,
+                                               "04 04 FF7FFFFF"              },
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,     0,     0,
+   "1A 1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339312B 30303A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,  1439,     1,
+                                               "04 07 059FFFFF 7FFFFF"       },
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,   840,     0,
+   "1A 1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339312B 31343A30 30" },
+
+  {   L_, 2019,  12,  31,   21,   40,  11,  391, -1439,     1,
+                                               "04 07 FA61FFFF 7FFFFF"       },
+  {   L_, 2019,  12,  31,   21,   40,  11,  391,  -840,     0,
+   "1A 1D 32303139 2d31322d 33315432 313A3430 3A31312E 3339312D 31343A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,     0,     1,
+                                               "04 04 80000000"              },
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,     0,     0,
+   "1A 1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335322B 30303A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,  1439,     1,
+                                               "04 07 059FFF80 000000"       },
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,   840,     0,
+   "1A 1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335322B 31343A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  352, -1439,     1,
+                                               "04 07 FA61FF80 000000"       },
+  {   L_, 2019,  12,  07,    3,   28,  36,  352,  -840,     0,
+   "1A 1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335322D 31343A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,     0,     1,
+                                               "04 05 FF7FFFFF FF"           },
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,     0,     0,
+   "1A 1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335312B 30303A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,  1439,     1,
+                                               "04 07 059FFF7F FFFFFF"       },
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,   840,     0,
+   "1A 1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335312B 31343A30 30" },
+
+  {   L_, 2019,  12,  07,    3,   28,  36,  351, -1439,     1,
+                                               "04 07 FA61FF7F FFFFFF"       },
+  {   L_, 2019,  12,  07,    3,   28,  36,  351,  -840,     0,
+   "1A 1D 32303139 2d31322d 30375430 333A3238 3A33362E 3335312D 31343A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,     0,     1,
+                                               "04 05 80000000 00"           },
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,     0,     0,
+   "1A 1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131322B 30303A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,  1439,     1,
+                                               "04 07 059F8000 000000"       },
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,   840,     0,
+   "1A 1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131322B 31343A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  112, -1439,     1,
+                                               "04 07 FA618000 000000"       },
+  {   L_, 2002,   7,  31,    2,    3,   6,  112,  -840,     0,
+   "1A 1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131322D 31343A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,     0,     1,
+                                               "04 06 FF7FFFFF FFFF"         },
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,     0,     0,
+   "1A 1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131312B 30303A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,  1439,     1,
+                                               "04 08 059FFF7F FFFFFFFF"     },
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,   840,     0,
+   "1A 1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131312B 31343A30 30" },
+
+  {   L_, 2002,   7,  31,    2,    3,   6,  111, -1439,     1,
+                                               "04 08 FA61FF7F FFFFFFFF"     },
+  {   L_, 2002,   7,  31,    2,    3,   6,  111,  -840,     0,
+   "1A 1D 32303032 2d30372d 33315430 323A3033 3A30362E 3131312D 31343A30 30" },
+
+  {   L_,    1,   1,   1,    0,    0,   0,    0,     0,     1,
+                                               "04 06 C60D8F6C 4000"         },
+  {   L_,    1,   1,   1,    0,    0,   0,    0,     0,     0,
+   "1A 1D 30303031 2d30312d 30315430 303A3030 3A30302E 3030302B 30303A30 30" },
+
+  {   L_,    1,   1,   1,    0,    0,   0,    0,  1439,     1,
+                                               "04 08 059FC60D 8F6C4000"     },
+  {   L_,    1,   1,   1,    0,    0,   0,    0,   840,     0,
+   "1A 1D 30303031 2d30312d 30315430 303A3030 3A30302E 3030302B 31343A30 30" },
+
+  {   L_,    1,   1,   1,    0,    0,   0,    0, -1439,     1,
+                                               "04 08 FA61C60D 8F6C4000"     },
+  {   L_,    1,   1,   1,    0,    0,   0,    0,  -840,     0,
+   "1A 1D 30303031 2d30312d 30315430 303A3030 3A30302E 3030302D 31343A30 30" },
+
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,     0,     1,
+                                            "04 09 000000E5 0873B8F3 FF"     },
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,     0,     0,
+   "1A 1D 39393939 2d31322d 33315432 333A3539 3A35392E 3939392B 30303A30 30" },
+
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,  1439,     1,
+                                            "04 09 059F00E5 0873B8F3 FF"     },
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,   840,     0,
+   "1A 1D 39393939 2d31322d 33315432 333A3539 3A35392E 3939392B 31343A30 30" },
+
+  {   L_, 9999,  12,  31,   23,   59,  59,  999, -1439,     1,
+                                            "04 09 FA6100E5 0873B8F3 FF"     },
+  {   L_, 9999,  12,  31,   23,   59,  59,  999,  -840,     0,
+   "1A 1D 39393939 2d31322d 33315432 333A3539 3A35392E 3939392D 31343A30 30" },
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   YEAR  = DATA[i].d_year;
+                const int   MONTH = DATA[i].d_month;
+                const int   DAY   = DATA[i].d_day;
+                const int   HOUR  = DATA[i].d_hour;
+                const int   MIN   = DATA[i].d_min;
+                const int   SECS  = DATA[i].d_sec;
+                const int   MSEC  = DATA[i].d_milliSec;
+                const int   OFF   = DATA[i].d_offset;
+                const bool  BIN   = DATA[i].d_useBinary;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                ASSERT(DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                    && ProlepticDateUtil::isValidCalendarDate(YEAR,
+                                                              MONTH,
+                                                              DAY));
+
+                if (veryVerbose) { P_(YEAR) P_(MONTH) P_(DAY) P_(OFF) P(BIN)
+                                   P_(HOUR) P_(MIN) P_(SECS) P(MSEC) P(EXP) }
+
+                bdem_BerEncoderOptions options;
+                options.setEncodeDateAndTimeTypesAsBinary(BIN);
+
+                const bdet_DatetimeTz VALUE(bdet_Datetime(YEAR, MONTH, DAY,
+                                                          HOUR, MIN, SECS,
+                                                          MSEC),
+                                            OFF);
+
+                bdesb_MemOutStreamBuf osb;
+                bdem_BerEncoder encoder(&options);
+                ASSERT(0 == encoder.encode(&osb, VALUE));
+                LOOP2_ASSERT(LEN, osb.length(), LEN == osb.length());
+                LOOP2_ASSERT(osb.data(), EXP,
+                             0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+            }
+        }
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING ARRAYS WITH the 'encodeEmptyArrays' option (DRQS 29114951)
+        //
+        // Concerns:
+        //: 1 If 'bdem_BerEncoderOptions' is not specified then empty arrays
+        //:   are encoded.
+        //:
+        //: 2 If 'bdem_BerEncoderOptions' is specified but the
+        //:   'encodeEmptyArrays' is set to 'false' then empty arrays
+        //:   are not encoded.
+        //:
+        //: 3 If 'bdem_BerEncoderOptions' is specified and the
+        //:   'encodeEmptyArrays' option is not set or set to 'true' then
+        //:   empty arrays are encoded.
+        //:
+        //: 4 Non-empty arrays are always encoded.
+        //
+        // Plan:
+        //: 1 Create three 'bdem_BerEncoderOptions' objects.  Set the
+        //:   'encodeEmptyArrays' option in one encoder options object to
+        //:   'true' and to 'false' in the another object.  Leave the third
+        //:   encoder options object unmodified.
+        //:
+        //: 2 Create four 'bdem_BerEncoder' objects passing the three
+        //:   'bdem_BerEncoderOptions' objects created in step 1 to the first
+        //:   three encoder objects.  The fourth encoder object is not passed
+        //:   any encoder options.
+        //:
+        //: 3 Create four 'bdesb_MemOutStreamBuf' objects.
+        //:
+        //: 4 Populate a 'MySequenceWithArray' object ensuring that its
+        //:   underlying vector data member is empty.
+        //:
+        //: 5 Encode the 'MySequenceWithArray' object onto a
+        //:   'bdesb_MemOutStreamBuf' using one of the created
+        //:   'bdem_BerEncoder' objects.
+        //:
+        //: 6 Ensure that the empty vector is encoded in all cases except when
+        //:   the encoder options are explicitly provided and the
+        //:   'encodeEmptyArrays' option on that object is set to 'false'.
+        //:
+        //: 7 Repeat steps 1 - 6 for a 'MySequenceWithArray' object that has a
+        //:   non-empty vector.
+        //:
+        //: 8 Ensure that the non-empty vector is encoded in all cases.
+        //
+        // Testing:
+        //  Encoding of vectors
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTesting Arrays with 'encodeEmptyArrays'"
+                               << "\n======================================="
+                               << bsl::endl;
+
+        if (verbose) bsl::cout << "\nTesting with empty array." << bsl::endl;
+        {
+            bdem_BerEncoderOptions options1, options2, options3;
+            options1.setEncodeEmptyArrays(true);
+            options2.setEncodeEmptyArrays(false);
+
+            bdem_BerEncoder encoder1(&options1), encoder2(&options2),
+                            encoder3(&options3), encoder4;
+
+            bdesb_MemOutStreamBuf osb1, osb2, osb3, osb4;
+
+            test::MySequenceWithArray value;
+            value.attribute1() = 34;
+
+            ASSERT(0 == encoder1.encode(&osb1, value));
+            ASSERT(0 == encoder2.encode(&osb2, value));
+            ASSERT(0 == encoder3.encode(&osb3, value));
+            ASSERT(0 == encoder4.encode(&osb4, value));
+
+            ASSERT(osb1.length()  > osb2.length());
+            ASSERT(osb1.length() == osb3.length());
+            ASSERT(osb1.length() == osb4.length());
+            ASSERT(0 == memcmp(osb1.data(), osb3.data(), osb1.length()));
+            ASSERT(0 == memcmp(osb1.data(), osb4.data(), osb1.length()));
+
+            printDiagnostic(encoder1);
+            printDiagnostic(encoder2);
+            printDiagnostic(encoder3);
+            printDiagnostic(encoder4);
+
+            if (veryVerbose) {
+                P(osb1.length())
+                printBuffer(osb1.data(), osb1.length());
+
+                P(osb2.length())
+                printBuffer(osb2.data(), osb2.length());
+
+                P(osb3.length())
+                printBuffer(osb3.data(), osb3.length());
+
+                P(osb4.length())
+                printBuffer(osb4.data(), osb4.length());
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting with a non-empty array."
+                               << bsl::endl;
+        {
+            bdem_BerEncoderOptions options1, options2, options3;
+            options1.setEncodeEmptyArrays(true);
+            options2.setEncodeEmptyArrays(false);
+
+            bdem_BerEncoder encoder1(&options1), encoder2(&options2),
+                            encoder3(&options3), encoder4;
+
+            bdesb_MemOutStreamBuf osb1, osb2, osb3, osb4;
+
+            test::MySequenceWithArray value;
+            value.attribute1() = 34;
+            value.attribute2().push_back("Hello");
+            value.attribute2().push_back("World!");
+
+            ASSERT(0 == encoder1.encode(&osb1, value));
+            ASSERT(0 == encoder2.encode(&osb2, value));
+            ASSERT(0 == encoder3.encode(&osb3, value));
+            ASSERT(0 == encoder4.encode(&osb4, value));
+
+            ASSERT(osb1.length() == osb2.length())
+            ASSERT(osb1.length() == osb3.length())
+            ASSERT(osb1.length() == osb4.length())
+            ASSERT(0 == memcmp(osb1.data(), osb2.data(), osb1.length()));
+            ASSERT(0 == memcmp(osb1.data(), osb3.data(), osb1.length()));
+            ASSERT(0 == memcmp(osb1.data(), osb4.data(), osb1.length()));
+
+            printDiagnostic(encoder1);
+            printDiagnostic(encoder2);
+            printDiagnostic(encoder3);
+            printDiagnostic(encoder4);
+
+            if (veryVerbose) {
+                P(osb1.length())
+                printBuffer(osb1.data(), osb1.length());
+
+                P(osb2.length())
+                printBuffer(osb2.data(), osb2.length());
+
+                P(osb3.length())
+                printBuffer(osb3.data(), osb3.length());
+
+                P(osb4.length())
+                printBuffer(osb4.data(), osb4.length());
+            }
+        }
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
@@ -10660,17 +12319,6 @@ int main(int argc, char *argv[])
                 bdesb_MemOutStreamBuf osb;
 
                 ASSERT(0 == encoder.encode(&osb, XF1));
-                printDiagnostic(encoder);
-
-                if (veryVerbose) {
-                      P(osb.length())
-                      printBuffer(osb.data(), osb.length());
-                }
-            }
-            {
-                bdesb_MemOutStreamBuf osb;
-
-                ASSERT(0 == encoder.encode(&osb, XG1));
                 printDiagnostic(encoder);
 
                 if (veryVerbose) {

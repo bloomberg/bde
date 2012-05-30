@@ -1,4 +1,4 @@
-// _defs.h                  -*-C++-*-
+// _defs.h                                                            -*-C++-*-
 #ifndef INCLUDED__DEFS
 #define INCLUDED__DEFS
 
@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 
 #  define _RW_STD  std
 #  undef  _APACHE_STD
-#  define _APACHE_STD	   std
+#  define _APACHE_STD       std
 #  define _RW    __rw
 #  define _RWSTD_LONG_LONG long long
 
@@ -178,7 +178,7 @@ _RWSTD_NAMESPACE(_RW)
                           const char* func);
 
     inline void* __rw_allocate(unsigned sz, const void* = 0)
-	{ return ::operator new(sz); }
+    { return ::operator new(sz); }
     inline void __rw_deallocate(void* p, int=0) { ::operator delete(p); }
 
     inline void __rw_throw(int i, ...) { _THROW(i); }

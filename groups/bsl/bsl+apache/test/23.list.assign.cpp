@@ -66,7 +66,7 @@ range_test_cases [] = {
     //    |                |            |  |  |  |        1 - out_of_range
     //    |                |            |  |  |  |        2 - length_error
     //    |                |            |  |  |  |       -1 - exc. safety
-    //    |                |            |  |  |  |       
+    //    |                |            |  |  |  |
     //    |                |            |  |  |  +--------------------+
     //    |                |            |  |  +------+                |
     //    |                |            |  +------+  |                |
@@ -75,24 +75,24 @@ range_test_cases [] = {
     //    |                |                |     |  |                |
     //    V                V                V     V  V                V
     TEST ("ab",            "c",             0,    1, "c",             0),
-                                               
+
     TEST ("",              "",              0,    0, "",              0),
     TEST ("",              "abc",           1,    1, "b",             0),
     TEST ("",              "<U0>",          0,    1, "<U0>",          0),
-                                               
+
     TEST ("<U0>",          "",              0,    0, "",              0),
-                                               
+
     TEST ("abc",           "",              0,    0, "",              0),
-                                               
+
     TEST ("<U0>",          "a",             0,    1, "a",             0),
     TEST ("<U0>",          "<U0>@2",        1,    1, "<U0>",          0),
     TEST ("<U0>",          "<U0>@2",        0,    2, "<U0>@2",        0),
     TEST ("<U0>",          "<U0>@2",        1,    5, "<U0>",          0),
-                                               
+
     TEST ("cde",           "ab",            0,    2, "ab",            0),
     TEST ("cde",           "ab",            0,    1, "a",             0),
     TEST ("cde",           "ab",            1,    5, "b",             0),
-                                               
+
     TEST ("ab",            "c<U0>e",        0,    3, "c<U0>e",        0),
     TEST ("ab",            "c<U0>e",        1,    2, "<U0>e",         0),
     TEST ("ab",            "c<U0>e",        0,    2, "c<U0>",         0),
@@ -113,7 +113,7 @@ range_test_cases [] = {
     TEST ("x@4096",        "x@4096",        2,    3, "xxx",           0),
     TEST ("",              "x@4096",        0, 4096, "x@4096",        0),
     TEST ("",              "x@4096",      100, 2000, "x@2000",        0),
-                   
+
     TEST ("",              "x@207",         0,  207, "x@207",         0),
     TEST ("x@128",         "x@334",        10,  207, "x@207",         0),
     TEST ("x@540",         "x@207",        50,  128, "x@128",         0),
@@ -122,7 +122,7 @@ range_test_cases [] = {
     TEST ("x@3695",        "x@1412",      207,  540, "x@540",         0),
     TEST ("x@872",         "x@874",         1,  873, "x@873",         0),
     TEST ("x@873",         "x@3695",       10, 2284, "x@2284",        0),
-                   
+
     TEST ("",              "<U0>",          2,    0, "",              1),
     TEST ("",              "a",             2,    0, "",              1),
     TEST ("",              "x@4096",     4106,    0, "",              1),
@@ -134,20 +134,20 @@ range_test_cases [] = {
     TEST ("x@80",          "x@64",          2,    3, "xxx",           0),
     TEST ("",              "x@64",          0,   64, "x@64",          0),
     TEST ("",              "x@64",         10,   20, "x@20",          0),
-                   
+
     TEST ("x@50",          "x@64",         10,   20, "x@20",          0),
     TEST ("x@80",          "x@64",         5,    32, "x@32",          0),
     TEST ("x@50",          "x@64",         0,    64, "x@64",          0),
     TEST ("x@50",          "x@64",         1,    63, "x@63",          0),
-                   
+
     TEST ("",              "<U0>",          2,    0, "",              1),
     TEST ("",              "a",             2,    0, "",              1),
     TEST ("",              "x@64",         74,    0, "",              1),
 
 #endif
     TEST ("last",          "test",          0,    4, "test",          0)
-};                                       
-                                         
+};
+
 /**************************************************************************/
 
 // used to exercise:
@@ -247,7 +247,7 @@ struct AssignRange: ContRangeBase<List> {
     AssignRange () { }
 
     virtual List&
-    operator() (List &lst, 
+    operator() (List &lst,
                 const ContainerTestCaseData<ListVal>& tdata) const {
 
         const ListVal* const beg = tdata.arg_ + tdata.off2_;
@@ -274,7 +274,7 @@ struct AssignRangeOverload: ContRangeBase<List>
     AssignRangeOverload () { }
 
     virtual List&
-    operator() (List &lst, 
+    operator() (List &lst,
                 const ContainerTestCaseData<ListVal>& tdata) const {
 
         const bool reverse_iter =
@@ -371,7 +371,7 @@ void test_assign (T*, Allocator*,
 
 #else   // if defined (_RWSTD_NO_EXCEPTIONS)
 
-        if (tcase.bthrow) 
+        if (tcase.bthrow)
             return;
 
 #endif   // _RWSTD_NO_EXCEPTIONS
@@ -413,7 +413,7 @@ void test_assign (T*, Allocator*,
             // verify that list length are equal to the expected
             rw_assert (tdata.reslen_ == got_size, 0, tcase.line,
                        "line %d. %{$FUNCALL}: expected \"%{X=*}\" with length "
-                       "%zu, got %{/*.*Gs} with length %zu", __LINE__, 
+                       "%zu, got %{/*.*Gs} with length %zu", __LINE__,
                        cwidth, int (tdata.reslen_), tdata.res_, tdata.reslen_,
                        1, int (got_size), got, got_size);
 

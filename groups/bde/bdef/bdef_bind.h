@@ -779,29 +779,19 @@ BDES_IDENT("$Id: $")
 #include <bslmf_memberfunctionpointertraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
-#include <bslmf_removereference.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
 template <class RET, class FUNC> struct bdef_Bind_FuncTraits;
 template <class RET, int NUMARGS> struct bdef_Bind_Invoker;
@@ -887,6 +877,113 @@ template <class LIST> struct bdef_Bind_CalcParameterMask;
 template <class FUNC, class ARGS, int INDEX, int OFFSET>
                                              struct bdef_Bind_MapParameter;
 template <class RET, class FUNC, class LIST> struct bdef_Bind_ImplSelector;
+
+                          // ===============================
+                          // class bdef_Bind_BoundTupleValue
+                          // ===============================
+
+// IMPLEMENTATION NOTE: This class template, as well as the
+// 'bdef_bind_BoundTuple[0-14]' class templates, are always instantiated with
+// template argument 'TYPE'.  'TYPE' is one of the 'A[0-14]' template
+// parameters for 'bdef_bind_BoundTuple[0-14]'.  Since 'TYPE' is *not* a
+// reference or const types, it is always appropriate to take any value of
+// these types by 'const&' to avoid unnecessary copies until the only one and
+// final copy is done in the constructor proxy.
+
+template <class TYPE>
+class bdef_Bind_BoundTupleValue {
+    // This local class provides storage for a value of the specified 'TYPE'
+    // suitable for storing an argument value in one of the 'bdef_Bind_Tuple*'
+    // local classes.  This general template definition ensures that the
+    // allocator passed to the creators is passed through to the value if it
+    // uses an allocator, using the 'bslalg_ConstructorProxy' mechanism.
+
+    // PRIVATE TYPES
+    typedef typename bslmf_ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
+
+    // PRIVATE INSTANCE DATA
+    bslalg_ConstructorProxy<STORAGE_TYPE> d_value;
+
+  public:
+    // CREATORS
+    bdef_Bind_BoundTupleValue(
+                        const bdef_Bind_BoundTupleValue<TYPE>&  original,
+                        bslma_Allocator                        *basicAllocator)
+        // Create a 'bdef_Bind_BoundTupleValue' object holding a copy of the
+        // specified 'original' value, using 'basicAllocator' to supply any
+        // memory.
+    : d_value(original.d_value, basicAllocator)
+    {
+    }
+
+    bdef_Bind_BoundTupleValue(const TYPE&      value,
+                              bslma_Allocator *basicAllocator)
+        // Create a 'bdef_Bind_BoundTupleValue' object holding a copy of the
+        // specified 'value', using 'basicAllocator' to supply any memory.
+    : d_value(value, basicAllocator)
+    {
+    }
+
+    template <class BDE_OTHER_TYPE>
+    bdef_Bind_BoundTupleValue(const BDE_OTHER_TYPE&  value,
+                              bslma_Allocator       *basicAllocator)
+        // Create a 'bdef_Bind_BoundTupleValue' object holding a copy of the
+        // specified 'value', using 'basicAllocator' to supply any memory.
+    : d_value(value, basicAllocator)
+    {
+    }
+
+    // MANIPULATORS
+    STORAGE_TYPE& value() { return d_value.object(); }
+        // Return a reference to the modifiable object held by this proxy.
+
+    // ACCESSORS
+    const STORAGE_TYPE& value() const { return d_value.object(); }
+        // Return a reference to the non-modifiable object held by this proxy.
+};
+
+                           // ===========================
+                           // class bdef_Bind_BoundTuple*
+                           // ===========================
+
+struct bdef_Bind_BoundTuple0 : public bslmf_TypeList0 {
+    // This 'struct' provides the creators for a list of zero arguments.
+
+    // CREATORS
+    bdef_Bind_BoundTuple0()
+    {
+    }
+
+    bdef_Bind_BoundTuple0(const bdef_Bind_BoundTuple0&  original,
+                          bslma_Allocator              *allocator = 0)
+    {
+        (void) original;
+        (void) allocator;
+    }
+};
+
+template <class A1>
+struct bdef_Bind_BoundTuple1 : public bslmf_TypeList1<A1>
+{
+    // This 'struct' stores a list of one argument.  It does *not* use the
+    // const-forwarding type of its argument, unlike 'bdef_Bind_Tuple1'
+    // which applies that optimization to avoid unnecessary copying.
+
+    // INSTANCE DATA
+    bdef_Bind_BoundTupleValue<A1> d_a1;
+
+    // CREATORS
+    bdef_Bind_BoundTuple1(const bdef_Bind_BoundTuple1<A1>& orig,
+                          bslma_Allocator                *allocator = 0)
+    : d_a1(orig.d_a1, allocator)
+    {
+    }
+
+    bdef_Bind_BoundTuple1(A1 const& a1, bslma_Allocator *allocator = 0)
+    : d_a1(a1, allocator)
+    {
+    }
+};
 
                            // ===============
                            // class bdef_Bind
@@ -1646,6 +1743,854 @@ struct bdef_BindUtil {
 };
 
 // ---- Anything below this line is implementation specific.  Do not use.  ----
+
+                          // ==========================
+                          // class bdef_Bind_TupleValue
+                          // ==========================
+
+template <class TYPE>
+class bdef_Bind_TupleValue {
+    // This local class provides storage for a value of the specified 'TYPE'
+    // suitable for storing an argument value in one of the
+    // 'bdef_Bind_Tuple[0-14]' local classes.  'TYPE' must already be a
+    // 'bslmf_ForwardingType', meaning no extra copies will be made (unless the
+    // type is a fundamental type, which is meant to be copied for efficiency).
+
+    // PRIVATE TYPES
+    typedef typename bslmf_ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
+
+    // PRIVATE INSTANCE DATA
+    STORAGE_TYPE d_value;
+
+  public:
+    // CREATORS
+    bdef_Bind_TupleValue(const bdef_Bind_TupleValue<TYPE>&  original)
+        // Create a 'bdef_Bind_TupleValue' object holding a copy of the
+        // specified 'original' value.
+    : d_value(original.d_value)
+    {
+    }
+
+    bdef_Bind_TupleValue(TYPE value)
+        // Create a 'bdef_Bind_TupleValue' object holding a copy of the
+        // specified 'value'.
+    : d_value(value)
+    {
+    }
+
+    // MANIPULATORS
+    STORAGE_TYPE& value() { return d_value; }
+        // Return a reference to the modifiable object held by this proxy.
+
+    // ACCESSORS
+    const STORAGE_TYPE& value() const { return d_value; }
+        // Return a reference to the non-modifiable object held by this proxy.
+};
+
+template <class TYPE>
+class bdef_Bind_TupleValue<TYPE&> {
+    // This local class provides storage for a value of the specified 'TYPE'
+    // suitable for storing an argument value in one of the 'bdef_Bind_Tuple*'
+    // local classes.  This full specialization for reference types simply
+    // stores the address of the argument value.
+
+    // PRIVATE INSTANCE DATA
+    TYPE *d_value;
+
+  public:
+    // CREATORS
+    bdef_Bind_TupleValue(const bdef_Bind_TupleValue<TYPE&>& original)
+        // Create a 'bdef_Bind_TupleValue' object holding a copy of the
+        // specified 'original' reference.
+    : d_value(original.d_value)
+    {
+    }
+
+    bdef_Bind_TupleValue(TYPE& value)
+        // Create a 'bdef_Bind_TupleValue' object holding the address of the
+        // specified 'value'.
+    : d_value(&value)
+    {
+    }
+
+    // MANIPULATORS
+    TYPE& value() { return *d_value; }
+        // Return a reference to the modifiable object held by this proxy.
+
+    // ACCESSORS
+    const TYPE& value() const { return *d_value; }
+        // Return a reference to the non-modifiable object held by this proxy.
+};
+
+template <class TYPE>
+class bdef_Bind_TupleValue<TYPE const&> {
+    // This local class provides storage for a value of the specified 'TYPE'
+    // suitable for storing an argument value in one of the 'bdef_Bind_Tuple*'
+    // local classes.  This full specialization for const reference types
+    // simply stores the address of the argument value.
+
+    // PRIVATE INSTANCE DATA
+    const TYPE *d_value;
+
+  public:
+    // CREATORS
+    bdef_Bind_TupleValue(const bdef_Bind_TupleValue<TYPE const&>& original)
+        // Create a 'bdef_Bind_TupleValue' object holding a copy of the
+        // specified 'original' reference.
+    : d_value(original.d_value)
+    {
+    }
+
+    bdef_Bind_TupleValue(const TYPE& value)
+        // Create a 'bdef_Bind_TupleValue' object holding the address of the
+        // specified 'value'.
+    : d_value(&value)
+    {
+    }
+
+    // MANIPULATORS
+    const TYPE& value() { return *d_value; }
+        // Return a reference to the non-modifiable object held by this proxy.
+
+    // ACCESSORS
+    const TYPE& value() const { return *d_value; }
+        // Return a reference to the non-modifiable object held by this proxy.
+};
+
+                           // ======================
+                           // class bdef_Bind_Tuple*
+                           // ======================
+
+struct bdef_Bind_Tuple0 : public bslmf_TypeList0
+{
+    // This 'struct' provides the creators for a list of zero arguments.
+
+    // CREATORS
+    bdef_Bind_Tuple0()
+    {}
+
+    bdef_Bind_Tuple0(const bdef_Bind_Tuple0&)
+    {
+    }
+};
+
+template <class A1>
+struct bdef_Bind_Tuple1 : public bslmf_TypeList1<A1>
+{
+    // This 'struct' stores a list of one argument.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1> d_a1;
+
+    // CREATORS
+    bdef_Bind_Tuple1(const bdef_Bind_Tuple1<A1>&  orig)
+    : d_a1(orig.d_a1)
+    {
+    }
+
+    bdef_Bind_Tuple1(FA1 a1)
+    : d_a1(a1)
+    {
+    }
+};
+
+template <class A1, class A2>
+struct bdef_Bind_Tuple2 : public bslmf_TypeList2<A1,A2>
+{
+    // This 'struct' stores a list of two arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1> d_a1;
+    bdef_Bind_TupleValue<FA2> d_a2;
+
+    // CREATORS
+    bdef_Bind_Tuple2(const bdef_Bind_Tuple2<A1,A2>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    {
+    }
+
+    bdef_Bind_Tuple2(FA1 a1, FA2 a2)
+    : d_a1(a1)
+    , d_a2(a2)
+    {
+    }
+};
+
+template <class A1, class A2, class A3>
+struct bdef_Bind_Tuple3 : public bslmf_TypeList3<A1,A2,A3>
+{
+    // This 'struct' stores a list of three arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1> d_a1;
+    bdef_Bind_TupleValue<FA2> d_a2;
+    bdef_Bind_TupleValue<FA3> d_a3;
+
+    // CREATORS
+    bdef_Bind_Tuple3(const bdef_Bind_Tuple3<A1,A2,A3>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    {
+    }
+
+    bdef_Bind_Tuple3(FA1 a1, FA2 a2, FA3 a3)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4>
+struct bdef_Bind_Tuple4 : public bslmf_TypeList4<A1,A2,A3,A4>
+{
+    // This 'struct' stores a list of four arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1> d_a1;
+    bdef_Bind_TupleValue<FA2> d_a2;
+    bdef_Bind_TupleValue<FA3> d_a3;
+    bdef_Bind_TupleValue<FA4> d_a4;
+
+    // CREATORS
+    bdef_Bind_Tuple4(const bdef_Bind_Tuple4<A1,A2,A3,A4>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    {
+    }
+
+    bdef_Bind_Tuple4(FA1 a1, FA2 a2, FA3 a3, FA4 a4)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4, class A5>
+struct bdef_Bind_Tuple5 : public bslmf_TypeList5<A1,A2,A3,A4,A5>
+{
+    // This 'struct' stores a list of five arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1> d_a1;
+    bdef_Bind_TupleValue<FA2> d_a2;
+    bdef_Bind_TupleValue<FA3> d_a3;
+    bdef_Bind_TupleValue<FA4> d_a4;
+    bdef_Bind_TupleValue<FA5> d_a5;
+
+    // CREATORS
+    bdef_Bind_Tuple5(const bdef_Bind_Tuple5<A1,A2,A3,A4,A5>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    , d_a5(orig.d_a5)
+    {
+    }
+
+    bdef_Bind_Tuple5(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    , d_a5(a5)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4, class A5, class A6>
+struct bdef_Bind_Tuple6 : public bslmf_TypeList6<A1,A2,A3,A4,A5,A6>
+{
+    // This 'struct' stores a list of six arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
+    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1> d_a1;
+    bdef_Bind_TupleValue<FA2> d_a2;
+    bdef_Bind_TupleValue<FA3> d_a3;
+    bdef_Bind_TupleValue<FA4> d_a4;
+    bdef_Bind_TupleValue<FA5> d_a5;
+    bdef_Bind_TupleValue<FA6> d_a6;
+
+    // CREATORS
+    bdef_Bind_Tuple6(const bdef_Bind_Tuple6<A1,A2,A3,A4,A5,A6>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    , d_a5(orig.d_a5)
+    , d_a6(orig.d_a6)
+    {
+    }
+
+    bdef_Bind_Tuple6(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    , d_a5(a5)
+    , d_a6(a6)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+struct bdef_Bind_Tuple7 : public bslmf_TypeList7<A1,A2,A3,A4,A5,A6,A7>
+{
+    // This 'struct' stores a list of seven arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
+    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
+    typedef typename bslmf_ConstForwardingType<A7>::Type FA7;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1> d_a1;
+    bdef_Bind_TupleValue<FA2> d_a2;
+    bdef_Bind_TupleValue<FA3> d_a3;
+    bdef_Bind_TupleValue<FA4> d_a4;
+    bdef_Bind_TupleValue<FA5> d_a5;
+    bdef_Bind_TupleValue<FA6> d_a6;
+    bdef_Bind_TupleValue<FA7> d_a7;
+
+    // CREATORS
+    inline
+    bdef_Bind_Tuple7(const bdef_Bind_Tuple7<A1,A2,A3,A4,A5,A6,A7>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    , d_a5(orig.d_a5)
+    , d_a6(orig.d_a6)
+    , d_a7(orig.d_a7)
+    {
+    }
+
+    bdef_Bind_Tuple7(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
+                     FA7 a7)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    , d_a5(a5)
+    , d_a6(a6)
+    , d_a7(a7)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8>
+struct bdef_Bind_Tuple8 : public bslmf_TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
+{
+    // This 'struct' stores a list of eight arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
+    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
+    typedef typename bslmf_ConstForwardingType<A7>::Type FA7;
+    typedef typename bslmf_ConstForwardingType<A8>::Type FA8;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1> d_a1;
+    bdef_Bind_TupleValue<FA2> d_a2;
+    bdef_Bind_TupleValue<FA3> d_a3;
+    bdef_Bind_TupleValue<FA4> d_a4;
+    bdef_Bind_TupleValue<FA5> d_a5;
+    bdef_Bind_TupleValue<FA6> d_a6;
+    bdef_Bind_TupleValue<FA7> d_a7;
+    bdef_Bind_TupleValue<FA8> d_a8;
+
+    // CREATORS
+    inline
+    bdef_Bind_Tuple8(const bdef_Bind_Tuple8<A1,A2,A3,A4,A5,A6,A7,A8>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    , d_a5(orig.d_a5)
+    , d_a6(orig.d_a6)
+    , d_a7(orig.d_a7)
+    , d_a8(orig.d_a8)
+    {
+    }
+
+    bdef_Bind_Tuple8(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
+                     FA7 a7, FA8 a8)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    , d_a5(a5)
+    , d_a6(a6)
+    , d_a7(a7)
+    , d_a8(a8)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9>
+struct bdef_Bind_Tuple9 : public bslmf_TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
+{
+    // This 'struct' stores a list of nine arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
+    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
+    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
+    typedef typename bslmf_ConstForwardingType<A7>::Type FA7;
+    typedef typename bslmf_ConstForwardingType<A8>::Type FA8;
+    typedef typename bslmf_ConstForwardingType<A9>::Type FA9;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1> d_a1;
+    bdef_Bind_TupleValue<FA2> d_a2;
+    bdef_Bind_TupleValue<FA3> d_a3;
+    bdef_Bind_TupleValue<FA4> d_a4;
+    bdef_Bind_TupleValue<FA5> d_a5;
+    bdef_Bind_TupleValue<FA6> d_a6;
+    bdef_Bind_TupleValue<FA7> d_a7;
+    bdef_Bind_TupleValue<FA8> d_a8;
+    bdef_Bind_TupleValue<FA9> d_a9;
+
+    // CREATORS
+    inline
+    bdef_Bind_Tuple9(const bdef_Bind_Tuple9<A1,A2,A3,A4,A5,A6,A7,A8,A9>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    , d_a5(orig.d_a5)
+    , d_a6(orig.d_a6)
+    , d_a7(orig.d_a7)
+    , d_a8(orig.d_a8)
+    , d_a9(orig.d_a9)
+    {
+    }
+
+    bdef_Bind_Tuple9(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
+                     FA7 a7, FA8 a8, FA9 a9)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    , d_a5(a5)
+    , d_a6(a6)
+    , d_a7(a7)
+    , d_a8(a8)
+    , d_a9(a9)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10>
+struct bdef_Bind_Tuple10 : public bslmf_TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                   A10>
+{
+    // This 'struct' stores a list of ten arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
+    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
+    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
+    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
+    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
+    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
+    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1>  d_a1;
+    bdef_Bind_TupleValue<FA2>  d_a2;
+    bdef_Bind_TupleValue<FA3>  d_a3;
+    bdef_Bind_TupleValue<FA4>  d_a4;
+    bdef_Bind_TupleValue<FA5>  d_a5;
+    bdef_Bind_TupleValue<FA6>  d_a6;
+    bdef_Bind_TupleValue<FA7>  d_a7;
+    bdef_Bind_TupleValue<FA8>  d_a8;
+    bdef_Bind_TupleValue<FA9>  d_a9;
+    bdef_Bind_TupleValue<FA10> d_a10;
+
+    // CREATORS
+    bdef_Bind_Tuple10(const bdef_Bind_Tuple10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                             A10>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    , d_a5(orig.d_a5)
+    , d_a6(orig.d_a6)
+    , d_a7(orig.d_a7)
+    , d_a8(orig.d_a8)
+    , d_a9(orig.d_a9)
+    , d_a10(orig.d_a10)
+    {
+    }
+
+    bdef_Bind_Tuple10(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
+                      FA7 a7, FA8 a8, FA9 a9, FA10 a10)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    , d_a5(a5)
+    , d_a6(a6)
+    , d_a7(a7)
+    , d_a8(a8)
+    , d_a9(a9)
+    , d_a10(a10)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10, class A11>
+struct bdef_Bind_Tuple11 : public bslmf_TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                   A10,A11>
+{
+    // This 'struct' stores a list of eleven arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
+    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
+    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
+    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
+    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
+    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
+    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
+    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1>  d_a1;
+    bdef_Bind_TupleValue<FA2>  d_a2;
+    bdef_Bind_TupleValue<FA3>  d_a3;
+    bdef_Bind_TupleValue<FA4>  d_a4;
+    bdef_Bind_TupleValue<FA5>  d_a5;
+    bdef_Bind_TupleValue<FA6>  d_a6;
+    bdef_Bind_TupleValue<FA7>  d_a7;
+    bdef_Bind_TupleValue<FA8>  d_a8;
+    bdef_Bind_TupleValue<FA9>  d_a9;
+    bdef_Bind_TupleValue<FA10> d_a10;
+    bdef_Bind_TupleValue<FA11> d_a11;
+
+    // CREATORS
+    bdef_Bind_Tuple11(const bdef_Bind_Tuple11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                              A10,A11>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    , d_a5(orig.d_a5)
+    , d_a6(orig.d_a6)
+    , d_a7(orig.d_a7)
+    , d_a8(orig.d_a8)
+    , d_a9(orig.d_a9)
+    , d_a10(orig.d_a10)
+    , d_a11(orig.d_a11)
+    {
+    }
+
+    bdef_Bind_Tuple11(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
+                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    , d_a5(a5)
+    , d_a6(a6)
+    , d_a7(a7)
+    , d_a8(a8)
+    , d_a9(a9)
+    , d_a10(a10)
+    , d_a11(a11)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10, class A11, class A12>
+struct bdef_Bind_Tuple12 : public bslmf_TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                   A10,A11,A12>
+{
+    // This 'struct' stores a list of twelve arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
+    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
+    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
+    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
+    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
+    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
+    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
+    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
+    typedef typename bslmf_ConstForwardingType<A12>::Type FA12;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1>  d_a1;
+    bdef_Bind_TupleValue<FA2>  d_a2;
+    bdef_Bind_TupleValue<FA3>  d_a3;
+    bdef_Bind_TupleValue<FA4>  d_a4;
+    bdef_Bind_TupleValue<FA5>  d_a5;
+    bdef_Bind_TupleValue<FA6>  d_a6;
+    bdef_Bind_TupleValue<FA7>  d_a7;
+    bdef_Bind_TupleValue<FA8>  d_a8;
+    bdef_Bind_TupleValue<FA9>  d_a9;
+    bdef_Bind_TupleValue<FA10> d_a10;
+    bdef_Bind_TupleValue<FA11> d_a11;
+    bdef_Bind_TupleValue<FA12> d_a12;
+
+    // CREATORS
+    bdef_Bind_Tuple12(const bdef_Bind_Tuple12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                              A10,A11,A12>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    , d_a5(orig.d_a5)
+    , d_a6(orig.d_a6)
+    , d_a7(orig.d_a7)
+    , d_a8(orig.d_a8)
+    , d_a9(orig.d_a9)
+    , d_a10(orig.d_a10)
+    , d_a11(orig.d_a11)
+    , d_a12(orig.d_a12)
+    {
+    }
+
+    bdef_Bind_Tuple12(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
+                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11,
+                      FA12 a12)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    , d_a5(a5)
+    , d_a6(a6)
+    , d_a7(a7)
+    , d_a8(a8)
+    , d_a9(a9)
+    , d_a10(a10)
+    , d_a11(a11)
+    , d_a12(a12)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10, class A11, class A12, class A13>
+struct bdef_Bind_Tuple13 : public bslmf_TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                   A10,A11,A12,A13>
+{
+    // This 'struct' stores a list of thirteen arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
+    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
+    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
+    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
+    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
+    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
+    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
+    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
+    typedef typename bslmf_ConstForwardingType<A12>::Type FA12;
+    typedef typename bslmf_ConstForwardingType<A13>::Type FA13;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1>  d_a1;
+    bdef_Bind_TupleValue<FA2>  d_a2;
+    bdef_Bind_TupleValue<FA3>  d_a3;
+    bdef_Bind_TupleValue<FA4>  d_a4;
+    bdef_Bind_TupleValue<FA5>  d_a5;
+    bdef_Bind_TupleValue<FA6>  d_a6;
+    bdef_Bind_TupleValue<FA7>  d_a7;
+    bdef_Bind_TupleValue<FA8>  d_a8;
+    bdef_Bind_TupleValue<FA9>  d_a9;
+    bdef_Bind_TupleValue<FA10> d_a10;
+    bdef_Bind_TupleValue<FA11> d_a11;
+    bdef_Bind_TupleValue<FA12> d_a12;
+    bdef_Bind_TupleValue<FA13> d_a13;
+
+    // CREATORS
+    bdef_Bind_Tuple13(const bdef_Bind_Tuple13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                              A10,A11,A12,A13>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    , d_a5(orig.d_a5)
+    , d_a6(orig.d_a6)
+    , d_a7(orig.d_a7)
+    , d_a8(orig.d_a8)
+    , d_a9(orig.d_a9)
+    , d_a10(orig.d_a10)
+    , d_a11(orig.d_a11)
+    , d_a12(orig.d_a12)
+    , d_a13(orig.d_a13)
+    {
+    }
+
+    bdef_Bind_Tuple13(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
+                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11,
+                      FA12 a12, FA13 a13)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    , d_a5(a5)
+    , d_a6(a6)
+    , d_a7(a7)
+    , d_a8(a8)
+    , d_a9(a9)
+    , d_a10(a10)
+    , d_a11(a11)
+    , d_a12(a12)
+    , d_a13(a13)
+    {
+    }
+};
+
+template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
+          class A8, class A9, class A10, class A11, class A12, class A13,
+          class A14>
+struct bdef_Bind_Tuple14 : public bslmf_TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                                   A10,A11,A12,A13,A14>
+{
+    // This 'struct' stores a list of fourteen arguments.
+
+    // TYPES
+    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
+    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
+    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
+    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
+    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
+    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
+    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
+    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
+    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
+    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
+    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
+    typedef typename bslmf_ConstForwardingType<A12>::Type FA12;
+    typedef typename bslmf_ConstForwardingType<A13>::Type FA13;
+    typedef typename bslmf_ConstForwardingType<A14>::Type FA14;
+
+    // INSTANCE DATA
+    bdef_Bind_TupleValue<FA1>  d_a1;
+    bdef_Bind_TupleValue<FA2>  d_a2;
+    bdef_Bind_TupleValue<FA3>  d_a3;
+    bdef_Bind_TupleValue<FA4>  d_a4;
+    bdef_Bind_TupleValue<FA5>  d_a5;
+    bdef_Bind_TupleValue<FA6>  d_a6;
+    bdef_Bind_TupleValue<FA7>  d_a7;
+    bdef_Bind_TupleValue<FA8>  d_a8;
+    bdef_Bind_TupleValue<FA9>  d_a9;
+    bdef_Bind_TupleValue<FA10> d_a10;
+    bdef_Bind_TupleValue<FA11> d_a11;
+    bdef_Bind_TupleValue<FA12> d_a12;
+    bdef_Bind_TupleValue<FA13> d_a13;
+    bdef_Bind_TupleValue<FA14> d_a14;
+
+    // CREATORS
+    bdef_Bind_Tuple14(const bdef_Bind_Tuple14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
+                                              A10,A11,A12,A13,A14>& orig)
+    : d_a1(orig.d_a1)
+    , d_a2(orig.d_a2)
+    , d_a3(orig.d_a3)
+    , d_a4(orig.d_a4)
+    , d_a5(orig.d_a5)
+    , d_a6(orig.d_a6)
+    , d_a7(orig.d_a7)
+    , d_a8(orig.d_a8)
+    , d_a9(orig.d_a9)
+    , d_a10(orig.d_a10)
+    , d_a11(orig.d_a11)
+    , d_a12(orig.d_a12)
+    , d_a13(orig.d_a13)
+    , d_a14(orig.d_a14)
+    {
+    }
+
+    bdef_Bind_Tuple14(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
+                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11,
+                      FA12 a12, FA13 a13, FA14 a14)
+    : d_a1(a1)
+    , d_a2(a2)
+    , d_a3(a3)
+    , d_a4(a4)
+    , d_a5(a5)
+    , d_a6(a6)
+    , d_a7(a7)
+    , d_a8(a8)
+    , d_a9(a9)
+    , d_a10(a10)
+    , d_a11(a11)
+    , d_a12(a12)
+    , d_a13(a13)
+    , d_a14(a14)
+    {
+    }
+};
 
                           // ====================
                           // class bdef_Bind_Impl
@@ -3267,112 +4212,9 @@ struct bdef_Bind_CalcParameterMask {
 
 #undef BDEF_BIND_PARAMINDEX
 
-                          // ===============================
-                          // class bdef_Bind_BoundTupleValue
-                          // ===============================
-
-// IMPLEMENTATION NOTE: This class template, as well as the
-// 'bdef_bind_BoundTuple[0-14]' class templates, are always instantiated with
-// template argument 'TYPE'.  'TYPE' is one of the 'A[0-14]' template
-// parameters for 'bdef_bind_BoundTuple[0-14]'.  Since 'TYPE' is *not* a
-// reference or const types, it is always appropriate to take any value of
-// these types by 'const&' to avoid unnecessary copies until the only one and
-// final copy is done in the constructor proxy.
-
-template <class TYPE>
-class bdef_Bind_BoundTupleValue {
-    // This local class provides storage for a value of the specified 'TYPE'
-    // suitable for storing an argument value in one of the 'bdef_Bind_Tuple*'
-    // local classes.  This general template definition ensures that the
-    // allocator passed to the creators is passed through to the value if it
-    // uses an allocator, using the 'bslalg_ConstructorProxy' mechanism.
-
-    // PRIVATE TYPES
-    typedef typename bslmf_ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
-
-    // PRIVATE INSTANCE DATA
-    bslalg_ConstructorProxy<STORAGE_TYPE> d_value;
-
-  public:
-    // CREATORS
-    bdef_Bind_BoundTupleValue(
-                        const bdef_Bind_BoundTupleValue<TYPE>&  original,
-                        bslma_Allocator                        *basicAllocator)
-        // Create a 'bdef_Bind_BoundTupleValue' object holding a copy of the
-        // specified 'original' value, using 'basicAllocator' to supply any
-        // memory.
-    : d_value(original.d_value, basicAllocator)
-    {
-    }
-
-    bdef_Bind_BoundTupleValue(const TYPE&      value,
-                              bslma_Allocator *basicAllocator)
-        // Create a 'bdef_Bind_BoundTupleValue' object holding a copy of the
-        // specified 'value', using 'basicAllocator' to supply any memory.
-    : d_value(value, basicAllocator)
-    {
-    }
-
-    template <class BDE_OTHER_TYPE>
-    bdef_Bind_BoundTupleValue(const BDE_OTHER_TYPE&  value,
-                              bslma_Allocator       *basicAllocator)
-        // Create a 'bdef_Bind_BoundTupleValue' object holding a copy of the
-        // specified 'value', using 'basicAllocator' to supply any memory.
-    : d_value(value, basicAllocator)
-    {
-    }
-
-    // MANIPULATORS
-    STORAGE_TYPE& value() { return d_value.object(); }
-        // Return a reference to the modifiable object held by this proxy.
-
-    // ACCESSORS
-    const STORAGE_TYPE& value() const { return d_value.object(); }
-        // Return a reference to the non-modifiable object held by this proxy.
-};
-
                            // ===========================
                            // class bdef_Bind_BoundTuple*
                            // ===========================
-
-struct bdef_Bind_BoundTuple0 : public bslmf_TypeList0 {
-    // This 'struct' provides the creators for a list of zero arguments.
-
-    // CREATORS
-    bdef_Bind_BoundTuple0()
-    {
-    }
-
-    bdef_Bind_BoundTuple0(const bdef_Bind_BoundTuple0&  original,
-                          bslma_Allocator              *allocator = 0)
-    {
-        (void) original;
-        (void) allocator;
-    }
-};
-
-template <class A1>
-struct bdef_Bind_BoundTuple1 : public bslmf_TypeList1<A1>
-{
-    // This 'struct' stores a list of one argument.  It does *not* use the
-    // const-forwarding type of its argument, unlike 'bdef_Bind_Tuple1'
-    // which applies that optimization to avoid unnecessary copying.
-
-    // INSTANCE DATA
-    bdef_Bind_BoundTupleValue<A1> d_a1;
-
-    // CREATORS
-    bdef_Bind_BoundTuple1(const bdef_Bind_BoundTuple1<A1>& orig,
-                          bslma_Allocator                *allocator = 0)
-    : d_a1(orig.d_a1, allocator)
-    {
-    }
-
-    bdef_Bind_BoundTuple1(A1 const& a1, bslma_Allocator *allocator = 0)
-    : d_a1(a1, allocator)
-    {
-    }
-};
 
 template <class A1, class A2>
 struct bdef_Bind_BoundTuple2 : public bslmf_TypeList2<A1,A2>
@@ -4006,853 +4848,6 @@ struct bdef_Bind_BoundTuple14 : public bslmf_TypeList14<A1,A2,A3,A4,A5,A6,A7,
     }
 };
 
-                          // ==========================
-                          // class bdef_Bind_TupleValue
-                          // ==========================
-
-template <class TYPE>
-class bdef_Bind_TupleValue {
-    // This local class provides storage for a value of the specified 'TYPE'
-    // suitable for storing an argument value in one of the
-    // 'bdef_Bind_Tuple[0-14]' local classes.  'TYPE' must already be a
-    // 'bslmf_ForwardingType', meaning no extra copies will be made (unless the
-    // type is a fundamental type, which is meant to be copied for efficiency).
-
-    // PRIVATE TYPES
-    typedef typename bslmf_ArrayToConstPointer<TYPE>::Type STORAGE_TYPE;
-
-    // PRIVATE INSTANCE DATA
-    STORAGE_TYPE d_value;
-
-  public:
-    // CREATORS
-    bdef_Bind_TupleValue(const bdef_Bind_TupleValue<TYPE>&  original)
-        // Create a 'bdef_Bind_TupleValue' object holding a copy of the
-        // specified 'original' value.
-    : d_value(original.d_value)
-    {
-    }
-
-    bdef_Bind_TupleValue(TYPE value)
-        // Create a 'bdef_Bind_TupleValue' object holding a copy of the
-        // specified 'value'.
-    : d_value(value)
-    {
-    }
-
-    // MANIPULATORS
-    STORAGE_TYPE& value() { return d_value; }
-        // Return a reference to the modifiable object held by this proxy.
-
-    // ACCESSORS
-    const STORAGE_TYPE& value() const { return d_value; }
-        // Return a reference to the non-modifiable object held by this proxy.
-};
-
-template <class TYPE>
-class bdef_Bind_TupleValue<TYPE&> {
-    // This local class provides storage for a value of the specified 'TYPE'
-    // suitable for storing an argument value in one of the 'bdef_Bind_Tuple*'
-    // local classes.  This full specialization for reference types simply
-    // stores the address of the argument value.
-
-    // PRIVATE INSTANCE DATA
-    TYPE *d_value;
-
-  public:
-    // CREATORS
-    bdef_Bind_TupleValue(const bdef_Bind_TupleValue<TYPE&>& original)
-        // Create a 'bdef_Bind_TupleValue' object holding a copy of the
-        // specified 'original' reference.
-    : d_value(original.d_value)
-    {
-    }
-
-    bdef_Bind_TupleValue(TYPE& value)
-        // Create a 'bdef_Bind_TupleValue' object holding the address of the
-        // specified 'value'.
-    : d_value(&value)
-    {
-    }
-
-    // MANIPULATORS
-    TYPE& value() { return *d_value; }
-        // Return a reference to the modifiable object held by this proxy.
-
-    // ACCESSORS
-    const TYPE& value() const { return *d_value; }
-        // Return a reference to the non-modifiable object held by this proxy.
-};
-
-template <class TYPE>
-class bdef_Bind_TupleValue<TYPE const&> {
-    // This local class provides storage for a value of the specified 'TYPE'
-    // suitable for storing an argument value in one of the 'bdef_Bind_Tuple*'
-    // local classes.  This full specialization for const reference types
-    // simply stores the address of the argument value.
-
-    // PRIVATE INSTANCE DATA
-    const TYPE *d_value;
-
-  public:
-    // CREATORS
-    bdef_Bind_TupleValue(const bdef_Bind_TupleValue<TYPE const&>& original)
-        // Create a 'bdef_Bind_TupleValue' object holding a copy of the
-        // specified 'original' reference.
-    : d_value(original.d_value)
-    {
-    }
-
-    bdef_Bind_TupleValue(const TYPE& value)
-        // Create a 'bdef_Bind_TupleValue' object holding the address of the
-        // specified 'value'.
-    : d_value(&value)
-    {
-    }
-
-    // MANIPULATORS
-    const TYPE& value() { return *d_value; }
-        // Return a reference to the non-modifiable object held by this proxy.
-
-    // ACCESSORS
-    const TYPE& value() const { return *d_value; }
-        // Return a reference to the non-modifiable object held by this proxy.
-};
-
-                           // ======================
-                           // class bdef_Bind_Tuple*
-                           // ======================
-
-struct bdef_Bind_Tuple0 : public bslmf_TypeList0
-{
-    // This 'struct' provides the creators for a list of zero arguments.
-
-    // CREATORS
-    bdef_Bind_Tuple0()
-    {}
-
-    bdef_Bind_Tuple0(const bdef_Bind_Tuple0&)
-    {
-    }
-};
-
-template <class A1>
-struct bdef_Bind_Tuple1 : public bslmf_TypeList1<A1>
-{
-    // This 'struct' stores a list of one argument.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1> d_a1;
-
-    // CREATORS
-    bdef_Bind_Tuple1(const bdef_Bind_Tuple1<A1>&  orig)
-    : d_a1(orig.d_a1)
-    {
-    }
-
-    bdef_Bind_Tuple1(FA1 a1)
-    : d_a1(a1)
-    {
-    }
-};
-
-template <class A1, class A2>
-struct bdef_Bind_Tuple2 : public bslmf_TypeList2<A1,A2>
-{
-    // This 'struct' stores a list of two arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1> d_a1;
-    bdef_Bind_TupleValue<FA2> d_a2;
-
-    // CREATORS
-    bdef_Bind_Tuple2(const bdef_Bind_Tuple2<A1,A2>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    {
-    }
-
-    bdef_Bind_Tuple2(FA1 a1, FA2 a2)
-    : d_a1(a1)
-    , d_a2(a2)
-    {
-    }
-};
-
-template <class A1, class A2, class A3>
-struct bdef_Bind_Tuple3 : public bslmf_TypeList3<A1,A2,A3>
-{
-    // This 'struct' stores a list of three arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1> d_a1;
-    bdef_Bind_TupleValue<FA2> d_a2;
-    bdef_Bind_TupleValue<FA3> d_a3;
-
-    // CREATORS
-    bdef_Bind_Tuple3(const bdef_Bind_Tuple3<A1,A2,A3>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    {
-    }
-
-    bdef_Bind_Tuple3(FA1 a1, FA2 a2, FA3 a3)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4>
-struct bdef_Bind_Tuple4 : public bslmf_TypeList4<A1,A2,A3,A4>
-{
-    // This 'struct' stores a list of four arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1> d_a1;
-    bdef_Bind_TupleValue<FA2> d_a2;
-    bdef_Bind_TupleValue<FA3> d_a3;
-    bdef_Bind_TupleValue<FA4> d_a4;
-
-    // CREATORS
-    bdef_Bind_Tuple4(const bdef_Bind_Tuple4<A1,A2,A3,A4>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    {
-    }
-
-    bdef_Bind_Tuple4(FA1 a1, FA2 a2, FA3 a3, FA4 a4)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4, class A5>
-struct bdef_Bind_Tuple5 : public bslmf_TypeList5<A1,A2,A3,A4,A5>
-{
-    // This 'struct' stores a list of five arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1> d_a1;
-    bdef_Bind_TupleValue<FA2> d_a2;
-    bdef_Bind_TupleValue<FA3> d_a3;
-    bdef_Bind_TupleValue<FA4> d_a4;
-    bdef_Bind_TupleValue<FA5> d_a5;
-
-    // CREATORS
-    bdef_Bind_Tuple5(const bdef_Bind_Tuple5<A1,A2,A3,A4,A5>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    , d_a5(orig.d_a5)
-    {
-    }
-
-    bdef_Bind_Tuple5(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    , d_a5(a5)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4, class A5, class A6>
-struct bdef_Bind_Tuple6 : public bslmf_TypeList6<A1,A2,A3,A4,A5,A6>
-{
-    // This 'struct' stores a list of six arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1> d_a1;
-    bdef_Bind_TupleValue<FA2> d_a2;
-    bdef_Bind_TupleValue<FA3> d_a3;
-    bdef_Bind_TupleValue<FA4> d_a4;
-    bdef_Bind_TupleValue<FA5> d_a5;
-    bdef_Bind_TupleValue<FA6> d_a6;
-
-    // CREATORS
-    bdef_Bind_Tuple6(const bdef_Bind_Tuple6<A1,A2,A3,A4,A5,A6>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    , d_a5(orig.d_a5)
-    , d_a6(orig.d_a6)
-    {
-    }
-
-    bdef_Bind_Tuple6(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    , d_a5(a5)
-    , d_a6(a6)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-struct bdef_Bind_Tuple7 : public bslmf_TypeList7<A1,A2,A3,A4,A5,A6,A7>
-{
-    // This 'struct' stores a list of seven arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type FA7;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1> d_a1;
-    bdef_Bind_TupleValue<FA2> d_a2;
-    bdef_Bind_TupleValue<FA3> d_a3;
-    bdef_Bind_TupleValue<FA4> d_a4;
-    bdef_Bind_TupleValue<FA5> d_a5;
-    bdef_Bind_TupleValue<FA6> d_a6;
-    bdef_Bind_TupleValue<FA7> d_a7;
-
-    // CREATORS
-    inline
-    bdef_Bind_Tuple7(const bdef_Bind_Tuple7<A1,A2,A3,A4,A5,A6,A7>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    , d_a5(orig.d_a5)
-    , d_a6(orig.d_a6)
-    , d_a7(orig.d_a7)
-    {
-    }
-
-    bdef_Bind_Tuple7(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                     FA7 a7)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    , d_a5(a5)
-    , d_a6(a6)
-    , d_a7(a7)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8>
-struct bdef_Bind_Tuple8 : public bslmf_TypeList8<A1,A2,A3,A4,A5,A6,A7,A8>
-{
-    // This 'struct' stores a list of eight arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type FA8;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1> d_a1;
-    bdef_Bind_TupleValue<FA2> d_a2;
-    bdef_Bind_TupleValue<FA3> d_a3;
-    bdef_Bind_TupleValue<FA4> d_a4;
-    bdef_Bind_TupleValue<FA5> d_a5;
-    bdef_Bind_TupleValue<FA6> d_a6;
-    bdef_Bind_TupleValue<FA7> d_a7;
-    bdef_Bind_TupleValue<FA8> d_a8;
-
-    // CREATORS
-    inline
-    bdef_Bind_Tuple8(const bdef_Bind_Tuple8<A1,A2,A3,A4,A5,A6,A7,A8>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    , d_a5(orig.d_a5)
-    , d_a6(orig.d_a6)
-    , d_a7(orig.d_a7)
-    , d_a8(orig.d_a8)
-    {
-    }
-
-    bdef_Bind_Tuple8(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                     FA7 a7, FA8 a8)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    , d_a5(a5)
-    , d_a6(a6)
-    , d_a7(a7)
-    , d_a8(a8)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9>
-struct bdef_Bind_Tuple9 : public bslmf_TypeList9<A1,A2,A3,A4,A5,A6,A7,A8,A9>
-{
-    // This 'struct' stores a list of nine arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type FA9;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1> d_a1;
-    bdef_Bind_TupleValue<FA2> d_a2;
-    bdef_Bind_TupleValue<FA3> d_a3;
-    bdef_Bind_TupleValue<FA4> d_a4;
-    bdef_Bind_TupleValue<FA5> d_a5;
-    bdef_Bind_TupleValue<FA6> d_a6;
-    bdef_Bind_TupleValue<FA7> d_a7;
-    bdef_Bind_TupleValue<FA8> d_a8;
-    bdef_Bind_TupleValue<FA9> d_a9;
-
-    // CREATORS
-    inline
-    bdef_Bind_Tuple9(const bdef_Bind_Tuple9<A1,A2,A3,A4,A5,A6,A7,A8,A9>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    , d_a5(orig.d_a5)
-    , d_a6(orig.d_a6)
-    , d_a7(orig.d_a7)
-    , d_a8(orig.d_a8)
-    , d_a9(orig.d_a9)
-    {
-    }
-
-    bdef_Bind_Tuple9(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                     FA7 a7, FA8 a8, FA9 a9)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    , d_a5(a5)
-    , d_a6(a6)
-    , d_a7(a7)
-    , d_a8(a8)
-    , d_a9(a9)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10>
-struct bdef_Bind_Tuple10 : public bslmf_TypeList10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                   A10>
-{
-    // This 'struct' stores a list of ten arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1>  d_a1;
-    bdef_Bind_TupleValue<FA2>  d_a2;
-    bdef_Bind_TupleValue<FA3>  d_a3;
-    bdef_Bind_TupleValue<FA4>  d_a4;
-    bdef_Bind_TupleValue<FA5>  d_a5;
-    bdef_Bind_TupleValue<FA6>  d_a6;
-    bdef_Bind_TupleValue<FA7>  d_a7;
-    bdef_Bind_TupleValue<FA8>  d_a8;
-    bdef_Bind_TupleValue<FA9>  d_a9;
-    bdef_Bind_TupleValue<FA10> d_a10;
-
-    // CREATORS
-    bdef_Bind_Tuple10(const bdef_Bind_Tuple10<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                             A10>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    , d_a5(orig.d_a5)
-    , d_a6(orig.d_a6)
-    , d_a7(orig.d_a7)
-    , d_a8(orig.d_a8)
-    , d_a9(orig.d_a9)
-    , d_a10(orig.d_a10)
-    {
-    }
-
-    bdef_Bind_Tuple10(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                      FA7 a7, FA8 a8, FA9 a9, FA10 a10)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    , d_a5(a5)
-    , d_a6(a6)
-    , d_a7(a7)
-    , d_a8(a8)
-    , d_a9(a9)
-    , d_a10(a10)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10, class A11>
-struct bdef_Bind_Tuple11 : public bslmf_TypeList11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                   A10,A11>
-{
-    // This 'struct' stores a list of eleven arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1>  d_a1;
-    bdef_Bind_TupleValue<FA2>  d_a2;
-    bdef_Bind_TupleValue<FA3>  d_a3;
-    bdef_Bind_TupleValue<FA4>  d_a4;
-    bdef_Bind_TupleValue<FA5>  d_a5;
-    bdef_Bind_TupleValue<FA6>  d_a6;
-    bdef_Bind_TupleValue<FA7>  d_a7;
-    bdef_Bind_TupleValue<FA8>  d_a8;
-    bdef_Bind_TupleValue<FA9>  d_a9;
-    bdef_Bind_TupleValue<FA10> d_a10;
-    bdef_Bind_TupleValue<FA11> d_a11;
-
-    // CREATORS
-    bdef_Bind_Tuple11(const bdef_Bind_Tuple11<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                              A10,A11>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    , d_a5(orig.d_a5)
-    , d_a6(orig.d_a6)
-    , d_a7(orig.d_a7)
-    , d_a8(orig.d_a8)
-    , d_a9(orig.d_a9)
-    , d_a10(orig.d_a10)
-    , d_a11(orig.d_a11)
-    {
-    }
-
-    bdef_Bind_Tuple11(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    , d_a5(a5)
-    , d_a6(a6)
-    , d_a7(a7)
-    , d_a8(a8)
-    , d_a9(a9)
-    , d_a10(a10)
-    , d_a11(a11)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10, class A11, class A12>
-struct bdef_Bind_Tuple12 : public bslmf_TypeList12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                   A10,A11,A12>
-{
-    // This 'struct' stores a list of twelve arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
-    typedef typename bslmf_ConstForwardingType<A12>::Type FA12;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1>  d_a1;
-    bdef_Bind_TupleValue<FA2>  d_a2;
-    bdef_Bind_TupleValue<FA3>  d_a3;
-    bdef_Bind_TupleValue<FA4>  d_a4;
-    bdef_Bind_TupleValue<FA5>  d_a5;
-    bdef_Bind_TupleValue<FA6>  d_a6;
-    bdef_Bind_TupleValue<FA7>  d_a7;
-    bdef_Bind_TupleValue<FA8>  d_a8;
-    bdef_Bind_TupleValue<FA9>  d_a9;
-    bdef_Bind_TupleValue<FA10> d_a10;
-    bdef_Bind_TupleValue<FA11> d_a11;
-    bdef_Bind_TupleValue<FA12> d_a12;
-
-    // CREATORS
-    bdef_Bind_Tuple12(const bdef_Bind_Tuple12<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                              A10,A11,A12>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    , d_a5(orig.d_a5)
-    , d_a6(orig.d_a6)
-    , d_a7(orig.d_a7)
-    , d_a8(orig.d_a8)
-    , d_a9(orig.d_a9)
-    , d_a10(orig.d_a10)
-    , d_a11(orig.d_a11)
-    , d_a12(orig.d_a12)
-    {
-    }
-
-    bdef_Bind_Tuple12(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11,
-                      FA12 a12)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    , d_a5(a5)
-    , d_a6(a6)
-    , d_a7(a7)
-    , d_a8(a8)
-    , d_a9(a9)
-    , d_a10(a10)
-    , d_a11(a11)
-    , d_a12(a12)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10, class A11, class A12, class A13>
-struct bdef_Bind_Tuple13 : public bslmf_TypeList13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                   A10,A11,A12,A13>
-{
-    // This 'struct' stores a list of thirteen arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
-    typedef typename bslmf_ConstForwardingType<A12>::Type FA12;
-    typedef typename bslmf_ConstForwardingType<A13>::Type FA13;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1>  d_a1;
-    bdef_Bind_TupleValue<FA2>  d_a2;
-    bdef_Bind_TupleValue<FA3>  d_a3;
-    bdef_Bind_TupleValue<FA4>  d_a4;
-    bdef_Bind_TupleValue<FA5>  d_a5;
-    bdef_Bind_TupleValue<FA6>  d_a6;
-    bdef_Bind_TupleValue<FA7>  d_a7;
-    bdef_Bind_TupleValue<FA8>  d_a8;
-    bdef_Bind_TupleValue<FA9>  d_a9;
-    bdef_Bind_TupleValue<FA10> d_a10;
-    bdef_Bind_TupleValue<FA11> d_a11;
-    bdef_Bind_TupleValue<FA12> d_a12;
-    bdef_Bind_TupleValue<FA13> d_a13;
-
-    // CREATORS
-    bdef_Bind_Tuple13(const bdef_Bind_Tuple13<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                              A10,A11,A12,A13>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    , d_a5(orig.d_a5)
-    , d_a6(orig.d_a6)
-    , d_a7(orig.d_a7)
-    , d_a8(orig.d_a8)
-    , d_a9(orig.d_a9)
-    , d_a10(orig.d_a10)
-    , d_a11(orig.d_a11)
-    , d_a12(orig.d_a12)
-    , d_a13(orig.d_a13)
-    {
-    }
-
-    bdef_Bind_Tuple13(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11,
-                      FA12 a12, FA13 a13)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    , d_a5(a5)
-    , d_a6(a6)
-    , d_a7(a7)
-    , d_a8(a8)
-    , d_a9(a9)
-    , d_a10(a10)
-    , d_a11(a11)
-    , d_a12(a12)
-    , d_a13(a13)
-    {
-    }
-};
-
-template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
-          class A8, class A9, class A10, class A11, class A12, class A13,
-          class A14>
-struct bdef_Bind_Tuple14 : public bslmf_TypeList14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                                   A10,A11,A12,A13,A14>
-{
-    // This 'struct' stores a list of fourteen arguments.
-
-    // TYPES
-    typedef typename bslmf_ConstForwardingType<A1>::Type  FA1;
-    typedef typename bslmf_ConstForwardingType<A2>::Type  FA2;
-    typedef typename bslmf_ConstForwardingType<A3>::Type  FA3;
-    typedef typename bslmf_ConstForwardingType<A4>::Type  FA4;
-    typedef typename bslmf_ConstForwardingType<A5>::Type  FA5;
-    typedef typename bslmf_ConstForwardingType<A6>::Type  FA6;
-    typedef typename bslmf_ConstForwardingType<A7>::Type  FA7;
-    typedef typename bslmf_ConstForwardingType<A8>::Type  FA8;
-    typedef typename bslmf_ConstForwardingType<A9>::Type  FA9;
-    typedef typename bslmf_ConstForwardingType<A10>::Type FA10;
-    typedef typename bslmf_ConstForwardingType<A11>::Type FA11;
-    typedef typename bslmf_ConstForwardingType<A12>::Type FA12;
-    typedef typename bslmf_ConstForwardingType<A13>::Type FA13;
-    typedef typename bslmf_ConstForwardingType<A14>::Type FA14;
-
-    // INSTANCE DATA
-    bdef_Bind_TupleValue<FA1>  d_a1;
-    bdef_Bind_TupleValue<FA2>  d_a2;
-    bdef_Bind_TupleValue<FA3>  d_a3;
-    bdef_Bind_TupleValue<FA4>  d_a4;
-    bdef_Bind_TupleValue<FA5>  d_a5;
-    bdef_Bind_TupleValue<FA6>  d_a6;
-    bdef_Bind_TupleValue<FA7>  d_a7;
-    bdef_Bind_TupleValue<FA8>  d_a8;
-    bdef_Bind_TupleValue<FA9>  d_a9;
-    bdef_Bind_TupleValue<FA10> d_a10;
-    bdef_Bind_TupleValue<FA11> d_a11;
-    bdef_Bind_TupleValue<FA12> d_a12;
-    bdef_Bind_TupleValue<FA13> d_a13;
-    bdef_Bind_TupleValue<FA14> d_a14;
-
-    // CREATORS
-    bdef_Bind_Tuple14(const bdef_Bind_Tuple14<A1,A2,A3,A4,A5,A6,A7,A8,A9,
-                                              A10,A11,A12,A13,A14>& orig)
-    : d_a1(orig.d_a1)
-    , d_a2(orig.d_a2)
-    , d_a3(orig.d_a3)
-    , d_a4(orig.d_a4)
-    , d_a5(orig.d_a5)
-    , d_a6(orig.d_a6)
-    , d_a7(orig.d_a7)
-    , d_a8(orig.d_a8)
-    , d_a9(orig.d_a9)
-    , d_a10(orig.d_a10)
-    , d_a11(orig.d_a11)
-    , d_a12(orig.d_a12)
-    , d_a13(orig.d_a13)
-    , d_a14(orig.d_a14)
-    {
-    }
-
-    bdef_Bind_Tuple14(FA1 a1, FA2 a2, FA3 a3, FA4 a4, FA5 a5, FA6 a6,
-                      FA7 a7, FA8 a8, FA9 a9, FA10 a10, FA11 a11,
-                      FA12 a12, FA13 a13, FA14 a14)
-    : d_a1(a1)
-    , d_a2(a2)
-    , d_a3(a3)
-    , d_a4(a4)
-    , d_a5(a5)
-    , d_a6(a6)
-    , d_a7(a7)
-    , d_a8(a8)
-    , d_a9(a9)
-    , d_a10(a10)
-    , d_a11(a11)
-    , d_a12(a12)
-    , d_a13(a13)
-    , d_a14(a14)
-    {
-    }
-};
                           // =======================
                           // class bdef_Bind_Invoker
                           // =======================

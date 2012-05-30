@@ -27,68 +27,72 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                        //===========================
-                        // class bslstl_StdExceptUtil
-                        //===========================
+namespace bslstl {
 
-//  CLASS METHODS
+                        //====================
+                        // class StdExceptUtil
+                        //====================
+
+// CLASS METHODS
 BSLSTL_STDEXCEPTUTIL_NORETURN
-void bslstl_StdExceptUtil::throwRuntimeError(const char *message)
+void StdExceptUtil::throwRuntimeError(const char *message)
 {
     BSLS_THROW(std::runtime_error(message));
 }
 
 BSLSTL_STDEXCEPTUTIL_NORETURN
-void bslstl_StdExceptUtil::throwLogicError(const char *message)
+void StdExceptUtil::throwLogicError(const char *message)
 {
     BSLS_THROW(std::logic_error(message));
 }
 
 BSLSTL_STDEXCEPTUTIL_NORETURN
-void bslstl_StdExceptUtil::throwDomainError(const char *message)
+void StdExceptUtil::throwDomainError(const char *message)
 {
     BSLS_THROW(std::domain_error(message));
 }
 
 BSLSTL_STDEXCEPTUTIL_NORETURN
-void bslstl_StdExceptUtil::throwInvalidArgument(const char *message)
+void StdExceptUtil::throwInvalidArgument(const char *message)
 {
     BSLS_THROW(std::invalid_argument(message));
 }
 
 BSLSTL_STDEXCEPTUTIL_NORETURN
-void bslstl_StdExceptUtil::throwLengthError(const char *message)
+void StdExceptUtil::throwLengthError(const char *message)
 {
     BSLS_THROW(std::length_error(message));
 }
 
 BSLSTL_STDEXCEPTUTIL_NORETURN
-void bslstl_StdExceptUtil::throwOutOfRange(const char *message)
+void StdExceptUtil::throwOutOfRange(const char *message)
 {
     BSLS_THROW(std::out_of_range(message));
 }
 
 BSLSTL_STDEXCEPTUTIL_NORETURN
-void bslstl_StdExceptUtil::throwRangeError(const char *message)
+void StdExceptUtil::throwRangeError(const char *message)
 {
     BSLS_THROW(std::range_error(message));
 }
 
 BSLSTL_STDEXCEPTUTIL_NORETURN
-void bslstl_StdExceptUtil::throwOverflowError(const char *message)
+void StdExceptUtil::throwOverflowError(const char *message)
 {
     BSLS_THROW(std::overflow_error(message));
 }
 
 BSLSTL_STDEXCEPTUTIL_NORETURN
-void bslstl_StdExceptUtil::throwUnderflowError(const char *message)
+void StdExceptUtil::throwUnderflowError(const char *message)
 {
     BSLS_THROW(std::underflow_error(message));
 }
 
+}  // close package namespace
+
 #undef BSLSTL_STDEXCEPTUTIL_NORETURN
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

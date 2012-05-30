@@ -13,20 +13,20 @@ BSLS_IDENT("$Id: $")
 // 'bsls_types' instead.
 //
 //@CLASSES:
-//   bsls_PlatformUtil: namespace for platform-neutral type names and API
+//  bsls::PlatformUtil: namespace for platform-neutral type names and API
 //
 //@AUTHOR: John Lakos (jlakos)
 //
 //@SEE_ALSO: bsls_platform, bsls_types
 //
-//@DESCRIPTION: This component provides a namespace for a set of 'typedef's
-// and functions that provide a stable, portable interface to
-// platform-dependent functionality.  In particular, this component supplies
-// portable typenames for signed and unsigned 64-bit integers, and provides
-// compile-time preprocessor macros that characterize the "endian-ness" of the
-// underlying processor on the current platform.  Runtime functionality to
-// return the "endian-ness", and to round up to a multiple of the maximum
-// required alignment for the processor, are also provided.
+//@DESCRIPTION: This component provides a namespace for a set of 'typedef's and
+// functions that provide a stable, portable interface to platform-dependent
+// functionality.  In particular, this component supplies portable typenames
+// for signed and unsigned 64-bit integers, and provides compile-time
+// preprocessor macros that characterize the "endian-ness" of the underlying
+// processor on the current platform.  Runtime functionality to return the
+// "endian-ness", and to round up to a multiple of the maximum required
+// alignment for the processor, are also provided.
 //
 ///Usage
 ///-----
@@ -35,16 +35,16 @@ BSLS_IDENT("$Id: $")
 //
 ///Types
 ///- - -
-// 'bsls_PlatformUtil::Int64' and 'bsls_PlatformUtil::Uint64' identify the
+// 'bsls::PlatformUtil::Int64' and 'bsls::PlatformUtil::Uint64' identify the
 // preferred fundamental types denoting signed and unsigned 64-bit integers,
 // respectively:
 //..
-//  bsls_PlatformUtil::Uint64 stimulus = 787000000000ULL;
+//  bsls::PlatformUtil::Uint64 stimulus = 787000000000ULL;
 //..
 // Clients can use these types in the same way as an 'int'.  Clients can also
 // mix usage with other fundamental integral types:
 //..
-//  bsls_PlatformUtil::Uint64 nationalDebt = 1000000000000ULL;
+//  bsls::PlatformUtil::Uint64 nationalDebt = 1000000000000ULL;
 //  nationalDebt += stimulus;
 //
 //  unsigned int deficitReduction = 1000000000;
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 //
 //  std::cout << "National Debt Level: " << nationalDebt << std::endl;
 //..
-// 'bsls_PlatformUtil::size_type' identifies the preferred integral type
+// 'bsls::PlatformUtil::size_type' identifies the preferred integral type
 // denoting the number of elements in a container, and the number of bytes in a
 // single block of memory supplied by an allocator.  For example, a typical use
 // is as a 'typedef' in an STL container:
@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //    public:
-//      typedef bsls_PlatformUtil::size_type size_type;
+//      typedef bsls::PlatformUtil::size_type size_type;
 //
 //      // ...
 //  };
@@ -72,8 +72,8 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - -
 // The functions:
 //..
-//  bool bsls_PlatformUtil::isLittleEndian();
-//  bool bsls_PlatformUtil::isBigEndian();
+//  bool bsls::PlatformUtil::isLittleEndian();
+//  bool bsls::PlatformUtil::isBigEndian();
 //..
 // encapsulate the capability of determining whether a machine is big- or
 // little-endian across all supported platforms.  In addition, certain
@@ -119,16 +119,18 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                          // ========================
-                          // struct bsls_PlatformUtil
-                          // ========================
+namespace bsls {
 
-struct bsls_PlatformUtil {
+                          // ===================
+                          // struct PlatformUtil
+                          // ===================
+
+struct PlatformUtil {
     // Provide a namespace for a suite of 'typedef's and pure procedures that
     // encapsulate, platform-dependent types and APIs.
 
     // TYPES
-    typedef bsls_Types::size_type size_type;
+    typedef Types::size_type size_type;
         // The alias 'size_type' refers to the preferred type for denoting a
         // number of elements in either 'bslma' allocators or container types.
         // Note that this type is signed, as negative values may make sense in
@@ -138,30 +140,28 @@ struct bsls_PlatformUtil {
         // ('max_size') to determine overflows resulting from converting from
         // one size type to the other.
         //
-        // DEPRECATED: Use 'bsls_Types::size_type' instead.
+        // DEPRECATED: Use 'Types::size_type' instead.
 
-    typedef bsls_Types::UintPtr UintPtr;
-    typedef bsls_Types::IntPtr  IntPtr;
+    typedef Types::UintPtr UintPtr;
+    typedef Types::IntPtr  IntPtr;
         // The aliases 'UintPtr' and 'IntPtr' are guaranteed to have the same
         // size as pointers.
         //
-        // DEPRECATED: Use 'bsls_Types::UintPtr' and 'bsls_Types::IntPtr'
-        // instead.
+        // DEPRECATED: Use 'Types::UintPtr' and 'Types::IntPtr' instead.
 
-    typedef bsls_Types::Int64  Int64;
-    typedef bsls_Types::Uint64 Uint64;
-        // The aliases 'Int64' and 'Uint64' stand for whatever type
-        // 'bsls_Types' implements for the appropriate supported platforms.
+    typedef Types::Int64  Int64;
+    typedef Types::Uint64 Uint64;
+        // The aliases 'Int64' and 'Uint64' stand for whatever type 'Types'
+        // implements for the appropriate supported platforms.
         //
-        // DEPRECATED: Use 'bsls_Types::Int64' and 'bsls_Types::Uint64'
-        // instead.
+        // DEPRECATED: Use 'Types::Int64' and 'Types::Uint64' instead.
 
 #if !defined(BSL_LEGACY) || 1 == BSL_LEGACY
-    typedef bsls_AlignmentUtil::MaxAlignedType MaxAlign;
+    typedef AlignmentUtil::MaxAlignedType MaxAlign;
         // The alias 'MaxAlign' refers to a type that is maximally-aligned on
         // the current platform.
         //
-        // DEPRECATED: Use 'bsls_AlignmentUtil::MaxAlignedType' instead.
+        // DEPRECATED: Use 'AlignmentUtil::MaxAlignedType' instead.
 #endif
 
     // CLASS METHODS
@@ -189,12 +189,13 @@ struct bsls_PlatformUtil {
         // integral multiple of the maximum alignment.  The behavior is
         // undefined unless '0 <= size'.
         //
-        // DEPRECATED: Use 'bsls_AlignmentUtil::roundUpToMaximalAlignment'
-        // instead.
+        // DEPRECATED: Use 'AlignmentUtil::roundUpToMaximalAlignment' instead.
 };
 
+}  // close package namespace
+
 // ============================================================================
-//                  COMPILE-TIME CONSTANT PRE-PROCESSOR MACROS
+//                 COMPILE-TIME CONSTANT PRE-PROCESSOR MACROS
 // ============================================================================
 
 // The following preprocessor macros are DEPRECATED.  Please use their
@@ -209,9 +210,8 @@ struct bsls_PlatformUtil {
 #if defined(BSLS_PLATFORM__CPU_X86)
     #define BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN \
                                                 BSLS_PLATFORM__IS_LITTLE_ENDIAN
-        // DEPRECATED: Use preprocessor macro
-        // 'BSLS_PLATFORM__IS_LITTLE_ENDIAN' defined in 'bsls_platform'
-        // instead.
+        // DEPRECATED: Use preprocessor macro 'BSLS_PLATFORM__IS_LITTLE_ENDIAN'
+        // defined in 'bsls_platform' instead.
 #endif
 
 #if !defined(BSLS_PLATFORMUTIL__IS_LITTLE_ENDIAN)
@@ -274,17 +274,19 @@ struct bsls_PlatformUtil {
 
 #endif
 
+namespace bsls {
+
 // ===========================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ===========================================================================
 
-                          // ------------------------
-                          // struct bsls_PlatformUtil
-                          // ------------------------
+                          // -------------------
+                          // struct PlatformUtil
+                          // -------------------
 
 // CLASS METHODS
 inline
-bool bsls_PlatformUtil::isLittleEndian()
+bool PlatformUtil::isLittleEndian()
 {
 #if defined(BSLS_PLATFORM__IS_LITTLE_ENDIAN)
     return BSLS_PLATFORM__IS_LITTLE_ENDIAN;
@@ -294,7 +296,7 @@ bool bsls_PlatformUtil::isLittleEndian()
 }
 
 inline
-bool bsls_PlatformUtil::isBigEndian()
+bool PlatformUtil::isBigEndian()
 {
 #if defined(BSLS_PLATFORM__IS_BIG_ENDIAN)
     return BSLS_PLATFORM__IS_BIG_ENDIAN;
@@ -304,13 +306,22 @@ bool bsls_PlatformUtil::isBigEndian()
 }
 
 inline
-int bsls_PlatformUtil::roundUpToMaximalAlignment(int size)
+int PlatformUtil::roundUpToMaximalAlignment(int size)
 {
-    enum { BSLS_MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT };
+    enum { BSLS_MAX_ALIGN = AlignmentUtil::BSLS_MAX_ALIGNMENT };
     return ((size + BSLS_MAX_ALIGN - 1) / BSLS_MAX_ALIGN) * BSLS_MAX_ALIGN;
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bsls::PlatformUtil bsls_PlatformUtil;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

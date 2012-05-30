@@ -1,4 +1,4 @@
-// bslma_infrequentdeleteblocklist.cpp    -*-C++-*-
+// bslma_infrequentdeleteblocklist.cpp                                -*-C++-*-
 #include <bslma_infrequentdeleteblocklist.h>
 
 #include <bsls_ident.h>
@@ -10,18 +10,20 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-                  // -------------------------------------
-                  // class bslma_InfrequentDeleteBlockList
-                  // -------------------------------------
+namespace bslma {
+
+                  // -------------------------------
+                  // class InfrequentDeleteBlockList
+                  // -------------------------------
 
 // CREATORS
-bslma_InfrequentDeleteBlockList::~bslma_InfrequentDeleteBlockList()
+InfrequentDeleteBlockList::~InfrequentDeleteBlockList()
 {
     release();
 }
 
 // MANIPULATORS
-void *bslma_InfrequentDeleteBlockList::allocate(int numBytes)
+void *InfrequentDeleteBlockList::allocate(int numBytes)
 {
     if (0 == numBytes) {
         return 0;
@@ -31,7 +33,7 @@ void *bslma_InfrequentDeleteBlockList::allocate(int numBytes)
     // the nearest multiple of 'MAX_ALIGNMENT'.
 
     numBytes += sizeof(Block) - 1;
-    numBytes &= ~(bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
+    numBytes &= ~(bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1);
 
     Block *block = (Block *)d_allocator_p->allocate(numBytes);
     block->d_next_p = d_head_p;
@@ -39,7 +41,7 @@ void *bslma_InfrequentDeleteBlockList::allocate(int numBytes)
     return (void *)&block->d_memory;
 }
 
-void bslma_InfrequentDeleteBlockList::release()
+void InfrequentDeleteBlockList::release()
 {
     while (d_head_p) {
         void *lastBlock = d_head_p;
@@ -48,7 +50,9 @@ void bslma_InfrequentDeleteBlockList::release()
     }
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

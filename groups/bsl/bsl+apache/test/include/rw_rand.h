@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_RAND_H_INCLUDED

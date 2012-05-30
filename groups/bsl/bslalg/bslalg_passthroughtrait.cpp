@@ -1,4 +1,4 @@
-// bslalg_passthroughtrait.cpp                  -*-C++-*-
+// bslalg_passthroughtrait.cpp                                        -*-C++-*-
 #include <bslalg_passthroughtrait.h>
 
 #include <bsls_ident.h>
@@ -6,7 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ---------------------------------------------------------------------------
 // NOTICE:

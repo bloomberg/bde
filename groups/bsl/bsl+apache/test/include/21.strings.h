@@ -21,7 +21,7 @@
  * WITHOUT  WARRANTIES OR CONDITIONS  OF ANY  KIND, either  express or
  * implied.   See  the License  for  the  specific language  governing
  * permissions and limitations under the License.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_21_STRINGS_H_INCLUDED
@@ -222,14 +222,14 @@ struct StringIds: ContainerIds {
 
         //////////////////////////////////////////////////////////////
         // operator+= (const_pointer)
-        MEMBER_1 (op_plus_eq, str, cptr), 
+        MEMBER_1 (op_plus_eq, str, cptr),
         // operator+= (const basic_string&)
         MEMBER_1 (op_plus_eq, str, cstr),
         // operator+= (value_type)
         MEMBER_1 (op_plus_eq, str, val),
 
         //////////////////////////////////////////////////////////////
-        // overloads of find, rfind, find_first_of, find_last_of, 
+        // overloads of find, rfind, find_first_of, find_last_of,
         // find_first_not_of, find_last_not_of
 
         // find (const_pointer) const
@@ -720,7 +720,7 @@ public:
 
         ext1_ = off1_ + tcase_.size < strlen_ ?
             SizeType (tcase_.size) : strlen_ - off1_;
-        
+
         off2_ = SizeType (tcase_.off2) < argl ?
             SizeType (tcase_.off2) : argl;
 

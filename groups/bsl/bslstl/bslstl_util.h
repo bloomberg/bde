@@ -10,14 +10,14 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a namespace for utility functions for STL functionality.
 //
 //@CLASSES:
-//          bslstl_Util: namespace for utility functions
-//  bslstl_UtilIterator: discriminates integral formal parameters
+//  bslstl::Util: namespace for utility functions
+//  bslstl::UtilIterator: discriminates integral formal parameters
 //
 //@SEE_ALSO:
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component defines a class, 'bslstl_Util', that provides a
+//@DESCRIPTION: This component defines a class, 'bslstl::Util', that provides a
 // namespace for utility functions used to implement STL functionality in the
 // 'bslstl' package.
 //
@@ -50,11 +50,13 @@ BSL_OVERRIDES_STD mode"
 
 namespace BloombergLP {
 
-                        // =================
-                        // class bslstl_Util
-                        // =================
+namespace bslstl {
 
-class bslstl_Util {
+                        // ==========
+                        // class Util
+                        // ==========
+
+class Util {
     // Namespace for utility functions used to implement STL functionality.
 
     // PRIVATE TYPES
@@ -66,7 +68,7 @@ class bslstl_Util {
             // Return the appropriate allocator for use when copy-constructing
             // a container.  'rhsAlloc' is intended to be the allocator from
             // the container being copied.  If 'isBslmaAlloc' is of type
-            // 'bslmf_MetaInt<1>' then ignore 'rhsAlloc' and return the
+            // 'bslmf::MetaInt<1>' then ignore 'rhsAlloc' and return the
             // default allocator.  Otherwise, return 'rhsAlloc' unchanged.
     };
 
@@ -78,7 +80,7 @@ class bslstl_Util {
             // Return the appropriate allocator for use when copy-constructing
             // a container.  'rhsAlloc' is intended to be the allocator from
             // the container being copied.  If 'isBslmaAlloc' is of type
-            // 'bslmf_MetaInt<1>' then ignore 'rhsAlloc' and return the
+            // 'bslmf::MetaInt<1>' then ignore 'rhsAlloc' and return the
             // default allocator.  Otherwise, return 'rhsAlloc' unchanged.
     };
 
@@ -107,11 +109,11 @@ class bslstl_Util {
         // unchanged.  The 'quickswap' function must not throw an exception.
 };
 
-                        // =========================
-                        // class bslstl_UtilIterator
-                        // =========================
+                        // ==================
+                        // class UtilIterator
+                        // ==================
 
-struct bslstl_UtilIterator {
+struct UtilIterator {
     // Use as formal parameter for functions where an integral type can be
     // confused with an iterator type.  This class will match any integral
     // value.  If a type has a user-defined conversion to integral value, this
@@ -119,9 +121,11 @@ struct bslstl_UtilIterator {
     // user-defined conversions.  Note this c'tor must be implicit.
 
     // CREATORS
-    bslstl_UtilIterator(int) { }
+    UtilIterator(int) { }
         // Conversion constructor.  Does nothing.
 };
+
+}  // close package namespace
 
 // ===========================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -134,7 +138,7 @@ struct bslstl_UtilIterator {
 // PRIVATE CLASS METHODS
 template <class ALLOCATOR, int IS_BSLMA_ALLOC>
 inline
-ALLOCATOR bslstl_Util::AllocatorUtil<ALLOCATOR, IS_BSLMA_ALLOC>::
+ALLOCATOR bslstl::Util::AllocatorUtil<ALLOCATOR, IS_BSLMA_ALLOC>::
 copyContainerAllocator(const ALLOCATOR&)
 {
     return ALLOCATOR();
@@ -147,31 +151,34 @@ copyContainerAllocator(const ALLOCATOR&)
 // PRIVATE CLASS METHODS
 template <class ALLOCATOR>
 inline
-ALLOCATOR bslstl_Util::AllocatorUtil<ALLOCATOR, 0>::
+ALLOCATOR bslstl::Util::AllocatorUtil<ALLOCATOR, 0>::
 copyContainerAllocator(const ALLOCATOR& rhsAlloc)
 {
     return rhsAlloc;
 }
-                              //------------------
-                              // class bslstl_Util
-                              //------------------
+
+namespace bslstl {
+
+                              //-----------
+                              // class Util
+                              //-----------
 
 // CLASS METHODS
 template <class ALLOCATOR>
 inline
-ALLOCATOR bslstl_Util::copyContainerAllocator(const ALLOCATOR& rhsAlloc)
+ALLOCATOR Util::copyContainerAllocator(const ALLOCATOR& rhsAlloc)
 {
     typedef typename
-        bslmf_IsConvertible<bslma_Allocator*,ALLOCATOR>::Type IsBslma;
+        bslmf::IsConvertible<bslma::Allocator*,ALLOCATOR>::Type IsBslma;
 
     return AllocatorUtil<ALLOCATOR, IsBslma::VALUE>::copyContainerAllocator(
                                                                      rhsAlloc);
 }
 
 template <class CONTAINER, class QUICKSWAP_FUNC>
-void bslstl_Util::swapContainers(CONTAINER&            c1,
-                                 CONTAINER&            c2,
-                                 const QUICKSWAP_FUNC& quickswap)
+void Util::swapContainers(CONTAINER&            c1,
+                          CONTAINER&            c2,
+                          const QUICKSWAP_FUNC& quickswap)
 {
     typedef typename CONTAINER::allocator_type allocator_type;
     allocator_type alloc1 = c1.get_allocator();
@@ -181,8 +188,8 @@ void bslstl_Util::swapContainers(CONTAINER&            c1,
         quickswap(c1, c2);
     }
     else {
-        // Create copies of c1 and c2 using each-other's allocators
-        // Exception leaves originals untouched.
+        // Create copies of c1 and c2 using each-other's allocators Exception
+        // leaves originals untouched.
 
         CONTAINER c1copy(c1, alloc2);
         CONTAINER c2copy(c2, alloc1);
@@ -194,7 +201,19 @@ void bslstl_Util::swapContainers(CONTAINER&            c1,
     }
 }
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+typedef bslstl::UtilIterator bslstl_UtilIterator;
+    // This alias is defined for backward compatibility.
+
+typedef bslstl::Util bslstl_Util;
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #ifndef RW_ALLOCATOR_INCLUDED
@@ -31,17 +31,7 @@
 
 
 #include <testdefs.h>
-#include <bslstl_allocator.h>
-
-//_RWSTD_NAMESPACE (std) {
-//
-//// declare to avoid dragging in all of <memory>
-//// (yes, it is undefined for programs to do that)
-//template <class T>
-//class allocator;
-//
-//}   // namespace std
-
+#include <memory>
 
 struct _TEST_EXPORT SharedAlloc
 {
@@ -210,7 +200,7 @@ public:
         new (ptr) value_type (val);
     }
 
-    void destroy (pointer ptr) { 
+    void destroy (pointer ptr) {
         pal_->funcall (pal_->m_destroy);
         ptr->~T ();
     }

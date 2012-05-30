@@ -277,7 +277,7 @@ void makeSureTestObjectIsExecuted(TESTCLASS& testObject,
 {
     for (int i = 0; i < numAttempts; ++i) {
         if (numExecuted + 1 <= testObject.numExecuted()) {
-            return;
+            return;                                                   // RETURN
         }
         bcemt_ThreadUtil::microSleep(microSeconds);
         bcemt_ThreadUtil::yield();
@@ -353,8 +353,8 @@ class TestClass {
     bces_AtomicInt     d_failures;               // timing failures
 
     // FRIENDS
-    friend bsl::ostream& operator << (bsl::ostream& os,
-                                      const TestClass& testObject);
+    friend bsl::ostream& operator << (bsl::ostream&,
+                                      const TestClass&);
 
   public:
     // CREATORS
@@ -397,17 +397,17 @@ class TestClass {
     {
     }
 
-    TestClass(const TestClass& rhs):
-      d_isClock(rhs.d_isClock),
-      d_periodicInterval(rhs.d_periodicInterval),
-      d_expectedTimeAtExecution(rhs.d_expectedTimeAtExecution),
-      d_numExecuted(rhs.d_numExecuted),
-      d_executionTime(rhs.d_executionTime),
-      d_line(rhs.d_line),
-      d_delayed(rhs.d_delayed),
-      d_referenceTime(rhs.d_referenceTime),
-      d_globalLastExecutionTime(rhs.d_globalLastExecutionTime),
-      d_assertOnFailure(rhs.d_assertOnFailure),
+    TestClass(const TestClass& original):
+      d_isClock(original.d_isClock),
+      d_periodicInterval(original.d_periodicInterval),
+      d_expectedTimeAtExecution(original.d_expectedTimeAtExecution),
+      d_numExecuted(original.d_numExecuted),
+      d_executionTime(original.d_executionTime),
+      d_line(original.d_line),
+      d_delayed(original.d_delayed),
+      d_referenceTime(original.d_referenceTime),
+      d_globalLastExecutionTime(original.d_globalLastExecutionTime),
+      d_assertOnFailure(original.d_assertOnFailure),
       d_failures(0)
     {
     }
@@ -519,6 +519,7 @@ struct TestClass1 {
     {
     }
 
+    explicit
     TestClass1(int executionTime) :
     d_numExecuted(0),
     d_executionTime(executionTime)
@@ -546,6 +547,14 @@ struct TestClass1 {
     }
 };
 
+extern "C" void mustBeCancelledCallBack()
+    // for testing 'cancel' methods -- this function will be scheduled, but
+    // always canceled before it happens.
+
+{
+    ASSERT(0);
+}
+
 void cancelEventCallback(Obj         *scheduler,
                          EventHandle  handle,
                          int          wait,
@@ -568,6 +577,31 @@ void cancelEventCallback(Obj         *scheduler,
     }
 
     LOOP3_ASSERTT(line, expectedStatus, ret, expectedStatus == ret);
+}
+
+void cancelEventHandleCallback(Obj         *scheduler,
+                               EventHandle *handle,
+                               int          wait,
+                               int          expectedStatus,
+                               int          line)
+    // Invoke 'scheduler->cancelEvent(*handlePtr, wait)' and assert that
+    // result of the 'cancelEvent' is equal to the specified
+    // 'expectedStatus'.
+{
+    if (veryVerbose) {
+        ET_("cancelEventCallback"); PT(bdetu_SystemTime::now());
+    }
+
+    int ret = -999;
+    if (wait) {
+        ret = scheduler->cancelEventAndWait(handle);
+    }
+    else {
+        ret = scheduler->cancelEvent(handle);
+    }
+
+    LOOP3_ASSERTT(line, expectedStatus, ret, expectedStatus == ret);
+    ASSERTT(0 == (const Event *) *handle);
 }
 
 void cancelEventRawCallback(Obj         *scheduler,
@@ -638,30 +672,32 @@ static void cancelAllEventsCallback(Obj *scheduler, int wait)
 //                         USAGE EXAMPLE RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE {
+
+bces_AtomicInt  g_data;  // Some global data we want to track
+typedef pair<bdet_Datetime, int> Value;
+
+void saveData(vector<Value> *array)
 {
-   bces_AtomicInt  g_data;  // Some global data we want to track
-   typedef pair<bdet_Datetime, int> Value;
+    array->push_back(Value(bdetu_SystemTime::nowAsDatetimeGMT(), g_data));
+}
 
-   void saveData(vector<Value> *array)
-   {
-      array->push_back(Value(bdetu_SystemTime::nowAsDatetimeGMT(), g_data));
-   }
+class my_Session{
+    // This class encapsulates the data and state associated with a
+    // connection and provides a method 'processData' to process the
+    // incoming data for the connection.
 
-   class my_Session{
-       // This class encapsulates the data and state associated with a
-       // connection and provides a method 'processData' to process the
-       // incoming data for the connection.
-     public:
-       int processData(void *data, int length)
-           // Process the specified 'data' of the specified 'length'.
-       {
-           // (undefined in usage example...no-op here)
-           return 0;
-       }
-   };
+  public:
+    int processData(void *, int)
+        // Process the data of length given by 'int' pointed at by 'void *'
+    {
+        // (undefined in usage example...no-op here)
 
-   class my_Server {
+        return 0;
+    }
+};
+
+class my_Server {
     // This class implements a server maintaining several connections.
     // A connection is closed if the data for it does not arrive
     // before a timeout (specified at the server creation time).
@@ -694,8 +730,9 @@ namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE
         // the data does not arrive before the timeout.
 
   public:
-    my_Server(const bdet_TimeInterval& ioTimeout,
-                                            bslma_Allocator *allocator = 0);
+    explicit
+    my_Server(const bdet_TimeInterval&  ioTimeout,
+              bslma_Allocator          *allocator = 0);
         // Construct a 'my_Server' object with a timeout value of
         // 'ioTimeout' seconds.  Optionally specify a 'allocator' used to
         // supply memory.  If 'allocator' is 0, the currently installed
@@ -733,9 +770,9 @@ void my_Server::newConnection(my_Server::Connection *connection)
         bdef_BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
-void my_Server::closeConnection(my_Server::Connection *connection)
+void my_Server::closeConnection(my_Server::Connection *)
 {
-    // logic to close the 'connection' and remove it from 'd_ioTimeout'
+    // logic to close the 'Connection *' and remove it from 'd_ioTimeout'
 }
 
 void my_Server::dataAvailable(my_Server::Connection *connection,
@@ -744,7 +781,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
 {
     // If connection has already timed out and closed, simply return.
     if (d_scheduler.cancelEvent(connection->d_timerId)) {
-        return;                                                // RETURN
+        return;                                                       // RETURN
     }
 
     // process the data
@@ -756,14 +793,13 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
         bdef_BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
-}
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_USAGE
 
 //=============================================================================
 //                         CASE 17 RELATED ENTITIES
 //-----------------------------------------------------------------------------
 
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_17
-{
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_17 {
 
 enum { BUFSIZE = 40 * 1000 };
 
@@ -775,11 +811,14 @@ struct Recurser {
     // pseudoUse() was added to prevent the recursion of 'deepRecurser()' from
     // being tail recursion, which the optimizer on windows was turning into
     // a loop, which was an infinite loop.
-    void pseudoUse(volatile char *buffer) {
+
+    void pseudoUse(volatile char *buffer)
+    {
         buffer[0] = 0;
     }
 
-    void deepRecurser() {
+    void deepRecurser()
+    {
         volatile char buffer[BUFSIZE];
 
         int curDepth = abs((int)(buffer - d_topPtr));
@@ -792,13 +831,15 @@ struct Recurser {
 
         if (curDepth < d_recurseDepth) {
             // recurse
+
             this->deepRecurser();
         }
 
         pseudoUse(buffer);
     }
 
-    void operator()() {
+    void operator()()
+    {
         char topRef;
 
         microSleep(600 * 1000, 0);
@@ -811,7 +852,7 @@ struct Recurser {
 };
 bool Recurser::s_finished = false;
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_17
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_17
 
 //=============================================================================
 //                         CASE 15 & 16 RELATED ENTITIES
@@ -835,11 +876,13 @@ struct SlowFunctor {
     // DATA
     DateTimeList d_timeList;
 
-    DateTimeList& timeList() {
+    DateTimeList& timeList()
+    {
         return d_timeList;
     }
 
-    static TimeElement timeOfDay(bsls_PlatformUtil::Int64 warnAfter) {
+    static TimeElement timeOfDay(bsls_PlatformUtil::Int64 warnAfter)
+    {
         bdet_TimeInterval now = bdetu_SystemTime::now();
         bsls_PlatformUtil::Int64 interval = now.totalMicroseconds();
         if (0 < warnAfter && warnAfter < interval) {
@@ -850,13 +893,15 @@ struct SlowFunctor {
         return TimeElement(now.totalSecondsAsDouble(), interval);
     }
 
-    void callback(bsls_PlatformUtil::Int64 warnAfter) {
+    void callback(bsls_PlatformUtil::Int64 warnAfter)
+    {
         d_timeList.push_back(timeOfDay(warnAfter));
         bcemt_ThreadUtil::microSleep(SLEEP_MICROSECONDS);
         d_timeList.push_back(timeOfDay(0));
     }
 
-    double tolerance(int i) {
+    double tolerance(int i)
+    {
         return SlowFunctor::SLEEP_SECONDS * (0.2 * i + 2);
     }
 };
@@ -875,15 +920,18 @@ struct FastFunctor {
     // DATA
     DateTimeList d_timeList;
 
-    DateTimeList& timeList() {
+    DateTimeList& timeList()
+    {
         return d_timeList;
     }
 
-    static double timeOfDay() {
+    static double timeOfDay()
+    {
         return bdetu_SystemTime::now().totalSecondsAsDouble();
     }
 
-    void callback(bool verbose) {
+    void callback(bool verbose)
+    {
         if (verbose) {
             cout << "...FastFunctor invoked at "
                  << bdetu_SystemTime::now().totalMicroseconds()
@@ -895,7 +943,7 @@ struct FastFunctor {
 const double FastFunctor::TOLERANCE_AHEAD  = 0.015;
 const double FastFunctor::TOLERANCE_BEHIND = 0.300;
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_15
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_15
 
 //-----------------------------------------------------------------------------
 //                          CASE 13 & 14 RELATED ENTITIES
@@ -955,20 +1003,21 @@ int maxNodeIndex(int numBits)
     return (1 << numBits) - 2;
 }
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_13
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_13
 
 //=============================================================================
 //                         CASE 12 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_12
-{
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_12
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_12 {
+
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_12
+
 //=============================================================================
 //                         CASE 11 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_11
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_11 {
 
 enum {
     NUM_THREADS    = 8,    // number of threads
@@ -1040,12 +1089,13 @@ void *workerThread11(void *arg)
 }
 } // extern "C"
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_11
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_11
+
 //=============================================================================
 //                         CASE 10 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_10
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_10 {
 
 enum {
     NUM_THREADS    = 8,    // number of threads
@@ -1138,19 +1188,20 @@ void *workerThread10(void *arg)
 }
 } // extern "C"
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_10
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_10
 //=============================================================================
 //                         CASE 9 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_9
-{
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_9
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_9 {
+
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_9
+
 //=============================================================================
 //                         CASE 8 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_8
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_8 {
 
 void dispatcherFunction(bdef_Function<void(*)()> functor)
     // This is a dispatcher function that simply executes the
@@ -1159,12 +1210,13 @@ void dispatcherFunction(bdef_Function<void(*)()> functor)
     functor();
 }
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_8
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_8
+
 //=============================================================================
 //                          CASE 7 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_7
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_7 {
 
 void schedulingCallback(Obj        *scheduler,
                         TestClass1 *event,
@@ -1185,12 +1237,13 @@ void schedulingCallback(Obj        *scheduler,
                                                         clock));
 }
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_7
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_7
+
 //=============================================================================
 //                         CASE 6 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_6
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_6 {
 
 bcema_TestAllocator *pta;
 
@@ -1374,12 +1427,13 @@ void Test6_2::operator()()
     x.stop();
 }
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_6
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_6
+
 //=============================================================================
 //                         CASE 5 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_5
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_5 {
 
 bcema_TestAllocator *pta;
 
@@ -1430,9 +1484,7 @@ struct Test5_1 {
         bdet_TimeInterval  T(1 * DECI_SEC);
         const bdet_TimeInterval T2(2 * DECI_SEC);
         const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
-        const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
         const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
-        const int T40 = 40 * DECI_SEC_IN_MICRO_SEC;
         Obj x(pta);
         TestClass1 testObj1(T20);
         TestClass1 testObj2;
@@ -1550,12 +1602,13 @@ struct Test5_3 {
     }
 };
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_5
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_5
+
 //=============================================================================
 //                         CASE 4 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_4
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_4 {
 
 bcema_TestAllocator *pta;
 
@@ -1618,9 +1671,7 @@ struct Test4_1 {
             // This will not be put onto the pending list.
 
         const int TM3  =  3 * DECI_SEC_IN_MICRO_SEC;
-        const int TM10 = 10 * DECI_SEC_IN_MICRO_SEC;
         const int TM20 = 20 * DECI_SEC_IN_MICRO_SEC;
-        const int TM40 = 40 * DECI_SEC_IN_MICRO_SEC;
 
         Obj x(pta);
 
@@ -1679,7 +1730,6 @@ struct Test4_2 {
 
         const int T3  = 3 * DECI_SEC_IN_MICRO_SEC;
         const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
-        const int T20 = 20 * DECI_SEC_IN_MICRO_SEC;
 
         Obj x(pta);
 
@@ -1719,19 +1769,21 @@ struct Test4_2 {
     }
 };
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_4
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_4
+
 //=============================================================================
 //                         CASE 3 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_3
-{
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_3
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_3 {
+
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_3
+
 //=============================================================================
 //                         CASE 2 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_2
-{
+
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_2 {
 
 struct TestCase2Data {
     int               d_line;
@@ -1853,14 +1905,15 @@ bool testCallbacks(int                  *failures,
     return result;
 }
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_2
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_2
+
 //=============================================================================
 //                         CASE 1 RELATED ENTITIES
 //-----------------------------------------------------------------------------
-namespace BCEP_EVENTSCHEDULER_TEST_CASE_1
-{
 
-} // namespace BCEP_EVENTSCHEDULER_TEST_CASE_1
+namespace BCEP_EVENTSCHEDULER_TEST_CASE_1 {
+
+}  // close namespace BCEP_EVENTSCHEDULER_TEST_CASE_1
 
 //=============================================================================
 //                      CASE -100 RELATED ENTITIES
@@ -1953,7 +2006,7 @@ void run()
     scheduler.stop();
 }
 
-} // close namespace TEST_CASE_MINUS_100
+}  // close namespace TEST_CASE_MINUS_100
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -1971,7 +2024,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES:
         //
@@ -2010,7 +2063,7 @@ int main(int argc, char *argv[])
             scheduler.stop();
             ASSERT(values.size() >= 4);
             if (verbose) {
-                for (int i = 0; i < values.size(); ++i) {
+                for (int i = 0; i < (int) values.size(); ++i) {
                     cout << "At " << values[i].first << " g_data was "
                          << values[i].second << endl;
                 }
@@ -2025,6 +2078,113 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING REDUNDANT CANCEL{RECURRING}EVENT{ANDWAIT} ON HANDLES
+        //
+        // Concerns:
+        //   That 'cancelEvent{AndWait}' and 'cancelRecurringEvent{AndWait}'
+        //   work properly with regard to releasing handles and not segfaulting
+        //   or aborting when called on handles that are already released.
+        //
+        // Plan:
+        //   Create a scheduler and schedule an event on it, far in the future
+        //   so that the test will be over before the event occurs.  When
+        //   creating the event, bind an handle to it.  Cancel the event twice.
+        //   Verify the state of the queue throughout this process by
+        //   monitoring 'scheduler.numEvents()' or
+        //   'scheduler.numRecurrringEvents()', verify that the return codes
+        //   from the cancel calls are what they should be, and verify that the
+        //   handle is in the correct state by casting it to a pointer (a
+        //   released handle will cast to a null ptr, a bound handle will cast
+        //   to some other value).
+        //
+        //   The same test is repeated 4 times, for every combination of handle
+        //   type and cancel method:
+        //
+        //   Handle Type                Cancel Method
+        //   -----------                -------------
+        //   EventHandle                cancelEvent
+        //   EventHandle                cancelEventAndWait
+        //   RecurringEventHandle       cancelEvent
+        //   RecurringEventHandle       cancelEventAndWait
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+              "TESTING REDUNDANT CANCEL{RECURRING}EVENT{ANDWAIT} ON HANDLES\n"
+              "============================================================\n";
+
+        bcema_TestAllocator ta;
+        Obj scheduler(&ta);
+
+        const bdet_TimeInterval farFuture = bdetu_SystemTime::now() + 10.0;
+        const bdet_TimeInterval oneSec(1.0);
+
+        Obj::EventHandle eh;
+        scheduler.scheduleEvent(&eh, farFuture, &mustBeCancelledCallBack);
+        ASSERT(1 == scheduler.numEvents());
+        ASSERT(0 != (const Obj::Event *) eh);
+
+        int rc;
+        rc = scheduler.cancelEvent(&eh);
+        ASSERT(0 == rc);
+        ASSERT(0 == scheduler.numEvents());
+        ASSERT(0 == (const Obj::Event *) eh);
+
+        rc = scheduler.cancelEvent(&eh);
+        ASSERT((bcec_SkipList<int, int>::BCEC_INVALID == rc));
+        ASSERT(0 == scheduler.numEvents());
+        ASSERT(0 == (const Obj::Event *) eh);
+
+        scheduler.scheduleEvent(&eh, farFuture, &mustBeCancelledCallBack);
+        ASSERT(1 == scheduler.numEvents());
+        ASSERT(0 != (const Obj::Event *) eh);
+
+        rc = scheduler.cancelEventAndWait(&eh);
+        ASSERT(0 == rc);
+        ASSERT(0 == scheduler.numEvents());
+        ASSERT(0 == (const Obj::Event *) eh);
+
+        rc = scheduler.cancelEventAndWait(&eh);
+        ASSERT((bcec_SkipList<int, int>::BCEC_INVALID == rc));
+        ASSERT(0 == scheduler.numEvents());
+        ASSERT(0 == (const Obj::Event *) eh);
+
+        Obj::RecurringEventHandle reh;
+        scheduler.scheduleRecurringEvent(&reh,
+                                         oneSec,
+                                         &mustBeCancelledCallBack,
+                                         farFuture);
+        ASSERT(1 == scheduler.numRecurringEvents());
+        ASSERT(0 != (const Obj::RecurringEvent *) reh);
+
+        rc = scheduler.cancelEvent(&reh);
+        ASSERT(0 == rc);
+        ASSERT(0 == scheduler.numRecurringEvents());
+        ASSERT(0 == (const Obj::RecurringEvent *) reh);
+
+        rc = scheduler.cancelEvent(&reh);
+        ASSERT((bcec_SkipList<int, int>::BCEC_INVALID == rc));
+        ASSERT(0 == scheduler.numRecurringEvents());
+        ASSERT(0 == (const Obj::RecurringEvent *) reh);
+
+        scheduler.scheduleRecurringEvent(&reh,
+                                         oneSec,
+                                         &mustBeCancelledCallBack,
+                                         farFuture);
+        ASSERT(1 == scheduler.numRecurringEvents());
+        ASSERT(0 != (const Obj::RecurringEvent *) reh);
+
+        rc = scheduler.cancelEventAndWait(&reh);
+        ASSERT(0 == rc);
+        ASSERT(0 == scheduler.numRecurringEvents());
+        ASSERT(0 == (const Obj::RecurringEvent *) reh);
+
+        rc = scheduler.cancelEventAndWait(&reh);
+        ASSERT((bcec_SkipList<int, int>::BCEC_INVALID == rc));
+        ASSERT(0 == scheduler.numRecurringEvents());
+        ASSERT(0 == (const Obj::RecurringEvent *) reh);
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -3200,7 +3360,6 @@ int main(int argc, char *argv[])
           const bdet_TimeInterval T2(2 * DECI_SEC);
           const int T3  = 3 * DECI_SEC_IN_MICRO_SEC;
           const int T6  = 6 * DECI_SEC_IN_MICRO_SEC;
-          const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
 
           Obj x(&ta);
 
@@ -3647,10 +3806,10 @@ int main(int argc, char *argv[])
 
                 x.stop();
 
-                bdet_TimeInterval  T(1 * DECI_SEC);
+                bdet_TimeInterval       T (1 * DECI_SEC);
                 const bdet_TimeInterval T2(2 * DECI_SEC);
                 const int TI = DECI_SEC;
-                const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
+                const int T3  =  3 * DECI_SEC_IN_MICRO_SEC;
                 const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
                 const int T13 = 13 * DECI_SEC_IN_MICRO_SEC;
 
@@ -3688,6 +3847,186 @@ int main(int argc, char *argv[])
                 x.cancelAllEventsAndWait();
             }
 
+            if (verbose) ET("\tCancel event handle.");
+            {
+                // Schedule events e1 and e2 at T and T2 respectively, cancel
+                // e2 from e1 and verify that cancellation succeed.
+
+                const bdet_TimeInterval T1(1 * DECI_SEC);
+                const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+
+                x.start();
+                TestClass1 testObj;
+                EventHandle handleToBeCancelled;
+                bdet_TimeInterval now = bdetu_SystemTime::now();
+                if (verbose) {
+                    ET_("main thread:"); PT(now);
+                }
+
+                ASSERT(0 == (const Event*) handleToBeCancelled);
+                int rc = x.cancelEvent(&handleToBeCancelled);
+                ASSERT((bcec_SkipList<int,int>::BCEC_INVALID == rc));
+
+                x.scheduleEvent(&handleToBeCancelled, now + T1,
+                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
+
+                EventHandle handle2(handleToBeCancelled);
+                ASSERT(0 != (const Event *) handle2);
+                ASSERT((const Event *) handle2 ==
+                                          (const Event *) handleToBeCancelled);
+
+                rc = x.cancelEvent(&handleToBeCancelled);
+                ASSERT(0 == rc);
+                ASSERT(0 == (const Event*) handleToBeCancelled);
+
+                ASSERT(0 != (const Event *) handle2);
+                rc = x.cancelEvent(&handle2);
+                ASSERT((bcec_SkipList<int,int>::BCEC_NOT_FOUND == rc));
+
+                microSleep(T2, 0);
+
+                LOOP2_ASSERT(&testObj,
+                             testObj.numExecuted(),
+                             0 == testObj.numExecuted() );
+                ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
+            }
+
+            if (verbose) ET("\tCancel event and wait handle.");
+            {
+                // Schedule events e1 and e2 at T and T2 respectively, cancel
+                // e2 from e1 and verify that cancellation succeed.
+
+                const bdet_TimeInterval T1(1 * DECI_SEC);
+                const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+
+                x.start();
+                TestClass1 testObj;
+                EventHandle handleToBeCancelled;
+                bdet_TimeInterval now = bdetu_SystemTime::now();
+                if (verbose) {
+                    ET_("main thread:"); PT(now);
+                }
+
+                ASSERT(0 == (const Event*) handleToBeCancelled);
+                int rc = x.cancelEventAndWait(&handleToBeCancelled);
+                ASSERT((bcec_SkipList<int,int>::BCEC_INVALID == rc));
+
+                x.scheduleEvent(&handleToBeCancelled, now + T1,
+                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
+
+                EventHandle handle2(handleToBeCancelled);
+                ASSERT(0 != (const Event *) handle2);
+                ASSERT((const Event *) handle2 ==
+                                          (const Event *) handleToBeCancelled);
+
+                rc = x.cancelEventAndWait(&handleToBeCancelled);
+                ASSERT(0 == rc);
+                ASSERT(0 == (const Event*) handleToBeCancelled);
+
+                ASSERT(0 != (const Event *) handle2);
+                rc = x.cancelEventAndWait(&handle2);
+                ASSERT((bcec_SkipList<int,int>::BCEC_NOT_FOUND == rc));
+
+                microSleep(T2, 0);
+
+                LOOP2_ASSERT(&testObj,
+                             testObj.numExecuted(),
+                             0 == testObj.numExecuted() );
+                ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
+            }
+
+            if (verbose) ET("\tCancel recurring event handle.");
+            {
+                // Schedule events e1 and e2 at T and T2 respectively, cancel
+                // e2 from e1 and verify that cancellation succeed.
+
+                const bdet_TimeInterval T1(1 * DECI_SEC);
+                const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+
+                x.start();
+                TestClass1 testObj;
+                RecurringEventHandle handleToBeCancelled;
+                bdet_TimeInterval now = bdetu_SystemTime::now();
+                if (verbose) {
+                    ET_("main thread:"); PT(now);
+                }
+
+                ASSERT(0 == (const RecurringEvent*) handleToBeCancelled);
+                int rc = x.cancelEvent(&handleToBeCancelled);
+                ASSERT((bcec_SkipList<int,int>::BCEC_INVALID == rc));
+
+                x.scheduleRecurringEvent(&handleToBeCancelled, T1,
+                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
+
+                RecurringEventHandle handle2(handleToBeCancelled);
+                ASSERT(0 != (const RecurringEvent *) handle2);
+                ASSERT((const RecurringEvent *) handle2 ==
+                                 (const RecurringEvent *) handleToBeCancelled);
+
+                rc = x.cancelEvent(&handleToBeCancelled);
+                ASSERT(0 == rc);
+                ASSERT(0 == (const RecurringEvent*) handleToBeCancelled);
+
+                ASSERT(0 != (const RecurringEvent *) handle2);
+                rc = x.cancelEvent(&handle2);
+                ASSERT((bcec_SkipList<int,int>::BCEC_NOT_FOUND == rc));
+
+                microSleep(T2, 0);
+
+                LOOP2_ASSERT(&testObj,
+                             testObj.numExecuted(),
+                             0 == testObj.numExecuted() );
+                ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
+            }
+
+            if (verbose) ET("\tCancel and wait recurring event handle.");
+            {
+                // Schedule events e1 and e2 at T and T2 respectively, cancel
+                // e2 from e1 and verify that cancellation succeed.
+
+                const bdet_TimeInterval T1(1 * DECI_SEC);
+                const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
+
+                x.start();
+                TestClass1 testObj;
+                RecurringEventHandle handleToBeCancelled;
+                bdet_TimeInterval now = bdetu_SystemTime::now();
+                if (verbose) {
+                    ET_("main thread:"); PT(now);
+                }
+
+                ASSERT(0 == (const RecurringEvent*) handleToBeCancelled);
+                int rc = x.cancelEvent(&handleToBeCancelled);
+                ASSERT((bcec_SkipList<int,int>::BCEC_INVALID == rc));
+
+                x.scheduleRecurringEvent(&handleToBeCancelled, T1,
+                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
+
+                RecurringEventHandle handle2(handleToBeCancelled);
+                ASSERT(0 != (const RecurringEvent *) handle2);
+                ASSERT((const RecurringEvent *) handle2 ==
+                                 (const RecurringEvent *) handleToBeCancelled);
+
+                rc = x.cancelEventAndWait(&handleToBeCancelled);
+                ASSERT(0 == rc);
+                ASSERT(0 == (const RecurringEvent*) handleToBeCancelled);
+
+                ASSERT(0 != (const RecurringEvent *) handle2);
+                rc = x.cancelEvent(&handle2);
+                ASSERT((bcec_SkipList<int,int>::BCEC_NOT_FOUND == rc));
+
+                microSleep(T2, 0);
+
+                LOOP2_ASSERT(&testObj,
+                             testObj.numExecuted(),
+                             0 == testObj.numExecuted() );
+                ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
+            }
+
             if (verbose) ET("\tCancel event from another event prior.");
             {
                 // Schedule events e1 and e2 at T and T2 respectively, cancel
@@ -3719,6 +4058,48 @@ int main(int argc, char *argv[])
                                                         handleToBeCancelled,
                                                         0,
                                                         0, L_));
+                    microSleep(T10, 0);
+                    LOOP2_ASSERT( &testObj,
+                                  testObj.numExecuted(),
+                                  0 == testObj.numExecuted() );
+                    ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
+                }
+                // Else should we complain that too much time has elapsed?
+                // In any case, this is not a failure, do not stop.
+            }
+
+            if (verbose) ET("\tCancel event handle from another event prior.");
+            {
+                // Schedule events e1 and e2 at T and T2 respectively, cancel
+                // e2 from e1 and verify that cancellation succeed.
+
+                const bdet_TimeInterval T(1 * DECI_SEC);
+                const bdet_TimeInterval T2(5 * DECI_SEC);
+                const int T10 = 20 * DECI_SEC_IN_MICRO_SEC;
+
+                x.start();
+                TestClass1 testObj;
+                EventHandle handleToBeCancelled;
+                bdet_TimeInterval now = bdetu_SystemTime::now();
+                if (verbose) {
+                    ET_("main thread:"); PT(now);
+                }
+                x.scheduleEvent(&handleToBeCancelled, now + T2,
+                                bdef_MemFnUtil::memFn(&TestClass1::callback,
+                                                      &testObj));
+
+                // It could possibly happen that testObj has already been
+                // scheduled for execution, and thus the following
+                // cancelEvent will fail.  Make sure that does not happen.
+                bdet_TimeInterval elapsed = bdetu_SystemTime::now() - now;
+                if (elapsed < T) {
+                    x.scheduleEvent(
+                                now + T,
+                                bdef_BindUtil::bind(&cancelEventHandleCallback,
+                                                    &x,
+                                                    &handleToBeCancelled,
+                                                    0,
+                                                    0, L_));
                     microSleep(T10, 0);
                     LOOP2_ASSERT( &testObj,
                                   testObj.numExecuted(),
@@ -4315,7 +4696,6 @@ int main(int argc, char *argv[])
           const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 100 microsecs
           const int T  = 1 * DECI_SEC_IN_MICRO_SEC;
           const int T2 = 2 * DECI_SEC_IN_MICRO_SEC;
-          const int T4 = 4 * DECI_SEC_IN_MICRO_SEC;
           const bdet_TimeInterval T3(3 * DECI_SEC);
           const bdet_TimeInterval T5(5 * DECI_SEC);
           const bdet_TimeInterval T6(6 * DECI_SEC);
@@ -4427,7 +4807,6 @@ int main(int argc, char *argv[])
           // T2, cancelling it at T3 should result in failure.
 
           const int mT = DECI_SEC_IN_MICRO_SEC / 10; // 10ms
-          const int T  = 1 * DECI_SEC_IN_MICRO_SEC;
           const bdet_TimeInterval T2(2 * DECI_SEC);
           const int T3 = 3 * DECI_SEC_IN_MICRO_SEC;
 

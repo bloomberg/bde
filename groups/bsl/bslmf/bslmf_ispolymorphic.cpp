@@ -1,4 +1,4 @@
-// bslmf_ispolymorphic.cpp              -*-C++-*-
+// bslmf_ispolymorphic.cpp                                            -*-C++-*-
 #include <bslmf_ispolymorphic.h>
 
 #include <bsls_ident.h>

@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 1994-2008 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 #include <new>        // for bad_alloc
@@ -84,7 +84,7 @@ handle_ABRT (int)
 
 void test_new_delete ()
 {
-    rw_info (0, __FILE__, __LINE__, 
+    rw_info (0, __FILE__, __LINE__,
              "exercising successful allocation and deallocation");
 
     {
@@ -134,7 +134,7 @@ void test_new_delete ()
 
 void test_bad_alloc ()
 {
-    rw_info (0, __FILE__, __LINE__, 
+    rw_info (0, __FILE__, __LINE__,
              "exercising the ability of ordinary "
              "operator new to throw std::bad_alloc");
 
@@ -171,7 +171,7 @@ void test_bad_alloc ()
         operator delete[](p);
     }
 
-    rw_info (0, __FILE__, __LINE__, 
+    rw_info (0, __FILE__, __LINE__,
              "exercising the ability of the array form "
              "of operator new to throw std::bad_alloc");
 
@@ -218,10 +218,10 @@ void test_bad_alloc ()
 
 void test_mismatch ()
 {
-    rw_info (0, __FILE__, __LINE__, 
+    rw_info (0, __FILE__, __LINE__,
              "exercising the ability to detect "
              "allocation/deallocation mismatches");
-    
+
     {
         // detect allocations by operator new() deallocated
         // using (the array form of) operator delete[]
@@ -250,7 +250,7 @@ void test_mismatch ()
 
 void test_bad_delete ()
 {
-    rw_info (0, __FILE__, __LINE__, 
+    rw_info (0, __FILE__, __LINE__,
              "exercising the ability to detect "
              "deletion of unallocated storage");
 
@@ -288,7 +288,7 @@ void test_bad_delete ()
 
 void test_double_delete ()
 {
-    rw_info (0, __FILE__, __LINE__, 
+    rw_info (0, __FILE__, __LINE__,
              "exercising the ability to detect double deletion");
 
     {
@@ -313,7 +313,7 @@ void test_double_delete ()
 
 void test_corruption ()
 {
-    rw_info (0, __FILE__, __LINE__, 
+    rw_info (0, __FILE__, __LINE__,
              "exercising the ability to detect memory corruption");
 
     // corrupt (and restore) memory past the end of the allocated block
@@ -361,7 +361,7 @@ void test_corruption ()
 
 void test_leaks ()
 {
-    rw_info (0, __FILE__, __LINE__, 
+    rw_info (0, __FILE__, __LINE__,
              "exercising the ability to detect memory leaks");
 
     {
@@ -402,7 +402,7 @@ void test_leaks ()
 
 void test_stress ()
 {
-    rw_info (0, __FILE__, __LINE__, 
+    rw_info (0, __FILE__, __LINE__,
              "stress-testing replacement operators new and delete");
 
     rwt_free_store* const pst = rwt_get_free_store (0);
@@ -450,7 +450,7 @@ void test_stress ()
     nbytes  = pst->bytes_ [0] + pst->bytes_ [1] - nbytes;
 
     rw_assert (0 == nblocks && 0 == nbytes, __FILE__, __LINE__,
-               "false leaks detected: %zu bytes in %zu blocks", 
+               "false leaks detected: %zu bytes in %zu blocks",
                nbytes, nblocks);
 }
 

@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2001-2007 Rogue Wave Software, Inc.
- * 
+ *
  **************************************************************************/
 
 // expand _TEST_EXPORT macros
@@ -117,7 +117,7 @@
 // relative paths to the etc/nls directory and its subdirectories
 #define RELPATH        "etc" SLASH "nls"
 #define TESTS_ETC_PATH "tests" SLASH "etc"
-            
+
 // extension of the catalog file
 #ifndef _WIN32
 #  define RW_CAT_EXT ".cat"
@@ -436,7 +436,7 @@ rw_locales (int loc_cat, const char* grep_exp, bool prepend_c_loc)
             strcpy (locname, deflocname);
 
             const size_t defnamelen = strlen (deflocname) + 1;
-            locname += defnamelen; 
+            locname += defnamelen;
             size    += defnamelen;
         }
 
@@ -459,7 +459,7 @@ rw_locales (int loc_cat, const char* grep_exp, bool prepend_c_loc)
             // avoid locales named common and iso_8859_* on SunOS
             // since they are known to cause setlocale() to fail
             if (   !strcmp ("common", linebuf)
-                || sizeof iso_8859_pfx <= linelen 
+                || sizeof iso_8859_pfx <= linelen
                 && !memcmp (iso_8859_pfx, linebuf, sizeof iso_8859_pfx - 1))
                 continue;
 
@@ -1087,7 +1087,7 @@ _rw_all_locales ()
         // looks to be the first time, get a list of all locales
         const size_t entry_size = sizeof (_rw_locale_entry);
         const size_t grow_size  = 64;
-        
+
         _rw_locale_entry* entries = 0;
         size_t capacity = 0;
         size_t size     = 0;
@@ -1150,7 +1150,7 @@ _rw_all_locales ()
 
             // make sure that the named locale is one that we can use
             if (!setlocale (LC_CTYPE, locale)) {
-                
+
                 rw_note (0, __FILE__, __LINE__,
                          "setlocale() failed for '%s'", locale);
 
@@ -1210,7 +1210,7 @@ _rw_all_locales ()
                 for (int n = 0; country [n]; ++n)
                     country [n] = _rw_toupper (country [n]);
             }
-            
+
             char* language = locale;
 
             for (int n = 0; language [n]; ++n)
@@ -1338,7 +1338,7 @@ rw_locale_query (int loc_cat, const char* query, size_t wanted)
     char buf [256];
 
     // get a brace expanded representation of query, each expansion
-    // is a null terminated string. the entire buffer is also null 
+    // is a null terminated string. the entire buffer is also null
     // terminated
     char* res = rw_shell_expand (query, 0, buf, sizeof (buf), '\0');
     if (!res)
@@ -1505,7 +1505,7 @@ _rw_lookup_table_t::load_from_file (const char* path, const char* name, int uppe
 
         char* table_data =
             (char*)malloc (table_data_size + 1);
-        
+
         if (!table_data) {
             fclose (file);
             return false;
@@ -1524,13 +1524,13 @@ _rw_lookup_table_t::load_from_file (const char* path, const char* name, int uppe
         table_data [bytes_read] = '\0';
 
         const size_t entry_size = sizeof (_rw_lookup_entry_t);
-        
+
         _rw_lookup_entry_t* entries = 0;
         size_t capacity = 0;
         size_t size     = 0;
 
         const char* canonical_name = 0;
-        
+
         for (size_t offset = 0; offset < bytes_read; /**/) {
 
             char* key = table_data + offset;

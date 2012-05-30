@@ -4,13 +4,23 @@
 #include <bslma_testallocator.h>
 #include <bsls_platform.h>
 
-#include <bsl_iostream.h>
-#include <bsl_sstream.h>
 #include <bsl_cstdio.h>
+#include <bsl_iostream.h>
+#include <bsl_deque.h>
+#include <bsl_hash_map.h>
+#include <bsl_hash_set.h>
+#include <bsl_list.h>
+#include <bsl_map.h>
+#include <bsl_set.h>
+#include <bsl_slist.h>
+#include <bsl_vector.h>
+#include <bsl_sstream.h>
+#include <bsl_cctype.h>
+#include <bsl_cstring.h>
 
-#include <stdlib.h>    // 'atoi'
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
                        // include 'snprintf']
+#include <stdlib.h>    // 'atoi'
 
 #if defined(BSLS_PLATFORM__CMP_MSVC)
 #define snprintf _snprintf
@@ -117,6 +127,42 @@ static void aSsErT(int c, const char *s, int i)
 
 typedef Printer Obj;
 
+struct TestEnumNoStreaming {
+    // A test enum with no streaming operator.
+
+    enum Enum {
+        VALUE_A,
+        VALUE_B
+    };
+};
+
+struct TestEnumWithStreaming {
+    // A test enum with a streaming operator.
+
+    enum Enum {
+        VALUE_A,
+        VALUE_B
+    };
+};
+
+bsl::ostream& operator<<(bsl::ostream&               stream,
+                         TestEnumWithStreaming::Enum value)
+{
+    const char *ascii;
+    switch (value) {
+      case TestEnumWithStreaming::VALUE_A:
+        ascii = "VALUE_A";
+        break;
+      case TestEnumWithStreaming::VALUE_B:
+        ascii = "VALUE_B";
+        break;
+      default:
+        BSLS_ASSERT(false);
+    }
+    stream << ascii;
+    return stream;
+}
+
 //=============================================================================
 //                        GLOBAL CLASSES FOR TESTING
 //-----------------------------------------------------------------------------
@@ -130,6 +176,7 @@ struct HasPrint {
     mutable int d_spacesPerLevel;
 
     // CREATORS
+    explicit
     HasPrint(int data) : d_data(data) {}
 
     // ACCESSORS
@@ -153,6 +200,7 @@ class NoPrint {
 
   public:
     // CREATORS
+    explicit
     NoPrint(int data) : d_data(data) {}
 
     // ACCESSORS
@@ -182,45 +230,45 @@ void testFunctionAddress(int)
 //-----------------------------------------------------------------------------
 
 // EXAMPLE 1
-class Datetime {
-  public:
-    bsl::ostream& print(bsl::ostream& stream,
-                        int           = 0,
-                        int           = 4) const
-    { return stream; }
-};
 
-class RecordAttributes {
-    // This class provides a container for a fixed set of attributes.
+class StockTrade {
+    // Record representing a stock trade.
 
     // DATA
-    Datetime         d_timestamp;    // creation date and time
-    int              d_processID;    // process id of creator
+    bsl::string d_ticker;
+    double      d_price;
+    double      d_quantity;
 
   public:
+    // CREATORS
+    StockTrade(const bsl::string& ticker,
+               double             price,
+               double             quantity)
+    : d_ticker(ticker)
+    , d_price(price)
+    , d_quantity(quantity)
+    {}
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level          = 0,
-                        int           spacesPerLevel = 4) const;
-    // ...
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const
+    {
+        if (stream.bad()) {
+            return stream;                                            // RETURN
+        }
+
+        bslim::Printer printer(&stream, level, spacesPerLevel);
+        printer.start();
+        printer.printAttribute("ticker",   d_ticker);
+        printer.printAttribute("price",    d_price);
+        printer.printAttribute("quantity", d_quantity);
+        printer.end();
+
+        return stream;
+    }
 };
 
-bsl::ostream& RecordAttributes::print(bsl::ostream& stream,
-                                      int           level,
-                                      int           spacesPerLevel) const
-{
-    if (stream.bad()) {
-         return stream;                                               // RETURN
-    }
-
-    bslim::Printer printer(&stream, level, spacesPerLevel);
-    printer.start();
-    printer.printAttribute("timestamp", d_timestamp);
-    printer.printAttribute("process ID", d_processID);
-    printer.end();
-
-    return stream;
-}
 
 // EXAMPLE 2
 //
@@ -235,31 +283,71 @@ class BlockList {
         // blocks, and thereby enabling constant-time deletions from, as
         // well as additions to, the list of blocks.
 
-        Block                               *d_next_p;       // next
-                                                             // pointer
+        Block                                *d_next_p;       // next
+                                                              // pointer
 
-        Block                              **d_addrPrevNext; // enable
-                                                             // delete
+        Block                               **d_addrPrevNext; // enable
+                                                              // delete
 
-        bsls_AlignmentUtil::MaxAlignedType   d_memory;       // force
-                                                             // alignment
+        bsls::AlignmentUtil::MaxAlignedType   d_memory;       // force
+                                                              // alignment
     };
 
     // DATA
-    Block           *d_head_p;      // address of first block of memory
-                                    // (or 0)
+    Block            *d_head_p;      // address of first block of memory
+                                     // (or 0)
 
-    bslma_Allocator *d_allocator_p; // memory allocator; held, but not
-                                    // owned
+    bslma::Allocator *d_allocator_p; // memory allocator; held, but not
+                                     // owned
 
   public:
+    // CREATORS
+    explicit
+    BlockList(bslma::Allocator *allocator);
+        // Create an empty blocklist.
+
+    ~BlockList();
+        // Destroy this object and free its memory
+
+    // MANIPULATORS
+    void addBlock();
+        // Add a block to the list
+
     // ACCESSORS
-    // ...
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
+        // Print out this object.
 };
 
+// CREATORS
+BlockList::BlockList(bslma::Allocator *allocator)
+: d_head_p(0)
+, d_allocator_p(allocator)
+{}
+
+BlockList::~BlockList()
+{
+    for (Block *p = d_head_p; p; ) {
+        Block *condemned = p;
+        p = p->d_next_p;
+        d_allocator_p->deallocate(condemned);
+    }
+}
+
+// MANIPULATORS
+void BlockList::addBlock()
+{
+    Block *pNew = (Block *) d_allocator_p->allocate(sizeof(Block) + 1000);
+    pNew->d_addrPrevNext = &d_head_p;
+    pNew->d_next_p = d_head_p;
+    if (d_head_p) {
+        d_head_p->d_addrPrevNext = &pNew->d_next_p;
+    }
+    d_head_p = pNew;
+}
+
+// ACCESSORS
 bsl::ostream& BlockList::print(bsl::ostream& stream,
                                int           level,
                                int           spacesPerLevel) const
@@ -270,23 +358,99 @@ bsl::ostream& BlockList::print(bsl::ostream& stream,
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
-
-    Block *it = d_head_p;
-    while (it)
-    {
+    for (Block *it = d_head_p; it; it = it->d_next_p) {
         printer.printHexAddr(it, 0);
-        it = it->d_next_p;
     }
-
     printer.end();
 
     return stream;
 }
 
+struct ThirdPartyStruct {
+    // Suppose this struct is defined somewhere in /usr/include/foo.h, we have
+    // no control over it and hence cannot add a .print method to it.
+
+    enum { PRIVATE  = 1,
+           WRITABLE = 2 };
+
+    short pid;
+    short access_flags;
+    char user_id[20];
+};
+
+// in your own code
+
+struct MyThirdPartyStructPrintUtil {
+    static
+    bsl::ostream& print(bsl::ostream&           stream,
+                        const ThirdPartyStruct& data,
+                        int                     level = 0,
+                        int                      spacesPerLevel = 4);
+        // You write this function in your own code to accommodate
+        // 'ThirdPartyStruct'.
+};
+
+bsl::ostream& MyThirdPartyStructPrintUtil::print(
+                                        bsl::ostream&           stream,
+                                        const ThirdPartyStruct& data,
+                                        int                     level,
+                                        int                     spacesPerLevel)
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printer.printAttribute("pid",          data.pid);
+    printer.printAttribute("access_flags", data.access_flags);
+    printer.printAttribute("user_id",      data.user_id);
+    printer.end();
+
+    return stream;
+}
+
+class Customer {
+    // DATA
+    bsl::string      d_companyName;
+    ThirdPartyStruct d_thirdPartyStruct;
+    bool             d_loyalCustomer;
+
+  public:
+    // CREATORS
+    Customer() {}
+
+    Customer(const bsl::string& companyName,
+             short              pid,
+             short              accessFlags,
+             const bsl::string& userId,
+             bool               loyalCustomer)
+    : d_companyName(companyName)
+    , d_loyalCustomer(loyalCustomer)
+    {
+        d_thirdPartyStruct.pid = pid;
+        d_thirdPartyStruct.access_flags = accessFlags;
+        bsl::strcpy(d_thirdPartyStruct.user_id, userId.c_str());
+    }
+
+    // ACCESSORS
+    void print(bsl::ostream& stream,
+               int           level = 0,
+               int           spacesPerLevel = 4) const
+    {
+        bslim::Printer printer(&stream, level, spacesPerLevel);
+        printer.start();
+        printer.printAttribute("CompanyName", d_companyName);
+        printer.printForeign(d_thirdPartyStruct,
+                             &MyThirdPartyStructPrintUtil::print,
+                             "ThirdPartyStruct");
+        printer.printAttribute("LoyalCustomer", d_loyalCustomer);
+        printer.end();
+    }
+};
+
+
 //  EXAMPLE 3
 //
 class ThirdPartyClass {
     // ...
+
   public:
     // ACCESSORS
     int getAttribute1() const { return 0; }
@@ -427,23 +591,761 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 24: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
+        // TESTING USAGE EXAMPLE 4
         //
-        // Concerns: That it compiles
+        // Concerns:
+        //   Demonstrate to the user 3 things
+        //:   o Printing a fixed-length array of objects
+        //:   o Printing a pointer to a type
+        //:   o Printing a range of objects
+        //:   o Repeat printing an STL object
+        //
+        // Plan:
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nUsage Example 4\n"
+                               "===============\n";
+
+        typedef bsl::set<int> Set;
+      
+        Set s0, s1, s2;
+      
+        s0.insert(0);
+        s0.insert(1);
+        s0.insert(2);
+      
+        s1.insert(4);
+        s1.insert(5);
+      
+        s2.insert(8);
+        const Set *setArray[] = { &s0, &s1, &s2 };
+        const int NUM_SET_ARRAY = sizeof setArray / sizeof *setArray;
+
+        if (verbose) Q(Array as object);
+        {
+            bsl::ostringstream oss;
+            bslim::Printer printer(&oss, 0, -1);
+            printer.printValue(setArray + 0, setArray + NUM_SET_ARRAY);
+            if (verbose) cout << oss.str() << endl;
+        }
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 3
+        //
+        // Concerns:
+        //   Demonstrate printing an STL container, and printing a
+        //   foreign object that we can't tool with a .print function.
+        //
+        // Plan:
+        //   Create a 'Customer' type that contains a type 'ThirdPartyStruct'
+        //   that does not cooperate with being printed.  Tool 'Customer'
+        //   to print 'ThirdPartyStruct', and then put some 'Customer' objects
+        //   into a map, and print the map.
+        //
+        // Testing:
+        //   USAGE EXAMPLE 3
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nUsage Example 3\n"
+                               "===============\n";
+
+        bsl::map<int, Customer> myMap;
+        myMap[7] = Customer("Honeywell",
+                            27,
+                            ThirdPartyStruct::PRIVATE,
+                            "hw",
+                            true);
+        myMap[5] = Customer("IBM",
+                            32,
+                            ThirdPartyStruct::WRITABLE,
+                            "ibm",
+                            false);
+        myMap[8] = Customer("Burroughs",
+                            45,
+                            0,
+                            "burr",
+                            true);
+
+        bsl::ostringstream oss;
+        bslim::Printer printer(&oss, 0, 4);
+        printer.start();
+        printer.printValue(myMap);
+        printer.end();
+
+        const char *EXP = "[\n"
+                          "    [\n"
+                          "        [\n"
+                          "            5\n"
+                          "            [\n"
+                          "                CompanyName = \"IBM\"\n"
+                          "                ThirdPartyStruct = [\n"
+                          "                    pid = 32\n"
+                          "                    access_flags = 2\n"
+                          "                    user_id = \"ibm\"\n"
+                          "                ]\n"
+                          "                LoyalCustomer = false\n"
+                          "            ]\n"
+                          "        ]\n"
+                          "        [\n"
+                          "            7\n"
+                          "            [\n"
+                          "                CompanyName = \"Honeywell\"\n"
+                          "                ThirdPartyStruct = [\n"
+                          "                    pid = 27\n"
+                          "                    access_flags = 1\n"
+                          "                    user_id = \"hw\"\n"
+                          "                ]\n"
+                          "                LoyalCustomer = true\n"
+                          "            ]\n"
+                          "        ]\n"
+                          "        [\n"
+                          "            8\n"
+                          "            [\n"
+                          "                CompanyName = \"Burroughs\"\n"
+                          "                ThirdPartyStruct = [\n"
+                          "                    pid = 45\n"
+                          "                    access_flags = 0\n"
+                          "                    user_id = \"burr\"\n"
+                          "                ]\n"
+                          "                LoyalCustomer = true\n"
+                          "            ]\n"
+                          "        ]\n"
+                          "    ]\n"
+                          "]\n";
+
+        LOOP2_ASSERT(EXP, oss.str(), EXP == oss.str());
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 2
+        //
+        // Concerns: That it compiles and runs
         //
         // Plan:
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLE 2
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nUsage Example 2\n"
+                               "===============\n";
+
+        bslma::TestAllocator ta;
+        BlockList bl(&ta);
+        bl.addBlock();
+        bl.addBlock();
+
+        bsl::ostringstream out;
+
+        // It's kind of hard to compare output, since we can't predict ptr
+        // values, or even how many hex digits will be in the printed value.
+
+        {
+            bl.print(out, 0, -1);
+            const bsl::string& outStr = out.str();
+            const char *result = outStr.c_str();
+
+            if (verbose) P(result);
+
+            char buf[1000];
+            char *to = buf;
+            const char *from = result;
+            bool exclude = false;
+            for (; *from; ++from) {
+                if (bsl::isspace(*from)) exclude = false;
+                if (!exclude) *to++ = *from;
+                if ('x' == *from) exclude = true;
+            }
+            *to = 0;
+
+            const char *EXP = "[ 0x 0x ]";
+
+            LOOP2_ASSERT(out.str(), buf, !bsl::strcmp(EXP, buf));
+        }
+
+        out.str("");
+
+        {
+            bl.print(out, 0, 4);
+            const bsl::string& outStr = out.str();
+            const char *result = outStr.c_str();
+
+            if (verbose) P(result);
+
+            char buf[1000];
+            char *to = buf;
+            const char *from = result;
+            bool exclude = false;
+            for (; *from; ++from) {
+                if (bsl::isspace(*from)) exclude = false;
+                if (!exclude) *to++ = *from;
+                if ('x' == *from) exclude = true;
+            }
+            *to = 0;
+
+            const char *EXP = "[\n"
+                              "    0x\n"
+                              "    0x\n"
+                              "]\n";
+
+            LOOP2_ASSERT(out.str(), buf, !bsl::strcmp(EXP, buf));
+        }
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE 1
+        //
+        // Concerns: That it compiles and runs
+        //
+        // Plan:
+        //
+        // Testing:
+        //   USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "Usage Example 1" << endl
                                   << "===============" << endl;
 
-        // Tested above
+        bsl::ostringstream out;
 
+        StockTrade st("IBM", 107.3, 200);
+
+        {
+            st.print(out, 0, -1);
+            const char *EXP =
+                           "[ ticker = \"IBM\" price = 107.3 quantity = 200 ]";
+            LOOP_ASSERT(out.str(), EXP == out.str());
+        }
+
+        out.str("");
+
+        {
+            st.print(out, 0, 4);
+            const char *EXP = "[\n"
+                              "    ticker = \"IBM\"\n"
+                              "    price = 107.3\n"
+                              "    quantity = 200\n"
+                              "]\n";
+            LOOP_ASSERT(out.str(), EXP == out.str());
+        }
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // 'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS WITH ITS
+        //
+        // Concern:
+        //   Though 'bslim' has no awareness of maps, it knows about pairs and
+        //   can print ranges, which should enable it to print a map.  Verify
+        //   that this is the case.
+        //
+        // Plan:
+        //   Create and populate a 'bsl::map' object, print it out using range
+        //   'printValue', and verify that the string printed out is what is
+        //   expected.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl <<
+         "'printValue' ALL STL SEQUENCE AND ASSOCIATIVE CONTAINERS WITH ITS\n"
+         "=================================================================\n";
+
+        struct S {
+            int d_key;
+            int d_value;
+        };
+
+        S uniqData[] = { { -3, 10 }, {  2,  1 }, {  7,  5 }, {  5,  5 },
+                         {  9,  5 }, {  3,  7 }, { 22, 17 }, {  1,  1 } };
+        S redundantData[] =
+                       { { -3, 10 }, {  2,  1 }, {  7,  5 }, {  5,  5 },
+                         { -3,  5 }, {  2,  7 }, {  2, 17 }, {  5,  1 } };
+        enum { NUM_DATA = sizeof(uniqData) / sizeof(*uniqData) };
+
+        int uniqKeys[     NUM_DATA];
+        int redundantKeys[NUM_DATA];
+        for (int i = 0; i < NUM_DATA; ++i) {
+            uniqKeys[i]      = uniqData[i].d_key;
+            redundantKeys[i] = redundantData[i].d_key;
+        }
+
+        // STL sequence & associative containers, in the order in which they
+        // are listed in http://www.sgi.com/tech/stl/table_of_contents.html.
+
+        {
+            bsl::vector<int> v(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::vector<int>& V = v;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("vector", V);
+
+            const char *EXP = "      vector = [\n"
+                              "        -3\n"
+                              "        2\n"
+                              "        7\n"
+                              "        5\n"
+                              "        9\n"
+                              "        3\n"
+                              "        22\n"
+                              "        1\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+
+        {
+            bsl::deque<int> d(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::deque<int>& D = d;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("deque", D);
+
+            const char *EXP = "      deque = [\n"
+                              "        -3\n"
+                              "        2\n"
+                              "        7\n"
+                              "        5\n"
+                              "        9\n"
+                              "        3\n"
+                              "        22\n"
+                              "        1\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+
+        {
+            bsl::list<int> l(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::list<int>& L = l;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("list", L);
+
+            const char *EXP = "      list = [\n"
+                              "        -3\n"
+                              "        2\n"
+                              "        7\n"
+                              "        5\n"
+                              "        9\n"
+                              "        3\n"
+                              "        22\n"
+                              "        1\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+
+#if 1
+        // This assert will fail once the typetraits in slist are fixed
+
+        ASSERT(!(bslalg::HasTrait<bsl::slist<int>,
+                                bslalg::TypeTraitHasStlIterators>::VALUE));
+#else
+        {
+            bsl::slist<int> sl(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::slist<int>& SL = sl;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("slist", SL);
+
+            const char *EXP = "      slist = [\n"
+                              "        -3\n"
+                              "        2\n"
+                              "        7\n"
+                              "        5\n"
+                              "        9\n"
+                              "        3\n"
+                              "        22\n"
+                              "        1\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+#endif
+
+        // We don't seem to have bit_vector
+
+        {
+            bsl::set<int> s(&uniqKeys[0], uniqKeys + NUM_DATA);
+            const bsl::set<int>& S = s;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("set", S);
+
+            const char *EXP = "      set = [\n"
+                              "        -3\n"
+                              "        1\n"
+                              "        2\n"
+                              "        3\n"
+                              "        5\n"
+                              "        7\n"
+                              "        9\n"
+                              "        22\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+
+        {
+            bsl::map<int, int> m;    const bsl::map<int, int>& M = m;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const S& s = uniqData[i];
+                m[s.d_key] = s.d_value;
+            }
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("map", M);
+
+            const char *EXP = "      map = [\n"
+                              "        [\n"
+                              "          -3\n"
+                              "          10\n"
+                              "        ]\n"
+                              "        [\n"
+                              "          1\n"
+                              "          1\n"
+                              "        ]\n"
+                              "        [\n"
+                              "          2\n"
+                              "          1\n"
+                              "        ]\n"
+                              "        [\n"
+                              "          3\n"
+                              "          7\n"
+                              "        ]\n"
+                              "        [\n"
+                              "          5\n"
+                              "          5\n"
+                              "        ]\n"
+                              "        [\n"
+                              "          7\n"
+                              "          5\n"
+                              "        ]\n"
+                              "        [\n"
+                              "          9\n"
+                              "          5\n"
+                              "        ]\n"
+                              "        [\n"
+                              "          22\n"
+                              "          17\n"
+                              "        ]\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+
+        {
+            bsl::multiset<int> ms(&redundantKeys[0], redundantKeys + NUM_DATA);
+            const bsl::multiset<int>& MS = ms;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("multiset", MS);
+
+            const char *EXP = "      multiset = [\n"
+                              "        -3\n"
+                              "        -3\n"
+                              "        2\n"
+                              "        2\n"
+                              "        2\n"
+                              "        5\n"
+                              "        5\n"
+                              "        7\n"
+                              "      ]\n";
+            LOOP2_ASSERT(EXP, out.str(), EXP == out.str());
+        }
+
+        {
+            bsl::multimap<int, int> mm;
+            const bsl::multimap<int, int>& MM = mm;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const S& s = redundantData[i];
+                mm.insert(std::pair<int, int>(s.d_key, s.d_value));
+            }
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("multimap", MM);
+
+            // Verifying the result in a platform-independent way is difficult
+            // because the order it which elements with the same key occur
+            // might not be defined.
+
+            const bsl::string& result = out.str();
+
+            {
+                const char *match = "      multimap = [\n";
+
+                // find returning 0 means 'found at the beginning'
+
+                ASSERT(0 == result.find(match));
+            }
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const S& s = redundantData[i];
+                bsl::ostringstream matchss;
+                matchss << "\n        [\n"
+                             "          " << s.d_key << "\n"
+                             "          " << s.d_value << "\n"
+                             "        ]\n";
+                ASSERT(bsl::string::npos != result.find(matchss.str()));
+            }
+
+            {
+                int newlines = 0;
+                for (const char *pc = result.c_str(); *pc; ++pc) {
+                    if ('\n' == *pc) {
+                        ++newlines;
+                    }
+                }
+                ASSERT(4 * NUM_DATA + 2 == newlines);
+            }
+        }
+
+        {
+            bsl::hash_set<int> hs(uniqKeys + 0, uniqKeys + NUM_DATA);
+            const bsl::hash_set<int>& HS = hs;
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("hash_set", HS);
+
+            // Verifying the result in a platform-independent way is difficult
+            // because the order it which elements occur is, by definition, not
+            // defined.
+
+            const bsl::string& result = out.str();
+
+            {
+                const char *match = "      hash_set = [\n";
+
+                // find returning 0 means 'found at the beginning'
+
+                ASSERT(0 == result.find(match));
+            }
+            for (int i = 0; i < NUM_DATA; ++i) {
+                bsl::ostringstream matchss;
+                matchss <<  "\n        " << uniqKeys[i] << "\n";
+                ASSERT(bsl::string::npos != result.find(matchss.str()));
+            }
+
+            {
+                int newlines = 0;
+                for (const char *pc = result.c_str(); *pc; ++pc) {
+                    if ('\n' == *pc) {
+                        ++newlines;
+                    }
+                }
+                ASSERT(NUM_DATA + 2 == newlines);
+            }
+        }
+
+        {
+            bsl::hash_map<int, int> hm;
+            const bsl::hash_map<int, int>& HM = hm;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const S& s = uniqData[i];
+                hm[s.d_key] = s.d_value;
+            }
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("hash_map", HM);
+
+            // Verifying the result in a platform-independent way is difficult
+            // because the order it which elements occur is, by definition, not
+            // defined.
+
+            const bsl::string& result = out.str();
+
+
+            {
+                const char *match = "      hash_map = [\n";
+
+                // find returning 0 means 'found at the beginning'
+
+                ASSERT(0 == result.find(match));
+            }
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const S& s = uniqData[i];
+                bsl::ostringstream matchss;
+                matchss << "\n        [\n"
+                             "          " << s.d_key << "\n"
+                             "          " << s.d_value << "\n"
+                             "        ]\n";
+                ASSERT(bsl::string::npos != result.find(matchss.str()));
+            }
+
+            {
+                int newlines = 0;
+                for (const char *pc = result.c_str(); *pc; ++pc) {
+                    if ('\n' == *pc) {
+                        ++newlines;
+                    }
+                }
+                ASSERT(4 * NUM_DATA + 2 == newlines);
+            }
+        }
+
+        {
+            bsl::hash_multiset<int> hms;
+            const bsl::hash_multiset<int>& HMS = hms;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                hms.insert(redundantKeys[i]);
+            }
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("hash_multiset", HMS);
+
+            // Verifying the result in a platform-independent way is difficult
+            // because the order it which elements occur is, by definition, not
+            // defined.
+
+            const bsl::string& result = out.str();
+
+            {
+                const char *match = "      hash_multiset = [\n";
+
+                // find returning 0 means 'found at the beginning'
+
+                ASSERT(0 == result.find(match));
+            }
+            for (int i = 0; i < NUM_DATA; ++i) {
+                bsl::size_t it = 0;
+                bsl::ostringstream matchss;
+                matchss <<  "\n        " << redundantKeys[i] << "\n";
+                for (bsls::Types::IntPtr j = hms.count(redundantKeys[i]);
+                     j >= 0;
+                     --j, ++it) {
+                    it = result.find(matchss.str(), it);
+                    ASSERT((j != 0) == (bsl::string::npos != it));
+                }
+            }
+
+            {
+                int newlines = 0;
+                for (const char *pc = result.c_str(); *pc; ++pc) {
+                    if ('\n' == *pc) {
+                        ++newlines;
+                    }
+                }
+                LOOP2_ASSERT(result, newlines, NUM_DATA + 2 == newlines);
+            }
+        }
+
+
+        {
+            bsl::hash_multimap<int, int> hmm;
+            const bsl::hash_multimap<int, int>& HMM = hmm;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const S& s = redundantData[i];
+                hmm.insert(std::pair<int, int>(s.d_key, s.d_value));
+            }
+            bsl::ostringstream out;
+            bslim::Printer p(&out, 2, 2);
+            p.printAttribute("hash_multimap", HMM);
+
+            // Verifying the result in a platform-independent way is difficult
+            // because the order it which elements occur is, by definition, not
+            // defined.
+
+            const bsl::string& result = out.str();
+
+
+            {
+                const char *match = "      hash_multimap = [\n";
+
+                // find returning 0 means 'found at the beginning'
+
+                ASSERT(0 == result.find(match));
+            }
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const S& s = redundantData[i];
+                bsl::ostringstream matchss;
+                matchss << "\n        [\n"
+                             "          " << s.d_key << "\n"
+                             "          " << s.d_value << "\n"
+                             "        ]\n";
+                ASSERT(bsl::string::npos != result.find(matchss.str()));
+            }
+
+            {
+                int newlines = 0;
+                for (const char *pc = result.c_str(); *pc; ++pc) {
+                    if ('\n' == *pc) {
+                        ++newlines;
+                    }
+                }
+                ASSERT(4 * NUM_DATA + 2 == newlines);
+            }
+        }
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // 'printAttribute' WITH RANGE
+        //
+        // Concerns:
+        //   Need to exercise 'printAttribute' with a range.
+        //
+        // Plan:
+        //   Create an array and a set, populate both, print them out with
+        //   range 'printAttribute', and verify that the output is as
+        //   expected.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "TESTING 'printAttribute' with range\n"
+                                     "===================================\n";
+
+        int array[] = { 2, 8, 10, 7, 3, 9 };
+        enum { NUM_IN_ARRAY = sizeof(array) / sizeof(*array) };
+
+        {
+            int array[] = { 2, 8, 10, 7, 3, 9 };
+            enum { NUM_IN_ARRAY = sizeof(array) / sizeof(*array) };
+
+            bsl::ostringstream out;
+            Obj p(&out, 2, 2);
+            p.start();
+            p.printAttribute("Array", array + 0, array + NUM_IN_ARRAY);
+            p.end();
+
+            const char *EXPECTED = "    [\n"
+                                   "      Array = [\n"
+                                   "        2\n"
+                                   "        8\n"
+                                   "        10\n"
+                                   "        7\n"
+                                   "        3\n"
+                                   "        9\n"
+                                   "      ]\n"
+                                   "    ]\n";
+
+            LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+
+            if (verbose) {
+                bsl::cout << out.str();
+            }
+        }
+
+        {
+            bsl::set<int> mySet;
+            for (int i = 0; i < NUM_IN_ARRAY; ++i) {
+                mySet.insert(array[i]);
+            }
+
+            bsl::ostringstream out;
+            Obj p(&out, 2, 2);
+            p.start();
+            p.printAttribute("mySet", mySet);
+            p.end();
+
+            const char *EXPECTED = "    [\n"
+                                   "      mySet = [\n"
+                                   "        2\n"
+                                   "        3\n"
+                                   "        7\n"
+                                   "        8\n"
+                                   "        9\n"
+                                   "        10\n"
+                                   "      ]\n"
+                                   "    ]\n";
+
+            LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+
+            if (verbose) {
+                bsl::cout << out.str();
+            }
+        }
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -464,7 +1366,7 @@ int main(int argc, char *argv[])
         (void)data;  // used
         ostringstream out;
 
-        bslma_TestAllocator sa("supplied", veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
             if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
@@ -643,7 +1545,7 @@ int main(int argc, char *argv[])
 
                 ostringstream ptr;
                 ptr << hex << showbase
-                    << reinterpret_cast<bsls_Types::UintPtr>(data);
+                    << reinterpret_cast<bsls::Types::UintPtr>(data);
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
                                                             ptr.str().c_str());
@@ -752,7 +1654,7 @@ int main(int argc, char *argv[])
 
             ostringstream ptr;
             ptr << hex << showbase
-                << reinterpret_cast<bsls_Types::UintPtr>(data);
+                << reinterpret_cast<bsls::Types::UintPtr>(data);
             char buf[999];
             snprintf(buf, 999, DATA[i].d_expected.c_str(), ptr.str().c_str());
             const bsl::string EXPECTED(buf);
@@ -954,7 +1856,7 @@ int main(int argc, char *argv[])
 
                 ostringstream ptr;
                 ptr << hex << showbase
-                    << reinterpret_cast<bsls_Types::UintPtr>(data);
+                    << reinterpret_cast<bsls::Types::UintPtr>(data);
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
                                                             ptr.str().c_str());
@@ -1408,7 +2310,7 @@ int main(int argc, char *argv[])
 
                 stringstream exp;
                 exp << hex << showbase
-                    << reinterpret_cast<bsls_Types::UintPtr>(data);
+                    << reinterpret_cast<bsls::Types::UintPtr>(data);
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
                                                             exp.str().c_str());
@@ -1517,7 +2419,7 @@ int main(int argc, char *argv[])
                 Obj p(&out, LEVEL, SPL); p.print(data, 0);
 
                 ostringstream ptr;
-                ptr << hex << showbase << data;
+                ptr << hex << showbase << (bsls::Types::UintPtr) data;
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
                                                      ptr.str().c_str(), *data);
@@ -1567,7 +2469,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(SPL_EXP, SPL_ACT, SPL_EXP == SPL_ACT);
 
                 ostringstream ptr;
-                ptr << hex << showbase << data;
+                ptr << hex << showbase << (bsls::Types::UintPtr) data;
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
                                                      ptr.str().c_str(), tData);
@@ -1611,7 +2513,7 @@ int main(int argc, char *argv[])
 
                 ostringstream ptr;
                 ptr << hex << showbase
-                    << reinterpret_cast<bsls_Types::UintPtr>(functionPtr);
+                    << reinterpret_cast<bsls::Types::UintPtr>(functionPtr);
                 char buf[999];
                 snprintf(buf, 999, DATA[i].d_expected.c_str(),
                                    ptr.str().c_str());
@@ -1774,8 +2676,8 @@ int main(int argc, char *argv[])
                 bsl::string d_expFormat;      // data format
                 bsl::string d_expEpilogue;    // data epilogue
             } DATA[] = {
-                //LINE  LEVEL SPL EXP PROLOGUE EXP FORMAT EXP EPLILOGUE
-                //----  ----- --- ------------ ---------- -------------
+                //LINE  LEVEL SPL EXP PROLOGUE EXP FORMAT EXP EPILOGUE
+                //----  ----- --- ------------ ---------- ------------
                 { L_,    2,    2, "      [\n",
                                                "        \"%s\"\n",
                                                           "      ]\n" },
@@ -1801,7 +2703,81 @@ int main(int argc, char *argv[])
                 Obj p(&out, LEVEL, SPL); p.print(data, 0);
 
                 char buf[999], *ptr = &buf[0];
-                int  len, size = sizeof(buf);
+                bsl::size_t len, size = sizeof(buf);
+                len = strlen(DATA[i].d_expPrologue.c_str());
+                ASSERT(len + 1 < size);
+                strncpy(ptr,
+                        DATA[i].d_expPrologue.c_str(),
+                        len);
+                ptr += len; size -= len;
+                for (int j = 0; j < (int)data.size(); ++j) {
+                    int n = snprintf(ptr,
+                                     size,
+                                     DATA[i].d_expFormat.c_str(),
+                                     data[j].c_str());
+                    ptr += n; size -= n;
+                }
+                len = strlen(DATA[i].d_expEpilogue.c_str());
+                ASSERT(len + 1 < size);
+                strncpy(ptr,
+                        DATA[i].d_expEpilogue.c_str(),
+                        len);
+                ptr += len; size -= len;
+                ASSERT(size > 0);
+                *ptr = '\0';
+                const bsl::string EXPECTED(buf);
+                const bsl::string& ACTUAL = out.str();
+
+                if (veryVeryVerbose) {
+                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
+                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                }
+                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+            }
+        }
+
+        if (verbose) cout <<
+                   "\nTESTING 'printValue' (range bsl::vector<bsl::string>)\n"
+                     "=====================================================\n";
+
+        {
+            static const struct {
+                int         d_lineNum;        // source line number
+                int         d_level;          // indentation level
+                int         d_spacesPerLevel; // spaces per indentation level
+                bsl::string d_expPrologue;    // data prologue
+                bsl::string d_expFormat;      // data format
+                bsl::string d_expEpilogue;    // data epilogue
+            } DATA[] = {
+                //LINE  LEVEL SPL EXP PROLOGUE EXP FORMAT EXP EPILOGUE
+                //----  ----- --- ------------ ---------- ------------
+                { L_,    2,    2, "      [\n",
+                                               "        \"%s\"\n",
+                                                          "      ]\n" },
+
+                { L_,    2,   -2,
+                                  " [",
+                                               " \"%s\"",
+                                                          " ]"        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA;  ++i) {
+                const int LINE  = DATA[i].d_lineNum;
+                int LEVEL = DATA[i].d_level;
+                int SPL   = DATA[i].d_spacesPerLevel;
+
+                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+
+                ostringstream out;
+                bsl::vector<bsl::string> data;
+                data.push_back(bsl::string("Hello"));
+                data.push_back(bsl::string("world!"));
+                Obj p(&out, LEVEL, SPL); p.printValue(data.begin(),
+                                                      data.end());
+
+                char buf[999], *ptr = &buf[0];
+                bsl::size_t len, size = sizeof(buf);
                 len = strlen(DATA[i].d_expPrologue.c_str());
                 ASSERT(len + 1 < size);
                 strncpy(ptr,
@@ -1847,8 +2823,8 @@ int main(int argc, char *argv[])
                 bsl::string d_expFormat;      // data format
                 bsl::string d_expEpilogue;    // data epilogue
             } DATA[] = {
-                //LINE  LEVEL SPL EXP PROLOGUE EXP FORMAT EXP EPLILOGUE
-                //----  ----- --- ------------ ---------- -------------
+                //LINE  LEVEL SPL EXP PROLOGUE EXP FORMAT EXP EPILOGUE
+                //----  ----- --- ------------ ---------- ------------
                 { L_,    2,    2, "      [\n",
                                                "        %d\n",
                                                           "      ]\n" },
@@ -1875,7 +2851,81 @@ int main(int argc, char *argv[])
                 Obj p(&out, LEVEL, SPL); p.print(data, 0);
 
                 char buf[999], *ptr = &buf[0];
-                int  len, size = sizeof(buf);
+                bsl::size_t len, size = sizeof(buf);
+                len = strlen(DATA[i].d_expPrologue.c_str());
+                ASSERT(len + 1 < size);
+                strncpy(ptr,
+                        DATA[i].d_expPrologue.c_str(),
+                        len);
+                ptr += len; size -= len;
+                for (int j = 0; j < (int)data.size(); ++j) {
+                    int n = snprintf(ptr,
+                                     size,
+                                     DATA[i].d_expFormat.c_str(),
+                                     data[j]);
+                    ptr += n; size -= n;
+                }
+                len = strlen(DATA[i].d_expEpilogue.c_str());
+                ASSERT(len + 1 < size);
+                strncpy(ptr,
+                        DATA[i].d_expEpilogue.c_str(),
+                        len);
+                ptr += len; size -= len;
+                ASSERT(size > 0);
+                *ptr = '\0';
+                const bsl::string EXPECTED(buf);
+                const bsl::string& ACTUAL = out.str();
+
+                if (veryVeryVerbose) {
+                    cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
+                         << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                }
+                LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+            }
+        }
+
+        if (verbose) cout <<"\nTESTING 'printValue (range bsl::vector<int>)\n"
+                              "============================================\n";
+
+        {
+            static const struct {
+                int         d_lineNum;        // source line number
+                int         d_level;          // indentation level
+                int         d_spacesPerLevel; // spaces per indentation level
+                bsl::string d_expPrologue;    // data prologue
+                bsl::string d_expFormat;      // data format
+                bsl::string d_expEpilogue;    // data epilogue
+            } DATA[] = {
+                //LINE  LEVEL SPL EXP PROLOGUE EXP FORMAT EXP EPILOGUE
+                //----  ----- --- ------------ ---------- ------------
+                { L_,    2,    2, "      [\n",
+                                               "        %d\n",
+                                                          "      ]\n" },
+
+                { L_,    2,   -2,
+                                  " [",
+                                               " %d",
+                                                          " ]"        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA;  ++i) {
+                const int LINE  = DATA[i].d_lineNum;
+                int LEVEL = DATA[i].d_level;
+                int SPL   = DATA[i].d_spacesPerLevel;
+
+                if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+
+                ostringstream out;
+                bsl::vector<int> data;
+                data.push_back(0);
+                data.push_back(1);
+                data.push_back(3);
+                Obj p(&out, LEVEL, SPL); p.printValue(data.begin(),
+                                                      data.end());
+
+                char buf[999], *ptr = &buf[0];
+                bsl::size_t len, size = sizeof(buf);
                 len = strlen(DATA[i].d_expPrologue.c_str());
                 ASSERT(len + 1 < size);
                 strncpy(ptr,
@@ -2028,7 +3078,7 @@ int main(int argc, char *argv[])
                 if (ISHEX) {
                     stringstream exp;
                     exp << hex << showbase
-                        << static_cast<bsls_Types::UintPtr>(data);
+                        << static_cast<bsls::Types::UintPtr>(data);
                     char buf[999];
                     snprintf(buf, 999, DATA[i].d_expected.c_str(),
                                                             exp.str().c_str());
@@ -2083,6 +3133,86 @@ int main(int argc, char *argv[])
                          << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
                 }
                 LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+            }
+        }
+        {
+            if (verbose) cout << "enum" << endl
+                              << "----" << endl;
+
+            // Test level & spaces per level
+            {
+                static const struct {
+                    int         d_lineNum;        // source line number
+                    int         d_level;          // indentation level
+                    int         d_spacesPerLevel; // spaces per indentation lvl
+                    bsl::string d_expected;       // expected output format
+                } DATA[] = {
+                    //LINE  LEVEL SPL EXPECTED OUTPUT
+                    //----  ----- --- --------------
+                    { L_,    2,    3, "         %s\n" },
+                    { L_,    2,   -3, " %s"           }
+                };
+                const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+                for (int i = 0; i < NUM_DATA;  ++i) {
+                    const int LINE  = DATA[i].d_lineNum;
+                    int LEVEL = DATA[i].d_level;
+                    int SPL   = DATA[i].d_spacesPerLevel;
+
+                    if (veryVerbose) { T_ P_(LINE) P_(LEVEL) P(SPL) }
+
+                    ostringstream out;
+                    TestEnumWithStreaming::Enum value =
+                                               TestEnumWithStreaming::VALUE_B;
+                    Obj p(&out, LEVEL, SPL); p.printValue(value);
+
+                    char buf[999];
+                    snprintf(buf, 999, DATA[i].d_expected.c_str(), "VALUE_B");
+                    const bsl::string EXPECTED(buf);
+                    const bsl::string& ACTUAL = out.str();
+
+                    if (veryVeryVerbose) {
+                        cout << "\t\tEXPECTED:\n" << "\t\t" << EXPECTED << endl
+                             << "\t\tACTUAL:\n" << "\t\t" << ACTUAL << endl;
+                    }
+                    LOOP3_ASSERT(LINE, EXPECTED, ACTUAL, EXPECTED == ACTUAL);
+                }
+            }
+            {
+                // Test different enum values
+                TestEnumWithStreaming::Enum asciiA =
+                                                TestEnumWithStreaming::VALUE_A;
+                TestEnumWithStreaming::Enum asciiB =
+                                                TestEnumWithStreaming::VALUE_B;
+                TestEnumNoStreaming::Enum nonAsciiA =
+                                                  TestEnumNoStreaming::VALUE_A;
+                TestEnumNoStreaming::Enum nonAsciiB =
+                                                  TestEnumNoStreaming::VALUE_B;
+
+                {
+                    ostringstream out;
+                    Obj p(&out, 0, -1); p.printValue(asciiA);
+                    const bsl::string EXPECTED(" VALUE_A");
+                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+                }
+                {
+                    ostringstream out;
+                    Obj p(&out, 0, -1); p.printValue(asciiB);
+                    const bsl::string EXPECTED(" VALUE_B");
+                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+                }
+                {
+                    ostringstream out;
+                    Obj p(&out, 0, -1); p.printValue(nonAsciiA);
+                    const bsl::string EXPECTED(" 0");
+                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+                }
+                {
+                    ostringstream out;
+                    Obj p(&out, 0, -1); p.printValue(nonAsciiB);
+                    const bsl::string EXPECTED(" 1");
+                    LOOP2_ASSERT(EXPECTED, out.str(), EXPECTED == out.str());
+                }
             }
         }
       } break;

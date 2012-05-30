@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use component 'bsls_types' instead.
 //
 //@CLASSES:
-//   bsls_Int64: namespace for platform-dependent 64-bit integer types
+//  bsls_Int64: namespace for platform-dependent 64-bit integer types
 //
 //@AUTHOR: Tom Marshall (tmarshal)
 //
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 // This component exists to factor out various pathologies, present and future,
 // with 64-bit integers.
 //
-// !WARNING!  If a given platform has a defective native 64-bit integer type,
+// !WARNING! If a given platform has a defective native 64-bit integer type,
 // then there is no guarantee that the types supplied here will be suitable
 // *except* as they are explicitly used by other BDE components.  If a user
 // encounters problems with the types, please contact the author or a BDE
@@ -58,13 +58,13 @@ struct bsls_Int64 {
     // platforms.
 
     // TYPES
-    typedef bsls_Types::Int64  Int64;
-    typedef bsls_Types::Uint64 Uint64;
-        // DEPRECATED: Use 'bsls_Types::Int64' and 'bsls_Types::Uint64',
+    typedef bsls::Types::Int64  Int64;
+    typedef bsls::Types::Uint64 Uint64;
+        // DEPRECATED: Use 'bsls::Types::Int64' and 'bsls::Types::Uint64',
         // respectively, instead.
 };
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 #endif
 

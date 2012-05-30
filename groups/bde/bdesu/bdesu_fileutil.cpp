@@ -116,7 +116,7 @@ extern "C" {
 }
 
 static
-int fcntl_lock(int fd, int cmd, int type)
+int localFcntlLock(int fd, int cmd, int type)
 {
     int rc;
     do {
@@ -224,13 +224,17 @@ bdesu_FileUtil::open(const char *pathName,
                                          : 0);
     DWORD creationInfo = existFlag ? OPEN_EXISTING : CREATE_ALWAYS;
 
+    // The file locking behavior for the opened file 
+    // ('FILE_SHARE_READ | FILE_SHARE_WRITE') is chosen to match the posix
+    // behavior for open (DRQS 30568749).
+ 
     return CreateFile(pathName,
                       accessMode,
-                      FILE_SHARE_READ,       // share for reading??
-                      NULL,                  // default security
-                      creationInfo,          // existing file only
-                      FILE_ATTRIBUTE_NORMAL, // normal file
-                      NULL);                 // no attr
+                      FILE_SHARE_READ | FILE_SHARE_WRITE, // do not lock
+                      NULL,                               // default security
+                      creationInfo,                       // existing file only
+                      FILE_ATTRIBUTE_NORMAL,              // normal file
+                      NULL);                              // no attr
 
 }
 
@@ -390,9 +394,13 @@ int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
 {
     OVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(overlapped));
-    return !LockFileEx(fd, LOCKFILE_FAIL_IMMEDIATELY |
-                           (lockWrite ? LOCKFILE_EXCLUSIVE_LOCK : 0),
-                      0, 1, 0, &overlapped);
+    bool success = LockFileEx(fd, LOCKFILE_FAIL_IMMEDIATELY |
+                              (lockWrite ? LOCKFILE_EXCLUSIVE_LOCK : 0),
+                              0, 1, 0, &overlapped);
+    return success ? 0
+                   : ERROR_LOCK_VIOLATION == GetLastError()
+                     ? BDESU_ERROR_LOCKING_CONFLICT
+                     : -1;
 }
 
 int bdesu_FileUtil::unlock(FileDescriptor fd)
@@ -841,19 +849,23 @@ int bdesu_FileUtil::sync(char *addr, int numBytes, bool sync)
 
 int bdesu_FileUtil::tryLock(FileDescriptor fd, bool lockWrite)
 {
-    return fcntl_lock(fd, F_SETLK, lockWrite ? F_WRLCK : F_RDLCK) == -1 ? -1
-                                                                        : 0;
+    int rc = localFcntlLock(fd, F_SETLK, lockWrite ? F_WRLCK : F_RDLCK);
+    return -1 != rc ? 0
+                    : EAGAIN == errno || EACCES == errno
+                      ? BDESU_ERROR_LOCKING_CONFLICT
+                      : -1;
 }
 
 int bdesu_FileUtil::lock(FileDescriptor fd, bool lockWrite)
 {
-    return fcntl_lock(fd, F_SETLKW, lockWrite ? F_WRLCK : F_RDLCK) == -1 ? -1
-                                                                         : 0;
+    return localFcntlLock(fd, F_SETLKW, lockWrite ? F_WRLCK : F_RDLCK) == -1
+           ? -1
+           : 0;
 }
 
 int bdesu_FileUtil::unlock(FileDescriptor fd)
 {
-    return fcntl_lock(fd, F_SETLK, F_UNLCK) == -1 ? -1 : 0;
+    return localFcntlLock(fd, F_SETLK, F_UNLCK) == -1 ? -1 : 0;
 }
 
 int bdesu_FileUtil::move(const char *oldName, const char *newName)
@@ -1055,7 +1067,7 @@ int bdesu_FileUtil::createDirectories(const char *nativePath,
     }
 
     while (!directoryStack.empty()) {
-        bdesu_PathUtil::appendRaw(&path, 
+        bdesu_PathUtil::appendRaw(&path,
                                   directoryStack.back().c_str(),
                                   static_cast<int>(
                                       directoryStack.back().length()));

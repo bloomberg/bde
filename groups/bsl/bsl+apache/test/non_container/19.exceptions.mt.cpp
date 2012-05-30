@@ -24,7 +24,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2005-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <stdexcept>   // for exceptions
@@ -308,7 +308,7 @@ run_test (int, char**)
 
     const std::size_t nthreads = std::size_t (rw_opt_nthreads);
 
-#if 0 < NTHREADS 
+#if 0 < NTHREADS
 
     rw_fatal (0 == rw_thread_pool (0, nthreads, 0, test_single_exception, 0),
               0, __LINE__, "rw_thread_pool() failed");
@@ -332,7 +332,7 @@ run_test (int, char**)
         rw_alarm (nsec, handle_alarm);
     }
 
-#if 0 < NTHREADS 
+#if 0 < NTHREADS
 
     rw_fatal (0 == rw_thread_pool (0, nthreads, 0, test_multi_exceptions, 0),
               0, __LINE__, "rw_thread_pool() failed");

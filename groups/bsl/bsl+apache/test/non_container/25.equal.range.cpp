@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <rw/_config.h>
@@ -31,7 +31,7 @@
 #if defined (__IBMCPP__) && !defined (_RWSTD_NO_IMPLICIT_INCLUSION)
   // disable implicit inclusion to work around a limitation
   // of IBM VisualAge 5.0 (see PR #26959)
-#  define _RWSTD_NO_IMPLICIT_INCLUSION 
+#  define _RWSTD_NO_IMPLICIT_INCLUSION
 #endif
 
 #include <algorithm>    // for equal_range()
@@ -43,21 +43,21 @@
 
 /**************************************************************************/
 
-_RWSTD_NAMESPACE (std) { 
+_RWSTD_NAMESPACE (std) {
 
 #ifndef _RWSTD_NO_EXPLICIT_INSTANTIATION
 
 template
-pair <FwdIter<lt_comp<assign<base<cpy_ctor> > > >, 
+pair <FwdIter<lt_comp<assign<base<cpy_ctor> > > >,
       FwdIter<lt_comp<assign<base<cpy_ctor> > > > >
-equal_range (FwdIter<lt_comp<assign<base<cpy_ctor> > > >, 
+equal_range (FwdIter<lt_comp<assign<base<cpy_ctor> > > >,
              FwdIter<lt_comp<assign<base<cpy_ctor> > > >,
              const lt_comp<assign<base<cpy_ctor> > >&);
 
 template
-pair <FwdIter<lt_comp<assign<base<cpy_ctor> > > >, 
+pair <FwdIter<lt_comp<assign<base<cpy_ctor> > > >,
       FwdIter<lt_comp<assign<base<cpy_ctor> > > > >
-equal_range (FwdIter<lt_comp<assign<base<cpy_ctor> > > >, 
+equal_range (FwdIter<lt_comp<assign<base<cpy_ctor> > > >,
              FwdIter<lt_comp<assign<base<cpy_ctor> > > >,
              const lt_comp<assign<base<cpy_ctor> > >&,
              binary_predicate<lt_comp<assign<base<cpy_ctor> > > >);
@@ -282,7 +282,7 @@ void test_equal_range (const T*,
     rw_info (0, 0, 0, "template <class %s, class %s%{?}, class %s%{;}> "
              "std::pair<%1$s, %1$s> std::equal_range "
              "(%1$s, %1$s, const %2$s&%{?}, %s%{;})",
-             "ForwardIterator", "UserClass", predicate, "Compare", 
+             "ForwardIterator", "UserClass", predicate, "Compare",
              predicate, "Compare");
 
     if (rw_opt_no_fwd_iter) {

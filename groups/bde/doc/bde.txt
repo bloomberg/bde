@@ -12,7 +12,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- 'bde' currently has 30 packages forming 15 levels of physical dependency.
+ 'bde' currently has 29 packages forming 9 levels of physical dependency.
  Note that the required source control package 'bdescm' depends on 'bdes'; this
  behavior is unique to 'bde', since logically *every* other package should
  depend on 'bdescm'.  See {BP BDE_SCM <GO>} for a detailed specification for
@@ -21,35 +21,25 @@
  an accurate reflection of specific dependencies; only the absolute levels are
  significant.
 ..
-   Level 15: bdempu       bdecs
+   Level  10: bdempu
 
-   Level 14: bdem         bdec      bdec2
+   Level  9: bdem
 
-   Level 13: bdepu        bdeat     bdeci
+   Level  8: bdecs      bdepu     bdesu
 
-   Level 12: bdea         bdetu     bdeut
+   Level  7: bdeat      bdec      bdec2     bdetu
 
-   Level 11: bdet
+   Level  6: bdea       bdeci     bdet      bdeut
 
-   Level 10: bdeimp       bdeu      bdede
+   Level  5: bdede      bdeu      bdefu(*)
 
-   Level  9: bdex
+   Level  4: bdef       bdex      bdealg(*) bdefi(*)
 
-   Level  8: bdepcre      bdesb
-
-   Level  7: bdefu(*)
-
-   Level  6: bde+pcre     bdef      bdefi(*)
-
-   Level  5: bdealg(*)              bdefr(*)
-
-   Level  4: bdema
-
-   Level  3: bdemf(*)
+   Level  3: bdeimp     bdema     bdepcre   bdesb    bdefr(*)   bdemf(*)
 
    Level  2: bdescm
 
-   Level  1: bdes
+   Level  1: bde+pcre   bdes
 ..
  The 'bde' package group is the foundation of the firm-wide BDE library and has
  no dependencies beyond the allowed OS and runtime environment dependencies.
@@ -88,6 +78,7 @@
    'bdes'    - platform-neutral System definitions (platform-specific imps)
    'bdesb'   - input and output StreamBuf implementations
    'bdescm'  - introspective versioning (Source Control Management)
+   'bdesu'   - portable access to low-level system functionality
    'bdet'    - basic scalar vocabulary Types
    'bdetu'   - Utility functions for basic scalar vocabulary Types
    'bdeu'    - factored Utility services for higher-level packages
@@ -262,6 +253,11 @@
  conditional-compilation based on 'bde' version information.
  See '{BP BDE_SCM <GO>}' for a detailed specification for this package.
 
+/bdesu
+/- - -
+ 'bdesu' provides utilities for platform-independent access to low-level system
+ functionality.
+ 
 /bdet
 / - -
  'bdet' provides the basic set of scalar (i.e., non-container) "vocabulary

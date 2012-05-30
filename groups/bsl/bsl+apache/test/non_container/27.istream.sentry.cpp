@@ -23,7 +23,7 @@
  * permissions and limitations under the License.
  *
  * Copyright 2003-2006 Rogue Wave Software.
- * 
+ *
  **************************************************************************/
 
 #include <istream>
@@ -125,7 +125,7 @@ memfun_info (int line, const char *cname, const char *tname, const char *fname)
                 "%{$ISTREAM!:@}",
                 "%{?}istream%{:}%{?}wistream"
                 "%{:}basic_istream<%s, %s>%{;}%{;}",
-                'c' == *cname && 'c' == *tname, 
+                'c' == *cname && 'c' == *tname,
                 'w' == *cname && 'c' == *tname,
                 cname, tname);
 
@@ -317,7 +317,7 @@ void test_ctor (const charT*, const Traits*,
                     else
                         is.unsetf (std::ios_base::skipws);
 
-                    const std::locale loc = 
+                    const std::locale loc =
                         is.imbue (std::locale (is.getloc (), &ctp));
 
                     // imbue the previous locale into the stream
@@ -338,7 +338,7 @@ void test_ctor (const charT*, const Traits*,
 
                     _RWSTD_UNUSED (guard);
 
-                    rw_assert (cbuf + extract == sb.pubgptr (), 0, __LINE__, 
+                    rw_assert (cbuf + extract == sb.pubgptr (), 0, __LINE__,
                                "%u. %{$SENTRY}::sentry"
                                "(%{$ISTREAM} &is, bool noskipws "
                                "= %b); expected to extract %d "
@@ -351,7 +351,7 @@ void test_ctor (const charT*, const Traits*,
                                states [i], k);
 
                     // verify that the ctor doesn't affect gcount()
-                    rw_assert (0 == is.gcount (), 0, __LINE__, 
+                    rw_assert (0 == is.gcount (), 0, __LINE__,
                                "%u. %{$SENTRY}::sentry"
                                "(%{$ISTREAM} &is = %{*Ac}, bool noskipws "
                                "= %b); changed is.gcount() from 0 to %i",
@@ -421,7 +421,7 @@ void test_ok (const charT*, const Traits*,
                     else
                         is.unsetf (std::ios_base::skipws);
 
-                    const std::locale loc = 
+                    const std::locale loc =
                         is.imbue (std::locale (is.getloc (), &ctp));
 
                     // imbue the previous locale into the stream

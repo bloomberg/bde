@@ -466,7 +466,7 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
 // chaining accommodates arbitrary load factors, while double hashing requires
 // that the load factor be strictly less than 1.
 //..
-    void usageExample(int verbose, int veryVerbose, int veryVeryVerbose) {
+    int usageExample(int verbose, int veryVerbose, int veryVeryVerbose) {
         const int SIZE = 10000;
         const int INC  = SIZE / 5; // load factors for every 20% percentile
         const int COLS = (4*SIZE)/INC;
@@ -632,6 +632,8 @@ namespace BDEU_HASHUTIL_USAGE_EXAMPLE {
                 }
             }
         }
+
+        return 0;
     }
 //..
 // The above code produces the following results.  The results for chaining are
