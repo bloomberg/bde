@@ -867,7 +867,7 @@ struct SimpleAccessor {
     }
 
     template<typename OTHER_TYPE, typename OTHER_CATEGORY>
-    int operator()(const OTHER_TYPE& object, const OTHER_CATEGORY&)
+    int operator()(const OTHER_TYPE&, const OTHER_CATEGORY&)
     {
         // This is needed to compile because there are many Simple types, but
         // should not be called.
@@ -1488,7 +1488,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Adapter for Nullable for Encoding"
                           << endl;
         {
-            Obj mX; const Obj& X = mX;
+            Obj mX;
             int value = 1;
 
             mX.loadNullable(0, &loaderFn<int>);
@@ -1506,7 +1506,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Adapter for Nullable for Decoding"
                           << endl;
         {
-            Obj mX; const Obj& X = mX;
+            Obj mX;
 
             bdeut_NullableValue<int> value;
 
@@ -1755,7 +1755,7 @@ int main(int argc, char *argv[])
             { 8,   "ABCDEFG",  7,  "abcdefg",  4 }
         };
         const int NUM_INFO = sizeof INFO / sizeof *INFO;
-        const char *NAME = "foo";
+        const char *CLASSNAME = "foo";
 
         int obj;
 
@@ -1763,21 +1763,23 @@ int main(int argc, char *argv[])
         {
             Obj mX;  const Obj& X = mX;
 
-            mX.loadSequence(NUM_INFO, &obj, INFO, NAME, &elementLoaderFn);
+            mX.loadSequence(NUM_INFO, &obj, INFO, CLASSNAME, &elementLoaderFn);
 
             ASSERTV(Category::BDEAT_SEQUENCE_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_SEQUENCE_CATEGORY ==
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
-            ASSERTV(0 == strcmp(NAME, X.className()));
-            ASSERTV(0 == strcmp(NAME, bdeat_TypeName_Overloadable
+            ASSERTV(0 == strcmp(CLASSNAME, X.className()));
+            ASSERTV(0 == strcmp(CLASSNAME, bdeat_TypeName_Overloadable
                                                ::bdeat_TypeName_className(X)));
             ASSERTV(false == X.isByteArrayValue());
             ASSERTV(true  == X.isValidForEncoding());
             ASSERTV(true  == X.isValidForDecoding());
 
             for (int ti = 0; ti < NUM_INFO; ++ti) {
-                const int ID = INFO[ti].d_id;
+                const int   ID     = INFO[ti].d_id;
+                const char *NAME   = INFO[ti].d_name_p;
+                const int   LENGTH = INFO[ti].d_nameLength;
 
                 SequenceAccessor accessor;
                 accessor.d_rc = ti;
@@ -1799,6 +1801,22 @@ int main(int argc, char *argv[])
                 s_elementLoaderFn_object = 0;
                 s_elementLoaderFn_index = 0;
 
+                ASSERTV(ti == X.sequenceAccessAttribute(accessor,
+                                                        NAME,
+                                                        LENGTH));
+
+                ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
+                ASSERTV(s_elementLoaderFn_object == &X);
+                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
+                ASSERTV(accessor.d_info == INFO[ti]);
+
+                accessor.reset();
+                accessor.d_rc = ti;
+                s_elementLoaderFn_proxy = 0;
+                s_elementLoaderFn_object = 0;
+                s_elementLoaderFn_index = 0;
+
                 ASSERTV(ti == bdeat_sequenceAccessAttribute(X, accessor, ID));
 
                 ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
@@ -1807,13 +1825,29 @@ int main(int argc, char *argv[])
                 ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
                 ASSERTV(accessor.d_info == INFO[ti]);
 
+                accessor.reset();
+                accessor.d_rc = ti;
+                s_elementLoaderFn_proxy = 0;
+                s_elementLoaderFn_object = 0;
+                s_elementLoaderFn_index = 0;
+
+                ASSERTV(ti == bdeat_sequenceAccessAttribute(X,
+                                                            accessor,
+                                                            NAME,
+                                                            LENGTH));
+
+                ASSERTV(s_elementLoaderFn_proxy == accessor.d_proxy);
+                ASSERTV(s_elementLoaderFn_object == &X);
+                ASSERTV(s_elementLoaderFn_index == ti);
+                ASSERTV(accessor.d_address == &s_elementLoaderFn_int);
+                ASSERTV(accessor.d_info == INFO[ti]);
             }
         }
 
         if (verbose) cout << "\nTesting Sequence for decoding" << endl;
         {
             Obj mX;  const Obj& X = mX;
-            mX.loadSequence(NUM_INFO, &obj, INFO, NAME, &elementLoaderFn);
+            mX.loadSequence(NUM_INFO, &obj, INFO, CLASSNAME, &elementLoaderFn);
 
             ASSERTV(false == X.sequenceHasAttribute(-1));
             ASSERTV(false == X.sequenceHasAttribute(2));
@@ -1974,20 +2008,20 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting Choice for encoding." << endl;
         for (int ti = 0; ti < NUM_INFO; ++ti) {
             const int ID = INFO[ti].d_id;
-            const char NAME[] = "foo";
+            const char CLASSNAME[] = "foo";
 
             Obj mX;  const Obj& X = mX;
 
             int obj;
 
-            mX.loadChoice(&obj, &INFO[ti], NAME, &loaderFn<int>);
+            mX.loadChoice(&obj, &INFO[ti], CLASSNAME, &loaderFn<int>);
 
             ASSERTV(Category::BDEAT_CHOICE_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_CHOICE_CATEGORY ==
                                                   bdeat_typeCategorySelect(X));
             ASSERTV(&obj == X.object());
-            ASSERTV(0 == strcmp(NAME, X.className()));
-            ASSERTV(0 == strcmp(NAME,
+            ASSERTV(0 == strcmp(CLASSNAME, X.className()));
+            ASSERTV(0 == strcmp(CLASSNAME,
                                 bdeat_TypeName_Overloadable
                                                ::bdeat_TypeName_className(X)));
             ASSERTV(false == X.isByteArrayValue());

@@ -238,10 +238,10 @@ void SerializableObjectProxy::loadChoice(
                                                             chooser));
 }
 
-int SerializableObjectProxy::loadSequenceElementDecodeProxy(
-                                       SerializableObjectProxy    *proxy,
-                                       const bdeat_AttributeInfo **attrInfo,
-                                       int                         elementId)
+int SerializableObjectProxy::loadSequenceElementProxy(
+                                   SerializableObjectProxy    *proxy,
+                                   const bdeat_AttributeInfo **attrInfo,
+                                   int                         elementId) const
 {
     BSLS_ASSERT(d_objectInfo.is<SequenceInfo>());
 
@@ -257,11 +257,11 @@ int SerializableObjectProxy::loadSequenceElementDecodeProxy(
     return -1;
 }
 
-int SerializableObjectProxy::loadSequenceElementDecodeProxy(
-                                 SerializableObjectProxy    *proxy,
-                                 const bdeat_AttributeInfo **attrInfo,
-                                 const char                 *elementName,
-                                 int                         elementNameLength)
+int SerializableObjectProxy::loadSequenceElementProxy(
+                           SerializableObjectProxy    *proxy,
+                           const bdeat_AttributeInfo **attrInfo,
+                           const char                 *elementName,
+                           int                         elementNameLength) const
 {
     BSLS_ASSERT(d_objectInfo.is<SequenceInfo>());
 

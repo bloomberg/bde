@@ -879,29 +879,6 @@ class SerializableObjectProxy {
         // IMPLEMENTATION NOTE: see the .cpp file for a discussion of why this
         // method is overloaded.
 
-    // PRIVATE MANIPULATORS
-    int loadSequenceElementDecodeProxy(SerializableObjectProxy    *proxy,
-                                       const bdeat_AttributeInfo **info,
-                                       int                         elementId);
-        // If the sequence represented by this object contains an element with
-        // the specified 'elementId', populate the specified 'proxy' so that it
-        // can be used to decode into that element, load, into the specified
-        // 'info', a pointer to the 'bdeat_AttributeInfo' for that element, and
-        // return 0; otherwise return a non-zero value.  The behavior is
-        // undefined unless this object represents a Sequence.
-
-    int loadSequenceElementDecodeProxy(
-                                SerializableObjectProxy    *proxy,
-                                const bdeat_AttributeInfo **info,
-                                const char                 *elementName,
-                                int                         elementNameLength);
-        // If the sequence contains an element with the specified 'elementName'
-        // of the specified 'elementNameLength', populate the specified 'proxy'
-        // for decoding into that element and load, into the specified 'info',
-        // a pointer to the 'bdeat_AttributeInfo' for that element and return
-        // 0.  Return non-zero otherwise.  The behavior is undefined unless
-        // this object represents a Sequence.
-
     // PRIVATE ACCESSORS
     void loadArrayElementEncodeProxy(SerializableObjectProxy *proxy,
                                      int                      index) const;
@@ -916,6 +893,28 @@ class SerializableObjectProxy {
         // specified 'index' within the Array represented by this object.  The
         // behavior is undefined unless this object represents an array for
         // decoding, and that array contains at least 'index + 1' elements.
+
+    int loadSequenceElementProxy(SerializableObjectProxy    *proxy,
+                                 const bdeat_AttributeInfo **info,
+                                 int                         elementId) const;
+        // If the sequence represented by this object contains an element with
+        // the specified 'elementId', populate the specified 'proxy' so that it
+        // can be used to decode into that element, load, into the specified
+        // 'info', a pointer to the 'bdeat_AttributeInfo' for that element, and
+        // return 0; otherwise return a non-zero value.  The behavior is
+        // undefined unless this object represents a Sequence.
+
+    int loadSequenceElementProxy(
+                          SerializableObjectProxy    *proxy,
+                          const bdeat_AttributeInfo **info,
+                          const char                 *elementName,
+                          int                         elementNameLength) const;
+        // If the sequence contains an element with the specified 'elementName'
+        // of the specified 'elementNameLength', populate the specified 'proxy'
+        // for decoding into that element and load, into the specified 'info',
+        // a pointer to the 'bdeat_AttributeInfo' for that element and return
+        // 0.  Return non-zero otherwise.  The behavior is undefined unless
+        // this object represents a Sequence.
 
   public:
     // CREATORS
@@ -1358,6 +1357,27 @@ class SerializableObjectProxy {
         // result of the invocation; return a non-zero value if there is no
         // such element.  'ACCESSOR' shall be a functor providing methods that
         // can be called as if it had the following signatures:
+        //..
+        //  int operator()(const SerializableObjectProxy&,
+        //                 const bdeat_AttributeInfo&);
+        //
+        //  int operator()(const SerializableObjectProxy_NullableAdapter&,
+        //                 const bdeat_AttributeInfo&);
+        //..
+        // The behavior is undefined unless this object represents a Sequence.
+
+    template<typename ACCESSOR>
+    int sequenceAccessAttribute(ACCESSOR&   accessor,
+                                const char *attributeName,
+                                int         nameLength) const;
+        // If the sequence represented by this object has an element with the
+        // specified 'attributeName' of the specified 'nameLength', invoke the
+        // specified 'accessor' on a proxy object, populated by the 'loader'
+        // function supplied at the 'loadSequence' method, representing on that
+        // element, and return the result of the invocation; return a non-zero
+        // value if there is no such element.  'ACCESSOR' shall be a functor
+        // providing methods that can be called as if it had the following
+        // signatures:
         //..
         //  int operator()(const SerializableObjectProxy&,
         //                 const bdeat_AttributeInfo&);
@@ -1811,7 +1831,7 @@ int SerializableObjectProxy::sequenceManipulateAttribute(
 {
     SerializableObjectProxy elementProxy;
     const bdeat_AttributeInfo *info;
-    if (0 == loadSequenceElementDecodeProxy(&elementProxy, &info, id)) {
+    if (0 == loadSequenceElementProxy(&elementProxy, &info, id)) {
         BSLS_ASSERT_SAFE(elementProxy.isValidForDecoding());
 
         return manipulateContainedElement(&elementProxy, manipulator, *info);
@@ -1828,11 +1848,10 @@ int SerializableObjectProxy::sequenceManipulateAttribute(
 {
     SerializableObjectProxy elementProxy;
     const bdeat_AttributeInfo *info;
-    if (0 == loadSequenceElementDecodeProxy(&elementProxy,
-                                            &info,
-                                            attributeName,
-                                            nameLength))
-    {
+    if (0 == loadSequenceElementProxy(&elementProxy,
+                                      &info,
+                                      attributeName,
+                                      nameLength)) {
         BSLS_ASSERT_SAFE(elementProxy.isValidForDecoding());
 
         return manipulateContainedElement(&elementProxy, manipulator, *info);
@@ -1870,21 +1889,33 @@ template<typename ACCESSOR>
 int SerializableObjectProxy::sequenceAccessAttribute(ACCESSOR& accessor,
                                                      int       id) const
 {
-    BSLS_ASSERT_SAFE(d_objectInfo.is<SequenceInfo>());
+    SerializableObjectProxy elementProxy;
+    const bdeat_AttributeInfo *info;
+    if (0 == loadSequenceElementProxy(&elementProxy, &info, id)) {
+        BSLS_ASSERT_SAFE(elementProxy.isValidForEncoding());
 
-    const SequenceInfo& info = d_objectInfo.the<SequenceInfo>();
-    for(int i = 0; i < info.d_numAttributes; ++i)
-    {
-        if (info.d_attributeInfo_p[i].id() == id) {
-            SerializableObjectProxy elementProxy;
-            info.d_loader(&elementProxy, *this, i);
+        return accessContainedElement(elementProxy, accessor, *info);
+                                                                      // RETURN
+    }
+    return -1;
+}
 
-            BSLS_ASSERT_SAFE(elementProxy.isValidForEncoding());
+template<typename ACCESSOR>
+int SerializableObjectProxy::sequenceAccessAttribute(
+                                                  ACCESSOR&   accessor,
+                                                  const char *attributeName,
+                                                  int         nameLength) const
+{
+    SerializableObjectProxy elementProxy;
+    const bdeat_AttributeInfo *info;
+    if (0 == loadSequenceElementProxy(&elementProxy,
+                                      &info,
+                                      attributeName,
+                                      nameLength)) {
+        BSLS_ASSERT_SAFE(elementProxy.isValidForEncoding());
 
-            return accessContainedElement(elementProxy,
-                                          accessor,
-                                          info.d_attributeInfo_p[i]); // RETURN
-        }
+        return accessContainedElement(elementProxy, accessor, *info);
+                                                                      // RETURN
     }
     return -1;
 }
@@ -2249,9 +2280,7 @@ int bdeat_sequenceAccessAttribute(
                            const char                           *attributeName,
                            int                                   nameLength)
 {
-    return object->sequenceAccessAttribute(accessor,
-                                           attributeName,
-                                           nameLength);
+    return object.sequenceAccessAttribute(accessor, attributeName, nameLength);
 }
 
 template <typename MANIPULATOR>
