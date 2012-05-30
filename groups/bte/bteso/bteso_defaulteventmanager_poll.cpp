@@ -224,13 +224,25 @@ int bteso_DefaultEventManager<bteso_Platform::POLL>::dispatch(
             && now < timeout);
 
         if (0 >= rfds) {
-            return 0 == rfds
-                   ? 0
-                   : -1 == rfds && EINTR == savedErrno
-                     ? -1
-                     : savedErrno < 2
-                       ? -10000
-                       : -savedErrno;                                 // RETURN
+            if (0 == rfds) {
+                // timed out, no events
+
+                return 0;                                             // RETURN
+            }
+            else if (-1 == rfds && EINTR == savedErrno) {
+                // interrupted
+
+                return -1;                                            // RETURN
+            }
+            else {
+                // According to the contract, we are to return any negative
+                // number other than -1.  We might as well return '-savedErrno'
+                // to aid in debugging, except in the case where
+                // '-savedErrno >= -1', in which case it would be mistaken to
+                // have another meaning, so in that case, we return -10000.
+
+                return -savedErrno >= -1 ? -10000 : -savedErrno;      // RETURN
+            }
         }
 
         numCallbacks += dispatchCallbacks(&d_signaled,
@@ -272,13 +284,25 @@ int bteso_DefaultEventManager<bteso_Platform::POLL>::dispatch(int flags)
                  && !(bteso_Flag::BTESO_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
-            return 0 == rfds
-                   ? 0
-                   : -1 == rfds && EINTR == savedErrno
-                     ? -1
-                     : savedErrno < 2
-                       ? -10000
-                       : -savedErrno;                                 // RETURN
+            if (0 == rfds) {
+                // timed out, no events
+
+                return 0;                                             // RETURN
+            }
+            else if (-1 == rfds && EINTR == savedErrno) {
+                // interrupted
+
+                return -1;                                            // RETURN
+            }
+            else {
+                // According to the contract, we are to return any negative
+                // number other than -1.  We might as well return '-savedErrno'
+                // to aid in debugging, except in the case where
+                // '-savedErrno >= -1', in which case it would be mistaken to
+                // have another meaning, so in that case, we return -10000.
+
+                return -savedErrno >= -1 ? -10000 : -savedErrno;      // RETURN
+            }
         }
 
         numCallbacks += dispatchCallbacks(&d_signaled,

@@ -40,9 +40,9 @@ BDES_IDENT("$Id: $")
 ///------------
 // The '/dev/poll' device (and consequently this specialized component) is
 // currently supported only on Solaris and HP-UX platforms.  Direct use of this
-// library component on *any* platform may result in non-portable software; it
-// is recommended your choice of default event manager be communicated via the
-// 'Default', 'FrequentReg', or 'InfrequentReg' typedefs in 'bteso_Platform'.
+// library component unconditionally may result in non-portable software.  It
+// is recommended you use 'bteso_Platform::DEFAULT_POLLING_MECHANISM' to choose
+// the optimal default event manager for each platform.
 //
 ///Component Diagram
 ///-----------------

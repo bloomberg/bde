@@ -36,9 +36,9 @@ BDES_IDENT("$Id: $")
 ///------------
 // The 'pollset' system call (and consequently this specialized component) is
 // currently supported only by the AIX platform.  Direct use of this library
-// component on *any* platform may result in non-portable software; it is
-// recommended your choice of default event manager be communicated via the
-// 'Default', 'FrequentReg', or 'InfrequentReg' typedefs in 'bteso_Platform'.
+// component unconditionally may result in non-portable software; it is
+// recommended you use 'bteso_Platform::DEFAULT_POLLING_MECHANISM' to choose
+// the optimal default event manager for each platform.
 //
 ///Component Diagram
 ///-----------------
@@ -302,7 +302,7 @@ class bteso_TimeMetrics;
           // class bteso_DefaultEventManager<bteso_Platform::POLLSET>
           // ========================================================
 
-template<>
+template <>
 class bteso_DefaultEventManager<bteso_Platform::POLLSET>
                                                   : public bteso_EventManager {
     // This specialization of 'bteso_DefaultEventManager' for the
@@ -419,6 +419,9 @@ class bteso_DefaultEventManager<bteso_Platform::POLLSET>
         // incompatible events for the same socket 'handle' will result in
         // undefined behavior.  Return 0 in success and a non-zero value, which
         // is the same as native error code, on error.
+        //
+        // DEPRECATED: use registerSocketEvent passing a
+        // 'bteso_EventManager::FailureCallback' instead.
 
     virtual
     void deregisterSocketEvent(const bteso_SocketHandle::Handle& handle,

@@ -39,14 +39,10 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_pollset_cpp,"$Id$ $CSID$")
 #include <sys/file.h>
 #include <bsl_c_errno.h>
 
-#ifdef BSLS_PLATFORM__OS_AIX
-//    #include <sys/timers.h>       // timespec
+// 'NO_TIMEOUT' and 'INF_TIMEOUT' are defined in <sys/poll.h>
 
-    // 'NO_TIMEOUT' and 'INF_TIMEOUT' are defined in <sys/poll.h>
-
-    #define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  NO_TIMEOUT
-    #define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT INF_TIMEOUT
-#endif
+#define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  NO_TIMEOUT
+#define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT INF_TIMEOUT
 
 #include <bsl_cstring.h>
 
@@ -131,11 +127,14 @@ bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric,
 , d_timeMetric_p(timeMetric)
 , d_signaled(basicAllocator)
 {
+    BSLS_ASSERT(-1 != d_ps);
 }
 
 bteso_DefaultEventManager<bteso_Platform::POLLSET>::
 ~bteso_DefaultEventManager()
 {
+    int rc = ::pollset_destroy(d_ps);
+    BSLS_ASSERT(-1 != rc);
 }
 
                              // ------------
@@ -478,52 +477,35 @@ void bteso_DefaultEventManager<bteso_Platform::POLLSET>::deregisterSocketEvent(
 int bteso_DefaultEventManager<bteso_Platform::POLLSET>::
                deregisterSocket(const bteso_SocketHandle::Handle& socketHandle)
 {
-    int rc;
-
-    ::pollfd queryPollfd;
-    queryPollfd.fd = socketHandle;
-    rc = ::pollset_query(d_ps, &queryPollfd);
-    if (0 == rc) {
-        return 0;                                                     // RETURN
-    }
-
     int numCallbacks = 0;
 
-    if (queryPollfd.events & POLLIN) {
-        if (d_callbacks.count(bteso_Event(
-                                   socketHandle, bteso_EventType::BTESO_READ)))
-        {
-            deregisterSocketEvent(socketHandle, bteso_EventType::BTESO_READ);
-            ++numCallbacks;
-        }
-        else {
-            BSLS_ASSERT_SAFE(0 == (queryPollfd.events & POLLOUT));
+    bteso_Event event(socketHandle, bteso_EventType::BTESO_ACCEPT);
+    numCallbacks += d_callbacks.erase(event);
+    event.setType(                  bteso_EventType::BTESO_CONNECT);
+    numCallbacks += d_callbacks.erase(event);
+    event.setType(                  bteso_EventType::BTESO_READ);
+    numCallbacks += d_callbacks.erase(event);
+    event.setType(                  bteso_EventType::BTESO_WRITE);
+    numCallbacks += d_callbacks.erase(event);
 
-            deregisterSocketEvent(socketHandle, bteso_EventType::BTESO_ACCEPT);
-            ++numCallbacks;
-        }
+    BSLS_ASSERT((unsigned) numCallbacks <= 2);
+
+    ::poll_ctl ctl;
+    ctl.cmd = PS_DELETE;
+    ctl.events = 0;
+    ctl.fd = socketHandle;
+
+    int rc = ::pollset_ctl(d_ps, &ctl, 1);
+    BSLS_ASSERT(0 == numCallbacks || 0 == rc);
+
+    if (0 == rc) {
+        --d_fdCount;
+
+        // It is important not to do 'd_signaled.resize(d_fdCount)', because
+        // we might be within a dispatch event, and the last element(s) of
+        // 'd_signaled' may contain valid events which must be processed by
+        // this call to 'dispatch'.
     }
-    else {
-        BSLS_ASSERT_SAFE(!d_callbacks.count(bteso_Event(
-                                  socketHandle, bteso_EventType::BTESO_READ)));
-    }
-
-    if (queryPollfd.events & POLLOUT) {
-        if (d_callbacks.count(bteso_Event(
-                                socketHandle, bteso_EventType::BTESO_WRITE))) {
-            deregisterSocketEvent(socketHandle, bteso_EventType::BTESO_WRITE);
-            ++numCallbacks;
-        }
-        else {
-            BSLS_ASSERT_SAFE(0 == (queryPollfd.events & POLLIN));
-
-            deregisterSocketEvent(socketHandle,bteso_EventType::BTESO_CONNECT);
-            ++numCallbacks;
-        }
-    }
-
-    BSLS_ASSERT(numCallbacks >= 0);
-    BSLS_ASSERT(numCallbacks <= 2);
 
     return numCallbacks;
 }
