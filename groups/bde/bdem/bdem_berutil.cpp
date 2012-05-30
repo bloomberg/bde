@@ -612,7 +612,6 @@ int bdem_BerUtil_Imp::getBinaryDatetimeValue(bsl::streambuf *streamBuf,
 
     bsls_Types::Int64 serialDate = serialDatetime / MILLISECS_PER_DAY;
 
-    // 
     if (serialDatetime < 0) {
         --serialDate;
         if (EPOCH_SERIAL_DATE == -serialDate) {
