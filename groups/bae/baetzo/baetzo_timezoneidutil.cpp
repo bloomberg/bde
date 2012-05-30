@@ -9,36 +9,34 @@ BDES_IDENT_RCSID(baetzo_timezoneidutil_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 
-#include <bsl_iostream.h>   // debug
-
 namespace BloombergLP {
 
 typedef struct TimeZoneIdEntry {
-    const char *d_fromTimeZoneId;
-    const char *d_toTimeZoneId;
+    const char *d_from;  // key
+    const char *d_to;    // value
 } TimeZoneIdEntry;
 
-static bool compareTimeZoneIdEntries(const TimeZoneIdEntry& a,
-                                     const TimeZoneIdEntry& b)
+typedef bsl::pair<const TimeZoneIdEntry *,
+                  const TimeZoneIdEntry *> IteratorPair;
+
+static bool isLessThan(const TimeZoneIdEntry& a,
+                       const TimeZoneIdEntry& b)
+    // Return 'true' is the "from" field of the specified 'a' is lexically
+    // less that the "from" field of the specified 'b', and 'false otherwise.
 {
-    bsl::cout << "compareTimeZoneIdEntries: enter: "
-              << a.d_fromTimeZoneId << ": "
-              << b.d_fromTimeZoneId << bsl::endl;
-    bool ret =  -1 == bsl::strcmp(a.d_fromTimeZoneId, b.d_fromTimeZoneId);
-    bsl::cout << "compareTimeZoneIdEntries: leave: " << ret << bsl::endl;
-    return ret;
+    return -1 == bsl::strcmp(a.d_from, b.d_from);
 }
 
 static const TimeZoneIdEntry windowsToOlsonIds[] = {
-    { "Afghanistan Standard Time",       "Asia/Kabul"           },
-    { "Alaskan Standard Time",           "America/Anchorage"    },
-    { "Arabian Standard Time",           "Asia/Dubai"           },
-    { "Arabic Standard Time",            "Asia/Baghdad"         },
-    { "Arab Standard Time",              "Asia/Riyadh"          },
-    { "Argentina Standard Time",         "America/Buenos_Aires" },
-    { "Atlantic Standard Time",          "America/Halifax"      },
     { "AUS Central Standard Time",       "Australia/Darwin"     },
     { "AUS Eastern Standard Time",       "Australia/Sydney"     },
+    { "Afghanistan Standard Time",       "Asia/Kabul"           },
+    { "Alaskan Standard Time",           "America/Anchorage"    },
+    { "Arab Standard Time",              "Asia/Riyadh"          },
+    { "Arabian Standard Time",           "Asia/Dubai"           },
+    { "Arabic Standard Time",            "Asia/Baghdad"         },
+    { "Argentina Standard Time",         "America/Buenos_Aires" },
+    { "Atlantic Standard Time",          "America/Halifax"      },
     { "Azerbaijan Standard Time",        "Asia/Baku"            },
     { "Azores Standard Time",            "Atlantic/Azores"      },
     { "Bahia Standard Time",             "America/Bahia"        },
@@ -50,27 +48,27 @@ static const TimeZoneIdEntry windowsToOlsonIds[] = {
     { "Central America Standard Time",   "America/Guatemala"    },
     { "Central Asia Standard Time",      "Asia/Almaty"          },
     { "Central Brazilian Standard Time", "America/Cuiaba"       },
-    { "Central European Standard Time",  "Europe/Warsaw"        },
     { "Central Europe Standard Time",    "Europe/Budapest"      },
+    { "Central European Standard Time",  "Europe/Warsaw"        },
     { "Central Pacific Standard Time",   "Pacific/Guadalcanal"  },
     { "Central Standard Time",           "America/Chicago"      },
     { "Central Standard Time (Mexico)",  "America/Mexico_City"  },
     { "China Standard Time",             "Asia/Shanghai"        },
     { "Dateline Standard Time",          "Etc/GMT+12"           },
     { "E. Africa Standard Time",         "Africa/Nairobi"       },
-    { "Eastern Standard Time",           "America/New_York"     },
     { "E. Australia Standard Time",      "Australia/Brisbane"   },
     { "E. Europe Standard Time",         "Asia/Nicosia"         },
+    { "E. South America Standard Time",  "America/Sao_Paulo"    },
+    { "Eastern Standard Time",           "America/New_York"     },
     { "Egypt Standard Time",             "Africa/Cairo"         },
     { "Ekaterinburg Standard Time",      "Asia/Yekaterinburg"   },
-    { "E. South America Standard Time",  "America/Sao_Paulo"    },
-    { "Fiji Standard Time",              "Pacific/Fiji"         },
     { "FLE Standard Time",               "Europe/Kiev"          },
-    { "Georgian Standard Time",          "Asia/Tbilisi"         },
+    { "Fiji Standard Time",              "Pacific/Fiji"         },
     { "GMT Standard Time",               "Europe/London"        },
+    { "GTB Standard Time",               "Europe/Bucharest"     },
+    { "Georgian Standard Time",          "Asia/Tbilisi"         },
     { "Greenland Standard Time",         "America/Godthab"      },
     { "Greenwich Standard Time",         "Atlantic/Reykjavik"   },
-    { "GTB Standard Time",               "Europe/Bucharest"     },
     { "Hawaiian Standard Time",          "Pacific/Honolulu"     },
     { "India Standard Time",             "Asia/Calcutta"        },
     { "Iran Standard Time",              "Asia/Tehran"          },
@@ -86,11 +84,11 @@ static const TimeZoneIdEntry windowsToOlsonIds[] = {
     { "Mountain Standard Time",          "America/Denver"       },
     { "Mountain Standard Time (Mexico)", "America/Chihuahua"    },
     { "Myanmar Standard Time",           "Asia/Rangoon"         },
-    { "Namibia Standard Time",           "Africa/Windhoek"      },
     { "N. Central Asia Standard Time",   "Asia/Novosibirsk"     },
+    { "Namibia Standard Time",           "Africa/Windhoek"      },
     { "Nepal Standard Time",             "Asia/Katmandu"        },
-    { "Newfoundland Standard Time",      "America/St_Johns"     },
     { "New Zealand Standard Time",       "Pacific/Auckland"     },
+    { "Newfoundland Standard Time",      "America/St_Johns"     },
     { "North Asia East Standard Time",   "Asia/Irkutsk"         },
     { "North Asia Standard Time",        "Asia/Krasnoyarsk"     },
     { "Pacific SA Standard Time",        "America/Santiago"     },
@@ -101,10 +99,10 @@ static const TimeZoneIdEntry windowsToOlsonIds[] = {
     { "Romance Standard Time",           "Europe/Paris"         },
     { "Russian Standard Time",           "Europe/Moscow"        },
     { "SA Eastern Standard Time",        "America/Cayenne"      },
-    { "Samoa Standard Time",             "Pacific/Apia"         },
     { "SA Pacific Standard Time",        "America/Bogota"       },
     { "SA Western Standard Time",        "America/La_Paz"       },
     { "SE Asia Standard Time",           "Asia/Bangkok"         },
+    { "Samoa Standard Time",             "Pacific/Apia"         },
     { "Singapore Standard Time",         "Asia/Singapore"       },
     { "South Africa Standard Time",      "Africa/Johannesburg"  },
     { "Sri Lanka Standard Time",         "Asia/Colombo"         },
@@ -114,31 +112,34 @@ static const TimeZoneIdEntry windowsToOlsonIds[] = {
     { "Tokyo Standard Time",             "Asia/Tokyo"           },
     { "Tonga Standard Time",             "Pacific/Tongatapu"    },
     { "Turkey Standard Time",            "Europe/Istanbul"      },
-    { "Ulaanbaatar Standard Time",       "Asia/Ulaanbaatar"     },
     { "US Eastern Standard Time",        "America/Indianapolis" },
     { "US Mountain Standard Time",       "America/Phoenix"      },
+    { "UTC",                             "Etc/GMT"              },
+    { "UTC+12",                          "Etc/GMT-12"           },
     { "UTC-02",                          "Etc/GMT+2"            },
     { "UTC-11",                          "Etc/GMT+11"           },
-    { "UTC+12",                          "Etc/GMT-12"           },
-    { "UTC",                             "Etc/GMT"              },
+    { "Ulaanbaatar Standard Time",       "Asia/Ulaanbaatar"     },
     { "Venezuela Standard Time",         "America/Caracas"      },
     { "Vladivostok Standard Time",       "Asia/Vladivostok"     },
     { "W. Australia Standard Time",      "Australia/Perth"      },
     { "W. Central Africa Standard Time", "Africa/Lagos"         },
+    { "W. Europe Standard Time",         "Europe/Berlin"        },
     { "West Asia Standard Time",         "Asia/Tashkent"        },
     { "West Pacific Standard Time",      "Pacific/Port_Moresby" },
-    { "W. Europe Standard Time",         "Europe/Berlin"        },
-    { "Yakutsk Standard Time",           "Asia/Yakutsk"         }
+    { "Yakutsk Standard Time",           "Asia/Yakutsk"         },
 };
 
 static const int numWindowsToOlsonIds = sizeof( windowsToOlsonIds)
                                       / sizeof(*windowsToOlsonIds);
 
-static const TimeZoneIdEntry * const windowsToOlsonIdsBegin = windowsToOlsonIds;
-static const TimeZoneIdEntry * const windowsToOlsonIdsEnd   = windowsToOlsonIds
+static const TimeZoneIdEntry * const windowsToOlsonIdsBegin =
+                                                             windowsToOlsonIds;
+
+static const TimeZoneIdEntry * const windowsToOlsonIdsEnd   =
+                                                             windowsToOlsonIds
                                                         + numWindowsToOlsonIds;
 
-static const struct TimeZoneIdEntry olsonToWindowsIds[] = {
+static const TimeZoneIdEntry olsonToWindowsIds[] = {
     { "Africa/Cairo",         "Egypt Standard Time"             },
     { "Africa/Casablanca",    "Morocco Standard Time"           },
     { "Africa/Johannesburg",  "South Africa Standard Time"      },
@@ -215,11 +216,11 @@ static const struct TimeZoneIdEntry olsonToWindowsIds[] = {
     { "Australia/Hobart",     "Tasmania Standard Time"          },
     { "Australia/Perth",      "W. Australia Standard Time"      },
     { "Australia/Sydney",     "AUS Eastern Standard Time"       },
+    { "Etc/GMT",              "UTC"                             },
     { "Etc/GMT+11",           "UTC-11"                          },
     { "Etc/GMT+12",           "Dateline Standard Time"          },
-    { "Etc/GMT-12",           "UTC+12"                          },
     { "Etc/GMT+2",            "UTC-02"                          },
-    { "Etc/GMT",              "UTC"                             },
+    { "Etc/GMT-12",           "UTC+12"                          },
     { "Europe/Berlin",        "W. Europe Standard Time"         },
     { "Europe/Bucharest",     "GTB Standard Time"               },
     { "Europe/Budapest",      "Central Europe Standard Time"    },
@@ -237,7 +238,7 @@ static const struct TimeZoneIdEntry olsonToWindowsIds[] = {
     { "Pacific/Guadalcanal",  "Central Pacific Standard Time"   },
     { "Pacific/Honolulu",     "Hawaiian Standard Time"          },
     { "Pacific/Port_Moresby", "West Pacific Standard Time"      },
-    { "Pacific/Tongatapu",    "Tonga Standard Time"             }
+    { "Pacific/Tongatapu",    "Tonga Standard Time"             },
 };
 
 static const int numOlsonToWindowsIds = sizeof( olsonToWindowsIds)
@@ -245,15 +246,15 @@ static const int numOlsonToWindowsIds = sizeof( olsonToWindowsIds)
 
 static const TimeZoneIdEntry * const olsonToWindowsIdsBegin =
                                                              olsonToWindowsIds;
-static const TimeZoneIdEntry * const olsonToWindowsIdsEnd   = olsonToWindowsIds
-                                                      + numOlsonToWindowsIds;
+static const TimeZoneIdEntry * const olsonToWindowsIdsEnd  = olsonToWindowsIds
+                                                        + numOlsonToWindowsIds;
 
 namespace {
 
 BSLMF_ASSERT(                  99 == numWindowsToOlsonIds);
 BSLMF_ASSERT(numWindowsToOlsonIds == numOlsonToWindowsIds);
 
-}
+}  // close unnamed namespace
 
                         // ---------------------------
                         // class baetzo_TimeZoneUtilId
@@ -268,32 +269,22 @@ int baetzo_TimeZoneIdUtil::getTimeZoneIdFromWindowsTimeZoneId(
     BSLS_ASSERT(timeZoneId);
     BSLS_ASSERT(windowsTimeZoneId);
 
-    bsl::cout << "getTimeZoneIdFromWindowsTimeZoneId: enter: "
-              << windowsTimeZoneId
-              << bsl::endl;
+    const TimeZoneIdEntry value = { windowsTimeZoneId, 0 };
 
-    TimeZoneIdEntry value = { windowsTimeZoneId, 0 };
+    IteratorPair iterators = bsl::equal_range(windowsToOlsonIdsBegin,
+                                              windowsToOlsonIdsEnd,
+                                              value,
+                                              isLessThan);
 
-    TimeZoneIdEntry *ptr = bsl::lower_bound( // TBD: why 'const_cast' needed?
-                          const_cast<TimeZoneIdEntry*>(windowsToOlsonIdsBegin),
-                          const_cast<TimeZoneIdEntry*>(windowsToOlsonIdsEnd),
-                          value,
-                          compareTimeZoneIdEntries);
-    if (windowsToOlsonIdsEnd == ptr) {
-        bsl::cout << "getTimeZoneIdFromWindowsTimeZoneId: leave: " << "error"
-                  << ptr->d_toTimeZoneId
-                  << bsl::endl;
+    if (iterators.first == iterators.second) {
         return -1;                                                    // RETURN
     }
 
-    bsl::cout << "getTimeZoneIdFromWindowsTimeZoneId: leave: "
-              << ptr->d_toTimeZoneId
-              << bsl::endl;
+    BSLS_ASSERT(1 == bsl::distance(iterators.first, iterators.second));
 
-    *timeZoneId = ptr->d_toTimeZoneId;
+    *timeZoneId = iterators.first->d_to;
     return 0;
 }
-
 
 int baetzo_TimeZoneIdUtil::getWindowsTimeZoneIdFromTimeZoneId(
                                                 const char **windowsTimeZoneId,
@@ -302,29 +293,20 @@ int baetzo_TimeZoneIdUtil::getWindowsTimeZoneIdFromTimeZoneId(
     BSLS_ASSERT(windowsTimeZoneId);
     BSLS_ASSERT(timeZoneId);
 
-    bsl::cout << "getWindowsTimeZoneIdFromTimeZoneId: enter: "
-              << timeZoneId
-              << bsl::endl;
+    const TimeZoneIdEntry value = { timeZoneId, 0 };
 
-    TimeZoneIdEntry value = { timeZoneId, 0 };
+    IteratorPair iterators = bsl::equal_range(olsonToWindowsIdsBegin,
+                                              olsonToWindowsIdsEnd,
+                                              value,
+                                              isLessThan);
 
-    TimeZoneIdEntry *ptr = bsl::lower_bound( // TBD: why 'const_cast' needed?
-                          const_cast<TimeZoneIdEntry*>(olsonToWindowsIdsBegin),
-                          const_cast<TimeZoneIdEntry*>(olsonToWindowsIdsEnd  ),
-                          value,
-                          compareTimeZoneIdEntries);
-    if (olsonToWindowsIdsEnd == ptr) {
-        bsl::cout << "getWindowsTimeZoneIdFromTimeZoneId: leave: " << "error"
-                  << ptr->d_toTimeZoneId
-                  << bsl::endl;
+    if (iterators.first == iterators.second) {
         return -1;                                                    // RETURN
     }
 
-    bsl::cout << "getWindowsTimeZoneIdFromTimeZoneId: leave: "
-              << ptr->d_toTimeZoneId
-              << bsl::endl;
+    BSLS_ASSERT(1 == bsl::distance(iterators.first, iterators.second));
 
-    *windowsTimeZoneId = ptr->d_toTimeZoneId;
+    *windowsTimeZoneId = iterators.first->d_to;
     return 0;
 }
 

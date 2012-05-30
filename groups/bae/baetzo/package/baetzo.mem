@@ -7,6 +7,7 @@ baetzo_localtimedescriptor
 baetzo_localtimeperiod
 baetzo_localtimevalidity
 baetzo_testloader
+baetzo_timezoneidutil
 baetzo_timezoneutil
 baetzo_timezoneutilimp
 baetzo_zoneinfo
