@@ -4,6 +4,27 @@
 #include <bdes_ident.h>
 BDES_IDENT_RCSID(baetzo_timezoneidutil_cpp,"$Id$ $CSID$")
 
+///Implementation Notes
+///--------------------
+// This implementation uses standard algorithms to search two sorted statically
+// defined tables: one mapping Windows timezone identifiers to Olson timezone
+// identifiers, and the other providing the inverse mapping.  The source for
+// these tables was
+// 'http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/zone_tzid.html',
+// The entries were sorted using the 'isLessThan' function defined below as the
+// comparator.  Furthermore, the implementation assumes that each table has
+// only one entry for each given timezone identifier.  (That is, there is a
+// one-to-one relationship between the two sets of timezone identifiers.
+//
+// This implementation was deemed to provide sufficient performance.  If a
+// faster implementation is needed, we can take advantage of the fact that the
+// table entries are known at compile-time.  Consider using a prefix tree
+// (trie) or generating a perfect hash.
+
+#include <baetzo_timezoneutil.h>  // for testing only
+#include <baetzo_testloader.h>    // for testing only
+#include <baetzo_dstpolicy.h>     // for testing only
+
 #include <bsl_algorithm.h>  // for 'lower_bound'
 #include <bsl_cstring.h>    // for 'strcmp'
 #include <bslmf_assert.h>

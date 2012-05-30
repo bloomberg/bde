@@ -135,7 +135,131 @@ BDES_IDENT("$Id: $")
 //  +--------------------------------+--------+---------------------+
 //..
 //
-// [See test driver for Usage example.]
+///Usage
+///-----
+// In this section we show intended usage of this component.
+//
+///Example 1: Basic Syntax
+///- - - - - - - - - - - -
+// The 'getTimeZoneIdFromWindowsTimeZoneId' method will convert a Windows
+// timezone identifer to the designated Olson equivalent timezone identifer.
+//..
+//      int         rc;
+//      const char *timeZoneId;
+//      const char *windowsTimeZoneId;
+//
+//      rc = baetzo_TimeZoneIdUtil::getTimeZoneIdFromWindowsTimeZoneId(
+//                                           &timeZoneId,
+//                                           "Central Standard Time (Mexico)");
+//      assert(0 == rc);
+//      assert(0 == bsl::strcmp("America/Mexico_City", timeZoneId));
+//..
+// The 'getWindowsTimeZoneIdFromTimeZoneId' method performs the inverse
+// mapping.
+//..
+//      rc = baetzo_TimeZoneIdUtil::getWindowsTimeZoneIdFromTimeZoneId(
+//                                                      &windowsTimeZoneId,
+//                                                      "America/Mexico_City");
+//      assert(0 == rc);
+//      assert(0 == bsl::strcmp("Central Standard Time (Mexico)",
+//                               windowsTimeZoneId));
+//..
+// When given an unknown timezone identifier, both methods return a non-zero
+// value and neither method changes the pointer value at the address given
+// as the first argument.
+//..
+//      timeZoneId = (const char *)0xdeadbeef;
+//      rc = baetzo_TimeZoneIdUtil::getTimeZoneIdFromWindowsTimeZoneId(
+//                                                                 &timeZoneId,
+//                                                                 "ABCZ");
+//      assert(0                        != rc);
+//      assert(0xdeadbeef == (unsigned)timeZoneId);
+//
+//      windowsTimeZoneId = (const char*)0xcafef00d;
+//      rc = baetzo_TimeZoneIdUtil::getWindowsTimeZoneIdFromTimeZoneId(
+//                                                          &windowsTimeZoneId,
+//                                                          "XYZA");
+//      assert(0          != rc);
+//      assert(0xcafef00d == (unsigned)windowsTimeZoneId);
+//..
+//
+///Example 2: Converting from Windows to Olson Time Zone Idenitifers
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The 'getTimeZoneIdFromWindowsTimeZoneId' method allows Windows clients to
+// use their configured time zone information (from the registry) to create the
+// vocabulary types used in many BDE libraries.  The following example shows
+// how to create and use a function that can assemble an 'baet_LocalDatetime'
+// object given values for 'year', 'month', 'day', 'hour', and a Windows
+// timezone identifer.
+//
+// First, we define our function interface.
+//..
+//  int myLoadLocalDatetime(baet_LocalDatetime   *resultPtr,
+//                          const char           *timezoneIdFromRegistry,
+//                          int                   year,
+//                          int                   month,
+//                          int                   day,
+//                          int                   hour);
+//      // Load, into the specified 'result', the local date-time value (in the
+//      // (Windows) time zone indicated by the specified
+//      // 'timezoneIdFromRegistry') corresponding the specified 'year',
+//      // 'month', 'hour', 'day', and 'hour'.  Return 0 on success, and a
+//      // non-zero value otherwise.
+//..
+//  Next, we implement our function.
+//..
+//  int myLoadLocalDatetime(baet_LocalDatetime   *resultPtr,
+//                          const char           *timezoneIdFromRegistry,
+//                          int                   year,
+//                          int                   month,
+//                          int                   day,
+//                          int                   hour)
+//  {
+//      BSLS_ASSERT(resultPtr);
+//      BSLS_ASSERT(timezoneIdFromRegistry);
+//      BSLS_ASSERT(bdet_Date::isValid(year, month, day));
+//      BSLS_ASSERT(bdet_Time::isValid(hour));
+//
+//      const char *timeZoneId;
+//
+//      int rc = baetzo_TimeZoneIdUtil::getTimeZoneIdFromWindowsTimeZoneId(
+//                                                     &timeZoneId,
+//                                                     timezoneIdFromRegistry);
+//      if (0 != rc) {
+//          return -1;                                                // RETURN
+//      }
+//
+//      bdet_Datetime datetime(year, month, day, hour);
+//
+//      return baetzo_TimeZoneUtil::initLocalTime(
+//                                          resultPtr,
+//                                          datetime,
+//                                          timeZoneId,
+//                                          baetzo_DstPolicy::BAETZO_STANDARD);
+//  }
+//..
+// Notice that the 'dstPolicy' parameters has been set to
+// 'baetzo_DstPolicy::BAETZO_STANDARD', because each of the supported Windows
+// timezone identifiers is a "Standard Time".
+//
+// Now, we can use 'myLoadLocalDatetime' to initialize 'localDatetime'.
+//..
+//  baet_LocalDatetime localDatetime;
+//  int                rc  = myLoadLocalDatetime(&localDatetime,
+//                                               "Arab Standard Time",
+//                                               2012, 5, 28, 22);
+//  assert(0 == rc);
+//  assert(0 == bsl::strcmp("Asia/Riyadh",
+//                          localDatetime.timeZoneId().c_str()));
+//..
+// Finally, having an object of a vocabulary type, we can easily perform
+// a wide range of operations on our date-value (e.g., date arithmetic).
+//..
+//  bdet_Date localDate = localDatetime.datetimeTz().dateTz().localDate();
+//  bdet_Date yesterday = localDate - 1;
+//  bdet_Date tomorrow  = localDate + 1;
+//  // ...
+//..
 
 #ifndef INCLUDED_BAESCM_VERSION
 #include <baescm_version.h>
