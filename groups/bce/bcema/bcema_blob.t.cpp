@@ -593,7 +593,7 @@ int timestampMessage(bcema_Blob          *blob,
 //..
 void prependProlog(bcema_Blob          *blob,
                    const bsl::string&   prolog,
-                   bslma_Allocator     *allocator)
+                   bslma_Allocator     *)
 {
     ASSERT(blob);
 
@@ -775,7 +775,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -797,6 +797,142 @@ int main(int argc, char *argv[])
 
         usageExample2();
 
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING IMPLICIT TRIM
+        //
+        // Concerns:
+        //   DRQS 30331343 found a serious bug where 'appendDataBuffer' failed
+        //   to trim 'd_totalSize', leading to corrupt datastructures and
+        //   reads through invalid pointers.
+        //
+        // Plan:
+        //   Repeat the test case from that DRQS, and also do some more
+        //   thorough testing of 'appendDataBuffer'.  Call the method on blobs
+        //   in a variety of different states, observing the state of the blob
+        //   very closely.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING IMPLICIT TRIM\n"
+                             "=====================\n";
+
+        bslma_TestAllocator ta;
+
+        {
+            // Kevin's McMahon's example from DRQS 30331343
+
+//          bslma_Allocator *allocator = bslma_Default::allocator();
+            bslma_Allocator *allocator = &ta;
+//          bcema_PooledBlobBufferFactory factory(1024);
+            SimpleBlobBufferFactory       factory(1024, allocator);
+            bcema_Blob blob(&factory);
+            blob.setLength(1);
+            bcema_SharedPtr<char> buf((char*) allocator->allocate(4),
+                                      allocator);
+            bcema_BlobBuffer blobBuffer(buf, 4);
+            blob.appendDataBuffer(blobBuffer);
+            blob.setLength(blob.length() + 1);
+
+            // with old code, blob fails invariants test upon destruction
+        }
+
+        SimpleBlobBufferFactory sbbf(1024, &ta);
+
+        {
+            bcema_Blob blob(&sbbf, &ta);
+            blob.setLength(4);
+            ASSERT(1024 == blob.buffer(0).size());
+            ASSERT(1024 == blob.totalSize());
+            ASSERT(4    == blob.length());
+            for (int i = 0; i < 3; ++i) {
+                bcema_BlobBuffer bb;
+                sbbf.allocate(&bb);
+                blob.appendBuffer(bb);
+            }
+            bcema_BlobBuffer bb;
+            sbbf.allocate(&bb);
+            blob.appendDataBuffer(bb);
+            ASSERT(1028 == blob.length());
+            LOOP_ASSERT(blob.totalSize(), 4100 == blob.totalSize());
+            LOOP_ASSERT(blob.buffer(0).size(), 4 == blob.buffer(0).size());
+            for (int i = 1; i < 5; ++i) {
+                int sz = blob.buffer(i).size();
+                LOOP2_ASSERT(i, sz, 1024 == sz);
+            }
+            ASSERT(5 == blob.numBuffers());
+        }
+
+        {
+            bcema_Blob blob(&sbbf, &ta);
+            for (int i = 0; i < 3; ++i) {
+                bcema_BlobBuffer bb;
+                sbbf.allocate(&bb);
+                blob.appendBuffer(bb);
+            }
+            bcema_BlobBuffer bb;
+            sbbf.allocate(&bb);
+            blob.appendDataBuffer(bb);
+            ASSERT(1024 == blob.length());
+            LOOP_ASSERT(blob.totalSize(), 4096 == blob.totalSize());
+            LOOP_ASSERT(blob.buffer(0).size(), 1024 == blob.buffer(0).size());
+            for (int i = 1; i < 4; ++i) {
+                int sz = blob.buffer(i).size();
+                LOOP2_ASSERT(i, sz, 1024 == sz);
+            }
+            ASSERT(4 == blob.numBuffers());
+            ASSERT(1024 == blob.length());
+            ASSERT(4096 == blob.totalSize());
+            ASSERT(1024 == blob.lastDataBufferLength());
+        }
+
+        {
+            bcema_Blob blob(&sbbf, &ta);
+            ASSERT(0 == blob.totalSize());
+            ASSERT(0 == blob.numBuffers());
+            bcema_BlobBuffer bb;
+            sbbf.allocate(&bb);
+            blob.appendDataBuffer(bb);
+            ASSERT(1024 == blob.length());
+            LOOP_ASSERT(blob.totalSize(), 1024 == blob.totalSize());
+            LOOP_ASSERT(blob.buffer(0).size(), 1024 == blob.buffer(0).size());
+            ASSERT(1 == blob.numBuffers());
+            ASSERT(1024 == blob.totalSize());
+            ASSERT(1024 == blob.lastDataBufferLength());
+        }
+
+        {
+            bcema_Blob blob(&sbbf);
+            blob.setLength(1);
+            ASSERT(1024 == blob.totalSize());
+
+            bcema_SharedPtr<char> buf((char*) ta.allocate(4), &ta);
+            bcema_BlobBuffer blobBuffer(buf, 4);
+            blob.appendDataBuffer(blobBuffer);
+            blob.setLength(blob.length() + 1);
+            ASSERT(3 == blob.numBuffers());
+            ASSERT(1 == blob.buffer(0).size());
+            ASSERT(4 == blob.buffer(1).size());
+            ASSERT(1029 == blob.totalSize());
+        }
+
+        {
+            bcema_Blob blob(&sbbf);
+            blob.setLength(1025);
+            ASSERT(2048 == blob.totalSize());
+            blob.setLength(1024);
+            ASSERT(2048 == blob.totalSize());
+            ASSERT(1024 == blob.lastDataBufferLength());
+            bcema_SharedPtr<char> buf((char*) ta.allocate(4), &ta);
+            bcema_BlobBuffer blobBuffer(buf, 4);
+            blob.appendDataBuffer(blobBuffer);
+            blob.setLength(blob.length() + 1);
+            LOOP_ASSERT(blob.numBuffers(), 3 == blob.numBuffers());
+            ASSERT(1024 == blob.buffer(0).size());
+            ASSERT(   4 == blob.buffer(1).size());
+            ASSERT(1024 == blob.buffer(2).size());
+            ASSERT(2052 == blob.totalSize());
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -918,7 +1054,7 @@ int main(int argc, char *argv[])
         bslma_DefaultAllocatorGuard guard(&defaultAlloc);
         bslma_TestAllocator ta(veryVeryVerbose);
 
-        bslma_TestAllocator& testAllocator = ta;
+//      bslma_TestAllocator& testAllocator = ta;
         for (int bufferSize1 = 1; bufferSize1 <= 6; bufferSize1 += 2) {
         for (int numBuffers1 = 0; numBuffers1 <= 3; ++numBuffers1) {
         for (int dataLength1 = 0;
@@ -1041,8 +1177,8 @@ int main(int argc, char *argv[])
                 ASSERT(Y2 != Z2);
             }
 
-            const int TOTAL_TOTAL1 = Z1.totalSize() + Y1.totalSize();
-            const int TOTAL_TOTAL2 = Z2.totalSize() + Y2.totalSize();
+//          const int TOTAL_TOTAL1 = Z1.totalSize() + Y1.totalSize();
+//          const int TOTAL_TOTAL2 = Z2.totalSize() + Y2.totalSize();
 
             mZ1.moveDataBuffers(&mY1);
             mZ2.moveAndAppendDataBuffers(&mY2);
@@ -2201,7 +2337,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.length());
             ASSERT(0 == X.numBuffers());
 
-            Obj mY(mX, &ta);  const Obj& Y = mY;
+            Obj mY(mX, &ta);  // const Obj& Y = mY;
 
             try {
                 mY.setLength(1); // will throw
