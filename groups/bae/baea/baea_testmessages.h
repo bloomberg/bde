@@ -17,16 +17,13 @@ BDES_IDENT_PRAGMA_ONCE
 //
 // The file is generated with the command:
 //..
-//  bas_codegen.pl -m msg -C testmessages test/baea_testmessages.xsd
+//  bas_codegen.pl -mmsg -Ctestmessages --dualSTL y test/baea_testmessages.xsd
 //..
 // After the message component is generated, the declarations and definitions
 // of all 'toAggregate' and 'fromAggregate' functions are removed.  The methods
 // are removed due to a bug in 'bas_codegen.pl', which incorrectly creates
-// those functions and causes the component to fail to compile.
-// 'bdema_Allocator' and 'bdema_Default' is substituted with 'bslma::Allocator'
-// and 'bslma::Default' respectively.  This change is needed for the Windows
-// platform, which defined 'BSL_LEGACY' to 0.  This Description section is
-// added after the component is generated.
+// those functions and causes the component to fail to compile.  This
+// Description section is added after the component is generated.
 
 #ifndef INCLUDED_BCEM_AGGREGATE
 #include <bcem_aggregate.h>
@@ -92,20 +89,20 @@ BDES_IDENT_PRAGMA_ONCE
 #include <bdeut_nullablevalue.h>
 #endif
 
-#ifndef INCLUDED_STRING
-#include <string>
+#ifndef INCLUDED_BSL_STRING
+#include <bsl_string.h>
 #endif
 
-#ifndef INCLUDED_VECTOR
-#include <vector>
+#ifndef INCLUDED_BSL_VECTOR
+#include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_IOSFWD
-#include <iosfwd>
+#ifndef INCLUDED_BSL_IOSFWD
+#include <bsl_iosfwd.h>
 #endif
 
-#ifndef INCLUDED_OSTREAM
-#include <ostream>
+#ifndef INCLUDED_BSL_OSTREAM
+#include <bsl_ostream.h>
 #endif
 
 #ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
@@ -213,7 +210,7 @@ class CustomInt {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -247,7 +244,7 @@ bool operator!=(const CustomInt& lhs, const CustomInt& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const CustomInt& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const CustomInt& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -266,41 +263,41 @@ namespace baea {
 class CustomString {
 
     // INSTANCE DATA
-    std::string d_value;
+    bsl::string d_value;
 
     // FRIENDS
     friend bool operator==(const CustomString& lhs, const CustomString& rhs);
     friend bool operator!=(const CustomString& lhs, const CustomString& rhs);
 
     // PRIVATE CLASS METHODS
-    static int checkRestrictions(const std::string& value);
+    static int checkRestrictions(const bsl::string& value);
         // Check if the specified 'value' satisfies the restrictions of this
         // class (i.e., "CustomString").  Return 0 if successful (i.e., the
         // restrictions are satisfied) and non-zero otherwise.
 
   public:
     // TYPES
-    typedef std::string BaseType;
+    typedef bsl::string BaseType;
 
     // CONSTANTS
     static const char CLASS_NAME[];
 
     // CREATORS
-    explicit CustomString(bslma::Allocator *basicAllocator = 0);
+    explicit CustomString(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'CustomString' having the default value. 
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     CustomString(const CustomString& original,
-                bslma::Allocator *basicAllocator = 0);
+                bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'CustomString' having the value
         // of the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    explicit CustomString(const std::string& value,
-                         bslma::Allocator *basicAllocator = 0);
+    explicit CustomString(const bsl::string& value,
+                         bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'CustomString' having the specified
         // 'value'.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
@@ -329,7 +326,7 @@ class CustomString {
         // Reset this object to the default value (i.e., its value upon
         // default construction).
 
-    int fromString(const std::string& value);
+    int fromString(const bsl::string& value);
         // Convert from the specified 'value' to this type.  Return 0 if
         // successful and non-zero otherwise.
 
@@ -349,7 +346,7 @@ class CustomString {
         // information on 'bdex' streaming of value-semantic types and
         // containers.
 
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -364,8 +361,8 @@ class CustomString {
         // operation has no effect.  Note that a trailing newline is provided
         // in multiline mode only.
 
-    const std::string& toString() const;
-        // Convert this value to 'std::string'.
+    const bsl::string& toString() const;
+        // Convert this value to 'bsl::string'.
 };
 
 // FREE OPERATORS
@@ -383,7 +380,7 @@ bool operator!=(const CustomString& lhs, const CustomString& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const CustomString& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const CustomString& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -438,7 +435,7 @@ struct Enumerated {
         // (i.e., 'string' does not match any enumerator).
 
     static int fromString(Value              *result,
-                          const std::string&  string);
+                          const bsl::string&  string);
         // Load into the specified 'result' the enumerator matching the
         // specified 'string'.  Return 0 on success, and a non-zero value with
         // no effect on 'result' otherwise (i.e., 'string' does not match any
@@ -464,7 +461,7 @@ struct Enumerated {
         // read from 'stream'.  (See the package-group-level documentation for
         // more information on 'bdex' streaming of container types.)
 
-    static std::ostream& print(std::ostream& stream, Value value);
+    static bsl::ostream& print(bsl::ostream& stream, Value value);
         // Write to the specified 'stream' the string representation of
         // the specified enumeration 'value'.  Return a reference to
         // the modifiable 'stream'.
@@ -485,7 +482,7 @@ struct Enumerated {
 
 // FREE OPERATORS
 inline
-std::ostream& operator<<(std::ostream& stream, Enumerated::Value rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, Enumerated::Value rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -505,7 +502,7 @@ namespace baea {
 class SimpleRequest {
 
     // INSTANCE DATA
-    std::string  d_data;
+    bsl::string  d_data;
     int          d_responseLength;
 
   public:
@@ -549,14 +546,14 @@ class SimpleRequest {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit SimpleRequest(bslma::Allocator *basicAllocator = 0);
+    explicit SimpleRequest(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'SimpleRequest' having the default value. 
         // Use the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     SimpleRequest(const SimpleRequest& original,
-                  bslma::Allocator *basicAllocator = 0);
+                  bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'SimpleRequest' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -614,7 +611,7 @@ class SimpleRequest {
         // returned from the invocation of 'manipulator' if 'name' identifies
         // an attribute of this class, and -1 otherwise.
 
-    std::string& data();
+    bsl::string& data();
         // Return a reference to the modifiable "Data" attribute of this
         // object.
 
@@ -623,7 +620,7 @@ class SimpleRequest {
         // this object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -675,7 +672,7 @@ class SimpleRequest {
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
-    const std::string& data() const;
+    const bsl::string& data() const;
         // Return a reference to the non-modifiable "Data" attribute of this
         // object.
 
@@ -699,7 +696,7 @@ bool operator!=(const SimpleRequest& lhs, const SimpleRequest& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const SimpleRequest& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const SimpleRequest& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -838,7 +835,7 @@ class UnsignedSequence {
         // object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -918,7 +915,7 @@ bool operator!=(const UnsignedSequence& lhs, const UnsignedSequence& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const UnsignedSequence& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const UnsignedSequence& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -1028,7 +1025,7 @@ class VoidSequence {
         // an attribute of this class, and -1 otherwise.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -1096,7 +1093,7 @@ bool operator!=(const VoidSequence& lhs, const VoidSequence& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const VoidSequence& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const VoidSequence& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -1115,11 +1112,11 @@ namespace baea {
 class Sequence3 {
 
     // INSTANCE DATA
-    std::vector<std::string>                              d_element2;
-    bdeut_NullableValue<std::string>                      d_element4;
+    bsl::vector<bsl::string>                              d_element2;
+    bdeut_NullableValue<bsl::string>                      d_element4;
     bdeut_NullableAllocatedValue<Sequence5>               d_element5;
-    std::vector<bdeut_NullableValue<Enumerated::Value> >  d_element6;
-    std::vector<Enumerated::Value>                        d_element1;
+    bsl::vector<bdeut_NullableValue<Enumerated::Value> >  d_element6;
+    bsl::vector<Enumerated::Value>                        d_element1;
     bdeut_NullableValue<bool>                             d_element3;
 
   public:
@@ -1171,14 +1168,14 @@ class Sequence3 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence3(bslma::Allocator *basicAllocator = 0);
+    explicit Sequence3(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence3' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Sequence3(const Sequence3& original,
-              bslma::Allocator *basicAllocator = 0);
+              bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence3' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -1236,11 +1233,11 @@ class Sequence3 {
         // returned from the invocation of 'manipulator' if 'name' identifies
         // an attribute of this class, and -1 otherwise.
 
-    std::vector<Enumerated::Value>& element1();
+    bsl::vector<Enumerated::Value>& element1();
         // Return a reference to the modifiable "Element1" attribute of this
         // object.
 
-    std::vector<std::string>& element2();
+    bsl::vector<bsl::string>& element2();
         // Return a reference to the modifiable "Element2" attribute of this
         // object.
 
@@ -1248,7 +1245,7 @@ class Sequence3 {
         // Return a reference to the modifiable "Element3" attribute of this
         // object.
 
-    bdeut_NullableValue<std::string>& element4();
+    bdeut_NullableValue<bsl::string>& element4();
         // Return a reference to the modifiable "Element4" attribute of this
         // object.
 
@@ -1256,12 +1253,12 @@ class Sequence3 {
         // Return a reference to the modifiable "Element5" attribute of this
         // object.
 
-    std::vector<bdeut_NullableValue<Enumerated::Value> >& element6();
+    bsl::vector<bdeut_NullableValue<Enumerated::Value> >& element6();
         // Return a reference to the modifiable "Element6" attribute of this
         // object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -1313,11 +1310,11 @@ class Sequence3 {
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
-    const std::vector<Enumerated::Value>& element1() const;
+    const bsl::vector<Enumerated::Value>& element1() const;
         // Return a reference to the non-modifiable "Element1" attribute of
         // this object.
 
-    const std::vector<std::string>& element2() const;
+    const bsl::vector<bsl::string>& element2() const;
         // Return a reference to the non-modifiable "Element2" attribute of
         // this object.
 
@@ -1325,7 +1322,7 @@ class Sequence3 {
         // Return a reference to the non-modifiable "Element3" attribute of
         // this object.
 
-    const bdeut_NullableValue<std::string>& element4() const;
+    const bdeut_NullableValue<bsl::string>& element4() const;
         // Return a reference to the non-modifiable "Element4" attribute of
         // this object.
 
@@ -1333,7 +1330,7 @@ class Sequence3 {
         // Return a reference to the non-modifiable "Element5" attribute of
         // this object.
 
-    const std::vector<bdeut_NullableValue<Enumerated::Value> >& element6() const;
+    const bsl::vector<bdeut_NullableValue<Enumerated::Value> >& element6() const;
         // Return a reference to the non-modifiable "Element6" attribute of
         // this object.
 };
@@ -1353,7 +1350,7 @@ bool operator!=(const Sequence3& lhs, const Sequence3& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Sequence3& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Sequence3& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -1372,13 +1369,13 @@ namespace baea {
 class Sequence5 {
 
     // INSTANCE DATA
-    bslma::Allocator                                       *d_allocator_p;
-    std::vector<bdeut_NullableValue<int> >                 d_element5;
-    std::vector<bdeut_NullableValue<double> >              d_element3;
-    std::vector<bdeut_NullableValue<std::vector<char> > >  d_element4;
-    std::vector<bdeut_NullableValue<bool> >                d_element2;
-    std::vector<bdeut_NullableValue<bdet_DatetimeTz> >     d_element6;
-    std::vector<bdeut_NullableAllocatedValue<Sequence3> >  d_element7;
+    bslma_Allocator                                       *d_allocator_p;
+    bsl::vector<bdeut_NullableValue<int> >                 d_element5;
+    bsl::vector<bdeut_NullableValue<double> >              d_element3;
+    bsl::vector<bdeut_NullableValue<bsl::vector<char> > >  d_element4;
+    bsl::vector<bdeut_NullableValue<bool> >                d_element2;
+    bsl::vector<bdeut_NullableValue<bdet_DatetimeTz> >     d_element6;
+    bsl::vector<bdeut_NullableAllocatedValue<Sequence3> >  d_element7;
     Sequence3                                             *d_element1;
 
   public:
@@ -1432,14 +1429,14 @@ class Sequence5 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence5(bslma::Allocator *basicAllocator = 0);
+    explicit Sequence5(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence5' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Sequence5(const Sequence5& original,
-              bslma::Allocator *basicAllocator = 0);
+              bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence5' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -1501,32 +1498,32 @@ class Sequence5 {
         // Return a reference to the modifiable "Element1" attribute of this
         // object.
 
-    std::vector<bdeut_NullableValue<bool> >& element2();
+    bsl::vector<bdeut_NullableValue<bool> >& element2();
         // Return a reference to the modifiable "Element2" attribute of this
         // object.
 
-    std::vector<bdeut_NullableValue<double> >& element3();
+    bsl::vector<bdeut_NullableValue<double> >& element3();
         // Return a reference to the modifiable "Element3" attribute of this
         // object.
 
-    std::vector<bdeut_NullableValue<std::vector<char> > >& element4();
+    bsl::vector<bdeut_NullableValue<bsl::vector<char> > >& element4();
         // Return a reference to the modifiable "Element4" attribute of this
         // object.
 
-    std::vector<bdeut_NullableValue<int> >& element5();
+    bsl::vector<bdeut_NullableValue<int> >& element5();
         // Return a reference to the modifiable "Element5" attribute of this
         // object.
 
-    std::vector<bdeut_NullableValue<bdet_DatetimeTz> >& element6();
+    bsl::vector<bdeut_NullableValue<bdet_DatetimeTz> >& element6();
         // Return a reference to the modifiable "Element6" attribute of this
         // object.
 
-    std::vector<bdeut_NullableAllocatedValue<Sequence3> >& element7();
+    bsl::vector<bdeut_NullableAllocatedValue<Sequence3> >& element7();
         // Return a reference to the modifiable "Element7" attribute of this
         // object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -1582,27 +1579,27 @@ class Sequence5 {
         // Return a reference to the non-modifiable "Element1" attribute of
         // this object.
 
-    const std::vector<bdeut_NullableValue<bool> >& element2() const;
+    const bsl::vector<bdeut_NullableValue<bool> >& element2() const;
         // Return a reference to the non-modifiable "Element2" attribute of
         // this object.
 
-    const std::vector<bdeut_NullableValue<double> >& element3() const;
+    const bsl::vector<bdeut_NullableValue<double> >& element3() const;
         // Return a reference to the non-modifiable "Element3" attribute of
         // this object.
 
-    const std::vector<bdeut_NullableValue<std::vector<char> > >& element4() const;
+    const bsl::vector<bdeut_NullableValue<bsl::vector<char> > >& element4() const;
         // Return a reference to the non-modifiable "Element4" attribute of
         // this object.
 
-    const std::vector<bdeut_NullableValue<int> >& element5() const;
+    const bsl::vector<bdeut_NullableValue<int> >& element5() const;
         // Return a reference to the non-modifiable "Element5" attribute of
         // this object.
 
-    const std::vector<bdeut_NullableValue<bdet_DatetimeTz> >& element6() const;
+    const bsl::vector<bdeut_NullableValue<bdet_DatetimeTz> >& element6() const;
         // Return a reference to the non-modifiable "Element6" attribute of
         // this object.
 
-    const std::vector<bdeut_NullableAllocatedValue<Sequence3> >& element7() const;
+    const bsl::vector<bdeut_NullableAllocatedValue<Sequence3> >& element7() const;
         // Return a reference to the non-modifiable "Element7" attribute of
         // this object.
 };
@@ -1622,7 +1619,7 @@ bool operator!=(const Sequence5& lhs, const Sequence5& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Sequence5& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Sequence5& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -1641,13 +1638,13 @@ namespace baea {
 class Sequence6 {
 
     // INSTANCE DATA
-    std::vector<unsigned char>                        d_element8;
-    std::vector<bdeut_NullableValue<unsigned char> >  d_element10;
-    std::vector<CustomString>                         d_element9;
+    bsl::vector<unsigned char>                        d_element8;
+    bsl::vector<bdeut_NullableValue<unsigned char> >  d_element10;
+    bsl::vector<CustomString>                         d_element9;
     bdeut_NullableValue<CustomString>                 d_element2;
     CustomString                                      d_element6;
-    std::vector<bdeut_NullableValue<CustomInt> >      d_element5;
-    std::vector<CustomInt>                            d_element11;
+    bsl::vector<bdeut_NullableValue<CustomInt> >      d_element5;
+    bsl::vector<CustomInt>                            d_element11;
     bdeut_NullableValue<CustomInt>                    d_element3;
     CustomInt                                         d_element7;
     unsigned char                                     d_element4;
@@ -1712,14 +1709,14 @@ class Sequence6 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence6(bslma::Allocator *basicAllocator = 0);
+    explicit Sequence6(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence6' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Sequence6(const Sequence6& original,
-              bslma::Allocator *basicAllocator = 0);
+              bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence6' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -1793,7 +1790,7 @@ class Sequence6 {
         // Return a reference to the modifiable "Element4" attribute of this
         // object.
 
-    std::vector<bdeut_NullableValue<CustomInt> >& element5();
+    bsl::vector<bdeut_NullableValue<CustomInt> >& element5();
         // Return a reference to the modifiable "Element5" attribute of this
         // object.
 
@@ -1805,24 +1802,24 @@ class Sequence6 {
         // Return a reference to the modifiable "Element7" attribute of this
         // object.
 
-    std::vector<unsigned char>& element8();
+    bsl::vector<unsigned char>& element8();
         // Return a reference to the modifiable "Element8" attribute of this
         // object.
 
-    std::vector<CustomString>& element9();
+    bsl::vector<CustomString>& element9();
         // Return a reference to the modifiable "Element9" attribute of this
         // object.
 
-    std::vector<bdeut_NullableValue<unsigned char> >& element10();
+    bsl::vector<bdeut_NullableValue<unsigned char> >& element10();
         // Return a reference to the modifiable "Element10" attribute of this
         // object.
 
-    std::vector<CustomInt>& element11();
+    bsl::vector<CustomInt>& element11();
         // Return a reference to the modifiable "Element11" attribute of this
         // object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -1890,7 +1887,7 @@ class Sequence6 {
         // Return a reference to the non-modifiable "Element4" attribute of
         // this object.
 
-    const std::vector<bdeut_NullableValue<CustomInt> >& element5() const;
+    const bsl::vector<bdeut_NullableValue<CustomInt> >& element5() const;
         // Return a reference to the non-modifiable "Element5" attribute of
         // this object.
 
@@ -1902,19 +1899,19 @@ class Sequence6 {
         // Return a reference to the non-modifiable "Element7" attribute of
         // this object.
 
-    const std::vector<unsigned char>& element8() const;
+    const bsl::vector<unsigned char>& element8() const;
         // Return a reference to the non-modifiable "Element8" attribute of
         // this object.
 
-    const std::vector<CustomString>& element9() const;
+    const bsl::vector<CustomString>& element9() const;
         // Return a reference to the non-modifiable "Element9" attribute of
         // this object.
 
-    const std::vector<bdeut_NullableValue<unsigned char> >& element10() const;
+    const bsl::vector<bdeut_NullableValue<unsigned char> >& element10() const;
         // Return a reference to the non-modifiable "Element10" attribute of
         // this object.
 
-    const std::vector<CustomInt>& element11() const;
+    const bsl::vector<CustomInt>& element11() const;
         // Return a reference to the non-modifiable "Element11" attribute of
         // this object.
 };
@@ -1934,7 +1931,7 @@ bool operator!=(const Sequence6& lhs, const Sequence6& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Sequence6& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Sequence6& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -1961,7 +1958,7 @@ class Choice3 {
     };
 
     int                                    d_selectionId;
-    bslma::Allocator                       *d_allocator_p;
+    bslma_Allocator                       *d_allocator_p;
 
   public:
     // TYPES
@@ -2009,14 +2006,14 @@ class Choice3 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Choice3(bslma::Allocator *basicAllocator = 0);
+    explicit Choice3(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Choice3' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Choice3(const Choice3& original,
-           bslma::Allocator *basicAllocator = 0);
+           bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Choice3' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2109,7 +2106,7 @@ class Choice3 {
         // undefined unless "Selection4" is the selection of this object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -2202,7 +2199,7 @@ bool operator!=(const Choice3& lhs, const Choice3& rhs);
     // same values, as determined by 'operator==', and 'false' otherwise.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Choice3& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Choice3& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -2229,7 +2226,7 @@ class Choice1 {
     };
 
     int                              d_selectionId;
-    bslma::Allocator                 *d_allocator_p;
+    bslma_Allocator                 *d_allocator_p;
 
   public:
     // TYPES
@@ -2277,14 +2274,14 @@ class Choice1 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Choice1(bslma::Allocator *basicAllocator = 0);
+    explicit Choice1(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Choice1' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Choice1(const Choice1& original,
-           bslma::Allocator *basicAllocator = 0);
+           bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Choice1' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2377,7 +2374,7 @@ class Choice1 {
         // undefined unless "Selection4" is the selection of this object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -2470,7 +2467,7 @@ bool operator!=(const Choice1& lhs, const Choice1& rhs);
     // same values, as determined by 'operator==', and 'false' otherwise.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Choice1& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Choice1& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -2491,12 +2488,12 @@ class Choice2 {
     // INSTANCE DATA
     union {
         bsls_ObjectBuffer< bool >         d_selection1;
-        bsls_ObjectBuffer< std::string >  d_selection2;
+        bsls_ObjectBuffer< bsl::string >  d_selection2;
         Choice1                          *d_selection3;
     };
 
     int                                   d_selectionId;
-    bslma::Allocator                      *d_allocator_p;
+    bslma_Allocator                      *d_allocator_p;
 
   public:
     // TYPES
@@ -2542,14 +2539,14 @@ class Choice2 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Choice2(bslma::Allocator *basicAllocator = 0);
+    explicit Choice2(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Choice2' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Choice2(const Choice2& original,
-           bslma::Allocator *basicAllocator = 0);
+           bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Choice2' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -2595,8 +2592,8 @@ class Choice2 {
         // specify the 'value' of the "Selection1".  If 'value' is not
         // specified, the default "Selection1" value is used.
 
-    std::string& makeSelection2();
-    std::string& makeSelection2(const std::string& value);
+    bsl::string& makeSelection2();
+    bsl::string& makeSelection2(const bsl::string& value);
         // Set the value of this object to be a "Selection2" value.  Optionally
         // specify the 'value' of the "Selection2".  If 'value' is not
         // specified, the default "Selection2" value is used.
@@ -2620,7 +2617,7 @@ class Choice2 {
         // object if "Selection1" is the current selection.  The behavior is
         // undefined unless "Selection1" is the selection of this object.
 
-    std::string& selection2();
+    bsl::string& selection2();
         // Return a reference to the modifiable "Selection2" selection of this
         // object if "Selection2" is the current selection.  The behavior is
         // undefined unless "Selection2" is the selection of this object.
@@ -2631,7 +2628,7 @@ class Choice2 {
         // undefined unless "Selection3" is the selection of this object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -2671,7 +2668,7 @@ class Choice2 {
         // this object if "Selection1" is the current selection.  The behavior
         // is undefined unless "Selection1" is the selection of this object.
 
-    const std::string& selection2() const;
+    const bsl::string& selection2() const;
         // Return a reference to the non-modifiable "Selection2" selection of
         // this object if "Selection2" is the current selection.  The behavior
         // is undefined unless "Selection2" is the selection of this object.
@@ -2715,7 +2712,7 @@ bool operator!=(const Choice2& lhs, const Choice2& rhs);
     // same values, as determined by 'operator==', and 'false' otherwise.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Choice2& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Choice2& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -2735,17 +2732,17 @@ class Sequence4 {
 
     // INSTANCE DATA
     double                                   d_element10;
-    std::vector<int>                         d_element17;
-    std::vector<double>                      d_element15;
-    std::vector<char>                        d_element11;
-    std::vector<std::vector<char> >          d_element16;
-    std::vector<bool>                        d_element14;
-    std::vector<bdet_DatetimeTz>             d_element18;
-    std::vector<Sequence3>                   d_element1;
-    std::vector<CustomString>                d_element19;
-    std::vector<Choice1>                     d_element2;
-    std::string                              d_element9;
-    bdeut_NullableValue<std::vector<char> >  d_element3;
+    bsl::vector<int>                         d_element17;
+    bsl::vector<double>                      d_element15;
+    bsl::vector<char>                        d_element11;
+    bsl::vector<bsl::vector<char> >          d_element16;
+    bsl::vector<bool>                        d_element14;
+    bsl::vector<bdet_DatetimeTz>             d_element18;
+    bsl::vector<Sequence3>                   d_element1;
+    bsl::vector<CustomString>                d_element19;
+    bsl::vector<Choice1>                     d_element2;
+    bsl::string                              d_element9;
+    bdeut_NullableValue<bsl::vector<char> >  d_element3;
     bdeut_NullableValue<bdet_DatetimeTz>     d_element5;
     bdeut_NullableValue<CustomString>        d_element6;
     int                                      d_element12;
@@ -2829,14 +2826,14 @@ class Sequence4 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence4(bslma::Allocator *basicAllocator = 0);
+    explicit Sequence4(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence4' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Sequence4(const Sequence4& original,
-              bslma::Allocator *basicAllocator = 0);
+              bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence4' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -2894,15 +2891,15 @@ class Sequence4 {
         // returned from the invocation of 'manipulator' if 'name' identifies
         // an attribute of this class, and -1 otherwise.
 
-    std::vector<Sequence3>& element1();
+    bsl::vector<Sequence3>& element1();
         // Return a reference to the modifiable "Element1" attribute of this
         // object.
 
-    std::vector<Choice1>& element2();
+    bsl::vector<Choice1>& element2();
         // Return a reference to the modifiable "Element2" attribute of this
         // object.
 
-    bdeut_NullableValue<std::vector<char> >& element3();
+    bdeut_NullableValue<bsl::vector<char> >& element3();
         // Return a reference to the modifiable "Element3" attribute of this
         // object.
 
@@ -2926,7 +2923,7 @@ class Sequence4 {
         // Return a reference to the modifiable "Element8" attribute of this
         // object.
 
-    std::string& element9();
+    bsl::string& element9();
         // Return a reference to the modifiable "Element9" attribute of this
         // object.
 
@@ -2934,7 +2931,7 @@ class Sequence4 {
         // Return a reference to the modifiable "Element10" attribute of this
         // object.
 
-    std::vector<char>& element11();
+    bsl::vector<char>& element11();
         // Return a reference to the modifiable "Element11" attribute of this
         // object.
 
@@ -2946,32 +2943,32 @@ class Sequence4 {
         // Return a reference to the modifiable "Element13" attribute of this
         // object.
 
-    std::vector<bool>& element14();
+    bsl::vector<bool>& element14();
         // Return a reference to the modifiable "Element14" attribute of this
         // object.
 
-    std::vector<double>& element15();
+    bsl::vector<double>& element15();
         // Return a reference to the modifiable "Element15" attribute of this
         // object.
 
-    std::vector<std::vector<char> >& element16();
+    bsl::vector<bsl::vector<char> >& element16();
         // Return a reference to the modifiable "Element16" attribute of this
         // object.
 
-    std::vector<int>& element17();
+    bsl::vector<int>& element17();
         // Return a reference to the modifiable "Element17" attribute of this
         // object.
 
-    std::vector<bdet_DatetimeTz>& element18();
+    bsl::vector<bdet_DatetimeTz>& element18();
         // Return a reference to the modifiable "Element18" attribute of this
         // object.
 
-    std::vector<CustomString>& element19();
+    bsl::vector<CustomString>& element19();
         // Return a reference to the modifiable "Element19" attribute of this
         // object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -3023,15 +3020,15 @@ class Sequence4 {
         // invocation of 'accessor' if 'name' identifies an attribute of this
         // class, and -1 otherwise.
 
-    const std::vector<Sequence3>& element1() const;
+    const bsl::vector<Sequence3>& element1() const;
         // Return a reference to the non-modifiable "Element1" attribute of
         // this object.
 
-    const std::vector<Choice1>& element2() const;
+    const bsl::vector<Choice1>& element2() const;
         // Return a reference to the non-modifiable "Element2" attribute of
         // this object.
 
-    const bdeut_NullableValue<std::vector<char> >& element3() const;
+    const bdeut_NullableValue<bsl::vector<char> >& element3() const;
         // Return a reference to the non-modifiable "Element3" attribute of
         // this object.
 
@@ -3055,7 +3052,7 @@ class Sequence4 {
         // Return a reference to the non-modifiable "Element8" attribute of
         // this object.
 
-    const std::string& element9() const;
+    const bsl::string& element9() const;
         // Return a reference to the non-modifiable "Element9" attribute of
         // this object.
 
@@ -3063,7 +3060,7 @@ class Sequence4 {
         // Return a reference to the non-modifiable "Element10" attribute of
         // this object.
 
-    const std::vector<char>& element11() const;
+    const bsl::vector<char>& element11() const;
         // Return a reference to the non-modifiable "Element11" attribute of
         // this object.
 
@@ -3075,27 +3072,27 @@ class Sequence4 {
         // Return a reference to the non-modifiable "Element13" attribute of
         // this object.
 
-    const std::vector<bool>& element14() const;
+    const bsl::vector<bool>& element14() const;
         // Return a reference to the non-modifiable "Element14" attribute of
         // this object.
 
-    const std::vector<double>& element15() const;
+    const bsl::vector<double>& element15() const;
         // Return a reference to the non-modifiable "Element15" attribute of
         // this object.
 
-    const std::vector<std::vector<char> >& element16() const;
+    const bsl::vector<bsl::vector<char> >& element16() const;
         // Return a reference to the non-modifiable "Element16" attribute of
         // this object.
 
-    const std::vector<int>& element17() const;
+    const bsl::vector<int>& element17() const;
         // Return a reference to the non-modifiable "Element17" attribute of
         // this object.
 
-    const std::vector<bdet_DatetimeTz>& element18() const;
+    const bsl::vector<bdet_DatetimeTz>& element18() const;
         // Return a reference to the non-modifiable "Element18" attribute of
         // this object.
 
-    const std::vector<CustomString>& element19() const;
+    const bsl::vector<CustomString>& element19() const;
         // Return a reference to the non-modifiable "Element19" attribute of
         // this object.
 };
@@ -3115,7 +3112,7 @@ bool operator!=(const Sequence4& lhs, const Sequence4& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Sequence4& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Sequence4& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -3134,9 +3131,9 @@ namespace baea {
 class Sequence1 {
 
     // INSTANCE DATA
-    bslma::Allocator              *d_allocator_p;
-    std::vector<Choice3>          d_element4;
-    std::vector<Choice1>          d_element2;
+    bslma_Allocator              *d_allocator_p;
+    bsl::vector<Choice3>          d_element4;
+    bsl::vector<Choice1>          d_element2;
     bdeut_NullableValue<Choice3>  d_element1;
     Choice2                      *d_element3;
 
@@ -3185,14 +3182,14 @@ class Sequence1 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence1(bslma::Allocator *basicAllocator = 0);
+    explicit Sequence1(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence1' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Sequence1(const Sequence1& original,
-              bslma::Allocator *basicAllocator = 0);
+              bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence1' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3254,7 +3251,7 @@ class Sequence1 {
         // Return a reference to the modifiable "Element1" attribute of this
         // object.
 
-    std::vector<Choice1>& element2();
+    bsl::vector<Choice1>& element2();
         // Return a reference to the modifiable "Element2" attribute of this
         // object.
 
@@ -3262,12 +3259,12 @@ class Sequence1 {
         // Return a reference to the modifiable "Element3" attribute of this
         // object.
 
-    std::vector<Choice3>& element4();
+    bsl::vector<Choice3>& element4();
         // Return a reference to the modifiable "Element4" attribute of this
         // object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -3323,7 +3320,7 @@ class Sequence1 {
         // Return a reference to the non-modifiable "Element1" attribute of
         // this object.
 
-    const std::vector<Choice1>& element2() const;
+    const bsl::vector<Choice1>& element2() const;
         // Return a reference to the non-modifiable "Element2" attribute of
         // this object.
 
@@ -3331,7 +3328,7 @@ class Sequence1 {
         // Return a reference to the non-modifiable "Element3" attribute of
         // this object.
 
-    const std::vector<Choice3>& element4() const;
+    const bsl::vector<Choice3>& element4() const;
         // Return a reference to the non-modifiable "Element4" attribute of
         // this object.
 };
@@ -3351,7 +3348,7 @@ bool operator!=(const Sequence1& lhs, const Sequence1& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Sequence1& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Sequence1& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -3423,14 +3420,14 @@ class Sequence2 {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Sequence2(bslma::Allocator *basicAllocator = 0);
+    explicit Sequence2(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence2' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Sequence2(const Sequence2& original,
-              bslma::Allocator *basicAllocator = 0);
+              bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Sequence2' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3509,7 +3506,7 @@ class Sequence2 {
         // object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -3597,7 +3594,7 @@ bool operator!=(const Sequence2& lhs, const Sequence2& rhs);
     // values.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Sequence2& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Sequence2& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -3618,7 +3615,7 @@ class FeatureTestMessage {
     // INSTANCE DATA
     union {
         bsls_ObjectBuffer< Sequence1 >          d_selection1;
-        bsls_ObjectBuffer< std::vector<char> >  d_selection2;
+        bsls_ObjectBuffer< bsl::vector<char> >  d_selection2;
         bsls_ObjectBuffer< Sequence2 >          d_selection3;
         Sequence3                              *d_selection4;
         bsls_ObjectBuffer< bdet_DatetimeTz >    d_selection5;
@@ -3630,7 +3627,7 @@ class FeatureTestMessage {
     };
 
     int                                         d_selectionId;
-    bslma::Allocator                            *d_allocator_p;
+    bslma_Allocator                            *d_allocator_p;
 
   public:
     // TYPES
@@ -3690,14 +3687,14 @@ class FeatureTestMessage {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit FeatureTestMessage(bslma::Allocator *basicAllocator = 0);
+    explicit FeatureTestMessage(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'FeatureTestMessage' having the default
         // value.  Use the optionally specified 'basicAllocator' to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
     FeatureTestMessage(const FeatureTestMessage& original,
-                      bslma::Allocator *basicAllocator = 0);
+                      bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'FeatureTestMessage' having the value of
         // the specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -3743,8 +3740,8 @@ class FeatureTestMessage {
         // specify the 'value' of the "Selection1".  If 'value' is not
         // specified, the default "Selection1" value is used.
 
-    std::vector<char>& makeSelection2();
-    std::vector<char>& makeSelection2(const std::vector<char>& value);
+    bsl::vector<char>& makeSelection2();
+    bsl::vector<char>& makeSelection2(const bsl::vector<char>& value);
         // Set the value of this object to be a "Selection2" value.  Optionally
         // specify the 'value' of the "Selection2".  If 'value' is not
         // specified, the default "Selection2" value is used.
@@ -3810,7 +3807,7 @@ class FeatureTestMessage {
         // object if "Selection1" is the current selection.  The behavior is
         // undefined unless "Selection1" is the selection of this object.
 
-    std::vector<char>& selection2();
+    bsl::vector<char>& selection2();
         // Return a reference to the modifiable "Selection2" selection of this
         // object if "Selection2" is the current selection.  The behavior is
         // undefined unless "Selection2" is the selection of this object.
@@ -3856,7 +3853,7 @@ class FeatureTestMessage {
         // undefined unless "Selection10" is the selection of this object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -3896,7 +3893,7 @@ class FeatureTestMessage {
         // this object if "Selection1" is the current selection.  The behavior
         // is undefined unless "Selection1" is the selection of this object.
 
-    const std::vector<char>& selection2() const;
+    const bsl::vector<char>& selection2() const;
         // Return a reference to the non-modifiable "Selection2" selection of
         // this object if "Selection2" is the current selection.  The behavior
         // is undefined unless "Selection2" is the selection of this object.
@@ -4003,7 +4000,7 @@ bool operator!=(const FeatureTestMessage& lhs, const FeatureTestMessage& rhs);
     // same values, as determined by 'operator==', and 'false' otherwise.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const FeatureTestMessage& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const FeatureTestMessage& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -4028,7 +4025,7 @@ class Request {
     };
 
     int                                         d_selectionId;
-    bslma::Allocator                            *d_allocator_p;
+    bslma_Allocator                            *d_allocator_p;
 
   public:
     // TYPES
@@ -4072,14 +4069,14 @@ class Request {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Request(bslma::Allocator *basicAllocator = 0);
+    explicit Request(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Request' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Request(const Request& original,
-           bslma::Allocator *basicAllocator = 0);
+           bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Request' having the value of the specified
         // 'original' object.  Use the optionally specified 'basicAllocator' to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
@@ -4152,7 +4149,7 @@ class Request {
         // this object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -4229,7 +4226,7 @@ bool operator!=(const Request& lhs, const Request& rhs);
     // same values, as determined by 'operator==', and 'false' otherwise.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Request& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Request& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -4249,12 +4246,12 @@ class Response {
 
     // INSTANCE DATA
     union {
-        bsls_ObjectBuffer< std::string >        d_responseData;
+        bsls_ObjectBuffer< bsl::string >        d_responseData;
         bsls_ObjectBuffer< FeatureTestMessage > d_featureResponse;
     };
 
     int                                         d_selectionId;
-    bslma::Allocator                            *d_allocator_p;
+    bslma_Allocator                            *d_allocator_p;
 
   public:
     // TYPES
@@ -4298,14 +4295,14 @@ class Response {
         // exists, and 0 otherwise.
 
     // CREATORS
-    explicit Response(bslma::Allocator *basicAllocator = 0);
+    explicit Response(bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Response' having the default value.  Use
         // the optionally specified 'basicAllocator' to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
     Response(const Response& original,
-            bslma::Allocator *basicAllocator = 0);
+            bslma_Allocator *basicAllocator = 0);
         // Create an object of type 'Response' having the value of the
         // specified 'original' object.  Use the optionally specified
         // 'basicAllocator' to supply memory.  If 'basicAllocator' is 0, the
@@ -4345,8 +4342,8 @@ class Response {
         // Return 0 on success, and non-zero value otherwise (i.e., the
         // selection is not found).
 
-    std::string& makeResponseData();
-    std::string& makeResponseData(const std::string& value);
+    bsl::string& makeResponseData();
+    bsl::string& makeResponseData(const bsl::string& value);
         // Set the value of this object to be a "ResponseData" value. 
         // Optionally specify the 'value' of the "ResponseData".  If 'value' is
         // not specified, the default "ResponseData" value is used.
@@ -4365,7 +4362,7 @@ class Response {
         // invocation of 'manipulator' if this object has a defined selection,
         // and -1 otherwise.
 
-    std::string& responseData();
+    bsl::string& responseData();
         // Return a reference to the modifiable "ResponseData" selection of
         // this object if "ResponseData" is the current selection.  The
         // behavior is undefined unless "ResponseData" is the selection of this
@@ -4378,7 +4375,7 @@ class Response {
         // this object.
 
     // ACCESSORS
-    std::ostream& print(std::ostream& stream,
+    bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
         // Format this object to the specified output 'stream' at the
@@ -4413,7 +4410,7 @@ class Response {
         // structure.  Return the value returned from the invocation of
         // 'accessor' if this object has a defined selection, and -1 otherwise.
 
-    const std::string& responseData() const;
+    const bsl::string& responseData() const;
         // Return a reference to the non-modifiable "ResponseData" selection of
         // this object if "ResponseData" is the current selection.  The
         // behavior is undefined unless "ResponseData" is the selection of this
@@ -4455,7 +4452,7 @@ bool operator!=(const Response& lhs, const Response& rhs);
     // same values, as determined by 'operator==', and 'false' otherwise.
 
 inline
-std::ostream& operator<<(std::ostream& stream, const Response& rhs);
+bsl::ostream& operator<<(bsl::ostream& stream, const Response& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
@@ -4571,7 +4568,7 @@ int CustomInt::maxSupportedBdexVersion() const
 }
 
 inline
-std::ostream& CustomInt::print(std::ostream& stream,
+bsl::ostream& CustomInt::print(bsl::ostream& stream,
                                  int           level,
                                  int           spacesPerLevel) const
 {
@@ -4592,19 +4589,19 @@ const int& CustomInt::toInt() const
 
 // CREATORS
 inline
-CustomString::CustomString(bslma::Allocator *basicAllocator)
+CustomString::CustomString(bslma_Allocator *basicAllocator)
 : d_value(basicAllocator)
 {
 }
 
 inline
-CustomString::CustomString(const CustomString& original, bslma::Allocator *basicAllocator)
+CustomString::CustomString(const CustomString& original, bslma_Allocator *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
 
 inline
-CustomString::CustomString(const std::string& value, bslma::Allocator *basicAllocator)
+CustomString::CustomString(const bsl::string& value, bslma_Allocator *basicAllocator)
 : d_value(value, basicAllocator)
 {
     BSLS_ASSERT(checkRestrictions(value) == 0);
@@ -4626,7 +4623,7 @@ CustomString& CustomString::operator=(const CustomString& rhs)
 template <class STREAM>
 STREAM& CustomString::bdexStreamIn(STREAM& stream, int version)
 {
-    std::string temp;
+    bsl::string temp;
 
     bdex_InStreamFunctions::streamIn(stream, temp, version);
 
@@ -4648,7 +4645,7 @@ void CustomString::reset()
 }
 
 inline
-int CustomString::fromString(const std::string& value)
+int CustomString::fromString(const bsl::string& value)
 {
     int ret = checkRestrictions(value);
     if (0 == ret) {
@@ -4672,7 +4669,7 @@ int CustomString::maxSupportedBdexVersion() const
 }
 
 inline
-std::ostream& CustomString::print(std::ostream& stream,
+bsl::ostream& CustomString::print(bsl::ostream& stream,
                                  int           level,
                                  int           spacesPerLevel) const
 {
@@ -4680,7 +4677,7 @@ std::ostream& CustomString::print(std::ostream& stream,
 }
 
 inline
-const std::string& CustomString::toString() const
+const bsl::string& CustomString::toString() const
 {
     return d_value;
 }
@@ -4699,13 +4696,13 @@ int Enumerated::maxSupportedBdexVersion()
 }
 
 inline
-int Enumerated::fromString(Value *result, const std::string& string)
+int Enumerated::fromString(Value *result, const bsl::string& string)
 {
     return fromString(result, string.c_str(), string.length());
 }
 
 inline
-std::ostream& Enumerated::print(std::ostream&      stream,
+bsl::ostream& Enumerated::print(bsl::ostream&      stream,
                                  Enumerated::Value value)
 {
     return stream << toString(value);
@@ -4830,7 +4827,7 @@ int SimpleRequest::manipulateAttribute(
 }
 
 inline
-std::string& SimpleRequest::data()
+bsl::string& SimpleRequest::data()
 {
     return d_data;
 }
@@ -4907,7 +4904,7 @@ int SimpleRequest::accessAttribute(
 }
 
 inline
-const std::string& SimpleRequest::data() const
+const bsl::string& SimpleRequest::data() const
 {
     return d_data;
 }
@@ -5352,13 +5349,13 @@ int Sequence3::manipulateAttribute(
 }
 
 inline
-std::vector<Enumerated::Value>& Sequence3::element1()
+bsl::vector<Enumerated::Value>& Sequence3::element1()
 {
     return d_element1;
 }
 
 inline
-std::vector<std::string>& Sequence3::element2()
+bsl::vector<bsl::string>& Sequence3::element2()
 {
     return d_element2;
 }
@@ -5370,7 +5367,7 @@ bdeut_NullableValue<bool>& Sequence3::element3()
 }
 
 inline
-bdeut_NullableValue<std::string>& Sequence3::element4()
+bdeut_NullableValue<bsl::string>& Sequence3::element4()
 {
     return d_element4;
 }
@@ -5382,7 +5379,7 @@ bdeut_NullableAllocatedValue<Sequence5>& Sequence3::element5()
 }
 
 inline
-std::vector<bdeut_NullableValue<Enumerated::Value> >& Sequence3::element6()
+bsl::vector<bdeut_NullableValue<Enumerated::Value> >& Sequence3::element6()
 {
     return d_element6;
 }
@@ -5489,13 +5486,13 @@ int Sequence3::accessAttribute(
 }
 
 inline
-const std::vector<Enumerated::Value>& Sequence3::element1() const
+const bsl::vector<Enumerated::Value>& Sequence3::element1() const
 {
     return d_element1;
 }
 
 inline
-const std::vector<std::string>& Sequence3::element2() const
+const bsl::vector<bsl::string>& Sequence3::element2() const
 {
     return d_element2;
 }
@@ -5507,7 +5504,7 @@ const bdeut_NullableValue<bool>& Sequence3::element3() const
 }
 
 inline
-const bdeut_NullableValue<std::string>& Sequence3::element4() const
+const bdeut_NullableValue<bsl::string>& Sequence3::element4() const
 {
     return d_element4;
 }
@@ -5519,7 +5516,7 @@ const bdeut_NullableAllocatedValue<Sequence5>& Sequence3::element5() const
 }
 
 inline
-const std::vector<bdeut_NullableValue<Enumerated::Value> >& Sequence3::element6() const
+const bsl::vector<bdeut_NullableValue<Enumerated::Value> >& Sequence3::element6() const
 {
     return d_element6;
 }
@@ -5659,37 +5656,37 @@ Sequence3& Sequence5::element1()
 }
 
 inline
-std::vector<bdeut_NullableValue<bool> >& Sequence5::element2()
+bsl::vector<bdeut_NullableValue<bool> >& Sequence5::element2()
 {
     return d_element2;
 }
 
 inline
-std::vector<bdeut_NullableValue<double> >& Sequence5::element3()
+bsl::vector<bdeut_NullableValue<double> >& Sequence5::element3()
 {
     return d_element3;
 }
 
 inline
-std::vector<bdeut_NullableValue<std::vector<char> > >& Sequence5::element4()
+bsl::vector<bdeut_NullableValue<bsl::vector<char> > >& Sequence5::element4()
 {
     return d_element4;
 }
 
 inline
-std::vector<bdeut_NullableValue<int> >& Sequence5::element5()
+bsl::vector<bdeut_NullableValue<int> >& Sequence5::element5()
 {
     return d_element5;
 }
 
 inline
-std::vector<bdeut_NullableValue<bdet_DatetimeTz> >& Sequence5::element6()
+bsl::vector<bdeut_NullableValue<bdet_DatetimeTz> >& Sequence5::element6()
 {
     return d_element6;
 }
 
 inline
-std::vector<bdeut_NullableAllocatedValue<Sequence3> >& Sequence5::element7()
+bsl::vector<bdeut_NullableAllocatedValue<Sequence3> >& Sequence5::element7()
 {
     return d_element7;
 }
@@ -5811,37 +5808,37 @@ const Sequence3& Sequence5::element1() const
 }
 
 inline
-const std::vector<bdeut_NullableValue<bool> >& Sequence5::element2() const
+const bsl::vector<bdeut_NullableValue<bool> >& Sequence5::element2() const
 {
     return d_element2;
 }
 
 inline
-const std::vector<bdeut_NullableValue<double> >& Sequence5::element3() const
+const bsl::vector<bdeut_NullableValue<double> >& Sequence5::element3() const
 {
     return d_element3;
 }
 
 inline
-const std::vector<bdeut_NullableValue<std::vector<char> > >& Sequence5::element4() const
+const bsl::vector<bdeut_NullableValue<bsl::vector<char> > >& Sequence5::element4() const
 {
     return d_element4;
 }
 
 inline
-const std::vector<bdeut_NullableValue<int> >& Sequence5::element5() const
+const bsl::vector<bdeut_NullableValue<int> >& Sequence5::element5() const
 {
     return d_element5;
 }
 
 inline
-const std::vector<bdeut_NullableValue<bdet_DatetimeTz> >& Sequence5::element6() const
+const bsl::vector<bdeut_NullableValue<bdet_DatetimeTz> >& Sequence5::element6() const
 {
     return d_element6;
 }
 
 inline
-const std::vector<bdeut_NullableAllocatedValue<Sequence3> >& Sequence5::element7() const
+const bsl::vector<bdeut_NullableAllocatedValue<Sequence3> >& Sequence5::element7() const
 {
     return d_element7;
 }
@@ -6035,7 +6032,7 @@ unsigned char& Sequence6::element4()
 }
 
 inline
-std::vector<bdeut_NullableValue<CustomInt> >& Sequence6::element5()
+bsl::vector<bdeut_NullableValue<CustomInt> >& Sequence6::element5()
 {
     return d_element5;
 }
@@ -6053,25 +6050,25 @@ CustomInt& Sequence6::element7()
 }
 
 inline
-std::vector<unsigned char>& Sequence6::element8()
+bsl::vector<unsigned char>& Sequence6::element8()
 {
     return d_element8;
 }
 
 inline
-std::vector<CustomString>& Sequence6::element9()
+bsl::vector<CustomString>& Sequence6::element9()
 {
     return d_element9;
 }
 
 inline
-std::vector<bdeut_NullableValue<unsigned char> >& Sequence6::element10()
+bsl::vector<bdeut_NullableValue<unsigned char> >& Sequence6::element10()
 {
     return d_element10;
 }
 
 inline
-std::vector<CustomInt>& Sequence6::element11()
+bsl::vector<CustomInt>& Sequence6::element11()
 {
     return d_element11;
 }
@@ -6247,7 +6244,7 @@ unsigned char Sequence6::element4() const
 }
 
 inline
-const std::vector<bdeut_NullableValue<CustomInt> >& Sequence6::element5() const
+const bsl::vector<bdeut_NullableValue<CustomInt> >& Sequence6::element5() const
 {
     return d_element5;
 }
@@ -6265,25 +6262,25 @@ const CustomInt& Sequence6::element7() const
 }
 
 inline
-const std::vector<unsigned char>& Sequence6::element8() const
+const bsl::vector<unsigned char>& Sequence6::element8() const
 {
     return d_element8;
 }
 
 inline
-const std::vector<CustomString>& Sequence6::element9() const
+const bsl::vector<CustomString>& Sequence6::element9() const
 {
     return d_element9;
 }
 
 inline
-const std::vector<bdeut_NullableValue<unsigned char> >& Sequence6::element10() const
+const bsl::vector<bdeut_NullableValue<unsigned char> >& Sequence6::element10() const
 {
     return d_element10;
 }
 
 inline
-const std::vector<CustomInt>& Sequence6::element11() const
+const bsl::vector<CustomInt>& Sequence6::element11() const
 {
     return d_element11;
 }
@@ -6303,9 +6300,9 @@ int Choice3::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Choice3::Choice3(bslma::Allocator *basicAllocator)
+Choice3::Choice3(bslma_Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
 }
 
@@ -6545,9 +6542,9 @@ int Choice1::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Choice1::Choice1(bslma::Allocator *basicAllocator)
+Choice1::Choice1(bslma_Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
 }
 
@@ -6787,9 +6784,9 @@ int Choice2::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Choice2::Choice2(bslma::Allocator *basicAllocator)
+Choice2::Choice2(bslma_Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
 }
 
@@ -6869,7 +6866,7 @@ bool& Choice2::selection1()
 }
 
 inline
-std::string& Choice2::selection2()
+bsl::string& Choice2::selection2()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
@@ -6943,7 +6940,7 @@ const bool& Choice2::selection1() const
 }
 
 inline
-const std::string& Choice2::selection2() const
+const bsl::string& Choice2::selection2() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
@@ -7216,19 +7213,19 @@ int Sequence4::manipulateAttribute(
 }
 
 inline
-std::vector<Sequence3>& Sequence4::element1()
+bsl::vector<Sequence3>& Sequence4::element1()
 {
     return d_element1;
 }
 
 inline
-std::vector<Choice1>& Sequence4::element2()
+bsl::vector<Choice1>& Sequence4::element2()
 {
     return d_element2;
 }
 
 inline
-bdeut_NullableValue<std::vector<char> >& Sequence4::element3()
+bdeut_NullableValue<bsl::vector<char> >& Sequence4::element3()
 {
     return d_element3;
 }
@@ -7264,7 +7261,7 @@ bool& Sequence4::element8()
 }
 
 inline
-std::string& Sequence4::element9()
+bsl::string& Sequence4::element9()
 {
     return d_element9;
 }
@@ -7276,7 +7273,7 @@ double& Sequence4::element10()
 }
 
 inline
-std::vector<char>& Sequence4::element11()
+bsl::vector<char>& Sequence4::element11()
 {
     return d_element11;
 }
@@ -7294,37 +7291,37 @@ Enumerated::Value& Sequence4::element13()
 }
 
 inline
-std::vector<bool>& Sequence4::element14()
+bsl::vector<bool>& Sequence4::element14()
 {
     return d_element14;
 }
 
 inline
-std::vector<double>& Sequence4::element15()
+bsl::vector<double>& Sequence4::element15()
 {
     return d_element15;
 }
 
 inline
-std::vector<std::vector<char> >& Sequence4::element16()
+bsl::vector<bsl::vector<char> >& Sequence4::element16()
 {
     return d_element16;
 }
 
 inline
-std::vector<int>& Sequence4::element17()
+bsl::vector<int>& Sequence4::element17()
 {
     return d_element17;
 }
 
 inline
-std::vector<bdet_DatetimeTz>& Sequence4::element18()
+bsl::vector<bdet_DatetimeTz>& Sequence4::element18()
 {
     return d_element18;
 }
 
 inline
-std::vector<CustomString>& Sequence4::element19()
+bsl::vector<CustomString>& Sequence4::element19()
 {
     return d_element19;
 }
@@ -7548,19 +7545,19 @@ int Sequence4::accessAttribute(
 }
 
 inline
-const std::vector<Sequence3>& Sequence4::element1() const
+const bsl::vector<Sequence3>& Sequence4::element1() const
 {
     return d_element1;
 }
 
 inline
-const std::vector<Choice1>& Sequence4::element2() const
+const bsl::vector<Choice1>& Sequence4::element2() const
 {
     return d_element2;
 }
 
 inline
-const bdeut_NullableValue<std::vector<char> >& Sequence4::element3() const
+const bdeut_NullableValue<bsl::vector<char> >& Sequence4::element3() const
 {
     return d_element3;
 }
@@ -7596,7 +7593,7 @@ bool Sequence4::element8() const
 }
 
 inline
-const std::string& Sequence4::element9() const
+const bsl::string& Sequence4::element9() const
 {
     return d_element9;
 }
@@ -7608,7 +7605,7 @@ double Sequence4::element10() const
 }
 
 inline
-const std::vector<char>& Sequence4::element11() const
+const bsl::vector<char>& Sequence4::element11() const
 {
     return d_element11;
 }
@@ -7626,37 +7623,37 @@ Enumerated::Value Sequence4::element13() const
 }
 
 inline
-const std::vector<bool>& Sequence4::element14() const
+const bsl::vector<bool>& Sequence4::element14() const
 {
     return d_element14;
 }
 
 inline
-const std::vector<double>& Sequence4::element15() const
+const bsl::vector<double>& Sequence4::element15() const
 {
     return d_element15;
 }
 
 inline
-const std::vector<std::vector<char> >& Sequence4::element16() const
+const bsl::vector<bsl::vector<char> >& Sequence4::element16() const
 {
     return d_element16;
 }
 
 inline
-const std::vector<int>& Sequence4::element17() const
+const bsl::vector<int>& Sequence4::element17() const
 {
     return d_element17;
 }
 
 inline
-const std::vector<bdet_DatetimeTz>& Sequence4::element18() const
+const bsl::vector<bdet_DatetimeTz>& Sequence4::element18() const
 {
     return d_element18;
 }
 
 inline
-const std::vector<CustomString>& Sequence4::element19() const
+const bsl::vector<CustomString>& Sequence4::element19() const
 {
     return d_element19;
 }
@@ -7769,7 +7766,7 @@ bdeut_NullableValue<Choice3>& Sequence1::element1()
 }
 
 inline
-std::vector<Choice1>& Sequence1::element2()
+bsl::vector<Choice1>& Sequence1::element2()
 {
     return d_element2;
 }
@@ -7781,7 +7778,7 @@ Choice2& Sequence1::element3()
 }
 
 inline
-std::vector<Choice3>& Sequence1::element4()
+bsl::vector<Choice3>& Sequence1::element4()
 {
     return d_element4;
 }
@@ -7876,7 +7873,7 @@ const bdeut_NullableValue<Choice3>& Sequence1::element1() const
 }
 
 inline
-const std::vector<Choice1>& Sequence1::element2() const
+const bsl::vector<Choice1>& Sequence1::element2() const
 {
     return d_element2;
 }
@@ -7888,7 +7885,7 @@ const Choice2& Sequence1::element3() const
 }
 
 inline
-const std::vector<Choice3>& Sequence1::element4() const
+const bsl::vector<Choice3>& Sequence1::element4() const
 {
     return d_element4;
 }
@@ -8170,9 +8167,9 @@ int FeatureTestMessage::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-FeatureTestMessage::FeatureTestMessage(bslma::Allocator *basicAllocator)
+FeatureTestMessage::FeatureTestMessage(bslma_Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
 }
 
@@ -8308,7 +8305,7 @@ Sequence1& FeatureTestMessage::selection1()
 }
 
 inline
-std::vector<char>& FeatureTestMessage::selection2()
+bsl::vector<char>& FeatureTestMessage::selection2()
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
@@ -8480,7 +8477,7 @@ const Sequence1& FeatureTestMessage::selection1() const
 }
 
 inline
-const std::vector<char>& FeatureTestMessage::selection2() const
+const bsl::vector<char>& FeatureTestMessage::selection2() const
 {
     BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
@@ -8622,9 +8619,9 @@ int Request::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Request::Request(bslma::Allocator *basicAllocator)
+Request::Request(bslma_Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
 }
 
@@ -8794,9 +8791,9 @@ int Response::maxSupportedBdexVersion()
 
 // CREATORS
 inline
-Response::Response(bslma::Allocator *basicAllocator)
+Response::Response(bslma_Allocator *basicAllocator)
 : d_selectionId(SELECTION_ID_UNDEFINED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
 }
 
@@ -8861,7 +8858,7 @@ int Response::manipulateSelection(MANIPULATOR& manipulator)
 }
 
 inline
-std::string& Response::responseData()
+bsl::string& Response::responseData()
 {
     BSLS_ASSERT(SELECTION_ID_RESPONSE_DATA == d_selectionId);
     return d_responseData.object();
@@ -8921,7 +8918,7 @@ int Response::accessSelection(ACCESSOR& accessor) const
 }
 
 inline
-const std::string& Response::responseData() const
+const bsl::string& Response::responseData() const
 {
     BSLS_ASSERT(SELECTION_ID_RESPONSE_DATA == d_selectionId);
     return d_responseData.object();
@@ -8972,8 +8969,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::CustomInt& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -8997,8 +8994,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::CustomString& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9006,8 +9003,8 @@ std::ostream& baea::operator<<(
 
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         baea::Enumerated::Value rhs)
 {
     return baea::Enumerated::print(stream, rhs);
@@ -9033,8 +9030,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::SimpleRequest& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9062,8 +9059,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::UnsignedSequence& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9087,8 +9084,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::VoidSequence& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9122,8 +9119,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Sequence3& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9159,8 +9156,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Sequence5& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9204,8 +9201,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Sequence6& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9247,8 +9244,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Choice3& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9290,8 +9287,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Choice1& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9331,8 +9328,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Choice2& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9392,8 +9389,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Sequence4& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9423,8 +9420,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Sequence1& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9456,8 +9453,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Sequence2& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9511,8 +9508,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::FeatureTestMessage& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9550,8 +9547,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Request& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9589,8 +9586,8 @@ bool baea::operator!=(
 }
 
 inline
-std::ostream& baea::operator<<(
-        std::ostream& stream,
+bsl::ostream& baea::operator<<(
+        bsl::ostream& stream,
         const baea::Response& rhs)
 {
     return rhs.print(stream, 0, -1);
@@ -9599,7 +9596,7 @@ std::ostream& baea::operator<<(
 }  // close namespace BloombergLP
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_3.6.13 Sun May 20 16:22:40 2012
+// GENERATED BY BLP_BAS_CODEGEN_3.6.13 Thu May 31 18:03:13 2012
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012

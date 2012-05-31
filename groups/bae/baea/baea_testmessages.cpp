@@ -19,8 +19,8 @@ BDES_IDENT_RCSID(baea_testmessages_cpp,"$Id$ $CSID$")
 #include <bdet_datetimetz.h>
 #include <bdeut_nullableallocatedvalue.h>
 #include <bdeut_nullablevalue.h>
-#include <string>
-#include <vector>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
 #include <bsls_assert.h>
 
@@ -58,7 +58,7 @@ const char CustomInt::CLASS_NAME[] = "CustomInt";
 
 // PRIVATE CLASS METHODS
 
-int CustomString::checkRestrictions(const std::string& value)
+int CustomString::checkRestrictions(const bsl::string& value)
 {
     if (8 < bdede_Utf8Util::numCharacters(value.c_str(), value.length())) {
         return -1;
@@ -267,14 +267,14 @@ const bdeat_AttributeInfo *SimpleRequest::lookupAttributeInfo(int id)
 
 // CREATORS
 
-SimpleRequest::SimpleRequest(bslma::Allocator *basicAllocator)
+SimpleRequest::SimpleRequest(bslma_Allocator *basicAllocator)
 : d_data(basicAllocator)
 , d_responseLength()
 {
 }
 
 SimpleRequest::SimpleRequest(const SimpleRequest& original,
-                             bslma::Allocator *basicAllocator)
+                             bslma_Allocator *basicAllocator)
 : d_data(original.d_data, basicAllocator)
 , d_responseLength(original.d_responseLength)
 {
@@ -304,8 +304,8 @@ void SimpleRequest::reset()
 
 // ACCESSORS
 
-std::ostream& SimpleRequest::print(
-    std::ostream& stream,
+bsl::ostream& SimpleRequest::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -354,9 +354,8 @@ std::ostream& SimpleRequest::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 
                            // ----------------------                           
@@ -480,8 +479,8 @@ void UnsignedSequence::reset()
 
 // ACCESSORS
 
-std::ostream& UnsignedSequence::print(
-    std::ostream& stream,
+bsl::ostream& UnsignedSequence::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -540,9 +539,8 @@ std::ostream& UnsignedSequence::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 
                              // ------------------                             
@@ -603,8 +601,8 @@ void VoidSequence::reset()
 
 // ACCESSORS
 
-std::ostream& VoidSequence::print(
-    std::ostream& stream,
+bsl::ostream& VoidSequence::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -631,9 +629,8 @@ std::ostream& VoidSequence::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 
                               // ---------------                               
@@ -754,7 +751,7 @@ const bdeat_AttributeInfo *Sequence3::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence3::Sequence3(bslma::Allocator *basicAllocator)
+Sequence3::Sequence3(bslma_Allocator *basicAllocator)
 : d_element2(basicAllocator)
 , d_element4(basicAllocator)
 , d_element5(basicAllocator)
@@ -765,7 +762,7 @@ Sequence3::Sequence3(bslma::Allocator *basicAllocator)
 }
 
 Sequence3::Sequence3(const Sequence3& original,
-                     bslma::Allocator *basicAllocator)
+                     bslma_Allocator *basicAllocator)
 : d_element2(original.d_element2, basicAllocator)
 , d_element4(original.d_element4, basicAllocator)
 , d_element5(original.d_element5, basicAllocator)
@@ -807,8 +804,8 @@ void Sequence3::reset()
 
 // ACCESSORS
 
-std::ostream& Sequence3::print(
-    std::ostream& stream,
+bsl::ostream& Sequence3::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -897,9 +894,8 @@ std::ostream& Sequence3::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 
                               // ---------------                               
@@ -1037,8 +1033,8 @@ const bdeat_AttributeInfo *Sequence5::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence5::Sequence5(bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
+Sequence5::Sequence5(bslma_Allocator *basicAllocator)
+: d_allocator_p(bslma_Default::allocator(basicAllocator))
 , d_element5(basicAllocator)
 , d_element3(basicAllocator)
 , d_element4(basicAllocator)
@@ -1051,8 +1047,8 @@ Sequence5::Sequence5(bslma::Allocator *basicAllocator)
 }
 
 Sequence5::Sequence5(const Sequence5& original,
-                     bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
+                     bslma_Allocator *basicAllocator)
+: d_allocator_p(bslma_Default::allocator(basicAllocator))
 , d_element5(original.d_element5, basicAllocator)
 , d_element3(original.d_element3, basicAllocator)
 , d_element4(original.d_element4, basicAllocator)
@@ -1099,8 +1095,8 @@ void Sequence5::reset()
 
 // ACCESSORS
 
-std::ostream& Sequence5::print(
-    std::ostream& stream,
+bsl::ostream& Sequence5::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -1199,9 +1195,8 @@ std::ostream& Sequence5::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 
                               // ---------------                               
@@ -1397,7 +1392,7 @@ const bdeat_AttributeInfo *Sequence6::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence6::Sequence6(bslma::Allocator *basicAllocator)
+Sequence6::Sequence6(bslma_Allocator *basicAllocator)
 : d_element8(basicAllocator)
 , d_element10(basicAllocator)
 , d_element9(basicAllocator)
@@ -1413,7 +1408,7 @@ Sequence6::Sequence6(bslma::Allocator *basicAllocator)
 }
 
 Sequence6::Sequence6(const Sequence6& original,
-                     bslma::Allocator *basicAllocator)
+                     bslma_Allocator *basicAllocator)
 : d_element8(original.d_element8, basicAllocator)
 , d_element10(original.d_element10, basicAllocator)
 , d_element9(original.d_element9, basicAllocator)
@@ -1470,8 +1465,8 @@ void Sequence6::reset()
 
 // ACCESSORS
 
-std::ostream& Sequence6::print(
-    std::ostream& stream,
+bsl::ostream& Sequence6::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -1610,9 +1605,8 @@ std::ostream& Sequence6::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 
                                // -------------                                
@@ -1712,9 +1706,9 @@ const bdeat_SelectionInfo *Choice3::lookupSelectionInfo(int id)
 
 Choice3::Choice3(
     const Choice3& original,
-    bslma::Allocator *basicAllocator)
+    bslma_Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -1950,8 +1944,8 @@ CustomInt& Choice3::makeSelection4(const CustomInt& value)
 
 // ACCESSORS
 
-std::ostream& Choice3::print(
-    std::ostream& stream,
+bsl::ostream& Choice3::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -2030,9 +2024,8 @@ std::ostream& Choice3::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 const char *Choice3::selectionName() const
 {
@@ -2148,9 +2141,9 @@ const bdeat_SelectionInfo *Choice1::lookupSelectionInfo(int id)
 
 Choice1::Choice1(
     const Choice1& original,
-    bslma::Allocator *basicAllocator)
+    bslma_Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -2384,8 +2377,8 @@ Choice2& Choice1::makeSelection4(const Choice2& value)
 
 // ACCESSORS
 
-std::ostream& Choice1::print(
-    std::ostream& stream,
+bsl::ostream& Choice1::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -2464,9 +2457,8 @@ std::ostream& Choice1::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 const char *Choice1::selectionName() const
 {
@@ -2570,9 +2562,9 @@ const bdeat_SelectionInfo *Choice2::lookupSelectionInfo(int id)
 
 Choice2::Choice2(
     const Choice2& original,
-    bslma::Allocator *basicAllocator)
+    bslma_Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -2581,7 +2573,7 @@ Choice2::Choice2(
       } break;
       case SELECTION_ID_SELECTION2: {
         new (d_selection2.buffer())
-            std::string(
+            bsl::string(
                 original.d_selection2.object(), d_allocator_p);
       } break;
       case SELECTION_ID_SELECTION3: {
@@ -2624,7 +2616,7 @@ void Choice2::reset()
         // no destruction required
       } break;
       case SELECTION_ID_SELECTION2: {
-        typedef std::string Type;
+        typedef bsl::string Type;
         d_selection2.object().~Type();
       } break;
       case SELECTION_ID_SELECTION3: {
@@ -2700,7 +2692,7 @@ bool& Choice2::makeSelection1(bool value)
     return d_selection1.object();
 }
 
-std::string& Choice2::makeSelection2()
+bsl::string& Choice2::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
         bdeat_ValueTypeFunctions::reset(&d_selection2.object());
@@ -2708,7 +2700,7 @@ std::string& Choice2::makeSelection2()
     else {
         reset();
         new (d_selection2.buffer())
-                std::string(d_allocator_p);
+                bsl::string(d_allocator_p);
 
         d_selectionId = SELECTION_ID_SELECTION2;
     }
@@ -2716,7 +2708,7 @@ std::string& Choice2::makeSelection2()
     return d_selection2.object();
 }
 
-std::string& Choice2::makeSelection2(const std::string& value)
+bsl::string& Choice2::makeSelection2(const bsl::string& value)
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
         d_selection2.object() = value;
@@ -2724,7 +2716,7 @@ std::string& Choice2::makeSelection2(const std::string& value)
     else {
         reset();
         new (d_selection2.buffer())
-                std::string(value, d_allocator_p);
+                bsl::string(value, d_allocator_p);
         d_selectionId = SELECTION_ID_SELECTION2;
     }
 
@@ -2764,8 +2756,8 @@ Choice1& Choice2::makeSelection3(const Choice1& value)
 
 // ACCESSORS
 
-std::ostream& Choice2::print(
-    std::ostream& stream,
+bsl::ostream& Choice2::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -2834,9 +2826,8 @@ std::ostream& Choice2::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 const char *Choice2::selectionName() const
 {
@@ -3140,7 +3131,7 @@ const bdeat_AttributeInfo *Sequence4::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence4::Sequence4(bslma::Allocator *basicAllocator)
+Sequence4::Sequence4(bslma_Allocator *basicAllocator)
 : d_element10()
 , d_element17(basicAllocator)
 , d_element15(basicAllocator)
@@ -3164,7 +3155,7 @@ Sequence4::Sequence4(bslma::Allocator *basicAllocator)
 }
 
 Sequence4::Sequence4(const Sequence4& original,
-                     bslma::Allocator *basicAllocator)
+                     bslma_Allocator *basicAllocator)
 : d_element10(original.d_element10)
 , d_element17(original.d_element17, basicAllocator)
 , d_element15(original.d_element15, basicAllocator)
@@ -3245,8 +3236,8 @@ void Sequence4::reset()
 
 // ACCESSORS
 
-std::ostream& Sequence4::print(
-    std::ostream& stream,
+bsl::ostream& Sequence4::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -3465,9 +3456,8 @@ std::ostream& Sequence4::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 
                               // ---------------                               
@@ -3563,8 +3553,8 @@ const bdeat_AttributeInfo *Sequence1::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence1::Sequence1(bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
+Sequence1::Sequence1(bslma_Allocator *basicAllocator)
+: d_allocator_p(bslma_Default::allocator(basicAllocator))
 , d_element4(basicAllocator)
 , d_element2(basicAllocator)
 , d_element1(basicAllocator)
@@ -3574,8 +3564,8 @@ Sequence1::Sequence1(bslma::Allocator *basicAllocator)
 }
 
 Sequence1::Sequence1(const Sequence1& original,
-                     bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
+                     bslma_Allocator *basicAllocator)
+: d_allocator_p(bslma_Default::allocator(basicAllocator))
 , d_element4(original.d_element4, basicAllocator)
 , d_element2(original.d_element2, basicAllocator)
 , d_element1(original.d_element1, basicAllocator)
@@ -3613,8 +3603,8 @@ void Sequence1::reset()
 
 // ACCESSORS
 
-std::ostream& Sequence1::print(
-    std::ostream& stream,
+bsl::ostream& Sequence1::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -3683,9 +3673,8 @@ std::ostream& Sequence1::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 
                               // ---------------                               
@@ -3793,7 +3782,7 @@ const bdeat_AttributeInfo *Sequence2::lookupAttributeInfo(int id)
 
 // CREATORS
 
-Sequence2::Sequence2(bslma::Allocator *basicAllocator)
+Sequence2::Sequence2(bslma_Allocator *basicAllocator)
 : d_element5()
 , d_element4(basicAllocator)
 , d_element3()
@@ -3803,7 +3792,7 @@ Sequence2::Sequence2(bslma::Allocator *basicAllocator)
 }
 
 Sequence2::Sequence2(const Sequence2& original,
-                     bslma::Allocator *basicAllocator)
+                     bslma_Allocator *basicAllocator)
 : d_element5(original.d_element5)
 , d_element4(original.d_element4, basicAllocator)
 , d_element3(original.d_element3)
@@ -3842,8 +3831,8 @@ void Sequence2::reset()
 
 // ACCESSORS
 
-std::ostream& Sequence2::print(
-    std::ostream& stream,
+bsl::ostream& Sequence2::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -3922,9 +3911,8 @@ std::ostream& Sequence2::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 
                           // ------------------------                          
@@ -4109,9 +4097,9 @@ const bdeat_SelectionInfo *FeatureTestMessage::lookupSelectionInfo(int id)
 
 FeatureTestMessage::FeatureTestMessage(
     const FeatureTestMessage& original,
-    bslma::Allocator *basicAllocator)
+    bslma_Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1: {
@@ -4121,7 +4109,7 @@ FeatureTestMessage::FeatureTestMessage(
       } break;
       case SELECTION_ID_SELECTION2: {
         new (d_selection2.buffer())
-            std::vector<char>(
+            bsl::vector<char>(
                 original.d_selection2.object(), d_allocator_p);
       } break;
       case SELECTION_ID_SELECTION3: {
@@ -4216,7 +4204,7 @@ void FeatureTestMessage::reset()
         d_selection1.object().~Sequence1();
       } break;
       case SELECTION_ID_SELECTION2: {
-        typedef std::vector<char> Type;
+        typedef bsl::vector<char> Type;
         d_selection2.object().~Type();
       } break;
       case SELECTION_ID_SELECTION3: {
@@ -4335,7 +4323,7 @@ Sequence1& FeatureTestMessage::makeSelection1(const Sequence1& value)
     return d_selection1.object();
 }
 
-std::vector<char>& FeatureTestMessage::makeSelection2()
+bsl::vector<char>& FeatureTestMessage::makeSelection2()
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
         bdeat_ValueTypeFunctions::reset(&d_selection2.object());
@@ -4343,7 +4331,7 @@ std::vector<char>& FeatureTestMessage::makeSelection2()
     else {
         reset();
         new (d_selection2.buffer())
-                std::vector<char>(d_allocator_p);
+                bsl::vector<char>(d_allocator_p);
 
         d_selectionId = SELECTION_ID_SELECTION2;
     }
@@ -4351,7 +4339,7 @@ std::vector<char>& FeatureTestMessage::makeSelection2()
     return d_selection2.object();
 }
 
-std::vector<char>& FeatureTestMessage::makeSelection2(const std::vector<char>& value)
+bsl::vector<char>& FeatureTestMessage::makeSelection2(const bsl::vector<char>& value)
 {
     if (SELECTION_ID_SELECTION2 == d_selectionId) {
         d_selection2.object() = value;
@@ -4359,7 +4347,7 @@ std::vector<char>& FeatureTestMessage::makeSelection2(const std::vector<char>& v
     else {
         reset();
         new (d_selection2.buffer())
-                std::vector<char>(value, d_allocator_p);
+                bsl::vector<char>(value, d_allocator_p);
         d_selectionId = SELECTION_ID_SELECTION2;
     }
 
@@ -4616,8 +4604,8 @@ UnsignedSequence& FeatureTestMessage::makeSelection10(const UnsignedSequence& va
 
 // ACCESSORS
 
-std::ostream& FeatureTestMessage::print(
-    std::ostream& stream,
+bsl::ostream& FeatureTestMessage::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -4756,9 +4744,8 @@ std::ostream& FeatureTestMessage::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 const char *FeatureTestMessage::selectionName() const
 {
@@ -4878,9 +4865,9 @@ const bdeat_SelectionInfo *Request::lookupSelectionInfo(int id)
 
 Request::Request(
     const Request& original,
-    bslma::Allocator *basicAllocator)
+    bslma_Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_SIMPLE_REQUEST: {
@@ -5028,8 +5015,8 @@ FeatureTestMessage& Request::makeFeatureRequest(const FeatureTestMessage& value)
 
 // ACCESSORS
 
-std::ostream& Request::print(
-    std::ostream& stream,
+bsl::ostream& Request::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -5088,9 +5075,8 @@ std::ostream& Request::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 const char *Request::selectionName() const
 {
@@ -5194,14 +5180,14 @@ const bdeat_SelectionInfo *Response::lookupSelectionInfo(int id)
 
 Response::Response(
     const Response& original,
-    bslma::Allocator *basicAllocator)
+    bslma_Allocator *basicAllocator)
 : d_selectionId(original.d_selectionId)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
+, d_allocator_p(bslma_Default::allocator(basicAllocator))
 {
     switch (d_selectionId) {
       case SELECTION_ID_RESPONSE_DATA: {
         new (d_responseData.buffer())
-            std::string(
+            bsl::string(
                 original.d_responseData.object(), d_allocator_p);
       } break;
       case SELECTION_ID_FEATURE_RESPONSE: {
@@ -5239,7 +5225,7 @@ void Response::reset()
 {
     switch (d_selectionId) {
       case SELECTION_ID_RESPONSE_DATA: {
-        typedef std::string Type;
+        typedef bsl::string Type;
         d_responseData.object().~Type();
       } break;
       case SELECTION_ID_FEATURE_RESPONSE: {
@@ -5281,7 +5267,7 @@ int Response::makeSelection(const char *name, int nameLength)
     return makeSelection(selectionInfo->d_id);
 }
 
-std::string& Response::makeResponseData()
+bsl::string& Response::makeResponseData()
 {
     if (SELECTION_ID_RESPONSE_DATA == d_selectionId) {
         bdeat_ValueTypeFunctions::reset(&d_responseData.object());
@@ -5289,7 +5275,7 @@ std::string& Response::makeResponseData()
     else {
         reset();
         new (d_responseData.buffer())
-                std::string(d_allocator_p);
+                bsl::string(d_allocator_p);
 
         d_selectionId = SELECTION_ID_RESPONSE_DATA;
     }
@@ -5297,7 +5283,7 @@ std::string& Response::makeResponseData()
     return d_responseData.object();
 }
 
-std::string& Response::makeResponseData(const std::string& value)
+bsl::string& Response::makeResponseData(const bsl::string& value)
 {
     if (SELECTION_ID_RESPONSE_DATA == d_selectionId) {
         d_responseData.object() = value;
@@ -5305,7 +5291,7 @@ std::string& Response::makeResponseData(const std::string& value)
     else {
         reset();
         new (d_responseData.buffer())
-                std::string(value, d_allocator_p);
+                bsl::string(value, d_allocator_p);
         d_selectionId = SELECTION_ID_RESPONSE_DATA;
     }
 
@@ -5345,8 +5331,8 @@ FeatureTestMessage& Response::makeFeatureResponse(const FeatureTestMessage& valu
 
 // ACCESSORS
 
-std::ostream& Response::print(
-    std::ostream& stream,
+bsl::ostream& Response::print(
+    bsl::ostream& stream,
     int           level,
     int           spacesPerLevel) const
 {
@@ -5405,9 +5391,8 @@ std::ostream& Response::print(
         stream << " ]";
     }
 
-    return stream << std::flush;
+    return stream << bsl::flush;
 }
-
 
 const char *Response::selectionName() const
 {
@@ -5424,7 +5409,7 @@ const char *Response::selectionName() const
 }  // close namespace baea
 }  // close namespace BloombergLP
 
-// GENERATED BY BLP_BAS_CODEGEN_3.6.13 Sun May 20 16:22:40 2012
+// GENERATED BY BLP_BAS_CODEGEN_3.6.13 Thu May 31 18:46:18 2012
 // ----------------------------------------------------------------------------
 // NOTICE:
 //      Copyright (C) Bloomberg L.P., 2012
