@@ -87,8 +87,9 @@ int btemt_ChannelPoolChannel::addReadQueueEntry(
         entry.d_timeOutTimerId = d_nextClockId;
     }
 
-    if (1 == d_readQueue.size()) {
+    if (1 == d_readQueue.size() || d_readDisabledFlag) {
         d_channelPool_p->enableRead(d_channelId);
+        d_readDisabledFlag = false;
     }
     return 0;
 }
@@ -168,6 +169,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
 , d_mutex()
 , d_callbackInProgress(false)
 , d_closed(false)
+, d_readDisabledFlag(true)
 , d_readQueue(allocator)
 , d_bufferChainFactory_p(bufferFactory)
 , d_blobBufferFactory_p(0)
@@ -198,6 +200,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
 , d_mutex()
 , d_callbackInProgress(false)
 , d_closed(false)
+, d_readDisabledFlag(true)
 , d_readQueue(allocator)
 , d_bufferChainFactory_p(0)
 , d_blobBufferFactory_p(blobBufferFactory)
@@ -473,6 +476,7 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
             }
             if (-1 == nNeeded) {
                 *numNeeded = -1;
+                d_readDisabledFlag = true;
             }
         }
     }
@@ -603,6 +607,7 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
             }
             if (-1 == nNeeded) {
                 *numNeeded = -1;
+                d_readDisabledFlag = true;
             }
         }
     }
@@ -622,6 +627,8 @@ void btemt_ChannelPoolChannel::cancelRead()
 
     {
         bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
+
+        d_readDisabledFlag = true;
 
         if (!d_readQueue.size()) return;
 
@@ -724,6 +731,7 @@ void btemt_ChannelPoolChannel::close()
 
         if (!d_closed) {
             d_closed = true;
+            d_readDisabledFlag = true;
             d_channelPool_p->shutdown(d_channelId,
                                       btemt_ChannelPool::BTEMT_IMMEDIATE);
 
