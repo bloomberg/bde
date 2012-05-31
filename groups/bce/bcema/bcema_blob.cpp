@@ -18,9 +18,6 @@ BDES_IDENT_RCSID(bcema_blob_cpp,"$Id$ $CSID$")
 #undef min
 #endif
 
-// Specify '-DBCEMA_BLOB_PARANOID' on the command line to have invariants
-// checked everywhere.
-
 namespace BloombergLP {
 
 namespace {
