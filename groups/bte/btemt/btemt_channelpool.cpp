@@ -1122,8 +1122,8 @@ void btemt_Channel::processReadData(int numBytes,
                                        &minAdditional,
                                        d_currentMsg,
                                        d_userData);
-        BSLS_ASSERT(0  <= numBytesConsumed);
-        BSLS_ASSERT(0 < minAdditional || -1 == minAdditional);
+        BSLS_ASSERT(0 <= numBytesConsumed);
+        BSLS_ASSERT(0 <  minAdditional || -1 == minAdditional);
 
         if (0 != numBytesConsumed) {
             bcema_PooledBufferChain *newChain = d_chainFactory_p->allocate(0);
@@ -1146,12 +1146,12 @@ void btemt_Channel::processReadData(int numBytes,
         // need is the buffers for the next iovec read; see DRQS 12198484).
 
         int newLength = chain->length();
-        if (-1 != minAdditional) {
-            newLength += minAdditional;
-        }
-        else {
+        if (-1 == minAdditional) {
             newLength = 1;
             d_enableReadFlag = false;
+        }
+        else {
+            newLength += minAdditional;
         }
 
         d_currentMsg.setUserDataField2(newLength);
