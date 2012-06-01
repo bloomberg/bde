@@ -1,27 +1,26 @@
-// bteso_defaulteventmanager_devpoll.h    -*-C++-*-
-#ifndef INCLUDED_BTESO_DEFAULTEVENTMANAGER_DEVPOLL
-#define INCLUDED_BTESO_DEFAULTEVENTMANAGER_DEVPOLL
+// bteso_defaulteventmanager_pollset.h                                -*-C++-*-
+#ifndef INCLUDED_BTESO_DEFAULTEVENTMANAGER_POLLSET
+#define INCLUDED_BTESO_DEFAULTEVENTMANAGER_POLLSET
 
 #ifndef INCLUDED_BDES_IDENT
 #include <bdes_ident.h>
 #endif
 BDES_IDENT("$Id: $")
 
-//@PURPOSE: Provide socket multiplexer implementation using '/dev/poll'.
+//@PURPOSE: Provide socket multiplexer implementation using 'pollset'.
 //
 //@CLASSES:
-//  bteso_DefaultEventManager<bteso_Platform::DEVPOLL>:
-//                                               '/dev/poll'-based multiplexer
+//  bteso_DefaultEventManager<POLLSET>: 'pollset'-based multiplexer
 //
 //@SEE_ALSO: bteso_eventmanager bteso_defaulteventmanager bteso_timemetrics
 //
-//@SEE_ALSO: bteso_tcptimereventmanager  bteso_eventmanagertest
+//@SEE_ALSO: bteso_tcptimereventmanager bteso_eventmanagertest bteso_platform
 //
-//@AUTHOR: Cheenu Srinivasan (csriniva)
+//@AUTHOR: Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides an implementation of an event manager
-// that uses the '/dev/poll' device to monitor for socket events and adheres to
-// the 'bteso_EventManager' protocol.  In particular, this protocol supports
+// that uses the 'pollset' system call to monitor for socket events and adheres
+// to the 'bteso_EventManager' protocol.  In particular, this protocol supports
 // the registration of socket events, along with an associated 'bdef_Function'
 // callback functor, which is invoked when the corresponding socket event
 // occurs.
@@ -33,15 +32,12 @@ BDES_IDENT("$Id: $")
 // that appropriate method (i.e., 'dispatch') is called.  Once deregistered,
 // the callback will no longer be invoked.
 //
-// Documentation for the underlying facility can be found in 'man 7d poll' on
-// Solaris and 'man 7 poll' on HPUX.
-//
 ///Availability
 ///------------
-// The '/dev/poll' device (and consequently this specialized component) is
-// currently supported only on Solaris and HP-UX platforms.  Direct use of this
-// library component unconditionally may result in non-portable software.  It
-// is recommended you use 'bteso_Platform::DEFAULT_POLLING_MECHANISM' to choose
+// The 'pollset' system call (and consequently this specialized component) is
+// currently supported only by the AIX platform.  Direct use of this library
+// component unconditionally may result in non-portable software; it is
+// recommended you use 'bteso_Platform::DEFAULT_POLLING_MECHANISM' to choose
 // the optimal default event manager for each platform.
 //
 ///Component Diagram
@@ -50,16 +46,18 @@ BDES_IDENT("$Id: $")
 // 'bteso_defaulteventmanager' component; the other components are shown
 // (schematically) on the following diagram:
 //..
-//                         _bteso_defaulteventmanager_
-//                 _______/    |        |        |    \_______
-//                 *_epoll *_select *_devpoll *_pollset *_poll
+//                          _bteso_defaulteventmanager_
+//                 _______/     |       |        |     \________
+//                 *_poll  *_pollset *_select *_devpoll  *_epoll
+//
 //..
 ///Thread-safety
 ///-------------
-// This component depends on a 'bslma_Allocator' instance to supply memory.  If
-// the allocator is not thread enabled then the instances of this component
-// that use the same allocator instance will consequently not be thread safe
-// Otherwise, this component provides the following guarantees.
+// This component depends on a 'bslma_Allocator' instance to supply memory.
+// The underlying interface also does some memory allocation through some other
+// means.  If the allocator is not thread enabled then the instances of this
+// component that use the same allocator instance will consequently not be
+// thread safe Otherwise, this component provides the following guarantees.
 //
 // Accessing an instance of the event manager provided by this component from
 // different threads may result in undefined behavior.  Accessing distinct
@@ -106,16 +104,16 @@ BDES_IDENT("$Id: $")
 // times spend in IO-bound and CPU-bound operations using the category IDs
 // defined in 'bteso_TimeMetrics'.
 //
-///USAGE EXAMPLE
-///-------------
+///Usage
+///-----
 // The following snippets of code illustrate how to use this event manager with
 // a non-blocking socket.  First, create a 'bteso_TimeMetrics' object and a
-// 'bteso_DefaultEventManager<bteso_Platform::DEVPOLL>' object; also create a
+// 'bteso_DefaultEventManager<bteso_Platform::POLLSET>' object; also create a
 // (locally-connected) socket pair:
 //..
 //  bteso_TimeMetrics timeMetric(bteso_TimeMetrics::BTESO_MIN_NUM_CATEGORIES,
 //                               bteso_TimeMetrics::BTESO_CPU_BOUND);
-//  bteso_DefaultEventManager<bteso_Platform::DEVPOLL> mX(&timeMetric);
+//  bteso_DefaultEventManager<bteso_Platform::POLLSET> mX(&timeMetric);
 //
 //  bteso_SocketHandle::Handle socket[2];
 //
@@ -131,29 +129,20 @@ BDES_IDENT("$Id: $")
 //..
 //  int numBytes = 5;
 //  bteso_EventManager::Callback readCb(
-//          bdef_BindUtil::bind(&genericCb,
-//                              bteso_EventType::BTESO_READ,
-//                              socket[0],
-//                              numBytes,
-//                              &mX));
+//          bdef_BindUtil::bind(&genericCb, bteso_EventType::BTESO_READ,
+//                              socket[0], numBytes, &mX));
 //  mX.registerSocketEvent(socket[0], bteso_EventType::BTESO_READ, readCb);
 //
 //  numBytes = 25;
 //  bteso_EventManager::Callback writeCb1(
-//          bdef_BindUtil::bind(&genericCb,
-//                              bteso_EventType::BTESO_WRITE,
-//                              socket[0],
-//                              numBytes,
-//                              &mX));
+//          bdef_BindUtil::bind(&genericCb, bteso_EventType::BTESO_WRITE,
+//                              socket[0], numBytes, &mX));
 //  mX.registerSocketEvent(socket[0], bteso_EventType::BTESO_WRITE, writeCb1);
 //
 //  numBytes = 15;
 //  bteso_EventManager::Callback writeCb2(
-//          bdef_BindUtil::bind(&genericCb,
-//                              bteso_EventType::BTESO_WRITE,
-//                              socket[1],
-//                              numBytes,
-//                              &mX));
+//          bdef_BindUtil::bind(&genericCb, bteso_EventType::BTESO_WRITE,
+//                              socket[1], numBytes, &mX));
 //  mX.registerSocketEvent(socket[1], bteso_EventType::BTESO_WRITE, writeCb2);
 //
 //
@@ -167,7 +156,7 @@ BDES_IDENT("$Id: $")
 //..
 // Next, we try to execute the requests by calling the 'dispatch' function with
 // a timeout (5 seconds from now) requirement and verify the result.  The two
-// write requests should be executed since both ends are writable If we don't
+// write requests should be executed since both ends are writable.  If we don't
 // have a timeout requirement, a different version of 'dispatch' (in which no
 // timeout is specified) can also be called.
 //..
@@ -245,7 +234,7 @@ BDES_IDENT("$Id: $")
 //        } break;
 //        // ...
 //        default: {
-//             ASSERT("Invalid event code" && 0);
+//             assert("Invalid event code" && 0);
 //        } break;
 //      }
 //  }
@@ -259,40 +248,24 @@ BDES_IDENT("$Id: $")
 #include <bteso_defaulteventmanagerimpl.h>
 #endif
 
-#ifndef INCLUDED_BTESO_EVENT
-#include <bteso_event.h>
+#ifndef INCLUDED_BTESO_PLATFORM
+#include <bteso_platform.h>
 #endif
 
 #ifndef INCLUDED_BTESO_EVENTMANAGER
 #include <bteso_eventmanager.h>
 #endif
 
-#ifndef INCLUDED_BTESO_EVENTTYPE
-#include <bteso_eventtype.h>
-#endif
-
-#ifndef INCLUDED_BTESO_PLATFORM
-#include <bteso_platform.h>
+#ifndef INCLUDED_BTESO_EVENT
+#include <bteso_event.h>
 #endif
 
 #ifndef INCLUDED_BTESO_SOCKETHANDLE
 #include <bteso_sockethandle.h>
 #endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITS
-#include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
-#include <bslalg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
-#include <bslalg_typetraitbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
-#include <bslalg_typetraitusesbslmaallocator.h>
+#ifndef INCLUDED_BTESO_EVENTTYPE
+#include <bteso_eventtype.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -307,35 +280,49 @@ BDES_IDENT("$Id: $")
 #include <bsl_vector.h>
 #endif
 
-#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
-#include <bslfwd_bslma_allocator.h>
-#endif
-
-#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_HPUX)
+#if defined(BSLS_PLATFORM__OS_AIX)
 
 #ifndef INCLUDED_SYS_POLL
 #include <sys/poll.h>
 #define INCLUDED_SYS_POLL
 #endif
 
+#ifndef INCLUDED_SYS_POLLSET
+#include <sys/pollset.h>
+#define INCLUDED_SYS_POLLSET
+#endif
+
 namespace BloombergLP {
 
+class bslma_Allocator;
 class bdet_TimeInterval;
 class bteso_TimeMetrics;
 
-            // ========================================================
-            // class bteso_DefaultEventManager<bteso_Platform::DEVPOLL>
-            // ========================================================
-template<>
-class bteso_DefaultEventManager<bteso_Platform::DEVPOLL>
+          // ========================================================
+          // class bteso_DefaultEventManager<bteso_Platform::POLLSET>
+          // ========================================================
+
+template <>
+class bteso_DefaultEventManager<bteso_Platform::POLLSET>
                                                   : public bteso_EventManager {
     // This specialization of 'bteso_DefaultEventManager' for the
-    // 'bteso_Platform::DEVPOLL' integral template parameter, implements the
-    // 'bteso_EventManager' and uses '/dev/poll' as its polling mechanism.
+    // 'bteso_Platform::POLL' integral template parameter, implements the
+    // 'bteso_EventManager' and uses the 'poll' system call as its polling
+    // mechanism.
+
+    // PRIVATE TYPES
+    typedef bsl::hash_map<bteso_Event,
+                          bteso_EventManager::Callback,
+                          bteso_EventHash>              CallbackMap;
 
     // DATA
-    bsl::hash_map<bteso_Event, bteso_EventManager::Callback, bteso_EventHash>
-                                 d_callbacks;    // container of registered
+    ::pollset_t                  d_ps;           // (integral) id of pollset
+
+    int                          d_fdCount;      // Number of file descriptors
+                                                 // tracked by this event
+                                                 // manager.
+
+    CallbackMap                  d_callbacks;    // container of registered
                                                  // socket events and
                                                  // associated callbacks
 
@@ -347,35 +334,37 @@ class bteso_DefaultEventManager<bteso_Platform::DEVPOLL>
                                                  // structures indicating
                                                  // pending IO operations
 
-    bsl::hash_map<int, int>      d_eventmasks;   // map of socket handles
-                                                 // to associated events
-
-    int                          d_dpFd;         // file descriptor of
-                                                 // '/dev/poll'
-
   public:
     // TRAITS
-    BSLALG_DECLARE_NESTED_TRAITS2(bteso_DefaultEventManager,
-                                  bslalg_TypeTraitUsesBslmaAllocator,
-                                  bslalg_TypeTraitBitwiseMoveable);
+    BSLALG_DECLARE_NESTED_TRAITS(bteso_DefaultEventManager,
+                                 bslalg_TypeTraitUsesBslmaAllocator);
 
+  private:
+    // PRIVATE ACCESSOR
+    int dispatchCallbacks(int numSignaled) const;
+        // The result of the 'pollset_poll' call is in the first 'numSignaled'
+        // elements of 'd_signaled', process those events by calling the
+        // appropriate callbacks.
+
+  public:
     // CREATORS
     explicit
     bteso_DefaultEventManager(bteso_TimeMetrics *timeMetric     = 0,
                               bslma_Allocator   *basicAllocator = 0);
-        // Create a '/dev/poll'-based event manager.  Optionally specify a
+        // Create a 'pollset'-based event manager.  Optionally specify a
         // 'timeMetric' to report time spent in CPU-bound and IO-bound
         // operations.  If 'timeMetric' is not specified or is 0, these metrics
         // are not reported.  Optionally specify a 'basicAllocator' used to
         // supply memory.  If 'basicAllocator' is 0, the currently installed
         // default allocator is used.
 
-    ~bteso_DefaultEventManager();
+    virtual ~bteso_DefaultEventManager();
         // Destroy this object.  Note that the registered callbacks are NOT
         // invoked.
 
     // MANIPULATORS
-    int dispatch(const bdet_TimeInterval&  timeout, int flags);
+    virtual
+    int dispatch(const bdet_TimeInterval& timeout, int flags);
         // For each pending socket event, invoke the corresponding callback
         // registered with this event manager.  If no event is pending, wait
         // until either (1) at least one event occurs (in which case the
@@ -386,7 +375,7 @@ class bteso_DefaultEventManager<bteso_Platform::DEVPOLL>
         // callbacks on success, 0 if 'timeout' is reached, and a negative
         // value otherwise; -1 is reserved to indicate that an underlying
         // system call was interrupted.  When such an interruption occurs this
-        // method will return (-1) if 'flags' contains
+        // method will return -1 if 'flags' contains
         // 'bteso_Flag::BTESO_ASYNC_INTERRUPT', and otherwise will
         // automatically restart (i.e., reissue the identical system call).
         // Note that all callbacks are invoked in the same thread that invokes
@@ -394,6 +383,7 @@ class bteso_DefaultEventManager<bteso_Platform::DEVPOLL>
         // registration, is unspecified.  Also note that -1 is never returned
         // unless 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
+    virtual
     int dispatch(int flags);
         // For each pending socket event, invoke the corresponding callback
         // registered with this event manager.  If no event is pending, wait
@@ -404,59 +394,73 @@ class bteso_DefaultEventManager<bteso_Platform::DEVPOLL>
         // number of dispatched callbacks on success, and a negative value
         // otherwise; -1 is reserved to indicate that an underlying system call
         // was interrupted.  When such an interruption occurs this method will
-        // return (-1) if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'
+        // return -1 if 'flags' contains 'bteso_Flag::BTESO_ASYNC_INTERRUPT'
         // and otherwise will automatically restart (i.e., reissue the
         // identical system call).  Note that all callbacks are invoked in the
         // same thread that invokes 'dispatch', and the order of invocation,
         // relative to the order of registration, is unspecified.  Also note
-        // that -1 is never returned unless 'option' is set to
+        // that -1 is never returned unless 'flags' contains
         // 'bteso_Flag::BTESO_ASYNC_INTERRUPT'.
 
+    virtual
     int registerSocketEvent(const bteso_SocketHandle::Handle&   handle,
-                            const bteso_EventType::Type         event,
+                            const bteso_EventType::Type         eventType,
                             const bteso_EventManager::Callback& callback);
         // Register with this event manager the specified 'callback' to be
-        // invoked when the specified 'event' occurs on the specified socket
-        // 'handle'.  Each socket event registration stays in effect until it
-        // is subsequently deregistered; the callback is invoked each time the
-        // corresponding event is detected.  'bteso_EventType::BTESO_READ' and
-        // 'bteso_EventType::BTESO_WRITE' are the only events that can be
-        // registered simultaneously for a socket.  If a registration attempt
-        // is made for an event that is already registered, the callback
-        // associated with this event will be overwritten with the new one.
-        // Simultaneous registration of incompatible events for the same socket
-        // 'handle' will result in undefined behavior.  Return 0 in success and
-        // a non-zero value, which is the same as native error code, on error.
+        // invoked when the specified 'eventType' occurs on the specified
+        // socket 'handle'.  Each socket event registration stays in effect
+        // until it is subsequently deregistered; the callback is invoked each
+        // time the corresponding event is detected.
+        // 'bteso_EventType::BTESO_READ' and 'bteso_EventType::BTESO_WRITE' are
+        // the only event types that can be registered simultaneously for a
+        // socket.  If a registration attempt is made for an event that is
+        // already registered, the callback associated with this event will be
+        // overwritten with the new one.  Simultaneous registration of
+        // incompatible events for the same socket 'handle' will result in
+        // undefined behavior.  Return 0 in success and a non-zero value, which
+        // is the same as native error code, on error.
+        //
+        // DEPRECATED: use registerSocketEvent passing a
+        // 'bteso_EventManager::FailureCallback' instead.
 
+    virtual
     void deregisterSocketEvent(const bteso_SocketHandle::Handle& handle,
-                               bteso_EventType::Type             event);
+                               bteso_EventType::Type             eventType);
         // Deregister from this event manager the callback associated with the
-        // specified 'event' on the specified 'handle' so that said callback
-        // will not be invoked should 'event' occur.
+        // specified 'eventType' on the specified 'handle' so that said
+        // callback will not be invoked should the event occur.  The behavior
+        // is undefined unless there is a callback registered for 'eventType'
+        // on the socket 'handle'.
 
+    virtual
     int deregisterSocket(const bteso_SocketHandle::Handle& handle);
         // Deregister from this event manager all events associated with the
         // specified socket 'handle'.  Return the number of deregistered
         // callbacks.
 
+    virtual
     void deregisterAll();
         // Deregister from this event manager all events on every socket
         // handle.
 
     // ACCESSORS
+    virtual
     bool hasLimitedSocketCapacity() const;
         // Return 'true' if this event manager has a limited socket capacity,
         // and 'false' otherwise.
 
+    virtual
     int isRegistered(const bteso_SocketHandle::Handle& handle,
                      const bteso_EventType::Type       event) const;
         // Return 1 if the specified 'event' is registered with this event
         // manager for the specified socket 'handle' and 0 otherwise.
 
+    virtual
     int numEvents() const;
         // Return the total number of all socket events currently registered
         // with this event manager.
 
+    virtual
     int numSocketEvents(const bteso_SocketHandle::Handle& handle) const;
         // Return the number of socket events currently registered with this
         // event manager for the specified 'handle'.
@@ -466,27 +470,15 @@ class bteso_DefaultEventManager<bteso_Platform::DEVPOLL>
 //                      INLINE FUNCTIONS' DEFINITIONS
 //-----------------------------------------------------------------------------
 
-           // ========================================================
-           // class bteso_DefaultEventManager<bteso_Platform::DEVPOLL>
-           // ========================================================
-
-// ACCESSORS
-inline
-bool bteso_DefaultEventManager<bteso_Platform::DEVPOLL>::
-                                               hasLimitedSocketCapacity() const
-{
-    return false;
-}
-
 }  // close namespace BloombergLP
 
-#endif // SOLARIS || HPUX
+#endif // BSLS_PLATFORM__OS_AIX
 
 #endif
 
 // ---------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2005
+//      Copyright (C) Bloomberg L.P., 2010
 //      All Rights Reserved.
 //      Property of Bloomberg L.P.  (BLP)
 //      This software is made available solely pursuant to the
