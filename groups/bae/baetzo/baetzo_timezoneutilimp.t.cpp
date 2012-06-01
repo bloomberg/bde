@@ -1145,7 +1145,7 @@ int main(int argc, char *argv[])
 // Finally we verify that 'localNYTime' is "Dec 12, 2010 10:00+5:00", the time
 // in New York corresponding to the UTC time "Dec 12, 2010 15:00".
 //..
-    ASSERT(utcTime                         == localNYTime.gmtDatetime());
+    ASSERT(utcTime                         == localNYTime.utcDatetime());
     ASSERT(bdet_Datetime(2010, 12, 12, 10) == localNYTime.localDatetime());
     ASSERT(-5 * 60                         == localNYTime.offset());
 //..

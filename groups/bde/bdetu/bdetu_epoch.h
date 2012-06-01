@@ -36,7 +36,7 @@ BDES_IDENT("$Id: $")
 //  ---------------------     --------------     ------------
 //  bsl::time_t               relative           seconds
 //  bdetu_Epoch::TimeT64      relative           seconds
-//  bdet_Datetime             absolute (GMT)     milliseconds
+//  bdet_Datetime             absolute (UTC)     milliseconds
 //  bdet_DatetimeInterval     relative           milliseconds
 //  bdet_TimeInterval         relative           nanoseconds
 //..
@@ -298,10 +298,10 @@ struct bdetu_Epoch {
         // specified (absolute) 'datetime' and the epoch.  The behavior is
         // undefined unless 'epoch() <= datetime' and the converted 'datetime'
         // can be represented in the destination format.  Note that 'datetime'
-        // is assumed to use Greenwich Mean Time (GMT) as a reference.  Also
-        // note that if error detection is desired, the overloaded version that
-        // loads the converted 'datetime' into a supplied destination object
-        // should be used.
+        // is assumed to use Coordinated Universal Time (UTC) as a reference.
+        // Also note that if error detection is desired, the overloaded version
+        // that loads the converted 'datetime' into a supplied destination
+        // object should be used.
 
     static int convertToTimeT(bsl::time_t          *result,
                               const bdet_Datetime&  datetime);
@@ -310,34 +310,34 @@ struct bdetu_Epoch {
         // epoch.  Return 0 on success, and a non-zero value (with no effect on
         // 'result') if 'datetime' cannot be represented in the destination
         // format or 'datetime < epoch()'.  Note that 'datetime' is assumed to
-        // use Greenwich Mean Time (GMT) as a reference.
+        // use Coordinated Universal Time (UTC) as a reference.
 
     static bdet_Datetime convertFromTimeT(bsl::time_t time);
         // Return, as a 'bdet_Datetime', the (absolute) datetime computed as
         // the sum of the specified (relative) 'time' and the epoch.  The
         // behavior is undefined unless '0 <= time'.  Note that the returned
-        // value will use Greenwich Mean Time (GMT) as a reference.
+        // value will use Coordinated Universal Time (UTC) as a reference.
 
     static void convertFromTimeT(bdet_Datetime *result, bsl::time_t time);
         // Load into the specified 'result' the (absolute) datetime converted
         // to a 'bdet_Datetime', computed as the sum of the specified
         // (relative) 'time' and the epoch.  The behavior is undefined unless
         // '0 <= time'.  Note that the conversion will always succeed, and that
-        // 'result' will use Greenwich Mean Time (GMT) as a reference.
+        // 'result' will use Coordinated Universal Time (UTC) as a reference.
 
                            // 'TimeT64'-Based Methods
 
     static TimeT64 convertToTimeT64(const bdet_Datetime& datetime);
         // Return the (relative) time computed as the difference between the
         // specified (absolute) 'datetime' and the epoch.  Note that 'datetime'
-        // is assumed to use Greenwich Mean Time (GMT) as a reference.
+        // is assumed to use Coordinated Universal Time (UTC) as a reference.
 
     static void convertToTimeT64(TimeT64              *result,
                                  const bdet_Datetime&  datetime);
         // Load into the specified 'result' the (relative) time computed as the
         // difference between the specified (absolute) 'datetime' and the
         // epoch.  Note that the conversion will always succeed, and that
-        // 'datetime' is assumed to use Greenwich Mean Time (GMT) as a
+        // 'datetime' is assumed to use Coordinated Universal Time (UTC) as a
         // reference.
 
     static bdet_Datetime convertFromTimeT64(TimeT64 time);
@@ -345,8 +345,8 @@ struct bdetu_Epoch {
         // the sum of the specified (relative) 'time' and the epoch.  The
         // behavior is undefined unless the converted 'time' can be represented
         // in the destination format.  Note that the returned value will use
-        // Greenwich Mean Time (GMT) as a reference.  Also note that if error
-        // detection is desired, the overloaded version that loads the
+        // Coordinated Universal Time (UTC) as a reference.  Also note that if
+        // error detection is desired, the overloaded version that loads the
         // converted 'time' into a supplied destination object should be used.
 
     static int convertFromTimeT64(bdet_Datetime *result, TimeT64 time);
@@ -355,7 +355,7 @@ struct bdetu_Epoch {
         // (relative) 'time' and the epoch.  Return 0 on success, and a
         // non-zero value (with no effect on 'result') if 'time' cannot be
         // represented in the destination format.  Note that 'result' will use
-        // Greenwich Mean Time (GMT) as a reference.
+        // Coordinated Universal Time (UTC) as a reference.
 
                        // 'bdet_TimeInterval'-Based Methods
 

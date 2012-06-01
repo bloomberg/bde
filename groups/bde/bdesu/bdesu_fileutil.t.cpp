@@ -482,9 +482,9 @@ int main(int argc, char *argv[])
                        bdesu_FileUtil::getLastModificationTime(&modTime, *it));
             bdesu_PathUtil::getLeaf(&fileName, *it);
             bsl::string* whichDirectory =
-                 2 < (bdetu_SystemTime::nowAsDatetime() - modTime).totalDays()
-                   ? &oldPath
-                   : &newPath;
+               2 < (bdetu_SystemTime::nowAsDatetimeUtc() - modTime).totalDays()
+               ? &oldPath
+               : &newPath;
             bdesu_PathUtil::appendRaw(whichDirectory, fileName.c_str());
             ASSERT(0 == bdesu_FileUtil::move(it->c_str(),
                                             whichDirectory->c_str()));
@@ -1904,9 +1904,9 @@ int main(int argc, char *argv[])
                                                                  it->c_str()));
             bdesu_PathUtil::getLeaf(&fileName, *it);
             bsl::string* whichDirectory =
-                  2 < (bdetu_SystemTime::nowAsDatetime() - modTime).totalDays()
-                    ? &oldPath
-                    : &newPath;
+               2 < (bdetu_SystemTime::nowAsDatetimeUtc() - modTime).totalDays()
+               ? &oldPath
+               : &newPath;
             bdesu_PathUtil::appendRaw(whichDirectory, fileName.c_str());
             ASSERT(0 == bdesu_FileUtil::move(it->c_str(),
                                                      whichDirectory->c_str()));
