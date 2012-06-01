@@ -80,8 +80,12 @@ BDES_IDENT("$Id: $")
 // ---------------------------------------------------------------------------
 //..
 //
-///Usage: stream
-///-------------
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: stream
+///- - - - - - - - -
 // The most common usage of this component is to initialize a stream.  In this
 // case, the 'bdesu_FdStreamBuf' will be used for either input or output, but
 // not both.
@@ -197,8 +201,9 @@ BDES_IDENT("$Id: $")
 //..
 //  bdesu_FileUtil::remove(fileNameBuffer);
 //..
-///Usage: streambuf
-///----------------
+//
+///Example 2: streambuf
+/// - - - - - - - - - - 
 // For our second example we will create a 'bdesu_FdStreamBuf' associated with
 // a temporary file, and then use the public methods of the base class
 // interface, including 'sputn', 'sgetn' and 'pubseekpos', to do some I/O and
