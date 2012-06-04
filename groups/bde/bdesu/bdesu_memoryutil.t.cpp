@@ -8,6 +8,7 @@
 
 #include <bsl_iostream.h>
 
+#include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
