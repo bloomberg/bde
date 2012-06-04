@@ -1174,7 +1174,7 @@ int main(int argc, char *argv[]) {
             { L_,   "\xc8\xc9\xca",    "\xc7\xc9\xcb" },
             { L_,   "\xc8\xc9\xca",    "\xc9\xc9\xca" },
             { L_,   "\xc8\xc9\xca",    ""             },
-            { L_,,  "",                "\xc8\xc9\xca" },
+            { L_,   "",                "\xc8\xc9\xca" },
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
