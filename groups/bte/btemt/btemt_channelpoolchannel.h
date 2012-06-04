@@ -136,10 +136,6 @@ class btemt_ChannelPoolChannel: public btemt_AsyncChannel {
 
     bool                  d_closed;
 
-    bool                  d_readDisabledFlag;     // flag specifying if
-                                                  // read is currently
-                                                  // disabled
-
     ReadQueue             d_readQueue;            // queue of pending read
                                                   // requests.
 

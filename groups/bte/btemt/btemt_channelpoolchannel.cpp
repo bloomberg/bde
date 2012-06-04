@@ -87,9 +87,8 @@ int btemt_ChannelPoolChannel::addReadQueueEntry(
         entry.d_timeOutTimerId = d_nextClockId;
     }
 
-    if (1 == d_readQueue.size() || d_readDisabledFlag) {
+    if (1 == d_readQueue.size()) {
         d_channelPool_p->enableRead(d_channelId);
-        d_readDisabledFlag = false;
     }
     return 0;
 }
@@ -169,7 +168,6 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
 , d_mutex()
 , d_callbackInProgress(false)
 , d_closed(false)
-, d_readDisabledFlag(true)
 , d_readQueue(allocator)
 , d_bufferChainFactory_p(bufferFactory)
 , d_blobBufferFactory_p(0)
@@ -200,7 +198,6 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
 , d_mutex()
 , d_callbackInProgress(false)
 , d_closed(false)
-, d_readDisabledFlag(true)
 , d_readQueue(allocator)
 , d_bufferChainFactory_p(0)
 , d_blobBufferFactory_p(blobBufferFactory)
@@ -429,7 +426,7 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
             }
         }
         BSLS_ASSERT(0 <= nConsumed && nConsumed <= numBytesAvailable);
-        BSLS_ASSERT(0 <= nNeeded || -1 == nNeeded);
+        BSLS_ASSERT(0 <= nNeeded);
 
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(0 != nConsumed)) {
             numBytesAvailable -= nConsumed;
@@ -457,7 +454,7 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
             }
         }
 
-        if (nNeeded > 0) {
+        if (nNeeded) {
             entry.d_numBytesNeeded = nNeeded;
             if (nNeeded <= numBytesAvailable) {
                 continue;
@@ -473,10 +470,6 @@ void btemt_ChannelPoolChannel::dataCb(int                  *numConsumed,
             removeTopReadEntry(false);
             if (!d_readQueue.size()) {
                 d_channelPool_p->disableRead(d_channelId);
-            }
-            if (-1 == nNeeded) {
-                *numNeeded = -1;
-                d_readDisabledFlag = true;
             }
         }
     }
@@ -584,12 +577,12 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
             bcema_BlobUtil::erase(currentBlob, 0, numConsumed);
         }
 
-        BSLS_ASSERT(0 <= nNeeded || -1 == nNeeded);
+        BSLS_ASSERT(0 <= nNeeded);
         BSLS_ASSERT(0 <= numConsumed);
 
         numBytesAvailable -= numConsumed;
 
-        if (nNeeded > 0) {
+        if (nNeeded) {
             entry.d_numBytesNeeded = nNeeded;
             if (nNeeded <= numBytesAvailable) {
                 continue;
@@ -604,10 +597,6 @@ void btemt_ChannelPoolChannel::blobBasedDataCb(int *numNeeded, bcema_Blob *msg)
             removeTopReadEntry(false);
             if (!d_readQueue.size()) {
                 d_channelPool_p->disableRead(d_channelId);
-            }
-            if (-1 == nNeeded) {
-                *numNeeded = -1;
-                d_readDisabledFlag = true;
             }
         }
     }
@@ -627,8 +616,6 @@ void btemt_ChannelPoolChannel::cancelRead()
 
     {
         bcemt_LockGuard<bcemt_Mutex> lock(&d_mutex);
-
-        d_readDisabledFlag = true;
 
         if (!d_readQueue.size()) return;
 
@@ -731,7 +718,6 @@ void btemt_ChannelPoolChannel::close()
 
         if (!d_closed) {
             d_closed = true;
-            d_readDisabledFlag = true;
             d_channelPool_p->shutdown(d_channelId,
                                       btemt_ChannelPool::BTEMT_IMMEDIATE);
 
