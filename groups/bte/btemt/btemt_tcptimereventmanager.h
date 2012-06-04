@@ -400,8 +400,6 @@ class btemt_TcpTimerEventManager : public bteso_TimerEventManager {
     const bool                 d_collectMetrics;  // whether to update
                                                   // 'd_metrics'
 
-    bces_AtomicInt             d_numTimers;       // caches for fast access
-
     bces_AtomicInt             d_numTotalSocketEvents;
 
     bslma_Allocator           *d_allocator_p;     // memory allocator (held,

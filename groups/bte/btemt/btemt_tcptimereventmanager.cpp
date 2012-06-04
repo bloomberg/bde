@@ -902,7 +902,6 @@ void btemt_TcpTimerEventManager::dispatchThreadEntryPoint()
             for (int i = 0; i < numTimers; ++i) {
                 requests[i].data()();
             }
-            d_numTimers = d_timerQueue.length();
         }
 
         // If a signal to quit has been issued leave immediately,
@@ -937,7 +936,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(true)
-, d_numTimers(0)
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
@@ -958,7 +956,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(true)
-, d_numTimers(0)
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
@@ -980,7 +977,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
-, d_numTimers(0)
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
@@ -1003,7 +999,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(collectTimeMetrics)
-, d_numTimers(0)
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
@@ -1026,7 +1021,6 @@ btemt_TcpTimerEventManager::btemt_TcpTimerEventManager(
             bteso_TimeMetrics::BTESO_IO_BOUND,
             threadSafeAllocator)
 , d_collectMetrics(false)
-, d_numTimers(0)
 , d_numTotalSocketEvents(0)
 , d_allocator_p(bslma_Default::allocator(threadSafeAllocator))
 {
@@ -1259,7 +1253,6 @@ void *btemt_TcpTimerEventManager::registerTimer(
     if (bcemt_ThreadUtil::isEqual(
                     bcemt_ThreadUtil::self(), d_dispatcher)) {
         void *id = (void*)d_timerQueue.add(timeout, callback);
-        d_numTimers = d_timerQueue.length();
         return id;
     }
 
@@ -1280,7 +1273,6 @@ void *btemt_TcpTimerEventManager::registerTimer(
             if (!isNewTop) {
                 result = (void*)handle;
                 BSLS_ASSERT(result);
-                d_numTimers = newLength;
             }
             else {
                 // Signal dispatcher for the new minimum, if needed.
@@ -1301,7 +1293,6 @@ void *btemt_TcpTimerEventManager::registerTimer(
                 else {
                     result = (void*)handle;
                     BSLS_ASSERT(result);
-                    d_numTimers = newLength;
                 }
             }
           } break;
@@ -1313,7 +1304,6 @@ void *btemt_TcpTimerEventManager::registerTimer(
             result = (void*)d_timerQueue.add(timeout, callback,
                                              &newTop, &newLength);
             BSLS_ASSERT(result);
-            d_numTimers = newLength;
           } break;
         }
     }
@@ -1553,13 +1543,11 @@ void btemt_TcpTimerEventManager::deregisterTimer(const void *id)
     // pick a new top on the next iteration.
 
     d_timerQueue.remove((int)(bsls_Types::IntPtr)id);
-    d_numTimers = d_timerQueue.length();
 }
 
 void btemt_TcpTimerEventManager::deregisterAllTimers()
 {
     d_timerQueue.removeAll();
-    d_numTimers = d_timerQueue.length();
 }
 
 void btemt_TcpTimerEventManager::deregisterAll()
@@ -1631,7 +1619,7 @@ int btemt_TcpTimerEventManager::numEvents() const
 
 int btemt_TcpTimerEventManager::numTimers() const
 {
-    return d_numTimers;
+    return d_timerQueue.length();
 }
 
 int btemt_TcpTimerEventManager::numSocketEvents(
