@@ -2713,7 +2713,7 @@ int main(int argc, char *argv[])
         baexml_Decoder xDecoder(&dOptions, &reader, &e);
 
         enum {
-            BUFFER_SIZE=512 * 1024
+            BUFFER_SIZE= 256 * 1024
         };
         char BUFFER[BUFFER_SIZE];
         bslma_SequentialAllocator alloc(BUFFER, BUFFER_SIZE);
