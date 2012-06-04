@@ -121,24 +121,62 @@ namespace bslmf {
                            // struct MetaInt
                            // ==============
 
-template <unsigned INT_VALUE>
-struct MetaInt : public bsltt::integer_constant<unsigned, INT_VALUE> {
+template <int INT_VALUE>
+struct MetaInt : public bsltt::integer_constant<int, INT_VALUE> {
     // Instantiating this template produces a distinct type for each
-    // non-negative integer value.
+    // non-negative integer value.  This template has been deprecated in favor
+    // of the standard 'integer_constant' template.
+
+#if BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+    static_assert(INT_VALUE >= 0, "INT_VALUE must be non-negative");
+#endif
 
     // TYPES
     typedef MetaInt<INT_VALUE>    Type;
     typedef bslmf::Tag<INT_VALUE> Tag;
 
-    enum { VALUE = int(INT_VALUE) };
+    enum { VALUE = INT_VALUE };
 
     // CREATORS
     MetaInt();
         // Does nothing ('MetaInt' is stateless).
 
-    template <class TYPE>
-    MetaInt(bsltt::integer_constant<TYPE, INT_VALUE>);
-        // Convert from a 'bsltt::integer_constant' with the same value.
+    MetaInt(bsltt::integer_constant<int, INT_VALUE>);
+        // Convert from a 'bsltt::integer_constant<int, INT_VALUE>'.
+
+    //! MetaInt(const MetaInt&) = default;
+    //! MetaInt& operator=(const MetaInt&) = default;
+    //! ~MetaInt() = default;
+
+    // CLASS METHODS
+    static Tag& tag();
+        // Declared but not defined.  Meta-function use only.  The tag can be
+        // used to recover meta-information from an expression.  Example:
+        // 'sizeof(f(expr).tag())' returns a different compile-time value
+        // depending on the type of the result of calling the 'f' function but
+        // does not actually call the 'f' function or the 'tag' method at
+        // run-time.  Note that 'f(expr)::VALUE' or 'sizeof(f(expr)::Type)'
+        // would be ill-formed and that 'f(expr).value' is not a compile-time
+        // expression.
+};
+
+template <>
+struct MetaInt<0> : public bsltt::integer_constant<int, 0> {
+    // This specialization of 'MetaInt' has a 'VAL' of zero and is convertible
+    // to and from 'bslstt::false_type'.
+
+    // TYPES
+    typedef MetaInt<0>    Type;
+    typedef bslmf::Tag<0> Tag;
+
+    enum { VALUE = 0 };
+
+    // CREATORS
+    MetaInt();
+        // Does nothing ('MetaInt' is stateless).
+
+    MetaInt(bsltt::integer_constant<int, 0>);
+        // Convert from a 'bsltt::integer_constant<int, 0>'.
 
     //! MetaInt(const MetaInt&) = default;
     //! MetaInt& operator=(const MetaInt&) = default;
@@ -155,13 +193,53 @@ struct MetaInt : public bsltt::integer_constant<unsigned, INT_VALUE> {
         // would be ill-formed and that 'f(expr).value' is not a compile-time
         // expression.
 
-    // ACCESSORS
-    operator int () const;
-        // Return 'VALUE'.  (This operator is conversion operator to 'int'.)
+    operator bsltt::false_type() const;
+        // Convert '*this' to 'bsltt::false_type'.
 
-    template <class TYPE>
-    operator bsltt::integer_constant<TYPE, INT_VALUE> () const;
-        // Convert to an 'integer_constant' of the same value.
+    // ACCESSORS
+    operator bool() const;
+        // Return 'false'.  (This operator is conversion operator to 'bool'.)
+};
+
+template <>
+struct MetaInt<1> : public bsltt::integer_constant<int, 1> {
+    // This specialization of 'MetaInt' has a 'VAL' of one and is convertible
+    // to and from 'bsltt::true_type'.
+
+    // TYPES
+    typedef MetaInt<1>    Type;
+    typedef bslmf::Tag<1> Tag;
+
+    enum { VALUE = 1 };
+
+    // CREATORS
+    MetaInt();
+        // Does nothing ('MetaInt' is stateless).
+
+    MetaInt(bsltt::integer_constant<int, 1>);
+        // Convert from a 'bsltt::integer_constant<int, 1>'.
+
+    //! MetaInt(const MetaInt&) = default;
+    //! MetaInt& operator=(const MetaInt&) = default;
+    //! ~MetaInt() = default;
+
+    // CLASS METHODS
+    static Tag& tag();
+        // Declared but not defined.  Meta-function use only.  The tag can be
+        // used to recover meta-information from an expression.  Example:
+        // 'sizeof(f(expr).tag())' returns a different compile-time value
+        // depending on the type of the result of calling the 'f' function but
+        // does not actually call the 'f' function or the 'tag' method at
+        // run-time.  Note that 'f(expr)::VALUE' or 'sizeof(f(expr)::Type)'
+        // would be ill-formed and that 'f(expr).value' is not a compile-time
+        // expression.
+
+    operator bsltt::true_type() const;
+        // Convert '*this' to 'bsltt::true_type'.
+
+    // ACCESSORS
+    operator bool() const;
+        // Return 'true'.  (This operator is conversion operator to 'bool'.)
 };
 
 }  // close package namespace
@@ -192,34 +270,61 @@ struct MetaInt : public bsltt::integer_constant<unsigned, INT_VALUE> {
 // ===========================================================================
 
 // CREATORS
-template <unsigned INT_VALUE>
+template <int INT_VALUE>
 inline
 bslmf::MetaInt<INT_VALUE>::MetaInt()
 {
 }
 
-template <unsigned INT_VALUE>
-template <class TYPE>
+template <int INT_VALUE>
 inline
-bslmf::MetaInt<INT_VALUE>::MetaInt(bsltt::integer_constant<TYPE, INT_VALUE>)
+bslmf::MetaInt<INT_VALUE>::MetaInt(bsltt::integer_constant<int, INT_VALUE>)
+{
+}
+
+inline
+bslmf::MetaInt<0>::MetaInt()
+{
+}
+
+inline
+bslmf::MetaInt<0>::MetaInt(bsltt::integer_constant<int, 0>)
+{
+}
+
+inline
+bslmf::MetaInt<1>::MetaInt()
+{
+}
+
+inline
+bslmf::MetaInt<1>::MetaInt(bsltt::integer_constant<int, 1>)
 {
 }
 
 // ACCESSORS
-template <unsigned INT_VALUE>
 inline
-bslmf::MetaInt<INT_VALUE>::operator int () const
+bslmf::MetaInt<0>::operator bool() const
 {
-    return VALUE;
+    return false;
 }
 
-template <unsigned INT_VALUE>
-template <class TYPE>
 inline
-bslmf::MetaInt<INT_VALUE>::
-    operator bsltt::integer_constant<TYPE, INT_VALUE> () const
+bslmf::MetaInt<0>::operator bsltt::false_type() const
 {
-    return bsltt::integer_constant<TYPE, (TYPE) INT_VALUE>();
+    return bsltt::false_type();
+}
+
+inline
+bslmf::MetaInt<1>::operator bool() const
+{
+    return true;
+}
+
+inline
+bslmf::MetaInt<1>::operator bsltt::true_type() const
+{
+    return bsltt::true_type();
 }
 
 }  // close enterprise namespace

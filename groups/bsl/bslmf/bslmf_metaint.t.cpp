@@ -5,6 +5,7 @@
 #include <cstdlib>      // atoi()
 #include <cstring>      // strcmp()
 #include <cstdio>
+#include <climits>
 
 using namespace BloombergLP;
 using namespace std;
@@ -16,8 +17,11 @@ using namespace bslmf;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
+// [ 1] VALUE 
+// [ 2] implicit upcast to bsltt::integer_constant<int, INT_VALUE>
+// [ 2] operator bsltt::false_type() const
+// [ 2] operator bsltt::true_type() const
 //-----------------------------------------------------------------------------
-// [ 1] BREATHING TEST
 // [ 3] USAGE EXAMPLE
 //=============================================================================
 
@@ -94,26 +98,66 @@ void aSsErT(int c, const char *s, int i) {
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-template <class TYPE, TYPE VALUE>
-struct matchIntegerConstant
+namespace {
+
+struct AnyType
 {
-static bool test(bsltt::integer_constant<TYPE, VALUE>)
+    // Type convertible from any other type.
+    template <class TYPE>
+    AnyType(const TYPE&) { }
+};
+
+template <int VALUE>
+bool matchIntConstant(bsltt::integer_constant<int, VALUE>)
     // Return true when called with an 'integer_constant' of the specified
     // 'VALUE'.  Does not participate in overload resolution for
-    // 'integer_constant's who's 'value' is not 'VALUE'.
+    // 'integer_constant's with a 'value' other than 'VALUE'.
 {
     return true;
 }
 
-template <TYPE OTHER_VALUE>
-static bool test(bsltt::integer_constant<TYPE, OTHER_VALUE>)
+template <int VALUE>
+bool matchIntConstant(AnyType)
     // Return false.  Overload resolution will select this function only when
-    // the argument is other than 'integer_constant<TYPE, VALUE>', i.e., when
-    // the specified 'VALUE' is different from the specified 'OTHER_VALUE'.
+    // the argument is other than 'integer_constant<int, VALUE>', e.g., when
+    // called with an argument of type integer_constant<int, OTHER_VALUE>',
+    // where 'Other_VALUE' is different from the specified 'VALUE' template
+    // parameter.
 {
     return false;
 }
-};
+
+int dispatchOnIntConstant(int, const char*, bsltt::integer_constant<int, 0>)
+{
+    return 0;
+}
+
+int dispatchOnIntConstant(int, const char*, bsltt::integer_constant<int, 1>)
+{
+    return 1;
+}
+
+int dispatchOnIntConstant(int, const char*, bsltt::integer_constant<int, -1>)
+{
+    return -1;
+}
+
+int dispatchOnIntConstant(int, const char*, bsltt::integer_constant<int, 999>)
+{
+    return 999;
+}
+
+int dispatchOnBoolConstant(float, bsltt::false_type)
+{
+    return 1;
+}
+
+int dispatchOnBoolConstant(float, bsltt::true_type)
+{
+    return 2;
+}
+
+}
 
 //=============================================================================
 //                  CODE FOR TESTING USAGE EXAMPLES
@@ -231,54 +275,97 @@ int main(int argc, char *argv[])
         // TESTING CONVERSION TO integer_constant
         //
         // Concerns:
-        //: 1 'MetaInt<V>' is convertible to 'integer_constant<T, V>', where
-        //:   'T' is an integer type.
+        //: 1 'MetaInt<V>' is convertible to 'integer_constant<int, V>'.
         //:
-        //: 2 'MetaInt<V>' is NOT convertible to 'integer_constant<T, X>',
-        //:   where 'T' is an integer type and 'X != V'.
+        //: 2 'MetaInt<V>' is NOT convertible to 'integer_constant<int, X>',
+        //:   'X != V'.
+        //:
+        //: 3 Given several function overloads that take an argument of type
+        //:   'integer_constant<int, V>' for different values of 'V' and
+        //:   otherwise identical parameters, passing an argument of type
+        //:   'MetaInt<X>' will dispatch to overload that takes
+        //:   'integer_constant<int, X>'.
+        //:
+        //: 4 Given two function overloads with identical parameters
+        //:   that the first takes an argument of type 'bsltt::false_type' and
+        //:   the second takes an argument of type 'bsltt::true_type', passing
+        //:   an argument of type 'MetaInt<0>' will dispatch to the first and
+        //:   passing an argument of type 'MetaInt<1>' will dispatch t the
+        //:   second.
         //
         // Plan:
-        //: 1 Create a function template, 'matchIntegerConstant<T, V>' having
-        //:   two overloads: one that takes an argument of type
-        //:   'integer_constant<T, V>' and returns 'true', and another which
-        //:   takes an argument of *any* 'integer_constant' and returns
-        //:   'false'.  For various integer types, 'T', and values 'V',
+        //: 1 Create a function template, 'matchIntConstant<V>' having two
+        //:   overloads: one that takes an argument of type
+        //:   'integer_constant<int, V>' and returns 'true', and another which
+        //:   takes an argument of a type convertible from *any*
+        //:   'integer_constant' and returns 'false'.  For various values 'V',
         //:   construct rvalues of type 'MetaInt<V>' and call
-        //:   'matchIntegerConstant<T, V>', verifying that it returns 'true'.
+        //:   'matchIntConstant<V>', verifying that it returns
+        //:   'true'. (C-1)
         //:
-        //: 2 For various integer types, 'T', and values 'V' and 'X' such that
-        //:   'V != X', construct rvalues of type 'MetaInt<V>' and call
-        //:   'matchIntegerConstant<T, X>', verifying that it returns 'false'.
+        //: 2 For various values 'V' and 'X' such that 'V != X', construct
+        //:   rvalues of type 'MetaInt<V>' and call 'matchIntConstant<X>',
+        //:   verifying that it returns 'false'. (C-2)
+        //:
+        //: 3 Create a set of overloaded functions,
+        //:   'dispatchOnIntConstant' taking identical arguments except
+        //:   that the last parameter is of type 'integer_constant<int, V>'
+        //:   for several values of 'V'.  The return value of
+        //:   'dispatchOnIntConstant' is an 'int' with value 'V'.  Call
+        //:   'dispatchOnIntConstant' several times, each time passing a
+        //:   different instantiation of 'integer_constant<int, V>' and
+        //:   verifying that the return value is as expected (i.e., that the
+        //:   call dispatched to the correct overload).  (C-3)
+        //:
+        //: 4 Create a pair of overloaded functions, 'dispatchOnBoolConstant'
+        //:   taking identical arguments except that the last parameter of the
+        //:   first overload is 'false_type' and the last parameter of the
+        //:   second overload is 'true_type'.  The return value of
+        //:   'dispatchOnBoolConstant' is an 'int' with value 1 for the first
+        //:   overload and 2 for the second overload.  Call
+        //:   'dispatchOnBoolConstant', passing it 'MetaInt<0>' as the last
+        //:   argument and verify that it returns 1.  Call
+        //:   'dispatchOnBoolConstant', passing it 'MetaInt<1>' as the last
+        //:   argument and verify that it returns 2. (C-4)
         //
         // Testing:
-        //     operator bsltt::integer_constant<TYPE, (TYPE)INT_VALUE>() const;
+        //      implicit upcast to bsltt::integer_constant<int, INT_VALUE>
+        //      inheritence from bsltt::integer_constant<int, INT_VALUE>
+        //      operator bsltt::false_type() const;  // MetaInt<0> only
+        //      operator bsltt::true_type() const;   // MetaInt<1> only
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CONVERSION TO integer_constant"
                             "\n======================================\n");
 
-#if 0 // Not working yet
         if (veryVerbose) printf("Testing good conversions\n");
-        ASSERT(  (matchIntegerConstant<bool, false>::test(MetaInt<false>())));
-        ASSERT(  (matchIntegerConstant<int, 1>::test(MetaInt<1>())));
-        ASSERT(  (matchIntegerConstant<unsigned, 2>::test(MetaInt<2>())));
-        ASSERT(  (matchIntegerConstant<short, -3>::test(MetaInt<-3>())));
-        ASSERT(  (matchIntegerConstant<long, 4>::test(MetaInt<4>())));
-        ASSERT(  (matchIntegerConstant<unsigned char, 'A'>::test(MetaInt<'A'>())));
+        ASSERT(  (matchIntConstant<0>(MetaInt<0>())));
+        ASSERT(  (matchIntConstant<1>(MetaInt<1>())));
+        ASSERT(  (matchIntConstant<-99>(MetaInt<-99>())));
+        ASSERT(  (matchIntConstant<1000>(MetaInt<1000>())));
+        ASSERT(  (matchIntConstant<INT_MAX>(MetaInt<INT_MAX>())));
 
         if (veryVerbose) printf("Testing bad conversions\n");
-        ASSERT(! (matchIntegerConstant<bool, false>::test(MetaInt<true>())));
-        ASSERT(! (matchIntegerConstant<int, 1>::test(MetaInt<2>())));
-        ASSERT(! (matchIntegerConstant<unsigned, 2>::test(MetaInt<4>())));
-        ASSERT(! (matchIntegerConstant<short, -3>::test(MetaInt<-6>())));
-        ASSERT(! (matchIntegerConstant<long, 4>::test(MetaInt<8>())));
-        ASSERT(! (matchIntegerConstant<unsigned char, 'A'>::test(MetaInt<'Z'>())));
-#endif
+        ASSERT(! (matchIntConstant<0>(MetaInt<1>())));
+        ASSERT(! (matchIntConstant<1>(MetaInt<0>())));
+        ASSERT(! (matchIntConstant<-99>(MetaInt<99>())));
+        ASSERT(! (matchIntConstant<1000>(MetaInt<6>())));
+        ASSERT(! (matchIntConstant<INT_MAX>(MetaInt<INT_MIN>())));
+
+        if (veryVerbose) printf("Testing int dispatch\n");
+        ASSERT(0 == dispatchOnIntConstant(9, "hello", MetaInt<0>()));
+        ASSERT(1 == dispatchOnIntConstant(8, "world", MetaInt<1>()));
+        ASSERT(-1 == dispatchOnIntConstant(7, "seven", MetaInt<-1>()));
+        ASSERT(999 == dispatchOnIntConstant(8, "nine", MetaInt<999>()));
+
+        if (veryVerbose) printf("Testing bool dispatch\n");
+        ASSERT(1 == dispatchOnBoolConstant(0.3, MetaInt<0>()));
+        ASSERT(2 == dispatchOnBoolConstant(5.2, MetaInt<1>()));
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // VALUE TEST
+        // TEST VALUE
         //
         // Test Plan:
         //   Instantiate 'MetaInt' with various constant integral
@@ -286,7 +373,7 @@ int main(int argc, char *argv[])
         //   properly.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nVALUE TEST"
+        if (verbose) printf("\nTEST VALUE"
                             "\n==========\n");
 
         // verify that the 'VALUE' member is evaluated at compile-time
