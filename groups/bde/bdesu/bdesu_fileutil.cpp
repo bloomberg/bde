@@ -945,7 +945,7 @@ void bdesu_FileUtil::visitPaths(
         return;                                                       // RETURN
     }
     if (GLOB_NOSPACE == rc) {
-        bslma::throwBadAlloc();
+        bslma::Allocator::throwBadAlloc();
     }
 
     for (int i = 0; i < static_cast<int>(pglob.gl_pathc); ++i) {
