@@ -18,11 +18,13 @@ using namespace bslmf;
 //                                --------
 //-----------------------------------------------------------------------------
 // [ 1] VALUE 
-// [ 2] implicit upcast to bsltt::integer_constant<int, INT_VALUE>
-// [ 2] operator bsltt::false_type() const
-// [ 2] operator bsltt::true_type() const
+// [ 2] operator int() const;
+// [ 2] operator bool() const;
+// [ 3] implicit upcast to bsltt::integer_constant<int, INT_VALUE>
+// [ 3] operator bsltt::false_type() const
+// [ 3] operator bsltt::true_type() const
 //-----------------------------------------------------------------------------
-// [ 3] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
 //=============================================================================
 
 //==========================================================================
@@ -249,7 +251,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -270,7 +272,7 @@ int main(int argc, char *argv[])
         usageExample2();
 
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION TO integer_constant
         //
@@ -363,9 +365,64 @@ int main(int argc, char *argv[])
         ASSERT(2 == dispatchOnBoolConstant(5.2, MetaInt<1>()));
 
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING CONVERSION TO int
+        //
+        // Concerns:
+        //: 1 'MetaInt<V>' is convertible to 'int' with a resulting value of
+        //:   'V'.
+        //:
+        //: 2 'MetaInt<0>' is convertible to 'bool' with a resulting value of
+        //:   'false'.
+        //:
+        //: 3 'MetaInt<0>' is convertible to 'bool' with a resulting value of
+        //:   'true'.
+        //
+        // Plan:
+        //: 1 Define several 'int' variables, initializing each one with a
+        //:   different 'MetaInt<V>' type.  Verify that the value of each
+        //:   'int' is the corresponding 'V'. (C1)
+        //:
+        //: 2 Define a 'bool' variable, initializing it with a 'MetaInt<0>'
+        //:   object. Verify that the resulting value is false. (C2)
+        //:
+        //: 3 Define a 'bool' variable, initializing it with a 'MetaInt<1>'
+        //:   object. Verify that the resulting value is true. (C3)
+        //
+        // Testing:
+        //      operator int() const;
+        //      operator bool() const; // MetaInt<0> and MetaInt<1> only
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING CONVERSION TO 'int'"
+                            "\n===========================\n");
+
+        int a = MetaInt<0>();
+        ASSERT(0 == a);
+
+        int b = MetaInt<1>();
+        ASSERT(1 == b);
+
+        int c = MetaInt<-1>();
+        ASSERT(-1 == c);
+
+        int d = MetaInt<INT_MAX>();
+        ASSERT(INT_MAX == d);
+
+        int e = MetaInt<INT_MIN>();
+        ASSERT(INT_MIN == e);
+
+        bool f = MetaInt<0>();
+        ASSERT(!f);
+
+        bool g = MetaInt<1>();
+        ASSERT(g);
+        
+      } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TEST VALUE
+        // TESTING VALUE
         //
         // Test Plan:
         //   Instantiate 'MetaInt' with various constant integral
@@ -373,8 +430,8 @@ int main(int argc, char *argv[])
         //   properly.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTEST VALUE"
-                            "\n==========\n");
+        if (verbose) printf("\nTESTING VALUE"
+                            "\n=============\n");
 
         // verify that the 'VALUE' member is evaluated at compile-time
         enum {
