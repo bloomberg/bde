@@ -7,9 +7,9 @@ BDES_IDENT_RCSID(baetzo_timezoneidutil_cpp,"$Id$ $CSID$")
 ///Implementation Notes
 ///--------------------
 // This implementation uses standard algorithms to search two sorted statically
-// defined tables: one mapping Windows timezone identifiers to Olson timezone
-// identifiers, and the other providing the inverse mapping.  The source for
-// these tables was
+// defined tables: one mapping Windows timezone identifiers to Zoneinfo
+// time-zone identifiers, and the other providing the inverse mapping.  The
+// source for these tables was
 // 'http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/zone_tzid.html',
 // The entries were sorted using the 'isLessThan' function defined below as the
 // comparator.  Furthermore, the implementation assumes that each table has
@@ -23,7 +23,6 @@ BDES_IDENT_RCSID(baetzo_timezoneidutil_cpp,"$Id$ $CSID$")
 
 #include <baetzo_timezoneutil.h>  // for testing only
 #include <baetzo_testloader.h>    // for testing only
-#include <baetzo_dstpolicy.h>     // for testing only
 
 #include <bsl_algorithm.h>  // for 'lower_bound'
 #include <bsl_cstring.h>    // for 'strcmp'
@@ -33,8 +32,8 @@ BDES_IDENT_RCSID(baetzo_timezoneidutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 
 typedef struct TimeZoneIdEntry {
-    const char *d_from;  // key
-    const char *d_to;    // value
+    const char *d_key;
+    const char *d_value;
 } TimeZoneIdEntry;
 
 typedef bsl::pair<const TimeZoneIdEntry *,
@@ -42,13 +41,13 @@ typedef bsl::pair<const TimeZoneIdEntry *,
 
 static bool isLessThan(const TimeZoneIdEntry& a,
                        const TimeZoneIdEntry& b)
-    // Return 'true' is the "from" field of the specified 'a' is lexically
-    // less that the "from" field of the specified 'b', and 'false otherwise.
+    // Return 'true' is the "key" field of the specified 'a' is lexically
+    // less that the "key" field of the specified 'b', and 'false otherwise.
 {
-    return -1 == bsl::strcmp(a.d_from, b.d_from);
+    return bsl::strcmp(a.d_key, b.d_key) < 0;
 }
 
-static const TimeZoneIdEntry windowsToOlsonIds[] = {
+static const TimeZoneIdEntry windowsToZoneinfoIds[] = {
     { "AUS Central Standard Time",       "Australia/Darwin"     },
     { "AUS Eastern Standard Time",       "Australia/Sydney"     },
     { "Afghanistan Standard Time",       "Asia/Kabul"           },
@@ -150,17 +149,17 @@ static const TimeZoneIdEntry windowsToOlsonIds[] = {
     { "Yakutsk Standard Time",           "Asia/Yakutsk"         },
 };
 
-static const int numWindowsToOlsonIds = sizeof( windowsToOlsonIds)
-                                      / sizeof(*windowsToOlsonIds);
+static const int numWindowsToZoneinfoIds = sizeof( windowsToZoneinfoIds)
+                                         / sizeof(*windowsToZoneinfoIds);
 
-static const TimeZoneIdEntry * const windowsToOlsonIdsBegin =
-                                                             windowsToOlsonIds;
+static const TimeZoneIdEntry * const windowsToZoneinfoIdsBegin =
+                                                          windowsToZoneinfoIds;
 
-static const TimeZoneIdEntry * const windowsToOlsonIdsEnd   =
-                                                             windowsToOlsonIds
-                                                        + numWindowsToOlsonIds;
+static const TimeZoneIdEntry * const windowsToZoneinfoIdsEnd   =
+                                                          windowsToZoneinfoIds
+                                                     + numWindowsToZoneinfoIds;
 
-static const TimeZoneIdEntry olsonToWindowsIds[] = {
+static const TimeZoneIdEntry zoneinfoToWindowsIds[] = {
     { "Africa/Cairo",         "Egypt Standard Time"             },
     { "Africa/Casablanca",    "Morocco Standard Time"           },
     { "Africa/Johannesburg",  "South Africa Standard Time"      },
@@ -262,18 +261,19 @@ static const TimeZoneIdEntry olsonToWindowsIds[] = {
     { "Pacific/Tongatapu",    "Tonga Standard Time"             },
 };
 
-static const int numOlsonToWindowsIds = sizeof( olsonToWindowsIds)
-                                      / sizeof(*olsonToWindowsIds);
+static const int numZoneinfoToWindowsIds = sizeof( zoneinfoToWindowsIds)
+                                         / sizeof(*zoneinfoToWindowsIds);
 
-static const TimeZoneIdEntry * const olsonToWindowsIdsBegin =
-                                                             olsonToWindowsIds;
-static const TimeZoneIdEntry * const olsonToWindowsIdsEnd  = olsonToWindowsIds
-                                                        + numOlsonToWindowsIds;
+static const TimeZoneIdEntry * const zoneinfoToWindowsIdsBegin =
+                                                          zoneinfoToWindowsIds;
+static const TimeZoneIdEntry * const zoneinfoToWindowsIdsEnd  =
+                                                          zoneinfoToWindowsIds
+                                                     + numZoneinfoToWindowsIds;
 
 namespace {
 
-BSLMF_ASSERT(                  99 == numWindowsToOlsonIds);
-BSLMF_ASSERT(numWindowsToOlsonIds == numOlsonToWindowsIds);
+BSLMF_ASSERT(                     99 == numWindowsToZoneinfoIds);
+BSLMF_ASSERT(numWindowsToZoneinfoIds == numZoneinfoToWindowsIds);
 
 }  // close unnamed namespace
 
@@ -282,18 +282,33 @@ BSLMF_ASSERT(numWindowsToOlsonIds == numOlsonToWindowsIds);
                         // ---------------------------
 
 // CLASS METHODS
+#if 0
+    static int zoneinfoIdFromWindowsTimeZoneId(const char **result,
+                                               const char  *windowsTimeZoneId);
+        // Load into the specified 'result' the address of the default Zoneinfo
+        // time-zone identifier for the specified 'windowsTimeZoneId'.  Return
+        // 0 on success, and non-zero value with no other effect otherwise.
+        // The returned address is valid for the life-time of the process.
 
-int baetzo_TimeZoneIdUtil::getTimeZoneIdFromWindowsTimeZoneId(
-                                                const char **timeZoneId,
+    static int windowsTimeZoneIdFromZoneinfoId(const char **result,
+                                               const char  *zoneinfoId);
+        // Load into the specified 'result' the address the Windows time-zone
+        // identifier that has a default mapping to the specified 'zoneinfoId'.
+        // Return 0 on success, and non-zero value with no other effect
+        // otherwise.  The returned address is valid for the life-time of the
+        // process.
+#endif
+int baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
+                                                const char **result,
                                                 const char  *windowsTimeZoneId)
 {
-    BSLS_ASSERT(timeZoneId);
+    BSLS_ASSERT(result);
     BSLS_ASSERT(windowsTimeZoneId);
 
     const TimeZoneIdEntry value = { windowsTimeZoneId, 0 };
 
-    IteratorPair iterators = bsl::equal_range(windowsToOlsonIdsBegin,
-                                              windowsToOlsonIdsEnd,
+    IteratorPair iterators = bsl::equal_range(windowsToZoneinfoIdsBegin,
+                                              windowsToZoneinfoIdsEnd,
                                               value,
                                               isLessThan);
 
@@ -301,23 +316,23 @@ int baetzo_TimeZoneIdUtil::getTimeZoneIdFromWindowsTimeZoneId(
         return -1;                                                    // RETURN
     }
 
-    BSLS_ASSERT(1 == bsl::distance(iterators.first, iterators.second));
+    BSLS_ASSERT_SAFE(1 == bsl::distance(iterators.first, iterators.second));
 
-    *timeZoneId = iterators.first->d_to;
+    *result = iterators.first->d_value;
     return 0;
 }
 
-int baetzo_TimeZoneIdUtil::getWindowsTimeZoneIdFromTimeZoneId(
-                                                const char **windowsTimeZoneId,
-                                                const char  *timeZoneId)
+int baetzo_TimeZoneIdUtil::windowsTimeZoneIdFromZoneinfoId(
+                                                       const char **result,
+                                                       const char  *zoneinfoId)
 {
-    BSLS_ASSERT(windowsTimeZoneId);
-    BSLS_ASSERT(timeZoneId);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(zoneinfoId);
 
-    const TimeZoneIdEntry value = { timeZoneId, 0 };
+    const TimeZoneIdEntry value = { zoneinfoId, 0 };
 
-    IteratorPair iterators = bsl::equal_range(olsonToWindowsIdsBegin,
-                                              olsonToWindowsIdsEnd,
+    IteratorPair iterators = bsl::equal_range(zoneinfoToWindowsIdsBegin,
+                                              zoneinfoToWindowsIdsEnd,
                                               value,
                                               isLessThan);
 
@@ -325,13 +340,13 @@ int baetzo_TimeZoneIdUtil::getWindowsTimeZoneIdFromTimeZoneId(
         return -1;                                                    // RETURN
     }
 
-    BSLS_ASSERT(1 == bsl::distance(iterators.first, iterators.second));
+    BSLS_ASSERT_SAFE(1 == bsl::distance(iterators.first, iterators.second));
 
-    *windowsTimeZoneId = iterators.first->d_to;
+    *result = iterators.first->d_value;
     return 0;
 }
 
-}  // close namespace BloombergLP
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // NOTICE:

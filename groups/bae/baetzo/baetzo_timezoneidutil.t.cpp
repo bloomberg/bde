@@ -3,10 +3,8 @@
 
 #include <baetzo_timezoneutil.h>
 #include <baetzo_testloader.h>
-#include <baetzo_dstpolicy.h>
 
 #include <baet_localdatetime.h>
-#include <bdet_date.h>
 #include <bdet_datetime.h>
 
 #include <bsl_iostream.h>
@@ -21,11 +19,11 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test provide a utility for mapping time zone identifiers
-// between Olson and Windows naming systems.  The methods are implemented using
-// standard alorithms on two sorted static tables: one mapping Windows timezone
-// identifiers to Olson timezone identifiers; the other mapping Olson timezone
-// identifiers to Windows timezone identifiers.  These tables were
-// semi-mechanically generated from a mapping table obtained from
+// between Zoneinfo and Windows naming systems.  The methods are implemented
+// using standard alorithms on two sorted static tables: one mapping Windows
+// time-zone identifiers to Zoneinfo time-zone identifiers; the other mapping
+// Zoneinfo time-zone identifiers to Windows time-zone identifiers.  These
+// tables were semi-mechanically generated from a mapping table obtained from
 // 'unicode.org'.  As a check on that transformation, the tests here use as a
 // reference, a separate copy of the 'unicode.org' table, that has been
 // minimally transformed into a C-compatible table, 'DEFAULT_DATA'.  Each row
@@ -35,8 +33,8 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 2] getTimeZoneIdFromWindowsTimeZoneId(const char **, const char *);
-// [ 3] getWindowsTimeZoneIdFromTimeZoneId(const char **, const char *);
+// [ 2] zoneinfoIdFromWindowsTimeZoneId(const char **, const char *);
+// [ 3] windowsTimeZoneIdFromZoneinfoId(const char **, const char *);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] USAGE EXAMPLE
@@ -99,12 +97,12 @@ typedef struct DefaultDataRow {
     int         d_line;
     const char *d_windowsId;
     const char *d_region;
-    const char *d_olsonId;
+    const char *d_zoneinfoId;
 } DefaultDataRow;
 
 static const DefaultDataRow DEFAULT_DATA[] = {
       //  +--------------------------------+--------+---------------------+
-      //  |Windows Time Zone Identifer     | Region | Olson Identifier    |
+      //  |Windows Time Zone Identifer     | Region | Zoneinfo Identifier |
       //  +--------------------------------+--------+---------------------+
     { L_,       "AUS Central Standard Time",  "001", "Australia/Darwin"    },
     { L_,       "AUS Eastern Standard Time",  "001", "Australia/Sydney"    },
@@ -851,69 +849,6 @@ static const char ASIA_SAIGON_DATA[] = {
     0x00, 0x00, 0x00, 0x00, 0x0a, 0x49, 0x43, 0x54, 0x2d, 0x37, 0x0a,
 };
 
-//=============================================================================
-//                      USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-//
-///Example 2: Converting from Windows to Olson Time Zone Idenitifers
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The 'getTimeZoneIdFromWindowsTimeZoneId' method allows Windows clients to
-// use their configured time zone information (from the registry) to create the
-// vocabulary types used in many BDE libraries.  The following example shows
-// how to create and use a function that can assemble an 'baet_LocalDatetime'
-// object given values for 'year', 'month', 'day', 'hour', and a Windows
-// timezone identifer.
-//
-// First, we define our function interface.
-//..
-    int myLoadLocalDatetime(baet_LocalDatetime   *resultPtr,
-                            const char           *timezoneIdFromRegistry,
-                            int                   year,
-                            int                   month,
-                            int                   day,
-                            int                   hour);
-        // Load, into the specified 'result', the local date-time value (in the
-        // (Windows) time zone indicated by the specified
-        // 'timezoneIdFromRegistry') corresponding the specified 'year',
-        // 'month', 'hour', 'day', and 'hour'.  Return 0 on success, and a
-        // non-zero value otherwise.
-//..
-//  Next, we implement our function.
-//..
-    int myLoadLocalDatetime(baet_LocalDatetime   *resultPtr,
-                            const char           *timezoneIdFromRegistry,
-                            int                   year,
-                            int                   month,
-                            int                   day,
-                            int                   hour)
-    {
-        ASSERT(resultPtr);
-        ASSERT(timezoneIdFromRegistry);
-        ASSERT(bdet_Date::isValid(year, month, day));
-        ASSERT(bdet_Time::isValid(hour));
-
-        const char *timeZoneId;
-
-        int rc = baetzo_TimeZoneIdUtil::getTimeZoneIdFromWindowsTimeZoneId(
-                                                       &timeZoneId,
-                                                       timezoneIdFromRegistry);
-        if (0 != rc) {
-            return -1;                                                // RETURN
-        }
-
-        bdet_Datetime datetime(year, month, day, hour);
-
-        return baetzo_TimeZoneUtil::initLocalTime(
-                                            resultPtr,
-                                            datetime,
-                                            timeZoneId,
-                                            baetzo_DstPolicy::BAETZO_STANDARD);
-    }
-//..
-// Notice that the 'dstPolicy' parameters has been set to
-// 'baetzo_DstPolicy::BAETZO_STANDARD', because each of the supported Windows
-// timezone identifiers is a "Standard Time".
-
 // ============================================================================
 //                                 MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -981,137 +916,149 @@ int main(int argc, char *argv[])
             {
 ///Usage
 ///-----
-// In this section we show intended usage of this component.
+// In this section we show intended use of this component.
 //
-///Example 1: Basic Syntax
-///- - - - - - - - - - - -
-// The 'getTimeZoneIdFromWindowsTimeZoneId' method will convert a Windows
-// timezone identifer to the designated Olson equivalent timezone identifer.
+///Example 1: Converting Between Windows and Zoneinfo Time-Zone Identifiers
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// These code snippets show the basic syntax of this component's methods.
+//
+// The 'zoneinfoIdFromWindowsTimeZoneId' method converts a Windows time-zone
+// identifer to the default Zoneinfo equivalent time-zone identifer.
 //..
         int         rc;
         const char *timeZoneId;
         const char *windowsTimeZoneId;
 
-        rc = baetzo_TimeZoneIdUtil::getTimeZoneIdFromWindowsTimeZoneId(
+        rc = baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
                                              &timeZoneId,
                                              "Central Standard Time (Mexico)");
         ASSERT(0 == rc);
         ASSERT(0 == bsl::strcmp("America/Mexico_City", timeZoneId));
 //..
-// The 'getWindowsTimeZoneIdFromTimeZoneId' method performs the inverse
-// mapping.
+// The 'windowsTimeZoneIdFromZoneinfoId' method performs the inverse mapping.
 //..
-        rc = baetzo_TimeZoneIdUtil::getWindowsTimeZoneIdFromTimeZoneId(
+        rc = baetzo_TimeZoneIdUtil::windowsTimeZoneIdFromZoneinfoId(
                                                         &windowsTimeZoneId,
                                                         "America/Mexico_City");
         ASSERT(0 == rc);
         ASSERT(0 == bsl::strcmp("Central Standard Time (Mexico)",
                                  windowsTimeZoneId));
 //..
-// When given an unknown timezone identifier, both methods return a non-zero
-// value and neither method changes the pointer value at the address given
-// as the first argument.
-//..
-        timeZoneId = (const char *)0xdeadbeef;
-        rc = baetzo_TimeZoneIdUtil::getTimeZoneIdFromWindowsTimeZoneId(
-                                                                   &timeZoneId,
-                                                                   "ABCZ");
-        ASSERT(0                        != rc);
-        ASSERT(0xdeadbeef == (unsigned)timeZoneId);
-
-        windowsTimeZoneId = (const char*)0xcafef00d;
-        rc = baetzo_TimeZoneIdUtil::getWindowsTimeZoneIdFromTimeZoneId(
-                                                            &windowsTimeZoneId,
-                                                            "XYZA");
-        ASSERT(0          != rc);
-        ASSERT(0xcafef00d == (unsigned)windowsTimeZoneId);
-//
             }
             {
-///Example 2: Converting from Windows to Olson Time Zone Idenitifers
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// [See 'USAGE EXAMPLE' at file-level scope for specification and defintion
-// of the 'myLoadLocalDatetime' function.]
+///Example 2: Creating a 'baet_LocalDatetime' Object on Windows
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The Windows API provides date, time, and time-zone information (e.g.,
+// 'GetSystemTime', 'GetTimeZoneInformation').  Windows clients may wish to use
+// that information to create a 'baet_LocalDatetime' object (or other
+// date/time-related vocabulary types) to allow use of BDE's rich facilities
+// for manipulating date/time values.
 //
-// Now, we can use 'myLoadLocalDatetime' to initialize 'localDatetime'.
+// First, use the Windows 'GetTimeZoneInformation' function to load a
+// 'LPTIME_ZONE_INFORMATION' structure.  That structure has a 'StandardName'
+// array (represented by a simple array below).
+//..
+    const char StandardName[32] = "Arab Standard Time";
+//..
+// Next, use the 'zoneinfoIdFromWindowsTimeZoneId' method to find the
+// corresponding Zoneinfo time-zone identifier.
+//..
+    const char *zoneinfoId;
+    int         rc = baetzo_TimeZoneIdUtil::zoneinfoIdFromWindowsTimeZoneId(
+                                                                 &zoneinfoId,
+                                                                 StandardName);
+    ASSERT(0 == rc);
+    ASSERT(0 == bsl::strcmp("Asia/Riyadh", zoneinfoId));
+//..
+// Then, use the Windows 'GetSystemTime' function to load an 'LPSYTEMTIME'
+// structure with UTC time information.  This includes year, month
+// ('[1 .. 12]'), day-of-month ('[1 .. 31]'), and hour-of-day ('[0 .. 23]').
+// Note 'bdet_date' and 'bdet_time' use the same numerical values to represent
+// month, day, etc.  The range of years is different but practically the same
+// as they overlap for several centuries around the current time.
+//
+// The members of the 'LPSYTEMTIME' structure are represented by simple
+// variables below:
+//..
+    const int wYear  = 2012;
+    const int wMonth =    5;
+    const int wDay   =   28;
+    const int wHour  =   23;
+//..
+// Finally, use the these Windows SystemTime values and and the calculated
+// Zoneinfo time-zone identifier to set the value of a 'baet_LocalDatetime'
+// object.
 //..
     baet_LocalDatetime localDatetime;
-    int                rc  = myLoadLocalDatetime(&localDatetime,
-                                                 "Arab Standard Time",
-                                                 2012, 5, 28, 22);
-    ASSERT(0 == rc);
-    ASSERT(0 == bsl::strcmp("Asia/Riyadh",
-                            localDatetime.timeZoneId().c_str()));
-//..
-// Finally, having an object of a vocabulary type, we can easily perform
-// a wide range of operations on our date-value (e.g., date arithmetic).
-//..
-    bdet_Date localDate = localDatetime.datetimeTz().dateTz().localDate();
-    bdet_Date yesterday = localDate - 1;
-    bdet_Date tomorrow  = localDate + 1;
-    // ...
+
+    rc = baetzo_TimeZoneUtil::convertUtcToLocalTime(
+                                    &localDatetime,
+                                    zoneinfoId,
+                                    bdet_Datetime(wYear, wMonth, wDay, wHour));
+    ASSERT(0             == rc);
+    ASSERT("Asia/Riyadh" == localDatetime.timeZoneId());
 //..
             }
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'getWindowsTimeZoneIdFromTimeZoneId'
+        // CLASS METHOD 'windowsTimeZoneIdFromZoneinfoId'
         //
         // Concerns:
-        //: 1 The sorted static table mapping Olson timezone identifiers to
-        //:   Windows timezone identifiers is sorted, has a single record for
-        //:   each Olson timezone identifier for each entry of the
+        //: 1 The sorted static table mapping Zoneinfo time-zone identifiers to
+        //:   Windows time-zone identifiers is sorted, has a single record for
+        //:   each Zoneinfo time-zone identifier for each entry of the
         //:   'unicode.org' table, and that entry has the correct,
-        //:   corresponding Windows timezone identifier.
+        //:   corresponding Windows time-zone identifier.
         //:
         //: 2 The table has no entries other than those described in C-1.
         //:
-        //: 3 When given an invalid Olson timezone identifier, the method
+        //: 3 When given an invalid Zoneinfo time-zone identifier, the method
         //:   returns a value indicating non-success, and has no other effect.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each Olson timezone identifier the 'DEFAULT_DATA', confirm
-        //:   that the method returns success and loads the corresponding
-        //:   Windows timezone identifier.  (C-1)
+        //: 1 For each Zoneinfo time-zone identifier the 'DEFAULT_DATA',
+        //:   confirm that the method returns success and loads the
+        //:   corresponding Windows time-zone identifier.  (C-1)
         //:
         //: 2 Compile-time asserts in the implementation check that the number
         //:   of entries of the internal table matches that of 'DEFAULT_DATA'.
         //:   (C-2)
         //:
         //: 3 Use a table-driven test to confirm that for several classes of
-        //:   invalid Olson timezone identifiers, the method returns a value
-        //:   indicating failure, and that the contents of the given load
-        //:   address for the Windows timezone identifier is unchanged.  (C-3)
+        //:   invalid Zoneinfo time-zone identifiers, the method returns a
+        //:   value indicating failure, and that the contents of the given load
+        //:   address for the Windows time-zone identifier is unchanged.  (C-3)
         //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid argument values, but not triggered for
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-4)
         //
         // Testing:
-        //   getWindowsTimeZoneIdFromTimeZoneId(const char **, const char *);
+        //   windowsTimeZoneIdFromZoneinfoId(const char **, const char *);
         // --------------------------------------------------------------------
 
         if (verbose) cout
                 << endl
-                << "CLASS METHOD 'getWindowsTimeZoneIdFromTimeZoneId'" << endl
-                << "=================================================" << endl;
+                << "CLASS METHOD 'windowsTimeZoneIdFromZoneinfoId'" << endl
+                << "==============================================" << endl;
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE        = DATA[ti].d_line;
-            const char *GIVEN_ID    = DATA[ti].d_olsonId;
+            const char *GIVEN_ID    = DATA[ti].d_zoneinfoId;
             const char *EXPECTED_ID = DATA[ti].d_windowsId;
 
             if (veryVerbose) { T_ P_(LINE) P_(GIVEN_ID) P(EXPECTED_ID) }
 
             int         rc;
             const char *winId;
-            rc = Obj::getWindowsTimeZoneIdFromTimeZoneId(&winId, GIVEN_ID);
+            rc = Obj::windowsTimeZoneIdFromZoneinfoId(&winId, GIVEN_ID);
             ASSERT(0 == rc);
             ASSERT(0 == bsl::strcmp(EXPECTED_ID, winId));
         }
@@ -1120,9 +1067,9 @@ int main(int argc, char *argv[])
         {
              const struct {
                  int         d_line;
-                 const char *d_badOlsonId;
+                 const char *d_badZoneinfoId;
              } DATA [] = {
-                 // LINE  BAD OLSON ID
+                 // LINE  BAD ZONEINFO ID
                  // ----  ----------------------------------------
                   { L_,   "aBelowLowerBoundofValidInputs"          },
                   { L_,   "America/Mexico_City amidValidInputs"    },
@@ -1132,7 +1079,7 @@ int main(int argc, char *argv[])
 
              for (int ti = 0; ti < NUM_DATA; ++ti) {
                  const int   LINE     = DATA[ti].d_line;
-                 const char *BAD_ID   = DATA[ti].d_badOlsonId;
+                 const char *BAD_ID   = DATA[ti].d_badZoneinfoId;
                  const char *EXP_ADDR = (const char *)&ti;
 
                  if (veryVerbose) { T_ P_(LINE)
@@ -1140,7 +1087,7 @@ int main(int argc, char *argv[])
                                        P((void *)EXP_ADDR) }
 
                  const char *winId = EXP_ADDR;
-                 int         rc    = Obj::getTimeZoneIdFromWindowsTimeZoneId(
+                 int         rc    = Obj::zoneinfoIdFromWindowsTimeZoneId(
                                                                        &winId,
                                                                        BAD_ID);
                  LOOP2_ASSERT(LINE, BAD_ID,           0        != rc);
@@ -1155,61 +1102,59 @@ int main(int argc, char *argv[])
             const char  *tzId = "America/Mexico_City";
             const char *winId;
 
-            ASSERT_SAFE_PASS(Obj::getWindowsTimeZoneIdFromTimeZoneId(&winId,
+            ASSERT_SAFE_PASS(Obj::windowsTimeZoneIdFromZoneinfoId(&winId,
                                                                      tzId));
-            ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneIdFromTimeZoneId(0,
-                                                                     tzId));
-            ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneIdFromTimeZoneId(&winId,
-                                                                     0));
-            ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneIdFromTimeZoneId(0,
-                                                                     0));
+            ASSERT_SAFE_FAIL(Obj::windowsTimeZoneIdFromZoneinfoId(0, tzId));
+            ASSERT_SAFE_FAIL(Obj::windowsTimeZoneIdFromZoneinfoId(&winId, 0));
+            ASSERT_SAFE_FAIL(Obj::windowsTimeZoneIdFromZoneinfoId(0, 0));
         }
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // CLASS METHOD 'getTimeZoneIdFromWindowsTimeZoneId'
+        // CLASS METHOD 'zoneinfoIdFromWindowsTimeZoneId'
         //
         // Concerns:
-        //: 1 The sorted static table mapping Windows timezone identifiers to
-        //:   Olson timezone identifiers is sorted, has a single record for
-        //:   each Windows timezone identifier for each entry of the
+        //: 1 The sorted static table mapping Windows time-zone identifiers to
+        //:   Zoneinfo time-zone identifiers is sorted, has a single record for
+        //:   each Windows time-zone identifier for each entry of the
         //:   'unicode.org' table, and that entry has the correct,
-        //:   corresponding Olson timezone identifier.
+        //:   corresponding Zoneinfo time-zone identifier.
         //:
         //: 2 The table has no entries other than those described in C-1.
         //:
-        //: 3 When given an invalid Windows timezone identifier, the method
+        //: 3 When given an invalid Windows time-zone identifier, the method
         //:   returns a value indicating non-success, and has no other effect.
         //:
         //: 4 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        //: 1 For each Windows timezone identifier the 'DEFAULT_DATA', confirm
-        //:   that the method returns success and loads the corresponding Olson
-        //:   timezone identifier.  (C-1)
+        //: 1 For each Windows time-zone identifier the 'DEFAULT_DATA', confirm
+        //:   that the method returns success and loads the corresponding
+        //:   Zoneinfo time-zone identifier.  (C-1)
         //:
         //: 2 Compile-time asserts in the implementation check that the number
         //:   of entries of the internal table matches that of 'DEFAULT_DATA'.
         //:   (C-2)
         //:
         //: 3 Use a table-driven test to confirm that for several classes of
-        //:   invalid Windows timezone identifiers, the method returns a value
+        //:   invalid Windows time-zone identifiers, the method returns a value
         //:   indicating failure, and that the contents of the given load
-        //:   address for the Olson timezone identifier is unchanged.  (C-3)
+        //:   address for the Zoneinfo time-zone identifier is unchanged.
+        //:   (C-3)
         //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid argument values, but not triggered for
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
         //:   (C-4)
         //
         // Testing:
-        //   getTimeZoneIdFromWindowsTimeZoneId(const char **, const char *);
+        //   zoneinfoIdFromWindowsTimeZoneId(const char **, const char *);
         // --------------------------------------------------------------------
 
         if (verbose) cout
                 << endl
-                << "CLASS METHOD 'getTimeZoneIdFromWindowsTimeZoneId'" << endl
-                << "=================================================" << endl;
+                << "CLASS METHOD 'zoneinfoIdFromWindowsTimeZoneId'" << endl
+                << "==============================================" << endl;
 
         const int NUM_DATA                     = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
@@ -1217,13 +1162,13 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE        = DATA[ti].d_line;
             const char *GIVEN_ID    = DATA[ti].d_windowsId;
-            const char *EXPECTED_ID = DATA[ti].d_olsonId;
+            const char *EXPECTED_ID = DATA[ti].d_zoneinfoId;
 
             if (veryVerbose) { T_ P_(LINE) P_(GIVEN_ID) P(EXPECTED_ID) }
 
             int         rc;
             const char *tzId;
-            rc = Obj::getTimeZoneIdFromWindowsTimeZoneId(&tzId, GIVEN_ID);
+            rc = Obj::zoneinfoIdFromWindowsTimeZoneId(&tzId, GIVEN_ID);
             ASSERT(0 == rc);
             ASSERT(0 == bsl::strcmp(EXPECTED_ID, tzId));
         }
@@ -1252,7 +1197,7 @@ int main(int argc, char *argv[])
                                        P((void *)EXP_ADDR) }
 
                  const char *tzId = EXP_ADDR;
-                 int         rc   = Obj::getTimeZoneIdFromWindowsTimeZoneId(
+                 int         rc   = Obj::zoneinfoIdFromWindowsTimeZoneId(
                                                                        &tzId,
                                                                        BAD_ID);
                  LOOP2_ASSERT(LINE, BAD_ID,           0        != rc);
@@ -1267,13 +1212,13 @@ int main(int argc, char *argv[])
             const char *winId = "Central Standard Time (Mexico)";
             const char *tzId;
 
-            ASSERT_SAFE_PASS(Obj::getTimeZoneIdFromWindowsTimeZoneId(&tzId,
+            ASSERT_SAFE_PASS(Obj::zoneinfoIdFromWindowsTimeZoneId(&tzId,
                                                                      winId));
-            ASSERT_SAFE_FAIL(Obj::getTimeZoneIdFromWindowsTimeZoneId(0,
+            ASSERT_SAFE_FAIL(Obj::zoneinfoIdFromWindowsTimeZoneId(0,
                                                                      winId));
-            ASSERT_SAFE_FAIL(Obj::getTimeZoneIdFromWindowsTimeZoneId(&tzId,
+            ASSERT_SAFE_FAIL(Obj::zoneinfoIdFromWindowsTimeZoneId(&tzId,
                                                                      0));
-            ASSERT_SAFE_FAIL(Obj::getTimeZoneIdFromWindowsTimeZoneId(0,
+            ASSERT_SAFE_FAIL(Obj::zoneinfoIdFromWindowsTimeZoneId(0,
                                                                      0));
         }
       } break;
