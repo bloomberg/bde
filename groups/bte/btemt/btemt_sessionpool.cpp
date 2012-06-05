@@ -214,9 +214,9 @@ void btemt_SessionPool::channelStateCb(int   channelId,
                                 btemt_ChannelPoolChannel(channelId,
                                                         d_channelPool_p,
                                                         &d_bufferChainFactory,
+                                                        &d_blobBufferFactory,
                                                         &d_spAllocator,
                                                         d_allocator_p,
-                                                        &d_blobBufferFactory,
                                                         d_useBlobForDataReads);
 
           lock.release()->unlock();

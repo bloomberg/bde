@@ -159,7 +159,7 @@ void btemt_ChannelPoolChannel::removeTopReadEntry(bool invokeCallback)
 btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
                            int                             channelId,
                            btemt_ChannelPool              *channelPool,
-                           bcema_PooledBufferChainFactory *bufferFactory,
+                           bcema_PooledBufferChainFactory *bufferChainFactory,
                            bcema_PooledBlobBufferFactory  *blobBufferFactory,
                            bcema_PoolAllocator            *spAllocator,
                            bslma_Allocator                *allocator,
@@ -170,7 +170,7 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
 , d_callbackInProgress(false)
 , d_closed(false)
 , d_readQueue(allocator)
-, d_bufferChainFactory_p(bufferFactory, 0,
+, d_bufferChainFactory_p(bufferChainFactory, 0,
            bdema_ManagedPtrNilDeleter<bcema_PooledBufferChainFactory>::deleter)
 , d_blobBufferFactory_p(blobBufferFactory, 0,
            bdema_ManagedPtrNilDeleter<bcema_PooledBlobBufferFactory>::deleter)
@@ -193,15 +193,96 @@ btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
                                         bcema_PooledBlobBufferFactory(
                                           d_bufferChainFactory_p->bufferSize(),
                                           d_allocator_p),
-                                        d_allocator_p);
+                                   d_allocator_p);
     }
     if (!d_bufferChainFactory_p) {
         d_bufferChainFactory_p.load(new (*d_allocator_p)
                                         bcema_PooledBufferChainFactory(
                                            d_blobBufferFactory_p->bufferSize(),
                                            d_allocator_p),
-                                        d_allocator_p);
+                                    d_allocator_p);
 	}
+}
+
+btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
+                            int                             channelId,
+                            btemt_ChannelPool              *channelPool,
+                            bcema_PooledBufferChainFactory *bufferChainFactory,
+                            bcema_PoolAllocator            *spAllocator,
+                            bslma_Allocator                *allocator,
+                            bcema_PooledBlobBufferFactory  *blobBufferFactory)
+: d_pooledBufferChainPendingData()
+, d_useBlobForDataReads(false)
+, d_mutex()
+, d_callbackInProgress(false)
+, d_closed(false)
+, d_readQueue(allocator)
+, d_bufferChainFactory_p(bufferChainFactory, 0,
+           bdema_ManagedPtrNilDeleter<bcema_PooledBufferChainFactory>::deleter)
+, d_blobBufferFactory_p(blobBufferFactory, 0,
+           bdema_ManagedPtrNilDeleter<bcema_PooledBlobBufferFactory>::deleter)
+, d_spAllocator_p(spAllocator)
+, d_channelPool_p(channelPool)
+, d_nextClockId(channelId + 0x00800000)
+, d_channelId(channelId)
+, d_peerAddress()
+, d_localAddress()
+, d_allocator_p(bslma_Default::allocator(allocator))
+{
+    // Cache these addresses since the btemt_ChannelPool channel can have
+    // disappeared when we get SESSION_DOWN.
+
+    d_channelPool_p->getLocalAddress(&d_localAddress, d_channelId);
+    d_channelPool_p->getPeerAddress(&d_peerAddress, d_channelId);
+
+    if (!d_blobBufferFactory_p) {
+        d_blobBufferFactory_p.load(new (*d_allocator_p)
+                                        bcema_PooledBlobBufferFactory(
+                                          d_bufferChainFactory_p->bufferSize(),
+                                          d_allocator_p),
+                                   d_allocator_p);
+
+    }
+}
+
+btemt_ChannelPoolChannel::btemt_ChannelPoolChannel(
+                            int                             channelId,
+                            btemt_ChannelPool              *channelPool,
+                            bcema_PooledBlobBufferFactory  *blobBufferFactory,
+                            bcema_PoolAllocator            *spAllocator,
+                            bslma_Allocator                *allocator,
+                            bcema_PooledBufferChainFactory *bufferChainFactory)
+: d_pooledBufferChainPendingData()
+, d_useBlobForDataReads(true)
+, d_mutex()
+, d_callbackInProgress(false)
+, d_closed(false)
+, d_readQueue(allocator)
+, d_bufferChainFactory_p(bufferChainFactory, 0,
+           bdema_ManagedPtrNilDeleter<bcema_PooledBufferChainFactory>::deleter)
+, d_blobBufferFactory_p(blobBufferFactory, 0,
+           bdema_ManagedPtrNilDeleter<bcema_PooledBlobBufferFactory>::deleter)
+, d_spAllocator_p(spAllocator)
+, d_channelPool_p(channelPool)
+, d_nextClockId(channelId + 0x00800000)
+, d_channelId(channelId)
+, d_peerAddress()
+, d_localAddress()
+, d_allocator_p(bslma_Default::allocator(allocator))
+{
+    // Cache these addresses since the btemt_ChannelPool channel can have
+    // disappeared when we get SESSION_DOWN.
+
+    d_channelPool_p->getLocalAddress(&d_localAddress, d_channelId);
+    d_channelPool_p->getPeerAddress(&d_peerAddress, d_channelId);
+
+    if (!d_bufferChainFactory_p) {
+        d_bufferChainFactory_p.load(new (*d_allocator_p)
+                                        bcema_PooledBufferChainFactory(
+                                           d_blobBufferFactory_p->bufferSize(),
+                                           d_allocator_p),
+                                    d_allocator_p);
+    }
 }
 
 btemt_ChannelPoolChannel::~btemt_ChannelPoolChannel()
