@@ -4791,11 +4791,12 @@ int bdeat_typeCategoryManipulateArray(bcem_Aggregate *object,
 
     int result;
 
-    if (bdem_ElemType::BDEM_CHAR_ARRAY == object->dataType()) {
-        result = manipulator(&object->asElemRef().theModifiableCharArray(),
-                             Tag());
-    }
-    else if (bdem_ElemType::isArrayType(object->dataType())) {
+//     if (bdem_ElemType::BDEM_CHAR_ARRAY == object->dataType()) {
+//         result = manipulator(&object->asElemRef().theModifiableCharArray(),
+//                              Tag());
+//     }
+//     else
+    if (bdem_ElemType::isArrayType(object->dataType())) {
         result = manipulator(object, Tag());
     }
     else {
