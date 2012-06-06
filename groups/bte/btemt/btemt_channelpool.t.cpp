@@ -1065,11 +1065,9 @@ void blobBasedReadCb(int             *needed,
     *numTimesCbCalled = *numTimesCbCalled + 1;
 
     if (*numTimesCbCalled <= 2) {
-        *needed = -1;
+        d_pool_p->disableRead(channelId);
     }
-    else {
-        *needed = 1;
-    }
+    *needed = 1;
 
     bcema_BlobUtil::asciiDump(dataStream, *msg);
     msg->removeAll();
