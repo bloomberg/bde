@@ -19,11 +19,15 @@ BDES_IDENT_PRAGMA_ONCE
 //..
 //  bas_codegen.pl -mmsg -Ctestmessages --dualSTL y test/baea_testmessages.xsd
 //..
-// After the message component is generated, the declarations and definitions
-// of all 'toAggregate' and 'fromAggregate' functions are removed.  The methods
-// are removed due to a bug in 'bas_codegen.pl', which incorrectly creates
-// those functions and causes the component to fail to compile.  This
-// Description section is added after the component is generated.
+// After the message component is generated, the following modifications are
+// made:
+//: o The declarations and definitions of all 'toAggregate' and 'fromAggregate'
+//:   functions are removed due to a bug in 'bas_codegen.pl', which incorrectly
+//:   creates those functions and causes the component to fail to compile.
+//:
+//: o No-op code is added to quash compiler warnings
+//:
+//: o This @DESCRIPTION section is added.
 
 #ifndef INCLUDED_BCEM_AGGREGATE
 #include <bcem_aggregate.h>
@@ -4698,7 +4702,7 @@ int Enumerated::maxSupportedBdexVersion()
 inline
 int Enumerated::fromString(Value *result, const bsl::string& string)
 {
-    return fromString(result, string.c_str(), string.length());
+    return fromString(result, string.c_str(), (int)string.length());
 }
 
 inline
@@ -5149,6 +5153,8 @@ STREAM& VoidSequence::bdexStreamIn(STREAM& stream, int version)
 template <class MANIPULATOR>
 int VoidSequence::manipulateAttributes(MANIPULATOR& manipulator)
 {
+    (void)manipulator;  // quash potential compiler warning
+
     int ret = 0;
 
     return ret;
@@ -5157,6 +5163,8 @@ int VoidSequence::manipulateAttributes(MANIPULATOR& manipulator)
 template <class MANIPULATOR>
 int VoidSequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
 {
+    (void)manipulator;  // quash potential compiler warning
+
     enum { NOT_FOUND = -1 };
 
     switch (id) {
@@ -5171,6 +5179,8 @@ int VoidSequence::manipulateAttribute(
         const char   *name,
         int           nameLength)
 {
+    (void)manipulator;  // quash potential compiler warning
+
     enum { NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =
@@ -5196,6 +5206,8 @@ STREAM& VoidSequence::bdexStreamOut(STREAM& stream, int version) const
 template <class ACCESSOR>
 int VoidSequence::accessAttributes(ACCESSOR& accessor) const
 {
+    (void)accessor;  // quash potential compiler warning
+
     int ret = 0;
 
     return ret;
@@ -5204,6 +5216,8 @@ int VoidSequence::accessAttributes(ACCESSOR& accessor) const
 template <class ACCESSOR>
 int VoidSequence::accessAttribute(ACCESSOR& accessor, int id) const
 {
+    (void)accessor;  // quash potential compiler warning
+
     enum { NOT_FOUND = -1 };
 
     switch (id) {
@@ -5211,13 +5225,15 @@ int VoidSequence::accessAttribute(ACCESSOR& accessor, int id) const
         return NOT_FOUND;
     }
 }
-
+ 
 template <class ACCESSOR>
 int VoidSequence::accessAttribute(
         ACCESSOR&   accessor,
         const char *name,
         int         nameLength) const
 {
+    (void)accessor;  // quash potential compiler warning
+
     enum { NOT_FOUND = -1 };
 
     const bdeat_AttributeInfo *attributeInfo =

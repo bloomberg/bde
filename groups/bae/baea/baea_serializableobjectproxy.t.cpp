@@ -38,7 +38,6 @@
 #include <limits>
 
 using namespace BloombergLP;
-using namespace BloombergLP::baea;
 using namespace BloombergLP::bdeat_TypeCategoryFunctions;
 
 using bsl::cout;
@@ -50,7 +49,7 @@ using bsl::endl;
 //                             Overview
 //                             --------
 // CREATORS
-// [ 1] SerializableObjectProxy;
+// [ 1] baea_SerializableObjectProxy;
 //
 // NO-OP FUNCTIONS FOR INTEGRATION
 // [  ] void reset();
@@ -247,8 +246,8 @@ static int veryVeryVeryVerbose = 0;
 
 const char LOG_CATEGORY[] = "BAEA_SERIALIZABLEOBJECTPROXY.TEST";
 
-typedef baea::SerializableObjectProxy Obj;
-typedef bdeat_TypeCategory            Category;
+typedef baea_SerializableObjectProxy Obj;
+typedef bdeat_TypeCategory           Category;
 
 //=============================================================================
 //                  GENERATED TEST CLASS
@@ -810,7 +809,7 @@ struct ExtractAddressAccessor {
 
     ExtractAddressAccessor() : d_address(0) {};
 
-    int operator()(const SerializableObjectProxy& object)
+    int operator()(const baea_SerializableObjectProxy& object)
     {
         d_address = object.object();
         return 0;
@@ -830,7 +829,7 @@ struct ExtractAddressManipulator {
 
     ExtractAddressManipulator() : d_address(0) {};
 
-    int operator()(SerializableObjectProxy *object)
+    int operator()(baea_SerializableObjectProxy *object)
     {
         d_address = object->object();
         return 0;
@@ -909,9 +908,9 @@ struct SimpleManipulator {
 
 template <class TYPE>
 struct ArrayElementAccessor {
-    const SerializableObjectProxy *d_proxy;
-    const void                    *d_address;
-    int                            d_rc;
+    const baea_SerializableObjectProxy *d_proxy;
+    const void                         *d_address;
+    int                                 d_rc;
 
     // CREATORS
     ArrayElementAccessor() : d_address(0), d_rc(0) {}
@@ -924,7 +923,7 @@ struct ArrayElementAccessor {
         d_rc = 0;
     }
 
-    int operator() (const SerializableObjectProxy& object)
+    int operator() (const baea_SerializableObjectProxy& object)
     {
         d_proxy = &object;
 
@@ -935,7 +934,7 @@ struct ArrayElementAccessor {
         return d_rc;
     }
 
-    int operator() (const SerializableObjectProxy_NullableAdapter&)
+    int operator() (const baea_SerializableObjectProxy_NullableAdapter&)
     {
         // needed to compile due to nullable adapter, but should not be called
         ASSERTV(!"Should be unreachable");
@@ -949,7 +948,7 @@ struct ArrayAccessor {
 
     ArrayAccessor() : d_address(0), d_rc(0) {}
 
-    int operator() (const SerializableObjectProxy& object,
+    int operator() (const baea_SerializableObjectProxy& object,
                     const bdeat_TypeCategory::Array&)
     {
         d_address = object.object();
@@ -966,9 +965,9 @@ struct ArrayAccessor {
 
 template <class TYPE>
 struct ArrayElementManipulator {
-    const SerializableObjectProxy *d_proxy;
-    void                          *d_address;
-    int                            d_rc;
+    const baea_SerializableObjectProxy *d_proxy;
+    void                               *d_address;
+    int                                 d_rc;
 
     // CREATORS
     ArrayElementManipulator() : d_address(0), d_rc(0) {}
@@ -981,7 +980,7 @@ struct ArrayElementManipulator {
         d_rc = 0;
     }
 
-    int operator() (SerializableObjectProxy *object)
+    int operator() (baea_SerializableObjectProxy *object)
     {
         d_proxy = object;
 
@@ -991,7 +990,7 @@ struct ArrayElementManipulator {
         return d_rc;
     }
 
-    int operator() (SerializableObjectProxy_NullableAdapter *)
+    int operator() (baea_SerializableObjectProxy_NullableAdapter *)
     {
         // needed to compile due to nullable adapter, but should not be called
         ASSERTV(!"Should be unreachable");
@@ -1005,7 +1004,7 @@ struct ArrayManipulator {
 
     ArrayManipulator() : d_address(0), d_rc(0) {}
 
-    int operator() (SerializableObjectProxy *object,
+    int operator() (baea_SerializableObjectProxy *object,
                     const bdeat_TypeCategory::Array&)
     {
         d_address = object->object();
@@ -1021,10 +1020,10 @@ struct ArrayManipulator {
 };
 
 struct SequenceAccessor {
-    const SerializableObjectProxy *d_proxy;
-    const void                    *d_address;
-    bdeat_AttributeInfo            d_info;
-    int                            d_rc;
+    const baea_SerializableObjectProxy *d_proxy;
+    const void                         *d_address;
+    bdeat_AttributeInfo                 d_info;
+    int                                 d_rc;
 
     // CREATORS
     SequenceAccessor() : d_proxy(0), d_address(0), d_rc(0) {}
@@ -1037,7 +1036,7 @@ struct SequenceAccessor {
         d_rc = 0;
     }
 
-    int operator() (const SerializableObjectProxy& object,
+    int operator() (const baea_SerializableObjectProxy& object,
                     const bdeat_AttributeInfo&     info)
     {
         d_proxy = &object;
@@ -1060,10 +1059,10 @@ struct SequenceAccessor {
 };
 
 struct SequenceManipulator {
-    const SerializableObjectProxy *d_proxy;
-    const void                    *d_address;
-    bdeat_AttributeInfo            d_info;
-    int                            d_rc;
+    const baea_SerializableObjectProxy *d_proxy;
+    const void                         *d_address;
+    bdeat_AttributeInfo                 d_info;
+    int                                 d_rc;
 
     // CREATORS
     SequenceManipulator() : d_proxy(0), d_address(0), d_rc(0) {}
@@ -1076,8 +1075,8 @@ struct SequenceManipulator {
         d_rc = 0;
     }
 
-    int operator() (SerializableObjectProxy    *object,
-                    const bdeat_AttributeInfo&  info)
+    int operator() (baea_SerializableObjectProxy *object,
+                    const bdeat_AttributeInfo&    info)
     {
         d_proxy = object;
         SimpleAccessor<int> extractor;
@@ -1099,15 +1098,15 @@ struct SequenceManipulator {
 };
 
 struct ChoiceAccessor {
-    const SerializableObjectProxy *d_proxy;
+    const baea_SerializableObjectProxy *d_proxy;
     const void                    *d_address;
     bdeat_SelectionInfo            d_info;
     int                            d_rc;
 
     ChoiceAccessor() : d_proxy(0), d_address(0), d_rc(0) {}
 
-    int operator() (const SerializableObjectProxy& object,
-                    const bdeat_SelectionInfo&     info)
+    int operator() (const baea_SerializableObjectProxy& object,
+                    const bdeat_SelectionInfo&          info)
     {
         d_proxy = &object;
         d_address = object.object();
@@ -1127,15 +1126,15 @@ struct ChoiceAccessor {
 
 struct ChoiceManipulator
 {
-    SerializableObjectProxy *d_proxy;
-    const void              *d_address;
-    bdeat_SelectionInfo      d_info;
-    int                      d_rc;
+    baea_SerializableObjectProxy *d_proxy;
+    const void                   *d_address;
+    bdeat_SelectionInfo           d_info;
+    int                           d_rc;
 
     ChoiceManipulator() : d_proxy(0), d_address(0), d_rc(0) {}
 
-    int operator() (SerializableObjectProxy* object,
-                    const bdeat_SelectionInfo& info)
+    int operator() (baea_SerializableObjectProxy *object,
+                    const bdeat_SelectionInfo&    info)
     {
         d_proxy = object;
         d_address = object->object();
@@ -1152,12 +1151,12 @@ struct ChoiceManipulator
     }
 };
 
-SerializableObjectProxy *s_elementLoaderFn_proxy;
-const void              *s_elementLoaderFn_object;
-int                      s_elementLoaderFn_int;
-int                      s_elementLoaderFn_index;
-void elementLoaderFn(SerializableObjectProxy        *proxy,
-                     const SerializableObjectProxy&  object,
+baea_SerializableObjectProxy *s_elementLoaderFn_proxy;
+const void                   *s_elementLoaderFn_object;
+int                           s_elementLoaderFn_int;
+int                           s_elementLoaderFn_index;
+void elementLoaderFn(baea_SerializableObjectProxy        *proxy,
+                     const baea_SerializableObjectProxy&  object,
                      int                             index)
 {
     s_elementLoaderFn_proxy = proxy;
@@ -1166,24 +1165,24 @@ void elementLoaderFn(SerializableObjectProxy        *proxy,
     proxy->loadSimple(&s_elementLoaderFn_int);
 }
 
-SerializableObjectProxy *s_loaderFn_proxy;
+baea_SerializableObjectProxy *s_loaderFn_proxy;
 void                    *s_loaderFn_object;
 int                      s_loaderFn_int;
 template<class TYPE>
-void loaderFn(SerializableObjectProxy *proxy, void* object)
+void loaderFn(baea_SerializableObjectProxy *proxy, void* object)
 {
     s_loaderFn_proxy = proxy;
     s_loaderFn_object = object;
     proxy->loadSimple(&s_loaderFn_int);
 }
 
-SerializableObjectProxy   *s_selectionLoaderFn_proxy;
-void                      *s_selectionLoaderFn_object;
-const bdeat_SelectionInfo *s_selectionLoaderFn_selectInfoPtr;
-int                        s_selectionLoaderFn_int;
-void selectionLoaderFn(SerializableObjectProxy    *proxy,
-                       void                       *object,
-                       const bdeat_SelectionInfo **selectInfoPtr)
+baea_SerializableObjectProxy   *s_selectionLoaderFn_proxy;
+void                           *s_selectionLoaderFn_object;
+const bdeat_SelectionInfo      *s_selectionLoaderFn_selectInfoPtr;
+int                             s_selectionLoaderFn_int;
+void selectionLoaderFn(baea_SerializableObjectProxy  *proxy,
+                       void                          *object,
+                       const bdeat_SelectionInfo    **selectInfoPtr)
 {
     s_selectionLoaderFn_proxy = proxy;
     s_selectionLoaderFn_object = object;
@@ -1369,15 +1368,16 @@ void executeSimpleCategoryTest(const char *typeName)
 // This tool will generate the header and implementation files for the
 // 'test_simple' component, which contains a 'Test::Simple' class.
 //
-// 'Test::Simple' is a Sequence type.  To create a 'SerializableObjectProxy'
-// for this type, we first need to create a function that can create the proxy
-// object for its element.  Note that in this case, 'Test::Simple' only have
-// one element, 'status':
+// 'Test::Simple' is a Sequence type.  To create a
+// 'baea_SerializableObjectProxy' for this type, we first need to create a
+// function that can create the proxy object for its element.  Note that in
+// this case, 'Test::Simple' only have one element, 'status':
 //..
-void elementAccessor(SerializableObjectProxy       *proxy,
-                     const SerializableObjectProxy &object,
-                     int                            index)
+void elementAccessor(baea_SerializableObjectProxy        *proxy,
+                     const baea_SerializableObjectProxy&  object,
+                     int                                  index)
 {
+    (void) index;  // remove warning
     test::Simple *simpleObject = (test::Simple *)object.object();
     proxy->loadSimple(&simpleObject->status());
 }
@@ -1438,7 +1438,7 @@ int main(int argc, char *argv[])
 // for demonstration purpose.  Users should use functions in the
 // 'baea_serializableobjectproxyutil' component to create the proxy object:
 //..
-    baea::SerializableObjectProxy decodeProxy;
+    baea_SerializableObjectProxy decodeProxy;
     decodeProxy.loadSequence(test::Simple::NUM_ATTRIBUTES,
                              &result,
                              test::Simple::ATTRIBUTE_INFO_ARRAY,
@@ -1462,7 +1462,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING 'SerializableObjectProxy_NullableAdapter'
+        // TESTING 'baea_SerializableObjectProxy_NullableAdapter'
         //
         // Concerns:
         //: 1 The 'bdeat' methods overload correctly fowards the invocation to
@@ -1491,11 +1491,11 @@ int main(int argc, char *argv[])
             Obj mX;
             int value = 1;
 
-            mX.loadNullable(0, &loaderFn<int>);
-            SerializableObjectProxy_NullableAdapter adapter = { &mX };
+            mX.loadNullableForEncoding(0, &loaderFn<int>);
+            baea_SerializableObjectProxy_NullableAdapter adapter = { &mX };
             ASSERTV(true == bdeat_nullableValueIsNull(adapter));
 
-            mX.loadNullable(&value, &loaderFn<int>);
+            mX.loadNullableForEncoding(&value, &loaderFn<int>);
             ASSERTV(false == bdeat_nullableValueIsNull(adapter));
 
             ExtractAddressAccessor accessor;
@@ -1510,12 +1510,13 @@ int main(int argc, char *argv[])
 
             bdeut_NullableValue<int> value;
 
-            mX.loadNullable(&value,
+            mX.loadNullableForDecoding(
+                            &value,
                             &loaderFn<int>,
                             &nullableValueMaker<bdeut_NullableValue<int> >,
                             &nullableValueFetcher<bdeut_NullableValue<int> >);
 
-            SerializableObjectProxy_NullableAdapter adapter = { &mX };
+            baea_SerializableObjectProxy_NullableAdapter adapter = { &mX };
 
             ASSERTV(true == bdeat_nullableValueIsNull(adapter));
 
@@ -1589,7 +1590,7 @@ int main(int argc, char *argv[])
         {
             Obj mX; const Obj& X = mX;
 
-            mX.loadNullable(0, 0);
+            mX.loadNullableForEncoding(0, 0);
 
             ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY ==
@@ -1611,7 +1612,7 @@ int main(int argc, char *argv[])
 
             int obj = 1;
 
-            mX.loadNullable(&obj, &loaderFn<int>);
+            mX.loadNullableForEncoding(&obj, &loaderFn<int>);
 
             ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_NULLABLE_VALUE_CATEGORY ==
@@ -1650,10 +1651,11 @@ int main(int argc, char *argv[])
 
             bdeut_NullableValue<int> obj;
 
-            mX.loadNullable(&obj,
-                            &loaderFn<int>,
-                            &nullableValueMaker<bdeut_NullableValue<int> >,
-                            &nullableValueFetcher<bdeut_NullableValue<int> >);
+            mX.loadNullableForDecoding(
+                             &obj,
+                             &loaderFn<int>,
+                             &nullableValueMaker<bdeut_NullableValue<int> >,
+                             &nullableValueFetcher<bdeut_NullableValue<int> >);
 
             ASSERTV(true == X.isNull());
 
@@ -2014,7 +2016,10 @@ int main(int argc, char *argv[])
 
             int obj;
 
-            mX.loadChoice(&obj, &INFO[ti], CLASSNAME, &loaderFn<int>);
+            mX.loadChoiceForEncoding(&obj,
+                                     &INFO[ti],
+                                     CLASSNAME,
+                                     &loaderFn<int>);
 
             ASSERTV(Category::BDEAT_CHOICE_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_CHOICE_CATEGORY ==
@@ -2057,11 +2062,11 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
 
             int obj;
-            mX.loadChoice(NUM_INFO,
-                          &obj,
-                          INFO,
-                          &selectionLoaderFn,
-                          &chooserFn);
+            mX.loadChoiceForDecoding(NUM_INFO,
+                                     &obj,
+                                     INFO,
+                                     &selectionLoaderFn,
+                                     &chooserFn);
 
             ASSERTV(Category::BDEAT_CHOICE_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_CHOICE_CATEGORY ==
@@ -2187,7 +2192,10 @@ int main(int argc, char *argv[])
         {
             Obj mX; const Obj& X = mX;
 
-            mX.loadArray(obj.size(), sizeof(int), obj.data(), &loaderFn<int>); 
+            mX.loadArrayForEncoding(obj.size(),
+                                    sizeof(int),
+                                    obj.data(),
+                                    &loaderFn<int>);
 
             ASSERTV(Category::BDEAT_ARRAY_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_ARRAY_CATEGORY ==
@@ -2200,10 +2208,10 @@ int main(int argc, char *argv[])
             ASSERTV(true  == X.isValidForEncoding());
             ASSERTV(false == X.isValidForDecoding());
 
-            ASSERTV(SIZE  == X.size());
-            ASSERTV(SIZE  == bdeat_arraySize(X));
+            ASSERTV(SIZE  == (int)X.size());
+            ASSERTV(SIZE  == (int)bdeat_arraySize(X));
 
-            for (int i = 0; i < obj.size(); ++i) {
+            for (int i = 0; i < (int)obj.size(); ++i) {
                 s_loaderFn_object = 0;
                 s_loaderFn_proxy  = 0;
 
@@ -2232,12 +2240,12 @@ int main(int argc, char *argv[])
         {
             Obj mX; const Obj& X = mX;
 
-            mX.loadArray(&obj,
-                         obj.size(),
-                         sizeof(int),
-                         obj.data(),
-                         &resizerFn<int>,
-                         &loaderFn<int>);
+            mX.loadArrayForDecoding(&obj,
+                                    obj.size(),
+                                    sizeof(int),
+                                    obj.data(),
+                                    &resizerFn<int>,
+                                    &loaderFn<int>);
 
             ASSERTV(Category::BDEAT_ARRAY_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_ARRAY_CATEGORY ==
@@ -2250,10 +2258,10 @@ int main(int argc, char *argv[])
             ASSERTV(false == X.isValidForEncoding());
             ASSERTV(true  == X.isValidForDecoding());
 
-            ASSERTV(SIZE == X.size());
-            ASSERTV(SIZE == bdeat_arraySize(X));
+            ASSERTV(SIZE == (int)X.size());
+            ASSERTV(SIZE == (int)bdeat_arraySize(X));
 
-            for (int i = 0; i < obj.size(); ++i) {
+            for (int i = 0; i < (int)obj.size(); ++i) {
                 ArrayElementManipulator<int> manipulator;
                 s_loaderFn_object = 0;
                 s_loaderFn_proxy  = 0;
@@ -2418,7 +2426,7 @@ int main(int argc, char *argv[])
 
             Obj mX; const Obj& X = mX;
 
-            mX.loadEnumeration(VALUE, INFO, INFO_SIZE);
+            mX.loadEnumerationForEncoding(VALUE, INFO, INFO_SIZE);
 
             ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY ==
@@ -2449,11 +2457,11 @@ int main(int argc, char *argv[])
             Obj mX; const Obj& X = mX;
 
             int obj;
-            mX.loadEnumeration(&obj,
-                               &intSetterFn,
-                               &stringSetterFn,
-                               INFO,
-                               INFO_SIZE);
+            mX.loadEnumerationForDecoding(&obj,
+                                          &intSetterFn,
+                                          &stringSetterFn,
+                                          INFO,
+                                          INFO_SIZE);
 
             ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY == X.category());
             ASSERTV(Category::BDEAT_ENUMERATION_CATEGORY ==
@@ -2588,8 +2596,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING Constructor
         //
-        // Test that SerializableObjectProxy is initialized to a valid empty
-        // state.
+        // Test that baea_SerializableObjectProxy is initialized to a valid
+        // empty state.
         // --------------------------------------------------------------------
 
         if (verbose) {

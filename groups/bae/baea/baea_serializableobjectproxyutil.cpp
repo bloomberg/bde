@@ -7,12 +7,11 @@ BDES_IDENT_RCSID(baea_serializableobjectproxyutil_cpp,"$Id$ $CSID$")
 #include <baea_testmessages.h>  // for testing only
 
 namespace BloombergLP {
-namespace baea {
 
 namespace {
 
-void voidAccessorFn(SerializableObjectProxy*,
-                    const SerializableObjectProxy&,
+void voidAccessorFn(baea_SerializableObjectProxy*,
+                    const baea_SerializableObjectProxy&,
                     int)
     // This function should never be called.  NUM_ATTRIBUTES is 0.
 {
@@ -22,22 +21,21 @@ void voidAccessorFn(SerializableObjectProxy*,
 }  // close unnamed namespace
 
 
-void SerializableObjectProxyUtil::makeProxyForEmptySequence(
-                                            SerializableObjectProxy *proxy,
-                                            const char              *className)
+void baea_SerializableObjectProxyUtil::makeProxyForEmptySequence(
+                                       baea_SerializableObjectProxy *proxy,
+                                       const char                   *className)
 {
     proxy->loadSequence(0, 0, 0, className, &voidAccessorFn);
 }
 
-void SerializableObjectProxyUtil::makeEncodeProxy(
-                                            SerializableObjectProxy *proxy,
-                                            bsl::vector<char>       *object,
-                                            bdeat_TypeCategory::Array)
+void baea_SerializableObjectProxyUtil::makeEncodeProxy(
+                                          baea_SerializableObjectProxy *proxy,
+                                          bsl::vector<char>            *object,
+                                          bdeat_TypeCategory::Array)
 {
-    proxy->loadArray(object->size(), sizeof(char), object, 0);
+    proxy->loadArrayForEncoding(object->size(), sizeof(char), object, 0);
 }
 
-}  // close namespace baea
 }  // close namespace BloombergLP
 // ----------------------------------------------------------------------------
 // NOTICE:

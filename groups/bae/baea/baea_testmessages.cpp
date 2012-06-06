@@ -558,6 +558,7 @@ const bdeat_AttributeInfo *VoidSequence::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
+    (void)name;  // quash potential compiler warning
     switch(nameLength) {
         }
     return 0;
@@ -579,6 +580,7 @@ VoidSequence::VoidSequence()
 
 VoidSequence::VoidSequence(const VoidSequence& original)
 {
+    (void)original;  // quash potential compiler warning
 }
 
 VoidSequence::~VoidSequence()

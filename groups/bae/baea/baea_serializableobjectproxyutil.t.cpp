@@ -37,8 +37,8 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// [  ] void makeEncodeProxy(SerializableObjectProxy *proxy, TYPE *object);
-// [  ] void makeDecodeProxy(SerializableObjectProxy *proxy, TYPE *object);
+// [  ] void makeEncodeProxy(SerializableObjectProxy *proxy, TYPE *obj);
+// [  ] void makeDecodeProxy(SerializableObjectProxy *proxy, TYPE *obj);
 
 
 //=============================================================================
@@ -115,8 +115,8 @@ static int veryVerbose = 0;
 static int veryVeryVerbose = 0;
 static int veryVeryVeryVerbose = 0;
 
-typedef baea::SerializableObjectProxy     Proxy;
-typedef baea::SerializableObjectProxyUtil Obj;
+typedef baea_SerializableObjectProxy     Proxy;
+typedef baea_SerializableObjectProxyUtil Obj;
 typedef bdeat_TypeCategory                Category;
 
 const char LOG_CATEGORY[] = "BAEA_SERIALIZABLEOBJECTPROXYUTIL.TEST";
@@ -1155,7 +1155,7 @@ void enlargeTestObjects(std::vector<baea::FeatureTestMessage>* objects,
 
         if (it->isSelection1Value() &&
             it->selection1().element4().size() &&
-            it->selection1().element4().size() < arraySize) {
+            (int)it->selection1().element4().size() < arraySize) {
             baea::Choice3 value = it->selection1().element4()[0];
 
             int elementsToAdd = arraySize - it->selection1().element4().size();
@@ -1167,7 +1167,7 @@ void enlargeTestObjects(std::vector<baea::FeatureTestMessage>* objects,
 
         if (it->isSelection1Value() &&
             it->selection1().element2().size() &&
-            it->selection1().element2().size() < arraySize) {
+            (int)it->selection1().element2().size() < arraySize) {
             baea::Choice1 value = it->selection1().element2()[0];
             int elementsToAdd = arraySize - it->selection1().element2().size();
             for (int i = 0; i < elementsToAdd; ++i)
@@ -1204,7 +1204,9 @@ void constructTestObjects(std::vector<baea::FeatureTestMessage>* objects)
     baexml_ErrorInfo e;
     baexml_Decoder decoder(&options, &reader, &e);
 
-    for (int i = 0; i < sizeof(TEST_MESSAGES) / sizeof(*TEST_MESSAGES); ++i)
+    for (int i = 0;
+             i < (int)(sizeof(TEST_MESSAGES) / sizeof(*TEST_MESSAGES));
+             ++i)
     {
         baea::FeatureTestMessage object;
         std::istringstream ss(TEST_MESSAGES[i]);
@@ -1235,7 +1237,7 @@ struct ExtractAddressAccessor {
 
     ExtractAddressAccessor() : d_address(0) {};
 
-    int operator()(const SerializableObjectProxy& object)
+    int operator()(const baea_SerializableObjectProxy& object)
     {
         d_address = object.object();
         return 0;
@@ -1255,7 +1257,7 @@ struct ExtractAddressManipulator {
 
     ExtractAddressManipulator() : d_address(0) {};
 
-    int operator()(SerializableObjectProxy *object)
+    int operator()(baea_SerializableObjectProxy *object)
     {
         d_address = object->object();
         return 0;
@@ -1293,7 +1295,7 @@ struct SimpleAccessor {
     }
 
     template<typename OTHER_TYPE, typename OTHER_CATEGORY>
-    int operator()(const OTHER_TYPE& object, const OTHER_CATEGORY&)
+    int operator()(const OTHER_TYPE&, const OTHER_CATEGORY&)
     {
         // This is needed to compile because there are many Simple types, but
         // should not be called.
@@ -1338,7 +1340,7 @@ struct ByteArrayAccessor {
         return 0;
     }
 
-    int operator() (const SerializableObjectProxy& object,
+    int operator() (const baea_SerializableObjectProxy&,
                     const bdeat_TypeCategory::Array&)
     {
         // needed to compile due to nullable adapter, but should not be called
@@ -1359,7 +1361,7 @@ struct ByteArrayManipulator {
         return 0;
     }
 
-    int operator() (SerializableObjectProxy *object,
+    int operator() (baea_SerializableObjectProxy *,
                     const bdeat_TypeCategory::Array&)
     {
         // needed to compile due to nullable adapter, but should not be called
@@ -1369,13 +1371,13 @@ struct ByteArrayManipulator {
 };
 
 struct ChoiceAccessor {
-    const SerializableObjectProxy *d_proxy;
+    const baea_SerializableObjectProxy *d_proxy;
     const void                    *d_address;
     bdeat_SelectionInfo            d_info;
 
     ChoiceAccessor() : d_proxy(0), d_address(0) {}
 
-    int operator() (const SerializableObjectProxy& object,
+    int operator() (const baea_SerializableObjectProxy& object,
                     const bdeat_SelectionInfo&     info)
     {
         d_proxy = &object;
@@ -1396,13 +1398,13 @@ struct ChoiceAccessor {
 
 struct ChoiceManipulator
 {
-    SerializableObjectProxy *d_proxy;
+    baea_SerializableObjectProxy *d_proxy;
     const void              *d_address;
     bdeat_SelectionInfo      d_info;
 
     ChoiceManipulator() : d_proxy(0), d_address(0) {}
 
-    int operator() (SerializableObjectProxy*   object,
+    int operator() (baea_SerializableObjectProxy*   object,
                     const bdeat_SelectionInfo& info)
     {
         d_proxy = object;
@@ -1421,13 +1423,13 @@ struct ChoiceManipulator
 };
 
 struct SequenceAccessor {
-    const SerializableObjectProxy *d_proxy;
+    const baea_SerializableObjectProxy *d_proxy;
     const void                    *d_address;
     bdeat_AttributeInfo            d_info;
 
     SequenceAccessor() : d_proxy(0), d_address(0) {}
 
-    int operator() (const SerializableObjectProxy& object,
+    int operator() (const baea_SerializableObjectProxy& object,
                     const bdeat_AttributeInfo&     info)
     {
         d_proxy = &object;
@@ -1449,7 +1451,7 @@ struct SequenceAccessor {
 };
 
 struct SequenceManipulator {
-    const SerializableObjectProxy *d_proxy;
+    const baea_SerializableObjectProxy *d_proxy;
     const void                    *d_address;
     bdeat_AttributeInfo            d_info;
 
@@ -1463,7 +1465,7 @@ struct SequenceManipulator {
         d_address = 0;
     }
 
-    int operator() (SerializableObjectProxy    *object,
+    int operator() (baea_SerializableObjectProxy    *object,
                     const bdeat_AttributeInfo&  info)
     {
         d_proxy = object;
@@ -1552,10 +1554,10 @@ int main(int argc, char *argv[])
     if (veryVeryVeryVerbose) passthrough = bael_Severity::BAEL_TRACE;
 
     bael_LoggerManager::singleton().setDefaultThresholdLevels(
-                                                       bael_Severity::BAEL_OFF,
-                                                       passthrough,
-                                                       bael_Severity::BAEL_OFF,
-                                                       bael_Severity::BAEL_OFF);
+                                                      bael_Severity::BAEL_OFF,
+                                                      passthrough,
+                                                      bael_Severity::BAEL_OFF,
+                                                      bael_Severity::BAEL_OFF);
 
     switch (test) { case 0: // Zero is always the leading case.
       case 15: {
@@ -1582,8 +1584,9 @@ int main(int argc, char *argv[])
 ///Example 1: Serializing a BAS Request
 ///------------------------------------
 // In this example, we demonstrate how to encode a BAS message object using
-// 'SerializableObjectProxy' to reduce the complexity of the resulting object
-// code as compared with encoding and decoding the message object directly.
+// 'baea_SerializableObjectProxy' to reduce the complexity of the resulting
+// object code as compared with encoding and decoding the message object
+// directly.
 //
 // Suppose we are given a BAS message component with a request type named
 // 'SimpleRequest' which has the field 'data' of type 'bsl::string' and
@@ -1597,12 +1600,12 @@ int main(int argc, char *argv[])
 //..
 // Then, we create a proxy object to be used when encoding:
 //..
-    baea::SerializableObjectProxy encodeProxy;
+    baea_SerializableObjectProxy encodeProxy;
 //..
 // Next, we use the 'makeEncodeProxy' method to populate 'encodeProxy' to
 // represent the object that we would like to encode.
 //..
-    baea::SerializableObjectProxyUtil::makeEncodeProxy(&encodeProxy,
+    baea_SerializableObjectProxyUtil::makeEncodeProxy(&encodeProxy,
                                                        &encodeMessage);
 //..
 // Now, we setup the encoder and encode the request into a memory stream
@@ -1623,7 +1626,7 @@ int main(int argc, char *argv[])
 ///Example 2: Decoding an XML String
 ///---------------------------------
 // In this example, we demonstrate how to decode a XML string using the
-// 'SerializableObjectProxy'.
+// 'baea_SerializableObjectProxy'.
 //
 // First, we create the XML string that we would like to decode into a
 // 'SimpleRequest' that was described in the previous example:
@@ -1644,12 +1647,12 @@ int main(int argc, char *argv[])
 //..
 // Next, we create the proxy object to be used when decoding:
 //..
-    baea::SerializableObjectProxy decodeProxy;
+    baea_SerializableObjectProxy decodeProxy;
 //..
 // Then, we use the 'makeDecodeProxy' method to populate 'decodeProxy' to
 // represent the object that we would like to decode to.
 //..
-    baea::SerializableObjectProxyUtil::makeDecodeProxy(&decodeProxy,
+    baea_SerializableObjectProxyUtil::makeDecodeProxy(&decodeProxy,
                                                        &decodeMessage);
 //..
 // Next, we setup the decoder and decode the message:
@@ -1672,15 +1675,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // XML decoder feature test
         //
-        // Plan: for each of several objects which collectively represent
-        // the functionality of the encoder, encode the object in XML using
-        // the standard method, then decode it using the
-        // SerializableObjectProxy.  Assert that the two objects are identical.
+        // Plan: for each of several objects which collectively represent the
+        // functionality of the encoder, encode the object in XML using the
+        // standard method, then decode it using the
+        // 'baea_SerializableObjectProxy'.  Assert that the two objects are
+        // identical.
         // --------------------------------------------------------------------
         std::vector<baea::FeatureTestMessage> testObjects;
         constructTestObjects(&testObjects);
 
-        for (int i = 0; i < testObjects.size(); ++i) {
+        for (int i = 0; i < (int)testObjects.size(); ++i) {
             bdesb_MemOutStreamBuf osb;
 
             baexml_EncoderOptions eOptions;
@@ -1691,8 +1695,8 @@ int main(int argc, char *argv[])
 
             baea::FeatureTestMessage decoded;
 
-            SerializableObjectProxy decorator;
-            SerializableObjectProxyUtil::makeDecodeProxy(&decorator,
+            baea_SerializableObjectProxy decorator;
+            baea_SerializableObjectProxyUtil::makeDecodeProxy(&decorator,
                                                          &decoded);
 
             bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
@@ -1718,15 +1722,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BER decoder feature test
         //
-        // Plan: for each of several objects which collectively represent
-        // the functionality of the encoder, encode the object in BER using
-        // the standard method, then decode it using the
-        // SerializableObjectProxy.  Assert that the two objects are identical.
+        // Plan: for each of several objects which collectively represent the
+        // functionality of the encoder, encode the object in BER using the
+        // standard method, then decode it using the
+        // 'baea_SerializableObjectProxy'.  Assert that the two objects are
+        // identical.
         // --------------------------------------------------------------------
         std::vector<baea::FeatureTestMessage> testObjects;
         constructTestObjects(&testObjects);
 
-        for (int i = 0; i < testObjects.size(); ++i) {
+        for (int i = 0; i < (int)testObjects.size(); ++i) {
             bdesb_MemOutStreamBuf osb;
 
             bdem_BerEncoder encoder;
@@ -1737,8 +1742,8 @@ int main(int argc, char *argv[])
 
             baea::FeatureTestMessage decoded;
 
-            SerializableObjectProxy decorator;
-            SerializableObjectProxyUtil::makeDecodeProxy(&decorator,
+            baea_SerializableObjectProxy decorator;
+            baea_SerializableObjectProxyUtil::makeDecodeProxy(&decorator,
                                                          &decoded);
 
             bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
@@ -1758,10 +1763,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // XML encoder feature test
         //
-        // Plan: for each of several objects which collectively represent
-        // the functionality of the encoder, encode the object in XML using
-        // SerializableObjectProxy, then decode it using the standard method.
-        // Assert that the two objects are identical.
+        // Plan: for each of several objects which collectively represent the
+        // functionality of the encoder, encode the object in XML using
+        // 'baea_SerializableObjectProxy', then decode it using the standard
+        // method.  Assert that the two objects are identical.
         // --------------------------------------------------------------------
         std::vector<baea::FeatureTestMessage> testObjects;
         constructTestObjects(&testObjects);
@@ -1778,8 +1783,9 @@ int main(int argc, char *argv[])
         for (std::vector<baea::FeatureTestMessage>::iterator it =
                  testObjects.begin(); it != testObjects.end(); ++it) {
             bdesb_MemOutStreamBuf osb;
-            SerializableObjectProxy decorator;
-            SerializableObjectProxyUtil::makeEncodeProxy(&decorator, &(*it));
+            baea_SerializableObjectProxy decorator;
+            baea_SerializableObjectProxyUtil::makeEncodeProxy(&decorator,
+                                                              &(*it));
 
             ASSERT(0 == encoder.encode(&osb, decorator));
 
@@ -1802,18 +1808,18 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BER encoder feature test
         //
-        // Plan: for each of several objects which collectively represent
-        // the functionality of the encoder, encode the object in BER using
-        // SerializableObjectProxy, then decode it using the standard method.
-        // Assert that the two objects are identical.
+        // Plan: for each of several objects which collectively represent the
+        // functionality of the encoder, encode the object in BER using
+        // baea_SerializableObjectProxy, then decode it using the standard
+        // method.  Assert that the two objects are identical.
         // --------------------------------------------------------------------
         std::vector<baea::FeatureTestMessage> testObjects;
         constructTestObjects(&testObjects);
 
-        for (int i = 0; i < testObjects.size(); ++i) {
+        for (int i = 0; i < (int)testObjects.size(); ++i) {
             bdesb_MemOutStreamBuf osb;
-            SerializableObjectProxy decorator;
-            SerializableObjectProxyUtil::makeEncodeProxy(&decorator,
+            baea_SerializableObjectProxy decorator;
+            baea_SerializableObjectProxyUtil::makeEncodeProxy(&decorator,
                                                          &testObjects[i]);
 
             bdem_BerEncoder encoder;
@@ -1837,8 +1843,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // XML breathing test
         //
-        // Concern: that a SerializableObjectProxy can be populated and then
-        // the XML encoder/decoder can be invoked on it.
+        // Concern: that a baea_SerializableObjectProxy can be populated and
+        // then the XML encoder/decoder can be invoked on it.
         // --------------------------------------------------------------------
         if (verbose) {
             cout << "XML breathing" << endl
@@ -1850,15 +1856,15 @@ int main(int argc, char *argv[])
         baexml_EncoderOptions eOptions;
         baexml_Encoder encoder(&eOptions);
 
-        SerializableObjectProxy decorator;
-        SerializableObjectProxyUtil::makeEncodeProxy(&decorator,
+        baea_SerializableObjectProxy decorator;
+        baea_SerializableObjectProxyUtil::makeEncodeProxy(&decorator,
                                                      &request);
 
         bdesb_MemOutStreamBuf osb;
         ASSERT(0 == encoder.encode(&osb, decorator));
 
         request.reset();
-        SerializableObjectProxyUtil::makeDecodeProxy(&decorator,
+        baea_SerializableObjectProxyUtil::makeDecodeProxy(&decorator,
                                                      &request);
 
         bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
@@ -1876,8 +1882,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // BER breathing test
         //
-        // Concern: that a SerializableObjectProxy can be populated and then
-        // the BER encoder/decoder can be invoked on it.
+        // Concern: that a baea_SerializableObjectProxy can be populated and
+        // then the BER encoder/decoder can be invoked on it.
         // --------------------------------------------------------------------
 
         if (verbose) {
@@ -1889,15 +1895,15 @@ int main(int argc, char *argv[])
 
         bdem_BerEncoder encoder;
 
-        SerializableObjectProxy decorator;
-        SerializableObjectProxyUtil::makeEncodeProxy(&decorator,
+        baea_SerializableObjectProxy decorator;
+        baea_SerializableObjectProxyUtil::makeEncodeProxy(&decorator,
                                                      &request);
 
         bdesb_MemOutStreamBuf osb;
         ASSERT(0 == encoder.encode(&osb, decorator));
 
         request.reset();
-        SerializableObjectProxyUtil::makeDecodeProxy(&decorator,
+        baea_SerializableObjectProxyUtil::makeDecodeProxy(&decorator,
                                                      &request);
 
         bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
@@ -2028,7 +2034,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing Nullable type for decoding" << endl;
         {
-            Proxy mX;  const Proxy& X = mX;
+            Proxy mX;
             bdeut_NullableValue<int> object;
 
             Obj::makeDecodeProxy(&mX, &object);
@@ -2163,8 +2169,9 @@ int main(int argc, char *argv[])
         //: 1 'makeEncodeProxy' and 'makeDecodeProxy' dispatches the correct
         //:   "load" method when supplied with a Choice type.
         //:
-        //: 2 The 'chooser' and 'loader' method supplied to 'loadChoice'
-        //:   behaves correctly.
+        //: 2 The 'chooser' and 'loader' method supplied to
+        //:   'loadChoiceForEncoding' or 'loadChoiceForDecoding' behaves
+        //:   correctly.
         //
         // Plan:
         //: 1 Create a proxy for encoding with a Choice type.
@@ -2331,9 +2338,9 @@ int main(int argc, char *argv[])
 
             ASSERTV(false == X.isByteArrayValue());
 
-            for (int i = 0; i < object.size(); ++i) {
+            for (int i = 0; i < (int)object.size(); ++i) {
                 ExtractAddressAccessor accessor;
-                ASSERTV(0          == bdeat_arrayAccessElement(X, accessor, i));
+                ASSERTV(0 == bdeat_arrayAccessElement(X, accessor, i));
                 ASSERTV(&object[i] == accessor.d_address);
             }
 
@@ -2357,7 +2364,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(false == X.isByteArrayValue());
 
-            for (int i = 0; i < object.size(); ++i) {
+            for (int i = 0; i < (int)object.size(); ++i) {
                 ExtractAddressManipulator manipulator;
                 ASSERTV(0 ==
                             bdeat_arrayManipulateElement(&mX, manipulator, i));
@@ -2431,9 +2438,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Enumeration encode proxy" << endl;
         {
-            for (int ti = 0; ti < INFO_SIZE; ++ti) {
+            for (int ti = 0; ti < (int)INFO_SIZE; ++ti) {
                 const int   VALUE = INFO[ti].d_value;
-                const char *NAME  = INFO[ti].d_name_p;
 
                 Proxy mX;  const Proxy& X = mX;
 
@@ -2452,7 +2458,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Enumeration decode proxy" << endl;
         {
-            Proxy mX;  const Proxy& X = mX;
+            Proxy mX;
             Enumerated::Value object;
 
             Obj::makeDecodeProxy(&mX, &object);
@@ -2560,10 +2566,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // Codec performance test: SERIALIZABLEOBJECTPROXY
         //
-        // Encode all the test messages -- but modified with template magic
-        // to make all their arrays much larger -- into memory many times, for
-        // performance testing.  Do this with SerializableObjectProxy.  Case
-        // -1 is an identical test but uses the generated types.
+        // Encode all the test messages -- but modified with template magic to
+        // make all their arrays much larger -- into memory many times, for
+        // performance testing.  Do this with baea_SerializableObjectProxy.
+        // Case -1 is an identical test but uses the generated types.
         // --------------------------------------------------------------------
 
         int arraySize = 100;
@@ -2614,8 +2620,8 @@ int main(int argc, char *argv[])
         unsigned numBytesEncoded = 0;
 
         baea::FeatureTestMessage request;
-        SerializableObjectProxy requestDec;
-        SerializableObjectProxyUtil::makeDecodeProxy(&requestDec, &request);
+        baea_SerializableObjectProxy requestDec;
+        baea_SerializableObjectProxyUtil::makeDecodeProxy(&requestDec, &request);
 
         bsls_Stopwatch timer;
         timer.start(true);
@@ -2626,8 +2632,8 @@ int main(int argc, char *argv[])
                 alloc.release();
                 bdesb_MemOutStreamBuf osb(&alloc);
 
-                SerializableObjectProxy decorator;
-                SerializableObjectProxyUtil::makeEncodeProxy(&decorator,
+                baea_SerializableObjectProxy decorator;
+                baea_SerializableObjectProxyUtil::makeEncodeProxy(&decorator,
                                                              &(*jt));
 
                 if (isXml) {
@@ -2665,8 +2671,8 @@ int main(int argc, char *argv[])
         //
         // Encode all the test messages -- but modified with template magic
         // to make all their arrays much larger -- into memory many times, for
-        // performance testing.  Do this without SerializableObjectProxy.
-        // Case -2 is an identical test but uses SerializableObjectProxy.
+        // performance testing.  Do this without baea_SerializableObjectProxy.
+        // Case -2 is an identical test but uses baea_SerializableObjectProxy.
         // --------------------------------------------------------------------
 
         int arraySize = 100;
@@ -2713,7 +2719,7 @@ int main(int argc, char *argv[])
         baexml_Decoder xDecoder(&dOptions, &reader, &e);
 
         enum {
-            BUFFER_SIZE= 256 * 1024
+            BUFFER_SIZE = 256 * 1024
         };
         char BUFFER[BUFFER_SIZE];
         bslma_SequentialAllocator alloc(BUFFER, BUFFER_SIZE);

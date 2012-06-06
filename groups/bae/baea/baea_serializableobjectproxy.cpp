@@ -8,8 +8,6 @@ BDES_IDENT_RCSID(baea_serializableobjectproxy_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 
-namespace baea {
-
 namespace {
 
 bool areEqual(const char* string1, int length1,
@@ -30,218 +28,67 @@ bool areEqual(const char* string1, int length1,
 //
 // Some decoders, in some situations, use instantiations of
 // bdef_Function<int(*)(TYPE*)> where TYPE is the ElementType of
-// 'SerializableObjectProxy', which is SerializableObjectProxy.  This is in
-// contrast to the usual approach of using an object with a function-call
+// 'baea_SerializableObjectProxy', which is baea_SerializableObjectProxy.  This
+// is in contrast to the usual approach of using an object with a function-call
 // (operator()) method with a templatized argument.  In these situations,
-// passing a SerializableObjectProxy_NullableAdapter breaks compilation -- but
-// is unnecessary, given that they are not attempting to detect anything about
-// the type via metaprogramming.  They can be passed the
-// 'SerializableObjectProxy' directly.
+// passing a baea_SerializableObjectProxy_NullableAdapter breaks compilation --
+// but is unnecessary, given that they are not attempting to detect anything
+// about the type via metaprogramming.  They can be passed the
+// 'baea_SerializableObjectProxy' directly.
 
-int SerializableObjectProxy::manipulateContainedElement(
-                 SerializableObjectProxy                           *proxy,
-                 bdef_Function<int(*)(SerializableObjectProxy*)>&  manipulator)
+// PRIVATE CLASS METHODS
+int baea_SerializableObjectProxy::manipulateContainedElement(
+            baea_SerializableObjectProxy                          *proxy,
+            bdef_Function<int(*)(baea_SerializableObjectProxy*)>&  manipulator)
 {
     return manipulator(proxy);
 }
 
-int SerializableObjectProxy::manipulateContainedElement(
-              SerializableObjectProxy                            *proxy,
-              bdef_Function<int(*)(SerializableObjectProxy*,
+int baea_SerializableObjectProxy::manipulateContainedElement(
+              baea_SerializableObjectProxy                       *proxy,
+              bdef_Function<int(*)(baea_SerializableObjectProxy*,
                                    const bdeat_SelectionInfo&)>&  manipulator,
               const bdeat_SelectionInfo&                          info)
 {
     return manipulator(proxy, info);
 }
 
-int SerializableObjectProxy::manipulateContainedElement(
-              SerializableObjectProxy                            *proxy,
-              bdef_Function<int(*)(SerializableObjectProxy*,
+int baea_SerializableObjectProxy::manipulateContainedElement(
+              baea_SerializableObjectProxy                       *proxy,
+              bdef_Function<int(*)(baea_SerializableObjectProxy*,
                                    const bdeat_AttributeInfo&)>&  manipulator,
               const bdeat_AttributeInfo&                          info)
 {
     return manipulator(proxy, info);
 }
 
-// 'load' implementations
-
-void SerializableObjectProxy::loadSimple(char* value)
+// PRIVATE ACCESSORS
+void baea_SerializableObjectProxy::loadArrayElementEncodeProxy(
+                                    baea_SerializableObjectProxy *elementProxy,
+                                    int                           index) const
 {
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_CHAR };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+    BSLS_ASSERT(d_objectInfo.is<ArrayEncodeInfo>());
+
+    const ArrayEncodeInfo& info = d_objectInfo.the<ArrayEncodeInfo>();
+    void* address = (char*)d_object_p + info.d_elementSize * index;
+    info.d_loader(elementProxy, address);
 }
 
-void SerializableObjectProxy::loadSimple(unsigned char* value)
+void baea_SerializableObjectProxy::loadArrayElementDecodeProxy(
+                                    baea_SerializableObjectProxy *elementProxy,
+                                    int                           index) const
 {
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_UCHAR };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+    BSLS_ASSERT(d_objectInfo.is<ArrayDecodeInfo>());
+
+    const ArrayDecodeInfo& info = d_objectInfo.the<ArrayDecodeInfo>();
+    void* address = (char*)info.d_begin + info.d_elementSize * index;
+    info.d_loader(elementProxy, address);
 }
 
-void SerializableObjectProxy::loadSimple(short* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_SHORT };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(int* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_INT };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(bsls_Types::Int64* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_INT64 };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(unsigned short* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_USHORT };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(unsigned int* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_UINT };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(bsls_Types::Uint64* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_UINT64 };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(float* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_FLOAT };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(double* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_DOUBLE };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(bsl::string* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_STRING };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(bdet_Datetime* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_DATETIME };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(bdet_Date* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_DATE };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(bdet_Time* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_TIME };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(bool* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_BOOL };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(bdet_DatetimeTz* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_DATETIMETZ };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(bdet_DateTz* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_DATETZ };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadSimple(bdet_TimeTz* value)
-{
-    d_object_p = value;
-    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
-    SimplePointer pointer = { SimplePointer::TYPE_TIMETZ };
-    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
-}
-
-void SerializableObjectProxy::loadChoice(
-                         void                                       *object,
-                         const bdeat_SelectionInfo                  *info,
-                         const char                                 *className,
-                         SerializableObjectProxyFunctions::Loader  loader)
-{
-    d_object_p = object;
-    d_category = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(ChoiceEncodeInfo(info,
-                                                                 loader,
-                                                                 className));
-}
-
-void SerializableObjectProxy::loadChoice(
-         int                                                numSelections,
-         void                                              *choice,
-         const bdeat_SelectionInfo                         *selectionInfoArray,
-         SerializableObjectProxyFunctions::SelectionLoader  loader,
-         SerializableObjectProxyFunctions::Chooser          chooser)
-{
-    d_object_p = choice;
-    d_category = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(
-                                           ChoiceDecodeInfo(numSelections,
-                                                            selectionInfoArray,
-                                                            loader,
-                                                            chooser));
-}
-
-int SerializableObjectProxy::loadSequenceElementProxy(
-                                   SerializableObjectProxy    *proxy,
-                                   const bdeat_AttributeInfo **attrInfo,
-                                   int                         elementId) const
+int baea_SerializableObjectProxy::loadSequenceElementProxy(
+                                baea_SerializableObjectProxy  *proxy,
+                                const bdeat_AttributeInfo    **attrInfo,
+                                int                            elementId) const
 {
     BSLS_ASSERT(d_objectInfo.is<SequenceInfo>());
 
@@ -257,11 +104,11 @@ int SerializableObjectProxy::loadSequenceElementProxy(
     return -1;
 }
 
-int SerializableObjectProxy::loadSequenceElementProxy(
-                           SerializableObjectProxy    *proxy,
-                           const bdeat_AttributeInfo **attrInfo,
-                           const char                 *elementName,
-                           int                         elementNameLength) const
+int baea_SerializableObjectProxy::loadSequenceElementProxy(
+                        baea_SerializableObjectProxy  *proxy,
+                        const bdeat_AttributeInfo    **attrInfo,
+                        const char                    *elementName,
+                        int                            elementNameLength) const
 {
     BSLS_ASSERT(d_objectInfo.is<SequenceInfo>());
 
@@ -281,7 +128,18 @@ int SerializableObjectProxy::loadSequenceElementProxy(
     return -1;
 }
 
-int SerializableObjectProxy::choiceMakeSelection(int selectionId)
+// MANIPULATORS
+void baea_SerializableObjectProxy::resize(bsl::size_t newSize)
+{
+    BSLS_ASSERT(d_objectInfo.is<ArrayDecodeInfo>());
+
+    ArrayDecodeInfo& info = d_objectInfo.the<ArrayDecodeInfo>();
+
+    info.d_resizer(d_object_p, &info.d_begin, newSize);
+    info.d_length = newSize;
+}
+
+int baea_SerializableObjectProxy::choiceMakeSelection(int selectionId)
 {
     BSLS_ASSERT(d_objectInfo.is<ChoiceDecodeInfo>());
 
@@ -302,7 +160,7 @@ int SerializableObjectProxy::choiceMakeSelection(int selectionId)
     return info.d_chooser(d_object_p, selectionId);
 }
 
-int SerializableObjectProxy::choiceMakeSelection(
+int baea_SerializableObjectProxy::choiceMakeSelection(
                                                const char *selectionName,
                                                int         selectionNameLength)
 {
@@ -323,7 +181,349 @@ int SerializableObjectProxy::choiceMakeSelection(
     return -1;
 }
 
-bool SerializableObjectProxy::isNull() const
+int baea_SerializableObjectProxy::enumFromInt(int value)
+{
+    BSLS_ASSERT(d_objectInfo.is<EnumDecodeInfo>());
+
+    return d_objectInfo.the<EnumDecodeInfo>().d_intSetter(d_object_p, value);
+}
+
+int baea_SerializableObjectProxy::enumFromString(const char *value, int length)
+{
+    BSLS_ASSERT(d_objectInfo.is<EnumDecodeInfo>());
+
+    return d_objectInfo.the<EnumDecodeInfo>().d_stringSetter(d_object_p,
+                                                             value,
+                                                             length);
+}
+
+void baea_SerializableObjectProxy::makeValue()
+{
+    BSLS_ASSERT(d_objectInfo.is<NullableDecodeInfo>());
+
+    d_objectInfo.the<NullableDecodeInfo>().d_valueMaker(d_object_p);
+}
+
+// 'load' implementations
+
+void baea_SerializableObjectProxy::loadSimple(char* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_CHAR };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(unsigned char* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_UCHAR };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(short* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_SHORT };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(int* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_INT };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(bsls_Types::Int64* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_INT64 };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(unsigned short* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_USHORT };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(unsigned int* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_UINT };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(bsls_Types::Uint64* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_UINT64 };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(float* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_FLOAT };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(double* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_DOUBLE };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(bsl::string* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_STRING };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(bdet_Datetime* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_DATETIME };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(bdet_Date* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_DATE };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(bdet_Time* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_TIME };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(bool* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_BOOL };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(bdet_DatetimeTz* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_DATETIMETZ };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(bdet_DateTz* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_DATETZ };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadSimple(bdet_TimeTz* value)
+{
+    d_object_p = value;
+    d_category = bdeat_TypeCategory::BDEAT_SIMPLE_CATEGORY;
+    SimplePointer pointer = { SimplePointer::TYPE_TIMETZ };
+    new (d_objectInfoArena.buffer()) ObjectInfo(pointer);
+}
+
+void baea_SerializableObjectProxy::loadChoiceForEncoding(
+                      void                                          *object,
+                      const bdeat_SelectionInfo                     *info,
+                      const char                                    *className,
+                      baea_SerializableObjectProxyFunctions::Loader  loader)
+{
+    d_object_p = object;
+    d_category = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
+    new (d_objectInfoArena.buffer()) ObjectInfo(ChoiceEncodeInfo(info,
+                                                                 loader,
+                                                                 className));
+}
+
+void baea_SerializableObjectProxy::loadChoiceForDecoding(
+    int                                                     numSelections,
+    void                                                   *object,
+    const bdeat_SelectionInfo                              *selectionInfoArray,
+    baea_SerializableObjectProxyFunctions::SelectionLoader  loader,
+    baea_SerializableObjectProxyFunctions::Chooser          chooser)
+{
+    d_object_p = object;
+    d_category = bdeat_TypeCategory::BDEAT_CHOICE_CATEGORY;
+    new (d_objectInfoArena.buffer()) ObjectInfo(
+                                           ChoiceDecodeInfo(numSelections,
+                                                            selectionInfoArray,
+                                                            loader,
+                                                            chooser));
+}
+
+void baea_SerializableObjectProxy::loadSequence(
+           int                                                   numAttributes,
+           void                                                 *object,
+           const bdeat_AttributeInfo                            *info,
+           const char                                           *className,
+           baea_SerializableObjectProxyFunctions::ElementLoader  loader)
+{
+    d_object_p = object;
+    d_category = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
+    new (d_objectInfoArena.buffer()) ObjectInfo(SequenceInfo(numAttributes,
+                                                             info,
+                                                             className,
+                                                             loader));
+}
+
+void baea_SerializableObjectProxy::loadByteArray(bsl::vector<char> *object)
+{
+    loadArrayForEncoding(object->size(), sizeof(char), object, 0);
+}
+
+void baea_SerializableObjectProxy::loadArrayForEncoding(
+                     int                                           length,
+                     int                                           elementSize,
+                     void                                         *begin,
+                     baea_SerializableObjectProxyFunctions::Loader loader)
+{
+    d_object_p = begin;
+    d_category = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
+    new (d_objectInfoArena.buffer()) ObjectInfo(ArrayEncodeInfo(length,
+                                                                elementSize,
+                                                                loader));
+}
+
+void baea_SerializableObjectProxy::loadArrayForDecoding(
+                    void                                          *object,
+                    int                                            length,
+                    int                                            elementSize,
+                    void                                          *begin,
+                    baea_SerializableObjectProxyFunctions::Resizer resizer,
+                    baea_SerializableObjectProxyFunctions::Loader  loader)
+{
+    d_object_p = object;
+    d_category = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
+    new (d_objectInfoArena.buffer()) ObjectInfo(ArrayDecodeInfo(length,
+                                                                elementSize,
+                                                                begin,
+                                                                resizer,
+                                                                loader));
+}
+
+void baea_SerializableObjectProxy::loadNullableForEncoding(
+                         void                                          *object,
+                         baea_SerializableObjectProxyFunctions::Loader  loader)
+{
+    d_object_p = object; // 0 if null value
+    d_category = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
+    new (d_objectInfoArena.buffer()) ObjectInfo(loader);
+}
+
+void baea_SerializableObjectProxy::loadNullableForDecoding(
+            void                                                 *object,
+            baea_SerializableObjectProxyFunctions::Loader         loader,
+            baea_SerializableObjectProxyFunctions::ValueMaker     valueMaker,
+            baea_SerializableObjectProxyFunctions::ObjectFetcher  valueFetcher)
+{
+    d_object_p = object;
+    d_category = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
+    NullableDecodeInfo info = { valueMaker, valueFetcher, loader };
+    new (d_objectInfoArena.buffer()) ObjectInfo(info);
+}
+
+void baea_SerializableObjectProxy::loadEnumerationForEncoding(
+                                    int                         value,
+                                    const bdeat_EnumeratorInfo *infoArray,
+                                    int                         numEnumerators)
+{
+    d_object_p = 0;
+    EnumEncodeInfo info = { value, infoArray, numEnumerators};
+    d_category = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
+    new (d_objectInfoArena.buffer()) ObjectInfo(info);
+}
+
+void baea_SerializableObjectProxy::loadEnumerationForDecoding(
+           void                                                *object,
+           baea_SerializableObjectProxyFunctions::IntSetter     intSetter,
+           baea_SerializableObjectProxyFunctions::StringSetter  stringSetter,
+           const bdeat_EnumeratorInfo                          *infoArray,
+           int                                                  numEnumerators)
+{
+    d_object_p = object;
+    EnumDecodeInfo info = { intSetter, stringSetter,
+                            infoArray, numEnumerators };
+    d_category = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
+    new (d_objectInfoArena.buffer()) ObjectInfo(info);
+}
+
+// ACCESSORS
+const char *baea_SerializableObjectProxy::className() const
+{
+    if (d_objectInfo.is<ChoiceEncodeInfo>()) {
+        return d_objectInfo.the<ChoiceEncodeInfo>().d_className_p;    // RETURN
+    }
+    if (d_objectInfo.is<SequenceInfo>()) {
+        return d_objectInfo.the<SequenceInfo>().d_className_p;        // RETURN
+    }
+
+    // 'className' should only be required when encoding top-level elements,
+    // which should in turn only be sequences/choices for BAS.  We don't bother
+    // storing className otherwise.
+    //
+    // bdeat_TypeName documents that we're allowed to return 0.
+
+    return 0;
+}
+
+int baea_SerializableObjectProxy::selectionId() const
+{
+    if (d_objectInfo.is<ChoiceEncodeInfo>()) {
+        return d_objectInfo.the<ChoiceEncodeInfo>().d_selectionInfo_p->id();
+                                                                      // RETURN
+    }
+    else if (d_objectInfo.is<ChoiceDecodeInfo>()) {
+        return d_objectInfo.the<ChoiceDecodeInfo>().d_currentSelection;
+                                                                      // RETURN
+    }
+    else {
+        return bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID;   // RETURN
+    }
+}
+
+bsl::size_t baea_SerializableObjectProxy::size() const
+{
+    bool isEncode = d_objectInfo.is<ArrayEncodeInfo>();
+
+    BSLS_ASSERT(isEncode || d_objectInfo.is<ArrayDecodeInfo>());
+
+    if (isEncode) {
+        return d_objectInfo.the<ArrayEncodeInfo>().d_length;          // RETURN
+    }
+    else {
+        return d_objectInfo.the<ArrayDecodeInfo>().d_length;          // RETURN
+    }
+}
+
+bool baea_SerializableObjectProxy::isNull() const
 {
     BSLS_ASSERT_SAFE(d_objectInfo.is<NullableEncodeInfo>() ||
                      d_objectInfo.is<NullableDecodeInfo>());
@@ -333,7 +533,7 @@ bool SerializableObjectProxy::isNull() const
          d_objectInfo.the<NullableDecodeInfo>().d_fetcher(d_object_p) == 0);
 }
 
-bool SerializableObjectProxy::choiceHasSelection(int selectionId) const
+bool baea_SerializableObjectProxy::choiceHasSelection(int selectionId) const
 {
     BSLS_ASSERT(d_objectInfo.is<ChoiceDecodeInfo>());
 
@@ -351,7 +551,7 @@ bool SerializableObjectProxy::choiceHasSelection(int selectionId) const
     return false;
 }
 
-bool SerializableObjectProxy::choiceHasSelection(
+bool baea_SerializableObjectProxy::choiceHasSelection(
                                      const char *selectionName,
                                      int         selectionNameLength) const
 {
@@ -372,149 +572,7 @@ bool SerializableObjectProxy::choiceHasSelection(
     return false;
 }
 
-void SerializableObjectProxy::loadSequence(
-              int                                                numAttributes,
-              void                                              *object,
-              const bdeat_AttributeInfo                         *info,
-              const char                                        *className,
-              SerializableObjectProxyFunctions::ElementLoader  loader)
-{
-    d_object_p = object;
-    d_category = bdeat_TypeCategory::BDEAT_SEQUENCE_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(SequenceInfo(numAttributes,
-                                                             info,
-                                                             className,
-                                                             loader));
-}
-
-void SerializableObjectProxy::loadByteArray(bsl::vector<char> *object)
-{
-    loadArray(object->size(), sizeof(char), object, 0);
-}
-
-void SerializableObjectProxy::loadArray(
-                       void                                       *array,
-                       int                                         length,
-                       int                                         elementSize,
-                       void                                       *begin,
-                       SerializableObjectProxyFunctions::Resizer   resizer,
-                       SerializableObjectProxyFunctions::Loader  loader)
-{
-    d_object_p = array;
-    d_category = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(ArrayDecodeInfo(length,
-                                                                elementSize,
-                                                                begin,
-                                                                resizer,
-                                                                loader));
-}
-
-void SerializableObjectProxy::loadArray(
-                        int                                        length,
-                        int                                        elementSize,
-                        void                                      *begin,
-                        SerializableObjectProxyFunctions::Loader loader)
-{
-    d_object_p = begin;
-    d_category = bdeat_TypeCategory::BDEAT_ARRAY_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(ArrayEncodeInfo(length,
-                                                                elementSize,
-                                                                loader));
-}
-
-void SerializableObjectProxy::loadEnumeration(
-                                    int                         value,
-                                    const bdeat_EnumeratorInfo *infoArray,
-                                    int                         numEnumerators)
-{
-    d_object_p = 0;
-    EnumEncodeInfo info = { value, infoArray, numEnumerators};
-    d_category = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(info);
-}
-
-void SerializableObjectProxy::loadEnumeration(
-                void                                           *object,
-                SerializableObjectProxyFunctions::IntSetter     intSetter,
-                SerializableObjectProxyFunctions::StringSetter  stringSetter,
-                const bdeat_EnumeratorInfo                     *infoArray,
-                int                                             numEnumerators)
-{
-    d_object_p = object;
-    EnumDecodeInfo info = { intSetter, stringSetter,
-                            infoArray, numEnumerators };
-    d_category = bdeat_TypeCategory::BDEAT_ENUMERATION_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(info);
-}
-
-void SerializableObjectProxy::loadNullable(
-                          void                                       *object,
-                          SerializableObjectProxyFunctions::Loader  loader)
-{
-    d_object_p = object; // 0 if null value
-    d_category = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
-    new (d_objectInfoArena.buffer()) ObjectInfo(loader);
-}
-
-void SerializableObjectProxy::loadNullable(
-                 void                                            *object,
-                 SerializableObjectProxyFunctions::Loader         loader,
-                 SerializableObjectProxyFunctions::ValueMaker     valueMaker,
-                 SerializableObjectProxyFunctions::ObjectFetcher  valueFetcher)
-{
-    d_object_p = object;
-    d_category = bdeat_TypeCategory::BDEAT_NULLABLE_VALUE_CATEGORY;
-    NullableDecodeInfo info = { valueMaker, valueFetcher, loader };
-    new (d_objectInfoArena.buffer()) ObjectInfo(info);
-}
-
-void SerializableObjectProxy::makeValue()
-{
-    BSLS_ASSERT(d_objectInfo.is<NullableDecodeInfo>());
-
-    d_objectInfo.the<NullableDecodeInfo>().d_valueMaker(d_object_p);
-}
-
-int SerializableObjectProxy::enumFromInt(int value)
-{
-    BSLS_ASSERT(d_objectInfo.is<EnumDecodeInfo>());
-
-    return d_objectInfo.the<EnumDecodeInfo>().d_intSetter(d_object_p, value);
-}
-
-int SerializableObjectProxy::enumFromString(const char *value, int length)
-{
-    BSLS_ASSERT(d_objectInfo.is<EnumDecodeInfo>());
-
-    return d_objectInfo.the<EnumDecodeInfo>().d_stringSetter(d_object_p,
-                                                             value,
-                                                             length);
-}
-
-int SerializableObjectProxy::enumToInt() const
-{
-    BSLS_ASSERT(d_objectInfo.is<EnumEncodeInfo>());
-
-    return d_objectInfo.the<EnumEncodeInfo>().d_intVal;
-}
-
-const char* SerializableObjectProxy::enumToString() const
-{
-    BSLS_ASSERT(d_objectInfo.is<EnumEncodeInfo>());
-
-    const EnumEncodeInfo& info = d_objectInfo.the<EnumEncodeInfo>();
-    const bdeat_EnumeratorInfo* end = info.d_infoArray_p +
-                                      info.d_infoArraySize;
-    for (const bdeat_EnumeratorInfo *enumInfo = info.d_infoArray_p;
-         enumInfo < end; ++enumInfo) {
-        if (enumInfo->d_value == info.d_intVal) {
-            return enumInfo->d_name_p;                                // RETURN
-        }
-    }
-    return 0;
-}
-
-bool SerializableObjectProxy::sequenceHasAttribute(int attributeId) const
+bool baea_SerializableObjectProxy::sequenceHasAttribute(int attributeId) const
 {
     BSLS_ASSERT(d_objectInfo.is<SequenceInfo>());
 
@@ -531,7 +589,7 @@ bool SerializableObjectProxy::sequenceHasAttribute(int attributeId) const
     return false;
 }
 
-bool SerializableObjectProxy::sequenceHasAttribute(
+bool baea_SerializableObjectProxy::sequenceHasAttribute(
                                                   const char* name,
                                                   int         nameLength) const
 {
@@ -549,86 +607,29 @@ bool SerializableObjectProxy::sequenceHasAttribute(
     return false;
 }
 
-void SerializableObjectProxy::resize(bsl::size_t newSize)
+int baea_SerializableObjectProxy::enumToInt() const
 {
-    BSLS_ASSERT(d_objectInfo.is<ArrayDecodeInfo>());
+    BSLS_ASSERT(d_objectInfo.is<EnumEncodeInfo>());
 
-    ArrayDecodeInfo& info = d_objectInfo.the<ArrayDecodeInfo>();
-
-    info.d_resizer(d_object_p, &info.d_begin, newSize);
-    info.d_length = newSize;
+    return d_objectInfo.the<EnumEncodeInfo>().d_intVal;
 }
 
-void SerializableObjectProxy::loadArrayElementEncodeProxy(
-                                     SerializableObjectProxy *elementProxy,
-                                     int                      index) const
+const char* baea_SerializableObjectProxy::enumToString() const
 {
-    BSLS_ASSERT(d_objectInfo.is<ArrayEncodeInfo>());
+    BSLS_ASSERT(d_objectInfo.is<EnumEncodeInfo>());
 
-    const ArrayEncodeInfo& info = d_objectInfo.the<ArrayEncodeInfo>();
-    void* address = (char*)d_object_p + info.d_elementSize * index;
-    info.d_loader(elementProxy, address);
-}
-
-void SerializableObjectProxy::loadArrayElementDecodeProxy(
-                                     SerializableObjectProxy *elementProxy,
-                                     int                      index) const
-{
-    BSLS_ASSERT(d_objectInfo.is<ArrayDecodeInfo>());
-
-    const ArrayDecodeInfo& info = d_objectInfo.the<ArrayDecodeInfo>();
-    void* address = (char*)info.d_begin + info.d_elementSize * index;
-    info.d_loader(elementProxy, address);
-}
-
-bsl::size_t SerializableObjectProxy::size() const
-{
-    bool isEncode = d_objectInfo.is<ArrayEncodeInfo>();
-
-    BSLS_ASSERT(isEncode || d_objectInfo.is<ArrayDecodeInfo>());
-
-    if (isEncode) {
-        return d_objectInfo.the<ArrayEncodeInfo>().d_length;          // RETURN
+    const EnumEncodeInfo& info = d_objectInfo.the<EnumEncodeInfo>();
+    const bdeat_EnumeratorInfo* end = info.d_infoArray_p +
+                                      info.d_infoArraySize;
+    for (const bdeat_EnumeratorInfo *enumInfo = info.d_infoArray_p;
+         enumInfo < end; ++enumInfo) {
+        if (enumInfo->d_value == info.d_intVal) {
+            return enumInfo->d_name_p;                                // RETURN
+        }
     }
-    else {
-        return d_objectInfo.the<ArrayDecodeInfo>().d_length;          // RETURN
-    }
-}
-
-const char *SerializableObjectProxy::className() const
-{
-    if (d_objectInfo.is<ChoiceEncodeInfo>()) {
-        return d_objectInfo.the<ChoiceEncodeInfo>().d_className_p;    // RETURN
-    }
-    if (d_objectInfo.is<SequenceInfo>()) {
-        return d_objectInfo.the<SequenceInfo>().d_className_p;        // RETURN
-    }
-
-    // 'className' should only be required when encoding top-level elements,
-    // which should in turn only be sequences/choices for BAS.  We don't bother
-    // storing className otherwise.
-    //
-    // bdeat_TypeName documents that we're allowed to return 0.
-
     return 0;
 }
 
-int SerializableObjectProxy::selectionId() const
-{
-    if (d_objectInfo.is<ChoiceEncodeInfo>()) {
-        return d_objectInfo.the<ChoiceEncodeInfo>().d_selectionInfo_p->id();
-                                                                      // RETURN
-    }
-    else if (d_objectInfo.is<ChoiceDecodeInfo>()) {
-        return d_objectInfo.the<ChoiceDecodeInfo>().d_currentSelection;
-                                                                      // RETURN
-    }
-    else {
-        return bdeat_ChoiceFunctions::BDEAT_UNDEFINED_SELECTION_ID;   // RETURN
-    }
-}
-
-}  // close namespace baea
 }  // close namespace BloombergLP
 
 // ----------------------------------------------------------------------------
