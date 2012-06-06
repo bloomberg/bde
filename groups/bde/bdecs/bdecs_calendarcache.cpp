@@ -102,7 +102,7 @@ const bdecs_Calendar *bdecs_CalendarCacheEntry::calendar(
                 return &d_calendar;
             }
         }
-        d_loadTime = bdetu_SystemTime::nowAsDatetimeGMT();
+        d_loadTime = bdetu_SystemTime::nowAsDatetimeUtc();
         bdecs_Calendar calendar(packedCalendar, d_allocator_p);
         d_calendar.swap(&calendar);
         d_forceReloadFlag = false;
@@ -119,7 +119,7 @@ const bdecs_Calendar *bdecs_CalendarCacheEntry::calendar(
     BSLS_ASSERT(loader);
     BSLS_ASSERT(name);
 
-    if ((bdetu_SystemTime::nowAsDatetimeGMT() - d_loadTime).seconds() >=
+    if ((bdetu_SystemTime::nowAsDatetimeUtc() - d_loadTime).seconds() >=
                                                            timeout.seconds()) {
 
         // This entry has expired.

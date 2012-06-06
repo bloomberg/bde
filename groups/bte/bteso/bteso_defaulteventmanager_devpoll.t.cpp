@@ -22,7 +22,7 @@
 #include <bsls_assert.h>
 
 using namespace BloombergLP;
-#if defined(BSLS_PLATFORM__OS_SOLARIS)
+#if defined(BSLS_PLATFORM__OS_SOLARIS) || defined(BSLS_PLATFORM__OS_HPUX)
     #define BTESO_EVENTMANAGER_ENABLETEST
     typedef bteso_DefaultEventManager<bteso_Platform::DEVPOLL> Obj;
 #endif
@@ -155,7 +155,7 @@ enum {
 
 static void
 genericCb(bteso_EventType::Type event, bteso_SocketHandle::Handle socket,
-          int bytes, bteso_EventManager *mX)
+          int bytes, bteso_EventManager *)
 {
     // User specified callback function that will be called after an event
     // is dispatched to do the "real" things.
@@ -445,8 +445,15 @@ int main(int argc, char *argv[]) {
         if (veryVerbose) cout << "\tInitializing socket pairs." << endl;
 
         enum { NUM_PAIRS = 10 };
-
         bteso_EventManagerTestPair testPairs[NUM_PAIRS];
+
+#ifdef BSLS_PLATFORM__OS_HPUX
+        // There seems to be a ~20ms latency between creation of a socket and
+        // when it really starts working properly on HPUX.
+
+        bcemt_ThreadUtil::microSleep(40 * 1000);
+#endif
+
         for (int i = 0; i < NUM_PAIRS; i++) {
             testPairs[i].setObservedBufferOptions(BUF_LEN, 1);
             testPairs[i].setControlBufferOptions(BUF_LEN, 1);
@@ -490,7 +497,12 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, 1 == rc);
                 LOOP_ASSERT(i, testPairs[i].observedFd() == registration.fd)
                 LOOP_ASSERT(i, POLLIN == registration.revents);
+#ifndef BSLS_PLATFORM__OS_HPUX
+                // The Solaris doc guarantees that .events == 0, the HPUX doc
+                // doesn't say.
+
                 LOOP_ASSERT(i, 0 == registration.events);
+#endif
             }
             ASSERT(0 == close(devPollFd));
         }
@@ -526,7 +538,12 @@ int main(int argc, char *argv[]) {
                 LOOP_ASSERT(i, 1 == rc);
                 LOOP_ASSERT(i, testPairs[i].observedFd() == registration.fd)
                 LOOP_ASSERT(i, POLLIN == registration.revents);
+#ifndef BSLS_PLATFORM__OS_HPUX
+                // The Solaris doc guarantees that .events == 0, the HPUX doc
+                // doesn't say.
+
                 LOOP_ASSERT(i, 0 == registration.events);
+#endif
             }
             ASSERT(0 == close(devPollFd));
         }
@@ -666,9 +683,11 @@ int main(int argc, char *argv[]) {
                 control.dp_nfds = NUM_PAIRS;
                 control.dp_timeout = 0;
                 int rc = ioctl(devPollFd, DP_POLL, &control);
-                LOOP_ASSERT(i, 1 == rc);
-                LOOP_ASSERT(i, testPairs[i].observedFd() == result[0].fd);
-                LOOP_ASSERT(i, POLLIN  == result[0].revents);
+                LOOP2_ASSERT(i, rc, 1 == rc);
+                LOOP2_ASSERT(i, result[0].fd,
+                                testPairs[i].observedFd() == result[0].fd);
+                LOOP2_ASSERT(i, result[0].revents,
+                                POLLIN  == result[0].revents);
 
                 char byte;
                 rc = read(testPairs[i].observedFd(), &byte, sizeof(char));
@@ -826,12 +845,26 @@ int main(int argc, char *argv[]) {
             const int NUM_SCRIPTS = sizeof SCRIPTS / sizeof *SCRIPTS;
 
             for (int i = 0; i < NUM_SCRIPTS; ++i) {
+                const int LINE     = SCRIPTS[i].d_line;
+                const char *SCRIPT = SCRIPTS[i].d_script;
+                const int FAILS    = SCRIPTS[i].d_fails;
 
-                Obj mX(&timeMetric, &testAllocator);
-                const int LINE =  SCRIPTS[i].d_line;
+                if (veryVerbose) {
+                    P_(LINE) P(SCRIPT);
+                }
 
                 enum { NUM_PAIRS = 4 };
                 bteso_EventManagerTestPair socketPairs[NUM_PAIRS];
+
+#ifdef BSLS_PLATFORM__OS_HPUX
+                // Sockets take ~ 20 ms to fully 'wake up' on HPUX.  Note that
+                // case 12 in bteso_eventmanagertester.t.cpp verifies that data
+                // is still correct during this time.
+
+                bcemt_ThreadUtil::microSleep(40 * 1000);
+#endif
+
+                Obj mX(&timeMetric, &testAllocator);
 
                 for (int j = 0; j < NUM_PAIRS; j++) {
                     socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
@@ -839,10 +872,10 @@ int main(int argc, char *argv[]) {
                 }
 
                 int fails = bteso_EventManagerTester::gg(&mX, socketPairs,
-                                                         SCRIPTS[i].d_script,
+                                                         SCRIPT,
                                                          controlFlag);
 
-                LOOP_ASSERT(LINE, SCRIPTS[i].d_fails == fails);
+                LOOP3_ASSERT(LINE, FAILS, fails, FAILS == fails);
             }
         }
       } break;
@@ -921,6 +954,14 @@ int main(int argc, char *argv[]) {
 
                 bteso_EventManagerTestPair socketPairs[4];
 
+#ifdef BSLS_PLATFORM__OS_HPUX
+                // Sockets take ~ 20 ms to fully 'wake up' on HPUX.  Note that
+                // case 12 in bteso_eventmanagertester.t.cpp verifies that data
+                // is still correct during this time.
+
+                bcemt_ThreadUtil::microSleep(40 * 1000);
+#endif
+
                 const int NUM_PAIR =
                                sizeof socketPairs / sizeof socketPairs[0];
 
@@ -968,27 +1009,28 @@ int main(int argc, char *argv[]) {
         {
             bteso_EventManagerTestPair socketPair;
             bdef_Function<void (*)()> nullFunctor;
-            const int NUM_ATTEMPTS = 1000;
-            for (int i = 0; i < NUM_ATTEMPTS; ++i) {
+            const int NUM_ATTEMPTS = 10 * 1000;
+            for (int i = 0; i < NUM_ATTEMPTS; i += 11) {
                 Obj mX(&timeMetric, &testAllocator);
                 mX.registerSocketEvent(socketPair.observedFd(),
                                        bteso_EventType::BTESO_READ,
                                        nullFunctor);
 
-                bdet_TimeInterval deadline = bdetu_SystemTime::now();
-
-                deadline.addMilliseconds(i % 10);
-                deadline.addNanoseconds(i % 1000);
+                bdet_TimeInterval start    = bdetu_SystemTime::now();
+                bdet_TimeInterval deadline = start + (i * 1e-9);
 
                 LOOP_ASSERT(i, 0 == mX.dispatch(
-                                          deadline,
-                                          bteso_Flag::BTESO_ASYNC_INTERRUPT));
+                                           deadline,
+                                           bteso_Flag::BTESO_ASYNC_INTERRUPT));
 
-                bdet_TimeInterval now = bdetu_SystemTime::now();
-                LOOP_ASSERT(i, deadline <= now);
+                bdet_TimeInterval finish = bdetu_SystemTime::now();
+                LOOP2_ASSERT(i, (finish - start).totalSecondsAsDouble(),
+                                                           start <= finish);
+                LOOP2_ASSERT(i, (deadline - finish).totalSecondsAsDouble(),
+                                                           deadline <= finish);
 
                 if (veryVeryVerbose) {
-                    P_(deadline); P(now);
+                    P_(deadline); P(finish);
                 }
             }
         }
@@ -1434,146 +1476,107 @@ int main(int argc, char *argv[]) {
       } break;
 
       case -1: {
-        // -----------------------------------------------------------------
+        // --------------------------------------------------------------------
         // PERFORMANCE TESTING 'dispatch':
         //   Get the performance data.
         //
         // Plan:
-        //   Set up multiple connections and register a read event for each
-        //   connection, calculate the average time taken to dispatch a read
-        //   event for a given number of registered read event.
+        //   Set up a collection of socketPairs and register one end of all the
+        //   pairs with the event manager.  Write 1 byte to
+        //   'fracBusy * numSocketPairs' of the connections, and measure the
+        //   average time taken to dispatch a read event for a given number of
+        //   registered read event.  If 'timeOut > 0' register a timeout
+        //   interval with the 'dispatch' call.  If 'R|N' is 'R', actually read
+        //   the bytes in the dispatch, if it's 'N', just call a null function
+        //   within the dispatch.
+        //
         // Testing:
         //   'dispatch' capacity
-        // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
+        //
+        // See the compilation of results for all event managers & platforms
+        // at the beginning of 'bteso_eventmanagertester.t.cpp'.
+        // --------------------------------------------------------------------
 
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+        if (verbose) cout << "PERFORMANCE TESTING 'dispatch'\n"
+                             "==============================\n";
 
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
-
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
-
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
         {
-            const char *FILENAME = "devpollDispatch.dat";
-
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
-            }
-
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
-            }
-
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testDispatchPerformance(&mX, outFile,
-                      numPairs, numMeasurements, controlFlag);
-
-            outFile.close();
+            Obj mX(&timeMetric, &testAllocator);
+            bteso_EventManagerTester::testDispatchPerformance(&mX, "devpoll",
+                                                                  controlFlag);
         }
       } break;
 
       case -2: {
         // -----------------------------------------------------------------
-        // PERFORMANCE TESTING 'registerSocketEvent':
-        //   Get the performance data.
+        // TESTING PERFORMANCE 'registerSocketEvent' METHOD:
+        //   Get performance data.
         //
         // Plan:
         //   Open multiple sockets and register a read event for each
         //   socket, calculate the average time taken to register a read
         //   event for a given number of registered read event.
+        //
         // Testing:
-        //   'registerSocketEvent' capacity
+        //   Obj::registerSocketEvent
+        //
+        // See the compilation of results for all event managers & platforms
+        // at the beginning of 'bteso_eventmanagertester.t.cpp'.
         // -----------------------------------------------------------------
-        enum {
-            DEFAULT_NUM_PAIRS        = 1024,
-            DEFAULT_NUM_MEASUREMENTS = 10
-        };
 
-        int numPairs = DEFAULT_NUM_PAIRS;
-        int numMeasurements = DEFAULT_NUM_MEASUREMENTS;
+        if (verbose) cout << "PERFORMANCE TESTING 'registerSocketEvent'\n"
+                             "=========================================\n";
 
-        if (2 < argc) {
-            int pairs = atoi(argv[2]);
-            if (0 > pairs) {
-                verbose = 0;
-                numPairs = -pairs;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERBOSE;
-            }
-            else {
-                numPairs = pairs;
-            }
-        }
+        if (veryVerbose) P(FD_SETSIZE);
 
-        if (3 < argc) {
-            int measurements = atoi(argv[3]);
-            if (0 > measurements) {
-                veryVerbose = 0;
-                numMeasurements = -measurements;
-                controlFlag &= ~bteso_EventManagerTester::BTESO_VERY_VERBOSE;
-            }
-            else {
-                numMeasurements = measurements;
-            }
-        }
+        Obj mX(&timeMetric, &testAllocator);
+        bteso_EventManagerTester::testRegisterPerformance(&mX, controlFlag);
+      } break;
 
-        if (verbose)
-            cout << endl
-            << "PERFORMANCE TESTING 'registerSocketEvent'" << endl
-            << "=========================================" << endl;
-        {
-            const char *FILENAME = "devpollRegister.dat";
+      case -3: {
+        // -----------------------------------------------------------------
+        // Interactive gg test shell
+        // -----------------------------------------------------------------
 
-            ofstream outFile(FILENAME, ios_base::out);
-            if (!outFile) {
-                cout << "Cannot open " << FILENAME << " for writing."
-                     << endl;
-                return -1;
+        while (1) {
+            char script[1000];
+            cout << "Enter script: " << flush;
+            cin.getline(script, 1000);
+
+            if (0 == bsl::strncmp(script, "quit", 4) ||
+                                                   (!script[0] && cin.eof())) {
+                break;
             }
 
-            if (veryVerbose) {
-                P(numPairs);
-                P(numMeasurements);
+            const int NUM_PAIR = 4;
+            bteso_EventManagerTestPair socketPairs[NUM_PAIR];
+
+#ifdef BSLS_PLATFORM__OS_HPUX
+            // There seems to be a ~20ms latency between creation of a socket
+            // and when it really starts working properly on HPUX.
+
+            bcemt_ThreadUtil::microSleep(40 * 1000);
+#endif
+
+            for (int j = 0; j < NUM_PAIR; j++) {
+                socketPairs[j].setObservedBufferOptions(BUF_LEN, 1);
+                socketPairs[j].setControlBufferOptions(BUF_LEN, 1);
             }
 
-            Obj mX(&timeMetric);  // Note: no test allocator --
-                                  // performance testing
-            bteso_EventManagerTester::testRegisterPerformance(&mX, outFile,
-                      numPairs, numMeasurements, controlFlag);
+            int i = 0;
+            for (; i < 4; ++i) {
+                Obj mX(&timeMetric, &testAllocator);
 
-            outFile.close();
+                int fails = bteso_EventManagerTester::gg(&mX, socketPairs,
+                                                         script,
+                                                         controlFlag);
+                if (fails) {
+                    break;
+                }
+            }
+            if (4 == i) {
+                cout << "Success!  " << endl;
+            }
         }
       } break;
 

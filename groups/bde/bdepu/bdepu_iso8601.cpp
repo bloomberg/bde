@@ -709,7 +709,7 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
         return BDEPU_FAILURE;                                         // RETURN
     }
 
-    int timezoneOffset = 0;  // minutes from GMT
+    int timezoneOffset = 0;  // minutes from UTC
 
     if (end != begin) {
         // Parse timezone.
@@ -732,14 +732,14 @@ int bdepu_Iso8601::parse(bdet_Datetime *result,
     // 'addTime' and/or 'addMinutes' will reset '24:00:00' to '00:00:00' (even
     // if the quantities added are 0), which we don't want to happen.
     // 'hours == 24' is only allowed for the value '24:00:00.000' with timezone
-    // GMT.
+    // UTC.
 
     if (millisecond || timezoneOffset) {
         if (24 == hour) {
             return BDEPU_FAILURE;                                     // RETURN
         }
         localDatetime.addTime(0, 0, 0, millisecond);
-        localDatetime.addMinutes(-timezoneOffset);  // convert to GMT
+        localDatetime.addMinutes(-timezoneOffset);  // convert to UTC
     }
 
     *result = localDatetime;
@@ -789,7 +789,7 @@ int bdepu_Iso8601::parse(bdet_DatetimeTz *result,
         return BDEPU_FAILURE;                                         // RETURN
     }
 
-    int timezoneOffset = 0;  // minutes from GMT
+    int timezoneOffset = 0;  // minutes from UTC
 
     if (end != begin) {
         // Parse timezone.
@@ -810,7 +810,7 @@ int bdepu_Iso8601::parse(bdet_DatetimeTz *result,
 
     // 'addTime' will reset '24:00:00' to '00:00:00' (even if the quantity
     // added is 0), which we don't want to happen.  'hours == 24' is only
-    // allowed for the value '24:00:00.000' and timezone GMT.
+    // allowed for the value '24:00:00.000' and timezone UTC.
 
     if (millisecond || timezoneOffset) {
         if (24 == hour) {
@@ -855,7 +855,7 @@ int bdepu_Iso8601::parse(bdet_DateTz *result,
         return BDEPU_FAILURE;                                         // RETURN
     }
 
-    int timezoneOffset = 0;  // minutes from GMT
+    int timezoneOffset = 0;  // minutes from UTC
 
     if (end != begin) {
         // Parse timezone.
@@ -906,7 +906,7 @@ int bdepu_Iso8601::parse(bdet_Time  *result,
         return BDEPU_FAILURE;                                         // RETURN
     }
 
-    int timezoneOffset = 0;  // minutes from GMT
+    int timezoneOffset = 0;  // minutes from UTC
 
     if (end != begin) {
         // Parse timezone.
@@ -927,14 +927,14 @@ int bdepu_Iso8601::parse(bdet_Time  *result,
     // 'addTime' and/or 'addMinutes' will reset '24:00:00' to '00:00:00' (even
     // if the quantities added are 0), which we don't want to happen.
     // 'hours == 24' is only allowed for the value '24:00:00.000' with timezone
-    // GMT.
+    // UTC.
 
     if (millisecond || timezoneOffset) {
         if (24 == hour) {
             return BDEPU_FAILURE;                                     // RETURN
         }
         localTime.addMilliseconds(millisecond);
-        localTime.addMinutes(-timezoneOffset);  // convert to GMT
+        localTime.addMinutes(-timezoneOffset);  // convert to UTC
     }
 
     *result = localTime;
@@ -971,7 +971,7 @@ int bdepu_Iso8601::parse(bdet_TimeTz *result,
         return BDEPU_FAILURE;                                         // RETURN
     }
 
-    int timezoneOffset = 0;  // minutes from GMT
+    int timezoneOffset = 0;  // minutes from UTC
 
     if (end != begin) {
         // Parse timezone.
@@ -991,7 +991,7 @@ int bdepu_Iso8601::parse(bdet_TimeTz *result,
 
     // 'addMilliseconds' will reset '24:00:00' to '00:00:00' (even if the
     // quantity added is 0), which we don't want to happen.  'hours == 24' is
-    // only allowed for the value '24:00:00.000' and timezone GMT.
+    // only allowed for the value '24:00:00.000' and timezone UTC.
 
     if (millisecond || timezoneOffset) {
         if (24 == hour) {

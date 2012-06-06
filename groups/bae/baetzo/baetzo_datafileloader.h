@@ -183,8 +183,8 @@ BDES_IDENT("$Id: $")
 // The 'timeZone' object can now be use for time-zone calculations.  See
 // 'baetzo_zoneinfoutil'.
 //
-///Example 2: Epilogue: Removing the Created Files
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///Epilogue: Removing the Created Files
+///  -  -  -  -  -  -  -  -  -  -  -  -
 // The file hierarchy we created Example 1 solely for Example 2, is no longer
 // needed, and is removed by:
 //..

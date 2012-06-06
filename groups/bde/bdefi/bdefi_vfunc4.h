@@ -61,8 +61,8 @@ BDES_IDENT("$Id: $")
 // invoke, and also by the total number 'N' of arguments (N >= 4) that the
 // function takes.  This component supplies a separate concrete implementation
 // for each of the specified types.  These 18 non-null concrete
-// implementations are named 'bdefi_Vfunc4XN' where 'X' is one of {'F', 'C',
-// 'M'} and 'N' is in the range [4..9].
+// implementations are named 'bdefi_Vfunc4XN' where 'X' is one of 'F', 'C', or
+// 'M', and 'N' is in the range [4..9].
 //
 // The possible function flavors (and labels) are classified as:
 //..

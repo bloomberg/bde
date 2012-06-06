@@ -1507,7 +1507,9 @@ int main(int argc, char *argv[])
                         int passes = 0;
                         testInStream.setSuppressVersionCheck(1);
                         BEGIN_BDEX_EXCEPTION_TEST {
+#ifdef BDE_BUILD_TARGET_EXC
                             bdexExceptionLimit = 0;
+#endif
                             testInStream.reset();
 
                             ++passes;

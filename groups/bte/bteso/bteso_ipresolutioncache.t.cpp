@@ -14,6 +14,8 @@
 
 #include <bcep_fixedthreadpool.h>
 
+#include <bdetu_systemtime.h>
+
 // #include <bces_atomictypes.h>
 
 #include <bcemt_lockguard.h>

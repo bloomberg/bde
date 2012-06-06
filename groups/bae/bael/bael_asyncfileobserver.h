@@ -467,7 +467,7 @@ class bael_AsyncFileObserver : public bael_Observer {
         // 'stdout', if the records's severities are at least as severe as the
         // specified 'stdoutThreshold', and where the timestamp attribute of
         // each published record is written in local-time if
-        // 'publishInLocalTimeFlag' is 'true', and GMT otherwise.  Optionally
+        // 'publishInLocalTimeFlag' is 'true', and UTC otherwise.  Optionally
         // specify 'dropRecordsOnFullQueueThreshold' indicating the severity
         // threshold below which records published when the queue is full will
         // be discarded (records published above this severity will block the

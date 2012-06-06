@@ -450,9 +450,9 @@ unix-AIX-*-*-CC64   _   ASFLAGS     = -a64
 unix-AIX-*-*-xlc    64  ASFLAGS     = -a64
 #done
 
-unix-           _   RANLIB          = $(RETRY_ON_EXIT) true $@
-# unix-         _   RANLIB          = $(RETRY_ON_EXIT) ranlib $@
-windows-            _   RANLIB          =
+unix-                   _   RANLIB          = $(RETRY_ON_EXIT) true $@
+!! unix-Darwin-*-*-*    _   RANLIB          = $(RETRY_ON_EXIT) ranlib $@
+windows-                _   RANLIB          =
 
 windows-        _   RC      = rc
 windows-        _   RCFLAGS     = /r /n
@@ -1220,6 +1220,11 @@ unix-*                  _   RATIONAL_WIN_OPT = -windows=no
 !! unix-AIX             _       PLINK_ARCH      = ibm
 !! unix-HP_UX           _       PLINK_ARCH      = hp
 !! unix-Linux           _       PLINK_ARCH      = linux
+
+!! *            _   PLINK_ARCH64        = $(PLINK_ARCH)$(BDE_WORD64)
+!! *            _   PLINK_ARCH_64       = $(PLINK_ARCH)$(BDE_WORD_64)
+!! *            _   PLINK_ARCH32_OR_64  = $(PLINK_ARCH)$(BDE_WORD_32_OR_64)
+!! *            _   PLINK_ARCH_32_OR_64 = $(PLINK_ARCH)_$(BDE_WORD_32_OR_64)
 
 !! *            _   BBSRC       = /bbsrc/proot/include
 !! *            _   BBSRCBBINC  = $(BBSRC)/bbinc
