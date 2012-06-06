@@ -107,6 +107,7 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_typeinfo.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 
@@ -14379,8 +14380,6 @@ namespace bdeat_CustomizedTypeFunctions {
 
 namespace BloombergLP {
 
-class bslma_Allocator;
-
 namespace test { class MySequenceWithAttributes; }
 namespace test { class Address; }
 namespace test { class MySequence; }
@@ -21631,7 +21630,7 @@ bsl::ostream& MySequenceWithNillables::print(
 
     using namespace BloombergLP;
 
-    void usageExample1()
+    int usageExample1()
     {
         const char INPUT[] = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
                              "<Employee>\n"
@@ -21662,6 +21661,8 @@ bsl::ostream& MySequenceWithNillables::print(
         ASSERT("Some City"   == bob.homeAddress().city());
         ASSERT("Some State"  == bob.homeAddress().state());
         ASSERT(21            == bob.age());
+
+        return 0;
     }
 //..
 //

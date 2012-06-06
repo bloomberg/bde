@@ -37,7 +37,7 @@ using namespace std;
 // monitors the number of constructions and destructions, and that allocates in
 // order to take advantage of the standard 'bslma' exception test.
 //-----------------------------------------------------------------------------
-// [ 2] bslalg_AutoArrayDestructor(T *b, T *e);
+// [ 2] bslalg::AutoArrayDestructor(T *b, T *e);
 // [ 2] ~AutoArrayDestructor();
 // [ 2] T *moveBegin(ptrdiff_t ne = -1);
 // [ 2] T *moveEnd(ptrdiff_t ne = 1);
@@ -114,7 +114,7 @@ typedef TestType                      T;    // uses 'bslma' allocators
 // STATIC DATA
 static int verbose, veryVerbose, veryVeryVerbose;
 
-const int MAX_ALIGN = bsls_AlignmentUtil::BSLS_MAX_ALIGNMENT;
+const int MAX_ALIGN = bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
 
 static int numDefaultCtorCalls = 0;
 static int numCharCtorCalls    = 0;
@@ -122,7 +122,7 @@ static int numCopyCtorCalls    = 0;
 static int numAssignmentCalls  = 0;
 static int numDestructorCalls  = 0;
 
-bslma_TestAllocator *Z;  // initialized at the start of main()
+bslma::TestAllocator *Z;  // initialized at the start of main()
 
                                // ==============
                                // class TestType
@@ -135,36 +135,36 @@ class TestType {
     // It could have the bit-wise moveable traits but we defer that trait to
     // the 'MoveableTestType'.
 
-    char            *d_data_p;
-    bslma_Allocator *d_allocator_p;
+    char             *d_data_p;
+    bslma::Allocator *d_allocator_p;
 
   public:
     // TRAITS
     BSLALG_DECLARE_NESTED_TRAITS(TestType,
-                                 bslalg_TypeTraitUsesBslmaAllocator);
+                                 bslalg::TypeTraitUsesBslmaAllocator);
 
     // CREATORS
-    TestType(bslma_Allocator *ba = 0)
+    TestType(bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numDefaultCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = '?';
     }
 
-    TestType(char c, bslma_Allocator *ba = 0)
+    TestType(char c, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCharCtorCalls;
         d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
         *d_data_p = c;
     }
 
-    TestType(const TestType& original, bslma_Allocator *ba = 0)
+    TestType(const TestType& original, bslma::Allocator *ba = 0)
     : d_data_p(0)
-    , d_allocator_p(bslma_Default::allocator(ba))
+    , d_allocator_p(bslma::Default::allocator(ba))
     {
         ++numCopyCtorCalls;
         if (&original != this) {
@@ -305,10 +305,10 @@ class my_Array {
     // test allocator.
 
     // DATA
-    TYPE            *d_array_p; // dynamically allocated array
-    int              d_size;    // physical capacity of this array
-    int              d_length;  // logical length of this array
-    bslma_Allocator *d_alloc_p;
+    TYPE             *d_array_p; // dynamically allocated array
+    int               d_size;    // physical capacity of this array
+    int               d_length;  // logical length of this array
+    bslma::Allocator *d_alloc_p;
 
   private:
     // PRIVATE TYPES
@@ -320,18 +320,18 @@ class my_Array {
 
     // CLASS METHODS
     static int nextSize(int size, int newSize);
-    static void reallocate(TYPE            **array,
-                           int              *size,
-                           int               newSize,
-                           int               length,
-                           bslma_Allocator  *allocator);
+    static void reallocate(TYPE             **array,
+                           int               *size,
+                           int                newSize,
+                           int                length,
+                           bslma::Allocator  *allocator);
 
     // PRIVATE MANIPULATORS
     void increaseSize(int numElements);
 
   public:
     // CREATORS
-    my_Array(bslma_Allocator *allocator);
+    my_Array(bslma::Allocator *allocator);
     ~my_Array();
 
     // MANIPULATORS
@@ -356,11 +356,11 @@ int my_Array<TYPE>::nextSize(int size, int newSize) {
 }
 
 template <class TYPE> inline
-void my_Array<TYPE>::reallocate(TYPE            **array,
-                                int              *size,
-                                int               newSize,
-                                int               length,
-                                bslma_Allocator  *allocator)
+void my_Array<TYPE>::reallocate(TYPE             **array,
+                                int               *size,
+                                int                newSize,
+                                int                length,
+                                bslma::Allocator  *allocator)
     // Reallocate memory in the specified 'array' and update the
     // specified size to the specified 'newSize'.  The specified 'length'
     // number of leading elements are preserved.  If 'allocator' should throw
@@ -380,8 +380,9 @@ void my_Array<TYPE>::reallocate(TYPE            **array,
 
     // 'autoDealloc' and 'autoDtor' are destroyed in reverse order
 
-    bslma_DeallocatorProctor<bslma_Allocator> autoDealloc(newArray, allocator);
-    bslma_AutoDestructor<TYPE>                autoDtor(newArray, 0);
+    bslma::DeallocatorProctor<bslma::Allocator>
+                                              autoDealloc(newArray, allocator);
+    bslma::AutoDestructor<TYPE>               autoDtor(newArray, 0);
     int i;
     for (i = 0; i < length; ++i, ++autoDtor) {
         new(&newArray[i]) TYPE((*array)[i]);
@@ -410,7 +411,7 @@ void my_Array<TYPE>::increaseSize(int numElements)
 
 // CREATORS
 template <class TYPE> inline
-my_Array<TYPE>::my_Array(bslma_Allocator *allocator)
+my_Array<TYPE>::my_Array(bslma::Allocator *allocator)
 : d_size(INITIAL_SIZE)
 , d_length(0)
 , d_alloc_p(allocator)
@@ -449,7 +450,7 @@ my_Array<TYPE>::~my_Array()
 //   _____ _____ _____ _____ _____ _____ _____ _____
 //  | "A" | "B" | "C" | "D" | "E" |xxxxx|xxxxx|xxxxx|
 //  `=====^=====^=====^=====^=====^=====^=====^====='
-//  my_Array                                  ^----- bslalg_AutoArrayDestructor
+//  my_Array                                  ^----- AutoArrayDestructor
 //  (length = 5)
 //
 //              Figure: Use of proctor for my_Array::insert
@@ -464,8 +465,8 @@ my_Array<TYPE>::~my_Array()
 //   _____ _____ _____ _____ _____ _____ _____ _____
 //  | "A" | "B" | "C" | "D" |xxxxx|xxxxx| "E" |xxxxx|
 //  `=====^=====^=====^=====^=====^=====^=====^====='
-//  my_Array                            ^     ^ bslalg_AutoArrayDestructor::end
-//  (length = 4)                        `---- bslalg_AutoArrayDestructor::begin
+//  my_Array                            ^     ^ AutoArrayDestructor::end
+//  (length = 4)                        `---- AutoArrayDestructor::begin
 //
 //              Figure: Configuration after shifting up one element
 //..
@@ -484,7 +485,7 @@ my_Array<TYPE>::~my_Array()
         int   origLen = d_length;
         TYPE *src     = &d_array_p[d_length];
         TYPE *dest    = &d_array_p[d_length + numItems];
-        bslalg_AutoArrayDestructor<TYPE> autoDtor(dest, dest);
+        bslalg::AutoArrayDestructor<TYPE> autoDtor(dest, dest);
 
         for (int i = d_length; i > dstIndex; --i, --d_length) {
             dest = autoDtor.moveBegin(-1);  // decrement destination
@@ -519,7 +520,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    bslma_TestAllocator testAllocator(veryVeryVerbose);
+    bslma::TestAllocator testAllocator(veryVeryVerbose);
     Z = &testAllocator;
 
     switch (test) { case 0:  // Zero is always the leading case.
@@ -586,8 +587,8 @@ int main(int argc, char *argv[])
 
         const int MAX_SIZE = 16;
         static union {
-            char                               d_raw[MAX_SIZE * sizeof(T)];
-            bsls_AlignmentUtil::MaxAlignedType d_align;
+            char                                d_raw[MAX_SIZE * sizeof(T)];
+            bsls::AlignmentUtil::MaxAlignedType d_align;
         } u;
         T *buf = (T*)&u.d_raw[0];
 
@@ -600,7 +601,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { buf[i].print(); }
             }
 
-            bslalg_AutoArrayDestructor<T> mG(&buf[0], &buf[0] + MAX_SIZE);
+            bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0] + MAX_SIZE);
             mG.release();
         }
         ASSERT(0 <  testAllocator.numBytesInUse());
@@ -608,7 +609,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tWithout release.\n");
         {
-            bslalg_AutoArrayDestructor<T> mG(&buf[0], &buf[0] + MAX_SIZE);
+            bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0] + MAX_SIZE);
         }
         ASSERT(0 == testAllocator.numBytesInUse());
         ASSERT(0 == testAllocator.numMismatches());
@@ -616,7 +617,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING 'class bslalg_AutoArrayDestructor'
+        // TESTING 'class bslalg::AutoArrayDestructor'
         //
         // Concerns:  That the guard frees guarded memory properly upon
         //   exceptions.
@@ -627,19 +628,19 @@ int main(int argc, char *argv[])
         //   a varying portion of an array.
         //
         // Testing:
-        //   bslalg_AutoArrayDestructor(T *b, T *e);
+        //   bslalg::AutoArrayDestructor(T *b, T *e);
         //   ~AutoArrayDestructor();
         //   T *moveBegin(ptrdiff_t offset = -1);
         //   T *moveEnd(ptrdiff_t offset = 1);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'bslalg_AutoArrayDestructor'."
-                            "\n=====================================\n");
+        if (verbose) printf("\nTESTING 'bslalg::AutoArrayDestructor'."
+                            "\n======================================\n");
 
         const int MAX_SIZE = 16;
         static union {
-            char                               d_raw[MAX_SIZE * sizeof(T)];
-            bsls_AlignmentUtil::MaxAlignedType d_align;
+            char                                d_raw[MAX_SIZE * sizeof(T)];
+            bsls::AlignmentUtil::MaxAlignedType d_align;
         } u;
         T *buf = (T*)&u.d_raw[0];
 
@@ -653,7 +654,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { buf[i].print(); }
             }
 
-            bslalg_AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
+            bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
 
             ASSERT(&buf[5] == mG.moveEnd(5));
             ASSERT(&buf[3] == mG.moveBegin(3));
@@ -672,8 +673,8 @@ int main(int argc, char *argv[])
         {
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             {
-                bslalg_AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
-                const bslalg_AutoArrayDestructor<T>& G = mG;
+                bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
+                const bslalg::AutoArrayDestructor<T>& G = mG;
 
                 char c = 'a';
                 for (int i = 0; i < MAX_SIZE; ++i, ++c) {
@@ -690,33 +691,35 @@ int main(int argc, char *argv[])
 
         if(verbose) printf("\nNegative testing constructors\n");
         {
-            bsls_AssertFailureHandlerGuard g(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard g(
+                    bsls::AssertTest::failTestDriver);
 
             int * null = 0;
-            ASSERT_SAFE_PASS(bslalg_AutoArrayDestructor<int>(0, 0));
+            ASSERT_SAFE_PASS(bslalg::AutoArrayDestructor<int>(0, 0));
             int simpleArray[] = { 0, 1, 2, 3, 4 };
             int * begin = simpleArray;
             int * end = begin;
-            ASSERT_SAFE_FAIL(bslalg_AutoArrayDestructor<int>(0, begin));
-            ASSERT_SAFE_FAIL(bslalg_AutoArrayDestructor<int>(begin, 0));
-            ASSERT_SAFE_PASS(bslalg_AutoArrayDestructor<int>(begin, begin));
+            ASSERT_SAFE_FAIL(bslalg::AutoArrayDestructor<int>(0, begin));
+            ASSERT_SAFE_FAIL(bslalg::AutoArrayDestructor<int>(begin, 0));
+            ASSERT_SAFE_PASS(bslalg::AutoArrayDestructor<int>(begin, begin));
 
             ++begin; ++begin;  // Advance begin by two to form an invalid range
             ++end;
-            ASSERT_SAFE_FAIL(bslalg_AutoArrayDestructor<int>(begin, end));
+            ASSERT_SAFE_FAIL(bslalg::AutoArrayDestructor<int>(begin, end));
             ++end;
             ASSERT(begin == end);
-            ASSERT_SAFE_PASS(bslalg_AutoArrayDestructor<int>(begin, end));
+            ASSERT_SAFE_PASS(bslalg::AutoArrayDestructor<int>(begin, end));
             ++end;
-            ASSERT_SAFE_PASS(bslalg_AutoArrayDestructor<int>(begin, end));
+            ASSERT_SAFE_PASS(bslalg::AutoArrayDestructor<int>(begin, end));
         }
 
         if(verbose) printf("\nNegative testing 'moveBegin' and 'moveEnd'\n");
         {
-            bsls_AssertFailureHandlerGuard g(bsls_AssertTest::failTestDriver);
+            bsls::AssertFailureHandlerGuard g(
+                    bsls::AssertTest::failTestDriver);
 
             int * null = 0;
-            bslalg_AutoArrayDestructor<int> emptyGuard(0, 0);
+            bslalg::AutoArrayDestructor<int> emptyGuard(0, 0);
             ASSERT_SAFE_PASS(emptyGuard.moveBegin(0));
             ASSERT_SAFE_PASS(emptyGuard.moveEnd(0));
             ASSERT_SAFE_FAIL(emptyGuard.moveBegin());
@@ -724,7 +727,7 @@ int main(int argc, char *argv[])
 
             int simpleArray[] = { 0, 1, 2, 3, 4 };
             int * begin = &simpleArray[2];
-            bslalg_AutoArrayDestructor<int> intGuard(begin, begin);
+            bslalg::AutoArrayDestructor<int> intGuard(begin, begin);
             ASSERT_SAFE_PASS(intGuard.moveBegin(0));
             ASSERT_SAFE_PASS(intGuard.moveEnd(0));
 
@@ -753,13 +756,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        if (verbose) printf("\nclass bslalg_AutoArrayDestructor"
-                            "\n--------------------------------\n");
+        if (verbose) printf("\nclass bslalg::AutoArrayDestructor"
+                            "\n---------------------------------\n");
         {
             const int MAX_SIZE = 16;
             static union {
-                char                               d_raw[MAX_SIZE * sizeof(T)];
-                bsls_AlignmentUtil::MaxAlignedType d_align;
+                char d_raw[MAX_SIZE * sizeof(T)];
+                bsls::AlignmentUtil::MaxAlignedType d_align;
             } u;
             T *buf = (T*)&u.d_raw[0];
 
@@ -769,7 +772,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { buf[i].print(); }
             }
 
-            bslalg_AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
+            bslalg::AutoArrayDestructor<T> mG(&buf[0], &buf[0]);
 
             ASSERT(&buf[5] == mG.moveEnd(5));
             ASSERT(&buf[3] == mG.moveBegin(3));

@@ -1,9 +1,10 @@
-// bslstl_bidirectionaliterator.t.cpp                  -*-C++-*-
+// bslstl_bidirectionaliterator.t.cpp                                 -*-C++-*-
 
 #include <bslstl_bidirectionaliterator.h>
 
 #include <bslstl_iterator.h>   // for testing only
 #include <bslmf_issame.h>
+#include <bsls_unspecifiedbool.h>
 
 #include <climits>
 #include <cstdlib>
@@ -18,9 +19,9 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bslstl_BidirectionalIterator' is an in-core value-semantic type that that
-// adapts a more limitted type, which offers a basic set of operations, so that
-// the resulting 'bslstl_BidirectionalIterator' object meets all the
+// 'bslstl::BidirectionalIterator' is an in-core value-semantic type that that
+// adapts a more limited type, which offers a basic set of operations, so that
+// the resulting 'bslstl::BidirectionalIterator' object meets all the
 // requirements of a standard Bidirectional Iterator.  These requirements are
 // spelled out in [forward.iterators], Table 104 - Bidirectional iterator
 // requirements.  The primary manipulator of an iterator is the pre-increment
@@ -32,37 +33,37 @@ using namespace std;
 //
 // In order to test this iterator adaptor, a simple container supporting
 // forward iterators will be implemented, to provide the basic type to be
-// adapted.  This container will use the 'bslstl_BidirectionalIterator'
+// adapted.  This container will use the 'bslstl::BidirectionalIterator'
 // template to declare its iterators, as suggested in the usage example.
 //
 //  SKETCH NOTES FOR A PLAN THAT NEEDS UPDATING
 //
-// The following is the set of direct accessors (i.e. accessors that have
+// The following is the set of direct accessors (i.e., accessors that have
 // direct contact with the physical state of the object):
 // - int value() const;
 // - ...;
 //-----------------------------------------------------------------------------
-// [ 2] bslstl_BidirectionalIterator();
-// [ 3] bslstl_BidirectionalIterator(IMPL);
-// [ 7] bslstl_BidirectionalIterator(const bslstl_BidirectionalIterator&);
-// [ 2] ~bslstl_BidirectionalIterator();
-// [ 9] bslstl_BidirectionalIterator& operator=(
-//                                        const bslstl_BidirectionalIterator&);
-// [ 2] bslstl_BidirectionalIterator& operator++();
-// [12] bslstl_BidirectionalIterator  operator++(
-//                                         bslstl_BidirectionalIterator&, int);
-// [11] bslstl_BidirectionalIterator& operator--();
-// [12] bslstl_BidirectionalIterator  operator--(
-//                                         bslstl_BidirectionalIterator&, int);
+// [ 2] bslstl::BidirectionalIterator();
+// [ 3] bslstl::BidirectionalIterator(IMPL);
+// [ 7] bslstl::BidirectionalIterator(const bslstl::BidirectionalIterator&);
+// [ 2] ~bslstl::BidirectionalIterator();
+// [ 9] bslstl::BidirectionalIterator& operator=(
+//                                       const bslstl::BidirectionalIterator&);
+// [ 2] bslstl::BidirectionalIterator& operator++();
+// [12] bslstl::BidirectionalIterator  operator++(
+//                                        bslstl::BidirectionalIterator&, int);
+// [11] bslstl::BidirectionalIterator& operator--();
+// [12] bslstl::BidirectionalIterator  operator--(
+//                                        bslstl::BidirectionalIterator&, int);
 // [ 4] T& operator*() const;
 // [10] T *operator->() const;
-// [ 6] bool operator==(const bslstl_BidirectionalIterator&,
-//                      const bslstl_BidirectionalIterator&);
-// [ 6] bool operator!=(const bslstl_BidirectionalIterator&,
-//                      const bslstl_BidirectionalIterator&);
+// [ 6] bool operator==(const bslstl::BidirectionalIterator&,
+//                      const bslstl::BidirectionalIterator&);
+// [ 6] bool operator!=(const bslstl::BidirectionalIterator&,
+//                      const bslstl::BidirectionalIterator&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [  ] USAGE EXAMPLE is informative only, and does not compile independantly
+// [  ] USAGE EXAMPLE is informative only, and does not compile independently
 //-----------------------------------------------------------------------------
 
 //=============================================================================
@@ -129,7 +130,8 @@ namespace
 {
 
 template<typename Iter>
-int testDistance( Iter first, Iter last ) {
+int testDistance( Iter first, Iter last )
+{
     //  A basic algorithm to verify the iterator can type walk the range
     //  specified by the pair of iterators 'first' and 'last', and return at
     //  end of the range.  We choose to calculate distance as this might prove
@@ -252,30 +254,15 @@ bool testRandomAccessTag( Iter, Iter, std::random_access_iterator_tag* =
 
 struct Wrap { int data; };
 
-}
+}  // close unnamed namespace
+
 //=============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
-class UnspecifiedBool {
-    //  This class provides a value type that can be implicitly converted to
-    //  'bool'.  This will allow us to validate the minimum guarantees on
-    //  functions specified as returning a value "convertible to 'bool'".
-private:
-    struct impl { int data; };
-    typedef int impl::*result_type;
-    result_type d_result;
-
-public:
-    explicit UnspecifiedBool(bool b)
-      : d_result(b ? &impl::data : result_type()) {}
-
-    operator result_type() const { return d_result; }
-};
-
 //  Minimal implementation of a singly linked list to validate basic iterator
-//  operations with a suitably resricted container.  The important feature for
-//  validating the iterator adaptor is that the interator-like class being
+//  operations with a suitably restricted container.  The important feature for
+//  validating the iterator adaptor is that the iterator-like class being
 //  adapted for the container's iterators support only the minimum set of
 //  operations required for the adaptor.  If not for this requirement, we would
 //  use 'slist' as an already well-tested component.  Note that this simple
@@ -303,6 +290,12 @@ class my_List
 
     class IteratorImp
     {
+      private:
+        // PRIVATE TYPES
+        typedef bsls::UnspecifiedBool<IteratorImp> BoolHost;
+        typedef typename BoolHost::BoolType        BoolType;
+
+        // DATA
         Node*   d_node;
 
       public:
@@ -313,8 +306,10 @@ class my_List
         // IteratorImp& operator=(const IteratorImp&);
         // ~IteratorImp();
 
-        UnspecifiedBool operator==(const IteratorImp& rhs) const
-            { return UnspecifiedBool(d_node == rhs.d_node); }
+        BoolType operator==(const IteratorImp& rhs) const
+            { return d_node == rhs.d_node
+                   ? BoolHost::trueValue()
+                   : BoolHost::falseValue(); }
 
         T& operator*() const { return d_node->d_val; }
 
@@ -322,9 +317,9 @@ class my_List
         void operator--() { d_node = d_node->d_prev; }
     };
 
-    friend class bslstl_BidirectionalIterator<T,IteratorImp>;
+    friend class bslstl::BidirectionalIterator<T,IteratorImp>;
 
-    friend class bslstl_BidirectionalIterator<const T,IteratorImp>;
+    friend class bslstl::BidirectionalIterator<const T,IteratorImp>;
 
     // Private copy constructor and copy assignment operator.
     // This class does not have value semantics.
@@ -337,10 +332,10 @@ class my_List
 
   public:
     // Declare iterator types:
-    typedef bslstl_BidirectionalIterator<T, IteratorImp>       iterator;
-    typedef bslstl_BidirectionalIterator<const T, IteratorImp> const_iterator;
+    typedef bslstl::BidirectionalIterator<T, IteratorImp>       iterator;
+    typedef bslstl::BidirectionalIterator<const T, IteratorImp> const_iterator;
 
-  my_List() : d_head(new Node(T(),0)), d_tail(d_head) {}
+    my_List() : d_head(new Node(T(),0)), d_tail(d_head) {}
 
     ~my_List() {
         while (d_head) {
@@ -389,16 +384,16 @@ int main(int argc, char *argv[])
         //   comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
-        //   bslstl_BidirectionalIterator& operator++(int);
-        //   bslstl_BidirectionalIterator& operator--(int);
+        //   bslstl::BidirectionalIterator& operator++(int);
+        //   bslstl::BidirectionalIterator& operator--(int);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING POST-*CREMENT OPERATOR" << endl
                                   << "==============================" << endl;
 
         int testData[4] = { 0, 1, 2, 3 };
-        typedef bslstl_BidirectionalIterator<int, int*> iterator;
-        typedef bslstl_BidirectionalIterator<const int, int*> const_iterator;
+        typedef bslstl::BidirectionalIterator<int, int*> iterator;
+        typedef bslstl::BidirectionalIterator<const int, int*> const_iterator;
 
         if (verbose) cout << "\nConstruct basic iterator values" << endl;
         iterator it1 = testData;
@@ -424,7 +419,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl_BidirectionalIterator& operator++();
+        //   bslstl::BidirectionalIterator& operator++();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING DECREMENT OPERATOR" << endl
@@ -432,8 +427,8 @@ int main(int argc, char *argv[])
 
         //  Declare test data and types
         int testData[4] = { 0, 1, 2, 3 };
-        typedef bslstl_BidirectionalIterator<int, int*> iterator;
-        typedef bslstl_BidirectionalIterator<const int, int*> const_iterator;
+        typedef bslstl::BidirectionalIterator<int, int*> iterator;
+        typedef bslstl::BidirectionalIterator<const int, int*> const_iterator;
 
         //  Confirm that an iterator over our reference array does not have the
         //  same value as a default constructed iterator.  (Actually, this
@@ -443,11 +438,11 @@ int main(int argc, char *argv[])
         ASSERT( itcOrigin == itData);
 
         //  Confirm that an decremented iterator does not have the same value
-        //  as the intitial iterator
+        //  as the initial iterator
         --itData;
         ASSERT( itcOrigin != itData);
 
-        //  Confirm that decrementing a second copy of the intitial iterator
+        //  Confirm that decrementing a second copy of the initial iterator
         //  has the same value as the first incremented iterator.
         const_iterator itcCopy = itcOrigin;
         ASSERT( itcOrigin == itcCopy);
@@ -464,7 +459,7 @@ int main(int argc, char *argv[])
             }
             else {
                 LOOP3_ASSERT(i, *itReader, *itValidator,
-                                                    &*itReader == itValidator);
+                             &*itReader == itValidator);
             }
         }
       } break;
@@ -485,13 +480,14 @@ int main(int argc, char *argv[])
                                   << "==================" << endl;
 
         {
-        if (verbose) cout << "\nVefify iterator properties with a"
+        if (verbose) cout << "\nVerify iterator properties with a"
                              " directly examinable container" << endl;
 
         //  Declare test data and types
         Wrap testData[2] = { {13}, {99} };
-        typedef bslstl_BidirectionalIterator<Wrap, Wrap*> iterator;
-        typedef bslstl_BidirectionalIterator<const Wrap, Wrap*> const_iterator;
+        typedef bslstl::BidirectionalIterator<Wrap, Wrap*> iterator;
+        typedef bslstl::BidirectionalIterator<const Wrap, Wrap*>
+                                                                const_iterator;
 
         const iterator itWritable = testData;
         // Obtain a fresh copy of an equivalent constant iterator
@@ -541,8 +537,8 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl_BidirectionalIterator& operator=(
-        //                                 const bslstl_BidirectionalIterator&)
+        //   bslstl::BidirectionalIterator& operator=(
+        //                                const bslstl::BidirectionalIterator&)
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING ASSIGNMENT OPERATOR" << endl
@@ -609,8 +605,8 @@ int main(int argc, char *argv[])
 
         //  Declare test data and types
         int testData[1] = { 13 };
-        typedef bslstl_BidirectionalIterator<int, int*> iterator;
-        typedef bslstl_BidirectionalIterator<const int, int*> const_iterator;
+        typedef bslstl::BidirectionalIterator<int, int*> iterator;
+        typedef bslstl::BidirectionalIterator<const int, int*> const_iterator;
 
         const iterator itSource = testData;
         const_iterator itCopy = itSource;
@@ -633,8 +629,8 @@ int main(int argc, char *argv[])
 
         //  Declare test data and types
         int testData[1] = { 13 };
-        typedef bslstl_BidirectionalIterator<int, int*> iterator;
-        typedef bslstl_BidirectionalIterator<const int, int*> const_iterator;
+        typedef bslstl::BidirectionalIterator<int, int*> iterator;
+        typedef bslstl::BidirectionalIterator<const int, int*> const_iterator;
 
         const iterator itSource = testData;
         iterator itCopy = itSource;
@@ -654,13 +650,13 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //    Iterators must compare equal to themselves.
-        //    constant iterators can be compared with mutable iterators
-        //    contant and mutable iterators referring to the same element shall
-        //    compare equal
-        //    iterators that do not refer to the same element shall not compare
-        //    equal
-        //    tests based on the identity of the referenced element must be
-        //    valid, even when the referenced element overloads operator&
+        //    Constant iterators can be compared with mutable iterators.
+        //    Constant and mutable iterators referring to the same element.
+        //      shall compare equal.
+        //    Iterators that do not refer to the same element shall not compare
+        //      equal.
+        //    Tests based on the identity of the referenced element must be
+        //      valid, even when the referenced element overloads operator&.
         //
         // Plan:
         //   Create a list with a single element, so that the sequence is not
@@ -675,10 +671,10 @@ int main(int argc, char *argv[])
         //   values.
         //
         // Testing:
-        //   bool operator==(const bslstl_BidirectionalIterator&,
-        //                   const bslstl_BidirectionalIterator&);
-        //   bool operator!=(const bslstl_BidirectionalIterator&,
-        //                   const bslstl_BidirectionalIterator&);
+        //   bool operator==(const bslstl::BidirectionalIterator&,
+        //                   const bslstl::BidirectionalIterator&);
+        //   bool operator!=(const bslstl::BidirectionalIterator&,
+        //                   const bslstl::BidirectionalIterator&);
         // --------------------------------------------------------------------
         if (verbose) cout << endl << "TESTING EQUALITY OPERATOR" << endl
                                   << "=========================" << endl;
@@ -742,17 +738,17 @@ int main(int argc, char *argv[])
         //
         //
         // Concerns:
-        //   Derefencing an iterator should refer to the expected element
+        //   Dereferencing an iterator should refer to the expected element.
         //   Must be able to check dereferenced object's identity, even if it
-        //   overloads operator&
+        //     overloads operator&.
         //   Should be able to write through a mutable iterator, and observe
-        //   the effect through a constant iterator referring to the same
-        //   element.
+        //     the effect through a constant iterator referring to the same
+        //     element.
         //
         // Plan:
         //   Perform initial validation against an array of ints, that can be
         //   directly manipulated to confirm iterators are operating correctly.
-        //   Repeat tests using the sample list container to vefify that the
+        //   Repeat tests using the sample list container to verify that the
         //   same operations work as advertised when the adapted iterator
         //   offers only the minimal set of operations.
         //
@@ -765,13 +761,13 @@ int main(int argc, char *argv[])
 
 
         {
-        if (verbose) cout << "\nVefify iterator properties with a"
+        if (verbose) cout << "\nVerify iterator properties with a"
                              " directly examinable container" << endl;
 
         //  Declare test data and types
         int testData[1] = { 13 };
-        typedef bslstl_BidirectionalIterator<int, int*> iterator;
-        typedef bslstl_BidirectionalIterator<const int, int*> const_iterator;
+        typedef bslstl::BidirectionalIterator<int, int*> iterator;
+        typedef bslstl::BidirectionalIterator<const int, int*> const_iterator;
 
         const iterator itWritable = testData;
         // Obtain a fresh copy of an equivalent constant iterator
@@ -855,21 +851,16 @@ int main(int argc, char *argv[])
         //      iterators.
         //
         // Testing:
-        //   class UnspecifiedBool
         //   class my_List<T>
         //   my_List<T>::begin
         //   my_List<T>::end
-        //   bslstl_BidirectionalIterator(IMPL);
+        //   bslstl::BidirectionalIterator(IMPL);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING (PRIMITIVE) GENERATORS" << endl
                                   << "==============================" << endl;
 
         if (verbose) cout << "\nValidating primitive test machinery" << endl;
-
-        ASSERT(UnspecifiedBool(true));
-        ASSERT(!UnspecifiedBool(false));
-
 
         if (verbose) cout << "\nTesting class my_List<int>" << endl;
 
@@ -933,9 +924,9 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl_BidirectionalIterator();
-        //   ~bslstl_BidirectionalIterator();
-        //   bslstl_BidirectionalIterator& operator++();
+        //   bslstl::BidirectionalIterator();
+        //   ~bslstl::BidirectionalIterator();
+        //   bslstl::BidirectionalIterator& operator++();
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "TESTING PRIMARY MANIPULATORS" << endl
@@ -946,10 +937,10 @@ int main(int argc, char *argv[])
 
         //  Declare test data and types
         int testData[4] = { 0, 1, 2, 3 };
-        typedef bslstl_BidirectionalIterator<int, int*> iterator;
-        typedef bslstl_BidirectionalIterator<const int, int*> const_iterator;
+        typedef bslstl::BidirectionalIterator<int, int*> iterator;
+        typedef bslstl::BidirectionalIterator<const int, int*> const_iterator;
 
-        //  Confirm that we can default-intialize const iterators.
+        //  Confirm that we can default-initialize const iterators.
         //  Confirm that iterator and const_iterator can be compared.
         const iterator itDefault;
         const const_iterator itcDefault;
@@ -964,11 +955,11 @@ int main(int argc, char *argv[])
         ASSERT( itcOrigin == itData);
 
         //  Confirm that an incremented iterator does not have the same value
-        //  as the intitial iterator
+        //  as the initial iterator
         ++itData;
         ASSERT( itcOrigin != itData);
 
-        //  Confirm that incrementing a second copy of the intitial iterator
+        //  Confirm that incrementing a second copy of the initial iterator
         //  has the same value as the first incremented iterator.
         const_iterator itcCopy = itcOrigin;
         ASSERT( itcOrigin == itcCopy);
@@ -1006,8 +997,8 @@ int main(int argc, char *argv[])
                                   << "==============" << endl;
 
         int testData[4] = { 0, 1, 2, 3 };
-        typedef bslstl_BidirectionalIterator<int, int*> iterator;
-        typedef bslstl_BidirectionalIterator<const int, int*> const_iterator;
+        typedef bslstl::BidirectionalIterator<int, int*> iterator;
+        typedef bslstl::BidirectionalIterator<const int, int*> const_iterator;
 
         if (verbose) cout << "\nConstruct a basic iterator value" << endl;
         iterator it1 = testData;
@@ -1059,8 +1050,8 @@ int main(int argc, char *argv[])
 
         //  To test operator->, create an array of struct values
         Wrap testWrap[4] = { {0}, {1}, {2}, {3} };
-        typedef bslstl_BidirectionalIterator<Wrap, Wrap*> wrap_iterator;
-        typedef bslstl_BidirectionalIterator<const Wrap, Wrap*>
+        typedef bslstl::BidirectionalIterator<Wrap, Wrap*> wrap_iterator;
+        typedef bslstl::BidirectionalIterator<const Wrap, Wrap*>
                                                            const_wrap_iterator;
 
         wrap_iterator wit1 = testWrap;
@@ -1087,7 +1078,7 @@ int main(int argc, char *argv[])
 
 
         //  Test for default constructor, which constructs a singular iterator
-        //      Can assign to a sigular value, and destroy it
+        //      Can assign to a singular value, and destroy it
         //      may not make a copy
         const_wrap_iterator x;
 
@@ -1095,9 +1086,10 @@ int main(int argc, char *argv[])
         x = wit1;
         LOOP2_ASSERT(&*wit1, &*x, wit1 == x);
 
-        //  Not yet validated constness of any APIs, e.g. operator*, operator->
-        //  (are constness concerns appropriate for a breathing test, we just
-        //   want to confirm that each individual API can be called.)
+        // Not yet validated constness of any APIs, e.g., 'operator*' and
+        // 'operator->' (are constness concerns appropriate for a breathing
+        // test, we just want to confirm that each individual API can be
+        // called.)
 
         // --------------------------------------------------------------------
         // (ORIGINAL) BREATHING/USAGE TEST
@@ -1136,21 +1128,23 @@ int main(int argc, char *argv[])
         //  Assert iterator_traits finds the expected typedefs
         typedef bsl::iterator_traits<iter_type>  IterTraits;
         typedef bsl::iterator_traits<const_iter_type>  ConstIterTraits;
-        ASSERT((bslmf_IsSame<IterTraits::difference_type,
-                             std::ptrdiff_t>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::value_type, int>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::pointer, int *>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::reference, int &>::VALUE));
-        ASSERT((bslmf_IsSame<IterTraits::iterator_category,
-                             std::bidirectional_iterator_tag>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::difference_type,
+                              std::ptrdiff_t>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::value_type, int>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::pointer, int *>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::reference, int &>::VALUE));
+        ASSERT((bslmf::IsSame<IterTraits::iterator_category,
+                              std::bidirectional_iterator_tag>::VALUE));
 
-        ASSERT((bslmf_IsSame<ConstIterTraits::difference_type,
-                             std::ptrdiff_t>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::value_type, const int>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::pointer, const int *>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::reference, const int &>::VALUE));
-        ASSERT((bslmf_IsSame<ConstIterTraits::iterator_category,
-                             std::bidirectional_iterator_tag>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::difference_type,
+                              std::ptrdiff_t>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::value_type,
+                              const int>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::pointer, const int *>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::reference,
+                              const int &>::VALUE));
+        ASSERT((bslmf::IsSame<ConstIterTraits::iterator_category,
+                              std::bidirectional_iterator_tag>::VALUE));
 
         if (verbose) cout << "\nPopulate the test list." << std::endl;
         int i;
@@ -1167,9 +1161,10 @@ int main(int argc, char *argv[])
         i = 4;
         for (my_List<int>::const_iterator it = A.begin(); it != A.end(); ++it,
                                                                           --i){
-            // Note that we assume we can derference without changing the value
-            // of the iterator.  This is a fair assumption for a breathing test
-            // but should be checked strictly in the main driver.
+            // Note that we assume we can dereference without changing the
+            // value of the iterator.  This is a fair assumption for a
+            // breathing test but should be checked strictly in the main
+            // driver.
             if(veryVerbose) { T_ P_(i) P_(DATA[i]) P(*it) }
             LOOP3_ASSERT(i, DATA[i], *it, DATA[i] == *it);
         }
@@ -1178,9 +1173,10 @@ int main(int argc, char *argv[])
                           << std::endl;
         for (my_List<int>::const_iterator it = A.end(); it != A.begin();){
             // Note that we will be decremented inside the body of the loop.
-            // Note that we assume we can derference without changing the value
-            // of the iterator.  This is a fair assumption for a breathing test
-            // but should be checked strictly in the main driver.
+            // Note that we assume we can dereference without changing the
+            // value of the iterator.  This is a fair assumption for a
+            // breathing test but should be checked strictly in the main
+            // driver.
             --it;
             ++i;
             if(veryVerbose) { T_ P_(i) P_(DATA[i]) P(*it) }

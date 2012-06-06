@@ -64,8 +64,8 @@ BDES_IDENT("$Id: $")
 // Then, we create a series of transitions between these local time
 // descriptors for the years 2007-2011.  Note that the United States
 // transitions to daylight savings time on the second Sunday in March, at 2am
-// local time (7am GMT), and transitions back to standard time on the first
-// Sunday in November at 2am local time (6am GMT).  Also note, that these rules
+// local time (7am UTC), and transitions back to standard time on the first
+// Sunday in November at 2am local time (6am UTC).  Also note, that these rules
 // for generating transitions was different prior to 2007, and may be changed
 // at some point in the future.
 //..

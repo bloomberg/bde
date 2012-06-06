@@ -24,27 +24,27 @@ using namespace std;
 //    the alignment of the resulting type equals the original input.
 // 3. That the alignment of a 'struct' equals the alignment of its
 //    most-strictly aligned member.
-// 4. That 'bsls_Alignment::MAX_ALIGNMENT' really is the largest value that
+// 4. That 'bsls::Alignment::MAX_ALIGNMENT' really is the largest value that
 //    will be produced by the alignment calculations and that
-//    'bsls_Alignment::MaxAlignedType' is aligned at
-//    'bsls_Alignment::MAX_ALIGNMENT'.
+//    'bsls::Alignment::MaxAlignedType' is aligned at
+//    'bsls::Alignment::MAX_ALIGNMENT'.
 //
 // For the few run-time functions provided in this component, we establish
 // post-conditions and test that the postconditions hold over a reasonable
 // range of inputs.
 //-----------------------------------------------------------------------------
 // [ 1] bsls_AlignmentOf<T>::VALUE (deprecated)
-// [ 2] bsls_AlignmentToType<N>::Type (deprecated)
+// [ 2] bsls::AlignmentToType<N>::Type (deprecated)
 // [ 2] bsls_AlignmentOf<T>::Type (deprecated)
-// [ 3] bsls_Alignment::MAX_ALIGNMENT (deprecated)
-// [ 4] bsls_Alignment::MaxAlignedType (deprecated)
-// [ 4] bsls_Alignment::Align (deprecated)
+// [ 3] bsls::Alignment::MAX_ALIGNMENT (deprecated)
+// [ 4] bsls::Alignment::MaxAlignedType (deprecated)
+// [ 4] bsls::Alignment::Align (deprecated)
 //
-// [ 5] int bsls_Alignment::calculateAlignmentFromSize(int size); (deprecated)
-// [ 6] int bsls_Alignment::calculateAlignmentOffset(void *, int); (deprecated)
-// [ 7] bool bsls_Alignment::is2ByteAligned(const void *); (deprecated)
-// [ 7] bool bsls_Alignment::is4ByteAligned(const void *); (deprecated)
-// [ 7] bool bsls_Alignment::is8ByteAligned(const void *); (deprecated)
+// [ 5] int bsls::Alignment::calculateAlignmentFromSize(int size); (deprecated)
+// [ 6] int bsls::Alignment::calculateAlignmentOffset(void*, int); (deprecated)
+// [ 7] bool bsls::Alignment::is2ByteAligned(const void *); (deprecated)
+// [ 7] bool bsls::Alignment::is4ByteAligned(const void *); (deprecated)
+// [ 7] bool bsls::Alignment::is8ByteAligned(const void *); (deprecated)
 // [ 8] enum Strategy { ... };
 // [ 8] char *toAscii(Type value);
 //-----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ static void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //--------------------------------------------------------------------------
 
-typedef bsls_Alignment Obj;
+typedef bsls::Alignment Obj;
 
 //==========================================================================
 //                               USAGE EXAMPLE
@@ -160,7 +160,7 @@ typedef bsls_Alignment Obj;
                                     char                     *buffer,
                                     int                       bufferSize,
                                     int                       size,
-                                    bsls_Alignment::Strategy  strategy)
+                                    bsls::Alignment::Strategy strategy)
         // Allocate a memory block of the specified 'size' (in bytes) from the
         // specified 'buffer' having the specified 'bufferSize' at the
         // specified 'cursor' position, using the specified alignment
@@ -182,12 +182,12 @@ typedef bsls_Alignment Obj;
 //..
 // Then, based on the alignment 'strategy', we calculate the alignment value
 // that can satisfy the allocation request.  In the case of
-// 'bsls_Alignment::BSLS_NATURAL', we calculate the alignment from 'size'; for
-// 'bsls_Alignment::BSLS_MAXIMUM', we use the platform-dependent
+// 'bsls::Alignment::BSLS_NATURAL', we calculate the alignment from 'size'; for
+// 'bsls::Alignment::BSLS_MAXIMUM', we use the platform-dependent
 // 'my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT' value:
 //..
         const int alignment =
-                           strategy == bsls_Alignment::BSLS_NATURAL
+                           strategy == bsls::Alignment::BSLS_NATURAL
                            ? my_AlignmentUtil::calculateAlignmentFromSize(size)
                            : my_AlignmentUtil::MY_MAX_PLATFORM_ALIGNMENT;
 //..

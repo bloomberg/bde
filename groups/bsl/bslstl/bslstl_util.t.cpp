@@ -1,4 +1,4 @@
-// bslstl_util.t.cpp                  -*-C++-*-
+// bslstl_util.t.cpp                                                  -*-C++-*-
 
 #include <bslstl_util.h>
 

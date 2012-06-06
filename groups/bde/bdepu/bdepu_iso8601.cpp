@@ -710,7 +710,7 @@ int bdepu_Iso8601::parse(bdet_Time  *result,
     // 'addTime' and/or 'addMinutes' will reset '24:00:00' to '00:00:00' (even
     // if the quantities added are 0), which we don't want to happen.
     // 'hours == 24' is only allowed for the value '24:00:00.000' with timezone
-    // GMT.
+    // UTC.
 
     if (24 == hour && (millisecond || timezoneOffset)) {
         return -1;                                                    // RETURN

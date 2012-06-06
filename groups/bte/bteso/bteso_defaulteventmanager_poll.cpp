@@ -36,7 +36,8 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
     || defined(BDES_PLATFORM__OS_FREEBSD) \
     || defined(BSLS_PLATFORM__OS_AIX)     \
     || defined(BSLS_PLATFORM__OS_HPUX)    \
-    || defined(BSLS_PLATFORM__OS_CYGWIN)
+    || defined(BSLS_PLATFORM__OS_CYGWIN)  \
+    || defined(BSLS_PLATFORM__OS_DARWIN)
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -47,7 +48,9 @@ BDES_IDENT_RCSID(bteso_defaulteventmanager_poll_cpp,"$Id$ $CSID$")
     #include <sys/timers.h>       // timespec
     #define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  NO_TIMEOUT
     #define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT INF_TIMEOUT
-#elif defined(BSLS_PLATFORM__OS_LINUX) || defined(BSLS_PLATFORM__OS_CYGWIN)
+#elif defined(BSLS_PLATFORM__OS_LINUX) ||   \
+      defined(BSLS_PLATFORM__OS_CYGWIN) ||  \
+      defined(BSLS_PLATFORM__OS_DARWIN)
     #define BTESO_EVENTMANAGERIMP_POLL_NO_TIMEOUT  0
     #define BTESO_EVENTMANAGERIMP_POLL_INF_TIMEOUT -1
 #else
@@ -224,11 +227,25 @@ int bteso_DefaultEventManager<bteso_Platform::POLL>::dispatch(
             && now < timeout);
 
         if (0 >= rfds) {
-            return rfds
-                   ? -1 == rfds && EINTR == savedErrno
-                     ? -1
-                     : -savedErrno
-                   : 0;
+            if (0 == rfds) {
+                // timed out, no events
+
+                return 0;                                             // RETURN
+            }
+            else if (-1 == rfds && EINTR == savedErrno) {
+                // interrupted
+
+                return -1;                                            // RETURN
+            }
+            else {
+                // According to the contract, we are to return any negative
+                // number other than -1.  We might as well return '-savedErrno'
+                // to aid in debugging, except in the case where
+                // '-savedErrno >= -1', in which case it would be mistaken to
+                // have another meaning, so in that case, we return -10000.
+
+                return -savedErrno >= -1 ? -10000 : -savedErrno;      // RETURN
+            }
         }
 
         numCallbacks += dispatchCallbacks(&d_signaled,
@@ -270,11 +287,25 @@ int bteso_DefaultEventManager<bteso_Platform::POLL>::dispatch(int flags)
                  && !(bteso_Flag::BTESO_ASYNC_INTERRUPT & flags));
 
         if (0 >= rfds) {
-            return rfds
-                   ? -1 == rfds && EINTR == savedErrno
-                     ? -1
-                     : -savedErrno
-                   : 0;
+            if (0 == rfds) {
+                // timed out, no events
+
+                return 0;                                             // RETURN
+            }
+            else if (-1 == rfds && EINTR == savedErrno) {
+                // interrupted
+
+                return -1;                                            // RETURN
+            }
+            else {
+                // According to the contract, we are to return any negative
+                // number other than -1.  We might as well return '-savedErrno'
+                // to aid in debugging, except in the case where
+                // '-savedErrno >= -1', in which case it would be mistaken to
+                // have another meaning, so in that case, we return -10000.
+
+                return -savedErrno >= -1 ? -10000 : -savedErrno;      // RETURN
+            }
         }
 
         numCallbacks += dispatchCallbacks(&d_signaled,

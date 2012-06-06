@@ -1,0 +1,4 @@
+# BST overrides for default.opts
+
+*-                      _       OPTS_FILE       = bst.opts
+

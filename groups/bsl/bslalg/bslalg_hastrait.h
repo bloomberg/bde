@@ -10,26 +10,26 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide facilities for checking compile-time trait.
 //
 //@CLASSES:
-//  bslalg_HasTrait: trait detection mechanism
+//  bslalg::HasTrait: trait detection mechanism
 //
 //@SEE_ALSO: bslmf_typetraits
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
 //
-//@DESCRIPTION: This component provides a meta-function, 'bslalg_HasTrait', for
-// for macros used to assign traits to user-defined class.  Traits are used to
-// enable certain optimizations or discriminations at compile-time.  For
-// instance, a class having the trait 'bslalg_TypeTraitBitwiseMoveable' may
+//@DESCRIPTION: This component provides a meta-function, 'bslalg::HasTrait',
+// for for macros used to assign traits to user-defined class.  Traits are used
+// to enable certain optimizations or discriminations at compile-time.  For
+// instance, a class having the trait 'bslalg::TypeTraitBitwiseMoveable' may
 // allow resizing an array of objects by simply calling 'std::memcpy' instead
 // of invoking a copy-constructor on every object.  The usage example shows how
-// to use the 'bslalg_TypeTraitUsesBslmaAllocator' to propagate allocators to
+// to use the 'bslalg::TypeTraitUsesBslmaAllocator' to propagate allocators to
 // nested instances that may require them.
 //
 // This component should be used in conjunction with other components from the
 // package 'bslalg'.  See the package-level documentation for an overview.  The
 // most useful classes and macros defined in this component are:
 //..
-//  bslalg_HasTrait<TYPE, TRAIT>              This meta-function computes
+//  bslalg::HasTrait<TYPE, TRAIT>             This meta-function computes
 //                                            whether the parameterized 'TYPE'
 //                                            possesses the parameterized
 //                                            'TRAIT'.
@@ -60,72 +60,86 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 
-                       // ======================
-                       // struct bslalg_HasTrait
-                       // ======================
+namespace bslalg {
+
+                       // ===============
+                       // struct HasTrait
+                       // ===============
 
 template <typename TYPE, typename TRAIT>
-struct bslalg_HasTrait {
-    // This meta-function evaluates to 'bslmf_MetaInt<1>' if the parameterized
-    // type 'TYPE' has the parameterized 'TRAIT', and to 'bslmf_MetaInt<0>'
+struct HasTrait {
+    // This meta-function evaluates to 'bslmf::MetaInt<1>' if the parameterized
+    // type 'TYPE' has the parameterized 'TRAIT', and to 'bslmf::MetaInt<0>'
     // otherwise.  Note that 'TYPE' "has" the 'TRAIT' if
     // 'bslalg_TypeTraits<TYPE>' directly includes 'TRAIT' or else includes a
     // trait that implies 'TRAIT'.
 
   private:
-    typedef typename bslmf_RemoveCvq<TYPE>::Type   NoCvqType;
+    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
     typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
 
   public:
     enum {
-        VALUE = bslmf_IsConvertible<NoCvqTraits, TRAIT>::VALUE
+        VALUE = bslmf::IsConvertible<NoCvqTraits, TRAIT>::VALUE
     };
 
-    typedef bslmf_MetaInt<VALUE> Type;
+    typedef bslmf::MetaInt<VALUE> Type;
 };
 
 template <typename TYPE>
-struct bslalg_HasTrait<TYPE, bslalg_TypeTraitBitwiseMoveable> {
+struct HasTrait<TYPE, TypeTraitBitwiseMoveable> {
     // bitwise copyable                => bitwise moveable
     // has trivial default constructor => bitwise moveable
 
   private:
-    typedef typename bslmf_RemoveCvq<TYPE>::Type   NoCvqType;
+    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
     typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
 
   public:
     enum {
-        VALUE = bslmf_IsConvertible<NoCvqTraits,
-                                    bslalg_TypeTraitBitwiseMoveable>::VALUE
-             || bslmf_IsConvertible<NoCvqTraits,
-                                    bslalg_TypeTraitBitwiseCopyable>::VALUE
-             || bslmf_IsConvertible<NoCvqTraits,
-                           bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE
+        VALUE = bslmf::IsConvertible<NoCvqTraits,
+                                    TypeTraitBitwiseMoveable>::VALUE
+             || bslmf::IsConvertible<NoCvqTraits,
+                                    TypeTraitBitwiseCopyable>::VALUE
+             || bslmf::IsConvertible<NoCvqTraits,
+                           TypeTraitHasTrivialDefaultConstructor>::VALUE
     };
 
-    typedef bslmf_MetaInt<VALUE> Type;
+    typedef bslmf::MetaInt<VALUE> Type;
 };
 
 template <typename TYPE>
-struct bslalg_HasTrait<TYPE, bslalg_TypeTraitBitwiseCopyable> {
+struct HasTrait<TYPE, TypeTraitBitwiseCopyable> {
     // has trivial default constructor => bitwise copyable
 
   private:
-    typedef typename bslmf_RemoveCvq<TYPE>::Type   NoCvqType;
+    typedef typename bslmf::RemoveCvq<TYPE>::Type  NoCvqType;
     typedef bslalg_TypeTraits<NoCvqType>           NoCvqTraits;
 
   public:
     enum {
-        VALUE = bslmf_IsConvertible<NoCvqTraits,
-                                    bslalg_TypeTraitBitwiseCopyable>::VALUE
-             || bslmf_IsConvertible<NoCvqTraits,
-                           bslalg_TypeTraitHasTrivialDefaultConstructor>::VALUE
+        VALUE = bslmf::IsConvertible<NoCvqTraits,
+                                    TypeTraitBitwiseCopyable>::VALUE
+             || bslmf::IsConvertible<NoCvqTraits,
+                           TypeTraitHasTrivialDefaultConstructor>::VALUE
     };
 
-    typedef bslmf_MetaInt<VALUE> Type;
+    typedef bslmf::MetaInt<VALUE> Type;
 };
 
-}  // close namespace BloombergLP
+}  // close package namespace
+
+// ===========================================================================
+//                           BACKWARD COMPATIBILITY
+// ===========================================================================
+
+#ifdef bslalg_HasTrait
+#undef bslalg_HasTrait
+#endif
+#define bslalg_HasTrait bslalg::HasTrait
+    // This alias is defined for backward compatibility.
+
+}  // close enterprise namespace
 
 #endif
 

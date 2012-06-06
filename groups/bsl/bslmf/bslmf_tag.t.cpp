@@ -15,7 +15,7 @@ using namespace std;
 //                                Overview
 //                                --------
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_Tag
+// [ 1] bslmf::Tag
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 //=============================================================================
@@ -53,9 +53,9 @@ static void aSsErT(int c, const char *s, int i) {
 // verify that the tag is evaluated at compile-time
 
 template <int N>
-bslmf_Tag<N> tag() {
+bslmf::Tag<N> tag() {
     ASSERT(0);
-    return bslmf_Tag<N>();
+    return bslmf::Tag<N>();
 }
 
 enum {
@@ -84,13 +84,13 @@ const int CM5 = BSLMF_TAG_TO_INT(tag<-5>());  // -5
 // (e.g., copy constructor).
 //..
     template <class T>
-    void doSomethingImp(T *t, bslmf_Tag<0> *)
+    void doSomethingImp(T *t, bslmf::Tag<0> *)
     {
         // slow but generic implementation
     }
 
     template <class T>
-    void doSomethingImp(T *t, bslmf_Tag<1> *)
+    void doSomethingImp(T *t, bslmf::Tag<1> *)
     {
         // fast implementation (appropriate for bitwise-movable types)
     }
@@ -98,7 +98,7 @@ const int CM5 = BSLMF_TAG_TO_INT(tag<-5>());  // -5
     template <class T, bool IsFast>
     void doSomething(T *t)
     {
-        doSomethingImp(t, (bslmf_Tag<IsFast> *)0);
+        doSomethingImp(t, (bslmf::Tag<IsFast> *)0);
     }
 //..
 // For some parameter types, the fast version of 'doSomethingImp' is not legal.
@@ -116,7 +116,7 @@ const int CM5 = BSLMF_TAG_TO_INT(tag<-5>());  // -5
 //..
 // Note that an alternative design would be to use template partial
 // specialization instead of standard function overloading to avoid the
-// cost of passing a 'bslmf_Tag<N>' pointer.
+// cost of passing a 'bslmf::Tag<N>' pointer.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -153,32 +153,32 @@ int main(int argc, char *argv[])
 
 //
 // The value of the integral parameter supplied to an instantiation of
-// 'bslmf_Tag<N>' is "recoverable" by using the 'BSLMF_TAG_TO_INT' macro.
+// 'bslmf::Tag<N>' is "recoverable" by using the 'BSLMF_TAG_TO_INT' macro.
 // For example:
 //..
-    bslmf_Tag<7> tag;
+    bslmf::Tag<7> tag;
     ASSERT( 7 == BSLMF_TAG_TO_INT(tag));
-    ASSERT(53 == BSLMF_TAG_TO_INT(bslmf_Tag<50 + 3>()));
+    ASSERT(53 == BSLMF_TAG_TO_INT(bslmf::Tag<50 + 3>()));
 //..
 // The 'BSLMF_TAG_TO_BOOL' macro can be used to determine if the parameter is
 // non-zero:
 //..
     ASSERT( 1 == BSLMF_TAG_TO_BOOL(tag));
-    ASSERT( 0 == BSLMF_TAG_TO_BOOL(bslmf_Tag<0>()));
+    ASSERT( 0 == BSLMF_TAG_TO_BOOL(bslmf::Tag<0>()));
 //..
 
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf_Tag' with various constant integral
+        //   Instantiate 'bslmf::Tag' with various constant integral
         //   values and verify that their 'VALUE' member is initialized
         //   properly.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "bslmf_Tag" << endl
-                          << "=========" << endl;
+                          << "bslmf::Tag" << endl
+                          << "==========" << endl;
 
         ASSERT(1  == C0);
         ASSERT(2  == C1);

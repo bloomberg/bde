@@ -28,7 +28,7 @@ BSLS_IDENT("$Id: $")
 namespace bsl
 {
     // Import selected symbols into bsl namespace
-    using native_std::wint_t; 
+    using native_std::wint_t;
     using native_std::size_t;
     using native_std::mbstate_t;
     using native_std::btowc;

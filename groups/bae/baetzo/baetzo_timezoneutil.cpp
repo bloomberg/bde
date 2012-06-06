@@ -164,7 +164,7 @@ int baetzo_TimeZoneUtil::convertLocalToUtc(bdet_Datetime          *result,
         return rc;                                                    // RETURN
     }
 
-    *result = localTimeTz.gmtDatetime();
+    *result = localTimeTz.utcDatetime();
 
     return 0;
 }
@@ -186,7 +186,7 @@ int baetzo_TimeZoneUtil::convertLocalToUtc(baet_LocalDatetime     *result,
         return rc;                                                    // RETURN
     }
 
-    result->setDatetimeTz(bdet_DatetimeTz(localTimeTz.gmtDatetime(), 0));
+    result->setDatetimeTz(bdet_DatetimeTz(localTimeTz.utcDatetime(), 0));
     result->setTimeZoneId("Etc/UTC");
 
     return 0;
@@ -214,7 +214,7 @@ int baetzo_TimeZoneUtil::addInterval(
 {
     BSLS_ASSERT(result);
 
-    bdet_Datetime utcTime = originalTime.datetimeTz().gmtDatetime();
+    bdet_Datetime utcTime = originalTime.datetimeTz().utcDatetime();
     utcTime += interval;
 
     return convertUtcToLocalTime(result,
@@ -234,7 +234,7 @@ int baetzo_TimeZoneUtil::validateLocalTime(
     baetzo_LocalTimePeriod timePeriod;
     int rc = loadLocalTimePeriodForUtc(&timePeriod,
                                        timeZoneId,
-                                       localTime.gmtDatetime());
+                                       localTime.utcDatetime());
     if (0 != rc) {
         return rc;                                                    // RETURN
     }

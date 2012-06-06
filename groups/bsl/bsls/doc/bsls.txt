@@ -173,8 +173,8 @@
  defines a set of macros replacing the standard 'htonl', 'htons', 'ntohl', and
  'ntohs' which do not require including any system header.
 
-/'bsls_platform'
-/---------------
+/'bsls_protocoltest'
+/-------------------
  This component provides classes and macros for testing abstract protocols.
 
 /'bsls_stopwatch'

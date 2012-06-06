@@ -148,8 +148,8 @@ int baetzo_DataFileLoader::loadTimeZone(baetzo_Zoneinfo *result,
     bsl::string path;
     const int rc = loadTimeZoneFilePath(&path, timeZoneId);
     if (0 != rc) {
-        BAEL_LOG_INFO << "Poorly formed time-zone identifier '"
-                      << timeZoneId << "'" << BAEL_LOG_END;
+        BAEL_LOG_ERROR << "Poorly formed time-zone identifier '"
+                       << timeZoneId << "'" << BAEL_LOG_END;
         return baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID;               // RETURN
     }
 
@@ -165,8 +165,8 @@ int baetzo_DataFileLoader::loadTimeZone(baetzo_Zoneinfo *result,
         // if the data-file loader is not correctly configured, return
         // 'UNSPECIFIED_ERROR' (different from 'BAETZO_UNSUPPORTED_ID').
 
-        BAEL_LOG_INFO << "Failed to open time-zone information file'"
-                      << path << "'" << BAEL_LOG_END;
+        BAEL_LOG_ERROR << "Failed to open time-zone information file'"
+                       << path << "'" << BAEL_LOG_END;
 
         return isRootPathPlausible()
                ? baetzo_ErrorCode::BAETZO_UNSUPPORTED_ID

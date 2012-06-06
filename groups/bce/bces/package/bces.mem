@@ -1,11 +1,4 @@
 bces_platform
 bces_atomicutil
-bces_atomicutilimpl_sparc32
-bces_atomicutilimpl_sparcv9
-bces_atomicutilimpl_powerpc
-bces_atomicutilimpl_intel_pentium
-bces_atomicutilimpl_ia64
-bces_atomicutilimpl_amd64
 bces_atomictypes
 bces_threadlocalvariable
-

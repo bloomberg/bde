@@ -1,4 +1,4 @@
-// bslma_mallocfreeallocator.t.cpp  -*-C++-*-
+// bslma_mallocfreeallocator.t.cpp                                    -*-C++-*-
 
 #include <bslma_mallocfreeallocator.h>
 
@@ -21,13 +21,13 @@ using namespace std;
 // check whether they are invoked.  If no calls to global 'new' and 'delete'
 // are made, we assume 'std::malloc' and 'std::free' are used.
 //-----------------------------------------------------------------------------
-// [ 1] bslma_MallocFreeAllocator()
-// [ 1] ~bslma_MallocFreeAllocator()
+// [ 1] bslma::MallocFreeAllocator()
+// [ 1] ~bslma::MallocFreeAllocator()
 // [ 1] void *allocate(size_type size)
 // [ 1] void deallocate((void *address)
 // [ 2] void *allocate(size_type size)   // allocate 0
 // [ 2] void deallocate((void *address)  // deallocate 0
-// [ 3] static bslma_MallocFreeAllocator& singleton()
+// [ 3] static bslma::MallocFreeAllocator& singleton()
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 4] USAGE EXAMPLE
@@ -150,7 +150,7 @@ void operator delete(void *address)
             printf(" not");
         }
         printf(" enabled - count = %d: freeing %p\n",
-                globalDeleteCalledCount, address);
+               globalDeleteCalledCount, address);
     }
 
     free(address);
@@ -160,8 +160,8 @@ void operator delete(void *address)
 //                               USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 // This component is intended to be used when the use of 'new' and 'delete' are
-// not desirable, such as the case of 'bslma_TestAllocator'.  Instead of using
-// 'bslma_Default' which uses the 'bslma_NewDeleteAllocator', this component
+// not desirable, such as the case of 'bslma::TestAllocator'.  Instead of using
+// 'bslma::Default' which uses the 'bslma::NewDeleteAllocator', this component
 // can be used to bypass the use of 'new' and 'delete'.
 //
 // The following example demonstrates the use of this component for a user
@@ -170,18 +170,18 @@ void operator delete(void *address)
 //  // my_allocator.h
 //  // ...
 //
-    class my_Allocator : public bslma_Allocator {
+    class my_Allocator : public bslma::Allocator {
 //      // This class provides a mechanism for allocation and deallocation.
 //
 //      // DATA
-        bslma_Allocator *d_allocator_p;  // allocator (held, not owned)
+        bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 //
       public:
 //      // CREATORS
-        my_Allocator(bslma_Allocator *basicAllocator = 0);
+        my_Allocator(bslma::Allocator *basicAllocator = 0);
 //          // Create a 'my_Allcoator'.  Optionally specify 'basicAllocator' to
 //          // supply memory.  If 'basicAllocator' is 0, the
-//          // 'bslma_MallocFreeAllocator' will be used.
+//          // 'bslma::MallocFreeAllocator' will be used.
 //
         ~my_Allocator();
 //          // Destroy this allocator.  Note that the behavior of destroying an
@@ -204,22 +204,22 @@ void operator delete(void *address)
 //          // allocator, or has already been deallocated.
     };
 //..
-// The constructor is implemented using 'bslma_MallocFreeAllocator'.
+// The constructor is implemented using 'bslma::MallocFreeAllocator'.
 //..
 //  // my_allocator.cpp
 //  // ...
 //
 //  // CREATORS
-    my_Allocator::my_Allocator(bslma_Allocator *basicAllocator)
+    my_Allocator::my_Allocator(bslma::Allocator *basicAllocator)
     : d_allocator_p(basicAllocator
-                    ? basicAllocator 
-                    : &bslma_MallocFreeAllocator::singleton())
+                    ? basicAllocator
+                    : &bslma::MallocFreeAllocator::singleton())
     {
     }
 //
 //  // ...
 //..
-// When the 'basicAllocator' is not specified, the 'bslma_MallocFreeAllocator'
+// When the 'basicAllocator' is not specified, the 'bslma::MallocFreeAllocator'
 // will be used - which then calls 'std::malloc' and 'std::free' for allocating
 // and deallocating memory.
 
@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
         // Plan:
         //   Allocate memory using the default constructed 'my_Allocator', then
         //   ensure that global 'new' and 'delete' are not invoked.  Also
-        //   construct 'my_Allocator' using a 'bslma_newDeleteAllocator', then
+        //   construct 'my_Allocator' using a 'bslma::newDeleteAllocator', then
         //   ensure that global 'new' and 'delete' are invoked.
         //
         // Testing:
@@ -331,19 +331,20 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   1. That the 'singleton' method returns a valid
-        //      'bslma_MallocFreeAllocator' that can be used to allocate and
+        //      'bslma::MallocFreeAllocator' that can be used to allocate and
         //      deallocate memory using 'malloc' and 'free'.
         //
         //   2. Multiple invocations of 'singleton' return the same instance
-        //      of 'bslma_MallocFreeAllocator'.
+        //      of 'bslma::MallocFreeAllocator'.
         //
         // Plan:
-        //   Perform the same breathing test on the 'bslma_MallocFreeAllocator'
-        //   returned by the 'singleton' method.  Also store the address of the
-        //   instance returned by the 'singleton' method.
+        //   Perform the same breathing test on the
+        //   'bslma::MallocFreeAllocator' returned by the 'singleton' method.
+        //   Also store the address of the instance returned by the
+        //   'singleton' method.
         //
         // Testing:
-        //   static bslma_MallocFreeAllocator& singleton()
+        //   static bslma::MallocFreeAllocator& singleton()
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl << "SINGLETON TEST" << endl
@@ -351,10 +352,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'singleton'" << endl;
 
-        bslma_MallocFreeAllocator *alloc =
-                                       &bslma_MallocFreeAllocator::singleton();
-        bslma_MallocFreeAllocator *alloc2 =
-                                       &bslma_MallocFreeAllocator::singleton();
+        bslma::MallocFreeAllocator *alloc =
+                                      &bslma::MallocFreeAllocator::singleton();
+        bslma::MallocFreeAllocator *alloc2 =
+                                      &bslma::MallocFreeAllocator::singleton();
 
         ASSERT(alloc == alloc2);
 
@@ -410,7 +411,7 @@ int main(int argc, char *argv[])
         //   succeeds.
         //
         // Plan:
-        //   Create a 'bslma_MallocFreeAllocator' on the stack.  Then invoke
+        //   Create a 'bslma::MallocFreeAllocator' on the stack.  Then invoke
         //   'allocate' with 0 size and 'deallocate' on 0 address.
         //
         // Testing:
@@ -423,7 +424,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nCreating allocator" << endl;
 
-        bslma_MallocFreeAllocator alloc;
+        bslma::MallocFreeAllocator alloc;
 
         if (verbose) cout << "\nTesting allocate 0" << endl;
 
@@ -442,7 +443,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   That 'new' and 'delete' are not invoked by the
-        //   'bslma_MallocFreeAllocator'.
+        //   'bslma::MallocFreeAllocator'.
         //
         // Plan:
         //   Create a malloc-free allocator on the program stack and verify
@@ -450,8 +451,8 @@ int main(int argc, char *argv[])
         //   invocation, and with the appropriate arguments.
         //
         // Testing:
-        //    bslma_MallocFreeAllocator();
-        //    ~bslma_MallocFreeAllocator();
+        //    bslma::MallocFreeAllocator();
+        //    ~bslma::MallocFreeAllocator();
         //    void *allocate(int size);
         //    void deallocate(void *address);
         // -----------------------------------------------------------------
@@ -461,7 +462,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nCreating allocator" << endl;
 
-        bslma_MallocFreeAllocator alloc;
+        bslma::MallocFreeAllocator alloc;
 
         if (verbose) cout << "\nTesting allocate" << endl;
 

@@ -39,8 +39,8 @@ using namespace std;
 // [ 1] Uint64
 // [ 2] size_type
 //-----------------------------------------------------------------------------
-// [ 4] operator<<(ostream&, const bsls_Types::Uint64&);
-// [ 3] operator<<(ostream&, const bsls_Types::Int64&);
+// [ 4] operator<<(ostream&, const bsls::Types::Uint64&);
+// [ 3] operator<<(ostream&, const bsls::Types::Int64&);
 //-----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 //=============================================================================
@@ -84,7 +84,7 @@ static void aSsErT(int c, const char *s, int i)
 #define INT64_FMT_STR  "0x%llX"
 #endif
 
-char *hex64(char *buffer, bsls_Types::Uint64 value)
+char *hex64(char *buffer, bsls::Types::Uint64 value)
     // Convert the specified 64-bit 'value' to a hexadecimal string.
 {
     sprintf(buffer, INT64_FMT_STR, value);
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Simple example illustrating how one might use the types in
-        //   'bsls_Types'.
+        //   'bsls::Types'.
         //
         // Concerns:
         //   The usage example provided in the component header file must
@@ -142,16 +142,16 @@ int main(int argc, char *argv[])
 // The following illustrates how some of the types supplied by this component
 // might be used.
 //
-// 'bsls_Types::Int64' and 'bsls_Types::Uint64' identify the preferred
+// 'bsls::Types::Int64' and 'bsls::Types::Uint64' identify the preferred
 // fundamental types denoting signed and unsigned 64-bit integers,
 // respectively:
 //..
-    bsls_Types::Uint64 stimulus = 787000000000ULL;
+    bsls::Types::Uint64 stimulus = 787000000000ULL;
 //..
 // Clients can use these types in the same way as an 'int'.  Clients can also
 // mix usage with other fundamental integral types:
 //..
-    bsls_Types::Uint64 nationalDebt = 1000000000000ULL;
+    bsls::Types::Uint64 nationalDebt = 1000000000000ULL;
     nationalDebt += stimulus;
 
     unsigned int deficitReduction = 1000000000;
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
     if (veryVerbose)
         std::cout << "National Debt Level: " << nationalDebt << std::endl;
 //..
-// 'bsls_Types::size_type' identifies the preferred integral type
+// 'bsls::Types::size_type' identifies the preferred integral type
 // denoting the number of elements in a container, and the number of bytes in a
 // single block of memory supplied by an allocator.  For example, a typical use
 // is as a 'typedef' in an STL container:
@@ -170,21 +170,21 @@ int main(int argc, char *argv[])
         // ...
 
       public:
-        typedef bsls_Types::size_type size_type;
+        typedef bsls::Types::size_type size_type;
 
         // ...
     };
 //..
-// Since 'bsls_Types' are integers, the Standard Library facilities that work
-// with numeric types can be used with 'bsls_Types' as well.  For example, the
-// following code finds out some facts about 'bsls_Types::Int64' in a
+// Since 'bsls::Types' are integers, the Standard Library facilities that work
+// with numeric types can be used with 'bsls::Types' as well.  For example, the
+// following code finds out some facts about 'bsls::Types::Int64' in a
 // platform-independent way:
 //..
     if (veryVerbose)
        std::cout << "Min Int64 value: "
-                 << std::numeric_limits<bsls_Types::Int64>::min() << std::endl
+                 << std::numeric_limits<bsls::Types::Int64>::min() << std::endl
                  << "Max Int64 value: "
-                 << std::numeric_limits<bsls_Types::Int64>::max() << std::endl;
+                << std::numeric_limits<bsls::Types::Int64>::max() << std::endl;
 //..
 
       } break;
@@ -207,15 +207,15 @@ int main(int argc, char *argv[])
         //   those as well.
         //
         // Testing:
-        //   'operator<<' with const bsls_Types::Uint64&
+        //   'operator<<' with const bsls::Types::Uint64&
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
             << "Testing 64-bit unsigned integer streaming support." << endl
             << "==================================================" << endl;
 
-        typedef bsls_Types::Uint64 T;
-        typedef bsls_Types::Int64  S;
+        typedef bsls::Types::Uint64 T;
+        typedef bsls::Types::Int64  S;
 
         static const struct {
             int         d_lineNum;    // source line number
@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE, 0 == memcmp(buf1, FMT, SZ));
                 LOOP_ASSERT(LINE, 0 == memcmp(buf2, FMT, SZ));
                 LOOP_ASSERT(LINE, 0 == memcmp(buf1 + SZ, CTRL_BUF1 + SZ,
-                                                                        REST));
+                                              REST));
             }
         }
       } break;
@@ -379,14 +379,14 @@ int main(int argc, char *argv[])
         //   those as well.
         //
         // Testing:
-        //   'operator<<' with const bsls_Types::Int64&
+        //   'operator<<' with const bsls::Types::Int64&
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
             << "Testing 64-bit signed integer streaming support." << endl
             << "================================================" << endl;
 
-        typedef bsls_Types::Int64 T;
+        typedef bsls::Types::Int64 T;
 
         static const struct {
             int         d_lineNum;    // source line number
@@ -549,7 +549,7 @@ int main(int argc, char *argv[])
             << "Testing size_type" << endl
             << "=================" << endl;
 
-        typedef bsls_Types Types;
+        typedef bsls::Types Types;
 
         // Must be at least as wide as a 'long int' on 64 bit architectures,
         // as an 'int' otherwise.
@@ -601,7 +601,7 @@ int main(int argc, char *argv[])
             << "Testing Int64 & Uint64" << endl
             << "======================" << endl;
 
-        typedef bsls_Types Types;
+        typedef bsls::Types Types;
 
         // Must be right size.
         ASSERT(8 == sizeof(Types::Int64));

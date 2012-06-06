@@ -1,4 +1,4 @@
-// bsls_nativestd.t.cpp                  -*-C++-*-
+// bsls_nativestd.t.cpp                                               -*-C++-*-
 
 #include <bsls_nativestd.h>
 
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //
         // Plan:
-	//
+        //
         // Testing:
         //
         // --------------------------------------------------------------------

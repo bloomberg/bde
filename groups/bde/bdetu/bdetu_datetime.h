@@ -34,14 +34,14 @@ BDES_IDENT("$Id: $")
 //..
 ///USAGE EXAMPLE: Converting To and From Local Time
 ///------------------------------------------------
-// Conversion from system time (universally referenced to Greenwich Mean Time
-// (GMT)) to date and time in the geographical local time zone ("locale") is
-// known to be a complex problem.  Among the issues are:
+// Conversion from system time (universally referenced to Coordinated
+// Universal Time (UTC)) to date and time in the geographical local time
+// zone ("locale") is known to be a complex problem.  Among the issues are:
 //..
 //     (1) The geographical boundaries that constitute a timezone are both
 //         complex and mutable.
 //
-//     (2) A timezone is not just a fixed offset from GMT, but rather an offset
+//     (2) A timezone is not just a fixed offset from UTC, but rather an offset
 //         that *may* vary periodically; Daylight Saving Time (DST) is commonly
 //         (but not universally) observed in many locales.  Moreover, the rules
 //         that govern DST can and do change at the discretion of local
@@ -61,9 +61,9 @@ BDES_IDENT("$Id: $")
 // and historical variations.
 //
 // For countries in the European Union (EU), DST (since 1996) begins and ends
-// at 1AM GMT, starting on the last Sunday in March and ending on the last
+// at 1AM UTC, starting on the last Sunday in March and ending on the last
 // Sunday in October.  In these countries, local time jumps ahead one hour in
-// the spring and jumps back one hour in the fall, at 1AM GMT, whatever the
+// the spring and jumps back one hour in the fall, at 1AM UTC, whatever the
 // local time might be.
 //
 // In the United States, for those locales that observe it, DST (since 1986)
@@ -83,18 +83,18 @@ BDES_IDENT("$Id: $")
 // 8 months in 1975.
 //
 // Limiting ourselves to the locales and rules given explicitly above,
-// converting from GMT to local time is a non-trivial but in principle
+// converting from UTC to local time is a non-trivial but in principle
 // straightforward function of both the locale and the time itself -- the
 // conversion is only problematic when the locale of the end user is not that
 // of the computer.
 //
-// Unfortunately, conversion from local time to GMT in general requires an
+// Unfortunately, conversion from local time to UTC in general requires an
 // explicit qualification indicating whether or not DST is in effect.
 // Specifically, the change *to* DST creates each year an hour-long interval of
 // (unqualified) local-time *representations* that are invalid, i.e., a
-// syntactically valid "time" that does not correspond to any GMT value.
+// syntactically valid "time" that does not correspond to any UTC value.
 // Similarly, the change *from* DST creates a two-hour-long period where each
-// (unqualified) value for the local time maps onto two distinct GMT values,
+// (unqualified) value for the local time maps onto two distinct UTC values,
 // separated by one hour.  Adding the appropriate DST qualifier removes this
 // representational ambiguity, but this information is often simply not
 // available.
@@ -107,17 +107,17 @@ BDES_IDENT("$Id: $")
 //                             const bdet_DatetimeInterval&  timezoneOffset,
 //                             my_TimeUtil::DstMode          mode);
 //..
-// that converts from GMT expressed as a 'bsl::time_t' to a local
-// 'bdet_Datetime'.  The standard local-time offest from GMT ('timezoneOffset')
+// that converts from UTC expressed as a 'bsl::time_t' to a local
+// 'bdet_Datetime'.  The standard local-time offest from UTC ('timezoneOffset')
 // as well as the mode ('DstMode') of daylight saving time (e.g., 'NONE', 'EU',
 // or 'US') are also supplied.  The following specific examples illustrate the
 // expected result with initial universal times corresponding to 12 noon, June
-// 30, 2005 and 12 noon, December 30, 2005 GMT, respectively:
+// 30, 2005 and 12 noon, December 30, 2005 UTC, respectively:
 //..
 //                                          __________________________________
 //                                          |  Local Times Corresponding To  |
-//                          Offset   DST*   |  Initial Universal Time (GMT)  |
-// Geographical Location   From GMT  Mode   2005/6/30 12:00   2005/12/30 12:00
+//                          Offset   DST*   |  Initial Universal Time (UTC)  |
+// Geographical Location   From UTC  Mode   2005/6/30 12:00   2005/12/30 12:00
 // ---------------------   --------  ----   ---------------   ----------------
 // Chatham Is New Zealand    +12:45  NONE   2005/6/31  0:45   2005/12/31  0:45
 // Auckland, New Zealand     +12:00  (TBD)  2005/6/31  0:00   2005/12/31  1:00*
@@ -175,7 +175,7 @@ BDES_IDENT("$Id: $")
 //  }
 //..
 // For simplicity, we will initially assume that the valid range for our
-// 'toLocalTime' function is any GMT after midnight, January 1, 1996 through
+// 'toLocalTime' function is any UTC after midnight, January 1, 1996 through
 // January 19, 2038 at 3:14:07AM (corresponding to the maximum value of
 // 'bsl::time_t' currently available on all platforms).  Initially, we will
 // support only three DST modes: NONE, EU, and US; however, the 'toLocalTime'
@@ -227,15 +227,15 @@ BDES_IDENT("$Id: $")
 //                                const bdet_DatetimeInterval& timezoneOffset,
 //                                my_TimeUtil::DstMode         mode);
 //          // Return 'true' if the specified 'universalTime', (referenced to
-//          // GMT), if converted to local time as indicated by the specified
+//          // UTC), if converted to local time as indicated by the specified
 //          // 'timezoneOffset' and 'mode' of observing Daylight Saving
 //          // Time, would represent a Daylight Saving Time (DST) value in
 //          // the local time zone, and 'false' otherwise.  'timezoneOffset'
-//          // represents the relative time difference between GMT and
+//          // represents the relative time difference between UTC and
 //          // standard local time.  For example, Eastern Standard Time
-//          // (EST) is consistently GMT - 5 hours.  That is, if it is noon
-//          // in Greenwich, in New York it is 7AM EST (in the winter) and
-//          // 8AM EDT (in the summer).  The behavior is undefined unless
+//          // (EST) is consistently UTC - 5 hours.  That is, if it is noon
+//          // in Greenwich (UTC), in New York it is 7AM EST (in the winter)
+//          // and 8AM EDT (in the summer).  The behavior is undefined unless
 //          // -12:00 <= 'timezoneOffset' <= 13:00.
 //
 //      static
@@ -248,12 +248,12 @@ BDES_IDENT("$Id: $")
 //                                bsl::time_t                  universalTime,
 //                                const bdet_DatetimeInterval& timezoneOffset,
 //                                my_TimeUtil::DstMode         mode);
-//          // Convert the specified 'universalTime' (referenced to GMT)
+//          // Convert the specified 'universalTime' (referenced to UTC)
 //          // to the desired local time indicated by the specified
 //          // 'timezoneOffset' and 'mode' of observing Daylight Saving
 //          // Time.  Return 1 if 'result' is in Daylight Saving Time, and
 //          // 0 if in Standard Time.  'timezoneOffset' represents the
-//          // relative time difference between GMT and standard local time
+//          // relative time difference between UTC and standard local time
 //          // (see 'isDaylightSavingTime' for examples).  The behavior
 //          // is undefined unless 1996/01/01_00:00:00 <= 'universalTime',
 //          // 'universalTime' <= 2038/01/19_03:17:04, and
@@ -319,7 +319,7 @@ BDES_IDENT("$Id: $")
 //          return 0;
 //        }; break;
 //        case EU: {
-//          const int m = universalTime.month(); // reference is GMT
+//          const int m = universalTime.month(); // reference is UTC
 //          if (MARCH < m && m < OCTOBER) {
 //              return 1;
 //          }
@@ -339,7 +339,7 @@ BDES_IDENT("$Id: $")
 //              if (d > dom) {
 //                  return 1;
 //              }
-//              return universalTime.hour() >= 1; // changes at 1AM GMT
+//              return universalTime.hour() >= 1; // changes at 1AM UTC
 //          }
 //          else { assert(OCTOBER == m);
 //              if (d < dom) {
@@ -348,7 +348,7 @@ BDES_IDENT("$Id: $")
 //              if (d > dom) {
 //                  return 0;
 //              }
-//              return universalTime.hour() < 1;  // changes at 1AM GMT
+//              return universalTime.hour() < 1;  // changes at 1AM UTC
 //          }
 //        }; break;
 //        case US: {
@@ -464,8 +464,8 @@ struct bdetu_Datetime {
         // 'datetime'.  Return 0 on success, and a non-zero value with no
         // effect on 'result' if 'datetime' cannot be represented as a
         // 'bsl::time_t'.  Note that 'datetime' is assumed to be referenced to
-        // Greenwich Mean Time (GMT), and that this function is thread-safe on
-        // all platforms.
+        // Coordinated Universal Time (UTC), and that this function is
+        // thread-safe on all platforms.
         //
         // DEPRECATED: use 'bdetu_Epoch::convertToTimeT()' instead.
 
@@ -473,8 +473,8 @@ struct bdetu_Datetime {
         // Load into the specified 'result' the value of the specified 'time'.
         // The behavior is undefined if 'bsl::time_t' is negative or represents
         // a time beyond the valid range for a 'bdet_Datetime'.  Note that
-        // 'result' will be referenced to Greenwich Mean Time (GMT), and that
-        // this function is thread-safe on all platforms.
+        // 'result' will be referenced to Coordinated Universal Time (UTC),
+        // and that this function is thread-safe on all platforms.
         //
         // DEPRECATED: use 'bdetu_Epoch::convertFromTimeT()' instead.
 

@@ -8,8 +8,8 @@
 //
 //@DESCRIPTION: This component provides backwards compatibility for Bloomberg
 // libraries that depend on non-standard STLPort header files.  This header
-// includes the corresponding C++ header and provides any additional
-// symbols that the STLPort header would define via transitive includes.
+// includes the corresponding C++ header and provides any additional symbols
+// that the STLPort header would define via transitive includes.
 
 #include <bsl_new.h>
 

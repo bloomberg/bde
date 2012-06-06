@@ -321,7 +321,7 @@ class SimpleScheduler
                 bdet_TimeInterval when;
                 bdetu_TimeInterval::convertToTimeInterval(&when,
                                firstItem.key() -
-                               bdetu_SystemTime::nowAsDatetimeGMT());
+                               bdetu_SystemTime::nowAsDatetimeUtc());
                 if (when.totalSecondsAsDouble() <= 0) {
                     // Execute now and remove from schedule, then iterate.
 
@@ -2082,7 +2082,7 @@ int main(int argc, char *argv[])
 
             SimpleScheduler scheduler;
 
-            bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeGMT(),
+            bdet_Datetime now = bdetu_SystemTime::nowAsDatetimeUtc(),
                 scheduleTime;
 
             // Add events out of sequence and ensure they are executed
@@ -2120,7 +2120,7 @@ int main(int argc, char *argv[])
             ASSERT(values.empty());
 
             scheduleTime.addMilliseconds(250);
-            while (bdetu_SystemTime::nowAsDatetimeGMT() < scheduleTime) {
+            while (bdetu_SystemTime::nowAsDatetimeUtc() < scheduleTime) {
                 bcemt_ThreadUtil::microSleep(10000);
             }
             bsls_Stopwatch waitTimer;

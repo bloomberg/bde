@@ -34,7 +34,7 @@ BDES_IDENT("$Id: $")
 // timestamp indicated in the format specification is biased by the timestamp
 // offset of the record formatter prior to outputting it to the stream.  This
 // facilitates the logging of records in local time, if desired, in the event
-// that the timestamp attribute of records are in GMT.
+// that the timestamp attribute of records are in UTC.
 //
 ///Record Format Specification
 ///---------------------------
@@ -148,9 +148,11 @@ BDES_IDENT("$Id: $")
 #include <bsl_string.h>
 #endif
 
-namespace BloombergLP {
+#ifndef INCLUDED_BSLFWD_BSLMA_ALLOCATOR
+#include <bslfwd_bslma_allocator.h>
+#endif
 
-class bslma_Allocator;
+namespace BloombergLP {
 
 class bael_Record;
 

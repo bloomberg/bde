@@ -443,10 +443,11 @@ bteso_SocketOptUtil::getOption(T                          *result,
                                int                         level,
                                int                         option)
 {
-     #if defined (BSLS_PLATFORM__OS_AIX) ||   \
-         defined (BSLS_PLATFORM__OS_LINUX) || \
+     #if defined (BSLS_PLATFORM__OS_AIX) ||     \
+         defined (BSLS_PLATFORM__OS_LINUX) ||   \
          defined (BDES_PLATFORM__OS_FREEBSD) || \
-         defined (BSLS_PLATFORM__OS_CYGWIN) || \
+         defined (BSLS_PLATFORM__OS_CYGWIN) ||  \
+         defined (BSLS_PLATFORM__OS_DARWIN) ||  \
          defined (BSLS_PLATFORM__OS_SOLARIS)
           socklen_t optsize;
       #else

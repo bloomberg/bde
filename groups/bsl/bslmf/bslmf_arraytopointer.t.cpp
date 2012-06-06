@@ -1,4 +1,4 @@
-// bslmf_arraytopointer.t.cpp      -*-C++-*-
+// bslmf_arraytopointer.t.cpp                                         -*-C++-*-
 
 #include <bslmf_arraytopointer.h>
 #include <bslmf_issame.h>
@@ -19,7 +19,7 @@ using namespace std;
 //                                --------
 // TBD
 //-----------------------------------------------------------------------------
-// [ 1] bslmf_ArrayToPointer
+// [ 1] bslmf::ArrayToPointer
 // [ 2] USAGE EXAMPLE
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -34,7 +34,7 @@ static void aSsErT(int c, const char *s, int i) {
     }
 }
 #define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
-#define ASSERT_SAME(X,Y) { ASSERT((1==bslmf_IsSame<X,Y>::VALUE)); }
+#define ASSERT_SAME(X,Y) { ASSERT((1==bslmf::IsSame<X,Y>::VALUE)); }
 //-----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
     if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
-        //   Simple example illustrating use of 'bslmf_IsArray'.
+        //   Simple example illustrating use of 'bslmf::IsArray'.
         //
         // Concerns:
         //
@@ -101,428 +101,428 @@ int main(int argc, char *argv[])
 ///-----
 // For example:
 //..
-        ASSERT(1 == (bslmf_IsSame<bslmf_ArrayToPointer<int[5]>::Type,
-                                                       int*>::VALUE));
-        ASSERT(1 == (bslmf_IsSame<bslmf_ArrayToPointer<int*>::Type,
-                                                       int*>::VALUE));
-        ASSERT(1 == (bslmf_IsSame<bslmf_ArrayToPointer<int(*)[5]>::Type,
-                                                       int(*)[5]>::VALUE));
-        P(typeid(bslmf_ArrayToPointer<int(*)[5]>::Type).name());
+        ASSERT(1 == (bslmf::IsSame<bslmf::ArrayToPointer<int[5]>::Type
+                                 , int*>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<bslmf::ArrayToPointer<int*>::Type
+                                 , int*>::VALUE));
+        ASSERT(1 == (bslmf::IsSame<bslmf::ArrayToPointer<int(*)[5]>::Type
+                                 , int(*)[5]>::VALUE));
+        P(typeid(bslmf::ArrayToPointer<int(*)[5]>::Type).name());
       } break;
       case 2: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf_ArrayToConstPointer' with various types and
+        //   Instantiate 'bslmf::ArrayToConstPointer' with various types and
         //   verify that their 'Type' member aliases the correctly const-
         //   qualified decayed type.
         // --------------------------------------------------------------------
         if (verbose) cout << endl
-                          << "bslmf_ArrayToConstPointer" << endl
-                          << "=========================" << endl;
+                          << "bslmf::ArrayToConstPointer" << endl
+                          << "==========================" << endl;
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<char const    [1]>::Type,
-                                              char const     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<char const    [1]>::Type,
+                                          char const     *       );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<char       (&)[1]>::Type,
-                                              char const     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<char       (&)[1]>::Type,
+                                          char           *       );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<char             >::Type,
-                                              char                   );
+        ASSERT_SAME(bslmf::ArrayToPointer<char             >::Type,
+                                          char                   );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<char const       >::Type,
-                                              char const             );
+        ASSERT_SAME(bslmf::ArrayToPointer<char const       >::Type,
+                                          char const             );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<char           * >::Type,
-                                              char           *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<char           * >::Type,
+                                          char           *       );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<void       *     [2]>::Type,
-                                              void       *const *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<void const *     [2]>::Type,
-                                              void const *const *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<void       *  (&)[2]>::Type,
-                                              void       *const *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<void       *        >::Type,
-                                              void       *              );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<void                >::Type,
-                                              void                      );
+        ASSERT_SAME(bslmf::ArrayToPointer<void       *   [2]>::Type,
+                                          void       *    *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<void const *   [2]>::Type,
+                                          void const *    *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<void       *(&)[2]>::Type,
+                                          void       *    *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<void       *      >::Type,
+                                          void       *            );
+        ASSERT_SAME(bslmf::ArrayToPointer<void              >::Type,
+                                          void                    );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int                [3]>::Type,
-                                              int const           *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const          [3]>::Type,
-                                              int const           *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile       [3]>::Type,
-                                              int const volatile  *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile [3]>::Type,
-                                              int const volatile  *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int                   >::Type,
-                                              int                         );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const             >::Type,
-                                              int const                   );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile          >::Type,
-                                              int volatile                );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile    >::Type,
-                                              int const volatile          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                [3]>::Type,
+                                          int                 *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const          [3]>::Type,
+                                          int const           *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile       [3]>::Type,
+                                          int volatile        *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile [3]>::Type,
+                                          int const volatile  *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                   >::Type,
+                                          int                         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const             >::Type,
+                                          int const                   );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile          >::Type,
+                                          int volatile                );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile    >::Type,
+                                          int const volatile          );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int                (&)[4]>::Type,
-                                              int const              *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const          (&)[4]>::Type,
-                                              int const              *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile       (&)[4]>::Type,
-                                              int const volatile     *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile (&)[4]>::Type,
-                                              int const volatile     *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int                 &    >::Type,
-                                              int                 &          );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const           &    >::Type,
-                                              int const           &          );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile        &    >::Type,
-                                              int volatile        &          );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile  &    >::Type,
-                                              int const volatile  &          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                (&)[4]>::Type,
+                                          int                    *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const          (&)[4]>::Type,
+                                          int const              *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile       (&)[4]>::Type,
+                                          int volatile           *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile (&)[4]>::Type,
+                                          int const volatile     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                 &    >::Type,
+                                          int                 &          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const           &    >::Type,
+                                          int const           &          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile        &    >::Type,
+                                          int volatile        &          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile  &    >::Type,
+                                          int const volatile  &          );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int          *        [5]>::Type,
-                                              int          *const    *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const    *        [5]>::Type,
-                                              int const    *const    *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile *        [5]>::Type,
-                                              int volatile *const    *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile *  [5]>::Type,
-                                              int const volatile *const *    );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int                (*)[5]>::Type,
-                                              int                (*)[5]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const          (*)[5]>::Type,
-                                              int const          (*)[5]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile       (*)[5]>::Type,
-                                              int volatile       (*)[5]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile (*)[5]>::Type,
-                                              int const volatile (*)[5]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int                 *    >::Type,
-                                              int                 *          );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const           *    >::Type,
-                                              int const           *          );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile        *    >::Type,
-                                              int volatile        *          );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile  *    >::Type,
-                                              int const volatile  *          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                 * [5]>::Type,
+                                          int                 *  *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const           * [5]>::Type,
+                                          int const           *  *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile        * [5]>::Type,
+                                          int volatile        *  *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile  * [5]>::Type,
+                                          int const volatile  *  *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                (*)[5]>::Type,
+                                          int                (*)[5]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const          (*)[5]>::Type,
+                                          int const          (*)[5]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile       (*)[5]>::Type,
+                                          int volatile       (*)[5]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile (*)[5]>::Type,
+                                          int const volatile (*)[5]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                 *    >::Type,
+                                          int                 *          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const           *    >::Type,
+                                          int const           *          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile        *    >::Type,
+                                          int volatile        *          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile  *    >::Type,
+                                          int const volatile  *          );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int         [6][6]>::Type,
-                                              int const   (*)[6]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const   [6][6]>::Type,
-                                              int const   (*)[6]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int      (&)[6][6]>::Type,
-                                              int const   (*)[6]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int *       [6][6]>::Type,
-                                              int *const  (*)[6]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int      (*)[6][6]>::Type,
-                                              int      (*)[6][6]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int         [6][6]>::Type,
+                                          int      (*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const   [6][6]>::Type,
+                                          int const(*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int      (&)[6][6]>::Type,
+                                          int      (*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int       * [6][6]>::Type,
+                                          int    * (*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int      (*)[6][6]>::Type,
+                                          int      (*)[6][6]      );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int *const    [6][6]>::Type,
-                                              int *const (*)[6]         );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int *const (&)[6][6]>::Type,
-                                              int *const (*)[6]         );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int *const (*)[6][6]>::Type,
-                                              int *const (*)[6][6]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *const    [6][6]>::Type,
+                                          int *const (*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *const (&)[6][6]>::Type,
+                                          int *const (*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *const (*)[6][6]>::Type,
+                                          int *const (*)[6][6]      );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<void *[]>::Type,
-                                              void * const *);
+        ASSERT_SAME(bslmf::ArrayToPointer<void *[]>::Type,
+                                          void * *      );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int                []>::Type,
-                                              int const          *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const          []>::Type,
-                                              int const          *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile       []>::Type,
-                                              int const volatile *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile []>::Type,
-                                              int const volatile *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                []>::Type,
+                                          int                *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const          []>::Type,
+                                          int const          *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile       []>::Type,
+                                          int volatile       *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile []>::Type,
+                                          int const volatile *       );
 
 #ifndef BSLS_PLATFORM__CMP_MSVC
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int                (&)[]>::Type,
-                                              int const             *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const          (&)[]>::Type,
-                                              int const             *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile       (&)[]>::Type,
-                                              int const volatile    *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile (&)[]>::Type,
-                                              int const volatile    *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                (&)[]>::Type,
+                                          int                   *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const          (&)[]>::Type,
+                                          int const             *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile       (&)[]>::Type,
+                                          int volatile          *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile (&)[]>::Type,
+                                          int const volatile    *       );
 #endif
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int           *       []>::Type,
-                                              int           *const  *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const     *       []>::Type,
-                                              int const     *const  *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile  *       []>::Type,
-                                              int volatile  *const  *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile *  []>::Type,
-                                              int const volatile * const *  );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int                (*)[]>::Type,
-                                              int                (*)[]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const          (*)[]>::Type,
-                                              int const          (*)[]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int volatile       (*)[]>::Type,
-                                              int volatile       (*)[]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const volatile (*)[]>::Type,
-                                              int const volatile (*)[]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                 * []>::Type,
+                                          int                 * *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const           * []>::Type,
+                                          int const           * *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile        * []>::Type,
+                                          int volatile        * *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile  * []>::Type,
+                                          int const volatile  * *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                (*)[]>::Type,
+                                          int                (*)[]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const          (*)[]>::Type,
+                                          int const          (*)[]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile       (*)[]>::Type,
+                                          int volatile       (*)[]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile (*)[]>::Type,
+                                          int const volatile (*)[]      );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int          [][7]>::Type,
-                                              int const   (*)[7]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int const    [][7]>::Type,
-                                              int const   (*)[7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int          [][7]>::Type,
+                                          int         (*)[7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const    [][7]>::Type,
+                                          int const   (*)[7]      );
 #ifndef BSLS_PLATFORM__CMP_MSVC
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int       (&)[][7]>::Type,
-                                              int const (*)  [7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int       (&)[][7]>::Type,
+                                          int       (*)  [7]      );
 #endif
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int *        [][7]>::Type,
-                                              int *const  (*)[7]      );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int       (*)[][7]>::Type,
-                                              int       (*)[][7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int        * [][7]>::Type,
+                                          int        *(*)[7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int       (*)[][7]>::Type,
+                                          int       (*)[][7]      );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int *const    [][7]>::Type,
-                                              int *const   (*)[7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *const    [][7]>::Type,
+                                          int *const   (*)[7]      );
 #ifndef BSLS_PLATFORM__CMP_MSVC
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int *const (&)[][7]>::Type,
-                                              int *const (*)  [7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *const (&)[][7]>::Type,
+                                          int *const (*)  [7]      );
 #endif
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int *const (*)[][7]>::Type,
-                                              int *const (*)[][7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *const (*)[][7]>::Type,
+                                          int *const (*)[][7]      );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<Enum          [8]>::Type,
-                                              Enum const     *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<Enum       (&)[8]>::Type,
-                                              Enum const     *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<Enum const (&)[8]>::Type,
-                                              Enum const     *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<Enum             >::Type,
-                                              Enum                   );
+        ASSERT_SAME(bslmf::ArrayToPointer<Enum          [8]>::Type,
+                                          Enum           *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Enum       (&)[8]>::Type,
+                                          Enum           *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Enum const (&)[8]>::Type,
+                                          Enum const     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Enum             >::Type,
+                                          Enum                   );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<Struct      [8]>::Type,
-                                              Struct const *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<Struct   (&)[8]>::Type,
-                                              Struct const *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<Struct         >::Type,
-                                              Struct               );
+        ASSERT_SAME(bslmf::ArrayToPointer<Struct    [8]>::Type,
+                                          Struct     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Struct (&)[8]>::Type,
+                                          Struct     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Struct       >::Type,
+                                          Struct             );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<Union      [8]>::Type,
-                                              Union const *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<Union   (&)[8]>::Type,
-                                              Union const *       );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<Union         >::Type,
-                                              Union               );
+        ASSERT_SAME(bslmf::ArrayToPointer<Union    [8]>::Type,
+                                          Union     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Union (&)[8]>::Type,
+                                          Union     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Union       >::Type,
+                                          Union             );
 
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int  Struct::*    >::Type,
-                                              int  Struct::*          );
-        ASSERT_SAME(bslmf_ArrayToConstPointer<int (Struct::*)[9]>::Type,
-                                              int (Struct::*)[9]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int  Struct::*    >::Type,
+                                          int  Struct::*          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int (Struct::*)[9]>::Type,
+                                          int (Struct::*)[9]      );
       } break;
       case 1: {
         // --------------------------------------------------------------------
         // Test Plan:
-        //   Instantiate 'bslmf_ArrayToPointer' with various types and verify
+        //   Instantiate 'bslmf::ArrayToPointer' with various types and verify
         //   that their 'Type' member aliases the correctly decayed type.
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "bslmf_ArrayToPointer" << endl
+                          << "bslmf::ArrayToPointer" << endl
                           << "====================" << endl;
 
-        ASSERT_SAME(bslmf_ArrayToPointer<const char [6]>::Type, const char*);
+        ASSERT_SAME(bslmf::ArrayToPointer<const char [6]>::Type, const char*);
         if (verbose) {
-            //P(bslmf_ArrayToPointer<const char [6]>::ID);
+            //P(bslmf::ArrayToPointer<const char [6]>::ID);
             P(typeid(const char [6]).name());
-            P(typeid(bslmf_ArrayToPointer<const char [6]>::Type).name());
+            P(typeid(bslmf::ArrayToPointer<const char [6]>::Type).name());
         }
 
-        ASSERT_SAME(bslmf_ArrayToPointer<char const    [1]>::Type,
-                                         char const     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<char const [1]>::Type,
+                    char const                      *);
 
-        ASSERT_SAME(bslmf_ArrayToPointer<char       (&)[1]>::Type,
-                                         char           *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<char       (&)[1]>::Type,
+                    char           *       );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<char             >::Type,
-                                         char                   );
+        ASSERT_SAME(bslmf::ArrayToPointer<char >::Type,
+                    char                       );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<char const       >::Type,
-                                         char const             );
+        ASSERT_SAME(bslmf::ArrayToPointer<char const >::Type,
+                    char                       const );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<char           * >::Type,
-                                         char           *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<char *>::Type,
+                    char                       *);
 
-        ASSERT_SAME(bslmf_ArrayToPointer<void       *   [2]>::Type,
-                                         void       *    *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<void const *   [2]>::Type,
-                                         void const *    *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<void       *(&)[2]>::Type,
-                                         void       *    *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<void       *      >::Type,
-                                         void       *            );
-        ASSERT_SAME(bslmf_ArrayToPointer<void              >::Type,
-                                         void                    );
+        ASSERT_SAME(bslmf::ArrayToPointer<void  *[2]>::Type,
+                    void                       **);
+        ASSERT_SAME(bslmf::ArrayToPointer<void const  *[2]>::Type,
+                    void const                       **);
+        ASSERT_SAME(bslmf::ArrayToPointer<void       *(&)[2]>::Type,
+                    void       *    *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<void *>::Type,
+                    void                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<void >::Type,
+                    void                       );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<int                [3]>::Type,
-                                         int                 *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const          [3]>::Type,
-                                         int const           *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile       [3]>::Type,
-                                         int volatile        *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile [3]>::Type,
-                                         int const volatile  *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int                   >::Type,
-                                         int                         );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const             >::Type,
-                                         int const                   );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile          >::Type,
-                                         int volatile                );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile    >::Type,
-                                         int const volatile          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int  [3]>::Type,
+                    int                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int const [3]>::Type,
+                    int const                      *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile  [3]>::Type,
+                    int volatile                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile  [3]>::Type,
+                    int const volatile                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int >::Type,
+                    int                       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const >::Type,
+                    int                       const );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile >::Type,
+                    int volatile                       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile >::Type,
+                    int const volatile                       );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<int                (&)[4]>::Type,
-                                         int                    *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const          (&)[4]>::Type,
-                                         int const              *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile       (&)[4]>::Type,
-                                         int volatile           *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile (&)[4]>::Type,
-                                         int const volatile     *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int                 &    >::Type,
-                                         int                 &          );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const           &    >::Type,
-                                         int const           &          );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile        &    >::Type,
-                                         int volatile        &          );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile  &    >::Type,
-                                         int const volatile  &          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                (&)[4]>::Type,
+                    int                    *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const          (&)[4]>::Type,
+                    int const              *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile       (&)[4]>::Type,
+                    int volatile           *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile (&)[4]>::Type,
+                    int const volatile     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                 &    >::Type,
+                    int                 &          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const           &    >::Type,
+                    int const           &          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile        &    >::Type,
+                    int volatile        &          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile  &    >::Type,
+                    int const volatile  &          );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<int                 * [5]>::Type,
-                                         int                 *  *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const           * [5]>::Type,
-                                         int const           *  *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile        * [5]>::Type,
-                                         int volatile        *  *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile  * [5]>::Type,
-                                         int const volatile  *  *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int                (*)[5]>::Type,
-                                         int                (*)[5]      );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const          (*)[5]>::Type,
-                                         int const          (*)[5]      );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile       (*)[5]>::Type,
-                                         int volatile       (*)[5]      );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile (*)[5]>::Type,
-                                         int const volatile (*)[5]      );
-        ASSERT_SAME(bslmf_ArrayToPointer<int                 *    >::Type,
-                                         int                 *          );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const           *    >::Type,
-                                         int const           *          );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile        *    >::Type,
-                                         int volatile        *          );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile  *    >::Type,
-                                         int const volatile  *          );
+        ASSERT_SAME(bslmf::ArrayToPointer<int  *[5]>::Type,
+                    int                       **);
+        ASSERT_SAME(bslmf::ArrayToPointer<int const  *[5]>::Type,
+                    int const                       **);
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile  *[5]>::Type,
+                    int volatile                       **);
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile  *[5]>::Type,
+                    int const volatile                       **);
+        ASSERT_SAME(bslmf::ArrayToPointer<int                (*)[5]>::Type,
+                    int                (*)[5]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const          (*)[5]>::Type,
+                    int const          (*)[5]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile       (*)[5]>::Type,
+                    int volatile       (*)[5]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile (*)[5]>::Type,
+                    int const volatile (*)[5]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *>::Type,
+                    int                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int const *>::Type,
+                    int const                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile *>::Type,
+                    int volatile                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile *>::Type,
+                    int const volatile                       *);
 
-        ASSERT_SAME(bslmf_ArrayToPointer<int         [6][6]>::Type,
-                                         int      (*)[6]         );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const   [6][6]>::Type,
-                                         int const(*)[6]         );
-        ASSERT_SAME(bslmf_ArrayToPointer<int      (&)[6][6]>::Type,
-                                         int      (*)[6]         );
-        ASSERT_SAME(bslmf_ArrayToPointer<int       * [6][6]>::Type,
-                                         int    * (*)[6]         );
-        ASSERT_SAME(bslmf_ArrayToPointer<int      (*)[6][6]>::Type,
-                                         int      (*)[6][6]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int         [6][6]>::Type,
+                    int      (*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int   const [6][6]>::Type,
+                    int const(*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int      (&)[6][6]>::Type,
+                    int      (*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int        *[6][6]>::Type,
+                    int    * (*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int      (*)[6][6]>::Type,
+                    int      (*)[6][6]      );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<int *const    [6][6]>::Type,
-                                         int *const (*)[6]         );
-        ASSERT_SAME(bslmf_ArrayToPointer<int *const (&)[6][6]>::Type,
-                                         int *const (*)[6]         );
-        ASSERT_SAME(bslmf_ArrayToPointer<int *const (*)[6][6]>::Type,
-                                         int *const (*)[6][6]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int    *const [6][6]>::Type,
+                    int *const (*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *const (&)[6][6]>::Type,
+                    int *const (*)[6]         );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *const (*)[6][6]>::Type,
+                    int *const (*)[6][6]      );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<void *[]>::Type,
-                                         void * *      );
+        ASSERT_SAME(bslmf::ArrayToPointer<void  *[]>::Type,
+                    void                       **);
 
-        ASSERT_SAME(bslmf_ArrayToPointer<int                []>::Type,
-                                         int                *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const          []>::Type,
-                                         int const          *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile       []>::Type,
-                                         int volatile       *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile []>::Type,
-                                         int const volatile *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int  []>::Type,
+                    int                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int const []>::Type,
+                    int const                      *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile  []>::Type,
+                    int volatile                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile  []>::Type,
+                    int const volatile                       *);
 
 #ifndef BSLS_PLATFORM__CMP_MSVC
-        ASSERT_SAME(bslmf_ArrayToPointer<int                (&)[]>::Type,
-                                         int                   *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const          (&)[]>::Type,
-                                         int const             *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile       (&)[]>::Type,
-                                         int volatile          *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile (&)[]>::Type,
-                                         int const volatile    *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int                (&)[]>::Type,
+                    int                   *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const          (&)[]>::Type,
+                    int const             *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile       (&)[]>::Type,
+                    int volatile          *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile (&)[]>::Type,
+                    int const volatile    *       );
 #endif
 
-        ASSERT_SAME(bslmf_ArrayToPointer<int                 * []>::Type,
-                                         int                 * *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const           * []>::Type,
-                                         int const           * *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile        * []>::Type,
-                                         int volatile        * *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile  * []>::Type,
-                                         int const volatile  * *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<int                (*)[]>::Type,
-                                         int                (*)[]      );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const          (*)[]>::Type,
-                                         int const          (*)[]      );
-        ASSERT_SAME(bslmf_ArrayToPointer<int volatile       (*)[]>::Type,
-                                         int volatile       (*)[]      );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const volatile (*)[]>::Type,
-                                         int const volatile (*)[]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int  *[]>::Type,
+                    int                       **);
+        ASSERT_SAME(bslmf::ArrayToPointer<int const  *[]>::Type,
+                    int const                       **);
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile  *[]>::Type,
+                    int volatile                       **);
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile  *[]>::Type,
+                    int const volatile                       **);
+        ASSERT_SAME(bslmf::ArrayToPointer<int                (*)[]>::Type,
+                    int                (*)[]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const          (*)[]>::Type,
+                    int const          (*)[]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int volatile       (*)[]>::Type,
+                    int volatile       (*)[]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int const volatile (*)[]>::Type,
+                    int const volatile (*)[]      );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<int          [][7]>::Type,
-                                         int         (*)[7]      );
-        ASSERT_SAME(bslmf_ArrayToPointer<int const    [][7]>::Type,
-                                         int const   (*)[7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int          [][7]>::Type,
+                    int         (*)[7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int    const [][7]>::Type,
+                    int const   (*)[7]      );
 #ifndef BSLS_PLATFORM__CMP_MSVC
-        ASSERT_SAME(bslmf_ArrayToPointer<int       (&)[][7]>::Type,
-                                         int       (*)  [7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int       (&)[][7]>::Type,
+                    int       (*)  [7]      );
 #endif
-        ASSERT_SAME(bslmf_ArrayToPointer<int        * [][7]>::Type,
-                                         int        *(*)[7]      );
-        ASSERT_SAME(bslmf_ArrayToPointer<int       (*)[][7]>::Type,
-                                         int       (*)[][7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int         *[][7]>::Type,
+                    int        *(*)[7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int       (*)[][7]>::Type,
+                    int       (*)[][7]      );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<int *const    [][7]>::Type,
-                                         int *const   (*)[7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int    *const [][7]>::Type,
+                    int *const   (*)[7]      );
 #ifndef BSLS_PLATFORM__CMP_MSVC
-        ASSERT_SAME(bslmf_ArrayToPointer<int *const (&)[][7]>::Type,
-                                         int *const (*)  [7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *const (&)[][7]>::Type,
+                    int *const (*)  [7]      );
 #endif
-        ASSERT_SAME(bslmf_ArrayToPointer<int *const (*)[][7]>::Type,
-                                         int *const (*)[][7]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int *const (*)[][7]>::Type,
+                    int *const (*)[][7]      );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<Enum          [8]>::Type,
-                                         Enum           *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<Enum       (&)[8]>::Type,
-                                         Enum           *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<Enum const (&)[8]>::Type,
-                                         Enum const     *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<Enum             >::Type,
-                                         Enum                   );
+        ASSERT_SAME(bslmf::ArrayToPointer<Enum  [8]>::Type,
+                    Enum                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<Enum       (&)[8]>::Type,
+                    Enum           *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Enum const (&)[8]>::Type,
+                    Enum const     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Enum >::Type,
+                    Enum                       );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<Struct    [8]>::Type,
-                                         Struct     *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<Struct (&)[8]>::Type,
-                                         Struct     *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<Struct       >::Type,
-                                         Struct             );
+        ASSERT_SAME(bslmf::ArrayToPointer<Struct  [8]>::Type,
+                    Struct                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<Struct (&)[8]>::Type,
+                    Struct     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Struct >::Type,
+                    Struct                       );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<Union    [8]>::Type,
-                                         Union     *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<Union (&)[8]>::Type,
-                                         Union     *       );
-        ASSERT_SAME(bslmf_ArrayToPointer<Union       >::Type,
-                                         Union             );
+        ASSERT_SAME(bslmf::ArrayToPointer<Union  [8]>::Type,
+                    Union                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<Union (&)[8]>::Type,
+                    Union     *       );
+        ASSERT_SAME(bslmf::ArrayToPointer<Union >::Type,
+                    Union                       );
 
-        ASSERT_SAME(bslmf_ArrayToPointer<int  Struct::*    >::Type,
-                                         int  Struct::*          );
-        ASSERT_SAME(bslmf_ArrayToPointer<int (Struct::*)[9]>::Type,
-                                         int (Struct::*)[9]      );
+        ASSERT_SAME(bslmf::ArrayToPointer<int  Struct:: *>::Type,
+                    int  Struct::                       *);
+        ASSERT_SAME(bslmf::ArrayToPointer<int (Struct::*)[9]>::Type,
+                    int (Struct::*)[9]      );
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

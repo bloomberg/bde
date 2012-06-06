@@ -1,4 +1,4 @@
-// bsls_int64.t.cpp               -*-C++-*-
+// bsls_int64.t.cpp                                                   -*-C++-*-
 
 #include <bsls_int64.h>
 
@@ -32,8 +32,8 @@ using namespace std;
 //-----------------------------------------------------------------------------
 // [ 2] Int64
 // [ 2] Uint64
-// [ 4] operator<<(ostream&, const bsls_PlatformUtil::Uint64&);
-// [ 3] operator<<(ostream&, const bsls_PlatformUtil::Int64&);
+// [ 4] operator<<(ostream&, const bsls::PlatformUtil::Uint64&);
+// [ 3] operator<<(ostream&, const bsls::PlatformUtil::Int64&);
 //=============================================================================
 //                       STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------

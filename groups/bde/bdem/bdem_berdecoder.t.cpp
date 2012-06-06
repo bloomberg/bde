@@ -4,6 +4,9 @@
 
 #include <bdem_berencoder.h>        // for testing only
 
+#include <bdeimp_dateutil.h>
+#include <bdeimp_prolepticdateutil.h>
+
 #include <bdeat_attributeinfo.h>
 #include <bdeat_selectioninfo.h>
 #include <bdeat_valuetypefunctions.h>
@@ -33,6 +36,7 @@
 #include <bsl_bitset.h>
 
 #include <bsl_fstream.h>
+#include <bslfwd_bslma_allocator.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
@@ -95,6 +99,10 @@ static void aSsErT(int c, const char *s, int i) {
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
+typedef bdeimp_ProlepticDateUtil ProlepticDateUtil;
+typedef bdeimp_DateUtil          DateUtil;
+
 
 enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
@@ -541,8 +549,6 @@ void printBuffer(const char *buffer, int length)
 #endif
 
 namespace BloombergLP {
-
-class bslma_Allocator;
 
 namespace test { class MyChoice; }
 namespace test { class MySequenceWithNullable; }
@@ -10093,7 +10099,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -10110,6 +10116,1208 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING encoding & decoding for date/time components
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING encoding & decoding for date/time"
+                               << "\n========================================="
+                               << bsl::endl;
+
+        bdem_BerEncoderOptions options;
+        options.setEncodeDateAndTimeTypesAsBinary(true);
+        const bdem_BerEncoderOptions DEFOPTS;
+
+        if (verbose) bsl::cout << "\nTesting Date Brute force." << bsl::endl;
+        {
+            const int YEARS[] = { 1, 4, 96, 100, 400, 500, 800, 1000, 1600,
+                                  1700, 1751, 1752, 1753, 1930, 2000, 2010,
+                                  2012, 2019, 2020, 2021, 6478, 6479, 6480,
+                                  9998, 9999 };
+            const int NUM_YEARS = sizeof YEARS / sizeof *YEARS;
+
+            const int MONTHS[] = { 1, 2, 5, 8, 9, 12 };
+            const int NUM_MONTHS = sizeof MONTHS / sizeof *MONTHS;
+
+            const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
+            const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
+
+            for (int i = 0; i <= NUM_YEARS; ++i) {
+            for (int j = 0; j <= NUM_MONTHS; ++j) {
+            for (int k = 0; k <= NUM_DAYS; ++k) {
+
+                const int YEAR  = YEARS[i];
+                const int MONTH = MONTHS[j];
+                const int DAY   = DAYS[k];
+
+                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                 && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
+
+                    if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
+
+                    const bdet_Date VALUE(YEAR, MONTH, DAY); bdet_Date value;
+                    const int OFF1 = 0, OFF2 =-1439, OFF3 =1439;
+                    const bdet_DateTz VALUE1(bdet_Date(YEAR, MONTH, DAY),
+                                             OFF1);
+                    const bdet_DateTz VALUE2(bdet_Date(YEAR, MONTH, DAY),
+                                             OFF2);
+                    const bdet_DateTz VALUE3(bdet_Date(YEAR, MONTH, DAY),
+                                             OFF3);
+                    bdet_DateTz value1, value2, value3;
+
+                    {
+                        bdesb_MemOutStreamBuf osb;
+                        bdem_BerEncoder encoder(&DEFOPTS);
+                        ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                        if (veryVerbose) {
+                            P(osb.length());
+                            printBuffer(osb.data(), osb.length());
+                        }
+
+                        bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                      osb.length());
+                        ASSERT(0 == decoder.decode(&isb, &value));
+                        printDiagnostic(decoder);
+
+                        LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        if (veryVerbose) {
+                            P(VALUE);
+                            P(value);
+                        }
+                    }
+
+                    {
+                        bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                        bdem_BerEncoder encoder(&DEFOPTS);
+                        ASSERT(0 == encoder.encode(&osb1, VALUE1));
+                        ASSERT(0 == encoder.encode(&osb2, VALUE2));
+                        ASSERT(0 == encoder.encode(&osb3, VALUE3));
+
+                        if (veryVerbose) {
+                            P(osb1.length());
+                            P(osb2.length());
+                            P(osb3.length());
+                            printBuffer(osb1.data(), osb1.length());
+                            printBuffer(osb2.data(), osb2.length());
+                            printBuffer(osb3.data(), osb3.length());
+                        }
+
+                        bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                       osb1.length());
+                        bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                       osb2.length());
+                        bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                       osb3.length());
+
+                        ASSERT(0 == decoder.decode(&isb1, &value1));
+                        ASSERT(0 == decoder.decode(&isb2, &value2));
+                        ASSERT(0 == decoder.decode(&isb3, &value3));
+                        printDiagnostic(decoder);
+
+                        LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                        LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                        LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                        if (veryVerbose) {
+                            P(VALUE1); P(value1);
+                            P(VALUE2); P(value2);
+                            P(VALUE3); P(value3);
+                        }
+                    }
+
+                    {
+                        bdesb_MemOutStreamBuf osb;
+                        bdem_BerEncoder encoder(&DEFOPTS);
+                        ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                        if (veryVerbose) {
+                            P(osb.length());
+                            printBuffer(osb.data(), osb.length());
+                        }
+
+                        bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                      osb.length());
+                        ASSERT(0 == decoder.decode(&isb, &value));
+                        printDiagnostic(decoder);
+
+                        LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        if (veryVerbose) {
+                            P(VALUE);
+                            P(value);
+                        }
+                    }
+
+                    {
+                        bdesb_MemOutStreamBuf osb;
+                        bdem_BerEncoder encoder(&options);
+                        ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                        if (veryVerbose) {
+                            P(osb.length());
+                            printBuffer(osb.data(), osb.length());
+                        }
+
+                        bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                      osb.length());
+                        ASSERT(0 == decoder.decode(&isb, &value));
+                        printDiagnostic(decoder);
+
+                        LOOP2_ASSERT(VALUE, value, VALUE == value);
+                        if (veryVerbose) {
+                            P(VALUE);
+                            P(value);
+                        }
+                    }
+
+                    {
+                        bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                        bdem_BerEncoder encoder(&options);
+                        ASSERT(0 == encoder.encode(&osb1, VALUE1));
+                        ASSERT(0 == encoder.encode(&osb2, VALUE2));
+                        ASSERT(0 == encoder.encode(&osb3, VALUE3));
+
+                        if (veryVerbose) {
+                            P(osb1.length());
+                            P(osb2.length());
+                            P(osb3.length());
+                            printBuffer(osb1.data(), osb1.length());
+                            printBuffer(osb2.data(), osb2.length());
+                            printBuffer(osb3.data(), osb3.length());
+                        }
+
+                        bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                       osb1.length());
+                        bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                       osb2.length());
+                        bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                       osb3.length());
+
+                        ASSERT(0 == decoder.decode(&isb1, &value1));
+                        ASSERT(0 == decoder.decode(&isb2, &value2));
+                        ASSERT(0 == decoder.decode(&isb3, &value3));
+                        printDiagnostic(decoder);
+
+                        LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                        LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                        LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                        if (veryVerbose) {
+                            P(VALUE1); P(value1);
+                            P(VALUE2); P(value2);
+                            P(VALUE3); P(value3);
+                        }
+                    }
+                }
+            }
+            }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting Time Brute force." << bsl::endl;
+        {
+            for (int hour = 0; hour <= 23; ++hour) {
+                for (int min = 0; min < 60; ++min) {
+                    for (int sec = 0; sec < 60; ++sec) {
+                        if (veryVerbose) { P_(hour) P_(min) P(sec) }
+
+                        const int MS = 0;
+                        const bdet_Time VALUE(hour, min, sec, MS);
+                        bdet_Time value;
+                        const int MS1 = 0, MS2 = 500, MS3 = 999;
+                        const int OFF1 = 0, OFF2 =-1439, OFF3 =1439;
+                        const bdet_TimeTz VALUE1(bdet_Time(hour,
+                                                           min,
+                                                           sec,
+                                                           MS1),
+                                                 OFF1);
+                        const bdet_TimeTz VALUE2(bdet_Time(hour,
+                                                           min,
+                                                           sec,
+                                                           MS2),
+                                                 OFF2);
+                        const bdet_TimeTz VALUE3(bdet_Time(hour,
+                                                           min,
+                                                           sec,
+                                                           MS3),
+                                                 OFF3);
+                        bdet_TimeTz value1, value2, value3;
+
+                        {
+                            bdesb_MemOutStreamBuf osb;
+                            bdem_BerEncoder encoder(&DEFOPTS);
+                            ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                            if (veryVerbose) {
+                                P(osb.length());
+                                printBuffer(osb.data(), osb.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(0 == decoder.decode(&isb, &value));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                            if (veryVerbose) {
+                                P(VALUE);
+                                P(value);
+                            }
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                            bdem_BerEncoder encoder(&DEFOPTS);
+                            ASSERT(0 == encoder.encode(&osb1, VALUE1));
+                            ASSERT(0 == encoder.encode(&osb2, VALUE2));
+                            ASSERT(0 == encoder.encode(&osb3, VALUE3));
+
+                            if (veryVerbose) {
+                                P(osb1.length());
+                                P(osb2.length());
+                                P(osb3.length());
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(0 == decoder.decode(&isb1, &value1));
+                            ASSERT(0 == decoder.decode(&isb2, &value2));
+                            ASSERT(0 == decoder.decode(&isb3, &value3));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                            LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                            LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                            if (veryVerbose) {
+                                P(VALUE1); P(value1);
+                                P(VALUE2); P(value2);
+                                P(VALUE3); P(value3);
+                            }
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb;
+                            bdem_BerEncoder encoder(&options);
+                            ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                            if (veryVerbose) {
+                                P(osb.length());
+                                printBuffer(osb.data(), osb.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(0 == decoder.decode(&isb, &value));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                            if (veryVerbose) {
+                                P(VALUE);
+                                P(value);
+                            }
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                            bdem_BerEncoder encoder(&options);
+                            ASSERT(0 == encoder.encode(&osb1, VALUE1));
+                            ASSERT(0 == encoder.encode(&osb2, VALUE2));
+                            ASSERT(0 == encoder.encode(&osb3, VALUE3));
+
+                            if (veryVerbose) {
+                                P(osb1.length());
+                                P(osb2.length());
+                                P(osb3.length());
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(0 == decoder.decode(&isb1, &value1));
+                            ASSERT(0 == decoder.decode(&isb2, &value2));
+                            ASSERT(0 == decoder.decode(&isb3, &value3));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                            LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                            LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                            if (veryVerbose) {
+                                P(VALUE1); P(value1);
+                                P(VALUE2); P(value2);
+                                P(VALUE3); P(value3);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting Datetime Brute force."
+                               << bsl::endl;
+        {
+            const int YEARS[] = { 1, 4, 96, 100, 400, 500, 800, 1000, 1600,
+                                  1700, 1751, 1752, 1753, 1930, 2000, 2010,
+                                  2012, 2019, 2020, 2021, 6478, 6479, 6480,
+                                  9998, 9999 };
+            const int NUM_YEARS = sizeof YEARS / sizeof *YEARS;
+
+            const int MONTHS[] = { 1, 2, 5, 8, 9, 12 };
+            const int NUM_MONTHS = sizeof MONTHS / sizeof *MONTHS;
+
+            const int DAYS[] = { 1, 2, 5, 10, 15, 20, 28, 29, 30, 31 };
+            const int NUM_DAYS = sizeof DAYS / sizeof *DAYS;
+
+            for (int di = 0; di <= NUM_YEARS; ++di) {
+            for (int dj = 0; dj <= NUM_MONTHS; ++dj) {
+            for (int dk = 0; dk <= NUM_DAYS; ++dk) {
+
+                const int YEAR  = YEARS[di];
+                const int MONTH = MONTHS[dj];
+                const int DAY   = DAYS[dk];
+
+                if (DateUtil::isValidCalendarDate(YEAR, MONTH, DAY)
+                 && ProlepticDateUtil::isValidCalendarDate(YEAR, MONTH, DAY)) {
+
+                    const int HOURS[] = { 0, 12, 23 };
+                    const int NUM_HOURS = sizeof HOURS / sizeof *HOURS;
+
+                    const int MINS[] = { 0, 30, 59 };
+                    const int NUM_MINS = sizeof MINS / sizeof *MINS;
+
+                    const int SECONDS[] = { 0, 30, 59 };
+                    const int NUM_SECS = sizeof SECONDS / sizeof *SECONDS;
+
+                    for (int ti = 0; ti < NUM_HOURS; ++ti) {
+                    for (int tj = 0; tj < NUM_MINS; ++tj) {
+                    for (int tk = 0; tk < NUM_SECS; ++tk) {
+
+                        const int HOUR = HOURS[ti];
+                        const int MIN  = MINS[tj];
+                        const int SECS = SECONDS[tk];
+
+                        if (veryVerbose) { P_(YEAR) P_(MONTH) P(DAY) }
+                        if (veryVerbose) { P_(HOUR) P_(MIN) P(SECS) }
+
+                        const int MS = 0;
+                        const bdet_Date DATE(YEAR, MONTH, DAY);
+                        const bdet_Time TIME(HOUR, MIN, SECS, MS);
+                        const bdet_Datetime VALUE(DATE, TIME);
+                        bdet_Datetime value;
+                        const int MS1 = 0, MS2 = 500, MS3 = 999;
+                        const int OFF1 = 0, OFF2 =-1439, OFF3 =1439;
+                        const bdet_Date DATE1(YEAR, MONTH, DAY);
+                        const bdet_Time TIME1(HOUR, MIN, SECS, MS1);
+
+                        const bdet_Date DATE2(YEAR, MONTH, DAY);
+                        const bdet_Time TIME2(HOUR, MIN, SECS, MS2);
+
+                        const bdet_Date DATE3(YEAR, MONTH, DAY);
+                        const bdet_Time TIME3(HOUR, MIN, SECS, MS3);
+
+                        const bdet_Datetime DT1(DATE1, TIME1);
+                        const bdet_Datetime DT2(DATE2, TIME2);
+                        const bdet_Datetime DT3(DATE3, TIME3);
+
+                        const bdet_DatetimeTz VALUE1(DT1, OFF1);
+                        const bdet_DatetimeTz VALUE2(DT2, OFF2);
+                        const bdet_DatetimeTz VALUE3(DT3, OFF3);
+
+                        bdet_DatetimeTz value1, value2, value3;
+
+                        test::BasicRecord VALUE4;
+                        VALUE4.i1() = 100;
+                        VALUE4.i2() = 200;
+                        VALUE4.dt() = VALUE1;
+                        VALUE4.s()  = "Hello World";
+
+                        test::BasicRecord VALUE5(VALUE4), VALUE6(VALUE4);
+                        VALUE5.dt() = VALUE2;
+                        VALUE6.dt() = VALUE3;
+
+                        test::BasicRecord value4, value5, value6;
+
+                        {
+                            bdesb_MemOutStreamBuf osb;
+                            bdem_BerEncoder encoder(&DEFOPTS);
+                            ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                            if (veryVerbose) {
+                                P(osb.length());
+                                printBuffer(osb.data(), osb.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(0 == decoder.decode(&isb, &value));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                            if (veryVerbose) {
+                                P(VALUE);
+                                P(value);
+                            }
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                            bdem_BerEncoder encoder(&DEFOPTS);
+                            ASSERT(0 == encoder.encode(&osb1, VALUE1));
+                            ASSERT(0 == encoder.encode(&osb2, VALUE2));
+                            ASSERT(0 == encoder.encode(&osb3, VALUE3));
+
+                            if (veryVerbose) {
+                                P(osb1.length());
+                                P(osb2.length());
+                                P(osb3.length());
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(0 == decoder.decode(&isb1, &value1));
+                            ASSERT(0 == decoder.decode(&isb2, &value2));
+                            ASSERT(0 == decoder.decode(&isb3, &value3));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                            LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                            LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                            if (veryVerbose) {
+                                P(VALUE1); P(value1);
+                                P(VALUE2); P(value2);
+                                P(VALUE3); P(value3);
+                            }
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                            bdem_BerEncoder encoder(&DEFOPTS);
+                            ASSERT(0 == encoder.encode(&osb1, VALUE4));
+                            ASSERT(0 == encoder.encode(&osb2, VALUE5));
+                            ASSERT(0 == encoder.encode(&osb3, VALUE6));
+
+                            if (veryVerbose) {
+                                P(osb1.length());
+                                P(osb2.length());
+                                P(osb3.length());
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(0 == decoder.decode(&isb1, &value4));
+                            ASSERT(0 == decoder.decode(&isb2, &value5));
+                            ASSERT(0 == decoder.decode(&isb3, &value6));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE4, value4, VALUE4 == value4);
+                            LOOP2_ASSERT(VALUE5, value5, VALUE5 == value5);
+                            LOOP2_ASSERT(VALUE6, value6, VALUE6 == value6);
+                            if (veryVerbose) {
+                                P(VALUE4); P(value4);
+                                P(VALUE5); P(value5);
+                                P(VALUE6); P(value6);
+                            }
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb;
+                            bdem_BerEncoder encoder(&options);
+                            ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                            if (veryVerbose) {
+                                P(osb.length());
+                                printBuffer(osb.data(), osb.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb(osb.data(),
+                                                          osb.length());
+                            ASSERT(0 == decoder.decode(&isb, &value));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE, value, VALUE == value);
+                            if (veryVerbose) {
+                                P(VALUE);
+                                P(value);
+                            }
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                            bdem_BerEncoder encoder(&options);
+                            ASSERT(0 == encoder.encode(&osb1, VALUE1));
+                            ASSERT(0 == encoder.encode(&osb2, VALUE2));
+                            ASSERT(0 == encoder.encode(&osb3, VALUE3));
+
+                            if (veryVerbose) {
+                                P(osb1.length());
+                                P(osb2.length());
+                                P(osb3.length());
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(0 == decoder.decode(&isb1, &value1));
+                            ASSERT(0 == decoder.decode(&isb2, &value2));
+                            ASSERT(0 == decoder.decode(&isb3, &value3));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE1, value1, VALUE1 == value1);
+                            LOOP2_ASSERT(VALUE2, value2, VALUE2 == value2);
+                            LOOP2_ASSERT(VALUE3, value3, VALUE3 == value3);
+                            if (veryVerbose) {
+                                P(VALUE1); P(value1);
+                                P(VALUE2); P(value2);
+                                P(VALUE3); P(value3);
+                            }
+                        }
+
+                        {
+                            bdesb_MemOutStreamBuf osb1, osb2, osb3;
+                            bdem_BerEncoder encoder(&options);
+                            ASSERT(0 == encoder.encode(&osb1, VALUE4));
+                            ASSERT(0 == encoder.encode(&osb2, VALUE5));
+                            ASSERT(0 == encoder.encode(&osb3, VALUE6));
+
+                            if (veryVerbose) {
+                                P(osb1.length());
+                                P(osb2.length());
+                                P(osb3.length());
+                                printBuffer(osb1.data(), osb1.length());
+                                printBuffer(osb2.data(), osb2.length());
+                                printBuffer(osb3.data(), osb3.length());
+                            }
+
+                            bdesb_FixedMemInStreamBuf isb1(osb1.data(),
+                                                           osb1.length());
+                            bdesb_FixedMemInStreamBuf isb2(osb2.data(),
+                                                           osb2.length());
+                            bdesb_FixedMemInStreamBuf isb3(osb3.data(),
+                                                           osb3.length());
+
+                            ASSERT(0 == decoder.decode(&isb1, &value4));
+                            ASSERT(0 == decoder.decode(&isb2, &value5));
+                            ASSERT(0 == decoder.decode(&isb3, &value6));
+                            printDiagnostic(decoder);
+
+                            LOOP2_ASSERT(VALUE4, value4, VALUE4 == value4);
+                            LOOP2_ASSERT(VALUE5, value5, VALUE5 == value5);
+                            LOOP2_ASSERT(VALUE6, value6, VALUE6 == value6);
+                            if (veryVerbose) {
+                                P(VALUE4); P(value4);
+                                P(VALUE5); P(value5);
+                                P(VALUE6); P(value6);
+                            }
+                        }
+                    }
+                    }
+                    }
+                }
+            }
+            }
+            }
+        }
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING encoding & decoding for date/time components
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING encoding & decoding for date/time"
+                               << "\n========================================="
+                               << bsl::endl;
+
+        bdem_BerEncoderOptions options;
+        options.setEncodeDateAndTimeTypesAsBinary(true);
+        const bdem_BerEncoderOptions DEFOPTS;
+
+        if (verbose) bsl::cout << "\nDefine data" << bsl::endl;
+
+        static const struct {
+            int d_lineNum;   // source line number
+            int d_year;      // year under test
+            int d_month;     // month under test
+            int d_day;       // day under test
+            int d_hour;      // hour under test
+            int d_minutes;   // minutes under test
+            int d_seconds;   // seconds under test
+            int d_milliSecs; // milli seconds under test
+            int d_tzoffset;  // time zone offset
+        } DATA[] = {
+   //line no.  year   month   day   hour    min   sec    ms  offset
+   //-------   -----  -----   ---   ----    ---   ---    --  ------
+    {      L_,      1,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,     45     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     1,    1,     1,     1,    1,    1,      0     },
+    {      L_,      1,     1,    1,     1,     1,    1,    1,    500     },
+    {      L_,      1,     1,    1,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     1,    1,     1,    23,   59,   59,      0     },
+    {      L_,      1,     1,    1,     1,    23,   59,   59,   1439     },
+    {      L_,      1,     1,    1,     1,    23,   59,   59,  -1439     },
+
+    {      L_,      1,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,    2,     0,     0,    0,    0,   1439     },
+    {      L_,      1,     1,    2,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     1,    2,     1,     1,    1,    1,      0     },
+    {      L_,      1,     1,    2,     1,     1,    1,    1,    500     },
+
+    {      L_,      1,     1,    2,     1,    23,   59,   59,      0     },
+    {      L_,      1,     1,    2,     1,    23,   59,   59,    500     },
+    {      L_,      1,     1,    2,     1,    23,   59,   59,   -500     },
+
+    {      L_,      1,     1,   10,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,   10,     1,     1,    1,    1,     99     },
+
+    {      L_,      1,     1,   30,     0,     0,    0,    0,      0     },
+    {      L_,      1,     1,   31,     0,     0,    0,    0,   1439     },
+    {      L_,      1,     1,   31,     0,     0,    0,    0,  -1439     },
+
+    {      L_,      1,     2,    1,     0,     0,    0,    0,      0     },
+    {      L_,      1,     2,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,      1,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,      1,    12,   31,    23,    59,   59,    0,   1439     },
+
+    {      L_,      2,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      2,     1,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,      4,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,      4,     1,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,      4,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,      4,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,      4,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,      4,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     2,   29,    23,    59,   59,    0,  -1439     },
+
+    {      L_,      4,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,      4,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,      4,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,      8,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,      8,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,      8,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,      8,     2,   29,    23,    59,   59,    0,   1439     },
+
+    {      L_,      8,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,      8,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,    100,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    100,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,    100,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    100,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    100,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,    100,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    400,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    400,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    400,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,    400,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     2,   29,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    400,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    400,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,    400,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,    500,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    500,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,    500,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    500,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,    800,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,    800,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,    800,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,    800,     2,   29,    23,    59,   59,    0,   1439     },
+
+    {      L_,    800,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,    800,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,   1000,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   1000,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,   1000,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   1000,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2000,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     2,   28,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2000,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     2,   29,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2000,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2000,     3,    1,    23,    59,   59,    0,   1439     },
+
+    {      L_,   2016,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2017,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2018,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   2019,    12,   31,     0,     0,    0,    0,      0     },
+
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,   1439     },
+    {      L_,   2020,     1,    1,     0,     0,    0,    0,  -1439     },
+
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,      0     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,   1439     },
+    {      L_,   2020,     1,    1,    23,    59,   59,  999,  -1439     },
+
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,   1439     },
+    {      L_,   2020,     1,    2,     0,     0,    0,    0,  -1439     },
+
+    {      L_,   2020,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   2020,     2,   29,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     2,   29,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     2,   29,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   2020,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   2020,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,   2020,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   2021,     1,    2,     0,     0,    0,    0,      0     },
+    {      L_,   2022,     1,    2,     0,     0,    0,    0,      0     },
+
+    {      L_,   9999,     2,   28,     0,     0,    0,    0,      0     },
+    {      L_,   9999,     2,   28,    23,    59,   59,    0,   1439     },
+    {      L_,   9999,     2,   28,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   9999,     3,    1,     0,     0,    0,    0,      0     },
+    {      L_,   9999,     3,    1,    23,    59,   59,    0,   1439     },
+    {      L_,   9999,     3,    1,    23,    59,   59,    0,  -1439     },
+
+    {      L_,   9999,    12,   30,     0,     0,    0,    0,      0     },
+    {      L_,   9999,    12,   30,    23,    59,   59,    0,   1439     },
+
+    {      L_,   9999,    12,   31,     0,     0,    0,    0,      0     },
+    {      L_,   9999,    12,   31,    23,    59,   59,    0,   1439     },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Date'." << bsl::endl;
+        {
+            typedef bdet_Date Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+
+                if (veryVerbose) { P_(Y) P_(M) P(D) }
+
+                const Type VALUE(Y, M, D); Type value;
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_DateTz'." << bsl::endl;
+        {
+            typedef bdet_DateTz Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+                const int OFF  = DATA[i].d_tzoffset;
+
+                const Type VALUE(bdet_Date(Y, M, D), OFF); Type value;
+
+                if (veryVerbose) { P_(Y) P_(M) P_(D) P(OFF) }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Time'." << bsl::endl;
+        {
+            typedef bdet_Time Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+
+                if (veryVerbose) { P_(H) P_(MM) P_(S) P(MS) }
+
+                const Type VALUE(H, MM, S, MS); Type value;
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_TimeTz'." << bsl::endl;
+        {
+            typedef bdet_TimeTz Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+                const int OFF  = DATA[i].d_tzoffset;
+
+                const Type VALUE(bdet_Time(H, MM, S, MS), OFF); Type value;
+
+                if (veryVerbose) { P_(H) P_(MM) P_(S) P_(MS) P(OFF) }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_Datetime'." << bsl::endl;
+        {
+            typedef bdet_Datetime Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+
+                const Type VALUE(Y, M, D, H, MM, S, MS); Type value;
+
+                if (veryVerbose) { P_(Y) P_(M) P_(D) P_(H)
+                                   P_(MM) P_(S) P(MS) }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+            }
+        }
+
+        if (verbose) bsl::cout << "\nTesting 'bdet_DatetimeTz'." << bsl::endl;
+        {
+            typedef bdet_DatetimeTz Type;
+
+            for (int i = 0; i < NUM_DATA ; ++i) {
+                const int LINE = DATA[i].d_lineNum;
+                const int Y    = DATA[i].d_year;
+                const int M    = DATA[i].d_month;
+                const int D    = DATA[i].d_day;
+                const int H    = DATA[i].d_hour;
+                const int MM   = DATA[i].d_minutes;
+                const int S    = DATA[i].d_seconds;
+                const int MS   = DATA[i].d_milliSecs;
+                const int OFF  = DATA[i].d_tzoffset;
+
+                const Type VALUE(bdet_Datetime(Y, M, D, H, MM, S, MS), OFF);
+                Type value;
+
+                if (veryVerbose) { P_(Y) P_(M) P_(D) P_(H)
+                                   P_(MM) P_(S) P_(MS) P(OFF) }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&options);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+
+                {
+                    bdesb_MemOutStreamBuf osb;
+                    bdem_BerEncoder encoder(&DEFOPTS);
+                    ASSERT(0 == encoder.encode(&osb, VALUE));
+
+                    if (veryVerbose) {
+                        P(osb.length());
+                        printBuffer(osb.data(), osb.length());
+                    }
+
+                    bdesb_FixedMemInStreamBuf isb(osb.data(), osb.length());
+                    ASSERT(0 == decoder.decode(&isb, &value));
+                    printDiagnostic(decoder);
+
+                    LOOP2_ASSERT(VALUE, value, VALUE == value);
+                    if (veryVerbose) {
+                        P(VALUE);
+                        P(value);
+                    }
+                }
+            }
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -10702,7 +11910,7 @@ int main(int argc, char *argv[])
             options.setEncodeEmptyArrays(false);
 
             bdesb_MemOutStreamBuf osb;
-            
+
             test::MySequenceWithArray valueOut;
             valueOut.attribute1() = 34;
 
