@@ -111,6 +111,8 @@ struct baesu_ObjectFileFormat {
 
     struct MachO {};      // format used on Apple platform
 
+    struct Dummy {};
+
 #if defined(BSLS_PLATFORM__OS_SOLARIS) || \
     defined(BSLS_PLATFORM__OS_LINUX)   || \
     defined(BSLS_PLATFORM__OS_HPUX)
@@ -118,26 +120,25 @@ struct baesu_ObjectFileFormat {
     typedef Elf Policy;
 #   define BAESU_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
-#endif
-
-#if defined(BSLS_PLATFORM__OS_AIX)
+#elif defined(BSLS_PLATFORM__OS_AIX)
 
     typedef Xcoff Policy;
 #   define BAESU_OBJECTFILEFORMAT_RESOLVER_XCOFF 1
 
-#endif
-
-#if defined(BSLS_PLATFORM__OS_WINDOWS)
+#elif defined(BSLS_PLATFORM__OS_WINDOWS)
 
     typedef Windows Policy;
 #   define BAESU_OBJECTFILEFORMAT_RESOLVER_WINDOWS 1
 
-#endif
-
-#if defined(BSLS_PLATFORM__OS_DARWIN)
+#elif defined(BSLS_PLATFORM__OS_DARWIN)
 
     typedef MachO Policy;
 #   define BAESU_OBJECTFILEFORMAT_RESOLVER_MACHO 1
+
+#else
+
+    typedef Dummy Policy;
+#   error unrecognized platform
 
 #endif
 
